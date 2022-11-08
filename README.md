@@ -27,3 +27,6 @@ Oodles.ai monitors the difference between the dataset the model was trained upon
 After installing the Oodles.ai package, the user can define a config that tells the tool about the metrics to monitor and the signals to capture. The signals can be edge cases to check, and the metric can be data distribution shifts. Based on the monitoring results, the tool automatically refines the model by using the optimal subset of the real-world dataset. An illustration is provided below. 
 
 ![get started in 5 minutes](https://user-images.githubusercontent.com/5287871/200270545-79ac887f-7786-47c5-bc59-87a37ee83f63.png)
+
+## Stay Updated
+Sign up for our beta waitlist [here](https://oodles.ai/).
