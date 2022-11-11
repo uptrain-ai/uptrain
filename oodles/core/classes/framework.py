@@ -38,8 +38,11 @@ class Framework:
             Config to initialize oodles framework
         """
 
-        self.signal_manager = SignalManager()
+        cfg.setdefault('checks', [])
+        cfg.setdefault('training_args', {})
+        cfg.setdefault('evaluation_args', {})
         self.cfg = cfg
+        self.signal_manager = SignalManager()
         self.orig_training_file = cfg['training_args'].get("orig_training_file", "")
         self.fold_name = cfg['training_args'].get(
             "fold_name", "oodles_smart_data " + str(datetime.utcnow())
@@ -56,8 +59,9 @@ class Framework:
         self.is_drift_detected = False
         self.create_data_folders()
 
-        if "signal_formulae" in cfg['checks'][0]:
-            self.add_signal_formulae(cfg['checks'][0]["signal_formulae"])
+        for check in cfg['checks']:
+            if check['type'] == "Edge cases":
+                self.add_signal_formulae(check["signal_formulae"])
         if "data_transformation_func" in cfg['training_args']:
             self.set_data_transformation_func(cfg['training_args']["data_transformation_func"])
         if "annotation_method" in cfg['training_args']:

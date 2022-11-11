@@ -15,5 +15,5 @@ MODEL_SIGNAL_TO_FN_MAPPING = {
 }
 
 
-class AnnotationMethod:
+class AnnotationMethod(Enum):
     MASTER_FILE = 1

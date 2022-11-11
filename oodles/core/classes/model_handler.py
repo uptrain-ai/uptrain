@@ -64,11 +64,11 @@ class ModelHandler:
         """
 
         new_model_name = "version_" + str(new_model_version)
-        old_model_name = "version_" + str(new_model_version - 1)
+        old_model_name = "initial_model" # "version_" + str(new_model_version - 1)
 
         # Train the old model
         # TODO: No need for this, we can just use the deployed old model
-        self.training_func(old_training_dataset, old_model_name)
+        # self.training_func(old_training_dataset, old_model_name)
 
         # Compute and print accuracies of the old and new model
         old_model_accuracy = self.inference_func(testing_dataset, old_model_name)
