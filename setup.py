@@ -11,7 +11,7 @@ setup(
     description="An Oodles retaining framework",
     # long_description=long_description,
     # The project's main homepage.
-    # url="https://oodles.ai",
+    url="https://github.com/Oodles-ai/oodles",
     # Author details
     maintainer="Oodles AI Team",
     maintainer_email="vipul@oodles.ai",
@@ -38,7 +38,7 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
     ],
-    keywords="oodles retraining ML",
+    keywords="oodles ai retraining ML",
     packages=find_packages(),
     install_requires=[],
 )

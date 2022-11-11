@@ -2,6 +2,7 @@ import json
 import os
 import shutil
 from datetime import datetime
+from oodles.constants import Anomaly
 
 from oodles.core.classes.signal_manager import SignalManager
 from oodles.core.classes.dataset_handler import DatasetHandler
@@ -38,10 +39,13 @@ class Framework:
             Config to initialize oodles framework
         """
 
-        self.signal_manager = SignalManager()
+        cfg.setdefault('checks', [])
+        cfg.setdefault('training_args', {})
+        cfg.setdefault('evaluation_args', {})
         self.cfg = cfg
-        self.orig_training_file = cfg.get("orig_training_file", "")
-        self.fold_name = cfg.get(
+        self.signal_manager = SignalManager()
+        self.orig_training_file = cfg['training_args'].get("orig_training_file", "")
+        self.fold_name = cfg['training_args'].get(
             "fold_name", "oodles_smart_data " + str(datetime.utcnow())
         )
         if os.path.exists(self.fold_name):
@@ -56,21 +60,22 @@ class Framework:
         self.is_drift_detected = False
         self.create_data_folders()
 
-        if "signal_formulae" in cfg:
-            self.add_signal_formulae(cfg["signal_formulae"])
-        if "data_transformation_func" in cfg:
-            self.set_data_transformation_func(cfg["data_transformation_func"])
-        if "annotation_method" in cfg:
+        for check in cfg['checks']:
+            if check['type'] == Anomaly.EDGE_CASE:
+                self.add_signal_formulae(check["signal_formulae"])
+        if "data_transformation_func" in cfg['training_args']:
+            self.set_data_transformation_func(cfg['training_args']["data_transformation_func"])
+        if "annotation_method" in cfg['training_args']:
             self.set_annotation_method(
-                cfg["annotation_method"]["method"],
-                args=cfg["annotation_method"].get("args", {}),
+                cfg['training_args']["annotation_method"]["method"],
+                args=cfg['training_args']["annotation_method"].get("args", {}),
             )
-        if "golden_testing_dataset" in cfg:
-            self.set_golden_testing_dataset(cfg["golden_testing_dataset"])
-        if "training_func" in cfg:
-            self.set_training_func(cfg["training_func"])
-        if "inference_func" in cfg:
-            self.set_inference_func(cfg["inference_func"])
+        if "golden_testing_dataset" in cfg['evaluation_args']:
+            self.set_golden_testing_dataset(cfg['evaluation_args']["golden_testing_dataset"])
+        if "training_func" in cfg['training_args']:
+            self.set_training_func(cfg['training_args']["training_func"])
+        if "inference_func" in cfg['evaluation_args']:
+            self.set_inference_func(cfg['evaluation_args']["inference_func"])
 
         #TODO: Move concept drift to a Drift Manager class
         self.acc_arr = []
