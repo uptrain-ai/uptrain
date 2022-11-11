@@ -2,6 +2,7 @@ import json
 import os
 import shutil
 from datetime import datetime
+from oodles.constants import Anomaly
 
 from oodles.core.classes.signal_manager import SignalManager
 from oodles.core.classes.dataset_handler import DatasetHandler
@@ -60,7 +61,7 @@ class Framework:
         self.create_data_folders()
 
         for check in cfg['checks']:
-            if check['type'] == "Edge cases":
+            if check['type'] == Anomaly.EDGE_CASE:
                 self.add_signal_formulae(check["signal_formulae"])
         if "data_transformation_func" in cfg['training_args']:
             self.set_data_transformation_func(cfg['training_args']["data_transformation_func"])
