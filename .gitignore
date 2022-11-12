@@ -3,7 +3,6 @@ __pycache__
 .ipynb_checkpoints
 oodles_smart_data*
 training_logs*
-data*
 trained_models*
 evaluation_logs*
 oodles.egg-info

@@ -2,13 +2,14 @@ import json
 import os
 import shutil
 from datetime import datetime
-from oodles.constants import Anomaly
+from oodles.constants import Anomaly, DataDrift
 
 from oodles.core.classes.signal_manager import SignalManager
 from oodles.core.classes.dataset_handler import DatasetHandler
 from oodles.core.classes.model_handler import ModelHandler
 from oodles.core.lib.helper_funcs import read_json, write_json
 from oodles.core.encoders.numpy_encoder import NumpyEncoder
+from oodles.core.classes.data_drift_manager import DataDriftDDM
 
 
 class Framework:
@@ -57,12 +58,17 @@ class Framework:
         self.version = 1
         self.dataset_handler = DatasetHandler()
         self.model_handler = ModelHandler()
-        self.is_drift_detected = False
         self.create_data_folders()
+        self.ddm_manager = None
 
         for check in cfg['checks']:
             if check['type'] == Anomaly.EDGE_CASE:
                 self.add_signal_formulae(check["signal_formulae"])
+            if check['type'] == Anomaly.DATA_DRIFT:
+                if check['algorithm'] == DataDrift.DDM:
+                    warn_thres = check.get("warn_thres", 2)
+                    alarm_thres = check.get("alarm_thres", 3)
+                    self.ddm_manager = DataDriftDDM(warn_thres, alarm_thres)
         if "data_transformation_func" in cfg['training_args']:
             self.set_data_transformation_func(cfg['training_args']["data_transformation_func"])
         if "annotation_method" in cfg['training_args']:
@@ -235,18 +241,16 @@ class Framework:
         """Attach inference pipeline for model comparison"""
         self.model_handler.set_inference_func(func)
 
-    def check_for_concept_drift(self, inputs, outputs):
-        #TODO: Move concept drift to a Drift Manager class
-        if "y_test" in inputs.keys():
-            y_gt = inputs["y_test"][inputs["id"]]
-            y_pred = outputs.item()
+    def check_for_data_drift(self, inputs, outputs):
+        if self.ddm_manager:
+            if "y_test" in inputs.keys():
+                y_gt = inputs["y_test"]
+                y_pred = outputs
 
-            if y_pred == y_gt:
-                self.acc_arr.append(1)
-            else:
-                self.acc_arr.append(0)
-
-            if (len(self.acc_arr) > 150) and (not self.is_drift_detected):
-                if (sum(self.acc_arr[0:100]) - sum(self.acc_arr[-100:])) / 100 > 0.02:
-                    print("Concept drift detected")
-                    self.is_drift_detected = True
+                for i, _ in enumerate(y_pred):
+                    if y_pred[i] == y_gt[i]:
+                        out = self.ddm_manager.add_prediction(0)
+                    else:
+                        out = self.ddm_manager.add_prediction(1)
+                    if out:
+                        break
