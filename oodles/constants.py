@@ -24,6 +24,8 @@ class AnnotationMethod(Enum):
 class Anomaly(Enum):
     EDGE_CASE = "edge_case"
     DATA_DRIFT = "data_drift"
+    CUSTOM_MONITOR = "custom_monitor"
+
 
 class DataDrift(Enum):
     DDM = "DDM"

@@ -60,6 +60,7 @@ class Framework:
         self.model_handler = ModelHandler()
         self.create_data_folders()
         self.ddm_manager = None
+        self.custom_check = False
 
         for check in cfg['checks']:
             if check['type'] == Anomaly.EDGE_CASE:
@@ -69,6 +70,10 @@ class Framework:
                     warn_thres = check.get("warn_thres", 2)
                     alarm_thres = check.get("alarm_thres", 3)
                     self.ddm_manager = DataDriftDDM(warn_thres, alarm_thres)
+            if check['type'] == Anomaly.CUSTOM_MONITOR:
+                self.custom_check = True
+                self.custom_monitor_fn = check['algorithm']
+
         if "data_transformation_func" in cfg['training_args']:
             self.set_data_transformation_func(cfg['training_args']["data_transformation_func"])
         if "annotation_method" in cfg['training_args']:
@@ -82,9 +87,6 @@ class Framework:
             self.set_training_func(cfg['training_args']["training_func"])
         if "inference_func" in cfg['evaluation_args']:
             self.set_inference_func(cfg['evaluation_args']["inference_func"])
-
-        #TODO: Move concept drift to a Drift Manager class
-        self.acc_arr = []
 
     def create_data_folders(self):
         if not os.path.exists(self.fold_name + "/" + str(self.version)):
@@ -254,3 +256,7 @@ class Framework:
                         out = self.ddm_manager.add_prediction(1)
                     if out:
                         break
+        
+    def check_for_custom_monitor(self, inputs, outputs):
+        if self.custom_check:
+            self.custom_monitor_fn(inputs, outputs)
