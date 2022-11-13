@@ -4,12 +4,11 @@ import shutil
 from datetime import datetime
 from oodles.constants import Anomaly, DataDrift
 
-from oodles.core.classes.signal_manager import SignalManager
 from oodles.core.classes.dataset_handler import DatasetHandler
 from oodles.core.classes.model_handler import ModelHandler
+from oodles.core.classes.anomaly_manager import AnomalyManager
 from oodles.core.lib.helper_funcs import read_json, write_json
 from oodles.core.encoders.numpy_encoder import NumpyEncoder
-from oodles.core.classes.data_drift_manager import DataDriftDDM
 
 
 class Framework:
@@ -44,7 +43,7 @@ class Framework:
         cfg.setdefault('training_args', {})
         cfg.setdefault('evaluation_args', {})
         self.cfg = cfg
-        self.signal_manager = SignalManager()
+
         self.orig_training_file = cfg['training_args'].get("orig_training_file", "")
         self.fold_name = cfg['training_args'].get(
             "fold_name", "oodles_smart_data " + str(datetime.utcnow())
@@ -56,23 +55,10 @@ class Framework:
         self.selected_count = 0
         self.predicted_count = 0
         self.version = 1
+        self.anomaly_manager = AnomalyManager(cfg['checks'])
         self.dataset_handler = DatasetHandler()
         self.model_handler = ModelHandler()
         self.create_data_folders()
-        self.ddm_manager = None
-        self.custom_check = False
-
-        for check in cfg['checks']:
-            if check['type'] == Anomaly.EDGE_CASE:
-                self.add_signal_formulae(check["signal_formulae"])
-            if check['type'] == Anomaly.DATA_DRIFT:
-                if check['algorithm'] == DataDrift.DDM:
-                    warn_thres = check.get("warn_thres", 2)
-                    alarm_thres = check.get("alarm_thres", 3)
-                    self.ddm_manager = DataDriftDDM(warn_thres, alarm_thres)
-            if check['type'] == Anomaly.CUSTOM_MONITOR:
-                self.custom_check = True
-                self.custom_monitor_fn = check['algorithm']
 
         if "data_transformation_func" in cfg['training_args']:
             self.set_data_transformation_func(cfg['training_args']["data_transformation_func"])
@@ -158,26 +144,23 @@ class Framework:
                 " inferred samples",
             )
 
-    def add_signal_formulae(self, formulae):
-        """Attach the defined signal formulae to identify interesting data-points"""
+    def check_and_add_data(self, inputs, outputs, extra_args={}):
+        self.check(inputs, outputs, extra_args=extra_args)
+        self.smartly_add_data(inputs, outputs, extra_args=extra_args)
 
-        self.signal_manager.add_signal_formulae(formulae)
+    def check(self, inputs, outputs, extra_args={}):
+        return self.anomaly_manager.check(inputs, outputs, extra_args=extra_args)
 
     def is_data_interesting(self, inputs, outputs, extra_args={}):
         """A data-point is deemed interesting if the defined signal is turned on for it"""
-
-        return self.signal_manager.evaluate_signal(
-            inputs, outputs, extra_args=extra_args
-        )
+        return self.anomaly_manager.is_data_interesting(inputs, outputs, extra_args=extra_args)
 
     def set_data_transformation_func(self, func):
         """Attach data transformation func to convert logged data-point -> Training dataset"""
-
         self.dataset_handler.set_transformation_func(func)
 
     def set_annotation_method(self, method, args={}):
         """Attach data annotation pipeline"""
-
         self.dataset_handler.set_annotation_method(method, args=args)
 
     def need_retraining(self):
@@ -242,21 +225,3 @@ class Framework:
     def set_inference_func(self, func):
         """Attach inference pipeline for model comparison"""
         self.model_handler.set_inference_func(func)
-
-    def check_for_data_drift(self, inputs, outputs):
-        if self.ddm_manager:
-            if "y_test" in inputs.keys():
-                y_gt = inputs["y_test"]
-                y_pred = outputs
-
-                for i, _ in enumerate(y_pred):
-                    if y_pred[i] == y_gt[i]:
-                        out = self.ddm_manager.add_prediction(0)
-                    else:
-                        out = self.ddm_manager.add_prediction(1)
-                    if out:
-                        break
-        
-    def check_for_custom_monitor(self, inputs, outputs):
-        if self.custom_check:
-            self.custom_monitor_fn(inputs, outputs)

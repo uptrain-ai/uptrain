@@ -27,5 +27,5 @@ class Anomaly(Enum):
     CUSTOM_MONITOR = "custom_monitor"
 
 
-class DataDrift(Enum):
+class DataDriftAlgo(Enum):
     DDM = "DDM"
