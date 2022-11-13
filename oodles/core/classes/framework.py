@@ -2,7 +2,6 @@ import json
 import os
 import shutil
 from datetime import datetime
-from oodles.constants import Anomaly, DataDrift
 
 from oodles.core.classes.dataset_handler import DatasetHandler
 from oodles.core.classes.model_handler import ModelHandler
