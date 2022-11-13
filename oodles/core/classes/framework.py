@@ -2,11 +2,10 @@ import json
 import os
 import shutil
 from datetime import datetime
-from oodles.constants import Anomaly
 
-from oodles.core.classes.signal_manager import SignalManager
 from oodles.core.classes.dataset_handler import DatasetHandler
 from oodles.core.classes.model_handler import ModelHandler
+from oodles.core.classes.anomaly_manager import AnomalyManager
 from oodles.core.lib.helper_funcs import read_json, write_json
 from oodles.core.encoders.numpy_encoder import NumpyEncoder
 
@@ -43,7 +42,7 @@ class Framework:
         cfg.setdefault('training_args', {})
         cfg.setdefault('evaluation_args', {})
         self.cfg = cfg
-        self.signal_manager = SignalManager()
+
         self.orig_training_file = cfg['training_args'].get("orig_training_file", "")
         self.fold_name = cfg['training_args'].get(
             "fold_name", "oodles_smart_data " + str(datetime.utcnow())
@@ -55,14 +54,11 @@ class Framework:
         self.selected_count = 0
         self.predicted_count = 0
         self.version = 1
+        self.anomaly_manager = AnomalyManager(cfg['checks'])
         self.dataset_handler = DatasetHandler()
         self.model_handler = ModelHandler()
-        self.is_drift_detected = False
         self.create_data_folders()
 
-        for check in cfg['checks']:
-            if check['type'] == Anomaly.EDGE_CASE:
-                self.add_signal_formulae(check["signal_formulae"])
         if "data_transformation_func" in cfg['training_args']:
             self.set_data_transformation_func(cfg['training_args']["data_transformation_func"])
         if "annotation_method" in cfg['training_args']:
@@ -76,9 +72,6 @@ class Framework:
             self.set_training_func(cfg['training_args']["training_func"])
         if "inference_func" in cfg['evaluation_args']:
             self.set_inference_func(cfg['evaluation_args']["inference_func"])
-
-        #TODO: Move concept drift to a Drift Manager class
-        self.acc_arr = []
 
     def create_data_folders(self):
         if not os.path.exists(self.fold_name + "/" + str(self.version)):
@@ -150,26 +143,23 @@ class Framework:
                 " inferred samples",
             )
 
-    def add_signal_formulae(self, formulae):
-        """Attach the defined signal formulae to identify interesting data-points"""
+    def check_and_add_data(self, inputs, outputs, extra_args={}):
+        self.check(inputs, outputs, extra_args=extra_args)
+        self.smartly_add_data(inputs, outputs, extra_args=extra_args)
 
-        self.signal_manager.add_signal_formulae(formulae)
+    def check(self, inputs, outputs, extra_args={}):
+        return self.anomaly_manager.check(inputs, outputs, extra_args=extra_args)
 
     def is_data_interesting(self, inputs, outputs, extra_args={}):
         """A data-point is deemed interesting if the defined signal is turned on for it"""
-
-        return self.signal_manager.evaluate_signal(
-            inputs, outputs, extra_args=extra_args
-        )
+        return self.anomaly_manager.is_data_interesting(inputs, outputs, extra_args=extra_args)
 
     def set_data_transformation_func(self, func):
         """Attach data transformation func to convert logged data-point -> Training dataset"""
-
         self.dataset_handler.set_transformation_func(func)
 
     def set_annotation_method(self, method, args={}):
         """Attach data annotation pipeline"""
-
         self.dataset_handler.set_annotation_method(method, args=args)
 
     def need_retraining(self):
@@ -234,19 +224,3 @@ class Framework:
     def set_inference_func(self, func):
         """Attach inference pipeline for model comparison"""
         self.model_handler.set_inference_func(func)
-
-    def check_for_concept_drift(self, inputs, outputs):
-        #TODO: Move concept drift to a Drift Manager class
-        if "y_test" in inputs.keys():
-            y_gt = inputs["y_test"][inputs["id"]]
-            y_pred = outputs.item()
-
-            if y_pred == y_gt:
-                self.acc_arr.append(1)
-            else:
-                self.acc_arr.append(0)
-
-            if (len(self.acc_arr) > 150) and (not self.is_drift_detected):
-                if (sum(self.acc_arr[0:100]) - sum(self.acc_arr[-100:])) / 100 > 0.02:
-                    print("Concept drift detected")
-                    self.is_drift_detected = True

@@ -8,8 +8,8 @@ from setuptools import setup, find_packages
 setup(
     name="oodles",
     version="0.1.dev",
-    description="An Oodles retaining framework",
-    # long_description=long_description,
+    description="An Oodles.ai retaining framework",
+    long_description="Smart and Automated Model Refinement",
     # The project's main homepage.
     url="https://github.com/Oodles-ai/oodles",
     # Author details
@@ -23,8 +23,7 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        "Development Status :: 3 - Alpha",
-        # Indicate who your project is intended for
+        "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Build Tools",
         # Pick your license as you wish (should match "license" above)

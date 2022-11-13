@@ -9,8 +9,7 @@ def monitor(framework_obj):
     def decorator(fn):
         def wrapped(inputs):
             outputs = fn(inputs)
-            framework_obj.check_for_concept_drift(inputs, outputs)
-            framework_obj.smartly_add_data(inputs, outputs)
+            framework_obj.check_and_add_data(inputs, outputs)
             if framework_obj.need_retraining():
                 framework_obj.retrain()
             return outputs

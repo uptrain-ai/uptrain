@@ -1,7 +1,7 @@
 import numpy as np
 
 from oodles.core.classes.framework import Framework
-from oodles.core.classes.signal import Signal
+from oodles.core.classes.anomalies.signal import Signal
 from oodles.core.lib.decorators import signal_fn, monitor
 from oodles.core.constants import ModelSignal
 

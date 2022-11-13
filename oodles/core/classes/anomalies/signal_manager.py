@@ -1,4 +1,4 @@
-from oodles.core.classes.signal import Signal
+from oodles.core.classes.anomalies.signal import Signal
 from oodles.constants import ModelSignal
 
 
