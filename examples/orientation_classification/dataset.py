@@ -4,6 +4,26 @@ import numpy as np
 import imgaug as ia
 import imgaug.augmenters as iaa
 from imgaug.augmentables import Keypoint
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import Normalizer
+class ClassicalKpsDataset():
+     def __init__(self,file_name,normalization=True):
+         self.normalization=normalization
+         data = read_json(file_name)
+         self.data = np.array(data)
+     def load_x_y_from_data(self):
+         kps = [np.array(x['kps']) for x in self.data]
+         gts = [np.array(x['gt']) for x in self.data]
+         ids = [x['id'] for x in self.data]
+         self.X = kps
+         self.y = gts
+         if self.normalization==True:
+             self.norm_func()
+         return self.X, self.y
+     def norm_func(self):
+         norm = Normalizer()
+         self.X = norm.fit_transform(self.X)
 
 class KpsDataset(tf.keras.utils.Sequence):
   def __init__(self, file_name, n_classes=2, batch_size=256, shuffle=False, augmentations=False, is_test=False):
