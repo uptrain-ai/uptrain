@@ -1,3 +1,4 @@
+import os
 import tensorflow as tf
 import numpy as np
 
@@ -24,7 +25,7 @@ def make_model(input_shape=34):
     return tf.keras.Model(inputs, outputs)
 
 
-def get_accuracy(testing_file, model_save_name):
+def get_accuracy_dnn(testing_file, model_save_name, model_dir="trained_models_dnn/"):
     testing_dataset = KpsDataset(
         testing_file,
         batch_size=len(read_json(testing_file)),
@@ -32,7 +33,7 @@ def get_accuracy(testing_file, model_save_name):
         augmentations=False,
         is_test=True,
     )
-    model = tf.keras.models.load_model("trained_models/" + model_save_name)
+    model = tf.keras.models.load_model(model_dir + model_save_name)
     print("Evaluating on ", len(read_json(testing_file)), " data-points")
 
     pred_classes = []
@@ -49,16 +50,25 @@ def get_accuracy(testing_file, model_save_name):
     return accuracy
 
 
-def run_real_world_inference(testing_file, model_save_name, predict_fn):
-    testing_dataset = KpsDataset(
-        testing_file, batch_size=1, shuffle=False, augmentations=False, is_test=True
+def train_model_dnn(training_file, model_save_name, model_dir="trained_models_dnn/"):
+    print(
+        "Training on: ",
+        training_file,
+        " which has ",
+        len(read_json(training_file)),
+        " data-points",
     )
-    model = tf.keras.models.load_model("trained_models/" + model_save_name)
-
-    pred_classes = []
-    for i,elem in enumerate(testing_dataset):
-        preds = predict_fn({"model": model, "kps": elem[0]["kps"], "id": elem[0]["id"]})
-        pred_class = int(round(float(preds)))
-        pred_classes.append(pred_class)
-        if i > 1500:
-            break
+    model_loc = model_dir + model_save_name
+    if os.path.exists(model_loc):
+        print("Trained model exists. Skipping training again.")
+        return
+    training_dataset = KpsDataset(training_file, shuffle=True, augmentations=True)
+    model = make_model(input_shape=34)
+    model.compile(
+        optimizer=tf.keras.optimizers.Adam(learning_rate=5e-4),
+        loss="binary_crossentropy",
+        metrics=tf.keras.metrics.BinaryAccuracy(),
+    )
+    model.fit(training_dataset, epochs=10)
+    model.save(model_loc)
+    print("Model saved at: ", model_loc)

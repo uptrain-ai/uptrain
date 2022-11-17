@@ -1,10 +1,11 @@
 import numpy as np
 from oodles.core.classes.anomalies.abstract_anomaly import AbstractAnomaly
 
+
 class DataDriftDDM(AbstractAnomaly):
     """
     Using the DDM data drift detection method
-    to detect drift on dataset coming from a 
+    to detect drift on dataset coming from a
     Binomial distribution.
     Args:
     warn_thres: Threshold for drift warning
@@ -15,7 +16,7 @@ class DataDriftDDM(AbstractAnomaly):
         super().__init__()
         self.warn_thres = warn_thres
         self.alarm_thres = alarm_thres
-        
+
         # Total number of predictions by the distribution
         self.total_count = 1
         # If drift is detected
@@ -39,7 +40,7 @@ class DataDriftDDM(AbstractAnomaly):
 
     def add_prediction(self, prediction):
         """
-        Checks for data drift in the binomial distribution 
+        Checks for data drift in the binomial distribution
         Parameters
         ----------
         prediction : Current prediction by the Binomial distribution
