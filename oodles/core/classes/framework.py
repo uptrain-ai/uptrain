@@ -38,13 +38,13 @@ class Framework:
             Config to initialize oodles framework
         """
 
-        cfg.setdefault('checks', [])
-        cfg.setdefault('training_args', {})
-        cfg.setdefault('evaluation_args', {})
+        cfg.setdefault("checks", [])
+        cfg.setdefault("training_args", {})
+        cfg.setdefault("evaluation_args", {})
         self.cfg = cfg
 
-        self.orig_training_file = cfg['training_args'].get("orig_training_file", "")
-        self.fold_name = cfg['training_args'].get(
+        self.orig_training_file = cfg["training_args"].get("orig_training_file", "")
+        self.fold_name = cfg["training_args"].get(
             "fold_name", "oodles_smart_data " + str(datetime.utcnow())
         )
         if os.path.exists(self.fold_name):
@@ -54,24 +54,28 @@ class Framework:
         self.selected_count = 0
         self.predicted_count = 0
         self.version = 1
-        self.anomaly_manager = AnomalyManager(cfg['checks'])
+        self.anomaly_manager = AnomalyManager(cfg["checks"])
         self.dataset_handler = DatasetHandler()
         self.model_handler = ModelHandler()
         self.create_data_folders()
 
-        if "data_transformation_func" in cfg['training_args']:
-            self.set_data_transformation_func(cfg['training_args']["data_transformation_func"])
-        if "annotation_method" in cfg['training_args']:
-            self.set_annotation_method(
-                cfg['training_args']["annotation_method"]["method"],
-                args=cfg['training_args']["annotation_method"].get("args", {}),
+        if "data_transformation_func" in cfg["training_args"]:
+            self.set_data_transformation_func(
+                cfg["training_args"]["data_transformation_func"]
             )
-        if "golden_testing_dataset" in cfg['evaluation_args']:
-            self.set_golden_testing_dataset(cfg['evaluation_args']["golden_testing_dataset"])
-        if "training_func" in cfg['training_args']:
-            self.set_training_func(cfg['training_args']["training_func"])
-        if "inference_func" in cfg['evaluation_args']:
-            self.set_inference_func(cfg['evaluation_args']["inference_func"])
+        if "annotation_method" in cfg["training_args"]:
+            self.set_annotation_method(
+                cfg["training_args"]["annotation_method"]["method"],
+                args=cfg["training_args"]["annotation_method"].get("args", {}),
+            )
+        if "golden_testing_dataset" in cfg["evaluation_args"]:
+            self.set_golden_testing_dataset(
+                cfg["evaluation_args"]["golden_testing_dataset"]
+            )
+        if "training_func" in cfg["training_args"]:
+            self.set_training_func(cfg["training_args"]["training_func"])
+        if "inference_func" in cfg["evaluation_args"]:
+            self.set_inference_func(cfg["evaluation_args"]["inference_func"])
 
     def create_data_folders(self):
         if not os.path.exists(self.fold_name + "/" + str(self.version)):
@@ -152,7 +156,9 @@ class Framework:
 
     def is_data_interesting(self, inputs, outputs, extra_args={}):
         """A data-point is deemed interesting if the defined signal is turned on for it"""
-        return self.anomaly_manager.is_data_interesting(inputs, outputs, extra_args=extra_args)
+        return self.anomaly_manager.is_data_interesting(
+            inputs, outputs, extra_args=extra_args
+        )
 
     def set_data_transformation_func(self, func):
         """Attach data transformation func to convert logged data-point -> Training dataset"""
