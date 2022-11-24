@@ -43,7 +43,7 @@ class Framework:
         cfg.setdefault("checks", [])
         cfg.setdefault("training_args", {})
         cfg.setdefault("evaluation_args", {})
-        cfg.setdefault("data_identifier", "utc_timestamp")
+        cfg.setdefault("data_identifier", "identifier")
         self.cfg = cfg
 
         self.orig_training_file = cfg["training_args"].get("orig_training_file", "")
@@ -126,14 +126,14 @@ class Framework:
         if "model" in inputs:
             del inputs["model"]
 
-        identifier = extra_args['identifier'][0]
-        path = self.fold_name + "/" + str(self.version) + "/" + warehouse + str(identifier) + ".json"
+        identifier = extra_args['identifier']
+        path = self.fold_name + "/" + str(self.version) + "/" + warehouse + str(identifier[0]) + ".json"
 
         datapoint = {
             "input": json.dumps(inputs, cls=NumpyEncoder),
-            "output": str(outputs),
-            "extra_args": str(extra_args),
-            "identifier": identifier,
+            "output": json.dumps(outputs, cls=NumpyEncoder),
+            "extra_args": json.dumps(extra_args, cls=NumpyEncoder),
+            "identifier": json.dumps(identifier, cls=NumpyEncoder),
         }
         write_json(
             path,
@@ -143,15 +143,14 @@ class Framework:
 
 
     def get_data_identifier(self, inputs, outputs, extra_args={}):
-        if self.data_identifier_type == "utc_timestamp":
-            return str(datetime.utcnow())
-        else:
-            if self.data_identifier_type in inputs:
-                return inputs[self.data_identifier_type]
-            if self.data_identifier_type in outputs:
-                return inputs[self.data_identifier_type]
-            if self.data_identifier_type in extra_args:
-                return inputs[self.data_identifier_type]
+        if self.data_identifier_type in inputs:
+            return inputs[self.data_identifier_type]
+        elif self.data_identifier_type in outputs:
+            return inputs[self.data_identifier_type]
+        elif self.data_identifier_type in extra_args:
+            return inputs[self.data_identifier_type]
+        elif self.data_identifier_type in ["utc_timestamp", "identifier"]:
+            return [str(datetime.utcnow())] * len(outputs)
         raise Exception("Invalid Data Identifier type %s" % self.data_identifier_type)
 
 
@@ -188,6 +187,8 @@ class Framework:
         return this_identifier
 
     def check_and_add_data(self, inputs, outputs, extra_args={}, has_ground_truth=False):
+        #TODO: We are assuming inputs = BATCH_SIZE x INPUT_SIZE, 
+        # Current implementation assumes BATCH_SIZE = 1, how do we extend this?
         self.check(inputs, outputs, extra_args=extra_args, has_ground_truth=has_ground_truth)
         return self.smartly_add_data(inputs, outputs, extra_args=extra_args, add_all_data = not has_ground_truth)
 
@@ -212,7 +213,7 @@ class Framework:
         """Checks if enough data-points are collected and the framework needs to kickoff model retraining"""
 
         if self.selected_count > 250:
-            write_json(self.data_summary_file, self.summary_data)
+            write_json(self.data_summary_file, json.dumps(self.summary_data, cls=NumpyEncoder))
             return True
         return False
 
@@ -300,11 +301,11 @@ class Framework:
 
             for file_to_be_updated in files_to_be_updated:
                 old_data = read_json(file_to_be_updated)
-                old_extra_args = eval(old_data['extra_args'])
-                old_extra_args.update({'gt': [this_gt]})
-                old_data['extra_args'] = str(old_extra_args)
+                old_extra_args = json.loads(old_data['extra_args'])
+                old_extra_args.update({'gt': this_gt})
+                old_data['extra_args'] = json.dumps(old_extra_args, cls=NumpyEncoder)
                 write_json(file_to_be_updated, old_data)
 
             for file_to_be_checked in all_data_files_to_be_checked:
                 this_saved_data = read_json(file_to_be_checked)
-                self.check_and_add_data(eval(this_saved_data['input']), eval(this_saved_data['output']), extra_args=eval(this_saved_data['extra_args']), has_ground_truth=True)
+                self.check_and_add_data(json.loads(this_saved_data['input']), json.loads(this_saved_data['output']), extra_args=json.loads(this_saved_data['extra_args']), has_ground_truth=True)

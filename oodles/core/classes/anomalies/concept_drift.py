@@ -18,17 +18,13 @@ class ConceptDrift(AbstractAnomaly):
         return True
 
     def check(self, inputs, outputs, extra_args={}):
-        # if "gt" in extra_args.keys():
-        y_gt = [extra_args["gt"]]
+        y_gt = extra_args["gt"]
         y_pred = outputs
 
-        for i, _ in enumerate(y_pred):
-            if y_pred[i] == y_gt[i]:
-                out = self.algo.add_prediction(0)
-            else:
-                out = self.algo.add_prediction(1)
-            if out:
-                break
+        if y_pred[0] == y_gt[0]:
+            self.algo.add_prediction(0)
+        else:
+            self.algo.add_prediction(1)
 
     def is_data_interesting(self, inputs, outputs, extra_args={}):
         return False

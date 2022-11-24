@@ -9,9 +9,9 @@ def monitor(framework_obj):
     def decorator(fn):
         def wrapped(inputs):
             outputs = fn(inputs)
-            identifier = framework_obj.check_and_add_data(inputs, outputs)
+            identifiers = framework_obj.check_and_add_data(inputs, outputs)
             if framework_obj.need_retraining():
                 framework_obj.retrain()
-            return outputs, identifier
+            return outputs, identifiers
         return wrapped
     return decorator
