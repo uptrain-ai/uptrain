@@ -146,9 +146,9 @@ class Framework:
         if self.data_identifier_type in inputs:
             return inputs[self.data_identifier_type]
         elif self.data_identifier_type in outputs:
-            return inputs[self.data_identifier_type]
+            return outputs[self.data_identifier_type]
         elif self.data_identifier_type in extra_args:
-            return inputs[self.data_identifier_type]
+            return extra_args[self.data_identifier_type]
         elif self.data_identifier_type in ["utc_timestamp", "identifier"]:
             return [str(datetime.utcnow())] * len(outputs)
         raise Exception("Invalid Data Identifier type %s" % self.data_identifier_type)
