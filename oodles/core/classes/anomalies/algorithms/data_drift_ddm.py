@@ -1,8 +1,6 @@
 import numpy as np
-from oodles.core.classes.anomalies.abstract_anomaly import AbstractAnomaly
 
-
-class DataDriftDDM(AbstractAnomaly):
+class DataDriftDDM():
     """
     Using the DDM data drift detection method
     to detect drift on dataset coming from a
@@ -69,26 +67,11 @@ class DataDriftDDM(AbstractAnomaly):
 
         if self.mean + self.std > self.mean_min + self.alarm_thres * self.std_min:
             self.drift_detected = True
-            print("Data drift detected with DDM at time: ", self.current_count)
+            print("Drift detected with DDM at time: ", self.current_count)
         elif self.mean + self.std > self.mean_min + self.warn_thres * self.std_min:
             self.is_warning_zone = True
+            print("Warning detected with DDM at time: ", self.current_count)
         else:
             self.is_warning_zone = False
 
         return self.drift_detected
-
-    def check(self, inputs, outputs, extra_args={}):
-        if "y_test" in inputs.keys():
-            y_gt = inputs["y_test"]
-            y_pred = outputs
-
-            for i, _ in enumerate(y_pred):
-                if y_pred[i] == y_gt[i]:
-                    out = self.add_prediction(0)
-                else:
-                    out = self.add_prediction(1)
-                if out:
-                    break
-
-    def is_data_interesting(self, inputs, outputs, extra_args={}):
-        return False

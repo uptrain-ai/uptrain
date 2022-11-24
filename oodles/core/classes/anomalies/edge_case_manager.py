@@ -15,3 +15,6 @@ class EdgeCaseManager(AbstractAnomaly):
         return self.signal_manager.evaluate_signal(
             inputs, outputs, extra_args=extra_args
         )
+
+    def need_ground_truth(self):
+        return False

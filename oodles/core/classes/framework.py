@@ -1,6 +1,8 @@
 import json
 import os
 import shutil
+import copy
+import numpy as np
 from datetime import datetime
 
 from oodles.core.classes.dataset_handler import DatasetHandler
@@ -41,6 +43,7 @@ class Framework:
         cfg.setdefault("checks", [])
         cfg.setdefault("training_args", {})
         cfg.setdefault("evaluation_args", {})
+        cfg.setdefault("data_identifier", "utc_timestamp")
         self.cfg = cfg
 
         self.orig_training_file = cfg["training_args"].get("orig_training_file", "")
@@ -58,6 +61,15 @@ class Framework:
         self.dataset_handler = DatasetHandler()
         self.model_handler = ModelHandler()
         self.create_data_folders()
+
+        self.data_identifier_type = cfg['data_identifier']
+        self.data_summary_file = self.fold_name + "/data_summary.json"
+        self.summary_data = {
+            'all_data': [],
+            'smart_data': [],
+            'versions': {}
+        }
+        write_json(self.data_summary_file, self.summary_data)
 
         if "data_transformation_func" in cfg["training_args"]:
             self.set_data_transformation_func(
@@ -86,22 +98,24 @@ class Framework:
     def add_data_point_to_all_warehouse(self, inputs, outputs, extra_args={}):
         """Logs all the test cases to data warehouse. Logged under sub-folder 'all_data'"""
 
-        self.add_data_point_to_warehouse(
+        saved = self.add_data_point_to_warehouse(
             inputs,
             outputs,
-            "all_data/" + str(self.predicted_count),
+            "all_data/",
             extra_args=extra_args,
         )
+        self.summary_data['all_data'].append(saved)
 
     def add_data_point_to_smart_warehouse(self, inputs, outputs, extra_args={}):
         """Logs only the interesting test cases to data warehouse. Logged under sub-folder 'smart_data'"""
 
-        self.add_data_point_to_warehouse(
+        saved = self.add_data_point_to_warehouse(
             inputs,
             outputs,
-            "smart_data/" + str(self.selected_count),
+            "smart_data/",
             extra_args=extra_args,
         )
+        self.summary_data['smart_data'].append(saved)
         self.selected_count += 1
 
     def add_data_point_to_warehouse(self, inputs, outputs, warehouse, extra_args={}):
@@ -112,31 +126,56 @@ class Framework:
         if "model" in inputs:
             del inputs["model"]
 
+        identifier = extra_args['identifier'][0]
+        path = self.fold_name + "/" + str(self.version) + "/" + warehouse + str(identifier) + ".json"
+
         datapoint = {
             "input": json.dumps(inputs, cls=NumpyEncoder),
             "output": str(outputs),
             "extra_args": str(extra_args),
+            "identifier": identifier,
         }
         write_json(
-            self.fold_name + "/" + str(self.version) + "/" + warehouse + ".json",
+            path,
             datapoint,
         )
+        return {'path': path, 'identifier': identifier}
 
-    def smartly_add_data(self, inputs, outputs, extra_args={}):
+
+    def get_data_identifier(self, inputs, outputs, extra_args={}):
+        if self.data_identifier_type == "utc_timestamp":
+            return str(datetime.utcnow())
+        else:
+            if self.data_identifier_type in inputs:
+                return inputs[self.data_identifier_type]
+            if self.data_identifier_type in outputs:
+                return inputs[self.data_identifier_type]
+            if self.data_identifier_type in extra_args:
+                return inputs[self.data_identifier_type]
+        raise Exception("Invalid Data Identifier type %s" % self.data_identifier_type)
+
+
+    def smartly_add_data(self, inputs, outputs, extra_args={}, add_all_data=True):
         """Checks if the given data-point is interesting.
         If yes, logs them to smart_data warehouse (which is used to create retraining dataset)
         """
 
         old_selected_count = self.selected_count
+        this_identifier = self.get_data_identifier(inputs, outputs, extra_args=extra_args)
+
+        if add_all_data:
+            extra_args.update({"identifier": this_identifier})
+
+            # Log all the data-points into all_data warehouse
+            self.add_data_point_to_all_warehouse(inputs, outputs, extra_args=extra_args)
+            self.predicted_count += 1
+
         if self.is_data_interesting(inputs, outputs, extra_args=extra_args):
             # Log the interesting data-points into smart_data warehouse
             self.add_data_point_to_smart_warehouse(
                 inputs, outputs, extra_args=extra_args
             )
 
-        # Log all the data-points into all_data warehouse
-        self.add_data_point_to_all_warehouse(inputs, outputs, extra_args=extra_args)
-        self.predicted_count += 1
         if (not (self.selected_count == old_selected_count)) and (
             self.selected_count % 50 == 0
         ):
@@ -146,13 +185,14 @@ class Framework:
                 self.predicted_count,
                 " inferred samples",
             )
+        return this_identifier
 
-    def check_and_add_data(self, inputs, outputs, extra_args={}):
-        self.check(inputs, outputs, extra_args=extra_args)
-        self.smartly_add_data(inputs, outputs, extra_args=extra_args)
+    def check_and_add_data(self, inputs, outputs, extra_args={}, has_ground_truth=False):
+        self.check(inputs, outputs, extra_args=extra_args, has_ground_truth=has_ground_truth)
+        return self.smartly_add_data(inputs, outputs, extra_args=extra_args, add_all_data = not has_ground_truth)
 
-    def check(self, inputs, outputs, extra_args={}):
-        return self.anomaly_manager.check(inputs, outputs, extra_args=extra_args)
+    def check(self, inputs, outputs, extra_args={}, has_ground_truth=False):
+        return self.anomaly_manager.check(inputs, outputs, extra_args=extra_args, has_ground_truth=has_ground_truth)
 
     def is_data_interesting(self, inputs, outputs, extra_args={}):
         """A data-point is deemed interesting if the defined signal is turned on for it"""
@@ -172,6 +212,7 @@ class Framework:
         """Checks if enough data-points are collected and the framework needs to kickoff model retraining"""
 
         if self.selected_count > 250:
+            write_json(self.data_summary_file, self.summary_data)
             return True
         return False
 
@@ -230,3 +271,40 @@ class Framework:
     def set_inference_func(self, func):
         """Attach inference pipeline for model comparison"""
         self.model_handler.set_inference_func(func)
+
+    def attach_ground_truth(self, gt_data):
+        if type(gt_data) is str:
+            gt_file = copy.deepcopy(gt_data)
+            gt_data = read_json(gt_file)
+        elif type(gt_data) is dict:
+            gt_data = [gt_data]
+
+        summary_data = self.summary_data
+        all_idens_in_smart_data = np.array([x['identifier'] for x in summary_data['smart_data']])
+        all_idens_in_all_data = np.array([x['identifier'] for x in summary_data['all_data']])
+
+        for gt_row in gt_data:
+            all_data_files_to_be_checked = []
+            files_to_be_updated = []
+            this_iden = gt_row[self.data_identifier_type]
+            this_gt = gt_row['gt']
+
+            all_data_idx = np.where(all_idens_in_all_data == this_iden)[0]
+            if len(all_data_idx):
+                files_to_be_updated.append(summary_data['all_data'][all_data_idx[0]]['path'])
+                all_data_files_to_be_checked.append(summary_data['all_data'][all_data_idx[0]]['path'])
+
+            smart_data_idx = np.where(all_idens_in_smart_data == this_iden)[0]
+            if len(smart_data_idx):
+                files_to_be_updated.append(summary_data['smart_data'][smart_data_idx[0]]['path'])
+
+            for file_to_be_updated in files_to_be_updated:
+                old_data = read_json(file_to_be_updated)
+                old_extra_args = eval(old_data['extra_args'])
+                old_extra_args.update({'gt': [this_gt]})
+                old_data['extra_args'] = str(old_extra_args)
+                write_json(file_to_be_updated, old_data)
+
+            for file_to_be_checked in all_data_files_to_be_checked:
+                this_saved_data = read_json(file_to_be_checked)
+                self.check_and_add_data(eval(this_saved_data['input']), eval(this_saved_data['output']), extra_args=eval(this_saved_data['extra_args']), has_ground_truth=True)
