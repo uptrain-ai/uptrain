@@ -1,8 +1,8 @@
 class AbstractAnomaly:
-    def check(self, inputs, outputs, extra_args={}):
+    def check(self, inputs, outputs, gts=None, extra_args={}):
         raise Exception("Should be defined for each class")
 
-    def is_data_interesting(self, inputs, outputs, extra_args={}):
+    def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
         raise Exception("Should be defined for each class")
 
     def need_ground_truth(self):

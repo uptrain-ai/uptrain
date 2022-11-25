@@ -16,8 +16,8 @@ class DataDrift(AbstractAnomaly):
     def need_ground_truth(self):
         return False
 
-    def check(self, inputs, outputs, extra_args={}):
+    def check(self, inputs, outputs, gts=None, extra_args={}):
         out = self.algo.add_prediction(1)
 
-    def is_data_interesting(self, inputs, outputs, extra_args={}):
+    def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
         return False

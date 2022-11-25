@@ -30,7 +30,7 @@ class SignalManager:
 
         self.formulae = self.formulae | formulae
 
-    def evaluate_signal(self, inputs, outputs, extra_args={}):
+    def evaluate_signal(self, inputs, outputs, gts=None, extra_args={}):
         """Evaluate the defined signal formulae on given inputs and outputs"""
 
-        return self.formulae.evaluate(inputs, outputs, extra_args=extra_args)
+        return self.formulae.evaluate(inputs, outputs, gts=None, extra_args=extra_args)

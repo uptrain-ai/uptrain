@@ -1,6 +1,6 @@
 def signal_fn(func):
-    def inner(inputs, outputs, extra_args={}):
-        return func(inputs, outputs, extra_args=extra_args)
+    def inner(inputs, outputs, gts=None, extra_args={}):
+        return func(inputs, outputs, gts=gts, extra_args=extra_args)
 
     return inner
 

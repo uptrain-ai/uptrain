@@ -3,7 +3,7 @@ from oodles.core.lib.decorators import signal_fn
 
 
 @signal_fn
-def cross_entropy_confidence(inputs, outputs, extra_args={}):
+def cross_entropy_confidence(inputs, outputs, gts=None, extra_args={}):
     logits = np.array(outputs[0])
     logits = logits - np.max(logits)
     logits = np.exp(logits)
@@ -16,7 +16,7 @@ def cross_entropy_confidence(inputs, outputs, extra_args={}):
 
 
 @signal_fn
-def binary_entropy_confidence(inputs, outputs, extra_args={}):
+def binary_entropy_confidence(inputs, outputs, gts=None, extra_args={}):
     conf = np.array(outputs[0])
     if conf < 0.5:
         conf = 1 - conf
@@ -27,10 +27,10 @@ def binary_entropy_confidence(inputs, outputs, extra_args={}):
 
 
 @signal_fn
-def pass_all(inputs, outputs, extra_args={}):
+def pass_all(inputs, outputs, gts=None, extra_args={}):
     return True
 
 
 @signal_fn
-def pass_none(inputs, outputs, extra_args={}):
+def pass_none(inputs, outputs, gts=None, extra_args={}):
     return False

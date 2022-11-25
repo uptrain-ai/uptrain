@@ -17,8 +17,8 @@ class ConceptDrift(AbstractAnomaly):
     def need_ground_truth(self):
         return True
 
-    def check(self, inputs, outputs, extra_args={}):
-        y_gt = extra_args["gt"]
+    def check(self, inputs, outputs, gts=None, extra_args={}):
+        y_gt = gts
         y_pred = outputs
 
         if y_pred[0] == y_gt[0]:
@@ -26,5 +26,5 @@ class ConceptDrift(AbstractAnomaly):
         else:
             self.algo.add_prediction(1)
 
-    def is_data_interesting(self, inputs, outputs, extra_args={}):
+    def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
         return False

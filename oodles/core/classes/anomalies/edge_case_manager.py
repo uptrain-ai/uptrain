@@ -8,12 +8,12 @@ class EdgeCaseManager(AbstractAnomaly):
         self.signal_manager = SignalManager()
         self.signal_manager.add_signal_formulae(signal_formulae)
 
-    def check(self, inputs, outputs, extra_args={}):
+    def check(self, inputs, outputs, gts=None, extra_args={}):
         return
 
-    def is_data_interesting(self, inputs, outputs, extra_args={}):
+    def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
         return self.signal_manager.evaluate_signal(
-            inputs, outputs, extra_args=extra_args
+            inputs, outputs, gts=gts, extra_args=extra_args
         )
 
     def need_ground_truth(self):

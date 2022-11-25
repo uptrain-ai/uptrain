@@ -35,14 +35,14 @@ class Signal:
         self.extra_args = extra_args
         self.children = []
 
-    def base_evaluate(self, inputs, outputs, extra_args={}):
+    def base_evaluate(self, inputs, outputs, gts=None, extra_args={}):
         extra_args.update(self.extra_args)
         if self.fn is None:
             raise Exception("Evalution fn not defined for signal: ", self.name)
-        return self.fn(inputs, outputs, extra_args=extra_args)
+        return self.fn(inputs, outputs, gts=gts, extra_args=extra_args)
 
-    def evaluate(self, inputs, outputs, extra_args={}):
-        res = self.base_evaluate(inputs, outputs, extra_args=extra_args)
+    def evaluate(self, inputs, outputs, gts=None, extra_args={}):
+        res = self.base_evaluate(inputs, outputs, gts=gts, extra_args=extra_args)
         if not isinstance(res, (int, bool)):
             raise Exception(
                 "Unsupported return type: %s for signal: %s"
@@ -94,46 +94,46 @@ class OperatorSignal(Signal):
 class AddSignal(OperatorSignal):
     name = "Sum"
 
-    def base_evaluate(self, inputs, outputs, extra_args={}):
+    def base_evaluate(self, inputs, outputs, gts=None, extra_args={}):
         return self.base.evaluate(
-            inputs, outputs, extra_args=extra_args
-        ) + self.other.evaluate(inputs, outputs, extra_args=extra_args)
+            inputs, outputs, gts=gts, extra_args=extra_args
+        ) + self.other.evaluate(inputs, outputs, gts=gts, extra_args=extra_args)
 
 
 class MulSignal(OperatorSignal):
     name = "Product"
 
-    def base_evaluate(self, inputs, outputs, extra_args={}):
+    def base_evaluate(self, inputs, outputs, gts=None, extra_args={}):
         return self.base.evaluate(
-            inputs, outputs, extra_args=extra_args
-        ) * self.other.evaluate(inputs, outputs, extra_args=extra_args)
+            inputs, outputs, gts=gts, extra_args=extra_args
+        ) * self.other.evaluate(inputs, outputs, gts=gts, extra_args=extra_args)
 
 
 class AndSignal(OperatorSignal):
     name = "And"
 
-    def base_evaluate(self, inputs, outputs, extra_args={}):
+    def base_evaluate(self, inputs, outputs, gts=None, extra_args={}):
         return self.base.evaluate(
-            inputs, outputs, extra_args=extra_args
-        ) & self.other.evaluate(inputs, outputs, extra_args=extra_args)
+            inputs, outputs, gts=gts, extra_args=extra_args
+        ) & self.other.evaluate(inputs, outputs, gts=gts, extra_args=extra_args)
 
 
 class OrSignal(OperatorSignal):
     name = "Or"
 
-    def base_evaluate(self, inputs, outputs, extra_args={}):
+    def base_evaluate(self, inputs, outputs, gts=None, extra_args={}):
         return self.base.evaluate(
-            inputs, outputs, extra_args=extra_args
-        ) | self.other.evaluate(inputs, outputs, extra_args=extra_args)
+            inputs, outputs, gts=gts, extra_args=extra_args
+        ) | self.other.evaluate(inputs, outputs, gts=gts, extra_args=extra_args)
 
 
 class XorSignal(OperatorSignal):
     name = "Xor"
 
-    def base_evaluate(self, inputs, outputs, extra_args={}):
+    def base_evaluate(self, inputs, outputs, gts=None, extra_args={}):
         return self.base.base_evaluate(
-            inputs, outputs, extra_args=extra_args
-        ) ^ self.other.evaluate(inputs, outputs, extra_args=extra_args)
+            inputs, outputs, gts=gts, extra_args=extra_args
+        ) ^ self.other.evaluate(inputs, outputs, gts=gts, extra_args=extra_args)
 
 
 class InvertSignal(Signal):
@@ -142,5 +142,5 @@ class InvertSignal(Signal):
         self.base = base
         self.children = [base]
 
-    def base_evaluate(self, inputs, outputs, extra_args={}):
-        return ~self.base.base_evaluate(inputs, outputs, extra_args=extra_args)
+    def base_evaluate(self, inputs, outputs, gts=None, extra_args={}):
+        return ~self.base.base_evaluate(inputs, outputs, gts=gts, extra_args=extra_args)
