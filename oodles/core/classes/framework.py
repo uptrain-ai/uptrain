@@ -63,14 +63,10 @@ class Framework:
         self.model_handler = ModelHandler()
         self.create_data_folders()
 
-        self.batch_size = cfg['batch_size']
-        self.data_identifier_type = cfg['data_identifier']
+        self.batch_size = cfg["batch_size"]
+        self.data_identifier_type = cfg["data_identifier"]
         self.data_summary_file = self.fold_name + "/data_summary.json"
-        self.summary_data = {
-            'all_data': [],
-            'smart_data': [],
-            'versions': {}
-        }
+        self.summary_data = {"all_data": [], "smart_data": [], "versions": {}}
         write_json(self.data_summary_file, self.summary_data)
 
         if "data_transformation_func" in cfg["training_args"]:
@@ -107,11 +103,13 @@ class Framework:
             gts=gts,
             extra_args=extra_args,
         )
-        if not saved['is_repeat']:
-            self.summary_data['all_data'].append(saved)
+        if not saved["is_repeat"]:
+            self.summary_data["all_data"].append(saved)
             self.predicted_count += 1
 
-    def add_data_point_to_smart_warehouse(self, inputs, outputs, gts=None, extra_args={}):
+    def add_data_point_to_smart_warehouse(
+        self, inputs, outputs, gts=None, extra_args={}
+    ):
         """Logs only the interesting test cases to data warehouse. Logged under sub-folder 'smart_data'"""
 
         saved = self.add_data_point_to_warehouse(
@@ -121,11 +119,13 @@ class Framework:
             gts=gts,
             extra_args=extra_args,
         )
-        if not saved['is_repeat']:
-            self.summary_data['smart_data'].append(saved)
+        if not saved["is_repeat"]:
+            self.summary_data["smart_data"].append(saved)
             self.selected_count += 1
 
-    def add_data_point_to_warehouse(self, inputs, outputs, warehouse, gts=None, extra_args={}):
+    def add_data_point_to_warehouse(
+        self, inputs, outputs, warehouse, gts=None, extra_args={}
+    ):
         """Creates a json file per data-point.
         Deletes model-related fields and transforms input, output data in a json-compatible format.
         """
@@ -133,8 +133,16 @@ class Framework:
         if "model" in inputs:
             del inputs["model"]
 
-        identifier = extra_args['identifier']
-        path = self.fold_name + "/" + str(self.version) + "/" + warehouse + str(identifier[0]) + ".json"
+        identifier = extra_args["identifier"]
+        path = (
+            self.fold_name
+            + "/"
+            + str(self.version)
+            + "/"
+            + warehouse
+            + str(identifier[0])
+            + ".json"
+        )
         is_repeat = True
 
         if not os.path.exists(path):
@@ -151,8 +159,7 @@ class Framework:
                 datapoint,
             )
 
-        return {'path': path, 'identifier': identifier, "is_repeat": is_repeat}
-
+        return {"path": path, "identifier": identifier, "is_repeat": is_repeat}
 
     def get_data_identifier(self, inputs, extra_args={}):
         if self.data_identifier_type in inputs:
@@ -160,13 +167,14 @@ class Framework:
         elif self.data_identifier_type in extra_args:
             return extra_args[self.data_identifier_type]
         elif self.data_identifier_type in ["utc_timestamp", "identifier"]:
-            return [str(datetime.utcnow())] * self.batch_size
+            return [str(datetime.utcnow())]
         raise Exception("Invalid Data Identifier type %s" % self.data_identifier_type)
 
-
     def smartly_add_data(self, inputs, outputs, gts=None, extra_args={}):
-        """Checks if the given data-point is interesting.
-        If yes, logs them to smart_data warehouse (which is used to create retraining dataset)
+        """
+        Checks if the given data-point is interesting.
+        If yes, logs them to smart_data warehouse, which
+        is used to create retraining dataset.
         """
 
         old_selected_count = self.selected_count
@@ -174,7 +182,9 @@ class Framework:
         extra_args.update({"identifier": this_identifier})
 
         # Log all the data-points into all_data warehouse
-        self.add_data_point_to_all_warehouse(inputs, outputs, gts=gts, extra_args=extra_args)
+        self.add_data_point_to_all_warehouse(
+            inputs, outputs, gts=gts, extra_args=extra_args
+        )
 
         if self.is_data_interesting(inputs, outputs, gts=gts, extra_args=extra_args):
             # Log the interesting data-points into smart_data warehouse
@@ -197,7 +207,9 @@ class Framework:
         if isinstance(data, dict):
             this_data = {}
             for key in list(data.keys()):
-                this_data.update({key: self.extract_data_point_from_batch(data[key], i)})
+                this_data.update(
+                    {key: self.extract_data_point_from_batch(data[key], i)}
+                )
             return this_data
         elif isinstance(data, np.ndarray):
             if data.shape[0] == self.batch_size:
@@ -212,24 +224,34 @@ class Framework:
         else:
             return data
 
+    def check_and_add_data(
+        self, inputs, outputs, gts=None, extra_args={}, batch_size=-1
+    ):
+        if batch_size < 0:
+            batch_size = self.batch_size
 
-    def check_and_add_data(self, inputs, outputs, gts=None, extra_args={}):
-        #TODO: We are assuming inputs = BATCH_SIZE x INPUT_SIZE, 
+        # TODO: We are assuming inputs = BATCH_SIZE x INPUT_SIZE,
         # Current implementation assumes BATCH_SIZE = 1, how do we extend this?
         identifiers = []
-        for i in range(self.batch_size):
+        for i in range(batch_size):
             this_inputs = self.extract_data_point_from_batch(inputs, i)
             this_outputs = self.extract_data_point_from_batch(outputs, i)
             this_gts = self.extract_data_point_from_batch(gts, i)
             this_extra_args = self.extract_data_point_from_batch(extra_args, i)
 
-            self.check(this_inputs, this_outputs, gts=this_gts, extra_args=this_extra_args)
-            this_identifiers = self.smartly_add_data(this_inputs, this_outputs, gts=this_gts, extra_args=this_extra_args)
+            self.check(
+                this_inputs, this_outputs, gts=this_gts, extra_args=this_extra_args
+            )
+            this_identifiers = self.smartly_add_data(
+                this_inputs, this_outputs, gts=this_gts, extra_args=this_extra_args
+            )
             identifiers.append(this_identifiers[0])
         return np.array(identifiers)
 
     def check(self, inputs, outputs, gts=None, extra_args={}):
-        return self.anomaly_manager.check(inputs, outputs, gts=gts, extra_args=extra_args)
+        return self.anomaly_manager.check(
+            inputs, outputs, gts=gts, extra_args=extra_args
+        )
 
     def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
         """A data-point is deemed interesting if the defined signal is turned on for it"""
@@ -249,7 +271,9 @@ class Framework:
         """Checks if enough data-points are collected and the framework needs to kickoff model retraining"""
 
         if self.selected_count > 250:
-            write_json(self.data_summary_file, json.dumps(self.summary_data, cls=NumpyEncoder))
+            write_json(
+                self.data_summary_file, json.dumps(self.summary_data, cls=NumpyEncoder)
+            )
             return True
         return False
 
@@ -317,31 +341,47 @@ class Framework:
             gt_data = [gt_data]
 
         summary_data = self.summary_data
-        all_idens_in_smart_data = np.array([x['identifier'] for x in summary_data['smart_data']])
-        all_idens_in_all_data = np.array([x['identifier'] for x in summary_data['all_data']])
+        all_idens_in_smart_data = np.array(
+            [x["identifier"] for x in summary_data["smart_data"]]
+        )
+        all_idens_in_all_data = np.array(
+            [x["identifier"] for x in summary_data["all_data"]]
+        )
 
         for full_gt_row in gt_data:
-            for i in range(len(full_gt_row['gt'])):
+            for i in range(len(full_gt_row["gt"])):
                 gt_row = self.extract_data_point_from_batch(full_gt_row, i)
                 all_data_files_to_be_checked = []
                 files_to_be_updated = []
                 this_iden = gt_row[self.data_identifier_type]
-                this_gt = gt_row['gt']
+                this_gt = gt_row["gt"]
 
                 all_data_idx = np.where(all_idens_in_all_data == this_iden)[0]
                 if len(all_data_idx):
-                    files_to_be_updated.append(summary_data['all_data'][all_data_idx[0]]['path'])
-                    all_data_files_to_be_checked.append(summary_data['all_data'][all_data_idx[0]]['path'])
+                    files_to_be_updated.append(
+                        summary_data["all_data"][all_data_idx[0]]["path"]
+                    )
+                    all_data_files_to_be_checked.append(
+                        summary_data["all_data"][all_data_idx[0]]["path"]
+                    )
 
                 smart_data_idx = np.where(all_idens_in_smart_data == this_iden)[0]
                 if len(smart_data_idx):
-                    files_to_be_updated.append(summary_data['smart_data'][smart_data_idx[0]]['path'])
+                    files_to_be_updated.append(
+                        summary_data["smart_data"][smart_data_idx[0]]["path"]
+                    )
 
                 for file_to_be_updated in files_to_be_updated:
                     old_data = read_json(file_to_be_updated)
-                    old_data.update({'gt': json.dumps(this_gt, cls=NumpyEncoder)})
+                    old_data.update({"gt": json.dumps(this_gt, cls=NumpyEncoder)})
                     write_json(file_to_be_updated, old_data)
 
                 for file_to_be_checked in all_data_files_to_be_checked:
                     this_saved_data = read_json(file_to_be_checked)
-                    self.check_and_add_data(json.loads(this_saved_data['input']), json.loads(this_saved_data['output']), gts=json.loads(this_saved_data['gt']), extra_args=json.loads(this_saved_data['extra_args']))
+                    self.check_and_add_data(
+                        json.loads(this_saved_data["input"]),
+                        json.loads(this_saved_data["output"]),
+                        gts=json.loads(this_saved_data["gt"]),
+                        extra_args=json.loads(this_saved_data["extra_args"]),
+                        batch_size=1,
+                    )

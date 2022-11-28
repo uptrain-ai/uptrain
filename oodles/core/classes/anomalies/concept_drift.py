@@ -13,7 +13,6 @@ class ConceptDrift(AbstractAnomaly):
         else:
             raise Exception("Data drift algo type not supported")
 
-
     def need_ground_truth(self):
         return True
 

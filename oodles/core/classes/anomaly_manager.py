@@ -15,21 +15,21 @@ class AnomalyManager:
         if check["type"] == Anomaly.EDGE_CASE:
             edge_case_manager = EdgeCaseManager(check["signal_formulae"])
             self.anomalies_to_check.append(edge_case_manager)
-        elif check['type'] == Anomaly.CONCEPT_DRIFT:
+        elif check["type"] == Anomaly.CONCEPT_DRIFT:
             drift_manager = ConceptDrift(check)
             self.anomalies_to_check.append(drift_manager)
         elif check["type"] == Anomaly.DATA_DRIFT:
             drift_manager = DataDrift(check)
             self.anomalies_to_check.append(drift_manager)
         elif check["type"] == Anomaly.CUSTOM_MONITOR:
-            custom_monitor = CustomAnomaly(check["func"])
+            custom_monitor = check["algorithm"]()
             self.anomalies_to_check.append(custom_monitor)
         else:
             raise Exception("Check type not Supported")
 
     def check(self, inputs, outputs, gts=None, extra_args={}):
         for anomaly in self.anomalies_to_check:
-            if (anomaly.need_ground_truth() == (gts is not None)):
+            if anomaly.need_ground_truth() == (gts is not None):
                 anomaly.check(inputs, outputs, gts=gts, extra_args=extra_args)
 
     def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):

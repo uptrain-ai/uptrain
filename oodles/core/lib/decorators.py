@@ -13,5 +13,7 @@ def monitor(framework_obj):
             if framework_obj.need_retraining():
                 framework_obj.retrain()
             return outputs, identifiers
+
         return wrapped
+
     return decorator
