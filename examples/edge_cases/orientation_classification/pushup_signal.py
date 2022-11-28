@@ -3,7 +3,7 @@ from oodles.core.lib.decorators import signal_fn
 
 
 @signal_fn
-def pushup_signal(inputs, outputs, extra_args={}):
+def pushup_signal(inputs, outputs, gts=None, extra_args={}):
     # Define signal to identify cases when the user is in the pushup position
     kps = np.reshape(np.array(inputs["kps"]), (17, 2))
     head_mean_point = np.sum(kps[0:5, 0:2], axis=0) / 5

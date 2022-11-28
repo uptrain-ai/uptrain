@@ -34,8 +34,8 @@ class KpsDataset(tf.keras.utils.Sequence):
     def load_x_y_from_data(self, data=None):
         if data is None:
             data = self.data
-        kps = [np.array(x["kps"]) for x in data]
-        gts = [np.array(x["gt"]) for x in data]
+        kps = [x["kps"] for x in data]
+        gts = [x["gt"] for x in data]
         ids = [x["id"] for x in data]
         if self.normalization:
             norm = Normalizer()
@@ -83,7 +83,7 @@ class KpsDataset(tf.keras.utils.Sequence):
 
         if self.is_test:
             sample = (
-                {"kps": np.array(batch_kps), "id": batch_ids},
+                {"kps": np.array(batch_kps), "id": np.array(batch_ids)},
                 np.array(batch_gts),
             )
         else:

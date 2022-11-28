@@ -25,6 +25,7 @@ class Anomaly(Enum):
     EDGE_CASE = "edge_case"
     DATA_DRIFT = "data_drift"
     CUSTOM_MONITOR = "custom_monitor"
+    CONCEPT_DRIFT = "concept_drift"
 
 
 class DataDriftAlgo(Enum):

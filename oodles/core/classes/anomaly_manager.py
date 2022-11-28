@@ -1,6 +1,7 @@
-from oodles.constants import Anomaly, DataDriftAlgo
+from oodles.constants import Anomaly
 from oodles.core.classes.anomalies.edge_case_manager import EdgeCaseManager
-from oodles.core.classes.anomalies.data_drift_ddm import DataDriftDDM
+from oodles.core.classes.anomalies.concept_drift import ConceptDrift
+from oodles.core.classes.anomalies.data_drift import DataDrift
 from oodles.core.classes.anomalies.custom_anomaly import CustomAnomaly
 
 
@@ -14,28 +15,26 @@ class AnomalyManager:
         if check["type"] == Anomaly.EDGE_CASE:
             edge_case_manager = EdgeCaseManager(check["signal_formulae"])
             self.anomalies_to_check.append(edge_case_manager)
+        elif check["type"] == Anomaly.CONCEPT_DRIFT:
+            drift_manager = ConceptDrift(check)
+            self.anomalies_to_check.append(drift_manager)
         elif check["type"] == Anomaly.DATA_DRIFT:
-            # TODO: Add a generic Data drift class to handle its algos
-            if check["algorithm"] == DataDriftAlgo.DDM:
-                warn_thres = check.get("warn_thres", 2)
-                alarm_thres = check.get("alarm_thres", 3)
-                ddm_manager = DataDriftDDM(warn_thres, alarm_thres)
-            else:
-                raise Exception("Data drift algo type not supported")
-            self.anomalies_to_check.append(ddm_manager)
+            drift_manager = DataDrift(check)
+            self.anomalies_to_check.append(drift_manager)
         elif check["type"] == Anomaly.CUSTOM_MONITOR:
-            custom_monitor = CustomAnomaly(check["func"])
+            custom_monitor = check["algorithm"]()
             self.anomalies_to_check.append(custom_monitor)
         else:
             raise Exception("Check type not Supported")
 
-    def check(self, inputs, outputs, extra_args={}):
+    def check(self, inputs, outputs, gts=None, extra_args={}):
         for anomaly in self.anomalies_to_check:
-            anomaly.check(inputs, outputs)
+            if anomaly.need_ground_truth() == (gts is not None):
+                anomaly.check(inputs, outputs, gts=gts, extra_args=extra_args)
 
-    def is_data_interesting(self, inputs, outputs, extra_args={}):
+    def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
         is_interesting = [
-            x.is_data_interesting(inputs, outputs, extra_args=extra_args)
+            x.is_data_interesting(inputs, outputs, gts=gts, extra_args=extra_args)
             for x in self.anomalies_to_check
         ]
         return sum(is_interesting) > 0
