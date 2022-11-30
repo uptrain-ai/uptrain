@@ -9,3 +9,4 @@ oodles.egg-info
 build
 dist
 .idea
+oodles_logs*

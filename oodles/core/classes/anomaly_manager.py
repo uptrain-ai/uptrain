@@ -2,12 +2,12 @@ from oodles.constants import Anomaly
 from oodles.core.classes.anomalies.edge_case_manager import EdgeCaseManager
 from oodles.core.classes.anomalies.concept_drift import ConceptDrift
 from oodles.core.classes.anomalies.data_drift import DataDrift
-from oodles.core.classes.anomalies.custom_anomaly import CustomAnomaly
 
 
 class AnomalyManager:
-    def __init__(self, checks=[]):
+    def __init__(self, checks=[], log_folder=None):
         self.anomalies_to_check = []
+        self.log_folder = log_folder
         for check in checks:
             self.add_anomaly_to_monitor(check)
 
@@ -16,13 +16,13 @@ class AnomalyManager:
             edge_case_manager = EdgeCaseManager(check["signal_formulae"])
             self.anomalies_to_check.append(edge_case_manager)
         elif check["type"] == Anomaly.CONCEPT_DRIFT:
-            drift_manager = ConceptDrift(check)
+            drift_manager = ConceptDrift(check, self.log_folder)
             self.anomalies_to_check.append(drift_manager)
         elif check["type"] == Anomaly.DATA_DRIFT:
             drift_manager = DataDrift(check)
             self.anomalies_to_check.append(drift_manager)
         elif check["type"] == Anomaly.CUSTOM_MONITOR:
-            custom_monitor = check["algorithm"]()
+            custom_monitor = check["algorithm"](self.log_folder)
             self.anomalies_to_check.append(custom_monitor)
         else:
             raise Exception("Check type not Supported")
