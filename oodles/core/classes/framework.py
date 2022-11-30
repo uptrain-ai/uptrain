@@ -65,7 +65,7 @@ class Framework:
         self.selected_count = 0
         self.predicted_count = 0
         self.version = 1
-        self.anomaly_manager = AnomalyManager(cfg["checks"], self.log_folder)
+        self.anomaly_manager = AnomalyManager(cfg["checks"], log_args={'log_folder': self.log_folder})
         self.dataset_handler = DatasetHandler()
         self.model_handler = ModelHandler()
         self.create_data_folders()
