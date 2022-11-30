@@ -2,18 +2,18 @@ from oodles.core.classes.anomalies.abstract_anomaly import AbstractAnomaly
 
 
 class CustomAnomaly(AbstractAnomaly):
-    def __init__(self, monitoring_func, need_gt=False, log_args={}, dashboard_name='custom_measure'):
-        self.dashboard_name = dashboard_name
+    def __init__(self, check, log_args={}):
+        self.dashboard_name = check.get('dashboard_name', 'custom_measure')
         super().__init__(log_args=log_args)
-        self.monitoring_func = monitoring_func
-        self.need_gt = need_gt
-        self.initialise_anomaly()
+        self.initialize_func = check.get('custom_initialize_func', None)
+        self.check_func = check['custom_check_func']
+        self.need_gt = check['need_gt']
 
-    def initialise_anomaly(self):
-        return
+        if self.initialize_func is not None:
+            self.initialize_func()
 
     def check(self, inputs, outputs, gts=None, extra_args={}):
-        return self.monitoring_func(inputs, outputs, extra_args=extra_args)
+        return self.check_func(inputs, outputs, gts=gts, extra_args=extra_args)
 
     def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
         return False
