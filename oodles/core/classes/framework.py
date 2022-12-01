@@ -5,9 +5,8 @@ import copy
 import numpy as np
 from datetime import datetime
 
-from oodles.core.classes.dataset_handler import DatasetHandler
-from oodles.core.classes.model_handler import ModelHandler
-from oodles.core.classes.anomaly_manager import AnomalyManager
+from oodles.core.classes.helpers import DatasetHandler, ModelHandler
+from oodles.core.classes.anomalies.managers import AnomalyManager
 from oodles.core.lib.helper_funcs import read_json, write_json
 from oodles.core.encoders.numpy_encoder import NumpyEncoder
 
@@ -55,10 +54,17 @@ class Framework:
             print("Deleting the folder: ", self.fold_name)
             shutil.rmtree(self.fold_name)
         os.mkdir(self.fold_name)
+
+        self.log_folder = cfg["training_args"].get(
+            "log_folder", "oodles_logs " + str(datetime.utcnow())
+        )
+        if os.path.exists(self.log_folder):
+            shutil.rmtree(self.log_folder)
+
         self.selected_count = 0
         self.predicted_count = 0
         self.version = 1
-        self.anomaly_manager = AnomalyManager(cfg["checks"])
+        self.anomaly_manager = AnomalyManager(cfg["checks"], log_args={'log_folder': self.log_folder})
         self.dataset_handler = DatasetHandler()
         self.model_handler = ModelHandler()
         self.create_data_folders()

@@ -4,8 +4,10 @@ from oodles.constants import DataDriftAlgo
 
 
 class DataDrift(AbstractAnomaly):
-    def __init__(self, check):
-        super().__init__()
+    dashboard_name = 'data_drift'
+
+    def __init__(self, check, log_args={}):
+        super().__init__(log_args=log_args)
         if check["algorithm"] == DataDriftAlgo.DDM:
             warn_thres = check.get("warn_thres", 2)
             alarm_thres = check.get("alarm_thres", 3)
