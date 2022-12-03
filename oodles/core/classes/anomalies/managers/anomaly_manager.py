@@ -14,7 +14,9 @@ class AnomalyManager:
 
     def add_anomaly_to_monitor(self, check):
         if check["type"] == Anomaly.EDGE_CASE:
-            edge_case_manager = EdgeCaseManager(check["signal_formulae"], log_args=self.log_args)
+            edge_case_manager = EdgeCaseManager(
+                check["signal_formulae"], log_args=self.log_args
+            )
             self.anomalies_to_check.append(edge_case_manager)
         elif check["type"] == Anomaly.CONCEPT_DRIFT:
             drift_manager = ConceptDrift(check, log_args=self.log_args)

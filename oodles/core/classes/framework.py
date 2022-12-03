@@ -64,7 +64,9 @@ class Framework:
         self.selected_count = 0
         self.predicted_count = 0
         self.version = 1
-        self.anomaly_manager = AnomalyManager(cfg["checks"], log_args={'log_folder': self.log_folder})
+        self.anomaly_manager = AnomalyManager(
+            cfg["checks"], log_args={"log_folder": self.log_folder}
+        )
         self.dataset_handler = DatasetHandler()
         self.model_handler = ModelHandler()
         self.create_data_folders()
@@ -173,7 +175,7 @@ class Framework:
         elif self.data_identifier_type in extra_args:
             return extra_args[self.data_identifier_type]
         elif self.data_identifier_type in ["utc_timestamp", "identifier"]:
-            return [str(datetime.utcnow())]
+            return [str(datetime.utcnow().timestamp()).replace(".", "")]
         raise Exception("Invalid Data Identifier type %s" % self.data_identifier_type)
 
     def smartly_add_data(self, inputs, outputs, gts=None, extra_args={}):

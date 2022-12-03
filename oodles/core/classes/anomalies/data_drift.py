@@ -4,7 +4,7 @@ from oodles.constants import DataDriftAlgo
 
 
 class DataDrift(AbstractAnomaly):
-    dashboard_name = 'data_drift'
+    dashboard_name = "data_drift"
 
     def __init__(self, check, log_args={}):
         super().__init__(log_args=log_args)
