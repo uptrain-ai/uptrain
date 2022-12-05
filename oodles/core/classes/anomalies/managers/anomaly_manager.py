@@ -1,5 +1,5 @@
 from oodles.constants import Anomaly
-from oodles.core.classes.anomalies.edge_case_manager import EdgeCaseManager
+from oodles.core.classes.anomalies.managers.edge_case_manager import EdgeCaseManager
 from oodles.core.classes.anomalies.concept_drift import ConceptDrift
 from oodles.core.classes.anomalies.data_drift import DataDrift
 from oodles.core.classes.anomalies.custom_anomaly import CustomAnomaly

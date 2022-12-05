@@ -1,6 +1,6 @@
 import numpy as np
 
-from oodles.core.classes.annotation_helper import AnnotationHelper
+from oodles.core.classes.helpers.annotation_helper import AnnotationHelper
 from oodles.core.lib.helper_funcs import read_json, write_json
 from oodles.constants import AnnotationMethod
 

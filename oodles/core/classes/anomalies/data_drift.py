@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.cluster import KMeans
 
 from oodles.core.classes.anomalies.abstract_anomaly import AbstractAnomaly
-from oodles.core.classes.anomalies.algorithms.data_drift_ddm import DataDriftDDM
+from oodles.core.classes.algorithms.data_drift_ddm import DataDriftDDM
 from oodles.constants import DataDriftAlgo
 from oodles.core.lib.helper_funcs import read_json
 

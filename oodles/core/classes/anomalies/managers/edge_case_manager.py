@@ -1,5 +1,5 @@
 from oodles.core.classes.anomalies.abstract_anomaly import AbstractAnomaly
-from oodles.core.classes.anomalies.signal_manager import SignalManager
+from oodles.core.classes.anomalies.managers.signal_manager import SignalManager
 
 
 class EdgeCaseManager(AbstractAnomaly):
