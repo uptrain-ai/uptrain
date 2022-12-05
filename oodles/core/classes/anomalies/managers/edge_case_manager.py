@@ -22,6 +22,7 @@ class EdgeCaseManager(AbstractAnomaly):
         )
         self.num_selected += int(is_interesting)
         self.plot_scalar("num_edge_cases", self.num_selected, self.num_preds)
+        return is_interesting
 
     def need_ground_truth(self):
         return False

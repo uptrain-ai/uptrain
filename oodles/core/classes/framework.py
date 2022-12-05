@@ -5,9 +5,8 @@ import copy
 import numpy as np
 from datetime import datetime
 
-from oodles.core.classes.dataset_handler import DatasetHandler
-from oodles.core.classes.model_handler import ModelHandler
-from oodles.core.classes.anomaly_manager import AnomalyManager
+from oodles.core.classes.helpers import DatasetHandler, ModelHandler
+from oodles.core.classes.anomalies.managers import AnomalyManager
 from oodles.core.lib.helper_funcs import read_json, write_json
 from oodles.core.encoders.numpy_encoder import NumpyEncoder
 
