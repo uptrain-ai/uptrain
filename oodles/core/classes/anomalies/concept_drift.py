@@ -1,5 +1,5 @@
-from oodles.core.classes.anomalies.abstract_anomaly import AbstractAnomaly
-from oodles.core.classes.algorithms.data_drift_ddm import DataDriftDDM
+from oodles.core.classes.anomalies import AbstractAnomaly
+from oodles.core.classes.algorithms import DataDriftDDM
 from oodles.constants import DataDriftAlgo
 
 

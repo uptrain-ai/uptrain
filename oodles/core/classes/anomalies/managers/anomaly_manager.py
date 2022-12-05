@@ -1,8 +1,9 @@
 from oodles.constants import Anomaly
-from oodles.core.classes.anomalies.edge_case_manager import EdgeCaseManager
-from oodles.core.classes.anomalies.concept_drift import ConceptDrift
-from oodles.core.classes.anomalies.data_drift import DataDrift
-from oodles.core.classes.anomalies.custom_anomaly import CustomAnomaly
+from .edge_case_manager import EdgeCaseManager
+from oodles.core.classes.anomalies import ConceptDrift
+from oodles.core.classes.anomalies import DataDrift
+from oodles.core.classes.anomalies import CustomAnomaly
+from oodles.core.classes.anomalies import RecommendationBias
 
 
 class AnomalyManager:
@@ -24,6 +25,9 @@ class AnomalyManager:
         elif check["type"] == Anomaly.DATA_DRIFT:
             drift_manager = DataDrift(check, log_args=self.log_args)
             self.anomalies_to_check.append(drift_manager)
+        elif check["type"] == Anomaly.POPULARITY_BIAS:
+            bias_manager = RecommendationBias(check, log_args=self.log_args)
+            self.anomalies_to_check.append(bias_manager)
         elif check["type"] == Anomaly.CUSTOM_MONITOR:
             custom_monitor = CustomAnomaly(check, log_args=self.log_args)
             self.anomalies_to_check.append(custom_monitor)

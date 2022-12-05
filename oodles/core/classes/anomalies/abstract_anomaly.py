@@ -25,3 +25,6 @@ class AbstractAnomaly:
 
     def plot_scalars(self, name, x, y):
         self.writer.add_scalars(name, x, y)
+
+    def plot_histogram(self, name, arr, t):
+        self.writer.add_histogram(name, arr, t)
