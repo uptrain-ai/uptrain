@@ -1,9 +1,9 @@
-from oodles.core.classes.anomalies.abstract_anomaly import AbstractAnomaly
-from oodles.core.classes.anomalies.managers.signal_manager import SignalManager
+from oodles.core.classes.anomalies import AbstractAnomaly
+from .signal_manager import SignalManager
 
 
 class EdgeCaseManager(AbstractAnomaly):
-    dashboard_name = 'num_edge_cases'
+    dashboard_name = "num_edge_cases"
 
     def __init__(self, signal_formulae, log_args={}):
         super().__init__(log_args=log_args)

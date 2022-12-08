@@ -1,6 +1,6 @@
 import numpy as np
 
-from oodles.core.classes.helpers.annotation_helper import AnnotationHelper
+from oodles.core.classes.helpers import AnnotationHelper
 from oodles.core.lib.helper_funcs import read_json, write_json, cluster_and_plot_data
 from oodles.constants import AnnotationMethod
 
@@ -60,7 +60,7 @@ class DatasetHandler:
         transformed_data = [self.transformation_func(x) for x in data]
         return transformed_data
 
-    def create_retraining_dataset(self, dataset_location, new_data, old_dataset):
+    def create_retraining_dataset(self, dataset_location, new_data, old_dataset, ratio=5):
         """Creates retraining dataset by combining original training data with collected data-points
         - Transforms logged data-points via transformation_func
         - Add annotatons via attached annotation method
@@ -78,7 +78,7 @@ class DatasetHandler:
         write_json(
             dataset_location + "/training_dataset.json",
             self.merge_training_datasets(
-                old_dataset, dataset_location + "/annotated_dataset.json", ratio=5
+                old_dataset, dataset_location + "/annotated_dataset.json", ratio=ratio
             ),
         )
 

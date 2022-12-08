@@ -6,14 +6,14 @@ from oodles.constants import DataDriftAlgo
 from oodles.core.lib.helper_funcs import read_json, cluster_and_plot_data
 
 class DataDrift(AbstractAnomaly):
-    dashboard_name = 'data_drift'
+    dashboard_name = "data_drift"
     is_embedding = True
     NUM_BUCKETS = 20
 
     def __init__(self, check, log_args={}):
         super().__init__(log_args=log_args)
-        self.reference_dataset = check['reference_dataset']
-        self.cluster_plot_func = check.get('cluster_plot_func', None)
+        self.reference_dataset = check["reference_dataset"]
+        self.cluster_plot_func = check.get("cluster_plot_func", None)
         self.count = 0
         self.prod_dist_counts_arr = []
         self.bucket_reference_dataset()

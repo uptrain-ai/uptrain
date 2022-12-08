@@ -1,10 +1,10 @@
-from oodles.core.classes.anomalies.abstract_anomaly import AbstractAnomaly
-from oodles.core.classes.algorithms.data_drift_ddm import DataDriftDDM
+from oodles.core.classes.anomalies import AbstractAnomaly
+from oodles.core.classes.algorithms import DataDriftDDM
 from oodles.constants import DataDriftAlgo
 
 
 class ConceptDrift(AbstractAnomaly):
-    dashboard_name = 'concept_drift_acc'
+    dashboard_name = "concept_drift_acc"
 
     def __init__(self, check, log_args={}):
         super().__init__(log_args=log_args)
@@ -20,9 +20,7 @@ class ConceptDrift(AbstractAnomaly):
         return True
 
     def check(self, inputs, outputs, gts=None, extra_args={}):
-        y_gt = gts
-        y_pred = outputs
-        acc = (y_pred[0] == y_gt[0])
+        acc = outputs[0] == gts[0]
         if acc:
             self.algo.add_prediction(0)
         else:
@@ -30,6 +28,10 @@ class ConceptDrift(AbstractAnomaly):
         
         self.acc_arr.append(acc)
         avg_acc = sum(self.acc_arr)/len(self.acc_arr)
+        self.plot_scalar("Avg accuracy", avg_acc, len(self.acc_arr))
+
+        self.acc_arr.append(acc)
+        avg_acc = sum(self.acc_arr) / len(self.acc_arr)
         self.plot_scalar("Avg accuracy", avg_acc, len(self.acc_arr))
 
     def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):

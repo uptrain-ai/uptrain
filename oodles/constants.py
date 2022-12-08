@@ -26,7 +26,12 @@ class Anomaly(Enum):
     DATA_DRIFT = "data_drift"
     CUSTOM_MONITOR = "custom_monitor"
     CONCEPT_DRIFT = "concept_drift"
+    POPULARITY_BIAS = "popularity_bias"
 
 
 class DataDriftAlgo(Enum):
     DDM = "DDM"
+
+
+class BiasAlgo(Enum):
+    POPULARITY_BIAS = "popularity_bias"
