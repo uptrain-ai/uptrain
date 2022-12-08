@@ -29,6 +29,13 @@ def pushup_signal(inputs, outputs, gts=None, extra_args={}):
     )
     return bool(is_pushup)
 
+def plot_all_cluster(all_clusters, num_labels):
+    for idx in range(len(all_clusters)):
+        frame = plot_kps_as_image(all_clusters[idx], int(100 * num_labels[idx]/sum(num_labels)))
+        cv2.imwrite(str(idx) + '.png', frame)
+
+    #TODO: Plot images so that size of the image is proportional to the count of that cluster
+    plot_cluster_as_image(len(all_clusters))
 
 def plot_cluster_as_image(num_clusters):
     for idx in range(0, int(num_clusters/5)):
@@ -43,9 +50,10 @@ def plot_cluster_as_image(num_clusters):
             full_frame = frame
         else:
             full_frame = cv2.vconcat([full_frame, frame])
-    cv2.imwrite('full.png', full_frame)
+    file_name = "num_clusters_" + str(num_clusters)
+    cv2.imwrite(file_name + '.png', full_frame)
 
-def plot_kps_as_image(kps):
+def plot_kps_as_image(kps, prob):
     frame = np.zeros((256, 256, 3))
     max_val = max(kps)
     kps = kps * 200/max_val
@@ -72,4 +80,5 @@ def plot_kps_as_image(kps):
             end_point = (int(np.ceil(keypoints[skeleton_connection[iter_line][1]-1][0])),int(np.ceil(keypoints[skeleton_connection[iter_line][1]-1][1])))
             frame = cv2.line(frame, start_point, end_point, color, thickness)
 
+    cv2.putText(frame,"Prob: " + str(prob), (5,15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 1, 2)
     return frame

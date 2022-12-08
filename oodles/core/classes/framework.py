@@ -65,7 +65,7 @@ class Framework:
         self.predicted_count = 0
         self.version = 1
         self.anomaly_manager = AnomalyManager(cfg["checks"], log_args={'log_folder': self.log_folder})
-        self.dataset_handler = DatasetHandler()
+        self.dataset_handler = DatasetHandler(cluster_plot_func = cfg['training_args'].get('cluster_plot_func', None))
         self.model_handler = ModelHandler()
         self.create_data_folders()
 
@@ -255,7 +255,7 @@ class Framework:
         return np.array(identifiers)
 
     def check(self, inputs, outputs, gts=None, extra_args={}):
-        return self.anomaly_manager.check(
+        self.anomaly_manager.check(
             inputs, outputs, gts=gts, extra_args=extra_args
         )
 
