@@ -1,14 +1,22 @@
+from collections import OrderedDict
+from copy import deepcopy
 import json
 import os
 import shutil
-import copy
-import numpy as np
+import pandas as pd
 from datetime import datetime
+import random
 
 from oodles.core.classes.helpers import DatasetHandler, ModelHandler
 from oodles.core.classes.anomalies.managers import AnomalyManager
-from oodles.core.lib.helper_funcs import read_json, write_json
-from oodles.core.encoders.numpy_encoder import NumpyEncoder
+from oodles.core.lib.helper_funcs import (
+    read_json,
+    write_json,
+    extract_data_point_from_batch,
+    add_data_to_warehouse,
+    add_data_to_batch,
+    get_df_indices_from_ids,
+)
 
 
 class Framework:
@@ -25,9 +33,11 @@ class Framework:
     Methods
     -------
     smartly_add_data(inputs, outputs, extra_args=None):
-        Checks if the given data-point represents an edge case and needs to be added to the retraining dataset.
+        Checks if the given data-point represents an edge case 
+        and needs to be added to the retraining dataset.
     retrain():
-        Creates a new version of the model by retraining on collected data.
+        Creates a new version of the model by retraining 
+        on collected data.
     """
 
     def __init__(self, cfg={}):
@@ -39,15 +49,12 @@ class Framework:
             Config to initialize oodles framework
         """
 
-        cfg.setdefault("checks", [])
-        cfg.setdefault("training_args", {})
-        cfg.setdefault("evaluation_args", {})
-        cfg.setdefault("data_identifier", "identifier")
-        cfg.setdefault("batch_size", 1)
+        training_args = cfg.get("training_args", {})
+        evaluation_args = cfg.get("evaluation_args", {})
         self.cfg = cfg
 
-        self.orig_training_file = cfg["training_args"].get("orig_training_file", "")
-        self.fold_name = cfg["training_args"].get(
+        self.orig_training_file = training_args.get("orig_training_file", "")
+        self.fold_name = training_args.get(
             "fold_name", "oodles_smart_data " + str(datetime.utcnow())
         )
         if os.path.exists(self.fold_name):
@@ -55,130 +62,69 @@ class Framework:
             shutil.rmtree(self.fold_name)
         os.mkdir(self.fold_name)
 
-        self.log_folder = cfg["training_args"].get(
-            "log_folder", "oodles_logs " + str(datetime.utcnow())
-        )
+        self.log_folder = training_args.get("log_folder", "oodles_logs")
         if os.path.exists(self.log_folder):
             shutil.rmtree(self.log_folder)
 
-        self.selected_count = 0
         self.predicted_count = 0
-        self.version = 1
+        self.extra_args = {}
         self.anomaly_manager = AnomalyManager(
-            cfg["checks"], log_args={"log_folder": self.log_folder}
+            cfg.get("checks", []), log_args={"log_folder": self.log_folder}
         )
         self.dataset_handler = DatasetHandler()
         self.model_handler = ModelHandler()
-        self.create_data_folders()
 
-        self.batch_size = cfg["batch_size"]
-        self.data_identifier_type = cfg["data_identifier"]
-        self.data_summary_file = self.fold_name + "/data_summary.json"
+        self.version = 0
+        self.reset_retraining()
+        self.path_all_data = os.path.join(self.fold_name, "all_data" + ".csv")
+
+        self.batch_size = cfg.get("batch_size", 1)
+        self.retrain_after = cfg.get("retrain_after", 250)
+        self.data_id_type = cfg.get("data_id", "id")
+        self.data_summary_file = os.path.join(self.fold_name, "data_summary.json")
         self.summary_data = {"all_data": [], "smart_data": [], "versions": {}}
         write_json(self.data_summary_file, self.summary_data)
 
-        if "data_transformation_func" in cfg["training_args"]:
-            self.set_data_transformation_func(
-                cfg["training_args"]["data_transformation_func"]
-            )
-        if "annotation_method" in cfg["training_args"]:
+        if "data_transformation_func" in training_args:
+            self.set_data_transformation_func(training_args["data_transformation_func"])
+        if "annotation_method" in training_args:
             self.set_annotation_method(
-                cfg["training_args"]["annotation_method"]["method"],
-                args=cfg["training_args"]["annotation_method"].get("args", {}),
+                training_args["annotation_method"]["method"],
+                args=training_args["annotation_method"].get("args", {}),
             )
-        if "golden_testing_dataset" in cfg["evaluation_args"]:
-            self.set_golden_testing_dataset(
-                cfg["evaluation_args"]["golden_testing_dataset"]
+        if "golden_testing_dataset" in evaluation_args:
+            self.set_golden_testing_dataset(evaluation_args["golden_testing_dataset"])
+        if "training_func" in training_args:
+            self.set_training_func(training_args["training_func"])
+        if "inference_func" in evaluation_args:
+            self.set_inference_func(evaluation_args["inference_func"])
+
+    def reset_retraining(self):
+        self.version += 1
+        self.selected_count = 0
+        self.smart_data_ids = []
+        retrain_folder = os.path.join(self.fold_name, str(self.version))
+        if not os.path.exists(retrain_folder):
+            os.mkdir(retrain_folder)
+
+    def get_data_id(self, inputs):
+        if self.data_id_type in inputs:
+            return inputs[self.data_id_type]
+        elif self.data_id_type == "utc_timestamp":
+            timestamp = str(datetime.utcnow().timestamp()).replace(".", "")
+            rand_int = random.sample(
+                range(10 * self.batch_size), self.batch_size
+            ).sort()
+            ids = [int(timestamp + str(x)) for x in rand_int]
+            return ids
+        elif self.data_id_type == "id":
+            ids = list(
+                range(self.predicted_count, self.predicted_count + self.batch_size)
             )
-        if "training_func" in cfg["training_args"]:
-            self.set_training_func(cfg["training_args"]["training_func"])
-        if "inference_func" in cfg["evaluation_args"]:
-            self.set_inference_func(cfg["evaluation_args"]["inference_func"])
+            return ids
+        raise Exception("Invalid Data id type: %s" % self.data_id_type)
 
-    def create_data_folders(self):
-        if not os.path.exists(self.fold_name + "/" + str(self.version)):
-            os.mkdir(self.fold_name + "/" + str(self.version))
-            os.mkdir(self.fold_name + "/" + str(self.version) + "/smart_data/")
-            os.mkdir(self.fold_name + "/" + str(self.version) + "/all_data/")
-
-    def add_data_point_to_all_warehouse(self, inputs, outputs, gts=None, extra_args={}):
-        """Logs all the test cases to data warehouse. Logged under sub-folder 'all_data'"""
-
-        saved = self.add_data_point_to_warehouse(
-            inputs,
-            outputs,
-            "all_data/",
-            gts=gts,
-            extra_args=extra_args,
-        )
-        if not saved["is_repeat"]:
-            self.summary_data["all_data"].append(saved)
-            self.predicted_count += 1
-
-    def add_data_point_to_smart_warehouse(
-        self, inputs, outputs, gts=None, extra_args={}
-    ):
-        """Logs only the interesting test cases to data warehouse. Logged under sub-folder 'smart_data'"""
-
-        saved = self.add_data_point_to_warehouse(
-            inputs,
-            outputs,
-            "smart_data/",
-            gts=gts,
-            extra_args=extra_args,
-        )
-        if not saved["is_repeat"]:
-            self.summary_data["smart_data"].append(saved)
-            self.selected_count += 1
-
-    def add_data_point_to_warehouse(
-        self, inputs, outputs, warehouse, gts=None, extra_args={}
-    ):
-        """Creates a json file per data-point.
-        Deletes model-related fields and transforms input, output data in a json-compatible format.
-        """
-
-        if "model" in inputs:
-            del inputs["model"]
-
-        identifier = extra_args["identifier"]
-        path = (
-            self.fold_name
-            + "/"
-            + str(self.version)
-            + "/"
-            + warehouse
-            + str(identifier[0])
-            + ".json"
-        )
-        is_repeat = True
-
-        if not os.path.exists(path):
-            is_repeat = False
-            datapoint = {
-                "input": json.dumps(inputs, cls=NumpyEncoder),
-                "output": json.dumps(outputs, cls=NumpyEncoder),
-                "gt": json.dumps(gts, cls=NumpyEncoder),
-                "extra_args": json.dumps(extra_args, cls=NumpyEncoder),
-                "identifier": json.dumps(identifier, cls=NumpyEncoder),
-            }
-            write_json(
-                path,
-                datapoint,
-            )
-
-        return {"path": path, "identifier": identifier, "is_repeat": is_repeat}
-
-    def get_data_identifier(self, inputs, extra_args={}):
-        if self.data_identifier_type in inputs:
-            return inputs[self.data_identifier_type]
-        elif self.data_identifier_type in extra_args:
-            return extra_args[self.data_identifier_type]
-        elif self.data_identifier_type in ["utc_timestamp", "identifier"]:
-            return [str(datetime.utcnow().timestamp()).replace(".", "")]
-        raise Exception("Invalid Data Identifier type %s" % self.data_identifier_type)
-
-    def smartly_add_data(self, inputs, outputs, gts=None, extra_args={}):
+    def smartly_add_data(self, data, extra_args={}):
         """
         Checks if the given data-point is interesting.
         If yes, logs them to smart_data warehouse, which
@@ -186,19 +132,28 @@ class Framework:
         """
 
         old_selected_count = self.selected_count
-        this_identifier = self.get_data_identifier(inputs, extra_args=extra_args)
-        extra_args.update({"identifier": this_identifier})
+        smart_data = {}
+        for i in range(self.batch_size):
+            this_data = extract_data_point_from_batch(data, i)
+            if this_data["id"][0] not in self.smart_data_ids:
+                if self.is_data_interesting(
+                    this_data["data"],
+                    this_data["output"],
+                    gts=this_data["gt"],
+                    extra_args=extra_args,
+                ):
+                    smart_data = add_data_to_batch(smart_data, this_data)
+                    self.smart_data_ids.append(this_data["id"][0])
+                    self.selected_count += 1
 
-        # Log all the data-points into all_data warehouse
-        self.add_data_point_to_all_warehouse(
-            inputs, outputs, gts=gts, extra_args=extra_args
+        """
+        Log only the interesting test cases to data 
+        warehouse. Logged under sub-folder 'smart_data'
+        """
+        path_smart_data = os.path.join(
+            self.fold_name, str(self.version), "smart_data.csv"
         )
-
-        if self.is_data_interesting(inputs, outputs, gts=gts, extra_args=extra_args):
-            # Log the interesting data-points into smart_data warehouse
-            self.add_data_point_to_smart_warehouse(
-                inputs, outputs, gts=gts, extra_args=extra_args
-            )
+        add_data_to_warehouse(smart_data, path_smart_data)
 
         if (not (self.selected_count == old_selected_count)) and (
             self.selected_count % 50 == 0
@@ -209,66 +164,56 @@ class Framework:
                 self.predicted_count,
                 " inferred samples",
             )
-        return this_identifier
 
-    def extract_data_point_from_batch(self, data, i):
-        if isinstance(data, dict):
-            this_data = {}
-            for key in list(data.keys()):
-                this_data.update(
-                    {key: self.extract_data_point_from_batch(data[key], i)}
-                )
-            return this_data
-        elif isinstance(data, np.ndarray):
-            if data.shape[0] == self.batch_size:
-                return np.array([data[i]])
-            else:
-                return data
-        elif isinstance(data, list):
-            if len(data) == self.batch_size:
-                return [data[i]]
-            else:
-                return data
-        else:
-            return data
-
-    def check_and_add_data(
-        self, inputs, outputs, gts=None, extra_args={}, batch_size=-1
-    ):
-        if batch_size < 0:
-            batch_size = self.batch_size
-
-        # TODO: We are assuming inputs = BATCH_SIZE x INPUT_SIZE,
-        # Current implementation assumes BATCH_SIZE = 1, how do we extend this?
-        identifiers = []
-        for i in range(batch_size):
-            this_inputs = self.extract_data_point_from_batch(inputs, i)
-            this_outputs = self.extract_data_point_from_batch(outputs, i)
-            this_gts = self.extract_data_point_from_batch(gts, i)
-            this_extra_args = self.extract_data_point_from_batch(extra_args, i)
-
-            self.check(
-                this_inputs, this_outputs, gts=this_gts, extra_args=this_extra_args
-            )
-            this_identifiers = self.smartly_add_data(
-                this_inputs, this_outputs, gts=this_gts, extra_args=this_extra_args
-            )
-            identifiers.append(this_identifiers[0])
-        return np.array(identifiers)
-
-    def check(self, inputs, outputs, gts=None, extra_args={}):
-        return self.anomaly_manager.check(
-            inputs, outputs, gts=gts, extra_args=extra_args
+    def check_and_add_data(self, inputs, outputs, gts=None, extra_args={}):
+        ids = self.get_data_id(inputs)
+        gts = list(gts) if gts is not None else [None] * self.batch_size
+        data = OrderedDict(inputs)
+        data.update(
+            {
+                "output": list(outputs),
+                "id": list(ids),
+                "gt": gts,
+            }
         )
 
+        # Check for any anomalies
+        self.check(data, extra_args)
+        self.predicted_count += self.batch_size
+
+        # Log all the data-points into all_data warehouse
+        add_data_to_warehouse(deepcopy(data), self.path_all_data)
+
+        # Smartly add data for retraining
+        self.smartly_add_data(data, extra_args)
+        self.extra_args = extra_args
+        return ids
+
+    def check(self, data, extra_args={}):
+        for i in range(self.batch_size):
+            this_data = extract_data_point_from_batch(data, i)
+            if this_data["gt"] == [None]:
+                this_data["gt"] = None
+
+            """Note: We assume that the input dict has test data in key data"""
+            self.anomaly_manager.check(
+                this_data["data"],
+                this_data["output"],
+                gts=this_data["gt"],
+                extra_args=extra_args,
+            )
+
     def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
-        """A data-point is deemed interesting if the defined signal is turned on for it"""
+        """A data-point is deemed interesting if the defined signal is positive"""
+        if gts == [None]:
+            gts = None
         return self.anomaly_manager.is_data_interesting(
             inputs, outputs, gts=gts, extra_args=extra_args
         )
 
     def set_data_transformation_func(self, func):
-        """Attach data transformation func to convert logged data-point -> Training dataset"""
+        """Attach data transformation func to convert 
+        logged data-point -> Training dataset"""
         self.dataset_handler.set_transformation_func(func)
 
     def set_annotation_method(self, method, args={}):
@@ -276,12 +221,10 @@ class Framework:
         self.dataset_handler.set_annotation_method(method, args=args)
 
     def need_retraining(self):
-        """Checks if enough data-points are collected and the framework needs to kickoff model retraining"""
+        """Checks if enough data-points are collected and the 
+        framework needs to kickoff model retraining"""
 
-        if self.selected_count > 250:
-            write_json(
-                self.data_summary_file, json.dumps(self.summary_data, cls=NumpyEncoder)
-            )
+        if self.selected_count > self.retrain_after:
             return True
         return False
 
@@ -293,7 +236,7 @@ class Framework:
         - Deploys the new model and increments model version by 1
         """
 
-        dataset_location = self.fold_name + "/" + str(self.version)
+        dataset_location = os.path.join(self.fold_name, str(self.version))
         print("Kicking off re-training")
         print(
             str(self.selected_count),
@@ -301,13 +244,15 @@ class Framework:
         )
 
         # Collect newly collected data
-        new_data = [
-            read_json(dataset_location + "/smart_data/" + x)
-            for x in os.listdir(dataset_location + "/smart_data/")
-        ]
+        df = pd.read_csv(self.path_all_data)
+        smart_data_indices = get_df_indices_from_ids(df, self.smart_data_ids)
+        df_smart_data = df.loc[smart_data_indices]
+        df_smart_data["data"] = df_smart_data["data"].apply(json.loads)
+        retraining_data = df_smart_data.to_dict(orient="records")
+
         # Generate training dataset
         self.dataset_handler.create_retraining_dataset(
-            dataset_location, new_data, self.orig_training_file
+            dataset_location, retraining_data, self.orig_training_file
         )
         # Retrain the model
         self.model_handler.retrain(
@@ -325,9 +270,7 @@ class Framework:
         )
 
         # TODO: Deploy new model
-        self.version += 1
-        self.selected_count = 0
-        self.create_data_folders()
+        self.reset_retraining()
 
     def set_training_func(self, func):
         """Attach model training pipeline"""
@@ -343,53 +286,31 @@ class Framework:
 
     def attach_ground_truth(self, gt_data):
         if type(gt_data) is str:
-            gt_file = copy.deepcopy(gt_data)
-            gt_data = read_json(gt_file)
-        elif type(gt_data) is dict:
-            gt_data = [gt_data]
+            gt_data = read_json(gt_data)
+        if type(gt_data) is not dict:
+            print(f"Ground truth datatype {type(gt_data)} not supported.")
 
-        summary_data = self.summary_data
-        all_idens_in_smart_data = np.array(
-            [x["identifier"] for x in summary_data["smart_data"]]
-        )
-        all_idens_in_all_data = np.array(
-            [x["identifier"] for x in summary_data["all_data"]]
-        )
+        self.batch_size = len(gt_data["gt"])
 
-        for full_gt_row in gt_data:
-            for i in range(len(full_gt_row["gt"])):
-                gt_row = self.extract_data_point_from_batch(full_gt_row, i)
-                all_data_files_to_be_checked = []
-                files_to_be_updated = []
-                this_iden = gt_row[self.data_identifier_type]
-                this_gt = gt_row["gt"]
+        df = pd.read_csv(self.path_all_data)
+        gt_id_indices = get_df_indices_from_ids(df, gt_data["id"])
+        df.loc[gt_id_indices, "gt"] = gt_data["gt"]
+        df.to_csv(self.path_all_data, index=False)
 
-                all_data_idx = np.where(all_idens_in_all_data == this_iden)[0]
-                if len(all_data_idx):
-                    files_to_be_updated.append(
-                        summary_data["all_data"][all_data_idx[0]]["path"]
-                    )
-                    all_data_files_to_be_checked.append(
-                        summary_data["all_data"][all_data_idx[0]]["path"]
-                    )
-
-                smart_data_idx = np.where(all_idens_in_smart_data == this_iden)[0]
-                if len(smart_data_idx):
-                    files_to_be_updated.append(
-                        summary_data["smart_data"][smart_data_idx[0]]["path"]
-                    )
-
-                for file_to_be_updated in files_to_be_updated:
-                    old_data = read_json(file_to_be_updated)
-                    old_data.update({"gt": json.dumps(this_gt, cls=NumpyEncoder)})
-                    write_json(file_to_be_updated, old_data)
-
-                for file_to_be_checked in all_data_files_to_be_checked:
-                    this_saved_data = read_json(file_to_be_checked)
-                    self.check_and_add_data(
-                        json.loads(this_saved_data["input"]),
-                        json.loads(this_saved_data["output"]),
-                        gts=json.loads(this_saved_data["gt"]),
-                        extra_args=json.loads(this_saved_data["extra_args"]),
-                        batch_size=1,
-                    )
+        """
+        TODO: Currently assumes that input is only one column. 
+        In some cases, the input might have multiple data 
+        structures (e.g., cascaded models). 
+        Note: gt_data is assumed to be a dictionary.
+        """
+        df_gt = df.loc[gt_id_indices]
+        inputs = [json.loads(x) for x in list(df_gt["data"])]
+        outputs = list(df_gt["output"])
+        data = {
+            "data": list(inputs),
+            "output": list(outputs),
+            "id": list(gt_data["id"]),
+            "gt": list(gt_data["gt"]),
+        }
+        self.check(data, extra_args=self.extra_args)
+        self.smartly_add_data(data, extra_args=self.extra_args)

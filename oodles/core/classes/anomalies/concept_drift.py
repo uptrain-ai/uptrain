@@ -20,9 +20,7 @@ class ConceptDrift(AbstractAnomaly):
         return True
 
     def check(self, inputs, outputs, gts=None, extra_args={}):
-        y_gt = gts
-        y_pred = outputs
-        acc = y_pred[0] == y_gt[0]
+        acc = outputs[0] == gts[0]
         if acc:
             self.algo.add_prediction(0)
         else:

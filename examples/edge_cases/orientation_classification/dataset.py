@@ -83,7 +83,7 @@ class KpsDataset(tf.keras.utils.Sequence):
 
         if self.is_test:
             sample = (
-                {"kps": np.array(batch_kps), "id": np.array(batch_ids)},
+                {"data": np.array(batch_kps), "id": np.array(batch_ids)},
                 np.array(batch_gts),
             )
         else:
@@ -104,5 +104,4 @@ def write_json(file_name, data):
 
 
 def input_to_dataset_transformation(inputs):
-    dictn = json.loads(inputs["input"])
-    return {"kps": list(dictn["kps"][0]), "id": int(dictn["id"][0])}
+    return {"kps": list(inputs["data"]), "id": inputs['id']}
