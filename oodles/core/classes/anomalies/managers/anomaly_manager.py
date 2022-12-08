@@ -40,8 +40,8 @@ class AnomalyManager:
                 anomaly.check(inputs, outputs, gts=gts, extra_args=extra_args)
 
     def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
-        is_interesting = [
-            x.is_data_interesting(inputs, outputs, gts=gts, extra_args=extra_args)
-            for x in self.anomalies_to_check
-        ]
+        is_interesting = []
+        for anomaly in self.anomalies_to_check:
+            if anomaly.need_ground_truth() == (gts is not None):
+                is_interesting.append(anomaly.is_data_interesting(inputs, outputs, gts=gts, extra_args=extra_args))
         return sum(is_interesting) > 0

@@ -7,8 +7,8 @@ def signal_fn(func):
 
 def monitor(framework_obj):
     def decorator(fn):
-        def wrapped(inputs):
-            outputs = fn(inputs)
+        def wrapped(model, inputs):
+            outputs = fn(model, inputs)
             identifiers = framework_obj.check_and_add_data(inputs, outputs)
             if framework_obj.need_retraining():
                 framework_obj.retrain()
