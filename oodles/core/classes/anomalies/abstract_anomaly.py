@@ -1,6 +1,7 @@
 import os
 from tensorboardX import SummaryWriter
 
+
 class AbstractAnomaly:
     dashboard_name = None
 

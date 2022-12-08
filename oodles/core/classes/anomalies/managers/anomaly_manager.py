@@ -1,5 +1,3 @@
-
-
 from oodles.constants import Anomaly
 from .edge_case_manager import EdgeCaseManager
 from oodles.core.classes.anomalies import ConceptDrift
