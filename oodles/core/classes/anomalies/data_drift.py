@@ -29,7 +29,7 @@ class DataDrift(AbstractAnomaly):
 
     def check(self, inputs, outputs, gts=None, extra_args={}):
         self.count += 1
-        feats = inputs['kps'][0]
+        feats = inputs[0]
         if self.is_embedding:
             selected_cluster = np.argmin(np.sum(np.abs(self.clusters[0] - feats),axis=1))
             self.this_datapoint_cluster = selected_cluster
@@ -59,7 +59,7 @@ class DataDrift(AbstractAnomaly):
         self.plot_scalars('earth moving costs', {'threshold': 300}, self.count)
 
     def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
-        feats = inputs['kps']
+        feats = inputs
         if self.is_embedding and self.drift_detected:
             dist_from_cluster = np.sum(np.abs(self.clusters[0][self.this_datapoint_cluster] - feats[0])) / self.cluster_vars[0][self.this_datapoint_cluster]
             if dist_from_cluster > 2:
