@@ -1,7 +1,7 @@
 import numpy as np
 
 from oodles.core.classes.helpers import AnnotationHelper
-from oodles.core.lib.helper_funcs import read_json, write_json
+from oodles.core.lib.helper_funcs import read_json, write_json, cluster_and_plot_data
 from oodles.constants import AnnotationMethod
 
 
@@ -27,8 +27,9 @@ class DatasetHandler:
         Set the annotation method
     """
 
-    def __init__(self, transformation_func=(lambda x: x)):
+    def __init__(self, transformation_func=(lambda x: x), cluster_plot_func=None):
         self.transformation_func = transformation_func
+        self.cluster_plot_func = cluster_plot_func
         np.random.seed(10)
 
     def add_annotations(self, dataset):
@@ -68,6 +69,10 @@ class DatasetHandler:
 
         new_data = self.transform_collected_data(new_data)
         write_json(dataset_location + "/cleaned_dataset.json", new_data)
+
+        if self.cluster_plot_func is not None:
+            cluster_and_plot_data(np.array([x['kps'] for x in new_data]), 10, cluster_plot_func=self.cluster_plot_func)
+
         new_data = self.add_annotations(dataset_location + "/cleaned_dataset.json")
         write_json(dataset_location + "/annotated_dataset.json", new_data)
         write_json(

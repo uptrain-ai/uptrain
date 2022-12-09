@@ -71,7 +71,7 @@ class Framework:
         self.anomaly_manager = AnomalyManager(
             cfg.get("checks", []), log_args={"log_folder": self.log_folder}
         )
-        self.dataset_handler = DatasetHandler()
+        self.dataset_handler = DatasetHandler(cluster_plot_func = training_args.get('cluster_plot_func', None))
         self.model_handler = ModelHandler()
 
         self.version = 0
