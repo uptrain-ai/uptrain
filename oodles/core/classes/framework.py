@@ -8,10 +8,10 @@ from datetime import datetime
 import random
 
 from oodles.core.classes.helpers import DatasetHandler, ModelHandler
+from oodles.core.classes.helpers import config_handler
 from oodles.core.classes.anomalies.managers import AnomalyManager
 from oodles.core.lib.helper_funcs import (
     read_json,
-    write_json,
     extract_data_point_from_batch,
     add_data_to_warehouse,
     add_data_to_batch,
@@ -33,14 +33,14 @@ class Framework:
     Methods
     -------
     smartly_add_data(inputs, outputs, extra_args=None):
-        Checks if the given data-point represents an edge case 
+        Checks if the given data-point represents an edge case
         and needs to be added to the retraining dataset.
     retrain():
-        Creates a new version of the model by retraining 
+        Creates a new version of the model by retraining
         on collected data.
     """
 
-    def __init__(self, cfg={}):
+    def __init__(self, cfg_dict={}):
         """Initialises the Oodles Framework.
 
         Parameters
@@ -49,55 +49,50 @@ class Framework:
             Config to initialize oodles framework
         """
 
-        training_args = cfg.get("training_args", {})
-        evaluation_args = cfg.get("evaluation_args", {})
-        self.cfg = cfg
+        cfg = config_handler.Config(**cfg_dict)
+        training_args = cfg.training_args
+        evaluation_args = cfg.evaluation_args
 
-        self.orig_training_file = training_args.get("orig_training_file", "")
-        self.fold_name = training_args.get(
-            "fold_name", "oodles_smart_data " + str(datetime.utcnow())
-        )
+        self.orig_training_file = training_args.orig_training_file
+        self.fold_name = training_args.fold_name
         if os.path.exists(self.fold_name):
             print("Deleting the folder: ", self.fold_name)
             shutil.rmtree(self.fold_name)
         os.mkdir(self.fold_name)
 
-        self.log_folder = training_args.get("log_folder", "oodles_logs")
+        self.log_folder = training_args.log_folder
         if os.path.exists(self.log_folder):
             shutil.rmtree(self.log_folder)
 
         self.predicted_count = 0
         self.extra_args = {}
         self.anomaly_manager = AnomalyManager(
-            cfg.get("checks", []), log_args={"log_folder": self.log_folder}
+            cfg.checks, log_args={"log_folder": self.log_folder}
         )
-        self.dataset_handler = DatasetHandler(cluster_plot_func = training_args.get('cluster_plot_func', None))
+        self.dataset_handler = DatasetHandler(
+            cluster_plot_func=training_args.cluster_plot_func
+        )
         self.model_handler = ModelHandler()
 
         self.version = 0
         self.reset_retraining()
-        self.path_all_data = os.path.join(self.fold_name, "all_data" + ".csv")
+        self.path_all_data = os.path.join(self.fold_name, "all_data.csv")
 
-        self.batch_size = cfg.get("batch_size", 1)
-        self.retrain_after = cfg.get("retrain_after", 250)
-        self.data_id_type = cfg.get("data_id", "id")
-        self.data_summary_file = os.path.join(self.fold_name, "data_summary.json")
-        self.summary_data = {"all_data": [], "smart_data": [], "versions": {}}
-        write_json(self.data_summary_file, self.summary_data)
+        self.batch_size = cfg.batch_size
+        self.retrain_after = cfg.retrain_after
+        self.data_id_type = cfg.data_id
 
-        if "data_transformation_func" in training_args:
-            self.set_data_transformation_func(training_args["data_transformation_func"])
-        if "annotation_method" in training_args:
-            self.set_annotation_method(
-                training_args["annotation_method"]["method"],
-                args=training_args["annotation_method"].get("args", {}),
-            )
-        if "golden_testing_dataset" in evaluation_args:
-            self.set_golden_testing_dataset(evaluation_args["golden_testing_dataset"])
-        if "training_func" in training_args:
-            self.set_training_func(training_args["training_func"])
-        if "inference_func" in evaluation_args:
-            self.set_inference_func(evaluation_args["inference_func"])
+        if training_args.data_transformation_func:
+            self.set_data_transformation_func(training_args.data_transformation_func)
+        if training_args.annotation_method:
+            am = training_args.annotation_method
+            self.set_annotation_method(am.method, args=am.args)
+        if evaluation_args.golden_testing_dataset:
+            self.set_golden_testing_dataset(evaluation_args.golden_testing_dataset)
+        if training_args.training_func:
+            self.set_training_func(training_args.training_func)
+        if evaluation_args.inference_func:
+            self.set_inference_func(evaluation_args.inference_func)
 
     def reset_retraining(self):
         self.version += 1
@@ -108,7 +103,7 @@ class Framework:
             os.mkdir(retrain_folder)
 
     def get_data_id(self, inputs):
-        if self.data_id_type in inputs:
+        if inputs[self.data_id_type]:
             return inputs[self.data_id_type]
         elif self.data_id_type == "utc_timestamp":
             timestamp = str(datetime.utcnow().timestamp()).replace(".", "")
@@ -166,6 +161,7 @@ class Framework:
             )
 
     def check_and_add_data(self, inputs, outputs, gts=None, extra_args={}):
+        inputs = dict(config_handler.InputArgs(**inputs))
         ids = self.get_data_id(inputs)
         gts = list(gts) if gts is not None else [None] * self.batch_size
         data = OrderedDict(inputs)
@@ -212,7 +208,7 @@ class Framework:
         )
 
     def set_data_transformation_func(self, func):
-        """Attach data transformation func to convert 
+        """Attach data transformation func to convert
         logged data-point -> Training dataset"""
         self.dataset_handler.set_transformation_func(func)
 
@@ -221,7 +217,7 @@ class Framework:
         self.dataset_handler.set_annotation_method(method, args=args)
 
     def need_retraining(self):
-        """Checks if enough data-points are collected and the 
+        """Checks if enough data-points are collected and the
         framework needs to kickoff model retraining"""
 
         if self.selected_count > self.retrain_after:
@@ -287,8 +283,9 @@ class Framework:
     def attach_ground_truth(self, gt_data):
         if type(gt_data) is str:
             gt_data = read_json(gt_data)
-        if type(gt_data) is not dict:
+        elif type(gt_data) is not dict:
             print(f"Ground truth datatype {type(gt_data)} not supported.")
+        gt_data = dict(config_handler.GroundTruthArgs(**gt_data))
 
         self.batch_size = len(gt_data["gt"])
 

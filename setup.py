@@ -39,5 +39,5 @@ setup(
     ],
     keywords="oodles ai retraining ML",
     packages=find_packages(),
-    install_requires=[],
+    install_requires=["pydantic"],
 )
