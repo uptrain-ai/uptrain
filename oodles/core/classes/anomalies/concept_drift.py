@@ -30,9 +30,5 @@ class ConceptDrift(AbstractAnomaly):
         avg_acc = sum(self.acc_arr)/len(self.acc_arr)
         self.plot_scalar("Avg accuracy", avg_acc, len(self.acc_arr))
 
-        self.acc_arr.append(acc)
-        avg_acc = sum(self.acc_arr) / len(self.acc_arr)
-        self.plot_scalar("Avg accuracy", avg_acc, len(self.acc_arr))
-
     def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
         return False
