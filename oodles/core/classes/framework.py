@@ -6,6 +6,7 @@ import shutil
 import pandas as pd
 from datetime import datetime
 import random
+import numpy as np
 
 from oodles.core.classes.helpers import DatasetHandler, ModelHandler
 from oodles.core.classes.helpers import config_handler
@@ -291,7 +292,7 @@ class Framework:
 
         df = pd.read_csv(self.path_all_data)
         gt_id_indices = get_df_indices_from_ids(df, gt_data["id"])
-        df.loc[gt_id_indices, "gt"] = gt_data["gt"]
+        df.loc[gt_id_indices, "gt"] = np.array(gt_data["gt"], dtype='object')
         df.to_csv(self.path_all_data, index=False)
 
         """
@@ -302,7 +303,11 @@ class Framework:
         """
         df_gt = df.loc[gt_id_indices]
         inputs = [json.loads(x) for x in list(df_gt["data"])]
-        outputs = list(df_gt["output"])
+        try:
+            outputs = [json.loads(x) for x in list(df_gt["output"])]
+        except:
+            out_json = [json.dumps(x) for x in list(df_gt["output"])]
+            outputs = [json.loads(x) for x in out_json]
         data = {
             "data": list(inputs),
             "output": list(outputs),

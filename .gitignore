@@ -11,3 +11,4 @@ dist
 .idea
 oodles_logs*
 *.pickle
+sample_run.ipynb
