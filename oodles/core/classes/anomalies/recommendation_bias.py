@@ -23,7 +23,7 @@ class RecommendationBias(AbstractAnomaly):
         y_pred = outputs[0]
         self.algo.add_prediction(y_pred)
         pop_arr = self.algo.all_popularity
-        self.plot_histogram('hist', pop_arr, len(pop_arr))
+        self.plot_histogram('Pupolarity Bias', pop_arr, len(pop_arr))
 
     def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
         return False
