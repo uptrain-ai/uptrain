@@ -1,6 +1,6 @@
 [<img src="https://user-images.githubusercontent.com/5287871/200270081-69863fc2-8537-4736-915d-193f9e9112cd.png" width= "20%" />](https://oodles.ai)
 
-## OODLES.AI -- A framework to facilitate retraining of ML models
+## UPTRAIN.AI -- A framework to facilitate retraining of ML models
 [![GitHub license](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/Oodles-ai/oodles/blob/main/LICENSE)
 
 ## What is Oodles.ai?
