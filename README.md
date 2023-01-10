@@ -21,6 +21,7 @@ python setup.py install
 ```
 ## How the upTrain.ai framework works?
 upTrain.ai monitors the difference between the dataset the model was trained upon, and the real-world data points the model encounters during production (the wild!). This "difference" can be custom statistical measures designed by ML practitioners based on their use case. Additionally, it monitors for edge cases defined as rule-based smart signals on the model input. Whenever the framework sees a distribution shift or an increased frequency of edge cases, it raises an alert while identifying the subset of data that experienced these issues. Finally, it retrains the model on that data, improving its performance in the wild.
+
 ![upTrain_flow_diagram](https://user-images.githubusercontent.com/5287871/200270401-13935ddb-111c-432d-bf4a-96849fb875ff.png)
 
 ## Integrate upTrain.ai to your ML pipeline in <5 minutes
