@@ -1,4 +1,4 @@
-[<img src="https://user-images.githubusercontent.com/5287871/211481132-753080a7-af06-4ddf-ae49-94e39aa830a8.jpeg" width= "20%" />](https://oodles.ai)
+[<img src="https://user-images.githubusercontent.com/5287871/211485071-e959b10c-3a78-4b02-a636-2fe8db23a3fc.png" width= "20%" />](https://uptrain.ai)
 
 ## upTrain.ai -- A framework to facilitate retraining of ML models
 [![GitHub license](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/uptrainai/uptrain/blob/main/LICENSE)
