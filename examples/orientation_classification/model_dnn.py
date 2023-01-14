@@ -39,7 +39,7 @@ def get_accuracy_dnn(testing_file, model_save_name, model_dir="trained_models_dn
     pred_classes = []
     gt_classes = []
     for elem in testing_dataset:
-        preds = model.predict(elem[0]["data"])
+        preds = model.predict(elem[0]["kps"])
         pred_class = [int(round(float(x))) for x in preds]
         pred_classes.extend(pred_class)
         gt_classes.extend(list(elem[1]))
