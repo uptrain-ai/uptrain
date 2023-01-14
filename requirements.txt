@@ -11,6 +11,6 @@ seaborn==0.12.2
 setuptools==65.6.3
 streamlit==1.16.0
 tensorboardX==2.5.1
-tensorflow==2.11.0
+# tensorflow==2.11.0
 torch==1.13.1
 xgboost==1.7.3
