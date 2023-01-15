@@ -15,8 +15,11 @@ You can install upTrain via the GitHub repository:
 # Clone the upTrain git repository
 git clone https://github.com/uptrainai/uptrain.git
 
+# Install the requirements (recommended to do this in a new environment)
+cd uptrain
+pip install -r requirements.txt
+
 # Install the upTrain.ai package.
-cd oodles
 python setup.py install
 ```
 ## How the upTrain.ai framework works?
