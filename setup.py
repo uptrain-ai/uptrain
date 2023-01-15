@@ -39,5 +39,5 @@ setup(
     ],
     keywords="uptrain ai retraining ML",
     packages=find_packages(),
-    install_requires=["pydantic"],
+    install_requires=[],
 )

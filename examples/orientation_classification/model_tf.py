@@ -25,7 +25,7 @@ def make_model(input_shape=34):
     return tf.keras.Model(inputs, outputs)
 
 
-def get_accuracy_dnn(testing_file, model_save_name, model_dir="trained_models_dnn/"):
+def get_accuracy_tf(testing_file, model_save_name, model_dir="trained_models_tf/"):
     testing_dataset = KpsDataset(
         testing_file,
         batch_size=len(read_json(testing_file)),
@@ -50,7 +50,7 @@ def get_accuracy_dnn(testing_file, model_save_name, model_dir="trained_models_dn
     return accuracy
 
 
-def train_model_dnn(training_file, model_save_name, model_dir="trained_models_dnn/"):
+def train_model_tf(training_file, model_save_name, model_dir="trained_models_tf/"):
     print(
         "Training on: ",
         training_file,
@@ -62,13 +62,18 @@ def train_model_dnn(training_file, model_save_name, model_dir="trained_models_dn
     if os.path.exists(model_loc):
         print("Trained model exists. Skipping training again.")
         return
-    training_dataset = KpsDataset(training_file, shuffle=True, augmentations=True)
+
     model = make_model(input_shape=34)
     model.compile(
         optimizer=tf.keras.optimizers.Adam(learning_rate=5e-4),
         loss="binary_crossentropy",
         metrics=tf.keras.metrics.BinaryAccuracy(),
     )
-    model.fit(training_dataset, epochs=10)
+
+    training_dataset = KpsDataset(training_file, shuffle=True, augmentations=True)
+    x = [x[0] for x in training_dataset]
+    y = [y[1] for y in training_dataset]
+    dataset = tf.data.Dataset.from_tensor_slices((x,y))
+    model.fit(dataset, epochs=10)
     model.save(model_loc)
     print("Model saved at: ", model_loc)

@@ -1,5 +1,5 @@
 import json
-import tensorflow as tf
+# import tensorflow as tf
 import numpy as np
 import imgaug as ia
 import imgaug.augmenters as iaa
@@ -8,7 +8,7 @@ import numpy as np
 from sklearn.preprocessing import Normalizer
 
 
-class KpsDataset(tf.keras.utils.Sequence):
+class KpsDataset():
     def __init__(
         self,
         file_name,
@@ -91,6 +91,11 @@ class KpsDataset(tf.keras.utils.Sequence):
 
         return sample
 
+    def __iter__(self):
+        """Create a generator that iterate over the Sequence."""
+        for item in (self[i] for i in range(len(self))):
+            yield item
+
 
 def read_json(file_name):
     with open(file_name) as f:
@@ -105,3 +110,5 @@ def write_json(file_name, data):
 
 def input_to_dataset_transformation(inputs):
     return {"kps": list(inputs["kps"]), "id": inputs['id']}
+
+

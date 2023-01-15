@@ -74,6 +74,7 @@ def train_model_torch(training_file, model_save_name, model_dir="trained_models_
     epochs = 10
     for epoch in range(epochs):
         model.train()
+        loss_sum = 0
         for X_train, y_train in training_dataset:
             X_train = torch.tensor(X_train).type(torch.float)
             y_train = torch.tensor(y_train).type(torch.float)
@@ -82,6 +83,8 @@ def train_model_torch(training_file, model_save_name, model_dir="trained_models_
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+            loss_sum += loss.item()
+        print(f"Epoch {epoch}: Loss {loss_sum/len(training_dataset)}")
     
     torch.save(model.state_dict(), model_loc)
     print("Model saved at: ", model_loc)
