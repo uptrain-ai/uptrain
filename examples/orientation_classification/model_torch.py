@@ -1,5 +1,4 @@
 import os
-import tensorflow as tf
 import numpy as np
 from torch import nn
 import torch
