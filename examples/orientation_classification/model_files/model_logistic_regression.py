@@ -2,7 +2,7 @@ import os
 import joblib
 from sklearn.linear_model import LogisticRegression
 
-from dataset import KpsDataset, read_json
+from model_files import KpsDataset, read_json
 
 
 def get_accuracy_lr(testing_file, model_save_name, model_dir="trained_models_lr/"):

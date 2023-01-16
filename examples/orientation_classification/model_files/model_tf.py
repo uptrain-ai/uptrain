@@ -2,7 +2,7 @@ import os
 import tensorflow as tf
 import numpy as np
 
-from dataset import KpsDataset, read_json
+from model_files import KpsDataset, read_json
 
 
 def make_model(input_shape=34):
