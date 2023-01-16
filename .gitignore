@@ -1,14 +1,14 @@
 .DS_Store
 __pycache__
 .ipynb_checkpoints
-oodles_smart_data*
+uptrain_smart_data*
 training_logs*
 trained_models*
 evaluation_logs*
-oodles.egg-info
+uptrain.egg-info
 build
 dist
 .idea
-oodles_logs*
+uptrain_logs*
 *.pickle
 sample_run.ipynb
