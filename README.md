@@ -21,6 +21,10 @@ pip install -r requirements.txt
 
 # Install the upTrain.ai package.
 python setup.py install
+
+# Run your first example
+cd examples/orientation_classification
+jupyter lab
 ```
 ## How the upTrain.ai framework works?
 upTrain.ai monitors the difference between the dataset the model was trained upon, and the real-world data points the model encounters during production (the wild!). This "difference" can be custom statistical measures designed by ML practitioners based on their use case. Additionally, it monitors for edge cases defined as rule-based smart signals on the model input. Whenever the framework sees a distribution shift or an increased frequency of edge cases, it raises an alert while identifying the subset of data that experienced these issues. Finally, it retrains the model on that data, improving its performance in the wild.

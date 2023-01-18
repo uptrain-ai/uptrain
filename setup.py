@@ -6,14 +6,14 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="oodles",
+    name="uptrain",
     version="0.1.dev",
-    description="An Oodles.ai retaining framework",
+    description="An UpTrain.ai retaining framework",
     long_description="Smart and Automated Model Refinement",
     # The project's main homepage.
-    url="https://github.com/Oodles-ai/oodles",
+    url="https://github.com/uptrain-ai/uptrain",
     # Author details
-    maintainer="Oodles AI Team",
+    maintainer="UpTrain AI Team",
     maintainer_email="vipul@oodles.ai",
     # Choose your license
     license="Apache 2.0",
@@ -37,7 +37,7 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
     ],
-    keywords="oodles ai retraining ML",
+    keywords="uptrain ai retraining ML",
     packages=find_packages(),
-    install_requires=["pydantic"],
+    install_requires=[],
 )
