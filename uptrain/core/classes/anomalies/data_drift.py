@@ -61,7 +61,8 @@ class DataDrift(AbstractAnomaly):
 
             if self.is_embedding:
                 selected_cluster = np.argmin(np.sum(np.abs(self.clusters[0] - self.feats),axis=tuple(range(2,len(feats_shape)))), axis=1)
-                self.prod_dist_counts[0][selected_cluster] += 1
+                for clus in selected_cluster:
+                    self.prod_dist_counts[0][clus] += 1
                 self.this_datapoint_cluster = selected_cluster
                 self.prod_dist_counts_arr.append(self.prod_dist_counts.copy())
             else:
@@ -73,7 +74,7 @@ class DataDrift(AbstractAnomaly):
                 self.prod_dist_counts_arr.append(self.prod_dist_counts.copy())
                 self.this_datapoint_cluster = np.array(this_datapoint_cluster)
 
-            if self.count < 200:
+            if self.count < 1000:
                 self.drift_detected = False
                 return
             else:
@@ -150,9 +151,10 @@ class DataDrift(AbstractAnomaly):
                     cost_per_dirt = 1000000000
                 else:
                     cost_per_dirt = np.sum(np.abs(clusters[kdx] - clusters[jdx]))
-                dictn.append({'dirt': this_dirt, 'idx': kdx, 'cost_per_dirt': cost_per_dirt})
+                dictn.append({'dirt': np.abs(this_dirt), 'idx': kdx, 'cost_per_dirt': cost_per_dirt})
             dictn = sorted(dictn, key = lambda x: x['cost_per_dirt'])
             this_cost = 0
+            dirt_required = np.abs(dirt_required)
             for kdx in range(len(dictn)):
                 if dirt_required > 0:
                     this_cost += min(dictn[kdx]['dirt'], dirt_required) * dictn[kdx]['cost_per_dirt']
@@ -217,7 +219,7 @@ class DataDrift(AbstractAnomaly):
 
     def bucket_vector(self, data):
 
-        all_clusters, counts, cluster_vars = cluster_and_plot_data(data, self.NUM_BUCKETS, cluster_plot_func=self.cluster_plot_func)
+        all_clusters, counts, cluster_vars = cluster_and_plot_data(data, self.NUM_BUCKETS, cluster_plot_func=self.cluster_plot_func, plot_save_name="training_dataset_clusters.png")
 
         self.clusters = np.array([all_clusters])
         self.cluster_vars = np.array([cluster_vars])

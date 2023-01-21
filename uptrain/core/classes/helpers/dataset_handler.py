@@ -71,7 +71,7 @@ class DatasetHandler:
         write_json(dataset_location + "/cleaned_dataset.json", new_data)
 
         if self.cluster_plot_func is not None:
-            cluster_and_plot_data(np.array([x['kps'] for x in new_data]), 10, cluster_plot_func=self.cluster_plot_func)
+            cluster_and_plot_data(np.array([x['kps'] for x in new_data]), 5, cluster_plot_func=self.cluster_plot_func, plot_save_name="collected_edge_cases_clusters.png")
 
         new_data = self.add_annotations(dataset_location + "/cleaned_dataset.json")
         write_json(dataset_location + "/annotated_dataset.json", new_data)

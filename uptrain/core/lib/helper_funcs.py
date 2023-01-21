@@ -10,7 +10,7 @@ from uptrain.core.encoders.numpy_encoder import NumpyEncoder
 
 
 
-def cluster_and_plot_data(data, num_clusters, cluster_plot_func=None):
+def cluster_and_plot_data(data, num_clusters, cluster_plot_func=None, plot_save_name=""):
     kmeans = KMeans(n_clusters=num_clusters, random_state=1, n_init=10)
     kmeans.fit(data)
     all_clusters = kmeans.cluster_centers_
@@ -36,7 +36,7 @@ def cluster_and_plot_data(data, num_clusters, cluster_plot_func=None):
     cluster_vars = np.array([x['var'] for x in dictn])
 
     if cluster_plot_func is not None:
-        cluster_plot_func(all_clusters, counts)
+        cluster_plot_func(all_clusters, counts, plot_save_name=plot_save_name)
     return all_clusters, counts, cluster_vars
 
 
