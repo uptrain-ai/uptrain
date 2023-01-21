@@ -2,7 +2,11 @@ import os
 import numpy as np
 from torch import nn
 import torch
-from model_files import KpsDataset, read_json
+from helper_files import KpsDataset, read_json
+
+import random
+random.seed(42)
+torch.manual_seed(42)
 
 
 class BinaryClassification(nn.Module):

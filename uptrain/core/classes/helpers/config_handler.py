@@ -12,8 +12,6 @@ class AnnotationArgs(BaseModel):
 
 class TrainingArgs(BaseModel):
     orig_training_file: str = ""
-    fold_name: str = "uptrain_smart_data_" + str(datetime.utcnow())
-    cluster_plot_func: typing.Callable = None
     annotation_method: AnnotationArgs = {}
     training_func: typing.Callable = None
     data_transformation_func: typing.Callable = None
@@ -32,11 +30,13 @@ class Config(BaseModel):
     checks: typing.List[typing.Dict] = []
     retrain: bool = True
     retrain_after: int = 250
+    retraining_folder: str = "uptrain_smart_data_" + str(datetime.utcnow())
     data_id: typing.Literal["id", "utc_timestamp"] = "id"
     log_folder: str = "uptrain_logs"
-    tb_logging: bool = True
+    tb_logging: bool = False
     st_logging: bool = False
     feat_name_list: list = None
+    cluster_visualize_func: typing.Callable = None
 
 
 class InputArgs(BaseModel):

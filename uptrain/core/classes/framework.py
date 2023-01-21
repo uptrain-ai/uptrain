@@ -1,4 +1,3 @@
-from collections import OrderedDict
 from copy import deepcopy
 import json
 import os
@@ -16,7 +15,6 @@ from uptrain.core.lib.helper_funcs import (
     read_json,
     extract_data_points_from_batch,
     add_data_to_warehouse,
-    add_data_to_batch,
     get_df_indices_from_ids,
     get_feature_names_list,
     load_list_from_df
@@ -58,7 +56,7 @@ class Framework:
         evaluation_args = cfg.evaluation_args
 
         self.orig_training_file = training_args.orig_training_file
-        self.fold_name = training_args.fold_name
+        self.fold_name = cfg.retraining_folder
         if os.path.exists(self.fold_name):
             print("Deleting the folder: ", self.fold_name)
             shutil.rmtree(self.fold_name)
@@ -76,7 +74,7 @@ class Framework:
         self.path_all_data = os.path.join(self.fold_name, "all_data.csv")
 
         self.dataset_handler = DatasetHandler(
-            cluster_plot_func=training_args.cluster_plot_func
+            cluster_plot_func=cfg.cluster_visualize_func
         )
         self.model_handler = ModelHandler()
         self.log_handler = LogHandler(framework=self, cfg=cfg)
@@ -153,7 +151,7 @@ class Framework:
         ):
             print(
                 self.selected_count,
-                " edge-cases collected out of ",
+                " data-points collected out of ",
                 self.predicted_count,
                 " inferred samples",
             )

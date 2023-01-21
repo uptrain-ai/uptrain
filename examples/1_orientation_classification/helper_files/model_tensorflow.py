@@ -2,7 +2,11 @@ import os
 import tensorflow as tf
 import numpy as np
 
-from model_files import KpsDataset, read_json
+from helper_files import KpsDataset, read_json
+
+import random
+random.seed(0)
+tf.random.set_seed(0)
 
 
 def make_model(input_shape=34):

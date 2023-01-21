@@ -1,5 +1,4 @@
 import numpy as np
-
 from uptrain.core.classes.helpers import AnnotationHelper
 from uptrain.core.lib.helper_funcs import read_json, write_json, cluster_and_plot_data
 from uptrain.constants import AnnotationMethod
@@ -56,9 +55,9 @@ class DatasetHandler:
 
     def transform_collected_data(self, data):
         """Transforms logged data via self.transformation_func"""
-
-        transformed_data = [self.transformation_func(x) for x in data]
-        return transformed_data
+        if self.transformation_func:
+            transformed_data = [self.transformation_func(x) for x in data]
+            return transformed_data
 
     def create_retraining_dataset(self, dataset_location, new_data, old_dataset, ratio=5):
         """Creates retraining dataset by combining original training data with collected data-points

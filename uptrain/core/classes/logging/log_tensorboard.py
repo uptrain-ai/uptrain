@@ -1,10 +1,15 @@
 import os
 from tensorboardX import SummaryWriter
+import threading
 
 
 class TensorboardLogs():
     def __init__(self, log_folder):
         self.log_folder = log_folder
+        os.makedirs(self.log_folder, exist_ok=True)
+        launch_tb = lambda: os.system('tensorboard --logdir=' + self.log_folder)
+        t = threading.Thread(target=launch_tb, args=([]))
+        t.start()
 
     def add_writer(self, dashboard_name="UpTrain AI Logs"):
         return SummaryWriter(
