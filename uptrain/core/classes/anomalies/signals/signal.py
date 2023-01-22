@@ -115,7 +115,9 @@ class OperatorSignal(Signal):
     def base_evaluate(self, inputs, outputs, gts=None, extra_args={}):
         base_res = self.base.evaluate(inputs, outputs, gts=gts, extra_args=extra_args)
         if isinstance(self.other, Signal):
-            other_res = self.other.evaluate(inputs, outputs, gts=gts, extra_args=extra_args)
+            other_res = self.other.evaluate(
+                inputs, outputs, gts=gts, extra_args=extra_args
+            )
         else:
             other_res = [self.other] * len(base_res)
         return self.operator(base_res, other_res)

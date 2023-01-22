@@ -2,8 +2,8 @@ import numpy as np
 
 from uptrain.core.classes.anomalies.measurables import Measurable
 
-class AccuracyMeasurable(Measurable):
 
+class AccuracyMeasurable(Measurable):
     def __init__(self, framework) -> None:
         super().__init__(framework)
 

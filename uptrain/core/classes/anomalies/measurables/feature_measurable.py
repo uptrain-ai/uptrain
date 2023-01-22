@@ -1,7 +1,11 @@
-from uptrain.core.classes.anomalies.measurables import Measurable, InputFeatureMeasurable, OutputFeatureMeasurable
+from uptrain.core.classes.anomalies.measurables import (
+    Measurable,
+    InputFeatureMeasurable,
+    OutputFeatureMeasurable,
+)
+
 
 class FeatureMeasurable(Measurable):
-
     def __init__(self, framework, feature_name, dictn_type) -> None:
         super().__init__(framework)
         self.feature_name = feature_name
@@ -11,10 +15,14 @@ class FeatureMeasurable(Measurable):
         elif self.dictn_type == "outputs":
             self.helper = OutputFeatureMeasurable(framework, feature_name)
         else:
-            raise Exception("Helper Measurable not defined for dictionary type %s" % self.dictn_type)
+            raise Exception(
+                "Helper Measurable not defined for dictionary type %s" % self.dictn_type
+            )
 
     def _compute(self, inputs=None, outputs=None, gts=None, extra=None) -> any:
-        return self.helper._compute(inputs=inputs, outputs=outputs, gts=gts, extra=extra)
+        return self.helper._compute(
+            inputs=inputs, outputs=outputs, gts=gts, extra=extra
+        )
 
     def col_name(self):
         return self.helper.col_name()

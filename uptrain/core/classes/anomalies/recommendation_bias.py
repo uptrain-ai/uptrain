@@ -26,7 +26,9 @@ class RecommendationBias(AbstractAnomaly):
         for y_pred in outputs:
             self.algo.add_prediction([y_pred])
             pop_arr = self.algo.all_popularity
-            self.log_handler.add_histogram('popularity_bias', pop_arr, self.dashboard_name)
+            self.log_handler.add_histogram(
+                "popularity_bias", pop_arr, self.dashboard_name
+            )
 
     def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
         return np.array([False] * len(extra_args["id"]))
