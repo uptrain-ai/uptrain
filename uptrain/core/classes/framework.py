@@ -17,7 +17,7 @@ from uptrain.core.lib.helper_funcs import (
     add_data_to_warehouse,
     get_df_indices_from_ids,
     get_feature_names_list,
-    load_list_from_df
+    load_list_from_df,
 )
 
 
@@ -130,7 +130,9 @@ class Framework:
         old_selected_count = self.selected_count
         smart_data = {}
 
-        is_interesting = self.is_data_interesting(data["data"], data["output"], data["gt"], extra_args=extra_args)
+        is_interesting = self.is_data_interesting(
+            data["data"], data["output"], data["gt"], extra_args=extra_args
+        )
         num_selected_datapoints = np.sum(np.array(is_interesting))
         self.selected_count += num_selected_datapoints
         self.smart_data_ids.extend(np.array(data["id"])[np.array(is_interesting)])
@@ -140,14 +142,16 @@ class Framework:
         warehouse. Logged under sub-folder 'smart_data'
         """
         if num_selected_datapoints > 0:
-            smart_data = extract_data_points_from_batch(data, np.where(is_interesting == True)[0])
+            smart_data = extract_data_points_from_batch(
+                data, np.where(is_interesting == True)[0]
+            )
             path_smart_data = os.path.join(
                 self.fold_name, str(self.version), "smart_data.csv"
             )
             add_data_to_warehouse(deepcopy(smart_data), path_smart_data)
 
         if (not (self.selected_count == old_selected_count)) and (
-            not (int(self.selected_count/50) == int(old_selected_count/50))
+            not (int(self.selected_count / 50) == int(old_selected_count / 50))
         ):
             print(
                 self.selected_count,
@@ -158,14 +162,14 @@ class Framework:
 
     def infer_batch_size(self, inputs):
         batch_sizes = []
-        for k,item in inputs.items():
+        for k, item in inputs.items():
             if k == "data":
                 item_batch_size = self.infer_batch_size(inputs[k])
             else:
                 item_batch_size = len(item)
             batch_sizes.append(item_batch_size)
         if np.var(np.array(batch_sizes)) > 0:
-            #TODO: Raise warning on what is going wrong
+            # TODO: Raise warning on what is going wrong
             raise Exception("Batch size should be same for all input features")
         return batch_sizes[0]
 
@@ -254,7 +258,7 @@ class Framework:
         smart_data_indices = get_df_indices_from_ids(df, self.smart_data_ids)
         df_smart_data = df.loc[smart_data_indices]
         for feat in self.feat_name_list:
-            df_smart_data[feat] =df_smart_data[feat].apply(json.loads)
+            df_smart_data[feat] = df_smart_data[feat].apply(json.loads)
         retraining_data = df_smart_data.to_dict(orient="records")
 
         # Generate training dataset
@@ -302,7 +306,7 @@ class Framework:
 
         df = pd.read_csv(self.path_all_data)
         gt_id_indices = get_df_indices_from_ids(df, gt_data["id"])
-        df.loc[gt_id_indices, "gt"] = np.array(gt_data["gt"], dtype='object')
+        df.loc[gt_id_indices, "gt"] = np.array(gt_data["gt"], dtype="object")
         df.to_csv(self.path_all_data, index=False)
 
         """
@@ -312,8 +316,11 @@ class Framework:
         """
         df_gt = df.loc[gt_id_indices]
         data = {
-            "data": zip(self.feat_name_list, [load_list_from_df(df_gt, x) for x in self.feat_name_list]),
-            "output": load_list_from_df(df_gt, 'output'),
+            "data": zip(
+                self.feat_name_list,
+                [load_list_from_df(df_gt, x) for x in self.feat_name_list],
+            ),
+            "output": load_list_from_df(df_gt, "output"),
             "id": list(gt_data["id"]),
             "gt": list(gt_data["gt"]),
         }
@@ -328,27 +335,28 @@ class Framework:
         upper_limit: Upper limit for feature value
         """
         df = pd.read_csv(self.path_all_data)
-        input_arr = np.array(load_list_from_df(df, 'data'))
+        input_arr = np.array(load_list_from_df(df, "data"))
 
         # Create normalized array
-        input_arr = normalize(input_arr, axis=1, norm='l1')
+        input_arr = normalize(input_arr, axis=1, norm="l1")
         relevant_ids_all = set(range(len(input_arr)))
-        for i,feat_name in enumerate(relevant_feat_list):
+        for i, feat_name in enumerate(relevant_feat_list):
             feat_id = self.feat_name_list.index(feat_name)
-            relevant_ids = (input_arr[:, feat_id] >= limit_list[i][0]) & \
-                (input_arr[:, feat_id] <= limit_list[i][1])
+            relevant_ids = (input_arr[:, feat_id] >= limit_list[i][0]) & (
+                input_arr[:, feat_id] <= limit_list[i][1]
+            )
             relevant_ids_all = relevant_ids_all.intersection(set(relevant_ids))
 
         df_feat = df.loc[relevant_ids]
         self.batch_size = len(df_feat)
 
         data = {
-            "data": load_list_from_df(df_feat, 'data'),
-            "output": load_list_from_df(df_feat, 'output'),
-            "id": load_list_from_df(df_feat, 'id'),
-            "gt": load_list_from_df(df_feat, 'gt'),
+            "data": load_list_from_df(df_feat, "data"),
+            "output": load_list_from_df(df_feat, "output"),
+            "id": load_list_from_df(df_feat, "id"),
+            "gt": load_list_from_df(df_feat, "gt"),
         }
-        self.extra_args.update({'feat_name': feat_name})
+        self.extra_args.update({"feat_name": feat_name})
         self.anomaly_manager = AnomalyManager(self, self.checks)
         self.check(data, extra_args=self.extra_args)
 

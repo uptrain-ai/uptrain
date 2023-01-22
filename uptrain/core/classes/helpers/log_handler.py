@@ -1,22 +1,25 @@
 import os
 import shutil
 
+
 class LogHandler:
     def __init__(self, framework=None, cfg=None):
         self.fw = framework
         if os.path.exists(cfg.log_folder):
             print("Deleting the folder: ", cfg.log_folder)
             shutil.rmtree(cfg.log_folder)
-        
+
         self.tb_writers = {}
         self.tb_logs = None
         if cfg.tb_logging:
             from uptrain.core.classes.logging.log_tensorboard import TensorboardLogs
+
             self.tb_logs = TensorboardLogs(cfg.log_folder)
 
         self.st_writer = None
         if cfg.st_logging:
             from uptrain.core.classes.logging.log_streamlit import StreamlitLogs
+
             self.st_logs = StreamlitLogs()
             self.st_writer = self.st_logs
 
@@ -30,8 +33,15 @@ class LogHandler:
 
     def add_scalars(self, plot_name, dictn, count, dashboard_name):
         if self.tb_logs:
-            dashboard_name, plot_name = self.make_name_fold_directory_friendly([dashboard_name, plot_name])
-            new_dictn = dict(zip(self.make_name_fold_directory_friendly(list(dictn.keys())), dictn.values()))
+            dashboard_name, plot_name = self.make_name_fold_directory_friendly(
+                [dashboard_name, plot_name]
+            )
+            new_dictn = dict(
+                zip(
+                    self.make_name_fold_directory_friendly(list(dictn.keys())),
+                    dictn.values(),
+                )
+            )
             if dashboard_name in self.tb_writers:
                 self.tb_writers[dashboard_name].add_scalars(plot_name, new_dictn, count)
         if self.st_writer:
@@ -39,7 +49,9 @@ class LogHandler:
 
     def add_histogram(self, plot_name, arr, dashboard_name):
         if self.tb_logs:
-            dashboard_name, plot_name = self.make_name_fold_directory_friendly([dashboard_name, plot_name])
+            dashboard_name, plot_name = self.make_name_fold_directory_friendly(
+                [dashboard_name, plot_name]
+            )
             if dashboard_name in self.tb_writers:
                 self.tb_writers[dashboard_name].add_histogram(plot_name, arr, len(arr))
         if self.st_writer:

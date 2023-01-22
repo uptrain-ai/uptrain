@@ -8,6 +8,7 @@ def body_length_from_kps(kps):
     body_length_vertical = max(0.01, abs(head_mean_point[1] - legs_mean_point[1]))
     return max(body_length_horizontal, body_length_vertical)
 
+
 def body_length_signal(inputs, outputs, gts=None, extra_args={}):
     body_lengths = []
     for input in inputs["kps"]:
@@ -15,6 +16,7 @@ def body_length_signal(inputs, outputs, gts=None, extra_args={}):
         body_length = body_length_from_kps(kps)
         body_lengths.append(body_length)
     return body_lengths
+
 
 def pushup_signal(inputs, outputs, gts=None, extra_args={}):
     # Define signal to identify cases when the user is in the pushup position
@@ -36,7 +38,10 @@ def pushup_signal(inputs, outputs, gts=None, extra_args={}):
             (body_slope < 1)
             and (hands_mean_point[1] > shoulder_mean_point[1])
             and (
-                (abs((wrist_mean_point[0] - shoulder_mean_point[0]) / body_length) < 0.25)
+                (
+                    abs((wrist_mean_point[0] - shoulder_mean_point[0]) / body_length)
+                    < 0.25
+                )
                 or is_front_orientation
             )
         )

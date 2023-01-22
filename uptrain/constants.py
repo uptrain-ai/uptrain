@@ -37,6 +37,7 @@ class DataDriftAlgo(Enum):
 class BiasAlgo(Enum):
     POPULARITY_BIAS = "popularity_bias"
 
+
 class MeasurableType(Enum):
     INPUT_FEATURE = "input_feature"
     PREDICTION = "prediction"

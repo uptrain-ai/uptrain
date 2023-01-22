@@ -6,6 +6,7 @@ from uptrain.core.classes.anomalies.signals import SignalManager
 
 class EdgeCase(AbstractAnomaly):
     dashboard_name = "edge_cases"
+
     def __init__(self, fw, signal_formulae):
         self.log_handler = fw.log_handler
         self.log_handler.add_writer(self.dashboard_name)
@@ -23,7 +24,12 @@ class EdgeCase(AbstractAnomaly):
         )
         self.num_preds += len(is_interesting)
         self.num_selected += sum(is_interesting)
-        self.log_handler.add_scalars("num_edge_cases", {"num_edge_cases": self.num_selected}, self.num_preds, self.dashboard_name)
+        self.log_handler.add_scalars(
+            "num_edge_cases",
+            {"num_edge_cases": self.num_selected},
+            self.num_preds,
+            self.dashboard_name,
+        )
         return is_interesting
 
     def need_ground_truth(self):

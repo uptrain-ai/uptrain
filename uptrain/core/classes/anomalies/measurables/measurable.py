@@ -1,7 +1,7 @@
 from uptrain.core.classes.anomalies.measurables import AbstractMeasurable
 
-class Measurable(AbstractMeasurable):
 
+class Measurable(AbstractMeasurable):
     def __init__(self, framework) -> None:
         super().__init__()
         self.framework = framework

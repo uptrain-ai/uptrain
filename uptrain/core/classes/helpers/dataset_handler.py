@@ -59,7 +59,9 @@ class DatasetHandler:
             transformed_data = [self.transformation_func(x) for x in data]
             return transformed_data
 
-    def create_retraining_dataset(self, dataset_location, new_data, old_dataset, ratio=5):
+    def create_retraining_dataset(
+        self, dataset_location, new_data, old_dataset, ratio=5
+    ):
         """Creates retraining dataset by combining original training data with collected data-points
         - Transforms logged data-points via transformation_func
         - Add annotatons via attached annotation method
@@ -70,7 +72,12 @@ class DatasetHandler:
         write_json(dataset_location + "/cleaned_dataset.json", new_data)
 
         if self.cluster_plot_func is not None:
-            cluster_and_plot_data(np.array([x['kps'] for x in new_data]), 9, cluster_plot_func=self.cluster_plot_func, plot_save_name="collected_edge_cases_clusters.png")
+            cluster_and_plot_data(
+                np.array([x["kps"] for x in new_data]),
+                9,
+                cluster_plot_func=self.cluster_plot_func,
+                plot_save_name="collected_edge_cases_clusters.png",
+            )
 
         new_data = self.add_annotations(dataset_location + "/cleaned_dataset.json")
         write_json(dataset_location + "/annotated_dataset.json", new_data)
@@ -80,7 +87,13 @@ class DatasetHandler:
                 old_dataset, dataset_location + "/annotated_dataset.json", ratio=ratio
             ),
         )
-        print("Creating retraining dataset:", dataset_location + "/training_dataset.json", " by merging ", old_dataset, " and collected edge cases.\n")
+        print(
+            "Creating retraining dataset:",
+            dataset_location + "/training_dataset.json",
+            " by merging ",
+            old_dataset,
+            " and collected edge cases.\n",
+        )
 
     def merge_training_datasets(self, old_dataset, new_dataset, ratio=1):
         """Merges two datasets with weights = specified ratio.

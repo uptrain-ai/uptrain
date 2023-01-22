@@ -1,7 +1,7 @@
 from abc import ABC
 
-class AbstractMeasurable(ABC):
 
+class AbstractMeasurable(ABC):
     def __init__(self) -> None:
         super().__init__()
 

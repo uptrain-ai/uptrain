@@ -1,7 +1,7 @@
 import os
 import json
 import numpy as np
-import csv 
+import csv
 import pandas as pd
 from collections import OrderedDict
 from sklearn.cluster import KMeans
@@ -9,8 +9,9 @@ from sklearn.cluster import KMeans
 from uptrain.core.encoders.numpy_encoder import NumpyEncoder
 
 
-
-def cluster_and_plot_data(data, num_clusters, cluster_plot_func=None, plot_save_name=""):
+def cluster_and_plot_data(
+    data, num_clusters, cluster_plot_func=None, plot_save_name=""
+):
     kmeans = KMeans(n_clusters=num_clusters, random_state=1, n_init=10)
     kmeans.fit(data)
     all_clusters = kmeans.cluster_centers_
@@ -24,16 +25,24 @@ def cluster_and_plot_data(data, num_clusters, cluster_plot_func=None, plot_save_
     cluster_vars = []
     for idx in range(len(all_clusters)):
         this_elems = data[np.where(all_labels == idx)[0]]
-        cluster_vars.append(np.mean(np.sum(np.abs(this_elems-all_clusters[idx]), axis=1)))
+        cluster_vars.append(
+            np.mean(np.sum(np.abs(this_elems - all_clusters[idx]), axis=1))
+        )
 
     dictn = []
     for idx in range(len(all_clusters)):
-        dictn.append({'cluster': all_clusters[idx], 'count': counts[idx], 'var': cluster_vars[idx]})
-    dictn.sort(key=lambda x: x['count'], reverse=True)
+        dictn.append(
+            {
+                "cluster": all_clusters[idx],
+                "count": counts[idx],
+                "var": cluster_vars[idx],
+            }
+        )
+    dictn.sort(key=lambda x: x["count"], reverse=True)
 
-    all_clusters = np.array([x['cluster'] for x in dictn])
-    counts = np.array([x['count'] for x in dictn])
-    cluster_vars = np.array([x['var'] for x in dictn])
+    all_clusters = np.array([x["cluster"] for x in dictn])
+    counts = np.array([x["count"] for x in dictn])
+    cluster_vars = np.array([x["var"] for x in dictn])
 
     if cluster_plot_func is not None:
         cluster_plot_func(all_clusters, counts, plot_save_name=plot_save_name)
@@ -62,19 +71,19 @@ def add_data_to_warehouse(data, path_csv, row_update=False):
                     continue
                 if k not in list(df.columns):
                     df[k] = None
-                df.loc[get_df_indices_from_ids(df, data["id"]), k] = np.array(data[k], dtype='object')
+                df.loc[get_df_indices_from_ids(df, data["id"]), k] = np.array(
+                    data[k], dtype="object"
+                )
             pd.DataFrame(df).to_csv(path_csv, index=False)
         else:
-            pd.DataFrame(data).to_csv(path_csv, index=False, mode='a', header=False)
+            pd.DataFrame(data).to_csv(path_csv, index=False, mode="a", header=False)
 
 
 def extract_data_points_from_batch(data, idxs):
     if isinstance(data, dict):
         this_data = {}
         for key in list(data.keys()):
-            this_data.update(
-                {key: extract_data_points_from_batch(data[key], idxs)}
-            )
+            this_data.update({key: extract_data_points_from_batch(data[key], idxs)})
         return this_data
     elif isinstance(data, np.ndarray):
         return np.array(data[np.array(idxs)])
@@ -101,13 +110,15 @@ def add_data_to_batch(data, this_data):
     else:
         Exception("Invalid Data id type: %s" % type(data))
 
+
 def get_df_indices_from_ids(df, ids):
-    all_id_array = np.array(df['id'])
+    all_id_array = np.array(df["id"])
     if not np.all(np.diff(all_id_array) >= 0):
         sorter = np.argsort(all_id_array)
         return sorter[np.searchsorted(all_id_array, ids, sorter=sorter)]
     else:
         return np.searchsorted(all_id_array, ids)
+
 
 def read_json(file_name):
     with open(file_name) as f:
@@ -121,7 +132,7 @@ def write_json(file_name, data):
 
 
 def write_csv_row(file_name, data):
-    with open(file_name, 'a') as f_object:
+    with open(file_name, "a") as f_object:
         writer_object = csv.writer(f_object)
         writer_object.writerow(data)
         f_object.close()

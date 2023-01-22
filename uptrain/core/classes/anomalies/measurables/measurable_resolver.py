@@ -1,8 +1,15 @@
-from uptrain.core.classes.anomalies.measurables import Measurable, FeatureMeasurable, ConditionMeasurable, CustomMeasurable, AccuracyMeasurable, ScalarFromEmbeddingMeasurable
+from uptrain.core.classes.anomalies.measurables import (
+    Measurable,
+    FeatureMeasurable,
+    ConditionMeasurable,
+    CustomMeasurable,
+    AccuracyMeasurable,
+    ScalarFromEmbeddingMeasurable,
+)
 from uptrain.constants import MeasurableType
 
-class MeasurableResolver():
 
+class MeasurableResolver:
     def __init__(self, args) -> None:
         super().__init__()
         self._args = args
@@ -19,10 +26,20 @@ class MeasurableResolver():
         elif measurable_type == MeasurableType.ACCURACY:
             return AccuracyMeasurable(framework)
         elif measurable_type == MeasurableType.CONDITION_ON_INPUT:
-            return ConditionMeasurable(framework, FeatureMeasurable(framework, resolve_args["feature_name"], "inputs"), resolve_args["condition_args"])
+            return ConditionMeasurable(
+                framework,
+                FeatureMeasurable(framework, resolve_args["feature_name"], "inputs"),
+                resolve_args["condition_args"],
+            )
         elif measurable_type == MeasurableType.CONDITION_ON_PREDICTION:
-            return ConditionMeasurable(framework, FeatureMeasurable(framework, resolve_args["feature_name"], "outputs"), resolve_args["condition_args"])
+            return ConditionMeasurable(
+                framework,
+                FeatureMeasurable(framework, resolve_args["feature_name"], "outputs"),
+                resolve_args["condition_args"],
+            )
         elif measurable_type == MeasurableType.SCALAR_FROM_EMBEDDING:
-            return ScalarFromEmbeddingMeasurable(framework, resolve_args["idx"], resolve_args["extract_from"])
+            return ScalarFromEmbeddingMeasurable(
+                framework, resolve_args["idx"], resolve_args["extract_from"]
+            )
         else:
             raise Exception("Resolver not defined")

@@ -55,6 +55,6 @@ setup(
         "xgboost==1.7.3",
         "joblib==1.2.0",
         "tensorboard==2.11.0",
-        "jupyterlab==3.5.2"
+        "jupyterlab==3.5.2",
     ],
 )

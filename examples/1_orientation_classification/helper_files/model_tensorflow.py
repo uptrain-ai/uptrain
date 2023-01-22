@@ -5,6 +5,7 @@ import numpy as np
 from helper_files import KpsDataset, read_json
 
 import random
+
 random.seed(0)
 tf.random.set_seed(0)
 
@@ -77,7 +78,7 @@ def train_model_tf(training_file, model_save_name, model_dir="trained_models_tf/
     training_dataset = KpsDataset(training_file, shuffle=True, augmentations=True)
     x = [x[0] for x in training_dataset]
     y = [y[1] for y in training_dataset]
-    dataset = tf.data.Dataset.from_tensor_slices((x,y))
+    dataset = tf.data.Dataset.from_tensor_slices((x, y))
     model.fit(dataset, epochs=10)
     model.save(model_loc)
     print("Model saved at: ", model_loc)
