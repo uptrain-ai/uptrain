@@ -56,4 +56,4 @@ After installing the UpTrain package, the user can define a config that tells th
 We are continuously improving the package by simplifying the interface as well as adding tons of features. Support us by giving the project a star!
 
 Please fill this form to provide your feedback:
-<iframe src="https://docs.google.com/forms/d/e/1FAIpQLScGDf-1a8VmwhD63O_Sp9b1MryTh01oZTvC1CkbHIieuaWJ4g/viewform?embedded=true" width="640" height="1566" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+https://forms.gle/PXd89D5LiFubro9o9
