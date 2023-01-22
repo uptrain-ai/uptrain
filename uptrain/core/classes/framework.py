@@ -151,9 +151,9 @@ class Framework:
         ):
             print(
                 self.selected_count,
-                " data-points collected out of ",
+                " edge cases identified out of ",
                 self.predicted_count,
-                " inferred samples",
+                " total samples",
             )
 
     def infer_batch_size(self, inputs):
@@ -243,11 +243,11 @@ class Framework:
         """
 
         dataset_location = os.path.join(self.fold_name, str(self.version))
-        print("Kicking off re-training")
-        print(
-            str(self.selected_count),
-            "data-points selected out of " + str(self.predicted_count),
-        )
+        print("\nKicking off re-training")
+        # print(
+        #     str(self.selected_count),
+        #     "data-points selected out of " + str(self.predicted_count),
+        # )
 
         # Collect newly collected data
         df = pd.read_csv(self.path_all_data)
@@ -265,7 +265,7 @@ class Framework:
         self.model_handler.retrain(
             dataset_location + "/training_dataset.json", self.version
         )
-        print("Model retraining done...")
+        print("Model retraining done...\n")
         print("Generating comparison report...")
 
         # Generate Model report

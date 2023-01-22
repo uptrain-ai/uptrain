@@ -70,7 +70,7 @@ class DatasetHandler:
         write_json(dataset_location + "/cleaned_dataset.json", new_data)
 
         if self.cluster_plot_func is not None:
-            cluster_and_plot_data(np.array([x['kps'] for x in new_data]), 5, cluster_plot_func=self.cluster_plot_func, plot_save_name="collected_edge_cases_clusters.png")
+            cluster_and_plot_data(np.array([x['kps'] for x in new_data]), 9, cluster_plot_func=self.cluster_plot_func, plot_save_name="collected_edge_cases_clusters.png")
 
         new_data = self.add_annotations(dataset_location + "/cleaned_dataset.json")
         write_json(dataset_location + "/annotated_dataset.json", new_data)
@@ -80,6 +80,7 @@ class DatasetHandler:
                 old_dataset, dataset_location + "/annotated_dataset.json", ratio=ratio
             ),
         )
+        print("Creating retraining dataset:", dataset_location + "/training_dataset.json", " by merging ", old_dataset, " and collected edge cases.\n")
 
     def merge_training_datasets(self, old_dataset, new_dataset, ratio=1):
         """Merges two datasets with weights = specified ratio.

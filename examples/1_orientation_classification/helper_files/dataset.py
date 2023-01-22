@@ -2,6 +2,7 @@ import json
 import numpy as np
 import cv2
 import os
+import pandas as pd
 import imgaug as ia
 import imgaug.augmenters as iaa
 from imgaug.augmentables import Keypoint
@@ -97,9 +98,21 @@ class KpsDataset():
             yield item
 
 
-def read_json(file_name):
+def read_json(file_name, dataframe=False):
     with open(file_name) as f:
         data = json.load(f)
+    if dataframe:
+        data = pd.DataFrame(data)
+        data = data.drop(['frame_idx'], axis=1)
+        keys = ["Nose_X", "Nose_Y", "Left_Eye_X", "Left_Eye_Y", "Right_Eye_X", "Right_Eye_Y", "Left_Ear_X", "Left_Ear_Y", "Right_Ear_X", "Right_Ear_Y", "Left_Shoulder_X", "Left_Shoulder_Y", "Right_Shoulder_X", "Right_Shoulder_Y",
+"Left_Elbow_X", "Left_Elbow_Y", "Right_Elbow_X", "Right_Elbow_Y",
+"Left_Wrist_X", "Left_Wrist_Y", "Right_Wrist_X", "Right_Wrist_Y",
+"Left_Hip_X", "Left_Hip_Y", "Right_Hip_X", "Right_Hip_Y",
+"Left_Knee_X", "Left_Knee_Y", "Right_Knee_X", "Right_Knee_Y",
+"Left_Ankle_X", "Left_Ankle_Y", "Right_Ankle_X", "Right_Ankle_Y"]
+        for idx in range(len(keys)):
+            values = [x[idx] for x in list(data["kps"])]
+            data[keys[idx]] = values
     return data
 
 
@@ -174,8 +187,11 @@ def plot_all_cluster(all_clusters, num_labels, plot_save_name=""):
     plot_cluster_as_image(len(all_clusters), plot_save_name=plot_save_name)
 
 def plot_cluster_as_image(num_clusters, plot_save_name=""):
-    for idx in range(0, int(num_clusters/5)):
+    for idx in range(0, int(np.ceil(num_clusters/5))):
         for jdx in range(0, 5):
+            if idx*5 + jdx >= num_clusters:
+                frame = cv2.hconcat([frame, this_frame*0])
+                continue
             if jdx == 0:
                 frame = cv2.imread(str(idx*5 + jdx) + ".png")
             else:

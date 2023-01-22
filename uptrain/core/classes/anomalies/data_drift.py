@@ -21,7 +21,7 @@ class DataDrift(AbstractAnomaly):
         else:
             self.log_handler = fw.log_handler
             self.reference_dataset = check["reference_dataset"]
-            self.cluster_plot_func = check.get("cluster_plot_func", None)
+            self.cluster_plot_func = fw.dataset_handler.cluster_plot_func
             self.save_edge_cases = check.get("save_edge_cases", True)
             self.count = 0
             self.prod_dist_counts_arr = []

@@ -36,7 +36,7 @@ def get_accuracy_torch(testing_file, model_save_name, model_dir="trained_models_
     model = BinaryClassification()
     model.load_state_dict(torch.load(model_dir + model_save_name))
     model.eval()
-    print("Evaluating on ", len(read_json(testing_file)), " data-points")
+    print("Evaluating model:", model_save_name, " on ", len(read_json(testing_file)), " data-points")
     with torch.inference_mode():
         pred_classes = []
         gt_classes = []
@@ -57,6 +57,10 @@ def get_accuracy_torch(testing_file, model_save_name, model_dir="trained_models_
   
   
 def train_model_torch(training_file, model_save_name, model_dir="trained_models_torch/"):
+    model_loc = model_dir + model_save_name
+    os.makedirs(model_dir, exist_ok=True)
+    if os.path.exists(model_loc):
+        return
     print(
         "Training on: ",
         training_file,
@@ -64,11 +68,6 @@ def train_model_torch(training_file, model_save_name, model_dir="trained_models_
         len(read_json(training_file)),
         " data-points",
     )
-    model_loc = model_dir + model_save_name
-    os.makedirs(model_dir, exist_ok=True)
-    if os.path.exists(model_loc):
-        print("Trained model exists. Skipping training again.")
-        return
     training_dataset = KpsDataset(training_file, shuffle=True, augmentations=True)
     model = BinaryClassification()
     loss_fn = nn.BCEWithLogitsLoss()
