@@ -23,7 +23,7 @@ With ML models now being used almost everywhere, we strive to equip data scienti
 You can install upTrain via the GitHub repository:
 ```bash
 # Clone the upTrain git repository
-git clone https://github.com/uptrainai/uptrain.git
+git clone https://github.com/uptrain-ai/uptrain.git
 
 # Install the requirements and UpTrain package (recommended to do this in a new environment)
 cd uptrain
