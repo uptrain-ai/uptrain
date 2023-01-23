@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="uptrain",
-    version="0.1.dev",
+    version="0.1.dev0",
     description="UpTrain - ML Observability and Retraining Framework",
     long_description="Smart and Automated Model Refinement",
     # The project's main homepage.
@@ -27,7 +27,7 @@ setup(
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Build Tools",
         # Pick your license as you wish (should match "license" above)
-        "License :: OSI Approved :: Apache 2.0 License",
+        "License :: OSI Approved :: Apache Software License",
         # Specify the Python versions you support here. In particular, ensure
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.3",
