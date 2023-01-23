@@ -14,9 +14,9 @@ setup(
     url="https://github.com/uptrain-ai/uptrain",
     # Author details
     maintainer="UpTrain AI Team",
-    maintainer_email="vipul@oodles.ai",
+    maintainer_email="uptrain.ai@gmail.com",
     # Choose your license
-    license="Apache 2.0",
+    license="Apache License 2.0",
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
         # How mature is this project? Common values are
