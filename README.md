@@ -3,6 +3,8 @@
 ## UpTrain -- Your Open-source toolkit to observe and refine ML models
 [![GitHub license](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/uptrainai/uptrain/blob/main/LICENSE)
 [![PyPI version](https://badge.fury.io/py/uptrain.svg)](https://pypi.org/project/aqueduct-ml/)
+[![UpTrain Docs](https://img.shields.io/badge/UpTrain-Docs-blue)](https://uptrain-ai.gitbook.io/uptrain-documentation/)
+[![Join Discord](https://img.shields.io/badge/Join-Discord-orange)](https://discord.com/invite/gVvZhhrQaQ)
 
 ## What is UpTrain?
 UpTrain is an open-source toolkit for ML practitioners to understand how their models are performing in production and continuously improve them over time by monitoring their performance, checking for (data) distribution shifts and collecting edge cases to retrain them upon. The toolkit serves two key functionalities: 
