@@ -2,6 +2,7 @@
 
 ## UpTrain -- Your Open-source toolkit to observe and refine ML models
 [![GitHub license](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/uptrainai/uptrain/blob/main/LICENSE)
+[![PyPI version](https://badge.fury.io/py/uptrain.svg)](https://pypi.org/project/aqueduct-ml/)
 
 ## What is UpTrain?
 UpTrain is an open-source toolkit for ML practitioners to understand how their models are performing in production and continuously improve them over time by monitoring their performance, checking for (data) distribution shifts and collecting edge cases to retrain them upon. The toolkit serves two key functionalities: 
@@ -22,12 +23,8 @@ With ML models now being used almost everywhere, we strive to equip data scienti
 ## Get Started
 You can install upTrain via the GitHub repository:
 ```bash
-# Clone the upTrain git repository
-git clone https://github.com/uptrain-ai/uptrain.git
-
-# Install the requirements and UpTrain package (recommended to do this in a new environment)
-cd uptrain
-python setup.py install
+# Install the package through pip
+pip install uptrain
 
 # Run your first example
 cd examples/1_orientation_classification
