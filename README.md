@@ -23,7 +23,6 @@ UpTrain is an open-source toolkit for ML practitioners to understand how their m
 With ML models now being used almost everywhere, we strive to equip data scientists and ML engineers with the right tools to ensure they can adopt the best practices of observability and constant iteration which led to great advancement in the software domains. With UpTrain, they can define domain-specific signals and customized reports to continuously monitor, debug and improve their ML models. 
 
 ## Get Started
-You can install upTrain via the GitHub repository:
 ```bash
 # Install the package through pip
 pip install uptrain
