@@ -12,14 +12,13 @@ In this example, we will see how we can use UpTrain package to identify data dri
 
 #### Data Type Structure
 
-Let's look at the training data features and visualise some of the training samples.
+Let's look at the training data features and visualise some of the training samples. Here, `id` is the training sample id, `gt` is the corresponding ground truth, and the rest of the features are the corresponding locations of the key-points of a human body.
 
 <div>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>kps</th>
       <th>id</th>
       <th>gt</th>
       <th>Nose_X</th>
@@ -45,7 +44,6 @@ Let's look at the training data features and visualise some of the training samp
   <tbody>
     <tr>
       <th>0</th>
-      <td>[333.10994563476123, 76.16168807503908, 338.56...</td>
       <td>18100306191</td>
       <td>0</td>
       <td>333.109946</td>
@@ -69,7 +67,6 @@ Let's look at the training data features and visualise some of the training samp
     </tr>
     <tr>
       <th>1</th>
-      <td>[373.0438346822569, 207.9342362388681, 378.278...</td>
       <td>12100004003</td>
       <td>1</td>
       <td>373.043835</td>
@@ -93,7 +90,6 @@ Let's look at the training data features and visualise some of the training samp
     </tr>
     <tr>
       <th>2</th>
-      <td>[289.1160206784009, 218.50299194624307, 294.33...</td>
       <td>17100400995</td>
       <td>0</td>
       <td>289.116021</td>
@@ -117,7 +113,6 @@ Let's look at the training data features and visualise some of the training samp
     </tr>
     <tr>
       <th>3</th>
-      <td>[320.89799794070035, 71.87346792197232, 325.16...</td>
       <td>18100102279</td>
       <td>0</td>
       <td>320.897998</td>
@@ -141,7 +136,6 @@ Let's look at the training data features and visualise some of the training samp
     </tr>
     <tr>
       <th>4</th>
-      <td>[486.1227614375234, 218.36389575646785, 495.50...</td>
       <td>12100500969</td>
       <td>1</td>
       <td>486.122761</td>
@@ -165,10 +159,10 @@ Let's look at the training data features and visualise some of the training samp
     </tr>
   </tbody>
 </table>
-<p>5 rows × 37 columns</p>
+<p>5 rows × 36 columns</p>
 </div>
 
-#### How the training data for classifying human orientation looks like
+#### Visualizing some training samples for classifying human orientation
 ![training_data_examples](https://user-images.githubusercontent.com/5287871/214430440-85fced8e-234b-4341-92e7-1e001aea517e.jpeg)
 
 The example follows the following steps for monitoring and retraining your model:
