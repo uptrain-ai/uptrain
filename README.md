@@ -30,7 +30,7 @@ pip install uptrain
 
 # Run your first example
 git clone git@github.com:uptrain-ai/uptrain.git
-cd examples/1_orientation_classification
+cd uptrain/examples/1_orientation_classification
 jupyter lab
 ```
 
