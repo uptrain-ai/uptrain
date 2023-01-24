@@ -46,10 +46,20 @@ After installing the UpTrain package, the user can define a config that tells th
 <img width="729" alt="Screenshot 2023-01-22 at 2 16 56 PM" src="https://user-images.githubusercontent.com/108270398/213943297-0fbb2afb-908f-4a02-83ca-3e5926716001.png">
 
 ### Sample Use-cases:
-1. Recommendation Systems: Use UpTrain to monitor popularity bias, recommendation quality across user groups etc.
-2. Prediction Systems: Use UpTrain to monitor feature drift and the effectiveness of your predictions.
-3. Computer Vision: Use UpTrain to measure drifts in the properties of your input image (brightness, intensity, temperature, model outputs etc.).
-4. LLMs: Use UpTrain to measure drifts in your prompts and define rules to capture specific inputs to fine-tune upon.
+1. LLMs: UpTrain tracks unseen prompts, logs model performance, and detects problematic prompts by analysing user behaviour.
+
+a. Checks for prompts which were not part of your fine-tuning dataset and logs them along with model outputs. This can help you understand your model performance on unseen data.
+
+b. Picks out problematic prompts by analysing user behaviour (ex: if the user is asking the same question in multiple ways, most likely they are not satisfied with the model’s output in the first place)
+
+c. Allows you to define any custom rules to select specific prompts (ex: if a particular keyword in the prompt or if the question asked by the user has a certain tone etc.)
+
+2. Recommendation Systems: Use UpTrain to monitor popularity bias, recommendation quality across user groups etc.
+
+3. Prediction Systems: Use UpTrain to monitor feature drift and the effectiveness of your predictions.
+
+4. Computer Vision: Use UpTrain to measure drifts in the properties of your input image (brightness, intensity, temperature, model outputs etc.).
+
 
 
 ## Stay Updated
