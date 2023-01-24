@@ -1,4 +1,4 @@
-[<img src="https://user-images.githubusercontent.com/108270398/213943166-be7bd32f-7b56-4d99-aeb3-fea1f48162b1.png" width= "20%" />](https://uptrain.ai)
+[<img src="https://user-images.githubusercontent.com/108270398/214240695-4f958b76-c993-4ddd-8de6-8668f4d0da84.png" width= "20%" />](https://uptrain.ai)
 
 ## UpTrain -- Your Open-source toolkit to observe and refine ML models
 [![GitHub license](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/uptrainai/uptrain/blob/main/LICENSE)
