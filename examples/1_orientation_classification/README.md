@@ -159,7 +159,6 @@ Let's look at the training data features and visualise some of the training samp
     </tr>
   </tbody>
 </table>
-<p>5 rows × 36 columns</p>
 </div>
 
 #### Visualizing some training samples for classifying human orientation
