@@ -63,7 +63,7 @@ c. Allows you to define any custom rules to select specific prompts (ex: if a pa
 
 
 ## Stay Updated
-We are continuously improving the package by simplifying the interface as well as adding tons of features. Support us by giving the project a star!
+We are continuously working to improve the package and would love to see your issues. Support us by giving the project a star!
 
 Please fill this form to provide your feedback:
 https://forms.gle/PXd89D5LiFubro9o9
