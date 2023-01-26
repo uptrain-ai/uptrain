@@ -1,6 +1,6 @@
 [<img src="https://user-images.githubusercontent.com/108270398/214240695-4f958b76-c993-4ddd-8de6-8668f4d0da84.png" width= "20%" />](https://uptrain.ai)
 
-## An open-source tool to automatically improve ML models in production
+## An open-source tool to observe and improve ML models in production
 [![GitHub license](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/uptrainai/uptrain/blob/main/LICENSE)
 [![PyPI version](https://badge.fury.io/py/uptrain.svg)](https://pypi.org/project/uptrain/)
 [![UpTrain Docs](https://img.shields.io/badge/UpTrain-Docs-blue)](https://uptrain-ai.gitbook.io/uptrain-documentation/)
