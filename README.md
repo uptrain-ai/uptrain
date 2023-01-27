@@ -38,42 +38,27 @@
 </h4>
 <h4> </h4>
 
-# Features 💡
+# **[Key Features](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** 💡
 
-☑ **[Performance Monitoring](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** - track the performance of your models in realtime and get alerted as soon as a dip is observed.
-
-☑ **[Data Drift Checks](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** - identify distribution shifts in your model inputs.
-
-☑ **[Edge Case Signals](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** - user-defined signals and statistical techniques to detect out-of-distribution data-points.
-
-☑ **[Data Integrity Checks](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** - checks for missing or inconsistent data, duplicate records, data quality, etc. 
-
-☑ **[Customizable metrics](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** - define custom metrics that make sense for your use case.
-
-☑ **[Automated Retraining](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** - automate model retraining by attaching your training and inference pipelines.
-
-☑ **[Model Bias](https://github.com/uptrain-ai/uptrain/blob/main/examples/3_shopping_cart_rec/uptrain_recommendation_bias.ipynb)** - track popularity bias in your recommendation models.
-
-☑ **Data Security** - your data never goes out of your machine.
+- **[Data Drift Checks](https://github.com/uptrain-ai/uptrain/blob/main/examples/1_orientation_classification/get_started.ipynb)** - identify distribution shifts in your model inputs.
+- **[Performance Monitoring](https://github.com/uptrain-ai/uptrain/blob/main/examples/1_orientation_classification/deepdive_examples/uptrain_concept_drift.ipynb)** - track the performance of your models in realtime and get alerted as soon as a dip is observed.
+- **[Edge Case Signals](https://github.com/uptrain-ai/uptrain/blob/main/examples/1_orientation_classification/deepdive_examples/uptrain_edge_cases_torch.ipynb)** - user-defined signals and statistical techniques to detect out-of-distribution data-points.
+- **[Data Integrity Checks](https://github.com/uptrain-ai/uptrain/blob/main/examples/1_orientation_classification/deepdive_examples/uptrain_data_integrity.ipynb)** - checks for missing or inconsistent data, duplicate records, data quality, etc. 
+- **[Customizable metrics](https://github.com/uptrain-ai/uptrain/blob/main/examples/1_orientation_classification/deepdive_examples/uptrain_data_drift_custom_measures.ipynb)** - define custom metrics that make sense for your use case.
+- **[Automated Retraining](https://github.com/uptrain-ai/uptrain/blob/main/examples/1_orientation_classification/deepdive_examples/uptrain_check_all.ipynb)** - automate model retraining by attaching your training and inference pipelines.
+- **[Model Bias](https://github.com/uptrain-ai/uptrain/blob/main/examples/3_shopping_cart_rec/uptrain_recommendation_bias.ipynb)** - track popularity bias in your recommendation models.
+- **Data Security** - your data never goes out of your machine.
 
 
 ## 🚨Coming soon🚨
 
-☐ **Realtime Dashboards** - to visualize your model's health.
-
-☐ **Embeddings Support** - specialized dashboards to understand model-inferred embeddings.
-
-☐ **Slack Integration**
-
-☐ **Label Shfit** to identify distribution shifts in your model predictions. Specially useful in cases when ground truth is unavailable.
-
-☐ **Prediction Stability** 
-
-☐ **AI Explainability**
-
-☐ **Uncertainty Estimation**
-
-☐ **Adversarial Checks**
+- **Realtime Dashboards** - to visualize your model's health.
+- **Embeddings Support** - specialized dashboards to understand model-inferred embeddings.
+- **Slack Integration** - get alerts on Slack.
+- **Label Shfit** - identify drifts in your predictions. Specially useful in cases when ground truth is unavailable.
+- **Prediction Stability** - filter cases where model prediction is not stable.
+- **AI Explainability** - understand relative importance of multiple features on predictions.
+- **Adversarial Checks** - combat adversarial attacks
 
 And more.
 
@@ -107,6 +92,10 @@ UpTrain can be used for a wide variety of Machine learning models such as LLMs, 
 
 We are constantly working to make UpTrain better. Want a new feature or need any integrations? Feel free to [create an issue](https://github.com/uptrain-ai/uptrain/issues) or [contribute](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md) directly to the repository.
 
+<h1 align="left">
+<img alt="Meme" width="40%" src="https://user-images.githubusercontent.com/108270398/215209245-4d6b1f47-7af9-4db8-8d8c-63dcc610571c.jpg">
+</h1>
+
 # License 💻
 
 This repo is published under Apache 2.0 license. We're currently focused on developing non-enterprise offerings that should cover most use cases. In the future, we will add a hosted version which we might charge for.
@@ -117,6 +106,3 @@ We are continuously adding tons of features and use cases. Please support us by 
 # Provide feedback (Harsher the better 😉) 
 
 We are building UpTrain in public. Help us improve by giving your feedback **[here](https://forms.gle/PXd89D5LiFubro9o9)**
-<h1 align="left">
-<img alt="Meme" width="40%" src="https://user-images.githubusercontent.com/108270398/215209245-4d6b1f47-7af9-4db8-8d8c-63dcc610571c.jpg">
-</h1>
