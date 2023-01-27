@@ -47,22 +47,23 @@ After installing the UpTrain package, the user can define a config that tells th
 
 <img width="729" alt="Screenshot 2023-01-22 at 2 16 56 PM" src="https://user-images.githubusercontent.com/108270398/213943297-0fbb2afb-908f-4a02-83ca-3e5926716001.png">
 
-### Sample Use-cases:
-1. LLMs: UpTrain tracks unseen prompts, logs model performance, and detects problematic prompts by analysing user behaviour.
+### Use-cases:
+We support a wide variety of Machine learning models such as LLMs, recommendation models, prediction models, Computer vision models etc.
 
-    a. Checks for prompts which were not part of your fine-tuning dataset and logs them along with model outputs. This can help you understand your model performance on unseen data.
+### How UpTrain can be used to observe and improve LLMs:
+1. Monitoring model performance: Track the performance of your language model over time, such as the perplexity, BLEU, or METEOR scores, to identify any changes or degradation in the model's performance.
+2. Detecting input distribution shift: Compare the distribution of the input data used to train the model to the distribution of the input data used in production. This can help identify input distribution shift and how it may be affecting the model's performance.
+3. Analyzing data integrity: Monitor the quality and consistency of the input data being fed to the model, such as checking for missing values or outliers, to ensure the model is receiving the right input data.
+4. Identifying edge cases: Understand how your model is performing on inputs it has not seen before, such as out-of-vocabulary words or unusual sentence structures, which can help identify areas where the model may not be performing well.
+5. Tracking user engagement: Track how users interact with the model's outputs, such as click-through rates or sentiment analysis, to understand which outputs are most effective. 
 
-    b. Picks out problematic prompts by analysing user behaviour (ex: if the user is asking the same question in multiple ways, most likely they are not satisfied with the model’s output in the first place)
-
-    c. Allows you to define any custom rules to select specific prompts (ex: if a particular keyword in the prompt or if the question asked by the user has a certain tone etc.)
-
-2. Recommendation Systems: Use UpTrain to monitor popularity bias, recommendation quality across user groups etc.
-
-3. Prediction Systems: Use UpTrain to monitor feature drift and the effectiveness of your predictions.
-
-4. Computer Vision: Use UpTrain to measure drifts in the properties of your input image (brightness, intensity, temperature, model outputs etc.).
-
-
+### Similarly, this is how UpTrain can be used in recommendation systems:
+1. Monitoring model performance: Track the performance of your recommendation model over time, such as the accuracy, precision, and recall of the model's recommendations.
+2. Detecting concept drift: Check for changes in the user's behavior or the distribution of the items being recommended, which could indicate concept drift in the model's performance.
+3. Identifying edge cases: Understand how your model is performing on items or users it has not seen before, which can help identify areas where the model may not be performing well.
+4. Analyzing data drift: Analyze the distribution of the data used to train the model and compare it to the distribution of the data being used in production. This can help identify data drift and how it may be affecting the model's performance.
+5. Evaluating diversity and fairness: Monitor the diversity of the recommendations and ensure that the model is not biased towards certain items or user groups.
+6. Tracking user engagement: Track how users interact with the recommendations, such as click-through rates or purchase rates, to understand which recommendations are most effective.
 
 ## Stay Updated
 We are continuously improving the package by simplifying the interface as well as adding tons of features. Support us by giving the project a star!
