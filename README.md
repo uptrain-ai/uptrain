@@ -97,22 +97,15 @@ jupyter lab
 For more info, visit our [get started guide](https://uptrain.gitbook.io/docs/get-started).
 
 
-# 🤩 What makes this 🔥?
+# Why UpTrain 🤔?
 
 Machine learning (ML) models are widely used to make critical business decisions. Still, no ML model is 100% accurate, and, further, their accuracy deteriorates over time 😣. For example, Sales prediction becomes inaccurate over time due to a shift in consumer buying habits. Additionally, due to the black boxiness ⬛ nature of ML models, it's challenging to identify and fix their problems.
 
 UpTrain solves this. We make it easy for data scientists and ML engineers to understand where their models are going wrong and help them fix them before others complain.
 
-We are constantly working to make UpTrain better. Want a new feature or need any integrations? Feel free to [create an issue](https://github.com/uptrain-ai/uptrain/issues) or [contribute](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md) directly to the repository.
-
-# How to Integrate 🛠
-After installing the UpTrain package, the user can define a config that tells the tool about the metrics to monitor and the signals to capture. An illustration is provided below. 
-
-<h1 align="left">
-<img alt="Integrate" width="60%" src="https://user-images.githubusercontent.com/108270398/213943297-0fbb2afb-908f-4a02-83ca-3e5926716001.png">
-</h1>
-
 UpTrain can be used for a wide variety of Machine learning models such as LLMs, recommendation models, prediction models, Computer vision models, etc.
+
+We are constantly working to make UpTrain better. Want a new feature or need any integrations? Feel free to [create an issue](https://github.com/uptrain-ai/uptrain/issues) or [contribute](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md) directly to the repository.
 
 # License 💻
 
