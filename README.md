@@ -34,7 +34,7 @@ Install the package through pip:
 pip install uptrain
 ```
 Run your first example:
-```
+```console
 git clone git@github.com:uptrain-ai/uptrain.git
 cd uptrain/examples/1_orientation_classification
 pip install jupyterlab
