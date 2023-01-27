@@ -1,5 +1,7 @@
 <h1 align="center">
-  <img width="300" src="https://user-images.githubusercontent.com/108270398/214240695-4f958b76-c993-4ddd-8de6-8668f4d0da84.png" alt="uptrain">
+  <a href="https://uptrain.ai">
+    <img width="300" src="https://user-images.githubusercontent.com/108270398/214240695-4f958b76-c993-4ddd-8de6-8668f4d0da84.png" alt="uptrain">
+  </a>
 </h1>
 <p align="center">
   <p align="center">Open-source, self-hosted, easy-to-configure tool to improve ML models in production.</p>
