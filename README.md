@@ -52,18 +52,18 @@
 
 ☑ **[Model Bias](https://github.com/uptrain-ai/uptrain/blob/main/examples/3_shopping_cart_rec/uptrain_recommendation_bias.ipynb)** - track popularity bias in your recommendation models.
 
-☑ **Realtime Dashboards** - to visualize your model's health.
-
 ☑ **Data Security** - your data never goes out of your machine.
 
 
 ## 🚨Coming soon🚨
 
-☐ **Embeddings Support** - specialized dashboards to understand model-inferred embeddings
+☐ **Realtime Dashboards** - to visualize your model's health.
+
+☐ **Embeddings Support** - specialized dashboards to understand model-inferred embeddings.
 
 ☐ **Slack Integration**
 
-☐ **Label Shfit** to identify distribution shifts in your model predictions. Specially useful in cases when ground truth is unavailable
+☐ **Label Shfit** to identify distribution shifts in your model predictions. Specially useful in cases when ground truth is unavailable.
 
 ☐ **Prediction Stability** 
 
