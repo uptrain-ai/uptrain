@@ -13,18 +13,13 @@ Machine learning (ML) models are widely used to make critical business decisions
 Furthermore, due to lack of transparency in its predictions, ML models are often considered as "black boxes" which makes it difficult to identify and fix their problems. Our tool, UpTrain, addresses these problems by providing ways to observe and improve ML models in production. It automates the process of monitoring the model's performance, detecting issues, and retraining the model with the right data at the right time, thus keeping it up to date and accurate while saving monitoring and retraining costs.
 
 ## What is UpTrain?
-UpTrain is an open-source toolkit for ML practitioners to understand how their models are performing in production and continuously improve them over time by monitoring their performance, checking for (data) distribution shifts and collecting edge cases to retrain them upon. The toolkit serves two key functionalities: 
+UpTrain is an open-source toolkit for ML practitioners to understand how their models are performing in production and continuously improve them over time by monitoring their performance, checking for (data) distribution shifts and collecting edge cases to retrain them upon. 
 
-**ML Observability**
-1. Is the performance of my model degrading over time?   [Concept Drift]
-2. Is my model encoutering cases which it was not trained upon?   [Edge cases]
-3. Is my input data distribution different from the one which I trained my model upon?   [Data Drift]
-4. Am I feeding the right data to my model or any of the data pre-processing pipelines are broken?   [Data Integrity]
+Our toolkit helps you keep an eye on your machine learning models to ensure they're performing at their best. It provides two main features:
 
-**ML Refinement**
-1. Select the best data-points to retrain your models   (Smart retraining to save costs)
-2. Proactively catch model issues and give you the ability to fix them or inform your customers (before they face issues due to incorrect model behavior)
-3. A fully automated model refinement loop (Observe => Retrain => Compare => Deploy => ... )
+**ML Observability:** It keeps track of how your model is performing over time, detect any issues such as concept drift, edge cases, data drift, data integrity etc.
+
+**ML Refinement:** It improve your models by selecting the best data points for retraining, proactively catching model issues, and implementing a fully automated model refinement loop. This helps you save costs and prevent issues for your customers.
 
 With ML models now being used almost everywhere, we strive to equip data scientists and ML engineers with the right tools to ensure they can adopt the best practices of observability and constant iteration which led to great advancement in the software domains. With UpTrain, they can define domain-specific signals and customized reports to continuously monitor, debug and improve their ML models. 
 
