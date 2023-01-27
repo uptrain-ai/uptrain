@@ -20,7 +20,7 @@
   <a href="https://discord.com/invite/gVvZhhrQaQ">
     <img src="https://img.shields.io/badge/Discord-Community-orange" alt="Community" />
   </a>
-  <a href="https://www.uptrain.ai/">
+  <a href="https://uptrain.ai/">
     <img src="https://img.shields.io/badge/Website-Uptrain-green" alt="Website" />
   </a>
 </h4>
