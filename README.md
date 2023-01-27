@@ -30,7 +30,7 @@
 <h4>
 </h4>
 
-**[UpTrain](https://www.uptrain.ai)** is an open-source, data secure tool for ML practitioners to observe and refine their ML models by monitoring their performance, checking for (data) distribution shifts and collecting edge cases to retrain them upon. It integrates seamlessly with your existing production pipelines and take minutes to get started ⚡.
+**[UpTrain](https://www.uptrain.ai)** is an open-source, data-secure tool for ML practitioners to observe and refine their ML models by monitoring their performance, checking for (data) distribution shifts, and collecting edge cases to retrain them upon. It integrates seamlessly with your existing production pipelines and takes minutes to get started ⚡.
 
 <h4>
 </h4>
@@ -38,32 +38,32 @@
 
 # Features 💡
 
-☑ **[Performance Monitoring](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** - track the performance of your models in real-time and get alerted as soon as a dip is observed
+☑ **[Performance Monitoring](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** - track the performance of your models in realtime and get alerted as soon as a dip is observed.
 
-☑ **[Data Drift Checks](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** to identify distribution shifts in your model inputs
+☑ **[Data Drift Checks](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** - identify distribution shifts in your model inputs.
 
-☑ **[Edge Case Signals](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** - user-defined signals as well as statistical techniques to detect out-of-distribution data-points
+☑ **[Edge Case Signals](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** - user-defined signals and statistical techniques to detect out-of-distribution data-points.
 
-☑ **[Data Integrity Checks](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** - checks for missing or inconsistent data, duplicate records, data quality etc. 
+☑ **[Data Integrity Checks](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** - checks for missing or inconsistent data, duplicate records, data quality, etc. 
 
-☑ **[Customizable metrics](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** - define custom metrics which makes sense for your use-case
+☑ **[Customizable metrics](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** - define custom metrics that make sense for your use case.
 
-☑ **[Automated Retraining](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** - attach model retraining by attaching your training and inference pipelines
+☑ **[Automated Retraining](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** - automate model retraining by attaching your training and inference pipelines.
 
-☑ **[Model Bias](https://github.com/uptrain-ai/uptrain/blob/main/examples/3_shopping_cart_rec/uptrain_recommendation_bias.ipynb)** - track popularity bias in your recommendation models
+☑ **[Model Bias](https://github.com/uptrain-ai/uptrain/blob/main/examples/3_shopping_cart_rec/uptrain_recommendation_bias.ipynb)** - track popularity bias in your recommendation models.
 
-☑ **Realtime Dashboards** 
+☑ **Realtime Dashboards** - to visualize your model's health.
 
-☑ **Data Security** - your data never goes out of your machine
+☑ **Data Security** - your data never goes out of your machine.
 
 
 ## 🚨Coming soon🚨
 
-☐ **Embeddings Support** - specialised dashboards to understand model inferred embeddings
+☐ **Embeddings Support** - specialized dashboards to understand model-inferred embeddings
 
 ☐ **Slack Integration**
 
-☐ **Label Shfit** to identify distribution shifts in your model predictions. Especially useful in cases when Ground Truth is unavailable
+☐ **Label Shfit** to identify distribution shifts in your model predictions. Specially useful in cases when ground truth is unavailable
 
 ☐ **Prediction Stability** 
 
@@ -97,9 +97,9 @@ For more info, visit our [get started guide](https://uptrain.gitbook.io/docs/get
 
 # 🤩 What makes this 🔥?
 
-Machine learning (ML) models are widely used to make critical business decisions, but no ML models is 100% accurate and, further, their accuracy deteriorates over time 😣. For example, Sales prediction becomes inaccurate over time due to a shift in consumer buying habits. Additionally, due to black boxiness ⬛ nature of ML models, it's extremely difficult to identify and fix their problems.
+Machine learning (ML) models are widely used to make critical business decisions. Still, no ML model is 100% accurate, and, further, their accuracy deteriorates over time 😣. For example, Sales prediction becomes inaccurate over time due to a shift in consumer buying habits. Additionally, due to the black boxiness ⬛ nature of ML models, it's challenging to identify and fix their problems.
 
-UpTrain solves this. We make it easy for data scientists and ML engineers to understand where their models are going wrong and help them to fix them before others start complaining. 
+UpTrain solves this. We make it easy for data scientists and ML engineers to understand where their models are going wrong and help them fix them before others complain.
 
 We are constantly working to make UpTrain better. Want a new feature or need any integrations? Feel free to [create an issue](https://github.com/uptrain-ai/uptrain/issues) or [contribute](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md) directly to the repository.
 
@@ -110,18 +110,18 @@ After installing the UpTrain package, the user can define a config that tells th
 <img alt="Integrate" width="60%" src="https://user-images.githubusercontent.com/108270398/213943297-0fbb2afb-908f-4a02-83ca-3e5926716001.png">
 </h1>
 
-UpTrain can be used for a wide variety of Machine learning models such as LLMs, recommendation models, prediction models, Computer vision models etc.
+UpTrain can be used for a wide variety of Machine learning models such as LLMs, recommendation models, prediction models, Computer vision models, etc.
 
 # License 💻
 
-This repo is entirely Apache 2.0 licensed. We don't plan to make money off individual developers, but will develop some enterprise features, a hosted version, and support that we charge for in future. Currently we're solely focused on developing non-enterprise offerings that should cover most of the use-cases.
+This repo is entirely Apache 2.0 licensed. We don't plan to make money off individual developers. In the future, we will develop some enterprise features, a hosted version, and support that we charge for. Currently, we're solely focused on developing non-enterprise offerings that should cover most of the use cases.
 
 # Stay Updated ☎️
-We are continuously adding tons of features and use-cases. Support us by giving the project a star ⭐!
+We are continuously adding tons of features and use cases. Please support us by giving the project a star ⭐!
 
 # Provide feedback (Harsher the better 😉) 
 
-Help us improve by giving your feedback **[here](https://forms.gle/PXd89D5LiFubro9o9)**
+We are building UpTrain in public. Help us improve by giving your feedback **[here](https://forms.gle/PXd89D5LiFubro9o9)**
 <h1 align="left">
 <img alt="Meme" width="40%" src="https://user-images.githubusercontent.com/108270398/215209245-4d6b1f47-7af9-4db8-8d8c-63dcc610571c.jpg">
 </h1>
