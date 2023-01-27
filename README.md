@@ -6,6 +6,12 @@
 [![UpTrain Docs](https://img.shields.io/badge/UpTrain-Docs-blue)](https://uptrain-ai.gitbook.io/uptrain-documentation/)
 [![Join Discord](https://img.shields.io/badge/Join-Discord-orange)](https://discord.com/invite/gVvZhhrQaQ)
 
+## Problem
+
+Machine learning (ML) models are widely used to make critical business decisions, but these models are not perfect and their accuracy can deteriorate over time due to a variety of reasons such as changes in the data distribution or concept drift. For example, A retail store's ML model for sales prediction becomes inaccurate due to a shift in consumer buying habits caused by the COVID-19 pandemic. This can lead to unexpected errors or biases in the predictions, which can have serious consequences for the business. 
+
+Furthermore, ML models are often considered as "black boxes" as it is difficult to understand how the model is making its predictions. This lack of transparency can make it difficult to identify and fix problems with the model. Our tool, UpTrain, addresses these problems by providing a way to observe and improve ML models in production. It automates the process of monitoring the model's performance, detecting issues, and retraining the model with the right data at the right time, thus keeping it up to date and accurate while saving monitoring and retraining costs.
+
 ## What is UpTrain?
 UpTrain is an open-source toolkit for ML practitioners to understand how their models are performing in production and continuously improve them over time by monitoring their performance, checking for (data) distribution shifts and collecting edge cases to retrain them upon. The toolkit serves two key functionalities: 
 
@@ -23,11 +29,12 @@ UpTrain is an open-source toolkit for ML practitioners to understand how their m
 With ML models now being used almost everywhere, we strive to equip data scientists and ML engineers with the right tools to ensure they can adopt the best practices of observability and constant iteration which led to great advancement in the software domains. With UpTrain, they can define domain-specific signals and customized reports to continuously monitor, debug and improve their ML models. 
 
 ## Get Started
-```bash
-# Install the package through pip
+Install the package through pip:
+```console
 pip install uptrain
-
-# Run your first example
+```
+Run your first example:
+```
 git clone git@github.com:uptrain-ai/uptrain.git
 cd uptrain/examples/1_orientation_classification
 pip install jupyterlab
@@ -48,11 +55,11 @@ After installing the UpTrain package, the user can define a config that tells th
 ### Sample Use-cases:
 1. LLMs: UpTrain tracks unseen prompts, logs model performance, and detects problematic prompts by analysing user behaviour.
 
-a. Checks for prompts which were not part of your fine-tuning dataset and logs them along with model outputs. This can help you understand your model performance on unseen data.
+    a. Checks for prompts which were not part of your fine-tuning dataset and logs them along with model outputs. This can help you understand your model performance on unseen data.
 
-b. Picks out problematic prompts by analysing user behaviour (ex: if the user is asking the same question in multiple ways, most likely they are not satisfied with the model’s output in the first place)
+    b. Picks out problematic prompts by analysing user behaviour (ex: if the user is asking the same question in multiple ways, most likely they are not satisfied with the model’s output in the first place)
 
-c. Allows you to define any custom rules to select specific prompts (ex: if a particular keyword in the prompt or if the question asked by the user has a certain tone etc.)
+    c. Allows you to define any custom rules to select specific prompts (ex: if a particular keyword in the prompt or if the question asked by the user has a certain tone etc.)
 
 2. Recommendation Systems: Use UpTrain to monitor popularity bias, recommendation quality across user groups etc.
 
