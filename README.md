@@ -47,8 +47,7 @@ After installing the UpTrain package, the user can define a config that tells th
 
 <img width="729" alt="Screenshot 2023-01-22 at 2 16 56 PM" src="https://user-images.githubusercontent.com/108270398/213943297-0fbb2afb-908f-4a02-83ca-3e5926716001.png">
 
-### Use-cases:
-We support a wide variety of Machine learning models such as LLMs, recommendation models, prediction models, Computer vision models etc.
+UpTrain supports a wide variety of Machine learning models such as LLMs, recommendation models, prediction models, Computer vision models etc.
 
 ### How UpTrain can be used to observe and improve LLMs:
 1. Monitoring model performance: Track the performance of your language model over time, such as the perplexity, BLEU, or METEOR scores, to identify any changes or degradation in the model's performance.
