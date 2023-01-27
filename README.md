@@ -1,34 +1,90 @@
-[<img src="https://user-images.githubusercontent.com/108270398/214240695-4f958b76-c993-4ddd-8de6-8668f4d0da84.png" width= "20%" />](https://uptrain.ai)
+<h1 align="center">
+  <img width="300" src="https://user-images.githubusercontent.com/108270398/214240695-4f958b76-c993-4ddd-8de6-8668f4d0da84.png" alt="uptrain">
+</h1>
+<p align="center">
+  <p align="center">Open-source, self-hosted, easy-to-configure tool to improve ML models in production.</p>
+</p>
 
-## An open-source tool to observe and improve ML models in production
-[![GitHub license](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/uptrainai/uptrain/blob/main/LICENSE)
-[![PyPI version](https://badge.fury.io/py/uptrain.svg)](https://pypi.org/project/uptrain/)
-[![UpTrain Docs](https://img.shields.io/badge/UpTrain-Docs-blue)](https://uptrain-ai.gitbook.io/uptrain-documentation/)
-[![Join Discord](https://img.shields.io/badge/Join-Discord-orange)](https://discord.com/invite/gVvZhhrQaQ)
+<h4 align="center">
+  <a href="https://github.com/uptrainai/uptrain/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="UpTrain is released under the Apache 2.0 license." />
+  </a>
+  <a href="https://pypi.org/project/uptrain/">
+    <img src="https://badge.fury.io/py/uptrain.svg" alt="PyPI version" />
+  </a>
+  <a href="https://uptrain-ai.gitbook.io/uptrain-documentation/">
+    <img src="https://img.shields.io/badge/Read-Docs-blue" alt="Docs" />
+  </a>
+  <a href="https://discord.com/invite/gVvZhhrQaQ">
+    <img src="https://img.shields.io/badge/Discord-Community-orange" alt="Community" />
+  </a>
+  <a href="https://www.uptrain.ai/">
+    <img src="https://img.shields.io/badge/Website-Uptrain-green" alt="Website" />
+  </a>
+</h4>
 
-## Problem
+<h4 align="center">
+<img src="https://user-images.githubusercontent.com/108270398/215057294-91168020-49a8-424c-acf2-1f87020d8798.png" width="70%" alt="Performance" />
+</h4>
 
-Machine learning (ML) models are widely used to make critical business decisions, but no ML models is perfect and, further, their accuracy deteriorates over time. For example, A retail store's ML model for sales prediction becomes inaccurate due to a shift in consumer buying habits caused by the COVID-19 pandemic. This can lead to unexpected errors or biases in the predictions, implying serious business consequences. 
+<h4>
+</h4>
 
-Furthermore, due to lack of transparency in its predictions, ML models are often considered as "black boxes" which makes it difficult to identify and fix their problems. Our tool, UpTrain, addresses these problems by providing ways to observe and improve ML models in production. It automates the process of monitoring the model's performance, detecting issues, and retraining the model with the right data at the right time, thus keeping it up to date and accurate while saving monitoring and retraining costs.
+**[UpTrain](https://www.uptrain.ai)** is an open-source, data secure tool for ML practitioners to observe and refine their ML models by monitoring their performance, checking for (data) distribution shifts and collecting edge cases to retrain them upon. It integrates seamlessly with your existing production pipelines and take minutes to get started ⚡.
 
-## What is UpTrain?
-UpTrain is an open-source toolkit for ML practitioners to understand how their models are performing in production and continuously improve them over time by monitoring their performance, checking for (data) distribution shifts and collecting edge cases to retrain them upon. 
+<h4>
+</h4>
+<h4> </h4>
 
-Our toolkit helps you keep an eye on your machine learning models to ensure they're performing at their best. It provides two main features:
+# Features 💡
 
-**ML Observability:** It keeps track of how your model is performing over time, detect any issues such as concept drift, edge cases, data drift, data integrity etc.
+☑ **[Performance Monitoring](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** - track the performance of your models in real-time and get alerted as soon as a dip is observed
 
-**ML Refinement:** It improve your models by selecting the best data points for retraining, proactively catching model issues, and implementing a fully automated model refinement loop. This helps you save costs and prevent issues for your customers.
+☑ **[Data Drift Checks](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** to identify distribution shifts in your model inputs
 
-With ML models now being used almost everywhere, we strive to equip data scientists and ML engineers with the right tools to ensure they can adopt the best practices of observability and constant iteration which led to great advancement in the software domains. With UpTrain, they can define domain-specific signals and customized reports to continuously monitor, debug and improve their ML models. 
+☑ **[Edge Case Signals](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** - user-defined signals as well as statistical techniques to detect out-of-distribution data-points
 
-## Get Started
-Install the package through pip:
+☑ **[Data Integrity Checks](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** - checks for missing or inconsistent data, duplicate records, data quality etc. 
+
+☑ **[Customizable metrics](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** - define custom metrics which makes sense for your use-case
+
+☑ **[Automated Retraining](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** - attach model retraining by attaching your training and inference pipelines
+
+☑ **[Model Bias](https://github.com/uptrain-ai/uptrain/blob/main/examples/3_shopping_cart_rec/uptrain_recommendation_bias.ipynb)** - track popularity bias in your recommendation models
+
+☑ **Realtime Dashboards** 
+
+☑ **Data Security** - your data never goes out of your machine
+
+
+## 🚨Coming soon🚨
+
+☐ **Embeddings Support** - specialised dashboards to understand model inferred embeddings
+
+☐ **Slack Integration**
+
+☐ **Label Shfit** to identify distribution shifts in your model predictions. Especially useful in cases when Ground Truth is unavailable
+
+☐ **Prediction Stability** 
+
+☐ **AI Explainability**
+
+☐ **Uncertainty Estimation**
+
+☐ **Adversarial Checks**
+
+And more.
+
+<h4> </h4>
+
+# Get started 🙌
+
+### Install the package through pip:
 ```console
 pip install uptrain
 ```
-Run your first example:
+
+### Run your first example:
 ```console
 git clone git@github.com:uptrain-ai/uptrain.git
 cd uptrain/examples/1_orientation_classification
@@ -36,36 +92,36 @@ pip install jupyterlab
 jupyter lab
 ```
 
-## How the UpTrain framework works?
-UpTrain monitors the difference between the dataset the model was trained upon, and the real-world data points the model encounters during production (the wild!). This "difference" can be custom statistical measures designed by ML practitioners based on their use case. Additionally, it monitors for edge cases defined as rule-based smart signals on the model inputs. Whenever the framework sees a distribution shift or an increased frequency of edge cases, it raises an alert while identifying the subset of data that experienced these issues. Finally, it retrains the model by taking a balanced mixture of original training samples and the collected edge cases, improving its performance on the production samples.
-
-![Section 02](https://user-images.githubusercontent.com/108270398/213943659-7ad062b0-9ee3-4007-8860-9333c4124ffe.jpg)
+For more info, visit our [get started guide](https://uptrain.gitbook.io/docs/get-started).
 
 
-## Integrate UpTrain to your ML pipelines in <5 minutes
-After installing the UpTrain package, the user can define a config that tells the tool about the metrics to monitor and the signals to capture. The signals can be edge cases to check, and the metric can be data distribution shifts. Based on the monitoring results, the tool automatically refines the model by using the optimal subset of the real-world dataset. An illustration is provided below. 
+# 🤩 What makes this 🔥?
 
-<img width="729" alt="Screenshot 2023-01-22 at 2 16 56 PM" src="https://user-images.githubusercontent.com/108270398/213943297-0fbb2afb-908f-4a02-83ca-3e5926716001.png">
+Machine learning (ML) models are widely used to make critical business decisions, but no ML models is 100% accurate and, further, their accuracy deteriorates over time 😣. For example, Sales prediction becomes inaccurate over time due to a shift in consumer buying habits. Additionally, due to black boxiness ⬛ nature of ML models, it's extremely difficult to identify and fix their problems.
 
-UpTrain supports a wide variety of Machine learning models such as LLMs, recommendation models, prediction models, Computer vision models etc.
+UpTrain solves this. We make it easy for data scientists and ML engineers to understand where their models are going wrong and help them to fix them before others start complaining. 
 
-### How UpTrain can be used to observe and improve LLMs:
-1. Monitoring model performance: Track the performance of your language model over time, such as the perplexity, BLEU, or METEOR scores, to identify any changes or degradation in the model's performance.
-2. Detecting input distribution shift: Compare the distribution of the input data used to train the model to the distribution of the input data used in production. This can help identify input distribution shift and how it may be affecting the model's performance.
-3. Analyzing data integrity: Monitor the quality and consistency of the input data being fed to the model, such as checking for missing values or outliers, to ensure the model is receiving the right input data.
-4. Identifying edge cases: Understand how your model is performing on inputs it has not seen before, such as out-of-vocabulary words or unusual sentence structures, which can help identify areas where the model may not be performing well.
-5. Tracking user engagement: Track how users interact with the model's outputs, such as click-through rates or sentiment analysis, to understand which outputs are most effective. 
+We are constantly working to make UpTrain better. Want a new feature or need any integrations? Feel free to [create an issue](https://github.com/uptrain-ai/uptrain/issues) or [contribute](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md) directly to the repository.
 
-### Similarly, this is how UpTrain can be used in recommendation systems:
-1. Monitoring model performance: Track the performance of your recommendation model over time, such as the accuracy, precision, and recall of the model's recommendations.
-2. Detecting concept drift: Check for changes in the user's behavior or the distribution of the items being recommended, which could indicate concept drift in the model's performance.
-3. Identifying edge cases: Understand how your model is performing on items or users it has not seen before, which can help identify areas where the model may not be performing well.
-4. Analyzing data drift: Analyze the distribution of the data used to train the model and compare it to the distribution of the data being used in production. This can help identify data drift and how it may be affecting the model's performance.
-5. Evaluating diversity and fairness: Monitor the diversity of the recommendations and ensure that the model is not biased towards certain items or user groups.
-6. Tracking user engagement: Track how users interact with the recommendations, such as click-through rates or purchase rates, to understand which recommendations are most effective.
+# How to Integrate 🛠
+After installing the UpTrain package, the user can define a config that tells the tool about the metrics to monitor and the signals to capture. An illustration is provided below. 
 
-## Stay Updated
-We are continuously improving the package by simplifying the interface as well as adding tons of features. Support us by giving the project a star!
+<h1 align="left">
+<img alt="Integrate" width="60%" src="https://user-images.githubusercontent.com/108270398/213943297-0fbb2afb-908f-4a02-83ca-3e5926716001.png">
+</h1>
 
-Please fill this form to provide your feedback:
-https://forms.gle/PXd89D5LiFubro9o9
+UpTrain can be used for a wide variety of Machine learning models such as LLMs, recommendation models, prediction models, Computer vision models etc.
+
+# License 💻
+
+This repo is entirely Apache 2.0 licensed. We don't plan to make money off individual developers, but will develop some enterprise features, a hosted version, and support that we charge for in future. Currently we're solely focused on developing non-enterprise offerings that should cover most of the use-cases.
+
+# Stay Updated ☎️
+We are continuously adding tons of features and use-cases. Support us by giving the project a star ⭐!
+
+# Provide feedback (Harsher the better 😉) 
+
+Help us improve by giving your feedback **[here](https://forms.gle/PXd89D5LiFubro9o9)**
+<h1 align="left">
+<img alt="Meme" width="40%" src="https://user-images.githubusercontent.com/108270398/215209245-4d6b1f47-7af9-4db8-8d8c-63dcc610571c.jpg">
+</h1>
