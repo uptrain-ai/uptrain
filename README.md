@@ -114,7 +114,7 @@ UpTrain can be used for a wide variety of Machine learning models such as LLMs, 
 
 # License 💻
 
-This repo is entirely Apache 2.0 licensed. We don't plan to make money off individual developers. In the future, we will develop some enterprise features, a hosted version, and support that we charge for. Currently, we're solely focused on developing non-enterprise offerings that should cover most of the use cases.
+This repo is published under Apache 2.0 license. We're currently focused on developing non-enterprise offerings that should cover most use cases. In the future, we will add a hosted version which we might charge for.
 
 # Stay Updated ☎️
 We are continuously adding tons of features and use cases. Please support us by giving the project a star ⭐!
