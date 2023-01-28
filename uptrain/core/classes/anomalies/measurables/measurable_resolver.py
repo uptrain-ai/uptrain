@@ -5,6 +5,7 @@ from uptrain.core.classes.anomalies.measurables import (
     CustomMeasurable,
     AccuracyMeasurable,
     ScalarFromEmbeddingMeasurable,
+    CosineDistanceMeasurable
 )
 from uptrain.constants import MeasurableType
 
@@ -40,6 +41,10 @@ class MeasurableResolver:
         elif measurable_type == MeasurableType.SCALAR_FROM_EMBEDDING:
             return ScalarFromEmbeddingMeasurable(
                 framework, resolve_args["idx"], resolve_args["extract_from"]
+            )
+        elif measurable_type == MeasurableType.COSINE_DISTANCE:
+            return CosineDistanceMeasurable(
+                framework, resolve_args["base"], resolve_args["reference"]
             )
         else:
             raise Exception("Resolver not defined")

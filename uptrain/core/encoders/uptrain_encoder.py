@@ -1,11 +1,13 @@
 import json
 import numpy as np
+import datetime
 
-
-class NumpyEncoder(json.JSONEncoder):
+class UpTrainEncoder(json.JSONEncoder):
     """Special json encoder for numpy types"""
 
     def default(self, obj):
+        if isinstance(obj, datetime.datetime):
+            return str(obj)
         if isinstance(obj, np.integer):
             return int(obj)
         elif isinstance(obj, np.floating):
