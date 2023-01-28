@@ -30,7 +30,7 @@ class Config(BaseModel):
     checks: typing.List[typing.Dict] = []
     retrain: bool = True
     retrain_after: int = 250
-    retraining_folder: str = "uptrain_smart_data_" + str(datetime.utcnow())
+    retraining_folder: str = "uptrain_smart_data"
     data_id: typing.Literal["id", "utc_timestamp"] = "id"
     log_folder: str = "uptrain_logs"
     tb_logging: bool = False
