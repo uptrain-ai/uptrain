@@ -6,7 +6,7 @@ import pandas as pd
 from collections import OrderedDict
 from sklearn.cluster import KMeans
 
-from uptrain.core.encoders.numpy_encoder import NumpyEncoder
+from uptrain.core.encoders.uptrain_encoder import UpTrainEncoder
 
 
 def cluster_and_plot_data(
@@ -60,7 +60,7 @@ def add_data_to_warehouse(data, path_csv, row_update=False):
     for k in list(data.keys()):
         if row_update and k == "id":
             continue
-        data[k] = [json.dumps(x, cls=NumpyEncoder) for x in data[k]]
+        data[k] = [json.dumps(x, cls=UpTrainEncoder) for x in data[k]]
     if not os.path.exists(path_csv):
         pd.DataFrame(data).to_csv(path_csv, index=False)
     else:

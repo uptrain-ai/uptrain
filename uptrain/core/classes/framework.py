@@ -185,6 +185,7 @@ class Framework:
         if self.feat_name_list is None:
             self.feat_name_list = get_feature_names_list(inputs)
 
+        outputs = list(outputs) if outputs is not None else [None] * self.batch_size
         gts = list(gts) if gts is not None else [None] * self.batch_size
         data = inputs
         data.update(
@@ -365,8 +366,8 @@ class Framework:
         # add_data_to_warehouse(data, self.path_all_data, row_update=True)
 
     def log(self, inputs=None, outputs=None, gts=None, identifiers=None, extra=None):
-        if (inputs is not None) and (outputs is None):
-            raise Exception("Predictions should be present while logging inputs")
+        # if (inputs is not None) and (outputs is None):
+        #     raise Exception("Predictions should be present while logging inputs")
         if (inputs is None) and (outputs is not None):
             raise Exception("Inputs should be present while logging predictions")
         if (gts is not None) and (identifiers is None):
