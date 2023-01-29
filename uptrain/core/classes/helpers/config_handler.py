@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, root_validator
 import typing
 from datetime import datetime
 from uptrain.constants import AnnotationMethod
@@ -37,6 +37,12 @@ class Config(BaseModel):
     st_logging: bool = False
     feat_name_list: list = None
     cluster_visualize_func: typing.Callable = None
+
+    @root_validator()
+    def only_one_logging(cls, v):
+        if v.get("tb_logging") and v.get("st_logging"):
+            raise ValueError('Use only one logging type: Tensorboard or Streamlit')
+        return v
 
 
 class InputArgs(BaseModel):
