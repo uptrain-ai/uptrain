@@ -85,5 +85,5 @@ for csv_file in all_csv_files:
         for y_axis in df.columns:
             if y_axis=='count':
                 continue
-            fig = fig.add_trace(go.Histogram(x=df[y_axis]))
+            fig = fig.add_trace(go.Histogram(x=df[y_axis], name=y_axis))
         st.plotly_chart(fig)
