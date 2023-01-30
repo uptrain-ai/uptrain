@@ -6,9 +6,10 @@ from uptrain.core.classes.anomalies import AbstractAnomaly
 from uptrain.core.classes.anomalies.measurables import MeasurableResolver
 from uptrain.constants import Anomaly
 
-class DistributionStats(AbstractAnomaly):
-    dashboard_name = "distribution_stats"
-    anomaly_type = Anomaly.DISTRIBUTION_STATS
+
+class ConvergenceStats(AbstractAnomaly):
+    dashboard_name = "convergence_stats"
+    anomaly_type = Anomaly.CONVERGENCE_STATS
 
     def __init__(self, fw, check):
         self.log_handler = fw.log_handler
@@ -18,6 +19,7 @@ class DistributionStats(AbstractAnomaly):
         self.item_counts = {}
         self.feats_dictn = {}
         self.distances_dictn = {}
+        self.reference = check['reference']
         self.count_checkpoints = check['count_checkpoints']
         self.distance_types = check['distance_types']
         self.dist_classes = [DistanceResolver().resolve(x) for x in self.distance_types]
@@ -39,8 +41,19 @@ class DistributionStats(AbstractAnomaly):
                     self.distances_dictn.update({this_item_count: {}})
                 this_val = extract_data_points_from_batch(vals, [idx])
                 self.feats_dictn[this_item_count].update({aggregate_ids[idx]: this_val})
-                for agg_i in list(self.feats_dictn[this_item_count].keys()):
-                    this_distances = dict(zip(self.distance_types, [x.compute_distance(this_val, self.feats_dictn[this_item_count][agg_i]) for x in self.dist_classes]))
+                if this_item_count > 0:
+                    if self.reference == "running_diff":
+                        this_count_idx = self.count_checkpoints.index(this_item_count)
+                        prev_count_idx = max(0,this_count_idx - 1)
+                        ref_item_count = self.count_checkpoints[prev_count_idx]
+                    else:
+                        ref_item_count = 0
+                    this_distances = dict(zip(self.distance_types, [x.compute_distance(this_val, self.feats_dictn[ref_item_count][aggregate_ids[idx]]) for x in self.dist_classes]))
+                    if self.reference == "running_diff":
+                        del self.feats_dictn[ref_item_count][aggregate_ids[idx]]
+                    else:
+                        del self.feats_dictn[this_item_count][aggregate_ids[idx]]
+
                     if len(self.distances_dictn[this_item_count]) == 0:
                         for distance_type in self.distance_types:
                             self.distances_dictn[this_item_count].update({distance_type: [this_distances[distance_type]]})
@@ -50,29 +63,24 @@ class DistributionStats(AbstractAnomaly):
             self.item_counts[aggregate_ids[idx]] += 1
 
         for count in list(self.distances_dictn.keys()):
-            for distance_type in self.distance_types:
-                plot_name = (distance_type
-                    + " "
-                    + str(count)
-                    + self.measurable.col_name()
-                    + " "
-                    + self.aggregate_measurable.col_name())
-                
+            if count > 0:
+                for distance_type in self.distance_types:
+                    plot_name = (distance_type
+                        + " "
+                        + str(count)
+                        + str(self.reference)
+                        + self.measurable.col_name()
+                        + " "
+                        + self.aggregate_measurable.col_name())
 
-                self.log_handler.add_histogram(
-                    self.dashboard_name + "_" + plot_name,
-                    self.distances_dictn[count][distance_type],
-                    self.dashboard_name,
-                )
+                    self.log_handler.add_histogram(
+                        self.dashboard_name + "_" + plot_name,
+                        self.distances_dictn[count][distance_type],
+                        self.dashboard_name,
+                    )
 
     def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
         return np.array([False] * len(extra_args["id"]))
 
     def need_ground_truth(self):
         return False
-
-    def get_feats_for_clustering(self, count):
-        if count in self.feats_dictn:
-            return self.feats_dictn[count]
-        else:
-            return []
