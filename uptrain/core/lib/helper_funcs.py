@@ -6,7 +6,7 @@ import pandas as pd
 from collections import OrderedDict
 from sklearn.cluster import KMeans
 
-from uptrain.core.encoders.numpy_encoder import NumpyEncoder
+from uptrain.core.encoders.uptrain_encoder import UpTrainEncoder
 
 
 def cluster_and_plot_data(
@@ -60,7 +60,7 @@ def add_data_to_warehouse(data, path_csv, row_update=False):
     for k in list(data.keys()):
         if row_update and k == "id":
             continue
-        data[k] = [json.dumps(x, cls=NumpyEncoder) for x in data[k]]
+        data[k] = [json.dumps(x, cls=UpTrainEncoder) for x in data[k]]
     if not os.path.exists(path_csv):
         pd.DataFrame(data).to_csv(path_csv, index=False)
     else:
@@ -78,6 +78,41 @@ def add_data_to_warehouse(data, path_csv, row_update=False):
         else:
             pd.DataFrame(data).to_csv(path_csv, index=False, mode="a", header=False)
 
+def combine_data_points_for_batch(data):
+    # what could be the generic logic???
+    if isinstance(data, list):
+        joined = None
+        for idx in range(len(data)):
+            elem = data[idx]
+            if isinstance(elem, dict):
+                if joined is None:
+                    joined = {}
+                for key in list(elem.keys()):
+                    if key not in joined:
+                        joined.update({key: []})
+                    joined[key].append(elem[key])
+                    if idx == len(data) - 1:
+                        joined[key] = np.squeeze(np.array(joined[key]),axis=1)
+            elif isinstance(elem, list):
+                if len(elem) == 1:
+                    if joined is None:
+                        joined = []
+                    joined.append(np.array(elem))
+                    if idx == len(data) - 1:
+                        joined = np.squeeze(np.array(joined),axis=1)
+                else:
+                    print(data)
+                    import pdb; pdb.set_trace()
+                    raise Exception("Not implemented, please contact developers")
+            elif isinstance(elem, np.ndarray):
+                if joined is None:
+                    joined = []
+                joined.append(elem)
+                joined = np.squeeze(np.array(joined), axis=1)
+        return joined
+    else:
+        print(data)
+        raise Exception("Not implemented, please contact developers")
 
 def extract_data_points_from_batch(data, idxs):
     if isinstance(data, dict):
@@ -88,7 +123,10 @@ def extract_data_points_from_batch(data, idxs):
     elif isinstance(data, np.ndarray):
         return np.array(data[np.array(idxs)])
     elif isinstance(data, list):
-        return [data[x] for x in list(idxs)]
+        if isinstance(idxs, int):
+            return data[idxs]
+        else:
+            return [data[x] for x in list(idxs)]
     else:
         return data
 

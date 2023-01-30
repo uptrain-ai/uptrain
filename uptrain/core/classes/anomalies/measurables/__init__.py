@@ -7,5 +7,6 @@ from .condition_measurable import ConditionMeasurable
 from .custom_measurable import CustomMeasurable
 from .accuracy_measurable import AccuracyMeasurable
 from .scalar_from_embedding_measurable import ScalarFromEmbeddingMeasurable
+from .distance_measurable import DistanceMeasurable
 
 from .measurable_resolver import MeasurableResolver
