@@ -69,3 +69,9 @@ class DistributionStats(AbstractAnomaly):
 
     def need_ground_truth(self):
         return False
+
+    def get_feats_for_clustering(self, count):
+        if count in self.feats_dictn:
+            return self.feats_dictn[count]
+        else:
+            return []
