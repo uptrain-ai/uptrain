@@ -49,10 +49,10 @@ class LogHandler:
             self.st_writer.add_scalars(dashboard_name, dictn, self.st_log_folder)
 
     def add_histogram(self, plot_name, arr, dashboard_name):
+        dashboard_name, plot_name = self.make_name_fold_directory_friendly(
+            [dashboard_name, plot_name]
+        )
         if self.tb_logs:
-            dashboard_name, plot_name = self.make_name_fold_directory_friendly(
-                [dashboard_name, plot_name]
-            )
             if dashboard_name in self.tb_writers:
                 self.tb_writers[dashboard_name].add_histogram(plot_name, arr, len(arr))
         if self.st_writer:
