@@ -4,10 +4,12 @@ from uptrain.core.classes.anomalies import AbstractAnomaly
 from uptrain.core.classes.algorithms import DataDriftDDM
 from uptrain.constants import DataDriftAlgo, MeasurableType
 from uptrain.core.classes.anomalies.measurables import MeasurableResolver
+from uptrain.constants import Anomaly
 
 
 class ConceptDrift(AbstractAnomaly):
     dashboard_name = "concept_drift_acc"
+    anomaly_type = Anomaly.CONCEPT_DRIFT
 
     def __init__(self, fw, check):
         self.measurable = MeasurableResolver({"type": MeasurableType.ACCURACY}).resolve(
