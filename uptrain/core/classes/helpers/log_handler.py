@@ -32,26 +32,26 @@ class LogHandler:
         # Do nothing for st logs?
 
     def add_scalars(self, plot_name, dictn, count, dashboard_name):
+        dashboard_name, plot_name = self.make_name_fold_directory_friendly(
+            [dashboard_name, plot_name]
+        )
+        new_dictn = dict(
+            zip(
+                self.make_name_fold_directory_friendly(list(dictn.keys())),
+                dictn.values(),
+            )
+        )
         if self.tb_logs:
-            dashboard_name, plot_name = self.make_name_fold_directory_friendly(
-                [dashboard_name, plot_name]
-            )
-            new_dictn = dict(
-                zip(
-                    self.make_name_fold_directory_friendly(list(dictn.keys())),
-                    dictn.values(),
-                )
-            )
             if dashboard_name in self.tb_writers:
                 self.tb_writers[dashboard_name].add_scalars(plot_name, new_dictn, count)
         if self.st_writer:
             self.st_writer.add_scalars(plot_name, new_dictn)
 
     def add_histogram(self, plot_name, arr, dashboard_name):
+        dashboard_name, plot_name = self.make_name_fold_directory_friendly(
+            [dashboard_name, plot_name]
+        )
         if self.tb_logs:
-            dashboard_name, plot_name = self.make_name_fold_directory_friendly(
-                [dashboard_name, plot_name]
-            )
             if dashboard_name in self.tb_writers:
                 self.tb_writers[dashboard_name].add_histogram(plot_name, arr, len(arr))
         if self.st_writer:
