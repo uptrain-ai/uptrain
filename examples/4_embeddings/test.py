@@ -105,6 +105,12 @@ for i in range(len(df)):
     inputs = {'data': row}
     idens = framework.log(inputs=inputs)
 
+    if i == 10000:
+        distribution_anomaly = list(filter(lambda x: x.anomaly_type == uptrain.Anomaly.DISTRIBUTION_STATS, framework.anomaly_manager.anomalies_to_check))
+        feats_to_cluster = []
+        for count in [0, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000, 500000, 1000000]:
+            feats_to_cluster.append(distribution_anomaly.get_feats_for_clustering(count))
+
     # Retrain only once
     if framework.version > 1:
         break

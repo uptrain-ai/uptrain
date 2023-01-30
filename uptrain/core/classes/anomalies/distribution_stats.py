@@ -4,10 +4,11 @@ from uptrain.core.lib.helper_funcs import extract_data_points_from_batch
 from uptrain.core.classes.anomalies.distances import DistanceResolver
 from uptrain.core.classes.anomalies import AbstractAnomaly
 from uptrain.core.classes.anomalies.measurables import MeasurableResolver
-
+from uptrain.constants import Anomaly
 
 class DistributionStats(AbstractAnomaly):
     dashboard_name = "distribution_stats"
+    anomaly_type = Anomaly.DISTRIBUTION_STATS
 
     def __init__(self, fw, check):
         self.log_handler = fw.log_handler
