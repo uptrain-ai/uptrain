@@ -21,22 +21,25 @@ class Aggregate(AbstractAnomaly):
         aggregate_ids = self.aggregate_measurable.compute_and_log(
             inputs, outputs, gts=gts, extra=extra_args
         )
-        plot_name = (
-            self.measurable.col_name()
+        distance_types = self.measurable.distance_types
+        plot_names = [
+            col_name
             + " "
             + self.aggregate_measurable.col_name()
-        )
+            for col_name in self.measurable.col_name(return_str=False)
+        ]
 
         for idx in range(len(aggregate_ids)):
             if aggregate_ids[idx] not in self.counts:
                 self.counts.update({aggregate_ids[idx]: 0})
             self.counts[aggregate_ids[idx]] += 1
-            self.log_handler.add_scalars(
-                self.dashboard_name + "_" + plot_name,
-                {str(aggregate_ids[idx]): vals[idx]},
-                self.counts[aggregate_ids[idx]],
-                self.dashboard_name,
-            )
+            for jdx in range(len(distance_types)):
+                self.log_handler.add_scalars(
+                    self.dashboard_name + "_" + plot_names[jdx],
+                    {str(aggregate_ids[idx]): vals[distance_types[jdx]][idx]},
+                    self.counts[aggregate_ids[idx]],
+                    self.dashboard_name,
+                )
 
     def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
         return np.array([False] * len(extra_args["id"]))
