@@ -29,6 +29,7 @@ class Anomaly(Enum):
     POPULARITY_BIAS = "popularity_bias"
     DATA_INTEGRITY = "data_integrity"
     AGGREGATE = "aggregate"
+    DISTRIBUTION_STATS = "distribution_stats"
 
 
 class DataDriftAlgo(Enum):
@@ -47,4 +48,4 @@ class MeasurableType(Enum):
     CONDITION_ON_INPUT = "condition_on_input"
     CONDITION_ON_PREDICTION = "condition_on_prediction"
     SCALAR_FROM_EMBEDDING = "scalar_from_embedding"
-    COSINE_DISTANCE = "cosine_distance"
+    DISTANCE = "distance"

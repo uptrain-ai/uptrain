@@ -37,6 +37,7 @@ class Config(BaseModel):
     st_logging: bool = False
     feat_name_list: list = None
     cluster_visualize_func: typing.Callable = None
+    use_cache: bool = False
 
 
 class InputArgs(BaseModel):

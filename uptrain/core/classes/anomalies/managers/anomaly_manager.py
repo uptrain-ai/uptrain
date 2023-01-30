@@ -9,7 +9,8 @@ from uptrain.core.classes.anomalies import (
     RecommendationBias,
     DataIntegrity,
     EdgeCase,
-    Aggregate
+    Aggregate,
+    DistributionStats
 )
 
 
@@ -66,6 +67,9 @@ class AnomalyManager:
             self.anomalies_to_check.append(custom_monitor)
         elif check["type"] == Anomaly.AGGREGATE:
             custom_monitor = Aggregate(self.fw, check)
+            self.anomalies_to_check.append(custom_monitor)
+        elif check["type"] == Anomaly.DISTRIBUTION_STATS:
+            custom_monitor = DistributionStats(self.fw, check)
             self.anomalies_to_check.append(custom_monitor)
         else:
             raise Exception("Check type not Supported")

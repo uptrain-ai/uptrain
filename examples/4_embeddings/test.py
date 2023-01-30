@@ -17,18 +17,78 @@ cfg = {
             'feature_name': 'postId'
         },
         "measurable_args": {
-            'type': uptrain.MeasurableType.COSINE_DISTANCE,
+            'type': uptrain.MeasurableType.DISTANCE,
             'base': {
                 'type': uptrain.MeasurableType.INPUT_FEATURE,
                 'feature_name': 'embs'
             },
-            'reference': "running_diff"
+            'reference': "running_diff",
+            "distance_types": ["cosine_distance", "norm_ratio", "l2_distance"]
         },
-    }],
+    },
+    {
+        'type': uptrain.Anomaly.AGGREGATE,
+        'aggregate_args': {
+            'type': uptrain.MeasurableType.INPUT_FEATURE,
+            'feature_name': 'postId'
+        },
+        "measurable_args": {
+            'type': uptrain.MeasurableType.DISTANCE,
+            'base': {
+                'type': uptrain.MeasurableType.INPUT_FEATURE,
+                'feature_name': 'embs'
+            },
+            'reference': "initial",
+            "distance_types": ["cosine_distance", "norm_ratio", "l2_distance"]
+        },
+    },
+    {
+        'type': uptrain.Anomaly.DISTRIBUTION_STATS,
+        'aggregate_args': {
+            'type': uptrain.MeasurableType.INPUT_FEATURE,
+            'feature_name': 'postId'
+        },
+        "measurable_args": {
+            'type': uptrain.MeasurableType.INPUT_FEATURE,
+            'feature_name': 'embs'
+        },
+        "distance_types": ["cosine_distance", "norm_ratio", "l2_distance"],
+        'count_checkpoints': [0, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000, 500000, 1000000]
+    }
+    # ,{
+    #     'type': uptrain.Anomaly.CONVERGENCE_STATS,
+    #     'aggregate_args': {
+    #         'type': uptrain.MeasurableType.INPUT_FEATURE,
+    #         'feature_name': 'postId'
+    #     },
+    #     "measurable_args": {
+    #         'type': uptrain.MeasurableType.INPUT_FEATURE,
+    #         'feature_name': 'embs'
+    #     },
+    #     'reference': "running_diff",
+    #     "distance_types": ["cosine_distance", "norm_ratio", "l2_distance"],
+    #     'count_checkpoints': [0, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000, 500000, 1000000]
+    # },
+    # {
+    #     'type': uptrain.Anomaly.CONVERGENCE_STATS,
+    #     'aggregate_args': {
+    #         'type': uptrain.MeasurableType.INPUT_FEATURE,
+    #         'feature_name': 'postId'
+    #     },
+    #     "measurable_args": {
+    #         'type': uptrain.MeasurableType.INPUT_FEATURE,
+    #         'feature_name': 'embs'
+    #     },
+    #     'reference': "initial",
+    #     "distance_types": ["cosine_distance", "norm_ratio", "l2_distance"],
+    #     'count_checkpoints': [0, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000, 500000, 1000000]
+    # }
+    ],
     "training_args": {
         "fold_name": "uptrain_smart_data"
     },
-    "tb_logging": True
+    "tb_logging": True,
+    "use_cache": True
 }
 framework = uptrain.Framework(cfg_dict=cfg)
 
