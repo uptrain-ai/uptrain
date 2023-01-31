@@ -5,7 +5,7 @@ import threading
 
 class TensorboardLogs:
     def __init__(self, log_folder):
-        self.log_folder = log_folder
+        self.log_folder = os.path.join(log_folder, "tb_data")
         os.makedirs(self.log_folder, exist_ok=True)
         launch_tb = lambda: os.system("tensorboard --logdir=" + self.log_folder)
         t = threading.Thread(target=launch_tb, args=([]))
