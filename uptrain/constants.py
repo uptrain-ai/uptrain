@@ -30,6 +30,7 @@ class Anomaly(Enum):
     DATA_INTEGRITY = "data_integrity"
     AGGREGATE = "aggregate"
     DISTRIBUTION_STATS = "distribution_stats"
+    CONVERGENCE_STATS = "convergence_stats"
 
 
 class DataDriftAlgo(Enum):

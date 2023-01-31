@@ -20,42 +20,46 @@ class LogHandler:
         if cfg.st_logging:
             from uptrain.core.classes.logging.log_streamlit import StreamlitLogs
 
-            self.st_logs = StreamlitLogs()
-            self.st_writer = self.st_logs
+            self.st_log_folder = os.path.join(cfg.log_folder, "st_data")
+            os.makedirs(self.st_log_folder, exist_ok=True)
+            self.st_writer = StreamlitLogs(self.st_log_folder)
 
     def add_writer(self, dashboard_name):
         dashboard_name = self.make_name_fold_directory_friendly(dashboard_name)
         tb_writer = None
         if self.tb_logs:
             tb_writer = self.tb_logs.add_writer(dashboard_name)
-        self.tb_writers.update({dashboard_name: tb_writer})
-        # Do nothing for st logs?
-
+            self.tb_writers.update({dashboard_name: tb_writer})
+        
     def add_scalars(self, plot_name, dictn, count, dashboard_name):
+        dashboard_name, plot_name = self.make_name_fold_directory_friendly(
+            [dashboard_name, plot_name]
+        )
+        new_dictn = dict(
+            zip(
+                self.make_name_fold_directory_friendly(list(dictn.keys())),
+                dictn.values(),
+            )
+        )
         if self.tb_logs:
-            dashboard_name, plot_name = self.make_name_fold_directory_friendly(
-                [dashboard_name, plot_name]
-            )
-            new_dictn = dict(
-                zip(
-                    self.make_name_fold_directory_friendly(list(dictn.keys())),
-                    dictn.values(),
-                )
-            )
             if dashboard_name in self.tb_writers:
                 self.tb_writers[dashboard_name].add_scalars(plot_name, new_dictn, count)
         if self.st_writer:
-            self.st_writer.add_scalars(plot_name, new_dictn)
+            dictn.update({'count': count})
+            self.st_writer.add_scalars(dashboard_name, dictn, self.st_log_folder)
 
-    def add_histogram(self, plot_name, arr, dashboard_name):
+    def add_histogram(self, plot_name, arr, count, dashboard_name):
+        dashboard_name, plot_name = self.make_name_fold_directory_friendly(
+            [dashboard_name, plot_name]
+        )
         if self.tb_logs:
-            dashboard_name, plot_name = self.make_name_fold_directory_friendly(
-                [dashboard_name, plot_name]
-            )
             if dashboard_name in self.tb_writers:
-                self.tb_writers[dashboard_name].add_histogram(plot_name, arr, len(arr))
+                self.tb_writers[dashboard_name].add_histogram(plot_name, arr, count)
         if self.st_writer:
-            self.st_writer.add_histogram(plot_name, arr[-1])
+            dictn = {plot_name: arr}
+            dictn.update({'count': 1})
+            self.st_writer.add_scalars(dashboard_name, dictn, self.st_log_folder)
+            # self.st_writer.add_histogram(plot_name, arr[-1])
 
     def make_name_fold_directory_friendly(self, arr):
         if isinstance(arr, str):

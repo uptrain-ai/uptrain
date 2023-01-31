@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, root_validator
 import typing
 from datetime import datetime
 from uptrain.constants import AnnotationMethod
@@ -31,13 +31,19 @@ class Config(BaseModel):
     retrain: bool = True
     retrain_after: int = 250
     retraining_folder: str = "uptrain_smart_data"
-    data_id: typing.Literal["id", "utc_timestamp"] = "id"
+    data_id: str = "id"
     log_folder: str = "uptrain_logs"
     tb_logging: bool = False
     st_logging: bool = False
     feat_name_list: list = None
     cluster_visualize_func: typing.Callable = None
     use_cache: bool = False
+
+    @root_validator()
+    def only_one_logging(cls, v):
+        if v.get("tb_logging") and v.get("st_logging"):
+            raise ValueError('Use only one logging type: Tensorboard or Streamlit')
+        return v
 
 
 class InputArgs(BaseModel):
