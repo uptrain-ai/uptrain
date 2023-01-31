@@ -17,31 +17,25 @@ cfg = {
             'feature_name': 'postId'
         },
         "measurable_args": {
-            'type': uptrain.MeasurableType.DISTANCE,
-            'base': {
-                'type': uptrain.MeasurableType.INPUT_FEATURE,
-                'feature_name': 'embs'
-            },
-            'reference': "running_diff",
-            "distance_types": ["cosine_distance", "norm_ratio", "l2_distance"]
-        },
-    },
-    {
-        'type': uptrain.Anomaly.AGGREGATE,
-        'aggregate_args': {
             'type': uptrain.MeasurableType.INPUT_FEATURE,
-            'feature_name': 'postId'
+            'feature_name': 'embs'
         },
-        "measurable_args": {
-            'type': uptrain.MeasurableType.DISTANCE,
-            'base': {
-                'type': uptrain.MeasurableType.INPUT_FEATURE,
-                'feature_name': 'embs'
-            },
-            'reference': "initial",
-            "distance_types": ["cosine_distance", "norm_ratio", "l2_distance"]
-        },
+        'reference': "initial",
+        "distance_types": ["cosine_distance", "norm_ratio", "l2_distance"],
     },
+    # {
+    #     'type': uptrain.Anomaly.AGGREGATE,
+    #     'aggregate_args': {
+    #         'type': uptrain.MeasurableType.INPUT_FEATURE,
+    #         'feature_name': 'postId'
+    #     },
+    #     "measurable_args": {
+    #         'type': uptrain.MeasurableType.INPUT_FEATURE,
+    #         'feature_name': 'embs'
+    #     },
+    #     'reference': "running_diff",
+    #     "distance_types": ["cosine_distance", "norm_ratio", "l2_distance"],
+    # },
     {
         'type': uptrain.Anomaly.DISTRIBUTION_STATS,
         'aggregate_args': {
