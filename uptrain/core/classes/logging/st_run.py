@@ -36,6 +36,7 @@ st_style = """
            """
 st.markdown(st_style, unsafe_allow_html=True)
 
+st.sidebar.title("Select dashboards to view")
 for csv_file in all_csv_files:
     # Reading the csv file
     df = pd.read_csv(csv_file)
@@ -43,47 +44,48 @@ for csv_file in all_csv_files:
     # Getting dashboard name from csv filename
     dashboard_name = csv_file.split('/')[-1].split('.')[0]
 
-    st.markdown(f"### Visualization dashboard for {dashboard_name}")
+    if st.sidebar.checkbox(f"Dashboard for {dashboard_name}"):
 
-    ############ View Data ##################
-    st.caption(f"View logged data for {dashboard_name}")
-    if st.checkbox(f"View {dashboard_name} data", help="View the uploaded data"):
-        st.markdown(f"### Uploaded Data")
-        st.dataframe(df, height=250)
+        st.markdown(f"### Visualization dashboard for {dashboard_name}")
 
-    ############ View Line Plots ############
-    st.caption(f"Line plot for {dashboard_name}")
-    if st.checkbox(f"Line plot {dashboard_name}", help="View the line plot"):
-        st.markdown(f"### Line chart for {dashboard_name}")
-        scol1, scol2 = st.columns(2)
-        with scol1:
-            x_log = st.checkbox(
-                "log x", help="Plot x-axis in log-scale",
-                key=dashboard_name + 'x'
-            )
-        with scol2:
-            y_log = st.checkbox(
-                "log y", help="Plot y-axis in log-scale",
-                key=dashboard_name + 'y'
+        ############ View Line Plots ############
+        if st.sidebar.checkbox(f"Line-plot: {dashboard_name}", help="View the line plot", value=True):
+            st.markdown(f"#### Line chart for {dashboard_name}")
+            scol1, scol2 = st.columns(2)
+            with scol1:
+                x_log = st.checkbox(
+                    "log x", help="Plot x-axis in log-scale",
+                    key=dashboard_name + 'x'
                 )
-        fig = return_plotly_fig(dashboard_name, x_log=x_log, y_log=y_log)
-        for y_axis in df.columns:
-            if y_axis=='count':
-                continue
-            fig = fig.add_trace(go.Scatter(
-                    x=df['count'],
-                    y=df[y_axis],
-                    name=y_axis,
-                    ))
-        st.plotly_chart(fig)
+            with scol2:
+                y_log = st.checkbox(
+                    "log y", help="Plot y-axis in log-scale",
+                    key=dashboard_name + 'y'
+                    )
+            fig = return_plotly_fig(dashboard_name, x_log=x_log, y_log=y_log)
+            for y_axis in df.columns:
+                if y_axis=='count':
+                    continue
+                fig = fig.add_trace(go.Scatter(
+                        x=df['count'],
+                        y=df[y_axis],
+                        name=y_axis,
+                        ))
+            st.plotly_chart(fig)
 
-    ############ View Histograms ############
-    st.caption(f"Histograms for {dashboard_name}")
-    if st.checkbox(f"Histogram {dashboard_name}", help="View the line plot"):
-        st.markdown(f"### Histogram for {dashboard_name}")
-        fig = go.Figure()
-        for y_axis in df.columns:
-            if y_axis=='count':
-                continue
-            fig = fig.add_trace(go.Histogram(x=df[y_axis], name=y_axis))
-        st.plotly_chart(fig)
+        ############ View Data ##################
+        if st.sidebar.checkbox(f"Data: {dashboard_name}", help="View the uploaded data"):
+            st.markdown(f"#### Uploaded Data")
+            st.dataframe(df, height=250)
+
+        ############ View Histograms ############
+        if st.sidebar.checkbox(f"Histogram: {dashboard_name}", help="View the line plot"):
+            st.markdown(f"#### Histogram for {dashboard_name}")
+            fig = go.Figure()
+            for y_axis in df.columns:
+                if y_axis=='count':
+                    continue
+                fig = fig.add_trace(go.Histogram(x=df[y_axis], name=y_axis))
+            st.plotly_chart(fig)
+
+    st.sidebar.markdown("""---""")

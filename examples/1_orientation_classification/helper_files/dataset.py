@@ -143,6 +143,7 @@ def read_json(file_name, dataframe=False):
         for idx in range(len(keys)):
             values = [x[idx] for x in list(data["kps"])]
             data[keys[idx]] = values
+        data = data.drop(["kps"], axis=1)
     return data
 
 

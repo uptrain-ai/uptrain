@@ -29,8 +29,6 @@ setup(
         # Pick your license as you wish (should match "license" above)
         "License :: OSI Approved :: Apache Software License",
         # Specify the Python versions you support here. In particular, ensure
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
@@ -38,16 +36,9 @@ setup(
     keywords="uptrain ai retraining ML observability",
     packages=find_packages(),
     install_requires=[
-        "imgaug>=0.4.0",
-        "numpy>=1.24.1",
-        "pandas>=1.5.2",
-        "plotly>=5.11.0",
-        "pydantic>=1.10.4",
-        "scikit_learn>=1.2.0",
-        "streamlit>=1.16.0",
-        "tensorboard>=2.11.0",
-        "tensorboardX>=2.5.1",
-        "torch>=1.13.1",
-        "xgboost>=1.7.3",
+        "pandas>=1.0.0",
+        "plotly>=5.0.0",
+        "pydantic>=1.9.0",
+        "scikit_learn>=0.24.2",
     ],
 )

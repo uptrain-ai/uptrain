@@ -31,7 +31,7 @@ class Config(BaseModel):
     retrain: bool = True
     retrain_after: int = 250
     retraining_folder: str = "uptrain_smart_data"
-    data_id: typing.Literal["id", "utc_timestamp"] = "id"
+    data_id: str = "id"
     log_folder: str = "uptrain_logs"
     tb_logging: bool = False
     st_logging: bool = False
