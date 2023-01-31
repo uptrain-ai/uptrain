@@ -29,6 +29,7 @@ class DistributionStats(AbstractAnomaly):
         aggregate_ids = self.aggregate_measurable.compute_and_log(
             inputs, outputs, gts=gts, extra=extra_args
         )
+        updated_counts = []
         for idx in range(len(aggregate_ids)):
             if aggregate_ids[idx] not in self.item_counts:
                 self.item_counts.update({aggregate_ids[idx]: 0})
@@ -39,7 +40,11 @@ class DistributionStats(AbstractAnomaly):
                     self.distances_dictn.update({this_item_count: {}})
                 this_val = extract_data_points_from_batch(vals, [idx])
                 self.feats_dictn[this_item_count].update({aggregate_ids[idx]: this_val})
+                if len(list(self.feats_dictn[this_item_count].keys())) > 1:
+                    updated_counts.append(this_item_count)
                 for agg_i in list(self.feats_dictn[this_item_count].keys()):
+                    if agg_i == aggregate_ids[idx]:
+                        continue
                     this_distances = dict(zip(self.distance_types, [x.compute_distance(this_val, self.feats_dictn[this_item_count][agg_i]) for x in self.dist_classes]))
                     if len(self.distances_dictn[this_item_count]) == 0:
                         for distance_type in self.distance_types:
@@ -50,20 +55,21 @@ class DistributionStats(AbstractAnomaly):
             self.item_counts[aggregate_ids[idx]] += 1
 
         for count in list(self.distances_dictn.keys()):
-            for distance_type in self.distance_types:
-                plot_name = (distance_type
-                    + " "
-                    + str(count)
-                    + self.measurable.col_name()
-                    + " "
-                    + self.aggregate_measurable.col_name())
-                
+            if count in updated_counts:
+                for distance_type in self.distance_types:
+                    plot_name = (distance_type
+                        + " "
+                        + self.measurable.col_name()
+                        + " "
+                        + self.aggregate_measurable.col_name())
+                    
 
-                self.log_handler.add_histogram(
-                    self.dashboard_name + "_" + plot_name,
-                    self.distances_dictn[count][distance_type],
-                    self.dashboard_name,
-                )
+                    self.log_handler.add_histogram(
+                        self.dashboard_name + "_" + plot_name,
+                        self.distances_dictn[count][distance_type],
+                        np.log(max(count, 1)),
+                        self.dashboard_name,
+                    )
 
     def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
         return np.array([False] * len(extra_args["id"]))

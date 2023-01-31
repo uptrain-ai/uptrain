@@ -48,15 +48,18 @@ class LogHandler:
             dictn.update({'count': count})
             self.st_writer.add_scalars(dashboard_name, dictn, self.st_log_folder)
 
-    def add_histogram(self, plot_name, arr, dashboard_name):
+    def add_histogram(self, plot_name, arr, count, dashboard_name):
         dashboard_name, plot_name = self.make_name_fold_directory_friendly(
             [dashboard_name, plot_name]
         )
         if self.tb_logs:
             if dashboard_name in self.tb_writers:
-                self.tb_writers[dashboard_name].add_histogram(plot_name, arr, len(arr))
+                self.tb_writers[dashboard_name].add_histogram(plot_name, arr, count)
         if self.st_writer:
-            self.st_writer.add_histogram(plot_name, arr[-1])
+            dictn = {plot_name: arr}
+            dictn.update({'count': 1})
+            self.st_writer.add_scalars(dashboard_name, dictn, self.st_log_folder)
+            # self.st_writer.add_histogram(plot_name, arr[-1])
 
     def make_name_fold_directory_friendly(self, arr):
         if isinstance(arr, str):

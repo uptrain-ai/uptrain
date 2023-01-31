@@ -31,6 +31,7 @@ class ConvergenceStats(AbstractAnomaly):
         aggregate_ids = self.aggregate_measurable.compute_and_log(
             inputs, outputs, gts=gts, extra=extra_args
         )
+        update_counts = []
         for idx in range(len(aggregate_ids)):
             if aggregate_ids[idx] not in self.item_counts:
                 self.item_counts.update({aggregate_ids[idx]: 0})
@@ -49,6 +50,7 @@ class ConvergenceStats(AbstractAnomaly):
                     else:
                         ref_item_count = 0
                     this_distances = dict(zip(self.distance_types, [x.compute_distance(this_val, self.feats_dictn[ref_item_count][aggregate_ids[idx]]) for x in self.dist_classes]))
+                    update_counts.append(this_item_count)
                     if self.reference == "running_diff":
                         del self.feats_dictn[ref_item_count][aggregate_ids[idx]]
                     else:
@@ -63,19 +65,19 @@ class ConvergenceStats(AbstractAnomaly):
             self.item_counts[aggregate_ids[idx]] += 1
 
         for count in list(self.distances_dictn.keys()):
-            if count > 0:
+            if (count > 0) and (count in update_counts):
                 for distance_type in self.distance_types:
                     plot_name = (distance_type
                         + " "
-                        + str(count)
                         + str(self.reference)
                         + self.measurable.col_name()
                         + " "
                         + self.aggregate_measurable.col_name())
-
+                    this_data = list(np.reshape(np.array(self.distances_dictn[count][distance_type]), -1))
                     self.log_handler.add_histogram(
                         self.dashboard_name + "_" + plot_name,
-                        self.distances_dictn[count][distance_type],
+                        this_data,
+                        np.log(count),
                         self.dashboard_name,
                     )
 
