@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="uptrain",
-    version="0.0.1",
+    version="0.0.3",
     description="UpTrain - ML Observability and Retraining Framework",
     long_description="Smart and Automated Model Refinement",
     # The project's main homepage.
