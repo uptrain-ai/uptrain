@@ -29,7 +29,7 @@ class Config(BaseModel):
     data_identifier: str = "id"
     checks: typing.List[typing.Dict] = []
     retrain: bool = True
-    retrain_after: int = 250
+    retrain_after: int = 100000000000
     retraining_folder: str = "uptrain_smart_data"
     data_id: str = "id"
     log_folder: str = "uptrain_logs"
