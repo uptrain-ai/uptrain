@@ -8,7 +8,7 @@ from uptrain.constants import Statistic
 
 class Distribution(AbstractStatistic):
     dashboard_name = "distribution_stats"
-    anomaly_type = Statistic.DISTRIBUTION_STATS
+    statistic_type = Statistic.DISTRIBUTION_STATS
 
     def __init__(self, fw, check):
         self.log_handler = fw.log_handler

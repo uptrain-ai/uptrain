@@ -36,6 +36,10 @@ class Statistic(Enum):
     CONVERGENCE_STATS = "convergence_stats"
 
 
+class Visual(Enum):
+    UMAP = "umap"
+
+
 class DataDriftAlgo(Enum):
     DDM = "DDM"
 
