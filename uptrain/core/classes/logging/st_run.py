@@ -4,6 +4,8 @@ from glob import glob
 import os
 import sys
 import plotly.graph_objects as go
+import numpy as np
+import json
 
 
 def return_plotly_fig(y_axis, x_axis='Num predictions', x_log=False, y_log=False):
@@ -42,50 +44,74 @@ for csv_file in all_csv_files:
     df = pd.read_csv(csv_file)
 
     # Getting dashboard name from csv filename
-    dashboard_name = csv_file.split('/')[-1].split('.')[0]
+    csv_file_list = csv_file.split('/')
+    dashboard_name = csv_file_list[-1].split('.')[0]
+    plot_type = csv_file_list[-2]
 
     if st.sidebar.checkbox(f"Dashboard for {dashboard_name}"):
 
         st.markdown(f"### Visualization dashboard for {dashboard_name}")
 
         ############ View Line Plots ############
-        if st.sidebar.checkbox(f"Line-plot: {dashboard_name}", help="View the line plot", value=True):
-            st.markdown(f"#### Line chart for {dashboard_name}")
-            scol1, scol2 = st.columns(2)
-            with scol1:
-                x_log = st.checkbox(
-                    "log x", help="Plot x-axis in log-scale",
-                    key=dashboard_name + 'x'
-                )
-            with scol2:
-                y_log = st.checkbox(
-                    "log y", help="Plot y-axis in log-scale",
-                    key=dashboard_name + 'y'
+        if plot_type == 'line_plots':
+            if st.sidebar.checkbox(f"Line-plot: {dashboard_name}", 
+                    help="View the line plot", value=True):
+                st.markdown(f"#### Line chart for {dashboard_name}")
+                scol1, scol2 = st.columns(2)
+                with scol1:
+                    x_log = st.checkbox(
+                        "log x", help="Plot x-axis in log-scale",
+                        key=dashboard_name + 'x'
                     )
-            fig = return_plotly_fig(dashboard_name, x_log=x_log, y_log=y_log)
-            for y_axis in df.columns:
-                if y_axis=='count':
-                    continue
-                fig = fig.add_trace(go.Scatter(
-                        x=df['count'],
-                        y=df[y_axis],
-                        name=y_axis,
-                        ))
-            st.plotly_chart(fig)
+                with scol2:
+                    y_log = st.checkbox(
+                        "log y", help="Plot y-axis in log-scale",
+                        key=dashboard_name + 'y'
+                        )
+                fig = return_plotly_fig(dashboard_name, x_log=x_log, y_log=y_log)
+                for y_axis in df.columns:
+                    if y_axis=='count':
+                        continue
+                    fig = fig.add_trace(go.Scatter(
+                            x=df['count'],
+                            y=df[y_axis],
+                            name=y_axis,
+                            ))
+                st.plotly_chart(fig)
 
-        ############ View Data ##################
-        if st.sidebar.checkbox(f"Data: {dashboard_name}", help="View the uploaded data"):
-            st.markdown(f"#### Uploaded Data")
-            st.dataframe(df, height=250)
+            ############ View Data ##################
+            if st.sidebar.checkbox(f"Data: {dashboard_name}", help="View the uploaded data"):
+                st.markdown(f"#### Uploaded Data")
+                st.dataframe(df, height=250)
 
-        ############ View Histograms ############
-        if st.sidebar.checkbox(f"Histogram: {dashboard_name}", help="View the line plot"):
-            st.markdown(f"#### Histogram for {dashboard_name}")
-            fig = go.Figure()
-            for y_axis in df.columns:
-                if y_axis=='count':
-                    continue
-                fig = fig.add_trace(go.Histogram(x=df[y_axis], name=y_axis))
-            st.plotly_chart(fig)
+            ############ View Histograms ############
+            if st.sidebar.checkbox(f"Histogram: {dashboard_name}", help="View the line plot"):
+                st.markdown(f"#### Histogram for {dashboard_name}")
+                fig = go.Figure()
+                for y_axis in df.columns:
+                    if y_axis=='count':
+                        continue
+                    fig = fig.add_trace(go.Histogram(x=df[y_axis], name=y_axis))
+                st.plotly_chart(fig)
+
+        ############ View 3D Histograms ############
+        if plot_type == 'histograms':
+            if st.sidebar.checkbox(f"Histogram: {dashboard_name}", 
+                    help="View the histogram", value=True):
+                st.markdown(f"#### Histogram for {dashboard_name}")
+                fig = go.Figure()
+                for y_axis in df.columns:
+                    if y_axis=='count':
+                        continue
+                    out = [json.loads(x) for x in df[y_axis]]
+                    for i,row in enumerate(out):
+                        hist_data = np.histogram(row, density=False)
+                        a0, a1 = hist_data[0].tolist(), hist_data[1].tolist()
+                        a0=np.repeat(a0,2).tolist()
+                        a0.insert(0,0)
+                        a0.pop()
+                        a1=np.repeat(a1,2)
+                        fig = fig.add_trace(go.Scatter3d(x=[df['count'][i]]*len(a0), y=a1, z=a0, mode='lines', name=df['count'][i]))
+                st.plotly_chart(fig)
 
     st.sidebar.markdown("""---""")

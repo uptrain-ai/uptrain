@@ -28,6 +28,9 @@ class Anomaly(Enum):
     CONCEPT_DRIFT = "concept_drift"
     POPULARITY_BIAS = "popularity_bias"
     DATA_INTEGRITY = "data_integrity"
+
+
+class Statistic(Enum):
     AGGREGATE = "aggregate"
     DISTRIBUTION_STATS = "distribution_stats"
     CONVERGENCE_STATS = "convergence_stats"

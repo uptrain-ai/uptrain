@@ -13,7 +13,7 @@ class StreamlitLogs:
         self.counts = {}
         self.log_folder = log_folder
 
-        remote_st_py_file = 'https://raw.githubusercontent.com/uptrain-ai/uptrain/vipul/uptrain/core/classes/logging/st_run.py'
+        remote_st_py_file = 'https://raw.githubusercontent.com/uptrain-ai/uptrain/dashboard/uptrain/core/classes/logging/st_run.py'
         cmd = "streamlit run " + remote_st_py_file + " -- " + self.log_folder
         launch_st = lambda: os.system(cmd)
         t = threading.Thread(target=launch_st, args=([]))

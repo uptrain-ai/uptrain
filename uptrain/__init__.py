@@ -1,5 +1,5 @@
 from uptrain.core.classes import Framework
-from uptrain.core.classes.anomalies.signals import Signal
+from uptrain.core.classes.signals import Signal
 from uptrain.core.classes.anomalies import CustomAnomaly
 from uptrain.constants import (
     ModelSignal,
@@ -8,4 +8,5 @@ from uptrain.constants import (
     DataDriftAlgo,
     BiasAlgo,
     MeasurableType,
+    Statistic,
 )

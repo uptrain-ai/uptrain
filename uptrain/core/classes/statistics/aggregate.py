@@ -1,15 +1,13 @@
-import numpy as np
-
 from uptrain.core.lib.helper_funcs import extract_data_points_from_batch
-from uptrain.core.classes.anomalies import AbstractAnomaly
-from uptrain.core.classes.anomalies.distances import DistanceResolver
-from uptrain.core.classes.anomalies.measurables import MeasurableResolver
-from uptrain.constants import Anomaly
+from uptrain.core.classes.statistics import AbstractStatistic
+from uptrain.core.classes.distances import DistanceResolver
+from uptrain.core.classes.measurables import MeasurableResolver
+from uptrain.constants import Statistic
 
 
-class Aggregate(AbstractAnomaly):
+class Aggregate(AbstractStatistic):
     dashboard_name = "aggregate"
-    anomaly_type = Anomaly.AGGREGATE
+    anomaly_type = Statistic.AGGREGATE
 
     def __init__(self, fw, check):
         self.log_handler = fw.log_handler
@@ -22,7 +20,7 @@ class Aggregate(AbstractAnomaly):
         self.distance_types = check['distance_types']
         self.dist_classes = [DistanceResolver().resolve(x) for x in self.distance_types]
 
-    def check(self, inputs, outputs, gts=None, extra_args={}):
+    def check(self, inputs, outputs=None, gts=None, extra_args={}):
         vals = self.measurable.compute_and_log(
             inputs, outputs, gts=gts, extra=extra_args
         )
@@ -56,9 +54,3 @@ class Aggregate(AbstractAnomaly):
             else:
                 self.feats_dictn.update({aggregate_ids[idx]: this_val})
             self.item_counts[aggregate_ids[idx]] += 1
-
-    def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
-        return np.array([False] * len(extra_args["id"]))
-
-    def need_ground_truth(self):
-        return False

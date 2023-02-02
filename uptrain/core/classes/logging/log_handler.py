@@ -45,8 +45,10 @@ class LogHandler:
             if dashboard_name in self.tb_writers:
                 self.tb_writers[dashboard_name].add_scalars(plot_name, new_dictn, count)
         if self.st_writer:
+            plot_folder = os.path.join(self.st_log_folder, 'line_plots')
+            os.makedirs(plot_folder, exist_ok=True)
             dictn.update({'count': count})
-            self.st_writer.add_scalars(dashboard_name, dictn, self.st_log_folder)
+            self.st_writer.add_scalars(dashboard_name, dictn, plot_folder)
 
     def add_histogram(self, plot_name, arr, count, dashboard_name):
         dashboard_name, plot_name = self.make_name_fold_directory_friendly(
@@ -56,10 +58,11 @@ class LogHandler:
             if dashboard_name in self.tb_writers:
                 self.tb_writers[dashboard_name].add_histogram(plot_name, arr, count)
         if self.st_writer:
+            hist_folder = os.path.join(self.st_log_folder, 'histograms')
+            os.makedirs(hist_folder, exist_ok=True)
             dictn = {plot_name: arr}
-            dictn.update({'count': 1})
-            self.st_writer.add_scalars(dashboard_name, dictn, self.st_log_folder)
-            # self.st_writer.add_histogram(plot_name, arr[-1])
+            dictn.update({'count': count})
+            self.st_writer.add_scalars(dashboard_name, dictn, hist_folder)
 
     def make_name_fold_directory_friendly(self, arr):
         if isinstance(arr, str):

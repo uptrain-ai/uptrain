@@ -8,9 +8,9 @@ import random
 import numpy as np
 from sklearn.preprocessing import normalize
 
-from uptrain.core.classes.helpers import DatasetHandler, ModelHandler
-from uptrain.core.classes.helpers import config_handler, LogHandler
-from uptrain.core.classes.anomalies.managers import AnomalyManager
+from uptrain.core.classes.helpers import DatasetHandler, ModelHandler, config_handler
+from uptrain.core.classes.logging import LogHandler
+from uptrain.core.classes.managers import CheckManager
 from uptrain.core.lib.helper_funcs import (
     read_json,
     extract_data_points_from_batch,
@@ -80,7 +80,7 @@ class Framework:
         )
         self.model_handler = ModelHandler()
         self.log_handler = LogHandler(framework=self, cfg=cfg)
-        self.anomaly_manager = AnomalyManager(self, cfg.checks)
+        self.check_manager = CheckManager(self, self.checks)
         self.reset_retraining()
 
         if training_args.data_transformation_func:
@@ -211,7 +211,7 @@ class Framework:
 
     def check(self, data, extra_args={}):
         extra_args.update({"id": data["id"]})
-        self.anomaly_manager.check(
+        self.check_manager.check(
             data["data"],
             data["output"],
             gts=data["gt"],
@@ -220,7 +220,7 @@ class Framework:
 
     def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
         """A data-point is deemed interesting if the defined signal is positive"""
-        return self.anomaly_manager.is_data_interesting(
+        return self.check_manager.is_data_interesting(
             inputs, outputs, gts=gts, extra_args=extra_args
         )
 
@@ -360,7 +360,7 @@ class Framework:
             "gt": load_list_from_df(df_feat, "gt"),
         }
         self.extra_args.update({"feat_name": feat_name})
-        self.anomaly_manager = AnomalyManager(self, self.checks)
+        self.check_manager = CheckManager(self, self.checks)
         self.check(data, extra_args=self.extra_args)
 
     def log_measurable(self, ids, vals, col_name):

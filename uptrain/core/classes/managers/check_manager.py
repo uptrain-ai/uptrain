@@ -1,7 +1,7 @@
 import numpy as np
 from copy import deepcopy
 
-from uptrain.constants import Anomaly, MeasurableType
+from uptrain.constants import Anomaly, Statistic, MeasurableType
 from uptrain.core.classes.anomalies import (
     ConceptDrift,
     DataDrift,
@@ -9,18 +9,24 @@ from uptrain.core.classes.anomalies import (
     RecommendationBias,
     DataIntegrity,
     EdgeCase,
+)
+from uptrain.core.classes.statistics import (
     Aggregate,
+    ConvergenceStats,
     DistributionStats,
-    ConvergenceStats
 )
 
 
-class AnomalyManager:
+class CheckManager:
     def __init__(self, framework, checks=[]):
         self.anomalies_to_check = []
+        self.statistics_to_check = []
         self.fw = framework
         for check in checks:
-            self.add_anomaly_to_monitor(check)
+            if check["type"] in Anomaly:
+                self.add_anomaly_to_monitor(check)
+            if check["type"] in Statistic:
+                self.add_statistics_to_monitor(check)
 
     def add_anomaly_to_monitor(self, check):
         if check["type"] == Anomaly.EDGE_CASE:
@@ -66,15 +72,19 @@ class AnomalyManager:
         elif check["type"] == Anomaly.DATA_INTEGRITY:
             custom_monitor = DataIntegrity(self.fw, check)
             self.anomalies_to_check.append(custom_monitor)
-        elif check["type"] == Anomaly.AGGREGATE:
+        else:
+            raise Exception("Check type not Supported")
+
+    def add_statistics_to_monitor(self, check):
+        if check["type"] == Statistic.AGGREGATE:
             custom_monitor = Aggregate(self.fw, check)
-            self.anomalies_to_check.append(custom_monitor)
-        elif check["type"] == Anomaly.DISTRIBUTION_STATS:
+            self.statistics_to_check.append(custom_monitor)
+        elif check["type"] == Statistic.DISTRIBUTION_STATS:
             custom_monitor = DistributionStats(self.fw, check)
-            self.anomalies_to_check.append(custom_monitor)
-        elif check["type"] == Anomaly.CONVERGENCE_STATS:
+            self.statistics_to_check.append(custom_monitor)
+        elif check["type"] == Statistic.CONVERGENCE_STATS:
             custom_monitor = ConvergenceStats(self.fw, check)
-            self.anomalies_to_check.append(custom_monitor)
+            self.statistics_to_check.append(custom_monitor)
         else:
             raise Exception("Check type not Supported")
 
@@ -82,6 +92,8 @@ class AnomalyManager:
         for anomaly in self.anomalies_to_check:
             if anomaly.need_ground_truth() == (gts[0] is not None):
                 anomaly.check(inputs, outputs, gts=gts, extra_args=extra_args)
+        for stats in self.statistics_to_check:
+            stats.check(inputs, outputs, gts=gts, extra_args=extra_args)
 
     def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
         is_interesting = []
@@ -93,3 +105,4 @@ class AnomalyManager:
                     )
                 )
         return np.greater(np.sum(np.array(is_interesting), axis=0), 0)
+
