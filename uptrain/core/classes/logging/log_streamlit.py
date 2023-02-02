@@ -21,20 +21,21 @@ class StreamlitLogs:
 
 
     def add_scalars(self, name, dict, folder):
-        # list of column names
-        field_names = dict.keys()
-
         # CSV file that includes the data 
-        file_name = os.path.join(folder, name + '.csv')
-        if not os.path.isfile(file_name):
-            with open(file_name, 'w', newline='') as f_object:
-                writer = csv.writer(f_object)
-                writer.writerow(field_names)
-        
-        with open(file_name, 'a') as f_object:
-            dictwriter_object = csv.DictWriter(f_object, fieldnames=field_names)
-            dictwriter_object.writerow(dict)
-            f_object.close()
+        for key in dict.keys():
+            if key=='count':
+                continue
+            file_name = os.path.join(folder, key + '.csv')
+            if not os.path.isfile(file_name):
+                with open(file_name, 'w', newline='') as f_object:
+                    writer = csv.writer(f_object)
+                    writer.writerow([key, 'count'])
+                    f_object.close()
+            
+            with open(file_name, 'a') as f_object:
+                writer_object = csv.writer(f_object)
+                writer_object.writerow([dict[key], dict['count']])
+                f_object.close()
 
 
     # def feat_slicing(self, fw):

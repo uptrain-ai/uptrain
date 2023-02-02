@@ -5,7 +5,7 @@ from uptrain.core.classes.measurables import MeasurableResolver
 from uptrain.constants import Statistic
 
 
-class Aggregate(AbstractStatistic):
+class Distance(AbstractStatistic):
     dashboard_name = "aggregate"
     anomaly_type = Statistic.AGGREGATE
 
@@ -47,7 +47,7 @@ class Aggregate(AbstractStatistic):
                         + self.aggregate_measurable.col_name())
                     self.log_handler.add_scalars(
                         self.dashboard_name + "_" + plot_name,
-                        {str(aggregate_ids[idx]): this_distances[distance_type]},
+                        {str(aggregate_ids[idx]): this_distances[distance_type][0]},
                         this_item_count,
                         self.dashboard_name,
                     )

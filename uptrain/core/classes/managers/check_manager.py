@@ -11,9 +11,9 @@ from uptrain.core.classes.anomalies import (
     EdgeCase,
 )
 from uptrain.core.classes.statistics import (
-    Aggregate,
-    ConvergenceStats,
-    DistributionStats,
+    Distance,
+    Convergence,
+    Distribution,
 )
 
 
@@ -77,13 +77,13 @@ class CheckManager:
 
     def add_statistics_to_monitor(self, check):
         if check["type"] == Statistic.AGGREGATE:
-            custom_monitor = Aggregate(self.fw, check)
+            custom_monitor = Distance(self.fw, check)
             self.statistics_to_check.append(custom_monitor)
         elif check["type"] == Statistic.DISTRIBUTION_STATS:
-            custom_monitor = DistributionStats(self.fw, check)
+            custom_monitor = Distribution(self.fw, check)
             self.statistics_to_check.append(custom_monitor)
         elif check["type"] == Statistic.CONVERGENCE_STATS:
-            custom_monitor = ConvergenceStats(self.fw, check)
+            custom_monitor = Convergence(self.fw, check)
             self.statistics_to_check.append(custom_monitor)
         else:
             raise Exception("Check type not Supported")
