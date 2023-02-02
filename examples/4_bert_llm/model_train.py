@@ -49,4 +49,4 @@ def retrain_model(model, dataset):
     trainer.train()
 
     eval_results = trainer.evaluate()
-    print(f">>>After trainign, Perplexity: {math.exp(eval_results['eval_loss']):.2f}")
+    print(f">>>After training, Perplexity: {math.exp(eval_results['eval_loss']):.2f}")
