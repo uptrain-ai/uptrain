@@ -106,3 +106,11 @@ We are continuously adding tons of features and use cases. Please support us by 
 # Provide feedback (Harsher the better 😉) 
 
 We are building UpTrain in public. Help us improve by giving your feedback **[here](https://forms.gle/PXd89D5LiFubro9o9)**
+
+# Contributors 🖥️
+
+We welcome contributions to uptrain. Please see our contribution guide for details.
+
+<a href="https://github.com/uptrain-ai/uptrain/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=uptrain-ai/uptrain" />
+</a>
