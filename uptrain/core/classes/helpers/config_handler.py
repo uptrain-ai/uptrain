@@ -42,7 +42,7 @@ class Config(BaseModel):
     @root_validator()
     def only_one_logging(cls, v):
         if v.get("tb_logging") and v.get("st_logging"):
-            raise ValueError('Use only one logging type: Tensorboard or Streamlit')
+            raise ValueError("Use only one logging type: Tensorboard or Streamlit")
         return v
 
 

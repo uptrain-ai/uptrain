@@ -28,9 +28,16 @@ class Anomaly(Enum):
     CONCEPT_DRIFT = "concept_drift"
     POPULARITY_BIAS = "popularity_bias"
     DATA_INTEGRITY = "data_integrity"
-    AGGREGATE = "aggregate"
+
+
+class Statistic(Enum):
+    DISTANCE = "distance"
     DISTRIBUTION_STATS = "distribution_stats"
     CONVERGENCE_STATS = "convergence_stats"
+
+
+class Visual(Enum):
+    UMAP = "umap"
 
 
 class DataDriftAlgo(Enum):

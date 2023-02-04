@@ -23,6 +23,7 @@ class LogHandler:
             self.st_log_folder = os.path.join(cfg.log_folder, "st_data")
             os.makedirs(self.st_log_folder, exist_ok=True)
             self.st_writer = StreamlitLogs(self.st_log_folder)
+            self.st_log_folders_all = {}
 
     def add_writer(self, dashboard_name):
         dashboard_name = self.make_name_fold_directory_friendly(dashboard_name)
@@ -30,7 +31,7 @@ class LogHandler:
         if self.tb_logs:
             tb_writer = self.tb_logs.add_writer(dashboard_name)
             self.tb_writers.update({dashboard_name: tb_writer})
-        
+
     def add_scalars(self, plot_name, dictn, count, dashboard_name):
         dashboard_name, plot_name = self.make_name_fold_directory_friendly(
             [dashboard_name, plot_name]
@@ -45,8 +46,11 @@ class LogHandler:
             if dashboard_name in self.tb_writers:
                 self.tb_writers[dashboard_name].add_scalars(plot_name, new_dictn, count)
         if self.st_writer:
-            dictn.update({'count': count})
-            self.st_writer.add_scalars(dashboard_name, dictn, self.st_log_folder)
+            dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
+            plot_folder = os.path.join(dashboard_dir, "line_plots", plot_name)
+            os.makedirs(plot_folder, exist_ok=True)
+            dictn.update({"count": count})
+            self.st_writer.add_scalars(dictn, plot_folder)
 
     def add_histogram(self, plot_name, arr, count, dashboard_name):
         dashboard_name, plot_name = self.make_name_fold_directory_friendly(
@@ -56,10 +60,10 @@ class LogHandler:
             if dashboard_name in self.tb_writers:
                 self.tb_writers[dashboard_name].add_histogram(plot_name, arr, count)
         if self.st_writer:
-            dictn = {plot_name: arr}
-            dictn.update({'count': 1})
-            self.st_writer.add_scalars(dashboard_name, dictn, self.st_log_folder)
-            # self.st_writer.add_histogram(plot_name, arr[-1])
+            dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
+            plot_folder = os.path.join(dashboard_dir, "histograms", plot_name)
+            os.makedirs(plot_folder, exist_ok=True)
+            self.st_writer.add_histogram(arr, count, plot_folder)
 
     def make_name_fold_directory_friendly(self, arr):
         if isinstance(arr, str):
@@ -77,4 +81,5 @@ class LogHandler:
         txt = txt.replace(">", "_")
         txt = txt.replace("<", "_")
         txt = txt.replace("=", "_")
+        txt = txt.replace("-", "_")
         return txt
