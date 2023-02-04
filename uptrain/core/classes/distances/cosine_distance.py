@@ -1,10 +1,15 @@
 import numpy as np
 
-class NormRatio():
 
+class CosineDistance:
     def compute_distance(self, base, ref) -> float:
         base = np.array(base)
         ref = np.array(ref)
         base_norm = np.linalg.norm(base, axis=1)
         ref_norm = np.linalg.norm(ref, axis=1)
-        return base_norm / np.maximum(ref_norm, 1e-6)
+        return np.array(
+            [
+                np.dot(base[i], ref[i]) / (base_norm[i] * ref_norm[i])
+                for i in range(base.shape[0])
+            ]
+        )

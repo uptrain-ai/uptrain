@@ -1,7 +1,7 @@
 import numpy as np
 
 from uptrain.core.classes.anomalies import AbstractAnomaly
-from uptrain.core.classes.anomalies.signals import SignalManager
+from uptrain.core.classes.signals import SignalManager
 from uptrain.constants import Anomaly
 
 

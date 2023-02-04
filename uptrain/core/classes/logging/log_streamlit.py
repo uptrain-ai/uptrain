@@ -1,10 +1,18 @@
 import os
 import csv
 import threading
+import json
+import numpy as np
+
+
+class NumpyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return json.JSONEncoder.default(self, obj)
 
 
 class StreamlitLogs:
-
     def __init__(self, log_folder, log_every=10):
         self.log_every = log_every
         self.placeholders = {}
@@ -13,29 +21,34 @@ class StreamlitLogs:
         self.counts = {}
         self.log_folder = log_folder
 
-        remote_st_py_file = 'https://raw.githubusercontent.com/uptrain-ai/uptrain/vipul/uptrain/core/classes/logging/st_run.py'
+        remote_st_py_file = "https://raw.githubusercontent.com/uptrain-ai/uptrain/dashboard/uptrain/core/classes/logging/st_run.py"
         cmd = "streamlit run " + remote_st_py_file + " -- " + self.log_folder
         launch_st = lambda: os.system(cmd)
         t = threading.Thread(target=launch_st, args=([]))
         t.start()
 
+    def add_scalars(self, dict, folder):
+        # CSV file that includes the data
+        for key in dict.keys():
+            if key == "count":
+                continue
+            file_name = os.path.join(folder, key + ".csv")
+            if not os.path.isfile(file_name):
+                with open(file_name, "w", newline="") as f_object:
+                    writer = csv.writer(f_object)
+                    writer.writerow([key, "count"])
+                    f_object.close()
 
-    def add_scalars(self, name, dict, folder):
-        # list of column names
-        field_names = dict.keys()
+            with open(file_name, "a") as f_object:
+                writer_object = csv.writer(f_object)
+                writer_object.writerow([dict[key], dict["count"]])
+                f_object.close()
 
-        # CSV file that includes the data 
-        file_name = os.path.join(folder, name + '.csv')
-        if not os.path.isfile(file_name):
-            with open(file_name, 'w', newline='') as f_object:
-                writer = csv.writer(f_object)
-                writer.writerow(field_names)
-        
-        with open(file_name, 'a') as f_object:
-            dictwriter_object = csv.DictWriter(f_object, fieldnames=field_names)
-            dictwriter_object.writerow(dict)
-            f_object.close()
-
+    def add_histogram(self, arr, count, folder):
+        file_name = os.path.join(folder, str(count) + ".json")
+        arr_json = json.dumps(arr, cls=NumpyEncoder)
+        with open(file_name, "w") as f:
+            json.dump(arr_json, f)
 
     # def feat_slicing(self, fw):
     #     relevant_feat_list = st.sidebar.multiselect(

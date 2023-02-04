@@ -1,15 +1,22 @@
-"""A setuptools based setup module.
+"""
+A setuptools based setup module.
 """
 #!/usr/bin/env python
 
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
 
+# read the contents of your README file
+from pathlib import Path
+this_directory = Path(__file__).parent
+long_description = (this_directory/"README.md").read_text()
+
 setup(
     name="uptrain",
-    version="0.0.3",
+    version="0.0.4",
     description="UpTrain - ML Observability and Retraining Framework",
-    long_description="Smart and Automated Model Refinement",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     # The project's main homepage.
     url="https://github.com/uptrain-ai/uptrain",
     # Author details
@@ -40,5 +47,6 @@ setup(
         "plotly>=5.0.0",
         "pydantic>=1.9.0",
         "scikit_learn>=0.24.2",
+        "umap-learn>=0.5.3",
     ],
 )

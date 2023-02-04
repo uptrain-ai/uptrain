@@ -1,6 +1,3 @@
-import os
-
-
 class AbstractAnomaly:
     anomaly_type = None
 

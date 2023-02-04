@@ -1,7 +1,7 @@
 import numpy as np
 
-from uptrain.core.classes.anomalies.measurables import Measurable
-from uptrain.core.classes.anomalies.signals import SignalManager
+from uptrain.core.classes.measurables import Measurable
+from uptrain.core.classes.signals import SignalManager
 
 
 class CustomMeasurable(Measurable):
