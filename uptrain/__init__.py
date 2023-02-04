@@ -9,4 +9,5 @@ from uptrain.constants import (
     BiasAlgo,
     MeasurableType,
     Statistic,
+    Visual,
 )

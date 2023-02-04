@@ -1,7 +1,7 @@
 import numpy as np
 
-class NormRatio():
 
+class NormRatio:
     def compute_distance(self, base, ref) -> float:
         base = np.array(base)
         ref = np.array(ref)

@@ -6,9 +6,10 @@ import sys
 import plotly.graph_objects as go
 import numpy as np
 import json
+import plotly.express as px
 
 
-def return_plotly_fig(y_axis, x_axis='Num predictions', x_log=False, y_log=False):
+def return_plotly_fig(y_axis, x_axis="Num predictions", x_log=False, y_log=False):
     fig = go.Figure()
     fig.update_xaxes(title_text=x_axis)
     fig.update_yaxes(title_text=y_axis)
@@ -37,118 +38,99 @@ st.markdown(st_style, unsafe_allow_html=True)
 sub_dirs = [path[0] for path in os.walk(log_folder)]
 st.sidebar.title("Select dashboards to view")
 for sub_dir in sub_dirs:
-    if sub_dir.split('/')[-2] == 'line_plots':
-        plot_name = sub_dir.split('/')[-1]
-        
+    sub_dir_split = sub_dir.split("/")
+    if sub_dir_split[-2] == "line_plots":
+        plot_name = sub_dir_split[-1]
+
         if st.sidebar.checkbox(f"Line-plot for {plot_name}"):
             st.markdown(f"### Line chart for {plot_name}")
 
-            # Getting the list of all csv files in streamlit logs 
-            csv_files = [file for path,_,_ in os.walk(sub_dir)
-                            for file in glob(os.path.join(path, "*.csv"))]
+            # Getting the list of all csv files in streamlit logs
+            csv_files = [
+                file
+                for path, _, _ in os.walk(sub_dir)
+                for file in glob(os.path.join(path, "*.csv"))
+            ]
 
             scol1, scol2 = st.columns(2)
             with scol1:
                 x_log = st.checkbox(
-                    "log x", help="Plot x-axis in log-scale",
-                    key=plot_name + 'x'
+                    "log x", help="Plot x-axis in log-scale", key=plot_name + "x"
                 )
             with scol2:
                 y_log = st.checkbox(
-                    "log y", help="Plot y-axis in log-scale",
-                    key=plot_name + 'y'
-                    )
+                    "log y", help="Plot y-axis in log-scale", key=plot_name + "y"
+                )
             fig = return_plotly_fig(plot_name, x_log=x_log, y_log=y_log)
             for i, csv_file in enumerate(csv_files):
                 # Reading the csv file
                 df = pd.read_csv(csv_file)
 
                 # Getting plot_id
-                plot_id = csv_file.split('/')[-1].split('.')[0]
-                fig = fig.add_trace(go.Scatter(
-                                x=df['count'],
-                                y=df[plot_id],
-                                name=str(i) + ", " + plot_id,
-                                ))
+                plot_id = csv_file.split("/")[-1].split(".")[0]
+                fig = fig.add_trace(
+                    go.Scatter(
+                        x=df["count"],
+                        y=df[plot_id],
+                        name=str(i) + ", " + plot_id,
+                    )
+                )
             st.plotly_chart(fig)
+            # import pdb; pdb.set_trace()
 
         st.sidebar.markdown("""---""")
 
-# st.sidebar.title("Select dashboards to view")
-# for csv_file in all_csv_files:
-#     # Reading the csv file
-#     df = pd.read_csv(csv_file)
+    if sub_dir_split[-2] == "histograms":
+        plot_name = sub_dir_split[-1]
 
-#     # Getting dashboard name from csv filename
-#     csv_file_list = csv_file.split('/')
-#     plot_id = csv_file_list[-1].split('.')[0]
-#     plot_name = csv_file_list[-2]
-#     plot_type = csv_file_list[-3]
+        if plot_name != "umap_and_clusters":
+            if st.sidebar.checkbox(f"Histogram for {plot_name}"):
+                st.markdown(f"### Histogram for {plot_name}")
 
-#     if st.sidebar.checkbox(f"Dashboard for {plot_name}"):
+                # Getting the list of all files in streamlit logs
+                files = [
+                    file
+                    for path, _, _ in os.walk(sub_dir)
+                    for file in glob(os.path.join(path, "*.json"))
+                ]
 
-#         st.markdown(f"### Visualization dashboard for {plot_name}")
+                for i, file in enumerate(files):
+                    count = file.split("/")[-1].split(".")[0]
+                    if st.checkbox(f"{plot_name} histogram for count {count}"):
+                        f = open(file)
+                        data = json.loads(json.load(f))
+                        fig = go.Figure(data=[go.Histogram(x=data, name=count)])
+                        st.plotly_chart(fig)
+        else:
+            if st.sidebar.checkbox(f"{plot_name}"):
+                st.markdown(f"### {plot_name}")
 
-#         ############ View Line Plots ############
-#         if plot_type == 'line_plots':
-#             if st.sidebar.checkbox(f"Line-plot: {plot_name}", 
-#                     help="View the line plot", value=True):
-#                 st.markdown(f"#### Line chart for {plot_name}")
-#                 scol1, scol2 = st.columns(2)
-#                 with scol1:
-#                     x_log = st.checkbox(
-#                         "log x", help="Plot x-axis in log-scale",
-#                         key=plot_name + 'x'
-#                     )
-#                 with scol2:
-#                     y_log = st.checkbox(
-#                         "log y", help="Plot y-axis in log-scale",
-#                         key=plot_name + 'y'
-#                         )
-#                 fig = return_plotly_fig(plot_name, x_log=x_log, y_log=y_log)
-#                 for y_axis in df.columns:
-#                     if y_axis=='count':
-#                         continue
-#                     fig = fig.add_trace(go.Scatter(
-#                             x=df['count'],
-#                             y=df[y_axis],
-#                             name=y_axis,
-#                             ))
-#                 st.plotly_chart(fig)
+                # Getting the list of all files in streamlit logs
+                files = [
+                    file
+                    for path, _, _ in os.walk(sub_dir)
+                    for file in glob(os.path.join(path, "*.json"))
+                ]
 
-            # ############ View Data ##################
-            # if st.sidebar.checkbox(f"Data: {plot_name}", help="View the uploaded data"):
-            #     st.markdown(f"#### Uploaded Data")
-            #     st.dataframe(df, height=250)
+                for i, file in enumerate(files):
+                    count = file.split("/")[-1].split(".")[0]
+                    if st.checkbox(f"{plot_name} UMAP and Clusters for count {count}"):
+                        f = open(file)
+                        data = json.loads(json.load(f))
+                        arr = np.array(data["umap"])
+                        clusters = data["clusters"]
+                        x = arr[:, 0]
+                        y = arr[:, 1]
+                        if arr.shape[1] == 2:
+                            fig = px.scatter(x=x, y=y, color=clusters)
+                        elif arr.shape[1] == 3:
+                            z = arr[:, 2]
+                            fig = px.scatter_3d(x=x, y=y, z=z, color=clusters)
+                        else:
+                            raise ("Umap dimension not 2D or 3D.")
+                        st.plotly_chart(fig, use_container_width=True)
+                        st.write(
+                            f"Number of clusters for count {count}: {len(set(clusters))-1}"
+                        )
 
-            # ############ View Histograms ############
-            # if st.sidebar.checkbox(f"Histogram: {plot_name}", help="View the line plot"):
-            #     st.markdown(f"#### Histogram for {plot_name}")
-            #     fig = go.Figure()
-            #     for y_axis in df.columns:
-            #         if y_axis=='count':
-            #             continue
-            #         fig = fig.add_trace(go.Histogram(x=df[y_axis], name=y_axis))
-            #     st.plotly_chart(fig)
-
-    #     ############ View 3D Histograms ############
-    #     if plot_type == 'histograms':
-    #         if st.sidebar.checkbox(f"Histogram: {plot_name}", 
-    #                 help="View the histogram", value=True):
-    #             st.markdown(f"#### Histogram for {plot_name}")
-    #             fig = go.Figure()
-    #             for y_axis in df.columns:
-    #                 if y_axis=='count':
-    #                     continue
-    #                 out = [json.loads(x) for x in df[y_axis]]
-    #                 for i,row in enumerate(out):
-    #                     hist_data = np.histogram(row, density=False)
-    #                     a0, a1 = hist_data[0].tolist(), hist_data[1].tolist()
-    #                     a0=np.repeat(a0,2).tolist()
-    #                     a0.insert(0,0)
-    #                     a0.pop()
-    #                     a1=np.repeat(a1,2)
-    #                     fig = fig.add_trace(go.Scatter3d(x=[df['count'][i]]*len(a0), y=a1, z=a0, mode='lines', name=df['count'][i]))
-    #             st.plotly_chart(fig)
-
-    # st.sidebar.markdown("""---""")
+        st.sidebar.markdown("""---""")

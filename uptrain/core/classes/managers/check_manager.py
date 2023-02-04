@@ -1,7 +1,7 @@
 import numpy as np
 from copy import deepcopy
 
-from uptrain.constants import Anomaly, Statistic, MeasurableType
+from uptrain.constants import Anomaly, Statistic, Visual, MeasurableType
 from uptrain.core.classes.anomalies import (
     ConceptDrift,
     DataDrift,
@@ -15,18 +15,22 @@ from uptrain.core.classes.statistics import (
     Convergence,
     Distribution,
 )
+from uptrain.core.classes.visuals import Umap
 
 
 class CheckManager:
     def __init__(self, framework, checks=[]):
         self.anomalies_to_check = []
         self.statistics_to_check = []
+        self.visuals_to_check = []
         self.fw = framework
         for check in checks:
             if check["type"] in Anomaly:
                 self.add_anomaly_to_monitor(check)
             if check["type"] in Statistic:
                 self.add_statistics_to_monitor(check)
+            if check["type"] in Visual:
+                self.add_visuals(check)
 
     def add_anomaly_to_monitor(self, check):
         if check["type"] == Anomaly.EDGE_CASE:
@@ -73,10 +77,10 @@ class CheckManager:
             custom_monitor = DataIntegrity(self.fw, check)
             self.anomalies_to_check.append(custom_monitor)
         else:
-            raise Exception("Check type not Supported")
+            raise Exception("Anomaly type not Supported")
 
     def add_statistics_to_monitor(self, check):
-        if check["type"] == Statistic.AGGREGATE:
+        if check["type"] == Statistic.DISTANCE:
             custom_monitor = Distance(self.fw, check)
             self.statistics_to_check.append(custom_monitor)
         elif check["type"] == Statistic.DISTRIBUTION_STATS:
@@ -86,7 +90,14 @@ class CheckManager:
             custom_monitor = Convergence(self.fw, check)
             self.statistics_to_check.append(custom_monitor)
         else:
-            raise Exception("Check type not Supported")
+            raise Exception("Statistic type not Supported")
+
+    def add_visuals(self, check):
+        if check["type"] == Visual.UMAP:
+            custom_monitor = Umap(self.fw, check)
+            self.visuals_to_check.append(custom_monitor)
+        else:
+            raise Exception("Visual type not Supported")
 
     def check(self, inputs, outputs, gts=None, extra_args={}):
         for anomaly in self.anomalies_to_check:
@@ -94,6 +105,8 @@ class CheckManager:
                 anomaly.check(inputs, outputs, gts=gts, extra_args=extra_args)
         for stats in self.statistics_to_check:
             stats.check(inputs, outputs, gts=gts, extra_args=extra_args)
+        for visuals in self.visuals_to_check:
+            visuals.check(inputs, outputs, gts=gts, extra_args=extra_args)
 
     def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
         is_interesting = []
@@ -105,4 +118,3 @@ class CheckManager:
                     )
                 )
         return np.greater(np.sum(np.array(is_interesting), axis=0), 0)
-

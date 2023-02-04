@@ -31,7 +31,7 @@ class Anomaly(Enum):
 
 
 class Statistic(Enum):
-    AGGREGATE = "aggregate"
+    DISTANCE = "distance"
     DISTRIBUTION_STATS = "distribution_stats"
     CONVERGENCE_STATS = "convergence_stats"
 

@@ -31,11 +31,7 @@ class LogHandler:
         if self.tb_logs:
             tb_writer = self.tb_logs.add_writer(dashboard_name)
             self.tb_writers.update({dashboard_name: tb_writer})
-        # if self.st_writer:
-        #     dir_name = os.path.join(self.st_log_folder, dashboard_name)
-        #     os.makedirs(dir_name, exist_ok=True)
-        #     self.st_log_folders_all.update({dashboard_name: dir_name})
-        
+
     def add_scalars(self, plot_name, dictn, count, dashboard_name):
         dashboard_name, plot_name = self.make_name_fold_directory_friendly(
             [dashboard_name, plot_name]
@@ -51,10 +47,10 @@ class LogHandler:
                 self.tb_writers[dashboard_name].add_scalars(plot_name, new_dictn, count)
         if self.st_writer:
             dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
-            plot_folder = os.path.join(dashboard_dir, 'line_plots', plot_name)
+            plot_folder = os.path.join(dashboard_dir, "line_plots", plot_name)
             os.makedirs(plot_folder, exist_ok=True)
-            dictn.update({'count': count})
-            self.st_writer.add_scalars(plot_name, dictn, plot_folder)
+            dictn.update({"count": count})
+            self.st_writer.add_scalars(dictn, plot_folder)
 
     def add_histogram(self, plot_name, arr, count, dashboard_name):
         dashboard_name, plot_name = self.make_name_fold_directory_friendly(
@@ -64,11 +60,10 @@ class LogHandler:
             if dashboard_name in self.tb_writers:
                 self.tb_writers[dashboard_name].add_histogram(plot_name, arr, count)
         if self.st_writer:
-            hist_folder = os.path.join(self.st_log_folder, 'histograms')
-            os.makedirs(hist_folder, exist_ok=True)
-            dictn = {plot_name: arr}
-            dictn.update({'count': count})
-            self.st_writer.add_scalars(dashboard_name, dictn, hist_folder)
+            dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
+            plot_folder = os.path.join(dashboard_dir, "histograms", plot_name)
+            os.makedirs(plot_folder, exist_ok=True)
+            self.st_writer.add_histogram(arr, count, plot_folder)
 
     def make_name_fold_directory_friendly(self, arr):
         if isinstance(arr, str):

@@ -6,6 +6,7 @@ from uptrain.core.classes.statistics import AbstractStatistic
 from uptrain.core.classes.measurables import MeasurableResolver
 from uptrain.constants import Statistic
 
+
 class Distribution(AbstractStatistic):
     dashboard_name = "distribution_stats"
     statistic_type = Statistic.DISTRIBUTION_STATS
@@ -14,12 +15,14 @@ class Distribution(AbstractStatistic):
         self.log_handler = fw.log_handler
         self.log_handler.add_writer(self.dashboard_name)
         self.measurable = MeasurableResolver(check["measurable_args"]).resolve(fw)
-        self.aggregate_measurable = MeasurableResolver(check["aggregate_args"]).resolve(fw)
+        self.aggregate_measurable = MeasurableResolver(check["aggregate_args"]).resolve(
+            fw
+        )
         self.item_counts = {}
         self.feats_dictn = {}
         self.distances_dictn = {}
-        self.count_checkpoints = check['count_checkpoints']
-        self.distance_types = check['distance_types']
+        self.count_checkpoints = check["count_checkpoints"]
+        self.distance_types = check["distance_types"]
         self.dist_classes = [DistanceResolver().resolve(x) for x in self.distance_types]
 
     def check(self, inputs, outputs, gts=None, extra_args={}):
@@ -45,29 +48,49 @@ class Distribution(AbstractStatistic):
                 for agg_i in list(self.feats_dictn[this_item_count].keys()):
                     if agg_i == aggregate_ids[idx]:
                         continue
-                    this_distances = dict(zip(self.distance_types, [x.compute_distance(this_val, self.feats_dictn[this_item_count][agg_i]) for x in self.dist_classes]))
+                    this_distances = dict(
+                        zip(
+                            self.distance_types,
+                            [
+                                x.compute_distance(
+                                    this_val, self.feats_dictn[this_item_count][agg_i]
+                                )
+                                for x in self.dist_classes
+                            ],
+                        )
+                    )
                     if len(self.distances_dictn[this_item_count]) == 0:
                         for distance_type in self.distance_types:
-                            self.distances_dictn[this_item_count].update({distance_type: [this_distances[distance_type]]})
+                            self.distances_dictn[this_item_count].update(
+                                {distance_type: [this_distances[distance_type]]}
+                            )
                     else:
                         for distance_key in list(this_distances.keys()):
-                            self.distances_dictn[this_item_count][distance_key].append(this_distances[distance_key])
+                            self.distances_dictn[this_item_count][distance_key].append(
+                                this_distances[distance_key]
+                            )
             self.item_counts[aggregate_ids[idx]] += 1
 
         for count in list(self.distances_dictn.keys()):
             if count in updated_counts:
                 for distance_type in self.distance_types:
-                    plot_name = (distance_type
-                        + " "
-                        + self.measurable.col_name()
-                        + " "
-                        + self.aggregate_measurable.col_name())
-                    
-                    this_data = list(np.reshape(np.array(self.distances_dictn[count][distance_type]), -1))
+                    plot_name = (
+                        distance_type
+                        # + " "
+                        # + self.measurable.col_name()
+                        # + " "
+                        # + self.aggregate_measurable.col_name()
+                    )
+
+                    this_data = list(
+                        np.reshape(
+                            np.array(self.distances_dictn[count][distance_type]), -1
+                        )
+                    )
                     self.log_handler.add_histogram(
                         self.dashboard_name + "_" + plot_name,
                         this_data,
-                        np.log(max(count, 1)),
+                        count,
                         self.dashboard_name,
                     )
 
@@ -75,4 +98,4 @@ class Distribution(AbstractStatistic):
         if count in self.feats_dictn:
             return self.feats_dictn[count]
         else:
-            return []
+            return {}

@@ -365,7 +365,9 @@ class Framework:
 
     def log_measurable(self, ids, vals, col_name):
         for idx in range(len(ids)):
-            self.cache[col_name].update({ids[idx]: extract_data_points_from_batch(vals, idx)})
+            self.cache[col_name].update(
+                {ids[idx]: extract_data_points_from_batch(vals, idx)}
+            )
 
     def log(self, inputs=None, outputs=None, gts=None, identifiers=None, extra=None):
         # if (inputs is not None) and (outputs is None):

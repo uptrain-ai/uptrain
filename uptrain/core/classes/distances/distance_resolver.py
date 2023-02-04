@@ -1,6 +1,11 @@
-from uptrain.core.classes.anomalies.distances import CosineDistance, L2Distance, NormRatio
+from uptrain.core.classes.anomalies.distances import (
+    CosineDistance,
+    L2Distance,
+    NormRatio,
+)
 
-class DistanceResolver():
+
+class DistanceResolver:
     def __init__(self) -> None:
         pass
 

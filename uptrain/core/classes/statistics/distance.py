@@ -6,18 +6,20 @@ from uptrain.constants import Statistic
 
 
 class Distance(AbstractStatistic):
-    dashboard_name = "aggregate"
-    anomaly_type = Statistic.AGGREGATE
+    dashboard_name = "distance"
+    anomaly_type = Statistic.DISTANCE
 
     def __init__(self, fw, check):
         self.log_handler = fw.log_handler
         self.log_handler.add_writer(self.dashboard_name)
         self.measurable = MeasurableResolver(check["measurable_args"]).resolve(fw)
-        self.aggregate_measurable = MeasurableResolver(check["aggregate_args"]).resolve(fw)
+        self.aggregate_measurable = MeasurableResolver(check["aggregate_args"]).resolve(
+            fw
+        )
         self.item_counts = {}
         self.feats_dictn = {}
-        self.reference = check['reference']
-        self.distance_types = check['distance_types']
+        self.reference = check["reference"]
+        self.distance_types = check["distance_types"]
         self.dist_classes = [DistanceResolver().resolve(x) for x in self.distance_types]
 
     def check(self, inputs, outputs=None, gts=None, extra_args={}):
@@ -35,16 +37,28 @@ class Distance(AbstractStatistic):
             this_val = extract_data_points_from_batch(vals, [idx])
 
             if this_item_count > 0:
-                this_distances = dict(zip(self.distance_types, [x.compute_distance(this_val, self.feats_dictn[aggregate_ids[idx]]) for x in self.dist_classes]))
+                this_distances = dict(
+                    zip(
+                        self.distance_types,
+                        [
+                            x.compute_distance(
+                                this_val, self.feats_dictn[aggregate_ids[idx]]
+                            )
+                            for x in self.dist_classes
+                        ],
+                    )
+                )
                 if self.reference == "running_diff":
                     self.feats_dictn[aggregate_ids[idx]] = this_val
                 for distance_type in self.distance_types:
-                    plot_name = (distance_type
-                        + " "
+                    plot_name = (
+                        distance_type
+                        + "_"
                         + str(self.reference)
-                        + self.measurable.col_name()
-                        + " "
-                        + self.aggregate_measurable.col_name())
+                        # + self.measurable.col_name()
+                        # + " "
+                        # + self.aggregate_measurable.col_name()
+                    )
                     self.log_handler.add_scalars(
                         self.dashboard_name + "_" + plot_name,
                         {str(aggregate_ids[idx]): this_distances[distance_type][0]},
