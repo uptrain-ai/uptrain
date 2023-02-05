@@ -18,10 +18,7 @@ We use first 10% of the data to train and 90% of the data to evaluate the model 
 
 
 ```python
-X_train, X_test, y_train, y_test = train_test_split(X, y, train_size = 0.1, 
-                                                    test_size = 0.9, 
-                                                    random_state = 0,
-                                                    shuffle=False)
+X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.1, test_size=0.9, shuffle=False)
 ```
 
 ### Step 1: Train our XGBoost Classifier
@@ -35,6 +32,7 @@ classifier.fit(X_train, y_train)
 y_pred = classifier.predict(X_train)
 print("Training accuracy: " + str(100*accuracy_score(y_train, y_pred)))
 ```
+The above code prints the following output:
 
     Training accuracy: 100.0
 
@@ -134,9 +132,6 @@ cfg = {
 framework = uptrain.Framework(cfg)
 ```
 
-    Deleting the folder:  uptrain_smart_data
-    Deleting the folder:  uptrain_logs
-
 
 ### Step 5: Deploy the model in production and wait for alerts!
 
@@ -157,9 +152,6 @@ for i in range(int(len(X_test)/batch_size)):
     # in UpTrain framewrok and identify concept drift
     ground_truth = y_test[i*batch_size:(i+1)*batch_size] 
     framework.log(identifiers=ids, gts = ground_truth)
-    
-    # Pausing between batches to monitor progress in the dashboard
-    time.sleep(2)
 ```
 
 #### Console will print a message whenever drift is detected
@@ -178,17 +170,13 @@ The UpTrain framework automatically logs important metrics such as accuracy for 
 
 The following is a screenshot of average accuracy versus time from the dashboard. We can observe a data drift around the timestamp of 111k, which is also predicted by our drift monitors.
 
-<!-- ![image.png](attachment:5bfa814d-f57b-4340-b10f-f3c9b0b61d6f.png) -->
-<div>
-<img src="attachment:5bfa814d-f57b-4340-b10f-f3c9b0b61d6f.png" width="600"/>
-</div>
+<img width="629" alt="concept_drift_avg_acc" src="https://user-images.githubusercontent.com/5287871/216795937-7e3e0609-6053-4256-956d-c07de3b7d73e.png">
+
 
 ### Custom Monitor
 
 Finally, the users can also plot the customized metrics we defined earlier, which in this case were the initial accuracy of the model and the most recent accuracy.
 
-<div>
-<img src="attachment:8cdd3e1a-216a-4aa8-ac14-ca32555c4996.png" width="600"/>
-</div>
+<img width="624" alt="concept_drift_custom" src="https://user-images.githubusercontent.com/5287871/216795956-a35bcd9f-8b60-439d-9ea2-8e19854390bb.png">
 
 Observe how the most **recent accuracy** of the model is **far lower** than the **initial accuracy**, implying that the attackers have learned to fool the model.
