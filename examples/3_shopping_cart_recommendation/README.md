@@ -159,12 +159,13 @@ for i in range(int(len(x_test)/inference_batch_size)):
     # Log input and output to framework
     ids = framework.log(inputs=inputs, outputs=preds)
     framework.log(identifiers=ids, gts=y_test[i*inference_batch_size:(i+1)*inference_batch_size])
-    
-    # Adding 1 sec pause to visualize the results live on the dashboard
-    time.sleep(1)
 ```
     
+### Monitoring the hit-rate of the model
 
+By applying a concept drift check on the model in prediction, UpTrain automatically monitors the performance of the model. In this case, the performance is defined as the hit rate, that is, the proportion of items that was boought by the user was actually recommended by the model. We observe an average hit-rate of around 0.1. 
+
+<img width="600" alt="hit_rate" src="https://user-images.githubusercontent.com/5287871/217215003-e121b499-0e69-4e98-9cd6-2b931cc62056.png">
 
 ### Histogram plot for items with popularity
 
