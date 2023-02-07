@@ -369,6 +369,16 @@ class Framework:
                 {ids[idx]: extract_data_points_from_batch(vals, idx)}
             )
 
+    def convert_inputs_table_to_dict(self, inputs):
+        cols = inputs.columns.tolist()
+        ids = inputs.index.tolist()
+        data = {}
+        for col in cols:
+            data.update({col: np.array(list(inputs[col]))})
+        inputs = {"data": data, "ids": np.array(ids)}
+        return inputs
+
+
     def log(self, inputs=None, outputs=None, gts=None, identifiers=None, extra=None):
         # if (inputs is not None) and (outputs is None):
         #     raise Exception("Predictions should be present while logging inputs")
@@ -378,6 +388,8 @@ class Framework:
             raise Exception("Identifiers should be present while logging ground truths")
 
         if inputs is not None:
+            if isinstance(inputs, pd.DataFrame):
+                inputs = self.convert_inputs_table_to_dict(inputs)
             identifiers = self.check_and_add_data(inputs, outputs)
 
         if gts is not None:

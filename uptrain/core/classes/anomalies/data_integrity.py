@@ -1,7 +1,7 @@
 import numpy as np
 
 from uptrain.core.classes.anomalies import AbstractAnomaly
-from uptrain.core.classes.anomalies.measurables import MeasurableResolver
+from uptrain.core.classes.measurables import MeasurableResolver
 from uptrain.constants import Anomaly
 
 
