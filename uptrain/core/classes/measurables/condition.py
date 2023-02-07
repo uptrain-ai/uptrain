@@ -1,4 +1,4 @@
-from uptrain.core.classes.anomalies.measurables import Measurable, FeatureMeasurable
+from uptrain.core.classes.measurables import Measurable, FeatureMeasurable
 
 
 class ConditionMeasurable(Measurable):

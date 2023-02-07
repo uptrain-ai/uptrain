@@ -1,8 +1,8 @@
 import numpy as np
 
-from uptrain.core.classes.anomalies.distances import DistanceResolver
-from uptrain.core.classes.anomalies.measurables import Measurable
-from uptrain.core.classes.anomalies.measurables import InputFeatureMeasurable
+from uptrain.core.classes.distances import DistanceResolver
+from uptrain.core.classes.measurables import Measurable
+from uptrain.core.classes.measurables import InputFeatureMeasurable
 
 
 class DistanceMeasurable(Measurable):
