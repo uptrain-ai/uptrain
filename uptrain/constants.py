@@ -57,3 +57,4 @@ class MeasurableType(Enum):
     CONDITION_ON_PREDICTION = "condition_on_prediction"
     SCALAR_FROM_EMBEDDING = "scalar_from_embedding"
     DISTANCE = "distance"
+    REC_HIT_RATE = "hit_rate"

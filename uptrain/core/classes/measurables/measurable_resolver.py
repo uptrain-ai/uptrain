@@ -1,4 +1,4 @@
-from uptrain.core.classes.anomalies.measurables import (
+from uptrain.core.classes.measurables import (
     Measurable,
     FeatureMeasurable,
     ConditionMeasurable,
@@ -6,6 +6,7 @@ from uptrain.core.classes.anomalies.measurables import (
     AccuracyMeasurable,
     ScalarFromEmbeddingMeasurable,
     DistanceMeasurable,
+    RecHitRateMeasurable,
 )
 from uptrain.constants import MeasurableType
 
@@ -49,5 +50,7 @@ class MeasurableResolver:
                 resolve_args["reference"],
                 resolve_args["distance_types"],
             )
+        elif measurable_type == MeasurableType.REC_HIT_RATE:
+            return RecHitRateMeasurable(framework)
         else:
             raise Exception("Resolver not defined")

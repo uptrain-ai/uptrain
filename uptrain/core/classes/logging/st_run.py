@@ -26,6 +26,7 @@ log_folder = sys.argv[1]
 st.set_page_config(
     page_title="UpTrain AI Dashboard",
     layout="wide",
+    page_icon='https://github.com/uptrain-ai/uptrain/raw/dashboard/uptrain/core/classes/logging/uptrain_logo_icon.png'
 )
 st.title("UpTrain AI Live Dashboard")
 st_style = """
@@ -96,11 +97,18 @@ for sub_dir in sub_dirs:
 
                 for i, file in enumerate(files):
                     count = file.split("/")[-1].split(".")[0]
-                    if st.checkbox(f"{plot_name} histogram for count {count}"):
+                    if int(count) < 0:
                         f = open(file)
                         data = json.loads(json.load(f))
                         fig = go.Figure(data=[go.Histogram(x=data, name=count)])
                         st.plotly_chart(fig)
+                    else:
+                        if st.checkbox(f"{plot_name} histogram for count {count}"):
+                            f = open(file)
+                            data = json.loads(json.load(f))
+                            fig = go.Figure(data=[go.Histogram(x=data, name=count)])
+                            st.plotly_chart(fig)
+                        
         else:
             if st.sidebar.checkbox(f"{plot_name}"):
                 st.markdown(f"### {plot_name}")

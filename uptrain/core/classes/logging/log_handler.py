@@ -52,7 +52,7 @@ class LogHandler:
             dictn.update({"count": count})
             self.st_writer.add_scalars(dictn, plot_folder)
 
-    def add_histogram(self, plot_name, arr, count, dashboard_name):
+    def add_histogram(self, plot_name, arr, dashboard_name, count=-1):
         dashboard_name, plot_name = self.make_name_fold_directory_friendly(
             [dashboard_name, plot_name]
         )
@@ -63,7 +63,7 @@ class LogHandler:
             dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
             plot_folder = os.path.join(dashboard_dir, "histograms", plot_name)
             os.makedirs(plot_folder, exist_ok=True)
-            self.st_writer.add_histogram(arr, count, plot_folder)
+            self.st_writer.add_histogram(arr, plot_folder, count)
 
     def make_name_fold_directory_friendly(self, arr):
         if isinstance(arr, str):

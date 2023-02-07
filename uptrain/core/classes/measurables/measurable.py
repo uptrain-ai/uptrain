@@ -4,7 +4,7 @@ from uptrain.core.lib.helper_funcs import (
     extract_data_points_from_batch,
     combine_data_points_for_batch,
 )
-from uptrain.core.classes.anomalies.measurables import AbstractMeasurable
+from uptrain.core.classes.measurables import AbstractMeasurable
 
 
 class Measurable(AbstractMeasurable):
@@ -62,10 +62,7 @@ class Measurable(AbstractMeasurable):
             try:
                 self._log(extra["id"], vals)
             except:
-                print("Error in logging")
-                import pdb
-
-                pdb.set_trace()
+                raise("Error in logging")
         else:
             vals = self._compute(inputs=inputs, outputs=outputs, gts=gts, extra=extra)
         return vals

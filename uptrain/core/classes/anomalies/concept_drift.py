@@ -3,7 +3,7 @@ import numpy as np
 from uptrain.core.classes.anomalies import AbstractAnomaly
 from uptrain.core.classes.algorithms import DataDriftDDM
 from uptrain.constants import DataDriftAlgo, MeasurableType
-from uptrain.core.classes.anomalies.measurables import MeasurableResolver
+from uptrain.core.classes.measurables import MeasurableResolver
 from uptrain.constants import Anomaly
 
 
@@ -12,9 +12,11 @@ class ConceptDrift(AbstractAnomaly):
     anomaly_type = Anomaly.CONCEPT_DRIFT
 
     def __init__(self, fw, check):
-        self.measurable = MeasurableResolver({"type": MeasurableType.ACCURACY}).resolve(
-            fw
-        )
+        if check.get("measurable_args", None):
+            self.measurable = MeasurableResolver(check["measurable_args"]).resolve(fw)
+        else:
+            self.measurable = MeasurableResolver(
+                {"type": MeasurableType.ACCURACY}).resolve(fw)
         self.acc_arr = []
         self.avg_acc = 0
         self.log_handler = fw.log_handler
