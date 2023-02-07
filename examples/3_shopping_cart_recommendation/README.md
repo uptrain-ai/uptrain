@@ -170,16 +170,19 @@ for i in range(int(len(x_test)/inference_batch_size)):
 
 From the UpTrain dashboard, we can find the histogram for popularity bias. We can see that most of the items that are recommended have low popularity. Our model does not look to be suffering from popularity bias.
 
-![popularity_bias.png](attachment:35a9162a-3539-4949-9ca6-2a51d0adcc8c.png)
+![popularity_bias](https://user-images.githubusercontent.com/5287871/217118816-ce8a0267-138d-4218-ba4d-499d9e262c43.png)
+
 
 ### Histogram plot for cosine distance between ground truth and prediction
 
 In the dashboard, we can measure the cosine distance between the embeddings of the recommended items and the items that were actually bought. A lot of them have zero cosine distance (implying that the recommendations were spot on). Also, we observe that the predictions are concentrated around the low cosine distance (< 0.4) space.
 
-![cosine_distance.png](attachment:0a2f6591-2873-4c12-b2d3-ac4b61452762.png)
+![cosine_distance](https://user-images.githubusercontent.com/5287871/217118837-a66d9315-3c97-42af-94cc-24876881cb42.png)
+
 
 ### Histogram plot for absolute log price ratio between prediction and selected items
 
 Finally, we also added a custom monitor where we wanted to check whether our model is providing outrageous recommendations (e.g., recommending washing machines when the user wants to buy just a washing detergent). In the below plot, we observe that the price range of most of the recommended items is close to the price of the actually bought item.
 
-![price_homogeneity.png](attachment:17f89979-5a64-472a-93b7-ea2211d235ba.png)
+![price_homogeneity](https://user-images.githubusercontent.com/5287871/217118853-45ceafce-2e4a-4b22-bea8-dc3581bf5f84.png)
+
