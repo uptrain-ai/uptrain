@@ -6,7 +6,7 @@ from uptrain.constants import BiasAlgo, Anomaly
 
 
 class RecommendationBias(AbstractAnomaly):
-    dashboard_name = "pop_bias"
+    dashboard_name = "popularity_bias"
     anomaly_type = Anomaly.POPULARITY_BIAS
 
     def __init__(self, fw, check):
@@ -14,9 +14,8 @@ class RecommendationBias(AbstractAnomaly):
         self.log_handler.add_writer(self.dashboard_name)
         self.acc_arr = []
         if check["algorithm"] == BiasAlgo.POPULARITY_BIAS:
-            rec_list = check.get("rec_list", None)
-            pop_map = check.get("pop_map", None)
-            self.algo = PopularityBias(rec_list, pop_map)
+            sessions = check.get("sessions", None)
+            self.algo = PopularityBias(sessions)
         else:
             raise Exception("Recommendation bias type not supported")
 
@@ -25,7 +24,7 @@ class RecommendationBias(AbstractAnomaly):
 
     def check(self, inputs, outputs, gts=None, extra_args={}):
         for y_pred in outputs:
-            self.algo.add_prediction([y_pred])
+            self.algo.add_prediction(y_pred)
             pop_arr = self.algo.all_popularity
             self.log_handler.add_histogram(
                 "popularity_bias", pop_arr, self.dashboard_name

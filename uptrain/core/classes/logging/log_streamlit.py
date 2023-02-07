@@ -44,7 +44,9 @@ class StreamlitLogs:
                 writer_object.writerow([dict[key], dict["count"]])
                 f_object.close()
 
-    def add_histogram(self, arr, count, folder):
+    def add_histogram(self, arr, folder, count=-1):
+        # if count==-1:
+        #     count='_1'
         file_name = os.path.join(folder, str(count) + ".json")
         arr_json = json.dumps(arr, cls=NumpyEncoder)
         with open(file_name, "w") as f:
