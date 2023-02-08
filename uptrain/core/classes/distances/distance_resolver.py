@@ -1,4 +1,4 @@
-from uptrain.core.classes.anomalies.distances import (
+from uptrain.core.classes.distances import (
     CosineDistance,
     L2Distance,
     NormRatio,
