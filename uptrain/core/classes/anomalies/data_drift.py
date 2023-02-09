@@ -3,7 +3,7 @@ import numpy as np
 from uptrain.core.classes.anomalies import AbstractAnomaly
 from uptrain.constants import Anomaly
 from uptrain.core.lib.helper_funcs import read_json, cluster_and_plot_data
-from uptrain.core.classes.anomalies.measurables import MeasurableResolver
+from uptrain.core.classes.measurables import MeasurableResolver
 
 
 class DataDrift(AbstractAnomaly):
