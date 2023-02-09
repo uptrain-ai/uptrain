@@ -1,4 +1,4 @@
-from uptrain.core.classes.anomalies.signals import Signal
+from uptrain.core.classes.signals import Signal
 from uptrain.constants import ModelSignal
 
 
