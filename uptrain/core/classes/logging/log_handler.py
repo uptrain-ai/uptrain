@@ -1,5 +1,6 @@
 import os
 import shutil
+import numpy as np
 
 
 class LogHandler:
@@ -52,18 +53,26 @@ class LogHandler:
             dictn.update({"count": count})
             self.st_writer.add_scalars(dictn, plot_folder)
 
-    def add_histogram(self, plot_name, arr, dashboard_name, count=-1):
+    def add_histogram(self, plot_name, data, dashboard_name, count=-1):
         dashboard_name, plot_name = self.make_name_fold_directory_friendly(
             [dashboard_name, plot_name]
         )
-        if self.tb_logs:
-            if dashboard_name in self.tb_writers:
-                self.tb_writers[dashboard_name].add_histogram(plot_name, arr, count)
+        if not isinstance(data, dict):
+            if isinstance(data, list) or isinstance(data, np.ndarray):
+                if dashboard_name in self.tb_writers:
+                    self.tb_writers[dashboard_name].add_histogram(plot_name, data, count)
         if self.st_writer:
             dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
             plot_folder = os.path.join(dashboard_dir, "histograms", plot_name)
             os.makedirs(plot_folder, exist_ok=True)
-            self.st_writer.add_histogram(arr, plot_folder, count)
+            self.st_writer.add_histogram(data, plot_folder, count)
+
+    def add_alert(self, alert_name, alert, dashboard_name):
+        if self.st_writer:
+            dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
+            plot_folder = os.path.join(dashboard_dir, "alerts")
+            os.makedirs(plot_folder, exist_ok=True)
+            self.st_writer.add_alert(alert_name, alert, plot_folder)
 
     def make_name_fold_directory_friendly(self, arr):
         if isinstance(arr, str):

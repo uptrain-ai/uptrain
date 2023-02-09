@@ -22,6 +22,7 @@ class StreamlitLogs:
         self.log_folder = log_folder
 
         remote_st_py_file = "https://raw.githubusercontent.com/uptrain-ai/uptrain/dashboard/uptrain/core/classes/logging/st_run.py"
+        # remote_st_py_file = "../../uptrain/core/classes/logging/st_run.py"
         cmd = "streamlit run " + remote_st_py_file + " -- " + self.log_folder
         launch_st = lambda: os.system(cmd)
         t = threading.Thread(target=launch_st, args=([]))
@@ -44,13 +45,15 @@ class StreamlitLogs:
                 writer_object.writerow([dict[key], dict["count"]])
                 f_object.close()
 
-    def add_histogram(self, arr, folder, count=-1):
-        # if count==-1:
-        #     count='_1'
+    def add_histogram(self, data, folder, count=-1):
         file_name = os.path.join(folder, str(count) + ".json")
-        arr_json = json.dumps(arr, cls=NumpyEncoder)
         with open(file_name, "w") as f:
-            json.dump(arr_json, f)
+            json.dump(data, f, cls=NumpyEncoder)
+
+    def add_alert(self, alert_name, alert, folder):
+        file_name = os.path.join(folder, str(alert_name) + ".json")
+        with open(file_name, "w") as f:
+            json.dump(alert, f)
 
     # def feat_slicing(self, fw):
     #     relevant_feat_list = st.sidebar.multiselect(
