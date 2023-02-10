@@ -35,9 +35,9 @@ class ConceptDrift(AbstractAnomaly):
         batch_acc = self.measurable.compute_and_log(inputs, outputs, gts, extra_args)
         for acc in batch_acc:
             if acc:
-                self.algo.add_prediction(0)
+                alert = self.algo.add_prediction(0)
             else:
-                self.algo.add_prediction(1)
+                alert = self.algo.add_prediction(1)
 
             self.acc_arr.append(acc)
             self.avg_acc = (self.avg_acc * (len(self.acc_arr) - 1) + acc) / len(
@@ -49,6 +49,12 @@ class ConceptDrift(AbstractAnomaly):
                 len(self.acc_arr),
                 self.dashboard_name,
             )
+            if isinstance(alert, str):
+                self.log_handler.add_alert(
+                    "Concept Drift Alert",
+                    alert,
+                    self.dashboard_name
+                )
 
     def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
         return np.array([False] * len(extra_args["id"]))

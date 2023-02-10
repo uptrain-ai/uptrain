@@ -36,6 +36,7 @@ class DataDriftDDM:
         self.ms_min = np.Inf
         self.mean_min = np.Inf
         self.std_min = np.Inf
+        self.alert = None
 
     def add_prediction(self, prediction):
         """
@@ -69,8 +70,10 @@ class DataDriftDDM:
 
         if self.mean + self.std > self.mean_min + self.alarm_thres * self.std_min:
             self.drift_detected = True
-            print("Drift detected with DDM at time: ", self.total_count)
+            self.alert = f"Drift detected with DDM at time: {self.total_count}"
+            print(self.alert)
         elif self.mean + self.std > self.mean_min + self.warn_thres * self.std_min:
             self.is_warning_zone = True
         else:
             self.is_warning_zone = False
+        return self.alert

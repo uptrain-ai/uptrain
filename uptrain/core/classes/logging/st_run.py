@@ -40,10 +40,13 @@ sub_dirs = [path[0] for path in os.walk(log_folder)]
 st.sidebar.title("Select dashboards to view")
 for sub_dir in sub_dirs:
     sub_dir_split = sub_dir.split("/")
+
+    ######### Line Plots ###########
+
     if sub_dir_split[-2] == "line_plots":
         plot_name = sub_dir_split[-1]
 
-        if st.sidebar.checkbox(f"Line-plot for {plot_name}"):
+        if st.sidebar.checkbox(f"Line-plot for {plot_name}", value=True):
             st.markdown(f"### Line chart for {plot_name}")
 
             # Getting the list of all csv files in streamlit logs
@@ -77,15 +80,17 @@ for sub_dir in sub_dirs:
                     )
                 )
             st.plotly_chart(fig)
-            # import pdb; pdb.set_trace()
+            st.markdown("""---""")    
 
         st.sidebar.markdown("""---""")
 
-    if sub_dir_split[-2] == "histograms":
+    ######### Plotting histograms ###########
+
+    elif sub_dir_split[-2] == "histograms":
         plot_name = sub_dir_split[-1]
 
         if plot_name != "umap_and_clusters":
-            if st.sidebar.checkbox(f"Histogram for {plot_name}"):
+            if st.sidebar.checkbox(f"Histogram for {plot_name}", value=True):
                 st.markdown(f"### Histogram for {plot_name}")
 
                 # Getting the list of all files in streamlit logs
@@ -98,16 +103,23 @@ for sub_dir in sub_dirs:
                 for i, file in enumerate(files):
                     count = file.split("/")[-1].split(".")[0]
                     if int(count) < 0:
-                        f = open(file)
-                        data = json.loads(json.load(f))
-                        fig = go.Figure(data=[go.Histogram(x=data, name=count)])
+                        with open(file, encoding='utf-8') as f:
+                            data = json.loads(f.read())
+                        if isinstance(data, dict):
+                            fig = go.Figure()
+                            for key in data.keys():
+                                fig = fig.add_trace(go.Histogram(x=data[key], name=key))
+                        else:
+                            fig = go.Figure(data=[go.Histogram(x=data)])
                         st.plotly_chart(fig)
+                        st.markdown("""---""")   
                     else:
                         if st.checkbox(f"{plot_name} histogram for count {count}"):
                             f = open(file)
-                            data = json.loads(json.load(f))
+                            data = json.load(f)
                             fig = go.Figure(data=[go.Histogram(x=data, name=count)])
                             st.plotly_chart(fig)
+                            st.markdown("""---""")   
                         
         else:
             if st.sidebar.checkbox(f"{plot_name}"):
@@ -140,5 +152,25 @@ for sub_dir in sub_dirs:
                         st.write(
                             f"Number of clusters for count {count}: {len(set(clusters))-1}"
                         )
+                        st.markdown("""---""")   
+        st.sidebar.markdown("""---""")
+
+    ######### Showing Alerts ###########
+
+    elif sub_dir_split[-1] == "alerts":
+        if st.sidebar.checkbox(f"Show Alerts for {sub_dir_split[-2]}", value=True):
+            files = [
+                        file
+                        for path, _, _ in os.walk(sub_dir)
+                        for file in glob(os.path.join(path, "*.json"))
+                    ]
+            for i, file in enumerate(files):
+                alert_name = file.split("/")[-1].split(".")[0]
+                f = open(file)
+                alert = json.load(f)
+                st.subheader(alert_name)
+                st.markdown("##### " + alert)
+                st.markdown("""---""")
 
         st.sidebar.markdown("""---""")
+
