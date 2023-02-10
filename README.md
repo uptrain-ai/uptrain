@@ -66,6 +66,10 @@ And more.
 
 # Get started 🙌
 
+You can quickly get started with [Google colab here](https://colab.research.google.com/drive/1BXMMqC1Bw_LGMHtvQGJCjtQlCw6jgMxd?usp=sharing).
+
+To run it in your machine, follow the steps below:
+
 ### Install the package through pip:
 ```console
 pip install uptrain
@@ -74,7 +78,7 @@ pip install uptrain
 ### Run your first example:
 ```console
 git clone git@github.com:uptrain-ai/uptrain.git
-cd uptrain/examples/1_orientation_classification
+cd uptrain
 pip install jupyterlab
 jupyter lab
 ```
