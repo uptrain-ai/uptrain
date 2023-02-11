@@ -8,7 +8,7 @@ import tempfile
 import pytest
 import numpy as np
 
-from .datastores import SqliteStore
+from uptrain.core.lib.datastores import SqliteStore
 
 
 @pytest.fixture
