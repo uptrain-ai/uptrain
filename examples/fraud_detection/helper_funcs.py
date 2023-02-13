@@ -24,7 +24,7 @@ def download_dataset(data_file):
             print("Could not load training data")
             print("Please follow following steps to manually download data")
             print("Step 1: Open in browser: https://oodles-dev-training-data.s3.amazonaws.com/NSL_KDD_binary.csv")
-            print("Step 2: Download and move the file to example location (i.e. uptrain/examples/2_cyber_attack_classification/")
+            print("Step 2: Download and move the file to example location (i.e. uptrain/examples/fraud_detection/")
     else:
         print("Data file exists. Skipping download.")
 
