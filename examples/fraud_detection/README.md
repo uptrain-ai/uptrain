@@ -4,13 +4,13 @@
   </a>
 </h1>
 
-<h1 style="text-align: center;">Performance Monitoring: Cyber-Attack Detection</h1>
+<h1 style="text-align: center;">Performance Monitoring: Fraud Detection</h1>
 
-**Overview**: In this example, we see how to use UpTrain to monitor performance of a cyber-attack classification task. For the same, we will be training a binary classifier on a popular network traffic dataset called the [NSL-KDD dataset](https://www.unb.ca/cic/datasets/nsl.html) for cyber-attack classification using the [XGBoost classifier](https://xgboost.readthedocs.io/en/stable/). 
+**Overview**: In this example, we see how to use UpTrain to monitor performance of a fraud detection task. For the same, we will be training a binary classifier on a popular network traffic dataset called the [NSL-KDD dataset](https://www.unb.ca/cic/datasets/nsl.html) for cyber-attack classification using the [XGBoost classifier](https://xgboost.readthedocs.io/en/stable/). 
 
 **Dataset**: The NSL-KDD dataset includes a variety of network attack types, including denial-of-service (DoS) attacks, unauthorized access (U2R) attacks, and probe attacks. The dataset contains a total of around 25,000 instances and 41 different features that describe the behavior of network connections, such as the number of failed login attempts and the size of packets transmitted.
 
-**Why is monitoring needed**: Once our cyber-attack classification model has been trained, it may initially perform well in detecting malicious activity. However, over time, attackers may adapt their tactics and evolve their methods, leading to a mismatch between the type of attacks seen during training and those seen in production. This can result in decreased accuracy in our model's predictions.
+**Why is monitoring needed**: Once our fraud detection model has been trained, it may initially perform well in detecting malicious activity. However, over time, attackers may adapt their tactics and evolve their methods, leading to a mismatch between the type of attacks seen during training and those seen in production. This can result in decreased accuracy in our model's predictions.
 
 **Solution**: We will be using UpTrain framework which provides an easy-to-configure way to log model predictions and attach ground-truth to monitor model's performance. We are using drift detection methon on top on model performance to raise alerts in case of any dip in model's accuracy, commonly called **Concept Drift.**
 
@@ -415,7 +415,7 @@ As we see, we see a sudden (and more alarming) drop using our custom monitors. W
 
 ## Conclusion
 
-Model monitoring is very crucial for tasks such as cyber-attack detection and fraud detection where the attackers continuously improve their attack vectors and with time learn to evade detection. Real-time model observability enables one to proactively address any performance degradation before it leads to serious consequences, such as hacks or financial loss.
+Model monitoring is very crucial for tasks such as fraud detection, cyber-security attacks, etc. and where the attackers continuously improve their attack vectors and with time learn to evade detection. Real-time model observability enables one to proactively address any performance degradation before it leads to serious consequences, such as hacks or financial loss.
 
 In this example, we saw two ways to detect performance degradation - Concept Drift via DDM and Custom monitor. The UpTrain framework has many other statistical tools, such as data drift, integrity checks, shift in model outputs, and outlier detection, that can be used to identify model issues, even in cases where ground truth is not available. You can explore them [here](https://github.com/uptrain-ai/uptrain/tree/main/examples)
 
