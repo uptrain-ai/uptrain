@@ -102,6 +102,6 @@ class Convergence(AbstractStatistic):
                     self.log_handler.add_histogram(
                         self.dashboard_name + "_" + plot_name,
                         this_data,
-                        count,
                         self.dashboard_name,
+                        count
                     )

@@ -8,8 +8,9 @@ from setuptools import setup, find_packages
 
 # read the contents of your README file
 from pathlib import Path
+
 this_directory = Path(__file__).parent
-long_description = (this_directory/"README.md").read_text()
+long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="uptrain",
@@ -43,10 +44,12 @@ setup(
     keywords="uptrain ai retraining ML observability",
     packages=find_packages(),
     install_requires=[
+        "numpy<1.24",
+        "umap-learn>=0.5.3",
         "pandas>=1.0.0",
         "plotly>=5.0.0",
         "pydantic>=1.9.0",
-        "scikit_learn>=0.24.2",
-        "umap-learn>=0.5.3",
+        "scikit_learn>=1.0.0",
     ],
+    tests_require=["pytest>=7.0", "torch", "imgaug", "gensim", "xgboost", "gensim"],
 )

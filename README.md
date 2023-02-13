@@ -1,10 +1,19 @@
-<h1 align="center">
+<h4 align="center">
   <a href="https://uptrain.ai">
     <img width="300" src="https://user-images.githubusercontent.com/108270398/214240695-4f958b76-c993-4ddd-8de6-8668f4d0da84.png" alt="uptrain">
   </a>
-</h1>
+</h4>
+<h2>
+  <p align="center">
+    <p align="center">Monitor Machine Learning models in production.</p>
+  </p>
+</h2>
+
 <p align="center">
-  <p align="center">Open-source, self-hosted, easy-to-configure tool to improve ML models in production.</p>
+<br>
+<a href="https://uptrain.gitbook.io/docs/" rel="nofollow"><strong>Read documentation »</strong></a>
+<br>
+<a href="https://colab.research.google.com/drive/1BXMMqC1Bw_LGMHtvQGJCjtQlCw6jgMxd?usp=sharing/" rel="nofollow"><strong>Try it out »</strong></a>
 </p>
 
 <h4 align="center">
@@ -21,7 +30,10 @@
     <img src="https://img.shields.io/badge/Discord-Community-orange" alt="Community" />
   </a>
   <a href="https://uptrain.ai/">
-    <img src="https://img.shields.io/badge/Website-Uptrain-green" alt="Website" />
+    <img src="https://img.shields.io/badge/UpTrain-Website-yellow" alt="Website" />
+  </a>
+  <a href="https://colab.research.google.com/drive/1BXMMqC1Bw_LGMHtvQGJCjtQlCw6jgMxd?usp=sharing/">
+    <img src="https://img.shields.io/badge/Google-Collab-green" alt="Collab" />
   </a>
 </h4>
 
@@ -66,6 +78,10 @@ And more.
 
 # Get started 🙌
 
+You can quickly get started with [Google colab here](https://colab.research.google.com/drive/1BXMMqC1Bw_LGMHtvQGJCjtQlCw6jgMxd?usp=sharing).
+
+To run it in your machine, follow the steps below:
+
 ### Install the package through pip:
 ```console
 pip install uptrain
@@ -74,7 +90,7 @@ pip install uptrain
 ### Run your first example:
 ```console
 git clone git@github.com:uptrain-ai/uptrain.git
-cd uptrain/examples/1_orientation_classification
+cd uptrain
 pip install jupyterlab
 jupyter lab
 ```

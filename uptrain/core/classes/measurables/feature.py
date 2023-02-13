@@ -1,4 +1,4 @@
-from uptrain.core.classes.anomalies.measurables import (
+from uptrain.core.classes.measurables import (
     Measurable,
     InputFeatureMeasurable,
     OutputFeatureMeasurable,

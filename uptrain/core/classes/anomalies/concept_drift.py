@@ -3,7 +3,7 @@ import numpy as np
 from uptrain.core.classes.anomalies import AbstractAnomaly
 from uptrain.core.classes.algorithms import DataDriftDDM
 from uptrain.constants import DataDriftAlgo, MeasurableType
-from uptrain.core.classes.anomalies.measurables import MeasurableResolver
+from uptrain.core.classes.measurables import MeasurableResolver
 from uptrain.constants import Anomaly
 
 
@@ -12,9 +12,11 @@ class ConceptDrift(AbstractAnomaly):
     anomaly_type = Anomaly.CONCEPT_DRIFT
 
     def __init__(self, fw, check):
-        self.measurable = MeasurableResolver({"type": MeasurableType.ACCURACY}).resolve(
-            fw
-        )
+        if check.get("measurable_args", None):
+            self.measurable = MeasurableResolver(check["measurable_args"]).resolve(fw)
+        else:
+            self.measurable = MeasurableResolver(
+                {"type": MeasurableType.ACCURACY}).resolve(fw)
         self.acc_arr = []
         self.avg_acc = 0
         self.log_handler = fw.log_handler
@@ -33,9 +35,9 @@ class ConceptDrift(AbstractAnomaly):
         batch_acc = self.measurable.compute_and_log(inputs, outputs, gts, extra_args)
         for acc in batch_acc:
             if acc:
-                self.algo.add_prediction(0)
+                alert = self.algo.add_prediction(0)
             else:
-                self.algo.add_prediction(1)
+                alert = self.algo.add_prediction(1)
 
             self.acc_arr.append(acc)
             self.avg_acc = (self.avg_acc * (len(self.acc_arr) - 1) + acc) / len(
@@ -47,6 +49,12 @@ class ConceptDrift(AbstractAnomaly):
                 len(self.acc_arr),
                 self.dashboard_name,
             )
+            if isinstance(alert, str):
+                self.log_handler.add_alert(
+                    "Concept Drift Alert",
+                    alert,
+                    self.dashboard_name
+                )
 
     def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
         return np.array([False] * len(extra_args["id"]))

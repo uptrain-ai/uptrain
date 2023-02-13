@@ -55,8 +55,8 @@ class Umap(AbstractVisual):
                 self.log_handler.add_histogram(
                     self.dashboard_name,
                     this_data,
-                    count,
                     self.dashboard_name,
+                    count,
                 )
 
     def get_data_for_umap(self, count):
