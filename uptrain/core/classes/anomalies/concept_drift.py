@@ -51,7 +51,7 @@ class ConceptDrift(AbstractAnomaly):
             )
             if isinstance(alert, str):
                 self.log_handler.add_alert(
-                    "Concept Drift Alert",
+                    "Model Performance Degradation Alert 🚨",
                     alert,
                     self.dashboard_name
                 )

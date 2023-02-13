@@ -70,7 +70,7 @@ class DataDriftDDM:
 
         if self.mean + self.std > self.mean_min + self.alarm_thres * self.std_min:
             self.drift_detected = True
-            self.alert = f"Drift detected with DDM at time: {self.total_count}"
+            self.alert = f"Drift detected with DDM at time: {self.total_count}!!!"
             print(self.alert)
         elif self.mean + self.std > self.mean_min + self.warn_thres * self.std_min:
             self.is_warning_zone = True
