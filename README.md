@@ -38,7 +38,7 @@
 </h4>
 
 <h4 align="center">
-<img src="https://user-images.githubusercontent.com/108270398/215057294-91168020-49a8-424c-acf2-1f87020d8798.png" width="70%" alt="Performance" />
+<img src="https://user-images.githubusercontent.com/108270398/218686821-a54e112f-8b14-485f-acef-de1f611adb2f.png" width="70%" alt="Performance" />
 </h4>
 
 <h4>
@@ -109,7 +109,7 @@ UpTrain can be used for a wide variety of Machine learning models such as LLMs, 
 We are constantly working to make UpTrain better. Want a new feature or need any integrations? Feel free to [create an issue](https://github.com/uptrain-ai/uptrain/issues) or [contribute](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md) directly to the repository.
 
 <h1 align="left">
-<img alt="Meme" width="40%" src="https://user-images.githubusercontent.com/108270398/215209245-4d6b1f47-7af9-4db8-8d8c-63dcc610571c.jpg">
+<img alt="Meme" width="60%" src="https://user-images.githubusercontent.com/108270398/215209245-4d6b1f47-7af9-4db8-8d8c-63dcc610571c.jpg">
 </h1>
 
 # License 💻
