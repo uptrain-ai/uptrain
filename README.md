@@ -58,7 +58,7 @@
 - **[Data Integrity Checks](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_data_integrity.ipynb)** - checks for missing or inconsistent data, duplicate records, data quality, etc. 
 - **[Customizable metrics](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_data_drift_custom_measures.ipynb)** - define custom metrics that make sense for your use case.
 - **[Automated Retraining](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_check_all.ipynb)** - automate model retraining by attaching your training and inference pipelines.
-- **[Model Bias](https://github.com/uptrain-ai/uptrain/blob/main/examples/shopping_cart_rec/run.ipynb)** - track popularity bias in your recommendation models.
+- **[Model Bias](https://github.com/uptrain-ai/uptrain/blob/main/examples/shopping_cart_recommendation/run.ipynb)** - track popularity bias in your recommendation models.
 - **Data Security** - your data never goes out of your machine.
 
 
@@ -78,7 +78,7 @@ And more.
 
 # Get started 🙌
 
-You can quickly get started with [Google colab here](https://colab.research.google.com/drive/1BXMMqC1Bw_LGMHtvQGJCjtQlCw6jgMxd?usp=sharing).
+You can quickly get started with [Google collab here](https://colab.research.google.com/drive/1BXMMqC1Bw_LGMHtvQGJCjtQlCw6jgMxd?usp=sharing).
 
 To run it in your machine, follow the steps below:
 
