@@ -13,7 +13,7 @@
 <br>
 <a href="https://uptrain.gitbook.io/docs/" rel="nofollow"><strong>Read documentation »</strong></a>
 <br>
-<a href="https://colab.research.google.com/drive/1BXMMqC1Bw_LGMHtvQGJCjtQlCw6jgMxd?usp=sharing/" rel="nofollow"><strong>Try it out »</strong></a>
+<a href="https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing/" rel="nofollow"><strong>Try it out »</strong></a>
 </p>
 
 <h4 align="center">
@@ -32,7 +32,7 @@
   <a href="https://uptrain.ai/">
     <img src="https://img.shields.io/badge/UpTrain-Website-yellow" alt="Website" />
   </a>
-  <a href="https://colab.research.google.com/drive/1BXMMqC1Bw_LGMHtvQGJCjtQlCw6jgMxd?usp=sharing/">
+  <a href="https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing/">
     <img src="https://img.shields.io/badge/Google-Collab-green" alt="Collab" />
   </a>
 </h4>
