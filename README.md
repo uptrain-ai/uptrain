@@ -78,7 +78,7 @@ And more.
 
 # Get started 🙌
 
-You can quickly get started with [Google collab here](https://colab.research.google.com/drive/1BXMMqC1Bw_LGMHtvQGJCjtQlCw6jgMxd?usp=sharing).
+You can quickly get started with [Google collab here](https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing%2F).
 
 To run it in your machine, follow the steps below:
 
