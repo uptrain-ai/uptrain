@@ -53,7 +53,7 @@ class Umap(AbstractVisual):
                 )
                 this_data = {"umap": umap_list, "clusters": clusters}
                 self.log_handler.add_histogram(
-                    self.dashboard_name,
+                    "umap_and_clusters",
                     this_data,
                     self.dashboard_name,
                     count,
@@ -83,17 +83,12 @@ class Umap(AbstractVisual):
         else:
             n_components = 3
 
-        try:
-            umap_embeddings = umap.UMAP(
-                n_neighbors=n_neighbors,
-                n_components=n_components,
-                min_dist=min_dist,
-                metric=metric,
-            ).fit_transform(emb_list)
-        except:
-            import pdb
-
-            pdb.set_trace()
+        umap_embeddings = umap.UMAP(
+            n_neighbors=n_neighbors,
+            n_components=n_components,
+            min_dist=min_dist,
+            metric=metric,
+        ).fit_transform(emb_list)
 
         # Do DBSCAN clustering
         clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(umap_embeddings)

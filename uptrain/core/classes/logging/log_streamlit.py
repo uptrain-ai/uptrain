@@ -55,6 +55,11 @@ class StreamlitLogs:
         with open(file_name, "w") as f:
             json.dump(alert, f)
 
+    def add_bar_graphs(self, data, folder, count=-1):
+        file_name = os.path.join(folder, str(count) + ".json")
+        with open(file_name, "w") as f:
+            json.dump(data, f, cls=NumpyEncoder)
+
     # def feat_slicing(self, fw):
     #     relevant_feat_list = st.sidebar.multiselect(
     #         "Select features", fw.feat_name_list, fw.feat_name_list[0]
