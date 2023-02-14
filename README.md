@@ -52,13 +52,13 @@
 
 # **[Key Features](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** 💡
 
-- **[Data Drift Checks](https://github.com/uptrain-ai/uptrain/blob/main/examples/1_orientation_classification/get_started.ipynb)** - identify distribution shifts in your model inputs.
-- **[Performance Monitoring](https://github.com/uptrain-ai/uptrain/blob/main/examples/1_orientation_classification/deepdive_examples/uptrain_concept_drift.ipynb)** - track the performance of your models in realtime and get alerted as soon as a dip is observed.
-- **[Edge Case Signals](https://github.com/uptrain-ai/uptrain/blob/main/examples/1_orientation_classification/deepdive_examples/uptrain_edge_cases_torch.ipynb)** - user-defined signals and statistical techniques to detect out-of-distribution data-points.
-- **[Data Integrity Checks](https://github.com/uptrain-ai/uptrain/blob/main/examples/1_orientation_classification/deepdive_examples/uptrain_data_integrity.ipynb)** - checks for missing or inconsistent data, duplicate records, data quality, etc. 
-- **[Customizable metrics](https://github.com/uptrain-ai/uptrain/blob/main/examples/1_orientation_classification/deepdive_examples/uptrain_data_drift_custom_measures.ipynb)** - define custom metrics that make sense for your use case.
-- **[Automated Retraining](https://github.com/uptrain-ai/uptrain/blob/main/examples/1_orientation_classification/deepdive_examples/uptrain_check_all.ipynb)** - automate model retraining by attaching your training and inference pipelines.
-- **[Model Bias](https://github.com/uptrain-ai/uptrain/blob/main/examples/3_shopping_cart_rec/uptrain_recommendation_bias.ipynb)** - track popularity bias in your recommendation models.
+- **[Data Drift Checks](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/run.ipynb)** - identify distribution shifts in your model inputs.
+- **[Performance Monitoring](https://github.com/uptrain-ai/uptrain/blob/main/examples/fraud_detection/run.ipynb)** - track the performance of your models in realtime and get alerted as soon as a dip is observed.
+- **[Edge Case Signals](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_edge_cases_torch.ipynb)** - user-defined signals and statistical techniques to detect out-of-distribution data-points.
+- **[Data Integrity Checks](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_data_integrity.ipynb)** - checks for missing or inconsistent data, duplicate records, data quality, etc. 
+- **[Customizable metrics](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_data_drift_custom_measures.ipynb)** - define custom metrics that make sense for your use case.
+- **[Automated Retraining](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_check_all.ipynb)** - automate model retraining by attaching your training and inference pipelines.
+- **[Model Bias](https://github.com/uptrain-ai/uptrain/blob/main/examples/shopping_cart_rec/run.ipynb)** - track popularity bias in your recommendation models.
 - **Data Security** - your data never goes out of your machine.
 
 
@@ -90,12 +90,12 @@ pip install uptrain
 ### Run your first example:
 ```console
 git clone git@github.com:uptrain-ai/uptrain.git
-cd uptrain
+cd uptrain/examples
 pip install jupyterlab
 jupyter lab
 ```
 
-For more info, visit our [get started guide](https://uptrain.gitbook.io/docs/get-started).
+For more info, visit our [get started guide](https://docs.uptrain.ai/docs/get-started).
 
 
 # Why UpTrain 🤔?
