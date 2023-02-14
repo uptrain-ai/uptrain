@@ -20,7 +20,6 @@ def retrain_model(model, dataset):
         train_size=train_size, test_size=test_size, seed=42
     )
 
-    logging_steps = len(downsampled_dataset["train"]) // batch_size
     model_name = model_checkpoint.split("/")[-1]
 
     training_args = TrainingArguments(
@@ -31,7 +30,6 @@ def retrain_model(model, dataset):
         weight_decay=0.01,
         per_device_train_batch_size=batch_size,
         per_device_eval_batch_size=batch_size,
-        logging_steps=logging_steps,
     )
 
     trainer = Trainer(

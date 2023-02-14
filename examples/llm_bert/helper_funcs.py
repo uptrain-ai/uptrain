@@ -90,7 +90,7 @@ def create_sample_dataset(save_file_name):
         json.dump(data, f)
     return save_file_name
 
-def create_dataset_from_csv(file_name, col_name, save_file_name, attrs={}):
+def create_dataset_from_csv(file_name, col_name, save_file_name, attrs={}, min_samples=-1):
     data = pd.read_csv(file_name)
     vals = list(data[col_name])
     r_data = []
@@ -104,6 +104,9 @@ def create_dataset_from_csv(file_name, col_name, save_file_name, attrs={}):
     json_data.update({
         "data": r_data
     })
+    if min_samples > 0:
+        while len(json_data["data"]) < min_samples:
+            json_data["data"].extend(r_data)
     with open(save_file_name, 'w') as f:
         json.dump(json_data, f)
     return save_file_name
