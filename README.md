@@ -11,7 +11,7 @@
 
 <p align="center">
 <br>
-<a href="https://uptrain.gitbook.io/docs/" rel="nofollow"><strong>Read documentation »</strong></a>
+<a href="https://docs.uptrain.ai/docs/" rel="nofollow"><strong>Read documentation »</strong></a>
 <br>
 <a href="https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing/" rel="nofollow"><strong>Try it out »</strong></a>
 </p>
@@ -23,7 +23,7 @@
   <a href="https://pypi.org/project/uptrain/">
     <img src="https://badge.fury.io/py/uptrain.svg" alt="PyPI version" />
   </a>
-  <a href="https://uptrain-ai.gitbook.io/uptrain-documentation/">
+  <a href="https://docs.uptrain.ai/docs/">
     <img src="https://img.shields.io/badge/Read-Docs-blue" alt="Docs" />
   </a>
   <a href="https://discord.com/invite/gVvZhhrQaQ">
