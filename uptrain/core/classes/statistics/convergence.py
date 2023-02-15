@@ -41,6 +41,8 @@ class Convergence(AbstractStatistic):
             self.model_measurables = [
                 MeasurableResolver(x).resolve(fw) for x in check["model_args"]
             ]
+            self.model_names = [x.col_name() for x in self.model_measurables]
+            self.feature_names = [x.col_name() for x in self.feature_measurables]
             self.item_counts = {}
             self.reference = check["reference"]
             self.distance_types = check["distance_types"]
@@ -75,6 +77,9 @@ class Convergence(AbstractStatistic):
                 inputs, outputs, gts=gts, extra=extra_args
             ) for x in self.feature_measurables]
             update_counts = []
+
+            models = dict(zip(['model_' + x for x in self.model_names], [self.allowed_model_values[jdx][0] for jdx in range(len(self.model_names))]))
+
             for idx in range(len(aggregate_ids)):
                 is_model_invalid = sum([all_models[jdx][idx] not in self.allowed_model_values[jdx] for jdx in range(len(self.allowed_model_values))])
                 if is_model_invalid:
@@ -133,30 +138,46 @@ class Convergence(AbstractStatistic):
                         else:
                             del self.feats_dictn[crossed_checkpoint][aggregate_ids[idx]]
 
+                        features = dict(zip(['feature_' + x for x in self.feature_names], [all_features[jdx][idx] for jdx in range(len(self.feature_names))]))
+
                         for distance_key in list(this_distances.keys()):
-                            self.distances_dictn[crossed_checkpoint][distance_key].append(
-                                this_distances[distance_key]
+                            plot_name = (
+                                distance_key
+                                + " "
+                                + str(self.reference)
+                            )
+                            this_data = list(np.reshape(np.array(this_distances[distance_key]),-1))
+
+                            self.log_handler.add_histogram(
+                                plot_name,
+                                this_data,
+                                self.dashboard_name,
+                                count = crossed_checkpoint,
+                                models = [models]*len(this_data),
+                                features = [features] * len(this_data),
+                                file_name = str(crossed_checkpoint)
                             )
 
-            for count in list(self.distances_dictn.keys()):
-                if (count > 0) and (count in update_counts):
-                    for distance_type in self.distance_types:
-                        plot_name = (
-                            distance_type
-                            + " "
-                            + str(self.reference)
-                            # + self.measurable.col_name()
-                            # + " "
-                            # + self.aggregate_measurable.col_name()
-                        )
-                        this_data = list(
-                            np.reshape(
-                                np.array(self.distances_dictn[count][distance_type]), -1
-                            )
-                        )
-                        self.log_handler.add_histogram(
-                            self.dashboard_name + "_" + plot_name,
-                            this_data,
-                            self.dashboard_name,
-                            count
-                        )
+
+            # for count in list(self.distances_dictn.keys()):
+            #     if (count > 0) and (count in update_counts):
+            #         for distance_type in self.distance_types:
+            #             plot_name = (
+            #                 distance_type
+            #                 + " "
+            #                 + str(self.reference)
+            #                 # + self.measurable.col_name()
+            #                 # + " "
+            #                 # + self.aggregate_measurable.col_name()
+            #             )
+            #             this_data = list(
+            #                 np.reshape(
+            #                     np.array(self.distances_dictn[count][distance_type]), -1
+            #                 )
+            #             )
+            #             self.log_handler.add_histogram(
+            #                 self.dashboard_name + "_" + plot_name,
+            #                 this_data,
+            #                 self.dashboard_name,
+            #                 count
+            #             )
