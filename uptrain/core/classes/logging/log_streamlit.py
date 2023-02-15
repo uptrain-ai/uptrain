@@ -43,29 +43,38 @@ class StreamlitLogs:
             f_object.close()
 
 
-    def add_histogram(self, data, folder, models=[], features=[], file_name=''):
-        file_name = os.path.join(folder, file_name + ".csv")
-        if not os.path.isfile(file_name):
-            with open(file_name, "w", newline="") as f_object:
-                writer = csv.writer(f_object)
-                all_keys = ['y_points']
-                if len(models):
-                    all_keys.extend(list(models[0].keys()))
-                if len(features):
-                    all_keys.extend(list(features[0].keys()))
-                writer.writerow(all_keys)
-                f_object.close()
+    def add_histogram(self, data, folder, models=None, features=None, file_name=''):
+        if isinstance(data, dict):
+            file_name = os.path.join(folder, file_name + ".json")
+            if models is not None:
+                data.update(models)
+            if features is not None:
+                data.update(features)
+            with open(file_name, "w") as f:
+                json.dump(data, f, cls=NumpyEncoder)
+        else:
+            file_name = os.path.join(folder, file_name + ".csv")
+            if not os.path.isfile(file_name):
+                with open(file_name, "w", newline="") as f_object:
+                    writer = csv.writer(f_object)
+                    all_keys = ['y_points']
+                    if models is not None:
+                        all_keys.extend(list(models[0].keys()))
+                    if features is not None:
+                        all_keys.extend(list(features[0].keys()))
+                    writer.writerow(all_keys)
+                    f_object.close()
 
-        with open(file_name, "a") as f_object:
-            writer_object = csv.writer(f_object)
-            for idx in range(len(data)):
-                this_point = [data[idx]]
-                if len(models):
-                    this_point.extend(list(models[idx].values()))
-                if len(features):
-                    this_point.extend(list(features[idx].values()))
-            writer_object.writerow(this_point)
-            f_object.close()
+            with open(file_name, "a") as f_object:
+                writer_object = csv.writer(f_object)
+                for idx in range(len(data)):
+                    this_point = [data[idx]]
+                    if models is not None:
+                        this_point.extend(list(models[idx].values()))
+                    if features is not None:
+                        this_point.extend(list(features[idx].values()))
+                writer_object.writerow(this_point)
+                f_object.close()
 
 
     def add_alert(self, alert_name, alert, folder):

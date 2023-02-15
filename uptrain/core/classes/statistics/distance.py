@@ -24,7 +24,6 @@ class Distance(AbstractStatistic):
                 del check_copy['model_args'][0]
                 self.children.append(Distance(fw, check_copy))
         else:
-            self.dashboard_name = self.dashboard_name
             self.log_handler = fw.log_handler
             self.log_handler.add_writer(self.dashboard_name)
             self.measurable = MeasurableResolver(check["measurable_args"]).resolve(fw)
@@ -111,7 +110,7 @@ class Distance(AbstractStatistic):
                     )
                     self.log_handler.add_scalars(
                         self.dashboard_name + "_" + plot_name,
-                        {'y_' + str(aggregate_ids[idx]): this_distances[distance_type][0]},
+                        {'y_' + distance_type: this_distances[distance_type][0]},
                         this_item_count,
                         self.dashboard_name,
                         features = features,

@@ -55,7 +55,7 @@ class LogHandler:
             new_dictn.update({"x_count": count})
             self.st_writer.add_scalars(new_dictn, plot_folder, file_name=file_name)
 
-    def add_histogram(self, plot_name, data, dashboard_name, count=-1, features={}, models={}, file_name=""):
+    def add_histogram(self, plot_name, data, dashboard_name, count=-1, features=None, models=None, file_name=""):
         dashboard_name, plot_name = self.make_name_fold_directory_friendly(
             [dashboard_name, plot_name]
         )

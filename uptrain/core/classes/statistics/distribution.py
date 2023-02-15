@@ -26,7 +26,6 @@ class Distribution(AbstractStatistic):
                 del check_copy['model_args'][0]
                 self.children.append(Distribution(fw, check_copy))
         else:
-            self.dashboard_name = self.dashboard_name
             self.log_handler = fw.log_handler
             self.log_handler.add_writer(self.dashboard_name)
             self.measurable = MeasurableResolver(check["measurable_args"]).resolve(fw)
@@ -169,8 +168,17 @@ class Distribution(AbstractStatistic):
             #                 file_name = str(count)
             #             )
 
-    def get_feats_for_clustering(self, count):
-        if count in self.feats_dictn:
-            return self.feats_dictn[count]
+    def get_feats_for_clustering(self, count, allowed_model_values):
+        if len(self.children) > 0:
+            res = {}
+            for x in self.children:
+                res.update(x.get_feats_for_clustering(count, allowed_model_values))
+            return res
         else:
-            return {}
+            if self.allowed_model_values == allowed_model_values:
+                if count in self.feats_dictn:
+                    return self.feats_dictn[count]
+                else:
+                    return {}
+            else:
+                return {}
