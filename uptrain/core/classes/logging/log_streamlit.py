@@ -37,22 +37,36 @@ class StreamlitLogs:
                 writer.writerow(list(dict.keys()))
                 f_object.close()
 
-            with open(file_name, "a") as f_object:
-                writer_object = csv.writer(f_object)
-                writer_object.writerow(list(dict.values()))
+        with open(file_name, "a") as f_object:
+            writer_object = csv.writer(f_object)
+            writer_object.writerow(list(dict.values()))
+            f_object.close()
+
+
+    def add_histogram(self, data, folder, models=[], features=[], file_name=''):
+        file_name = os.path.join(folder, file_name + ".csv")
+        if not os.path.isfile(file_name):
+            with open(file_name, "w", newline="") as f_object:
+                writer = csv.writer(f_object)
+                all_keys = ['y_points']
+                if len(models):
+                    all_keys.extend(list(models[0].keys()))
+                if len(features):
+                    all_keys.extend(list(features[0].keys()))
+                writer.writerow(all_keys)
                 f_object.close()
 
+        with open(file_name, "a") as f_object:
+            writer_object = csv.writer(f_object)
+            for idx in range(len(data)):
+                this_point = [data[idx]]
+                if len(models):
+                    this_point.extend(list(models[idx].values()))
+                if len(features):
+                    this_point.extend(list(features[idx].values()))
+            writer_object.writerow(this_point)
+            f_object.close()
 
-    def add_histogram(self, data, folder, count=-1):
-        file_name = os.path.join(folder, "data.json")
-        prev_data = {}
-        if os.path.exists(file_name):
-            with open(file_name) as f:
-                prev_data = json.load(f)
-        data = {str(count): data}
-        data.update(prev_data)
-        with open(file_name, "w") as f:
-            json.dump(data, f, cls=NumpyEncoder)
 
     def add_alert(self, alert_name, alert, folder):
         file_name = os.path.join(folder, str(alert_name) + ".json")

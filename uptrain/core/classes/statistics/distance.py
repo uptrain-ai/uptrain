@@ -114,7 +114,7 @@ class Distance(AbstractStatistic):
                         {'y_' + str(aggregate_ids[idx]): this_distances[distance_type][0]},
                         this_item_count,
                         self.dashboard_name,
-                        models,
-                        features,
+                        features = features,
+                        models = models,
                         file_name = str(aggregate_ids[idx])
                     )

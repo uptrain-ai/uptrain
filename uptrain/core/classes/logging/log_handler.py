@@ -55,7 +55,7 @@ class LogHandler:
             new_dictn.update({"x_count": count})
             self.st_writer.add_scalars(new_dictn, plot_folder, file_name=file_name)
 
-    def add_histogram(self, plot_name, data, dashboard_name, count=-1, size_limit=None):
+    def add_histogram(self, plot_name, data, dashboard_name, count=-1, models={}, file_name=""):
         dashboard_name, plot_name = self.make_name_fold_directory_friendly(
             [dashboard_name, plot_name]
         )
@@ -64,16 +64,16 @@ class LogHandler:
                 if dashboard_name in self.tb_writers:
                     self.tb_writers[dashboard_name].add_histogram(plot_name, data, count)
         if self.st_writer:
-            if isinstance(data, dict) and (size_limit is not None):
-                for k,v in data:
-                    if len(v) > size_limit:
-                        random.shuffle(v)
-                        data[v] = v[0:size_limit]
+            # TODO: Should be done at st_run
+            # if isinstance(data, list) and (size_limit is not None):
+            #     if len(data) > size_limit:
+            #         random.shuffle(data)
+            #         data = data[0:size_limit]
 
             dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
             plot_folder = os.path.join(dashboard_dir, "histograms", plot_name)
             os.makedirs(plot_folder, exist_ok=True)
-            self.st_writer.add_histogram(data, plot_folder, count)
+            self.st_writer.add_histogram(data, plot_folder, models=models, file_name=file_name)
 
     def add_alert(self, alert_name, alert, dashboard_name):
         # dashboard_name = self.make_name_fold_directory_friendly(
