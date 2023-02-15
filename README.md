@@ -89,7 +89,7 @@ pip install uptrain
 
 ### Run your first example:
 ```console
-git clone git@github.com:uptrain-ai/uptrain.git
+git clone https://github.com/uptrain-ai/uptrain.git
 cd uptrain/examples
 pip install jupyterlab
 jupyter lab
