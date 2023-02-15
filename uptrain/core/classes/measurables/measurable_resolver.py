@@ -20,7 +20,7 @@ class MeasurableResolver:
         resolve_args = self._args
         measurable_type = resolve_args["type"]
         if measurable_type == MeasurableType.INPUT_FEATURE:
-            return FeatureMeasurable(framework, resolve_args["feature_name"], "inputs")
+            return FeatureMeasurable(framework, resolve_args["feature_name"], "inputs", resolve_args.get('dtype', None))
         elif measurable_type == MeasurableType.PREDICTION:
             return FeatureMeasurable(framework, resolve_args["feature_name"], "outputs")
         elif measurable_type == MeasurableType.CUSTOM:

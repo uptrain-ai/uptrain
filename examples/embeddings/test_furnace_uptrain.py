@@ -6,6 +6,7 @@ import numpy as np
 def clean_df(df):
     print("Originial length", len(df))
     df["views"] = df["views"].fillna(0)
+    # df = df[df['postId'] == 1015388335]
     df = df.drop_duplicates(subset=df.columns.tolist())
     print("After dropping duplicates", len(df))
     df = df.drop(['Unnamed: 0', 'post_valid'], axis=1)
@@ -13,26 +14,40 @@ def clean_df(df):
 
 df = pd.read_csv("sample_data.csv")
 df = clean_df(df)
- 
+# import pdb; pdb.set_trace() 
 print(f"Total Entries: {len(df)}, Unique Posts: {len(np.unique(df['postId']))}")
 
 views_checkpoints = [0, 200, 500, 1000, 5000, 20000]
 cfg = {
     "checks": [
     # Check the distance of feature_name
-    # {
-    #     'type': uptrain.Statistic.DISTANCE,
-    #     'aggregate_args': {
-    #         'type': uptrain.MeasurableType.INPUT_FEATURE,
-    #         'feature_name': 'postId'
-    #     },
-    #     "measurable_args": {
-    #         'type': uptrain.MeasurableType.INPUT_FEATURE,
-    #         'feature_name': 'embs'
-    #     },
-    #     'reference': "initial",
-    #     "distance_types": ["norm_ratio", "l2_distance", "cosine_distance"],
-    # },
+    {
+        'type': uptrain.Statistic.DISTANCE,
+        'aggregate_args': {
+            'type': uptrain.MeasurableType.INPUT_FEATURE,
+            'feature_name': 'postId'
+        },
+        "measurable_args": {
+            'type': uptrain.MeasurableType.INPUT_FEATURE,
+            'feature_name': 'embs'
+        },
+        "count_args": {
+            'type': uptrain.MeasurableType.INPUT_FEATURE,
+            'feature_name': 'views',
+            'dtype': int
+        },
+        "model_args": {
+            'type': uptrain.MeasurableType.INPUT_FEATURE,
+            'feature_name': 'ffm_type',
+            'allowed_values': ['batch', 'realtime']
+        },
+        "feature_args": [{
+            'type': uptrain.MeasurableType.INPUT_FEATURE,
+            'feature_name': 'tagGenre'
+        }],
+        'reference': "initial",
+        "distance_types": ["norm_ratio", "l2_distance", "cosine_distance"],
+    },
     {
         'type': uptrain.Statistic.DISTRIBUTION_STATS,
         'aggregate_args': {
@@ -45,7 +60,8 @@ cfg = {
         },
         "count_args": {
             'type': uptrain.MeasurableType.INPUT_FEATURE,
-            'feature_name': 'views'
+            'feature_name': 'views',
+            'dtype': int
         },
         "model_args": {
             'type': uptrain.MeasurableType.INPUT_FEATURE,
@@ -71,7 +87,8 @@ cfg = {
         },
         "count_args": {
             'type': uptrain.MeasurableType.INPUT_FEATURE,
-            'feature_name': 'views'
+            'feature_name': 'views',
+            'dtype': int
         },
         "model_args": {
             'type': uptrain.MeasurableType.INPUT_FEATURE,
@@ -98,7 +115,8 @@ cfg = {
         },
         "count_args": {
             'type': uptrain.MeasurableType.INPUT_FEATURE,
-            'feature_name': 'views'
+            'feature_name': 'views',
+            'dtype': int
         },
         "model_args": {
             'type': uptrain.MeasurableType.INPUT_FEATURE,
@@ -140,7 +158,7 @@ cfg = {
 }
 framework = uptrain.Framework(cfg_dict=cfg)
 
-batch_size = 256*32
+batch_size = min(256*32, len(df))
 cols = ['ffm_type', 'postId', 'embs', 'tagGenre', 'views']
 for idx in range(int(len(df)/batch_size)):
     this_elems = df[idx*batch_size: (idx+1)*batch_size]
