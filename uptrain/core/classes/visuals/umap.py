@@ -56,7 +56,7 @@ class Umap(AbstractVisual):
             [x.check(inputs, outputs, gts, extra_args) for x in self.children]
         else:
             self.total_count += len(extra_args['id'])
-            if not ((self.total_count - self.prev_calc_at) > 10000):
+            if not ((self.total_count - self.prev_calc_at) > 100000):
                 return
 
             self.prev_calc_at = self.total_count
@@ -64,7 +64,7 @@ class Umap(AbstractVisual):
             for count in self.count_checkpoints:
                 data_dict = self.get_data_for_umap(count)
 
-                if len(data_dict) > 1:
+                if len(data_dict) > 10:
                     emb_list = np.squeeze(np.array(list(data_dict.values())))
                     umap_list, clusters = self.get_umap_and_clusters(
                         emb_list,
