@@ -1,7 +1,7 @@
 import os
 import shutil
 import numpy as np
-
+import random
 
 class LogHandler:
     def __init__(self, framework=None, cfg=None):
@@ -33,10 +33,12 @@ class LogHandler:
             tb_writer = self.tb_logs.add_writer(dashboard_name)
             self.tb_writers.update({dashboard_name: tb_writer})
 
-    def add_scalars(self, plot_name, dictn, count, dashboard_name):
+    def add_scalars(self, plot_name, dictn, count, dashboard_name, features={}, models={}, file_name=''):
         dashboard_name, plot_name = self.make_name_fold_directory_friendly(
             [dashboard_name, plot_name]
         )
+        dictn.update(features)
+        dictn.update(models)
         new_dictn = dict(
             zip(
                 self.make_name_fold_directory_friendly(list(dictn.keys())),
@@ -50,10 +52,10 @@ class LogHandler:
             dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
             plot_folder = os.path.join(dashboard_dir, "line_plots", plot_name)
             os.makedirs(plot_folder, exist_ok=True)
-            dictn.update({"count": count})
-            self.st_writer.add_scalars(dictn, plot_folder)
+            new_dictn.update({"x_count": count})
+            self.st_writer.add_scalars(new_dictn, plot_folder, file_name=file_name)
 
-    def add_histogram(self, plot_name, data, dashboard_name, count=-1):
+    def add_histogram(self, plot_name, data, dashboard_name, count=-1, size_limit=None):
         dashboard_name, plot_name = self.make_name_fold_directory_friendly(
             [dashboard_name, plot_name]
         )
@@ -62,6 +64,12 @@ class LogHandler:
                 if dashboard_name in self.tb_writers:
                     self.tb_writers[dashboard_name].add_histogram(plot_name, data, count)
         if self.st_writer:
+            if isinstance(data, dict) and (size_limit is not None):
+                for k,v in data:
+                    if len(v) > size_limit:
+                        random.shuffle(v)
+                        data[v] = v[0:size_limit]
+
             dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
             plot_folder = os.path.join(dashboard_dir, "histograms", plot_name)
             os.makedirs(plot_folder, exist_ok=True)

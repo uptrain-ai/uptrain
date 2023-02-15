@@ -38,6 +38,7 @@ class Config(BaseModel):
     feat_name_list: list = None
     cluster_visualize_func: typing.Callable = None
     use_cache: bool = False
+    log_data: bool = True
 
     @root_validator()
     def only_one_logging(cls, v):

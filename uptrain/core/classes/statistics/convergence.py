@@ -13,16 +13,19 @@ class Convergence(AbstractStatistic):
     anomaly_type = Statistic.CONVERGENCE_STATS
 
     def __init__(self, fw, check):
-        self.allowed_model_values = check['model_args'].get('allowed_values', [])
+        self.allowed_model_values = [x['allowed_values'] for x in check['model_args']]
+        self.num_model_options = sum([len(x) > 1 for x in self.allowed_model_values])
         self.children = []
 
-        if len(self.allowed_model_values) > 1:
-            for m in self.allowed_model_values:
+        if self.num_model_options > 0:
+            for m in self.allowed_model_values[0]:
                 check_copy = copy.deepcopy(check)
-                check_copy['model_args']['allowed_values'] = [m]
+                check_copy['model_args'][0]['allowed_values'] = [m]
+                check_copy['model_args'].append(copy.deepcopy(check_copy['model_args'][0]))
+                del check_copy['model_args'][0]
                 self.children.append(Convergence(fw, check_copy))
         else:
-            self.dashboard_name = self.dashboard_name + "_" + self.allowed_model_values[0]
+            self.dashboard_name = self.dashboard_name
             self.log_handler = fw.log_handler
             self.log_handler.add_writer(self.dashboard_name)
             self.measurable = MeasurableResolver(check["measurable_args"]).resolve(fw)
@@ -32,12 +35,12 @@ class Convergence(AbstractStatistic):
             self.count_measurable = MeasurableResolver(check["count_args"]).resolve(
                 fw
             )
-            self.feature_meaasurables = [
+            self.feature_measurables = [
                 MeasurableResolver(x).resolve(fw) for x in check["feature_args"]
             ]
-            self.model_measurable = MeasurableResolver(check["model_args"]).resolve(
-                fw
-            )
+            self.model_measurables = [
+                MeasurableResolver(x).resolve(fw) for x in check["model_args"]
+            ]
             self.item_counts = {}
             self.reference = check["reference"]
             self.distance_types = check["distance_types"]
@@ -65,15 +68,16 @@ class Convergence(AbstractStatistic):
             counts = self.count_measurable.compute_and_log(
                 inputs, outputs, gts=gts, extra=extra_args
             )
-            models = self.model_measurable.compute_and_log(
+            all_models = [x.compute_and_log(
                 inputs, outputs, gts=gts, extra=extra_args
-            )
+            ) for x in self.model_measurables]
             all_features = [x.compute_and_log(
                 inputs, outputs, gts=gts, extra=extra_args
-            ) for x in self.feature_meaasurables]
+            ) for x in self.feature_measurables]
             update_counts = []
             for idx in range(len(aggregate_ids)):
-                if models[idx] not in self.allowed_model_values:
+                is_model_invalid = sum([all_models[jdx][idx] not in self.allowed_model_values[jdx] for jdx in range(len(self.allowed_model_values))])
+                if is_model_invalid:
                     continue
 
                 if aggregate_ids[idx] not in self.item_counts:

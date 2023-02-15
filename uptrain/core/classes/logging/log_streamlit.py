@@ -21,32 +21,36 @@ class StreamlitLogs:
         self.counts = {}
         self.log_folder = log_folder
 
-        remote_st_py_file = "https://raw.githubusercontent.com/uptrain-ai/uptrain/dashboard/uptrain/core/classes/logging/st_run.py"
-        # remote_st_py_file = "../../uptrain/core/classes/logging/st_run.py"
+        # remote_st_py_file = "https://raw.githubusercontent.com/uptrain-ai/uptrain/dashboard/uptrain/core/classes/logging/st_run.py"
+        remote_st_py_file = "../../uptrain/core/classes/logging/st_run.py"
         cmd = "streamlit run " + remote_st_py_file + " -- " + self.log_folder
         launch_st = lambda: os.system(cmd)
         t = threading.Thread(target=launch_st, args=([]))
         t.start()
 
-    def add_scalars(self, dict, folder):
+    def add_scalars(self, dict, folder, file_name=''):
         # CSV file that includes the data
-        for key in dict.keys():
-            if key == "count":
-                continue
-            file_name = os.path.join(folder, key + ".csv")
-            if not os.path.isfile(file_name):
-                with open(file_name, "w", newline="") as f_object:
-                    writer = csv.writer(f_object)
-                    writer.writerow([key, "count"])
-                    f_object.close()
+        file_name = os.path.join(folder, file_name + ".csv")
+        if not os.path.isfile(file_name):
+            with open(file_name, "w", newline="") as f_object:
+                writer = csv.writer(f_object)
+                writer.writerow(list(dict.keys()))
+                f_object.close()
 
             with open(file_name, "a") as f_object:
                 writer_object = csv.writer(f_object)
-                writer_object.writerow([dict[key], dict["count"]])
+                writer_object.writerow(list(dict.values()))
                 f_object.close()
 
+
     def add_histogram(self, data, folder, count=-1):
-        file_name = os.path.join(folder, str(count) + ".json")
+        file_name = os.path.join(folder, "data.json")
+        prev_data = {}
+        if os.path.exists(file_name):
+            with open(file_name) as f:
+                prev_data = json.load(f)
+        data = {str(count): data}
+        data.update(prev_data)
         with open(file_name, "w") as f:
             json.dump(data, f, cls=NumpyEncoder)
 

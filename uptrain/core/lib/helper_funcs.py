@@ -50,7 +50,6 @@ def cluster_and_plot_data(
 
 
 def add_data_to_warehouse(data, path_csv, row_update=False):
-    return
     """Stores the dictionary "data" at location path_csv"""
     if len(data):
         for k in list(data.keys()):
