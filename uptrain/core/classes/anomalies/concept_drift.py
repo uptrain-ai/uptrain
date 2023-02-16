@@ -20,7 +20,6 @@ class ConceptDrift(AbstractAnomaly):
         self.acc_arr = []
         self.avg_acc = 0
         self.log_handler = fw.log_handler
-        self.log_handler.add_writer(self.dashboard_name)
         if check["algorithm"] == DataDriftAlgo.DDM:
             warn_thres = check.get("warn_thres", 2)
             alarm_thres = check.get("alarm_thres", 3)

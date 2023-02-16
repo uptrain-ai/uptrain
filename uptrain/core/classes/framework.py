@@ -80,7 +80,7 @@ class Framework:
             cluster_plot_func=cfg.cluster_visualize_func
         )
         self.model_handler = ModelHandler()
-        self.log_handler = LogHandler(framework=self, cfg=cfg)
+        self.log_handler = LogHandler(cfg=cfg)
         self.check_manager = CheckManager(self, self.checks)
         self.reset_retraining()
 

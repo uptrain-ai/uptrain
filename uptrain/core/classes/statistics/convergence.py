@@ -26,7 +26,6 @@ class Convergence(AbstractStatistic):
                 self.children.append(Convergence(fw, check_copy))
         else:
             self.log_handler = fw.log_handler
-            self.log_handler.add_writer(self.dashboard_name)
             self.measurable = MeasurableResolver(check["measurable_args"]).resolve(fw)
             self.aggregate_measurable = MeasurableResolver(check["aggregate_args"]).resolve(
                 fw

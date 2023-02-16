@@ -59,9 +59,6 @@ class DataDrift(AbstractAnomaly):
                     self.mode = "check_scalar_only"
                 self.check(inputs, outputs, gts=gts, extra_args=extra_args)
         else:
-            if self.count == 0:
-                self.log_handler.add_writer(self.dashboard_name)
-
             self.count += len(extra_args["id"])
 
             self.feats = self.measurable.compute_and_log(
