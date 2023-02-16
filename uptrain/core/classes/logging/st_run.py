@@ -54,9 +54,9 @@ def plot_line_charts(files, plot_name):
             "log y", help="y-axis in log-scale", key=plot_name + "y"
         )
     
-    fig = return_plotly_fig(y_axis, x_axis, x_log, y_log)
     cols = st.columns(2)
     for j,model_ffm_type in enumerate(['realtime', 'batch']):
+        fig = return_plotly_fig(y_axis, x_axis, x_log, y_log)
         for i, csv_file in enumerate(files):
             # Reading the csv file
             df = pd.read_csv(csv_file)
@@ -82,9 +82,9 @@ def plot_histograms(files, plot_name):
     model_sig_type = st.selectbox("Select Signal Type", 
         model_sig_types, key=plot_name)
     
-    fig = go.Figure()
     cols = st.columns(2)
     for j,model_ffm_type in enumerate(['realtime', 'batch']):
+        fig = go.Figure()
         for i, csv_file in enumerate(files):
             # Reading the csv file
             df = pd.read_csv(csv_file)
@@ -93,7 +93,10 @@ def plot_histograms(files, plot_name):
 
             # Getting plot_id
             plot_id = csv_file.split("/")[-1].split(".")[0]
-            fig = fig.add_trace(go.Histogram(x=df["y_points"], name=plot_id))
+            df_y = df['y_points']
+            if len(df_y) > 1000:
+                df_y = np.random.choice(df_y, 1000)
+            fig = fig.add_trace(go.Histogram(x=df_y, name=plot_id))
 
         with cols[j]:
             st.subheader(f'Model: {model_ffm_type}')
@@ -222,7 +225,7 @@ def plot_dashboard(dashboard_name):
         ######### Line Plots ###########
 
         elif sub_dir_split[-2] == "line_plots":
-            if st.sidebar.checkbox(f"Line-plot for {plot_name}", value=True):
+            if st.sidebar.checkbox(f"Line-plot for {plot_name}"):
                 st.markdown(f"### Line chart for {plot_name}")
                 plot_line_charts(files, plot_name)
                 st.markdown("""---""")    
@@ -231,14 +234,14 @@ def plot_dashboard(dashboard_name):
 
         elif sub_dir_split[-2] == "histograms":
             if plot_name != "umap_and_clusters":
-                if st.sidebar.checkbox(f"Histogram for {plot_name}", value=True):
+                if st.sidebar.checkbox(f"Histogram for {plot_name}"):
                     st.markdown(f"### Histogram for {plot_name}")
                     # plot_for_count(files, plot_histogram, plot_name) 
                     plot_histograms(files, plot_name)
                     st.markdown("""---""") 
                             
             else:
-                if st.sidebar.checkbox(f"UMAP for {plot_name}", value=True):
+                if st.sidebar.checkbox(f"UMAP for {plot_name}"):
                     st.markdown(f"### UMAP for {plot_name}")
                     plot_umaps(files, plot_name, sub_dir)
                     st.markdown("""---""")   
@@ -246,7 +249,7 @@ def plot_dashboard(dashboard_name):
         ######### Plotting Bar Graphs ###########
 
         elif sub_dir_split[-2] == "bar_graphs":
-            if st.sidebar.checkbox(f"Bar graph for {plot_name}", value=True):
+            if st.sidebar.checkbox(f"Bar graph for {plot_name}"):
                 st.markdown(f"### Bar graph for {plot_name}")
                 plot_for_count(files, plot_bar, plot_name) 
                 st.markdown("""---""")   
