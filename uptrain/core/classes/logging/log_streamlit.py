@@ -3,6 +3,7 @@ import csv
 import threading
 import json
 import numpy as np
+import pandas as pd
 
 
 class NumpyEncoder(json.JSONEncoder):
@@ -28,7 +29,7 @@ class StreamlitLogs:
         t = threading.Thread(target=launch_st, args=([]))
         t.start()
 
-    def add_scalars(self, dict, folder, file_name=''):
+    def add_scalars(self, dict, folder, file_name='', update_val=False):
         # CSV file that includes the data
         file_name = os.path.join(folder, file_name + ".csv")
         if not os.path.isfile(file_name):
@@ -37,6 +38,26 @@ class StreamlitLogs:
                 writer.writerow(list(dict.keys()))
                 f_object.close()
 
+        if update_val:
+            df = pd.read_csv(file_name)
+            cond = None
+            keys = list(dict.keys())
+            for key in keys:
+                if key[0:2] == 'y_':
+                    continue
+                if cond is None:
+                    cond = df[key] == dict[key]
+                else:
+                    cond = cond & (df[key] == dict[key])
+            if len(df[cond]):
+                for key in keys:
+                    df.loc[cond, key] = dict[key]
+            else:
+                df = pd.concat([df, pd.DataFrame([dict])], ignore_index = True)
+                for key in keys:
+                    if key[0:2] == 'x_':
+                        df = df.sort_values(by=[key])
+            df.to_csv(file_name)
         with open(file_name, "a") as f_object:
             writer_object = csv.writer(f_object)
             writer_object.writerow(list(dict.values()))

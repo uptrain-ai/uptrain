@@ -2,9 +2,10 @@ import numpy as np
 
 from uptrain.core.classes.anomalies import AbstractAnomaly
 from uptrain.constants import Anomaly
-from uptrain.core.lib.helper_funcs import read_json, cluster_and_plot_data
+from uptrain.core.lib.helper_funcs import read_json
+from uptrain.core.lib.algorithms import estimate_earth_moving_cost
 from uptrain.core.classes.measurables import MeasurableResolver
-
+from uptrain.core.classes.algorithms import Clustering
 
 class DataDrift(AbstractAnomaly):
     dashboard_name = "data_drift"
@@ -27,6 +28,11 @@ class DataDrift(AbstractAnomaly):
             self.save_edge_cases = check.get("save_edge_cases", True)
             self.count = 0
             self.prod_dist_counts_arr = []
+            clustering_args = {
+                'is_embedding': self.is_embedding,
+                'plot_save_name': "training_dataset_clusters.png"
+            }
+            self.clustering_helper = Clustering(clustering_args)
             self.bucket_reference_dataset()
 
     def need_ground_truth(self):
@@ -70,28 +76,8 @@ class DataDrift(AbstractAnomaly):
                 feats_shape.insert(2, 1)
             self.feats = np.reshape(self.feats, tuple(feats_shape))
 
-            if self.is_embedding:
-                selected_cluster = np.argmin(
-                    np.sum(
-                        np.abs(self.clusters[0] - self.feats),
-                        axis=tuple(range(2, len(feats_shape))),
-                    ),
-                    axis=1,
-                )
-                for clus in selected_cluster:
-                    self.prod_dist_counts[0][clus] += 1
-                self.this_datapoint_cluster = selected_cluster
-                self.prod_dist_counts_arr.append(self.prod_dist_counts.copy())
-            else:
-                this_datapoint_cluster = []
-                for idx in range(self.feats.shape[2]):
-                    bucket_idx = np.searchsorted(
-                        self.buckets[idx], self.feats[:, :, idx]
-                    )[:, 0]
-                    this_datapoint_cluster.append(bucket_idx)
-                    self.prod_dist_counts[idx][bucket_idx] += 1
-                self.prod_dist_counts_arr.append(self.prod_dist_counts.copy())
-                self.this_datapoint_cluster = np.array(this_datapoint_cluster)
+            self.this_datapoint_cluster, self.prod_dist_counts = self.clustering_helper.infer_cluster_assignment(self.feats, self.prod_dist_counts)
+            self.prod_dist_counts_arr.append(self.prod_dist_counts.copy())
 
             if self.count < 1000:
                 self.drift_detected = False
@@ -108,7 +94,7 @@ class DataDrift(AbstractAnomaly):
                 drift_detected = False
                 for idx in range(self.ref_dist.shape[0]):
                     if self.is_embedding:
-                        self.costs[idx] = self.estimate_earth_moving_cost(
+                        self.costs[idx] = estimate_earth_moving_cost(
                             self.prod_dist[idx], self.ref_dist[idx], self.clusters[idx]
                         )
                         drift_detected = drift_detected or (self.costs[idx] > 300)
@@ -226,42 +212,6 @@ class DataDrift(AbstractAnomaly):
                             )
             return is_interesting
 
-    def estimate_earth_moving_cost(self, prod_dist, ref_dist, clusters):
-        cost = 0
-        for jdx in range(self.ref_dist.shape[1]):
-            dirt_required = prod_dist[jdx] - ref_dist[jdx]
-            dictn = []
-            for kdx in range(self.clusters.shape[1]):
-                if jdx == kdx:
-                    dirt_can_be_transported = 0
-                else:
-                    dirt_can_be_transported = prod_dist[kdx] - ref_dist[kdx]
-                this_dirt = -dirt_can_be_transported
-                if this_dirt * dirt_required < 0:
-                    cost_per_dirt = 1000000000
-                else:
-                    cost_per_dirt = np.sum(np.abs(clusters[kdx] - clusters[jdx]))
-                dictn.append(
-                    {
-                        "dirt": np.abs(this_dirt),
-                        "idx": kdx,
-                        "cost_per_dirt": cost_per_dirt,
-                    }
-                )
-            dictn = sorted(dictn, key=lambda x: x["cost_per_dirt"])
-            this_cost = 0
-            dirt_required = np.abs(dirt_required)
-            for kdx in range(len(dictn)):
-                if dirt_required > 0:
-                    this_cost += (
-                        min(dictn[kdx]["dirt"], dirt_required)
-                        * dictn[kdx]["cost_per_dirt"]
-                    )
-                    dirt_required -= min(dictn[kdx]["dirt"], dirt_required)
-                else:
-                    break
-            cost += this_cost
-        return cost
 
     def bucket_reference_dataset(self):
         self.ref_dist = []
@@ -277,70 +227,11 @@ class DataDrift(AbstractAnomaly):
             all_inputs_shape.insert(1, 1)
             all_inputs = np.reshape(all_inputs, all_inputs_shape)
 
-        if self.is_embedding:
-            self.bucket_vector(all_inputs)
-        else:
-            buckets = []
-            clusters = []
-            cluster_vars = []
-            for idx in range(all_inputs.shape[1]):
-                this_inputs = all_inputs[:, idx]
-                this_buckets, this_clusters, this_cluster_vars = self.bucket_scalar(
-                    this_inputs
-                )
-                buckets.append(this_buckets)
-                clusters.append(this_clusters)
-                cluster_vars.append(this_cluster_vars)
-            self.buckets = np.array(buckets)
-            self.clusters = np.array(clusters)
-            self.cluster_vars = np.array(cluster_vars)
+        clustering_results = self.clustering_helper.cluster_data(all_inputs)
 
-        self.ref_dist = np.array(self.ref_dist)
-        self.ref_dist_counts = np.array(self.ref_dist_counts)
-        self.prod_dist = np.array(self.prod_dist)
-        self.prod_dist_counts = np.array(self.prod_dist_counts)
+        self.buckets = np.array(clustering_results['buckets'])
+        self.clusters = np.array(clustering_results['clusters'])
+        self.cluster_vars = np.array(clustering_results['cluster_vars'])
 
-    def bucket_scalar(self, arr):
-        sorted_arr = np.sort(arr)
-        buckets = []
-        clusters = []
-        cluster_vars = []
-        for idx in range(0, self.NUM_BUCKETS):
-            if idx > 0:
-                buckets.append(
-                    sorted_arr[int(idx * (len(sorted_arr) - 1) / self.NUM_BUCKETS)]
-                )
-            this_bucket_elems = sorted_arr[
-                int((idx) * (len(sorted_arr) - 1) / self.NUM_BUCKETS) : int(
-                    (idx + 1) * (len(sorted_arr) - 1) / self.NUM_BUCKETS
-                )
-            ]
-            gaussian_mean = np.mean(this_bucket_elems)
-            gaussian_var = np.var(this_bucket_elems)
-            clusters.append([gaussian_mean])
-            cluster_vars.append([gaussian_var])
-
-        self.ref_dist.append([[1 / self.NUM_BUCKETS] for x in range(self.NUM_BUCKETS)])
-        self.ref_dist_counts.append(
-            [[int(len(sorted_arr) / self.NUM_BUCKETS)] for x in range(self.NUM_BUCKETS)]
-        )
-        self.prod_dist.append([[0] for x in range(self.NUM_BUCKETS)])
-        self.prod_dist_counts.append([[0] for x in range(self.NUM_BUCKETS)])
-        return np.array(buckets), np.array(clusters), np.array(cluster_vars)
-
-    def bucket_vector(self, data):
-
-        all_clusters, counts, cluster_vars = cluster_and_plot_data(
-            data,
-            self.NUM_BUCKETS,
-            cluster_plot_func=self.cluster_plot_func,
-            plot_save_name="training_dataset_clusters.png",
-        )
-
-        self.clusters = np.array([all_clusters])
-        self.cluster_vars = np.array([cluster_vars])
-
-        self.ref_dist_counts = np.array([counts])
-        self.ref_dist = self.ref_dist_counts / data.shape[0]
-        self.prod_dist = np.zeros((1, self.NUM_BUCKETS))
-        self.prod_dist_counts = np.zeros((1, self.NUM_BUCKETS))
+        self.ref_dist = np.array(clustering_results['dist'])
+        self.ref_dist_counts = np.array(clustering_results['dist_counts'])

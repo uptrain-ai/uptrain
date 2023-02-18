@@ -17,7 +17,7 @@ class LogHandler:
             os.makedirs(self.st_log_folder, exist_ok=True)
             self.st_writer = StreamlitLogs(self.st_log_folder)
 
-    def add_scalars(self, plot_name, dictn, count, dashboard_name, features={}, models={}, file_name=''):
+    def add_scalars(self, plot_name, dictn, count, dashboard_name, features={}, models={}, file_name='', update_val=False):
         if self.st_writer is None:
             return
         dashboard_name, plot_name = self.dir_friendly_name(
@@ -35,7 +35,7 @@ class LogHandler:
         plot_folder = os.path.join(dashboard_dir, "line_plots", plot_name)
         os.makedirs(plot_folder, exist_ok=True)
         new_dictn.update({"x_count": count})
-        self.st_writer.add_scalars(new_dictn, plot_folder, file_name=file_name)
+        self.st_writer.add_scalars(new_dictn, plot_folder, file_name=file_name, update_val=update_val)
 
     def add_histogram(self, plot_name, data, dashboard_name, count=-1, features=None, models=None, file_name=""):
         dashboard_name, plot_name = self.dir_friendly_name(
