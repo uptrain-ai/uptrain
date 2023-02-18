@@ -58,8 +58,11 @@ def plot_line_charts(files, plot_name):
             "log x", help="x-axis in log-scale", key=plot_name + "x"
         )
     with col2:
-        feat_genre_type = st.selectbox(f"Select Feature {feat_name}", 
-            feat_genre_types, key=plot_name+'genre')
+        try:
+            feat_genre_type = st.selectbox(f"Select Feature {feat_name}", 
+                feat_genre_types, key=plot_name+'genre')
+        except:
+            feat_genre_type = "All"
         y_log = st.checkbox(
             "log y", help="y-axis in log-scale", key=plot_name + "y"
         )

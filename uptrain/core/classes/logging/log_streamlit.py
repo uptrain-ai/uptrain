@@ -57,11 +57,12 @@ class StreamlitLogs:
                 for key in keys:
                     if key[0:2] == 'x_':
                         df = df.sort_values(by=[key])
-            df.to_csv(file_name)
-        with open(file_name, "a") as f_object:
-            writer_object = csv.writer(f_object)
-            writer_object.writerow(list(dict.values()))
-            f_object.close()
+            df.to_csv(file_name, index=False)
+        else:
+            with open(file_name, "a") as f_object:
+                writer_object = csv.writer(f_object)
+                writer_object.writerow(list(dict.values()))
+                f_object.close()
 
 
     def add_histogram(self, data, folder, models=None, features=None, file_name=''):

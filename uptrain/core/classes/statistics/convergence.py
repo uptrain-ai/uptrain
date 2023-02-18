@@ -166,9 +166,6 @@ class Convergence(AbstractStatistic):
                             )
 
 
-            # print(self.allowed_model_values)
-            # if self.allowed_model_values == [['realtime'], ['unified']]:
-            #     import pdb; pdb.set_trace()
             if ((self.total_count - self.prev_calc_at) > 50000):
                 self.prev_calc_at = self.total_count
                 for count in list(self.distances_dictn.keys()):
@@ -194,6 +191,7 @@ class Convergence(AbstractStatistic):
                                     # self.total_count,                     
                                     self.dashboard_name,
                                     models = models,
+                                    features = {"tagGenre": "All"},
                                     file_name = str("count"),
                                     update_val = True
                                 )
@@ -204,6 +202,7 @@ class Convergence(AbstractStatistic):
                                     # self.total_count,                     
                                     self.dashboard_name,
                                     models = models,
+                                    features = {"tagGenre": "All"},
                                     file_name = str("count"),
                                     update_val = True
                                 )
@@ -227,8 +226,7 @@ class Convergence(AbstractStatistic):
                                             # self.total_count,                     
                                             self.dashboard_name,
                                             models = models,
+                                            features = {"tagGenre": "All"},
                                             file_name = str("count"),
                                             update_val = True
                                         )
-
-                                    
