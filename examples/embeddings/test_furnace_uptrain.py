@@ -1,22 +1,21 @@
 import uptrain
 import pandas as pd
 import numpy as np
-
+import datetime
 
 def clean_df(df):
     print("Originial length", len(df))
     df["views"] = df["views"].fillna(0)
-    # df = df[df['sig_type'] == 'vplay']
     df = df.drop_duplicates(subset=df.columns.tolist())
     print("After dropping duplicates", len(df))
-    df = df.drop(['Unnamed: 0', 'post_valid'], axis=1)
     return df
 
-df = pd.read_csv("sample_data500.csv")
+df = pd.read_csv("sample_data_vplay_small.csv")
 df = clean_df(df)
 print(f"Total Entries: {len(df)}, Unique Posts: {len(np.unique(df['postId']))}")
+print(np.unique(np.array(df['ffm_type'].tolist()),return_counts=True))
 
-# import pdb; pdb.set_trace()
+t1 = datetime.datetime.utcnow()
 
 views_checkpoints = [0, 200, 500, 1000, 5000, 20000]
 aggregate_args = {
@@ -64,17 +63,7 @@ cfg = {
         "model_args": [model_args_ffm_type, model_args_sig_type],
         "feature_args": [feature_args_genre],
         'reference': "initial",
-        "distance_types": ["cosine_distance"],
-    },
-    {
-        'type': uptrain.Statistic.DISTANCE,
-        'aggregate_args': aggregate_args,
-        "measurable_args": measurable_args,
-        "count_args": count_args,
-        "model_args": [model_args_ffm_type, model_args_sig_type],
-        "feature_args": [feature_args_genre],
-        'reference': "running_diff",
-        "distance_types": ["cosine_distance"],
+        "distance_types": ["cosine_distance", "norm_ratio", "l2_distance"],
     },
     {
         'type': uptrain.Statistic.DISTRIBUTION_STATS,
@@ -83,7 +72,7 @@ cfg = {
         "count_args": count_args,
         "model_args": [model_args_ffm_type, model_args_sig_type],
         "feature_args": [feature_args_genre],
-        "distance_types": ["norm_ratio", "cosine_distance"],
+        "distance_types": ["cosine_distance"],
         'count_checkpoints': views_checkpoints,
     },
     {
@@ -94,7 +83,7 @@ cfg = {
         "model_args": [model_args_ffm_type, model_args_sig_type],
         "feature_args": [feature_args_genre],
         'reference': "running_diff",
-        "distance_types": ["cosine_distance", "norm_ratio"],
+        "distance_types": ["cosine_distance", "norm_ratio", "l2_distance"],
         'count_checkpoints': views_checkpoints,
     },
     {
@@ -105,7 +94,7 @@ cfg = {
         "model_args": [model_args_ffm_type, model_args_sig_type],
         "feature_args": [feature_args_genre],
         'reference': "initial",
-        "distance_types": ["cosine_distance", "norm_ratio"],
+        "distance_types": ["cosine_distance", "norm_ratio", "l2_distance"],
         'count_checkpoints': views_checkpoints,
     },
     {
@@ -114,8 +103,8 @@ cfg = {
         "measurable_args": measurable_args,
         "model_args": [model_args_ffm_type, model_args_sig_type],        
         'count_checkpoints': views_checkpoints,
-        'min_dist': 0.1,
-        'n_neighbors': 2,
+        'min_dist': 0,
+        'n_neighbors': 5,
         'metric_umap': 'cosine',
         'dim': '2D', # Use '2D' or '3D'
         'clustering': False, # Set True for DBSCAN clustering
@@ -130,11 +119,11 @@ cfg = {
 }
 framework = uptrain.Framework(cfg_dict=cfg)
 
-batch_size = min(256*32, len(df))
+batch_size = min(100, len(df))
 cols = ['ffm_type', 'postId', 'embs', 'tagGenre', 'views', 'sig_type']
 for idx in range(int(len(df)/batch_size)):
+    t_s = datetime.datetime.utcnow()
     this_elems = df[idx*batch_size: (idx+1)*batch_size]
-    print(idx*batch_size)
     dictn = {}
     for col in cols:
         dictn.update({col: list(this_elems[col])})
@@ -142,5 +131,9 @@ for idx in range(int(len(df)/batch_size)):
             dictn[col] = [eval(x) for x in dictn[col]]
     inputs = {'data': dictn}
     idens = framework.log(inputs=inputs)
+    t_f = datetime.datetime.utcnow()
+    print(idx*batch_size, (t_f-t_s).total_seconds())
 
 print("Done")
+t2 = datetime.datetime.utcnow()
+print([len(df), (t2-t1).total_seconds()/60, t1, t2])
