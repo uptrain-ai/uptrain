@@ -44,11 +44,13 @@ class Umap(AbstractVisual):
             self.min_dist = check["min_dist"]
             self.n_neighbors = check["n_neighbors"]
             self.metric_umap = check["metric_umap"]
-            self.dim = check["dim"]
-            self.min_samples = check["min_samples"]
-            self.eps = check["eps"]
+            self.dim = check.get("dim", '2D')
+            self.clustering = check.get("clustering", False)
+            self.min_samples = check.get("min_samples", 5)
+            self.eps = check.get("eps", 2.0)
             self.total_count = 0
             self.prev_calc_at = 0
+            self.feat_name = check.get('feature_name', None)
 
     def check(self, inputs, outputs, gts=None, extra_args={}):
         if len(self.children) > 0:
@@ -59,13 +61,16 @@ class Umap(AbstractVisual):
                 return
 
             self.prev_calc_at = self.total_count
-            models = dict(zip(['model_' + x for x in self.model_names], [self.allowed_model_values[jdx][0] for jdx in range(len(self.model_names))]))
+            models = dict(zip(['model_' + x for x in self.model_names], 
+                [self.allowed_model_values[jdx][0] for jdx in range(len(self.model_names))]))
             for count in self.count_checkpoints:
                 data_dict = self.get_data_for_umap(count)
 
                 if len(data_dict) > 10:
-                    emb_list = np.squeeze(np.array(list(data_dict.values())))
-                    umap_list, clusters = self.get_umap_and_clusters(
+                    clusters = []
+                    data = list(data_dict.values())
+                    emb_list = np.array([np.squeeze(x['val']) for x in data])
+                    umap_list, clusters_dbscan = self.get_umap_and_clusters(
                         emb_list,
                         self.dim,
                         self.n_neighbors,
@@ -73,7 +78,13 @@ class Umap(AbstractVisual):
                         self.metric_umap,
                         self.eps,
                         self.min_samples,
+                        self.clustering,
                     )
+                    if self.clustering:
+                        clusters = clusters_dbscan
+                    else:
+                        if self.feat_name is not None:
+                            clusters = [np.squeeze(x[self.feat_name]) for x in data]
                     this_data = {"umap": umap_list, "clusters": clusters}
                     self.log_handler.add_histogram(
                         "umap_and_clusters",
@@ -91,7 +102,8 @@ class Umap(AbstractVisual):
                 self.framework.check_manager.statistics_to_check,
             )
         )[0]
-        return distribution_anomaly.get_feats_for_clustering(count, self.allowed_model_values)
+        data_dict = distribution_anomaly.get_feats_for_clustering(count, self.allowed_model_values)
+        return data_dict
 
     def get_umap_and_clusters(
         self,
@@ -102,6 +114,7 @@ class Umap(AbstractVisual):
         metric,
         eps,
         min_samples,
+        clustering=False,
     ):
         if dim == "2D":
             n_components = 2
@@ -115,6 +128,8 @@ class Umap(AbstractVisual):
             metric=metric,
         ).fit_transform(emb_list)
 
-        # Do DBSCAN clustering
-        clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(umap_embeddings)
-        return umap_embeddings, clustering.labels_
+        clusters = None
+        if clustering:        
+            # Do DBSCAN clustering
+            clusters = DBSCAN(eps=eps, min_samples=min_samples).fit(umap_embeddings).labels_
+        return umap_embeddings, clusters

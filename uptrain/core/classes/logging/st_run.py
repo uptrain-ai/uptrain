@@ -19,6 +19,12 @@ st_style = """<style> footer {visibility: hidden;} </style>"""
 st.markdown(st_style, unsafe_allow_html=True)
 
 model_sig_types = ['vplay', 'unified', 'fav', 'like', 'share', 'vclick', 'vskip']
+feat_genre_types = ['All', 'AGT', 'Arts (self perform)', 'Cinema & TV', 
+    'Culture (Nation/state/dialects)', 'Devotion', 'Education',
+    'Fashion and Makeup', 'Humour & Fun', 'Kids', 'LifeStyle',
+    'Literature', 'Music & Dance', 'News', 'Personal',
+    'Romance & Relationships', 'Sports', 'Status and Stories',
+    'Wellbeing', 'Wishes']
 
 def return_plotly_fig(y_axis, x_axis="Num predictions", x_log=False, y_log=False):
     fig = go.Figure()
@@ -40,16 +46,20 @@ def plot_line_charts(files, plot_name):
             x_axis = key
         if key.startswith("y_"):
             y_axis = key
+        if key.startswith("feature_"):
+            feat_name = key[8:]
 
-    model_sig_type = st.selectbox("Select Signal Type", 
-        model_sig_types, key=plot_name)
 
     col1, col2 = st.columns(2)
     with col1:
+        model_sig_type = st.selectbox("Select Signal Type", 
+            model_sig_types, key=plot_name)
         x_log = st.checkbox(
             "log x", help="x-axis in log-scale", key=plot_name + "x"
         )
     with col2:
+        feat_genre_type = st.selectbox(f"Select Feature {feat_name}", 
+            feat_genre_types, key=plot_name+'genre')
         y_log = st.checkbox(
             "log y", help="y-axis in log-scale", key=plot_name + "y"
         )
@@ -60,16 +70,23 @@ def plot_line_charts(files, plot_name):
         for i, csv_file in enumerate(files):
             # Reading the csv file
             df = pd.read_csv(csv_file)
+            if feat_genre_type != 'All':
+                # TODO: No need to read the entire file, some sort of 
+                # lookup file like json should be there on disk
+                if df['feature_' + feat_name][0] != feat_genre_type:
+                    continue
             df = df[df['model_ffm_type'] == model_ffm_type]
             df = df[df['model_sig_type'] == model_sig_type]
 
             # Getting plot_id
             plot_id = csv_file.split("/")[-1].split(".")[0]
+            # genre = np.unique(df['feature_tagGenre'])[0]
+            # print("genre", genre)
             fig = fig.add_trace(
                 go.Scatter(
                     x=df[x_axis],
                     y=df[y_axis],
-                    name=str(i) + ", " + plot_id,
+                    name=str(i) + "," + plot_id,
                 )
             )
 
@@ -79,8 +96,24 @@ def plot_line_charts(files, plot_name):
 
 
 def plot_histograms(files, plot_name):
-    model_sig_type = st.selectbox("Select Signal Type", 
-        model_sig_types, key=plot_name)
+    
+    # Getting plot metadata from the first file
+    if "distribution_stats" in files[0]:
+        model_sig_type = st.selectbox("Select Signal Type", 
+            model_sig_types, key=plot_name+'dist')
+        feat_genre_type = None
+    else:
+        df = pd.read_csv(files[0])
+        for key in df.keys():
+            if key.startswith("feature_"):
+                feat_name = key[8:]
+        col1, col2 = st.columns(2)
+        with col1:
+            model_sig_type = st.selectbox("Select Signal Type", 
+                model_sig_types, key=plot_name)
+        with col2:
+            feat_genre_type = st.selectbox("Select Genre Type", 
+                feat_genre_types, key=plot_name+'genre')
     
     cols = st.columns(2)
     for j,model_ffm_type in enumerate(['realtime', 'batch']):
@@ -90,6 +123,9 @@ def plot_histograms(files, plot_name):
             df = pd.read_csv(csv_file)
             df = df[df['model_ffm_type'] == model_ffm_type]
             df = df[df['model_sig_type'] == model_sig_type]
+            if feat_genre_type is not None:
+                if feat_genre_type != 'All':
+                    df = df[df['feature_' + feat_name] == feat_genre_type]
 
             # Getting plot_id
             plot_id = csv_file.split("/")[-1].split(".")[0]

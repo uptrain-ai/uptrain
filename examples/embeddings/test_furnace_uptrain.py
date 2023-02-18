@@ -15,7 +15,8 @@ def clean_df(df):
 df = pd.read_csv("sample_data500.csv")
 df = clean_df(df)
 print(f"Total Entries: {len(df)}, Unique Posts: {len(np.unique(df['postId']))}")
-# import pdb; pdb.set_trace() 
+
+# import pdb; pdb.set_trace()
 
 views_checkpoints = [0, 200, 500, 1000, 5000, 20000]
 aggregate_args = {
@@ -43,7 +44,13 @@ model_args_sig_type = {
 }
 feature_args_genre = {
     'type': uptrain.MeasurableType.INPUT_FEATURE,
-    'feature_name': 'tagGenre'
+    'feature_name': 'tagGenre',
+    'allowed_values': ['AGT', 'Arts (self perform)', 'Cinema & TV', 
+    'Culture (Nation/state/dialects)', 'Devotion', 'Education',
+    'Fashion and Makeup', 'Humour & Fun', 'Kids', 'LifeStyle',
+    'Literature', 'Music & Dance', 'News', 'Personal',
+    'Romance & Relationships', 'Sports', 'Status and Stories',
+    'Wellbeing', 'Wishes']
 }
 
 cfg = {
@@ -110,9 +117,9 @@ cfg = {
         'min_dist': 0.1,
         'n_neighbors': 2,
         'metric_umap': 'cosine',
-        'dim': '3D',
-        'min_samples': 5,
-        'eps': 2.0,
+        'dim': '2D', # Use '2D' or '3D'
+        'clustering': False, # Set True for DBSCAN clustering
+        'feature_name': 'tagGenre', # Feature with which clusters are labeled
     },
     ],
     "training_args": {
