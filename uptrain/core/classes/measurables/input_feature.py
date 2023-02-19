@@ -10,7 +10,7 @@ class InputFeatureMeasurable(Measurable):
         return inputs[self.feature_name]
 
     def col_name(self):
-        return "Measurable: Input - " + str(self.feature_name)
+        return str(self.feature_name)
 
     # TODO: Decommission and find a generic way
     def extract_val_from_training_data(self, x):

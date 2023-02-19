@@ -12,6 +12,7 @@ class DataDrift(AbstractAnomaly):
     is_embedding = None
     mode = None
     NUM_BUCKETS = 20
+    INITIAL_SKIP = 2000
 
     def __init__(self, fw, check, is_embedding=None):
         self.measurable = None
@@ -25,8 +26,15 @@ class DataDrift(AbstractAnomaly):
             self.reference_dataset = check["reference_dataset"]
             self.cluster_plot_func = fw.dataset_handler.cluster_plot_func
             self.save_edge_cases = check.get("save_edge_cases", True)
+            self.NUM_BUCKETS = check.get("num_buckets", self.NUM_BUCKETS)
+            self.INITIAL_SKIP = check.get("initial_skip", self.INITIAL_SKIP)
             self.count = 0
             self.prod_dist_counts_arr = []
+            # self.log_handler.add_writer(self.dashboard_name)
+            if self.is_embedding:
+                self.plot_name = "Embeddings_" + self.measurable.col_name()
+            else:
+                self.plot_name = "Scalar_" + self.measurable.col_name()
             self.bucket_reference_dataset()
 
     def need_ground_truth(self):
@@ -88,24 +96,60 @@ class DataDrift(AbstractAnomaly):
             else:
                 this_datapoint_cluster = []
                 for idx in range(self.feats.shape[2]):
-                    bucket_idx = np.searchsorted(
-                        self.buckets[idx], self.feats[:, :, idx]
-                    )[:, 0]
-                    this_datapoint_cluster.append(bucket_idx)
-                    self.prod_dist_counts[idx][bucket_idx] += 1
+                    if isinstance(self.feats[0,0,idx], str):
+                        try:
+                            bucket_idx = np.array([
+                                list(self.buckets[idx]).index(self.feats[x,0,idx]) for x in range(self.feats.shape[0])
+                            ])
+                        except:
+                            # If given data-point is not present -> add a new bucket
+                            temp_buckets = list(self.buckets[idx])
+                            num_added = 0
+
+                            for x in range(self.feats.shape[0]):
+                                if self.feats[x,0,idx] not in temp_buckets:
+                                    temp_buckets.append(self.feats[x,0,idx])
+                                    num_added += 1
+                            
+                            self.buckets[idx] = np.array(temp_buckets)
+                            bucket_idx = np.array([
+                                list(self.buckets[idx]).index(self.feats[x,0,idx]) for x in range(self.feats.shape[0])
+                            ])
+                    else:
+                        bucket_idx = np.searchsorted(
+                            self.buckets[idx], self.feats[:, :, idx]
+                        )[:, 0]
+                    for clus in bucket_idx:
+                        self.prod_dist_counts[idx][clus] += 1
                 self.prod_dist_counts_arr.append(self.prod_dist_counts.copy())
                 self.this_datapoint_cluster = np.array(this_datapoint_cluster)
 
-            if self.count < 1000:
+            self.prod_dist = (
+                self.prod_dist_counts_arr[-1]
+                - self.prod_dist_counts_arr[
+                    int(max(self.count - 2000, 0) / len(extra_args["id"]))
+                ]
+            ) / min(self.count, 2000)
+
+            if self.ref_dist.shape[0] == 1:
+                if self.is_embedding:
+                    bar_graph_buckets = ["cluster_" + str(idx) for idx in range(len(list(np.reshape(self.clusters,-1))))]
+                else:
+                    bar_graph_buckets = list(np.reshape(self.clusters,-1))
+
+                self.log_handler.add_bar_graphs(
+                    self.plot_name,
+                    {
+                        "reference": dict(zip(bar_graph_buckets, list(np.reshape(np.array(self.ref_dist[0]), -1)))),
+                        "production": dict(zip(bar_graph_buckets, list(np.reshape(np.array(self.prod_dist[0]), -1)))),
+                    },
+                    self.dashboard_name,
+                )
+
+            if self.count < self.INITIAL_SKIP:
                 self.drift_detected = False
                 return
             else:
-                self.prod_dist = (
-                    self.prod_dist_counts_arr[-1]
-                    - self.prod_dist_counts_arr[
-                        int(max(self.count - 2000, 0) / len(extra_args["id"]))
-                    ]
-                ) / min(self.count, 2000)
                 self.psis = np.zeros(self.ref_dist.shape[0])
                 self.costs = np.zeros(self.ref_dist.shape[0])
                 drift_detected = False
@@ -129,11 +173,18 @@ class DataDrift(AbstractAnomaly):
                         self.psis[idx] = this_psi
                         drift_detected = drift_detected or (this_psi > 0.3)
                 self.drift_detected = drift_detected
+                if self.drift_detected:
+                    alert = "Data Drift last detected at " + str(self.count) + " for Embeddings with Earth moving distance = " + str(int(self.costs[0]))
+                    self.log_handler.add_alert(
+                        "Data Drift Alert 🚨",
+                        alert,
+                        self.dashboard_name
+                    )
 
             if self.is_embedding:
                 dict_emc = dict(
                     zip(
-                        ["feat_" + str(x) for x in range(self.costs.shape[0])],
+                        [self.measurable.col_name() for x in range(self.costs.shape[0])],
                         [float(x) for x in list(self.costs)],
                     )
                 )
@@ -147,7 +198,7 @@ class DataDrift(AbstractAnomaly):
             else:
                 dict_psi = dict(
                     zip(
-                        ["feat_" + str(x) for x in range(self.psis.shape[0])],
+                        [self.measurable.col_name() + "_" + str(x) for x in range(self.psis.shape[0])],
                         [float(x) for x in list(self.psis)],
                     )
                 )
@@ -181,7 +232,7 @@ class DataDrift(AbstractAnomaly):
                 raise Exception("Mode for data drift should be set in check func")
         else:
             is_interesting = np.array([False] * len(extra_args["id"]))
-            if self.save_edge_cases and self.drift_detected:
+            if self.save_edge_cases and self.drift_detected and not isinstance(self.feats[0,0,0], str):
                 feats_shape = list(self.feats.shape)
                 del feats_shape[1]
                 self.feats = np.reshape(self.feats, tuple(feats_shape))
@@ -304,40 +355,52 @@ class DataDrift(AbstractAnomaly):
         self.prod_dist_counts = np.array(self.prod_dist_counts)
 
     def bucket_scalar(self, arr):
-        sorted_arr = np.sort(arr)
-        buckets = []
-        clusters = []
-        cluster_vars = []
-        for idx in range(0, self.NUM_BUCKETS):
-            if idx > 0:
-                buckets.append(
-                    sorted_arr[int(idx * (len(sorted_arr) - 1) / self.NUM_BUCKETS)]
-                )
-            this_bucket_elems = sorted_arr[
-                int((idx) * (len(sorted_arr) - 1) / self.NUM_BUCKETS) : int(
-                    (idx + 1) * (len(sorted_arr) - 1) / self.NUM_BUCKETS
-                )
-            ]
-            gaussian_mean = np.mean(this_bucket_elems)
-            gaussian_var = np.var(this_bucket_elems)
-            clusters.append([gaussian_mean])
-            cluster_vars.append([gaussian_var])
+        if isinstance(arr[0], str):
+            uniques, counts = np.unique(np.array(arr), return_counts=True)
+            buckets = uniques
+            self.NUM_BUCKETS = len(buckets)
+            clusters = uniques
+            cluster_vars = [None] * self.NUM_BUCKETS
+            self.ref_dist.append([[counts[x] / len(arr)] for x in range(self.NUM_BUCKETS)])
+            self.ref_dist_counts.append(
+                [[counts[x]] for x in range(self.NUM_BUCKETS)]
+            )
+        else:
+            sorted_arr = np.sort(arr)
+            buckets = []
+            clusters = []
+            cluster_vars = []
+            for idx in range(0, self.NUM_BUCKETS):
+                if idx > 0:
+                    buckets.append(
+                        sorted_arr[int(idx * (len(sorted_arr) - 1) / self.NUM_BUCKETS)]
+                    )
+                this_bucket_elems = sorted_arr[
+                    int((idx) * (len(sorted_arr) - 1) / self.NUM_BUCKETS) : int(
+                        (idx + 1) * (len(sorted_arr) - 1) / self.NUM_BUCKETS
+                    )
+                ]
+                gaussian_mean = np.mean(this_bucket_elems)
+                gaussian_var = np.var(this_bucket_elems)
+                clusters.append([gaussian_mean])
+                cluster_vars.append([gaussian_var])
 
-        self.ref_dist.append([[1 / self.NUM_BUCKETS] for x in range(self.NUM_BUCKETS)])
-        self.ref_dist_counts.append(
-            [[int(len(sorted_arr) / self.NUM_BUCKETS)] for x in range(self.NUM_BUCKETS)]
-        )
+            self.ref_dist.append([[1 / self.NUM_BUCKETS] for x in range(self.NUM_BUCKETS)])
+            self.ref_dist_counts.append(
+                [[int(len(sorted_arr) / self.NUM_BUCKETS)] for x in range(self.NUM_BUCKETS)]
+            )
         self.prod_dist.append([[0] for x in range(self.NUM_BUCKETS)])
         self.prod_dist_counts.append([[0] for x in range(self.NUM_BUCKETS)])
         return np.array(buckets), np.array(clusters), np.array(cluster_vars)
 
     def bucket_vector(self, data):
 
+        plot_save_name = self.log_handler.get_plot_save_name(self.dashboard_name, "training_dataset_clusters.png")
         all_clusters, counts, cluster_vars = cluster_and_plot_data(
             data,
             self.NUM_BUCKETS,
             cluster_plot_func=self.cluster_plot_func,
-            plot_save_name="training_dataset_clusters.png",
+            plot_save_name=plot_save_name
         )
 
         self.clusters = np.array([all_clusters])

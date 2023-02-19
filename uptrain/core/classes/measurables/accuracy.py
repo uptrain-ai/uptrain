@@ -13,4 +13,4 @@ class AccuracyMeasurable(Measurable):
         return np.equal(outputs, gts)
 
     def col_name(self):
-        return "Measurable: Accuracy"
+        return "Accuracy"

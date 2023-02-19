@@ -38,7 +38,7 @@ class ConditionMeasurable(Measurable):
 
     def col_name(self):
         return (
-            "Measurable: Condition("
+            "Condition("
             + self.feature.col_name()
             + ","
             + str(self.condition)

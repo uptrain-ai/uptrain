@@ -10,4 +10,4 @@ class OutputFeatureMeasurable(Measurable):
         return outputs[self.feature_name]
 
     def col_name(self):
-        return "Measurable: Output - " + str(self.feature_name)
+        return str(self.feature_name)

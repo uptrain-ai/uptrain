@@ -34,7 +34,7 @@ class DistanceMeasurable(Measurable):
 
     def col_name(self, return_str=True):
         col_names = [
-            "Measurable: Distance "
+            "Distance "
             + str(self.base.col_name())
             + self.reference
             + str(x)

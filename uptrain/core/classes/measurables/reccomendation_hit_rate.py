@@ -12,4 +12,4 @@ class RecHitRateMeasurable(Measurable):
         return np.array(acc)
 
     def col_name(self):
-        return "Measurable: Hit-Rate"
+        return "Hit-Rate"
