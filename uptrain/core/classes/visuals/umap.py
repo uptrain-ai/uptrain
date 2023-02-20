@@ -31,8 +31,8 @@ class Umap(AbstractVisual):
         self.n_neighbors = check["n_neighbors"]
         self.metric_umap = check["metric_umap"]
         self.dim = check["dim"]
-        self.min_samples = check.get("min_samples", 1)
-        self.eps = check.get("eps", 0.1)
+        self.min_samples = check.get("min_samples", 5)
+        self.eps = check.get("eps", 2)
         self.emb_dict = {}
         self.measurable_dict = {}
         self.total_count = 0
