@@ -33,7 +33,7 @@
     <img src="https://img.shields.io/badge/UpTrain-Website-yellow" alt="Website" />
   </a>
   <a href="https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing/">
-    <img src="https://img.shields.io/badge/Google-Collab-green" alt="Collab" />
+    <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
   </a>
 </h4>
 
