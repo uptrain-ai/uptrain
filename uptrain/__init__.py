@@ -11,3 +11,4 @@ from uptrain.constants import (
     Statistic,
     Visual,
 )
+from uptrain.core.encoders import UpTrainEncoder

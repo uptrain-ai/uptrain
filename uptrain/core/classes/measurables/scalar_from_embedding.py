@@ -19,7 +19,7 @@ class ScalarFromEmbeddingMeasurable(Measurable):
 
     def col_name(self):
         return (
-            "Measurable: Scalar [Index:"
+            "Scalar [Index:"
             + str(self.idx)
             + "] from Embedding: "
             + str(self.extract_from.col_name())

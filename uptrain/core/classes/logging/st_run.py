@@ -166,9 +166,9 @@ def plot_dashboard(dashboard_name):
                                 else:
                                     raise ("Umap dimension not 2D or 3D.")
                                 st.plotly_chart(fig, use_container_width=True)
-                                st.write(
-                                    f"Number of clusters for count {count}: {len(set(clusters))-1}"
-                                )
+                                # st.write(
+                                #     f"Number of clusters for count {count}: {len(set(clusters))-1}"
+                                # )
                                 st.markdown("""---""")   
                 st.sidebar.markdown("""---""")
 

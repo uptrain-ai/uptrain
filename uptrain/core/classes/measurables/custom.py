@@ -18,7 +18,7 @@ class CustomMeasurable(Measurable):
         return val
 
     def col_name(self):
-        return "Measurable: Custom(" + str(self.signal_manager) + ")"
+        return str(self.signal_manager)
 
     # TODO: Decommission and find a generic way
     def extract_val_from_training_data(self, x):

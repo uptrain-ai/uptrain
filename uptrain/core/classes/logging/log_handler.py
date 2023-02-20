@@ -33,6 +33,12 @@ class LogHandler:
             tb_writer = self.tb_logs.add_writer(dashboard_name)
             self.tb_writers.update({dashboard_name: tb_writer})
 
+    def get_plot_save_name(self, plot_name, dashboard_name):
+        if self.st_writer:
+            return os.path.join(self.st_log_folder, dashboard_name, plot_name)
+        else:
+            return ""
+
     def add_scalars(self, plot_name, dictn, count, dashboard_name):
         dashboard_name, plot_name = self.make_name_fold_directory_friendly(
             [dashboard_name, plot_name]
@@ -105,3 +111,10 @@ class LogHandler:
         txt = txt.replace("=", "_")
         txt = txt.replace("-", "_")
         return txt
+    
+    def add_alert(self, alert_name, alert, dashboard_name):
+        if self.st_writer:
+            dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
+            plot_folder = os.path.join(dashboard_dir, "alerts")
+            os.makedirs(plot_folder, exist_ok=True)
+            self.st_writer.add_alert(alert_name, alert, plot_folder)
