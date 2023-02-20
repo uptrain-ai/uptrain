@@ -7,6 +7,7 @@ import numpy as np
 import json
 import os
 import uptrain
+import subprocess
 
 # Mean Pooling - Take attention mask into account for correct averaging
 def mean_pooling(model_output, attention_mask):
@@ -79,3 +80,29 @@ def combine_datasets(dataset_1, label_1, dataset_2, label_2):
     labels = label_bill + label_wiki
     final_test_dataset = final_test_dataset.add_column("dataset_label", labels)
     return final_test_dataset
+
+def download_wikihow_csv_file():
+    file_name = "wikihowAll.csv"
+    remote_url = "https://oodles-dev-training-data.s3.amazonaws.com/wikihowAll.csv"
+    if not os.path.exists(file_name):
+        print("Starting to download " + file_name)
+        try:
+            # Most Linux distributions have Wget installed by default.
+            # Below command is to install wget for MacOS
+            wget_installed_ok = subprocess.call("brew install wget", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+            print("Successfully installed wget")
+        except:
+            dummy = 1
+        try:
+            if not os.path.exists(file_name):
+                file_downloaded_ok = subprocess.call("wget " + remote_url, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+                print("Data downloaded")
+            print("Prepared Wikihow Dataset")
+        except Exception as e:
+            print(e)
+            print("Could not load training data")
+            print("Please follow following steps to manually download data")
+            print("Step 1: Paste the link https://oodles-dev-training-data.s3.amazonaws.com/wikihowAll.csv in your browser")
+            print("Step 2: Once the csv file is downloaded, move it here (i.e. YOUR_LOC/uptrain/examples/text_summarization/")
+    else:
+        print(file_name + " already present")
