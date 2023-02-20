@@ -61,11 +61,6 @@ class StreamlitLogs:
         with open(file_name, "w") as f:
             json.dump(data, f, cls=NumpyEncoder)
 
-    def add_alert(self, alert_name, alert, folder):
-        file_name = os.path.join(folder, str(alert_name) + ".json")
-        with open(file_name, "w") as f:
-            json.dump(alert, f)
-
     # def feat_slicing(self, fw):
     #     relevant_feat_list = st.sidebar.multiselect(
     #         "Select features", fw.feat_name_list, fw.feat_name_list[0]
