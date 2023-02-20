@@ -74,12 +74,12 @@ class Framework:
         self.version = 0
         self.if_retraining = cfg.retrain
         self.path_all_data = os.path.join(self.fold_name, "all_data.csv")
+        self.log_handler = LogHandler(framework=self, cfg=cfg)
 
         self.dataset_handler = DatasetHandler(
             cluster_plot_func=cfg.cluster_visualize_func
         )
         self.model_handler = ModelHandler()
-        self.log_handler = LogHandler(framework=self, cfg=cfg)
         self.check_manager = CheckManager(self, self.checks)
         self.reset_retraining()
 
@@ -143,24 +143,27 @@ class Framework:
         Log only the interesting test cases to data 
         warehouse. Logged under sub-folder 'smart_data'
         """
+        path_smart_data = os.path.join(
+            self.fold_name, str(self.version), "smart_data.csv"
+        )
+
         if num_selected_datapoints > 0:
             smart_data = extract_data_points_from_batch(
                 data, np.where(is_interesting == True)[0]
             )
-            path_smart_data = os.path.join(
-                self.fold_name, str(self.version), "smart_data.csv"
-            )
             add_data_to_warehouse(deepcopy(smart_data), path_smart_data)
+
+        edge_cases_txt = str(self.selected_count) + " edge cases identified out of " + str(self.predicted_count) + " total samples"
+        self.log_handler.add_alert(
+            "Number of edge cases collected",
+            edge_cases_txt,
+            "edge_cases"
+        )
 
         if (not (self.selected_count == old_selected_count)) and (
             not (int(self.selected_count / 50) == int(old_selected_count / 50))
         ):
-            print(
-                self.selected_count,
-                " edge cases identified out of ",
-                self.predicted_count,
-                " total samples",
-            )
+            print(edge_cases_txt)
 
     def infer_batch_size(self, inputs):
         batch_sizes = []

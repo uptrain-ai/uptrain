@@ -34,7 +34,7 @@ class DataDrift(AbstractAnomaly):
             # self.log_handler.add_writer(self.dashboard_name)
             if self.is_embedding:
                 self.plot_name = "Embeddings_" + self.measurable.col_name()
-                self.emd_threshold = check.get("emd_threshold", 0.5)
+                self.emd_threshold = check.get("emd_threshold", 1)
             else:
                 self.plot_name = "Scalar_" + self.measurable.col_name()
             self.bucket_reference_dataset()
@@ -191,7 +191,7 @@ class DataDrift(AbstractAnomaly):
                         [float(x) for x in list(self.costs)],
                     )
                 )
-                dict_emc.update({"threshold": 0.1})
+                dict_emc.update({"threshold": self.emd_threshold})
                 self.log_handler.add_scalars(
                     self.measurable.col_name() + " - earth_moving_costs_embedding",
                     dict_emc,
@@ -297,7 +297,7 @@ class DataDrift(AbstractAnomaly):
                 if this_dirt * dirt_required < 0:
                     cost_per_dirt = 1000000000
                 else:
-                    cost_per_dirt = np.mean(np.abs(clusters[kdx] - clusters[jdx]))
+                    cost_per_dirt = np.sum(np.abs(clusters[kdx] - clusters[jdx]))
                 dictn.append(
                     {
                         "dirt": np.abs(this_dirt),
