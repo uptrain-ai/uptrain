@@ -54,6 +54,7 @@ def generate_reference_dataset_with_embeddings(dataset, tokenizer, model, datase
             output_embs = model.generate(input_embs)
             summaries = tokenizer.batch_decode(output_embs, skip_special_tokens=True)
             bert_embs = convert_sentence_to_emb(summaries)
+            print("Generated bert embeddings for " + str((jdx+1) * 100) + " training samples")
             bert_embs_downsampled = downsample_embs(bert_embs)
             for idx in range(len(this_batch)):
                 data.append({

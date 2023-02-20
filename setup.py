@@ -14,7 +14,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="uptrain",
-    version="0.0.4",
+    version="0.0.5",
     description="UpTrain - ML Observability and Retraining Framework",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -50,7 +50,7 @@ setup(
         "plotly>=5.0.0",
         "pydantic>=1.9.0",
         "scikit_learn>=1.0.0",
-        "streamlit"
+        "streamlit>=1.0.0"
     ],
     tests_require=["pytest>=7.0", "torch", "imgaug", "gensim", "xgboost", "gensim"],
 )
