@@ -54,6 +54,7 @@
 
 - **[Data Drift Checks](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/run.ipynb)** - identify distribution shifts in your model inputs.
 - **[Performance Monitoring](https://github.com/uptrain-ai/uptrain/blob/main/examples/fraud_detection/run.ipynb)** - track the performance of your models in realtime and get alerted as soon as a dip is observed.
+- **[Embeddings Support](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)** - specialized dashboards to understand model-inferred embeddings.
 - **[Edge Case Signals](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_edge_cases_torch.ipynb)** - user-defined signals and statistical techniques to detect out-of-distribution data-points.
 - **[Data Integrity Checks](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_data_integrity.ipynb)** - checks for missing or inconsistent data, duplicate records, data quality, etc. 
 - **[Customizable metrics](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_data_drift_custom_measures.ipynb)** - define custom metrics that make sense for your use case.
@@ -65,7 +66,6 @@
 ## 🚨Coming soon🚨
 
 - **Realtime Dashboards** - to visualize your model's health.
-- **Embeddings Support** - specialized dashboards to understand model-inferred embeddings.
 - **Slack Integration** - get alerts on Slack.
 - **Label Shfit** - identify drifts in your predictions. Specially useful in cases when ground truth is unavailable.
 - **Prediction Stability** - filter cases where model prediction is not stable.
@@ -97,6 +97,20 @@ jupyter lab
 
 For more info, visit our [get started guide](https://docs.uptrain.ai/docs/get-started).
 
+<h4> </h4>
+
+# UpTrain in [action](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb) 🎬
+
+One of the most common use cases of ML today is language models, be it text summarization, NER, chatbots, language translation, etc. UpTrain provides ways to visualize differences in the training and real-world data via UMAP clustering of text embeddings (inferred from bert).
+<h1 align="left">
+<img alt="Meme" width="60%" src="https://user-images.githubusercontent.com/108270398/220204024-437c48f9-51d9-4ed8-9e23-5ec7033b8f7b.png">
+</h1>
+
+Additionally, UpTrain also provides statistical measures to quantify these differences and enables automated alerts whenever this drift crosses a certain threshold.
+<h1 align="left">
+<img alt="Meme" width="40%" src="https://user-images.githubusercontent.com/108270398/220204120-84433f34-33e9-4106-9da3-5db1b8fc68f3.png">
+<img alt="Meme" width="40%" src="https://user-images.githubusercontent.com/108270398/220204284-3ced3db3-7f1d-4147-8fc1-21cdd28bbb40.png">
+</h1>
 
 # Why UpTrain 🤔?
 
