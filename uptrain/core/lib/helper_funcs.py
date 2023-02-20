@@ -1,5 +1,6 @@
 import os
 import json
+import copy
 import numpy as np
 import csv
 import pandas as pd
@@ -10,7 +11,7 @@ from uptrain.core.encoders.uptrain_encoder import UpTrainEncoder
 
 
 def cluster_and_plot_data(
-    data, num_clusters, cluster_plot_func=None, plot_save_name=""
+    data, num_clusters, cluster_plot_func=None, plot_save_name="", normalisation=None
 ):
     kmeans = KMeans(n_clusters=num_clusters, random_state=1, n_init=10)
     kmeans.fit(data)
@@ -44,8 +45,12 @@ def cluster_and_plot_data(
     counts = np.array([x["count"] for x in dictn])
     cluster_vars = np.array([x["var"] for x in dictn])
 
+    if normalisation is not None:
+        all_clusters_renormalised = copy.deepcopy(all_clusters) * normalisation
+    else:
+        all_clusters_renormalised = all_clusters
     if cluster_plot_func is not None:
-        cluster_plot_func(all_clusters, counts, plot_save_name=plot_save_name)
+        cluster_plot_func(all_clusters_renormalised, counts, plot_save_name=plot_save_name)
     return all_clusters, counts, cluster_vars
 
 

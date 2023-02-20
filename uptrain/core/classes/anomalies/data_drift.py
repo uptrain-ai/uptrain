@@ -31,7 +31,6 @@ class DataDrift(AbstractAnomaly):
             self.INITIAL_SKIP = check.get("initial_skip", self.INITIAL_SKIP)
             self.count = 0
             self.prod_dist_counts_arr = []
-            # self.log_handler.add_writer(self.dashboard_name)
             if self.is_embedding:
                 self.plot_name = "Embeddings_" + self.measurable.col_name()
                 self.emd_threshold = check.get("emd_threshold", 1)
@@ -69,7 +68,7 @@ class DataDrift(AbstractAnomaly):
                     self.mode = "check_scalar_only"
                 self.check(inputs, outputs, gts=gts, extra_args=extra_args)
         else:
-            if self.count == 0:
+            if (self.count == 0) and not(self.is_embedding and (self.cluster_plot_func is not None)):
                 self.log_handler.add_writer(self.dashboard_name)
 
             self.count += len(extra_args["id"])
@@ -105,6 +104,7 @@ class DataDrift(AbstractAnomaly):
                                 list(self.buckets[idx]).index(self.feats[x,0,idx]) for x in range(self.feats.shape[0])
                             ])
                         except:
+                            # TODO: This logic is not completely tested yet. Contact us if you are facing issues
                             # If given data-point is not present -> add a new bucket
                             temp_buckets = list(self.buckets[idx])
                             num_added = 0
@@ -124,6 +124,7 @@ class DataDrift(AbstractAnomaly):
                         )[:, 0]
                     for clus in bucket_idx:
                         self.prod_dist_counts[idx][clus] += 1
+                    this_datapoint_cluster.append(bucket_idx)
                 self.prod_dist_counts_arr.append(self.prod_dist_counts.copy())
                 self.this_datapoint_cluster = np.array(this_datapoint_cluster)
 
@@ -403,12 +404,16 @@ class DataDrift(AbstractAnomaly):
         self.max_along_axis = np.max(abs_data, axis=0)
         data = data/self.max_along_axis
 
-        plot_save_name = self.log_handler.get_plot_save_name(self.dashboard_name, "training_dataset_clusters.png")
+        plot_save_name = "training_dataset_clusters.png"
+        # if self.cluster_plot_func is not None:
+        #     self.log_handler.add_writer(self.dashboard_name)
+        #     plot_save_name = self.log_handler.get_plot_save_name("training_dataset_clusters.png", self.dashboard_name)
         all_clusters, counts, cluster_vars = cluster_and_plot_data(
             data,
             self.NUM_BUCKETS,
             cluster_plot_func=self.cluster_plot_func,
-            plot_save_name=plot_save_name
+            plot_save_name=plot_save_name,
+            normalisation=self.max_along_axis
         )
 
         self.clusters = np.array([all_clusters])
