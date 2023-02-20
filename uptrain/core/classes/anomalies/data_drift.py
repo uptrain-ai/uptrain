@@ -68,7 +68,8 @@ class DataDrift(AbstractAnomaly):
                     self.mode = "check_scalar_only"
                 self.check(inputs, outputs, gts=gts, extra_args=extra_args)
         else:
-            if (self.count == 0) and not(self.is_embedding and (self.cluster_plot_func is not None)):
+            # if (self.count == 0) and not(self.is_embedding and (self.cluster_plot_func is not None)):
+            if self.count == 0:
                 self.log_handler.add_writer(self.dashboard_name)
 
             self.count += len(extra_args["id"])
