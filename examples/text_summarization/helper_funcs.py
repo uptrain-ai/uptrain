@@ -1,8 +1,12 @@
 
 from transformers import AutoTokenizer, AutoModel
+from datasets import concatenate_datasets
 import torch
 import torch.nn.functional as F
 import numpy as np
+import json
+import os
+import uptrain
 
 # Mean Pooling - Take attention mask into account for correct averaging
 def mean_pooling(model_output, attention_mask):
@@ -36,3 +40,42 @@ def downsample_embs(embs, algo='avg'):
     else:
         raise Exception("algo is not defined")
     return embs
+
+
+def generate_reference_dataset_with_embeddings(dataset, tokenizer, model, dataset_label="billsum_train"):
+    # ref_dataset = billsum['train']
+    data = []
+    file_name = "ref_dataset.json"
+    if not os.path.exists(file_name):
+        for jdx in range(10):
+            this_batch = ["summarize: " + x for x in dataset["text"][jdx*100: (jdx+1)*100]]
+            input_embs = tokenizer(this_batch, truncation=True, padding=True, return_tensors="pt").input_ids
+            output_embs = model.generate(input_embs)
+            summaries = tokenizer.batch_decode(output_embs, skip_special_tokens=True)
+            bert_embs = convert_sentence_to_emb(summaries)
+            bert_embs_downsampled = downsample_embs(bert_embs)
+            for idx in range(len(this_batch)):
+                data.append({
+                    'id': jdx*100+idx,
+                    "dataset_label": dataset_label,
+                    'title': dataset['title'][jdx*100+idx],
+                    'text': dataset['text'][jdx*100+idx],
+                    'model_output': summaries[idx],
+                    'bert_embs': bert_embs[idx].tolist(),
+                    'bert_embs_downsampled': bert_embs_downsampled[idx].tolist()
+                })
+
+        with open(file_name, "w") as f:
+            json.dump(data, f, cls=uptrain.UpTrainEncoder)
+    
+    with open(file_name) as f:
+        data = json.load(f)
+    return data
+        
+def combine_datasets(dataset_1, label_1, dataset_2, label_2):
+    final_test_dataset = concatenate_datasets([dataset_1, dataset_2])
+    label_bill = [label_1 for _ in dataset_1]
+    label_wiki = [label_2 for _ in dataset_2]
+    labels = label_bill + label_wiki
+    final_test_dataset = final_test_dataset.add_column("dataset_label", labels)
+    return final_test_dataset

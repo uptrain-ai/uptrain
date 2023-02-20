@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 
 from uptrain.core.classes.anomalies import AbstractAnomaly
 from uptrain.constants import Anomaly
@@ -33,6 +34,7 @@ class DataDrift(AbstractAnomaly):
             # self.log_handler.add_writer(self.dashboard_name)
             if self.is_embedding:
                 self.plot_name = "Embeddings_" + self.measurable.col_name()
+                self.emd_threshold = check.get("emd_threshold", 0.5)
             else:
                 self.plot_name = "Scalar_" + self.measurable.col_name()
             self.bucket_reference_dataset()
@@ -82,6 +84,7 @@ class DataDrift(AbstractAnomaly):
             self.feats = np.reshape(self.feats, tuple(feats_shape))
 
             if self.is_embedding:
+                self.feats = self.feats / np.expand_dims(self.max_along_axis, 0)
                 selected_cluster = np.argmin(
                     np.sum(
                         np.abs(self.clusters[0] - self.feats),
@@ -127,9 +130,9 @@ class DataDrift(AbstractAnomaly):
             self.prod_dist = (
                 self.prod_dist_counts_arr[-1]
                 - self.prod_dist_counts_arr[
-                    int(max(self.count - 2000, 0) / len(extra_args["id"]))
+                    int(max(self.count - self.INITIAL_SKIP, 0) / len(extra_args["id"]))
                 ]
-            ) / min(self.count, 2000)
+            ) / min(self.count, self.INITIAL_SKIP)
 
             if self.ref_dist.shape[0] == 1:
                 if self.is_embedding:
@@ -158,7 +161,7 @@ class DataDrift(AbstractAnomaly):
                         self.costs[idx] = self.estimate_earth_moving_cost(
                             self.prod_dist[idx], self.ref_dist[idx], self.clusters[idx]
                         )
-                        drift_detected = drift_detected or (self.costs[idx] > 300)
+                        drift_detected = drift_detected or (self.costs[idx] > self.emd_threshold)
                     else:
                         this_psi = sum(
                             [
@@ -174,7 +177,7 @@ class DataDrift(AbstractAnomaly):
                         drift_detected = drift_detected or (this_psi > 0.3)
                 self.drift_detected = drift_detected
                 if self.drift_detected:
-                    alert = "Data Drift last detected at " + str(self.count) + " for Embeddings with Earth moving distance = " + str(int(self.costs[0]))
+                    alert = "Data Drift last detected at " + str(self.count) + " for Embeddings with Earth moving distance = " + str(float(self.costs[0]))
                     self.log_handler.add_alert(
                         "Data Drift Alert 🚨",
                         alert,
@@ -188,7 +191,7 @@ class DataDrift(AbstractAnomaly):
                         [float(x) for x in list(self.costs)],
                     )
                 )
-                dict_emc.update({"threshold": 300})
+                dict_emc.update({"threshold": 0.1})
                 self.log_handler.add_scalars(
                     self.measurable.col_name() + " - earth_moving_costs_embedding",
                     dict_emc,
@@ -294,7 +297,7 @@ class DataDrift(AbstractAnomaly):
                 if this_dirt * dirt_required < 0:
                     cost_per_dirt = 1000000000
                 else:
-                    cost_per_dirt = np.sum(np.abs(clusters[kdx] - clusters[jdx]))
+                    cost_per_dirt = np.mean(np.abs(clusters[kdx] - clusters[jdx]))
                 dictn.append(
                     {
                         "dirt": np.abs(this_dirt),
@@ -353,6 +356,7 @@ class DataDrift(AbstractAnomaly):
         self.ref_dist_counts = np.array(self.ref_dist_counts)
         self.prod_dist = np.array(self.prod_dist)
         self.prod_dist_counts = np.array(self.prod_dist_counts)
+        self.prod_dist_counts_arr.append(copy.deepcopy(self.prod_dist_counts))
 
     def bucket_scalar(self, arr):
         if isinstance(arr[0], str):
@@ -394,6 +398,10 @@ class DataDrift(AbstractAnomaly):
         return np.array(buckets), np.array(clusters), np.array(cluster_vars)
 
     def bucket_vector(self, data):
+
+        abs_data = np.abs(data)
+        self.max_along_axis = np.max(abs_data, axis=0)
+        data = data/self.max_along_axis
 
         plot_save_name = self.log_handler.get_plot_save_name(self.dashboard_name, "training_dataset_clusters.png")
         all_clusters, counts, cluster_vars = cluster_and_plot_data(
