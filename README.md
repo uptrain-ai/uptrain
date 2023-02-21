@@ -108,8 +108,8 @@ One of the most common use cases of ML today is language models, be it text summ
 
 Additionally, UpTrain also provides statistical measures to quantify these differences and enables automated alerts whenever this drift crosses a certain threshold.
 <h1 align="left">
-<img alt="Meme" width="40%" src="https://user-images.githubusercontent.com/108270398/220204120-84433f34-33e9-4106-9da3-5db1b8fc68f3.png">
-<img alt="Meme" width="40%" src="https://user-images.githubusercontent.com/108270398/220204284-3ced3db3-7f1d-4147-8fc1-21cdd28bbb40.png">
+<img alt="Meme" width="43%" src="https://user-images.githubusercontent.com/108270398/220204120-84433f34-33e9-4106-9da3-5db1b8fc68f3.png">
+<img alt="Meme" width="51%" src="https://user-images.githubusercontent.com/108270398/220204284-3ced3db3-7f1d-4147-8fc1-21cdd28bbb40.png">
 </h1>
 
 # Why UpTrain 🤔?
