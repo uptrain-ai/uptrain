@@ -1,6 +1,8 @@
 import os
 import shutil
 import numpy as np
+import urllib3
+import json
 
 
 class LogHandler:
@@ -23,8 +25,11 @@ class LogHandler:
 
             self.st_log_folder = os.path.join(cfg.log_folder, "st_data")
             os.makedirs(self.st_log_folder, exist_ok=True)
-            self.st_writer = StreamlitLogs(self.st_log_folder)
+            self.st_writer = StreamlitLogs(self.st_log_folder, port=cfg.logging_args.dashboard_port)
             self.st_log_folders_all = {}
+
+        # Get Webhook URL for alerting on slack
+        self.webhook_url = cfg.logging_args.slack_webhook_url
 
     def add_writer(self, dashboard_name):
         dashboard_name = self.make_name_fold_directory_friendly(dashboard_name)
@@ -73,16 +78,6 @@ class LogHandler:
             os.makedirs(plot_folder, exist_ok=True)
             self.st_writer.add_histogram(data, plot_folder, count)
 
-    def add_alert(self, alert_name, alert, dashboard_name):
-        # dashboard_name = self.make_name_fold_directory_friendly(
-        #     [dashboard_name]
-        # )
-        if self.st_writer:
-            dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
-            plot_folder = os.path.join(dashboard_dir, "alerts")
-            os.makedirs(plot_folder, exist_ok=True)
-            self.st_writer.add_alert(alert_name, alert, plot_folder)
-
     def add_bar_graphs(self, plot_name, data, dashboard_name, count=-1):
         dashboard_name, plot_name = self.make_name_fold_directory_friendly(
             [dashboard_name, plot_name]
@@ -111,10 +106,29 @@ class LogHandler:
         txt = txt.replace("=", "_")
         txt = txt.replace("-", "_")
         return txt
-    
+
     def add_alert(self, alert_name, alert, dashboard_name):
+        # dashboard_name = self.make_name_fold_directory_friendly(
+        #     [dashboard_name]
+        # )
         if self.st_writer:
             dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
             plot_folder = os.path.join(dashboard_dir, "alerts")
             os.makedirs(plot_folder, exist_ok=True)
             self.st_writer.add_alert(alert_name, alert, plot_folder)
+
+        if self.webhook_url:
+            message = f"Dashboard: {dashboard_name}, Alert name: {alert_name}, Alert: {alert}"
+            self.slack_notification({'text': message})
+
+    def slack_notification(self, message):
+        try:
+            http = urllib3.PoolManager()
+            response = http.request('POST',
+                                    self.webhook_url,
+                                    body = json.dumps(message),
+                                    headers = {'Content-Type': 'application/json'},
+                                    retries = False)
+        except Exception as e:
+            print("Caught Exception")
+            print(e)

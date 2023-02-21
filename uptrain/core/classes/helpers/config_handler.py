@@ -23,9 +23,15 @@ class EvaluationArgs(BaseModel):
     metrics_to_check: typing.List[str] = []
 
 
+class LoggingArgs(BaseModel):
+    slack_webhook_url: str = None
+    dashboard_port: str = None
+
+
 class Config(BaseModel):
     training_args: TrainingArgs = TrainingArgs()
     evaluation_args: EvaluationArgs = EvaluationArgs()
+    logging_args: LoggingArgs = LoggingArgs()
     data_identifier: str = "id"
     checks: typing.List[typing.Dict] = []
     retrain: bool = True
