@@ -92,7 +92,7 @@ class Convergence(AbstractStatistic):
                     self.item_counts.update({aggregate_ids[idx]: 0})
 
                 this_item_count_prev = self.item_counts[aggregate_ids[idx]]
-                if this_item_count_prev == counts[idx]:
+                if this_item_count_prev >= counts[idx]:
                     continue
                 self.item_counts[aggregate_ids[idx]] = counts[idx]
                 this_item_count = self.item_counts[aggregate_ids[idx]]
