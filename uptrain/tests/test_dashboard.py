@@ -5,7 +5,15 @@ import numpy as np
 
 if __name__ == "__main__":
 # def test_dashboard():
-    cfg = {"st_logging": True}
+    cfg = {
+        "st_logging": True,
+        "logging_args": {
+            # For slack alerts, add your webhook URL
+            # Checkout https://api.slack.com/messaging/webhooks
+            'slack_webhook_url': None,
+            'dashboard_port': 50010,
+        }
+    }
     fw = uptrain.Framework(cfg)
 
     dashboard_name = "count_dashboard"
@@ -30,7 +38,7 @@ if __name__ == "__main__":
     for i,_ in enumerate(line1):
         fw.log_handler.add_scalars(
             "random data",
-            {"line 1": line1[i], "line 2": line2[i]},
+            {"y_1": line1[i], "y_2": line2[i]},
             i,
             dashboard_name,
         )
@@ -55,9 +63,9 @@ if __name__ == "__main__":
     umap = []
     for label in clusters:
         if label==0:
-            umap.append(np.random.normal([0,0,0], 0.1, 3))
+            umap.append(np.random.normal([0,0,0], 0.5, 3))
         else:
-            umap.append(np.random.normal([1,1,1], 0.1, 3))
+            umap.append(np.random.normal([1,1,1], 0.5, 3))
 
     umap_data = {"umap": umap, "clusters": clusters}
 

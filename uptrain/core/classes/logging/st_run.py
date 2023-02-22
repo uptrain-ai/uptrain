@@ -10,21 +10,71 @@ import plotly.express as px
 
 
 st.set_page_config(
-    page_title="UpTrain AI Dashboard",
+    page_title="UpTrain Dashboard",
     layout="wide",
     page_icon='https://github.com/uptrain-ai/uptrain/raw/dashboard/uptrain/core/classes/logging/uptrain_logo_icon.png'
 )
-st.title("UpTrain AI Live Dashboard")
+st.title("UpTrain Live Dashboard")
 st_style = """<style> footer {visibility: hidden;} </style>"""
 st.markdown(st_style, unsafe_allow_html=True)
 
-model_sig_types = ['vplay', 'unified', 'fav', 'like', 'share', 'vclick', 'vskip']
-feat_genre_types = ['All', 'AGT', 'Arts (self perform)', 'Cinema & TV', 
-    'Culture (Nation/state/dialects)', 'Devotion', 'Education',
-    'Fashion and Makeup', 'Humour & Fun', 'Kids', 'LifeStyle',
-    'Literature', 'Music & Dance', 'News', 'Personal',
-    'Romance & Relationships', 'Sports', 'Status and Stories',
-    'Wellbeing', 'Wishes']
+# Getting the streamlit log folder
+log_folder = sys.argv[1]
+
+# Get metadata
+metadata_file = os.path.join(log_folder, "metadata.json")
+with open(metadata_file, encoding='utf-8') as f:
+    metadata = json.loads(f.read())
+model_args = metadata['model_args']
+feature_args = metadata['feature_args']
+
+# model_sig_types = ['vplay', 'unified', 'fav', 'like', 'share', 'vclick', 'vskip']
+# feat_genre_types = ['All', 'AGT', 'Arts (self perform)', 'Cinema & TV', 
+#     'Culture (Nation/state/dialects)', 'Devotion', 'Education',
+#     'Fashion and Makeup', 'Humour & Fun', 'Kids', 'LifeStyle',
+#     'Literature', 'Music & Dance', 'News', 'Personal',
+#     'Romance & Relationships', 'Sports', 'Status and Stories',
+#     'Wellbeing', 'Wishes']
+
+model_to_compare = None
+other_models = {}
+num_models_compare = 1
+if model_args:
+    if len(model_args) > 1:
+        # st.sidebar.subheader("Select model type to compare against")
+        all_model_types = []
+        for model_type in model_args:
+            all_model_types.append(model_type['feature_name'])
+        model_selected = st.sidebar.selectbox("Model type to compare with", 
+            all_model_types, key='select_model_args')
+        model_compare_ind = all_model_types.index(model_selected)
+        
+        st.sidebar.subheader("Select other model types")
+        for i, model in enumerate(model_args):
+            if i==model_compare_ind:
+                continue
+            model_name = model['feature_name']
+            value = st.sidebar.selectbox(model_name, model['allowed_values'], 
+                key=f'model_{model_name}')
+            other_models.update({model_name: value})
+
+    elif len(model_args) == 1:
+        model_compare_ind = 0   
+    model_to_compare = model_args[model_compare_ind]
+    num_models_compare = len(model_to_compare['allowed_values'])
+
+features_to_slice = {}
+if feature_args:
+    st.sidebar.subheader("Select relevant features")
+    for i, feature in enumerate(feature_args):
+        feature_name = feature['feature_name']
+        allowed_feats = feature['allowed_values']
+        allowed_feats.insert(0, 'All')
+        value = st.sidebar.selectbox(feature_name, allowed_feats, 
+            key=f'feature_{feature_name}')
+        if value != 'All':
+            features_to_slice.update({feature_name: value})
+
 
 def return_plotly_fig(y_axis, x_axis="Num predictions", x_log=False, y_log=False):
     fig = go.Figure()
@@ -37,6 +87,29 @@ def return_plotly_fig(y_axis, x_axis="Num predictions", x_log=False, y_log=False
     return fig
 
 
+def slice_data(
+    df, 
+    features_to_slice=None, 
+    model_to_compare=None, 
+    other_models={},
+    j=0,
+    ):
+    if features_to_slice is not None:
+        for feat_name, value in features_to_slice.items():
+            if value != 'All':
+                if 'feature_' + feat_name in df.columns:
+                    df = df[df['feature_' + feat_name] == value]
+    if model_to_compare is not None:
+        model = model_to_compare['allowed_values'][j]
+        model_type = model_to_compare['feature_name']
+        if 'model_' + model_type in df.columns:
+            df = df[df['model_' + model_type] == model]
+    for model_name, value in other_models.items():
+        if 'model_' + model_name in df.columns:
+            df = df[df['model_' + model_name] == value]
+    return df
+
+
 def plot_line_charts(files, plot_name):
     # Getting plot metadata from the first file
     df = pd.read_csv(files[0])
@@ -46,45 +119,28 @@ def plot_line_charts(files, plot_name):
             x_axis = key
         if key.startswith("y_"):
             y_axis = key
-        if key.startswith("feature_"):
-            feat_name = key[8:]
-
 
     col1, col2 = st.columns(2)
     with col1:
-        model_sig_type = st.selectbox("Select Signal Type", 
-            model_sig_types, key=plot_name)
         x_log = st.checkbox(
             "log x", help="x-axis in log-scale", key=plot_name + "x"
         )
     with col2:
-        try:
-            feat_genre_type = st.selectbox(f"Select Feature {feat_name}", 
-                feat_genre_types, key=plot_name+'genre')
-        except:
-            feat_genre_type = "All"
         y_log = st.checkbox(
             "log y", help="y-axis in log-scale", key=plot_name + "y"
         )
     
     cols = st.columns(2)
-    for j,model_ffm_type in enumerate(['realtime', 'batch']):
+    for j in range(num_models_compare):
         fig = return_plotly_fig(y_axis, x_axis, x_log, y_log)
         for i, csv_file in enumerate(files):
             # Reading the csv file
             df = pd.read_csv(csv_file)
-            if feat_genre_type != 'All':
-                # TODO: No need to read the entire file, some sort of 
-                # lookup file like json should be there on disk
-                if df['feature_' + feat_name][0] != feat_genre_type:
-                    continue
-            df = df[df['model_ffm_type'] == model_ffm_type]
-            df = df[df['model_sig_type'] == model_sig_type]
+            
+            df = slice_data(df, features_to_slice, model_to_compare, other_models, j)
 
             # Getting plot_id
             plot_id = csv_file.split("/")[-1].split(".")[0]
-            # genre = np.unique(df['feature_tagGenre'])[0]
-            # print("genre", genre)
             fig = fig.add_trace(
                 go.Scatter(
                     x=df[x_axis],
@@ -93,42 +149,49 @@ def plot_line_charts(files, plot_name):
                 )
             )
 
-        with cols[j]:
-            st.subheader(f'Model: {model_ffm_type}')
+        with cols[j % 2]:
+            if model_to_compare is not None:
+                model_name = model_to_compare['allowed_values'][j]
+                st.subheader(f'Model: {model_name}')
             st.plotly_chart(fig, use_container_width=True)
 
 
 def plot_histograms(files, plot_name):
     
-    # Getting plot metadata from the first file
-    if "distribution_stats" in files[0]:
-        model_sig_type = st.selectbox("Select Signal Type", 
-            model_sig_types, key=plot_name+'dist')
-        feat_genre_type = None
-    else:
-        df = pd.read_csv(files[0])
-        for key in df.keys():
-            if key.startswith("feature_"):
-                feat_name = key[8:]
-        col1, col2 = st.columns(2)
-        with col1:
-            model_sig_type = st.selectbox("Select Signal Type", 
-                model_sig_types, key=plot_name)
-        with col2:
-            feat_genre_type = st.selectbox("Select Genre Type", 
-                feat_genre_types, key=plot_name+'genre')
+    # # Getting plot metadata from the first file
+    # if "distribution_stats" in files[0]:
+    #     model_sig_type = st.selectbox("Select Signal Type", 
+    #         model_sig_types, key=plot_name+'dist')
+    #     feat_genre_type = None
+    # else:
+    #     df = pd.read_csv(files[0])
+    #     for key in df.keys():
+    #         if key.startswith("feature_"):
+    #             feat_name = key[8:]
+    #     col1, col2 = st.columns(2)
+    #     with col1:
+    #         model_sig_type = st.selectbox("Select Signal Type", 
+    #             model_sig_types, key=plot_name)
+    #     with col2:
+    #         feat_genre_type = st.selectbox("Select Genre Type", 
+    #             feat_genre_types, key=plot_name+'genre')
     
     cols = st.columns(2)
-    for j,model_ffm_type in enumerate(['realtime', 'batch']):
+    for j in range(num_models_compare):
         fig = go.Figure()
         for i, csv_file in enumerate(files):
             # Reading the csv file
             df = pd.read_csv(csv_file)
-            df = df[df['model_ffm_type'] == model_ffm_type]
-            df = df[df['model_sig_type'] == model_sig_type]
-            if feat_genre_type is not None:
-                if feat_genre_type != 'All':
-                    df = df[df['feature_' + feat_name] == feat_genre_type]
+
+            df = slice_data(df)
+            
+            # df = df[df['model_ffm_type'] == model_ffm_type]
+            # df = df[df['model_sig_type'] == model_sig_type]
+            # if feat_genre_type is not None:
+            #     if feat_genre_type != 'All':
+            #         df = df[df['feature_' + feat_name] == feat_genre_type]
+
+            df = slice_data(df, features_to_slice, model_to_compare, other_models, j)
 
             # Getting plot_id
             plot_id = csv_file.split("/")[-1].split(".")[0]
@@ -137,8 +200,10 @@ def plot_histograms(files, plot_name):
                 df_y = np.random.choice(df_y, 1000)
             fig = fig.add_trace(go.Histogram(x=df_y, name=plot_id))
 
-        with cols[j]:
-            st.subheader(f'Model: {model_ffm_type}')
+        with cols[j % 2]:
+            if model_to_compare is not None:
+                model_name = model_to_compare['allowed_values'][j]
+                st.subheader(f'Model: {model_name}')
             st.plotly_chart(fig, use_container_width=True)
 
 
@@ -169,44 +234,44 @@ def plot_umap(file):
     else:
         raise ("Umap dimension not 2D or 3D.")
     st.plotly_chart(fig, use_container_width=True)
-    st.write(
-        f"Number of clusters: {len(set(clusters))}"
-    )
+    # st.write(
+    #     f"Number of clusters: {len(set(clusters))}"
+    # )
+
+
+def get_view_arr_from_files(files):
+    view_arr = []
+    for file in files:
+        view_arr.append(int(file.split('/')[-1].split('_')[0]))
+    view_arr.sort()
+    return np.unique(view_arr)
 
 
 def plot_umaps(files, plot_name, sub_dir):
-    col1, col2 = st.columns(2)
-    with col1:
-        model_sig_type = st.selectbox("Signal Type", 
-            model_sig_types, key=plot_name)
-    with col2:
-        view_arr = [0,200,500,1000,5000,20000]
+    view_arr = get_view_arr_from_files(files)
+    if len(view_arr > 0):
         selected_count = st.selectbox(f"Cluster View Point", view_arr, key=plot_name+'count')
-    # for file in files:
-    #     file_name = file.split("/")[-1]
-    #     count, model_ffm_type_file, model_sig_type_file = file_name.split("_")
-    #     model_sig_type_file = model_sig_type_file.split(".")[0]
-    #     cols = st.columns(2)
-    #     for j,model_ffm_type in enumerate(['realtime', 'batch']):
-    #         print("1", count, model_ffm_type_file, model_sig_type_file)
-    #         print("2",selected_count, model_ffm_type, model_sig_type)
-    #         if model_ffm_type_file==model_ffm_type:
-    #             if selected_count == int(count):
-    #                 if model_sig_type_file==model_sig_type:
-    #                     with cols[j]:
-    #                         st.subheader(f'Model: {model_ffm_type}, Count: {count}')
-    #                         plot_umap(file) 
     cols = st.columns(2)
-    for j,model_ffm_type in enumerate(['realtime', 'batch']):
-        file_name = str(selected_count) + '_' + model_ffm_type + '_' + model_sig_type + '.json'
-        file_name = sub_dir + '/' + file_name
-        with cols[j]:
-            st.subheader(f'Model: {model_ffm_type}, Signal: {model_sig_type}, Count: {selected_count}')
-            if os.path.exists(file_name):
-                plot_umap(file_name) 
-            else:
-                st.write("Not sufficient data.")
-
+    for j in range(num_models_compare):
+        if model_to_compare is not None:
+            model_compare_name = model_to_compare['allowed_values'][j]
+            model_others_name = list(other_models.values())[0]
+            file_name = str(selected_count) + '_' + model_compare_name + '_' + model_others_name + '.json'
+            file_name = sub_dir + '/' + file_name
+            with cols[j]:
+                st.subheader(f'Model: {model_compare_name}, Signal: {model_others_name}, Count: {selected_count}')
+                if os.path.exists(file_name):
+                    plot_umap(file_name) 
+                else:
+                    st.write("Not sufficient data.")
+        else:
+            for file in files:
+                count = file.split("/")[-1].split(".")[0]
+                if int(count) < 0:
+                    plot_umap(file) 
+                else:
+                    if st.checkbox(f"For count {count}", key=plot_name+str(count)):
+                        plot_umap(file)  
 
 def plot_bar(file):
     with open(file, encoding='utf-8') as f:
@@ -269,7 +334,7 @@ def plot_dashboard(dashboard_name):
                 plot_line_charts(files, plot_name)
                 st.markdown("""---""")    
 
-        ######### Plotting histograms ###########
+        # ######### Plotting histograms ###########
 
         elif sub_dir_split[-2] == "histograms":
             if plot_name != "umap_and_clusters":
@@ -294,11 +359,8 @@ def plot_dashboard(dashboard_name):
                 st.markdown("""---""")   
 
 
-# Getting the streamlit log folder
-log_folder = sys.argv[1]
 st.sidebar.title("Select dashboards to view")
 dashboard_names = next(os.walk(log_folder))[1]
-
 for dashboard_name in dashboard_names:
     if st.sidebar.checkbox(f"Dashboard: {dashboard_name}"):
         plot_dashboard(dashboard_name)
