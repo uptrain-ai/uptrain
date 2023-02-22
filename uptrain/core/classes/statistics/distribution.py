@@ -99,7 +99,7 @@ class Distribution(AbstractStatistic):
                     (self.count_checkpoints > this_item_count_prev)))
                 has_crossed_checkpoint = sum(crossed_checkpoint_arr)
 
-                if has_crossed_checkpoint: # this_item_count in self.count_checkpoints:
+                if has_crossed_checkpoint:
 
                     if aggregate_ids[idx] not in self.vals_dictn[0]:
                         crossed_checkpoint = 0
@@ -107,7 +107,6 @@ class Distribution(AbstractStatistic):
                         crossed_checkpoint = self.count_checkpoints[np.where(crossed_checkpoint_arr == True)[0][-1]]
 
                     this_val = extract_data_points_from_batch(vals, [idx])
-                    # TODO: Make the following general
 
                     if aggregate_ids[idx] not in self.vals_dictn[crossed_checkpoint]:
                         self.vals_dictn[crossed_checkpoint].update({aggregate_ids[idx]: {}})
@@ -117,7 +116,6 @@ class Distribution(AbstractStatistic):
                         self.vals_dictn[crossed_checkpoint][aggregate_ids[idx]].update({feat_name: this_feat})
 
                     selected_ids_to_sample = random.choices(list(self.vals_dictn[crossed_checkpoint].keys()), k=min(10, len(self.vals_dictn[crossed_checkpoint].keys())))
-                    # for agg_i in list(self.vals_dictn[crossed_checkpoint].keys()):
                     for agg_i in selected_ids_to_sample:
                         if agg_i == aggregate_ids[idx]:
                             continue
@@ -148,32 +146,6 @@ class Distribution(AbstractStatistic):
                             )
 
     
-            # for count in list(self.distances_dictn.keys()):
-            #     if count in updated_counts:
-            #         for distance_type in self.distance_types:
-            #             plot_name = (
-            #                 distance_type
-            #                 # + " "
-            #                 # + self.measurable.col_name()
-            #                 # + " "
-            #                 # + self.aggregate_measurable.col_name()
-            #             )
-
-            #             this_data = list(
-            #                 np.reshape(
-            #                     np.array(self.distances_dictn[count][distance_type]), -1
-            #                 )
-            #             )
-            #             self.log_handler.add_histogram(
-            #                 self.dashboard_name + "_" + plot_name,
-            #                 this_data,
-            #                 self.dashboard_name,
-            #                 count = count,
-            #                 size_limit = 1000,
-            #                 models = [models]*len(this_data),
-            #                 file_name = str(count)
-            #             )
-
     def get_feats_for_clustering(self, count, allowed_model_values):
         if len(self.children) > 0:
             res = {}

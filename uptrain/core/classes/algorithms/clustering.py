@@ -12,7 +12,7 @@ class Clustering():
 
     def cluster_data(self, data):
         if self.is_embedding:
-            self.bucket_vector(data, plot_save_name=self.plot_save_name)
+            self.bucket_vector(data)
         else:
             buckets = []
             clusters = []
@@ -44,24 +44,35 @@ class Clustering():
 
 
     def bucket_scalar(self, arr):
-        sorted_arr = np.sort(arr)
-        buckets = []
-        clusters = []
-        cluster_vars = []
-        for idx in range(0, self.NUM_BUCKETS):
-            if idx > 0:
-                buckets.append(
-                    sorted_arr[int(idx * (len(sorted_arr) - 1) / self.NUM_BUCKETS)]
-                )
-            this_bucket_elems = sorted_arr[
-                int((idx) * (len(sorted_arr) - 1) / self.NUM_BUCKETS) : int(
-                    (idx + 1) * (len(sorted_arr) - 1) / self.NUM_BUCKETS
-                )
-            ]
-            gaussian_mean = np.mean(this_bucket_elems)
-            gaussian_var = np.var(this_bucket_elems)
-            clusters.append([gaussian_mean])
-            cluster_vars.append([gaussian_var])
+        if isinstance(arr[0], str):
+            uniques, counts = np.unique(np.array(arr), return_counts=True)
+            buckets = uniques
+            self.NUM_BUCKETS = len(buckets)
+            clusters = uniques
+            cluster_vars = [None] * self.NUM_BUCKETS
+            self.ref_dist.append([[counts[x] / len(arr)] for x in range(self.NUM_BUCKETS)])
+            self.ref_dist_counts.append(
+                [[counts[x]] for x in range(self.NUM_BUCKETS)]
+            )
+        else:
+            sorted_arr = np.sort(arr)
+            buckets = []
+            clusters = []
+            cluster_vars = []
+            for idx in range(0, self.NUM_BUCKETS):
+                if idx > 0:
+                    buckets.append(
+                        sorted_arr[int(idx * (len(sorted_arr) - 1) / self.NUM_BUCKETS)]
+                    )
+                this_bucket_elems = sorted_arr[
+                    int((idx) * (len(sorted_arr) - 1) / self.NUM_BUCKETS) : int(
+                        (idx + 1) * (len(sorted_arr) - 1) / self.NUM_BUCKETS
+                    )
+                ]
+                gaussian_mean = np.mean(this_bucket_elems)
+                gaussian_var = np.var(this_bucket_elems)
+                clusters.append([gaussian_mean])
+                cluster_vars.append([gaussian_var])
 
         self.dist.append([[1 / self.NUM_BUCKETS] for x in range(self.NUM_BUCKETS)])
         self.dist_counts.append(
@@ -69,13 +80,17 @@ class Clustering():
         )
         return np.array(buckets), np.array(clusters), np.array(cluster_vars)
 
-    def bucket_vector(self, data, plot_save_name=''):
+    def bucket_vector(self, data):
+
+        abs_data = np.abs(data)
+        self.max_along_axis = np.max(abs_data, axis=0)
+        data = data/self.max_along_axis
 
         all_clusters, counts, cluster_vars = cluster_and_plot_data(
             data,
             self.NUM_BUCKETS,
             cluster_plot_func=self.cluster_plot_func,
-            plot_save_name=plot_save_name,
+            plot_save_name=self.plot_save_name,
         )
 
         self.clusters = np.array([all_clusters])
@@ -100,7 +115,7 @@ class Clustering():
             this_datapoint_cluster = selected_cluster
         else:
             this_datapoint_cluster = []
-            for idx in range(feats.shape[1]):
+            for idx in range(feats.shape[2]):
                 if isinstance(feats[0,0,idx], str):
                     try:
                         bucket_idx = np.array([

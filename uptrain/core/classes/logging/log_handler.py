@@ -1,10 +1,9 @@
 import os
 import shutil
-import numpy as np
-import random
 
 class LogHandler:
-    def __init__(self, cfg=None):
+    def __init__(self, framework=None, cfg=None):
+        self.fw = framework
         if os.path.exists(cfg.log_folder):
             print("Deleting the folder: ", cfg.log_folder)
             shutil.rmtree(cfg.log_folder)

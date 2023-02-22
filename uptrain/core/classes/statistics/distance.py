@@ -103,9 +103,6 @@ class Distance(AbstractStatistic):
                         distance_type
                         + "_"
                         + str(self.reference)
-                        # + self.measurable.col_name()
-                        # + " "
-                        # + self.aggregate_measurable.col_name()
                     )
                     self.log_handler.add_scalars(
                         self.dashboard_name + "_" + plot_name,

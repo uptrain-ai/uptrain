@@ -6,8 +6,8 @@ from uptrain.core.classes.distances import DistanceResolver
 from uptrain.core.classes.statistics import AbstractStatistic
 from uptrain.core.classes.measurables import MeasurableResolver
 from uptrain.constants import Statistic
-from uptrain.core.classes.algorithms import Clustering
-from uptrain.core.lib.algorithms import estimate_earth_moving_cost
+# from uptrain.core.classes.algorithms import Clustering
+# from uptrain.core.lib.algorithms import estimate_earth_moving_cost
 
 class Convergence(AbstractStatistic):
     dashboard_name = "convergence_stats"
@@ -78,7 +78,6 @@ class Convergence(AbstractStatistic):
             all_features = [x.compute_and_log(
                 inputs, outputs, gts=gts, extra=extra_args
             ) for x in self.feature_measurables]
-            update_counts = []
             self.total_count += len(extra_args['id'])
 
             models = dict(zip(['model_' + x for x in self.model_names], [self.allowed_model_values[jdx][0] for jdx in range(len(self.model_names))]))
@@ -135,7 +134,6 @@ class Convergence(AbstractStatistic):
                                 ],
                             )
                         )
-                        update_counts.append(crossed_checkpoint)
                         if self.reference == "running_diff":
                             del self.feats_dictn[ref_item_count][aggregate_ids[idx]]
                         else:
@@ -169,15 +167,12 @@ class Convergence(AbstractStatistic):
             if ((self.total_count - self.prev_calc_at) > 50000):
                 self.prev_calc_at = self.total_count
                 for count in list(self.distances_dictn.keys()):
-                    if (count > 0): # and (count in update_counts):
+                    if (count > 0):
                         for distance_type in self.distance_types:
                             plot_name = (
                                 distance_type
                                 + " "
                                 + str(self.reference)
-                                # + self.measurable.col_name()
-                                # + " "
-                                # + self.aggregate_measurable.col_name()
                             )
                             this_data = np.reshape(
                                     np.array(self.distances_dictn[count][distance_type]), -1
@@ -188,18 +183,6 @@ class Convergence(AbstractStatistic):
                                     plot_name + "_mean",
                                     {'y_mean': np.mean(this_data)},
                                     count,
-                                    # self.total_count,                     
-                                    self.dashboard_name,
-                                    models = models,
-                                    features = {"tagGenre": "All"},
-                                    file_name = str("count"),
-                                    update_val = True
-                                )
-                                self.log_handler.add_scalars(
-                                    plot_name + "_std",
-                                    {'y_std': np.std(this_data)},
-                                    count,
-                                    # self.total_count,                     
                                     self.dashboard_name,
                                     models = models,
                                     features = {"tagGenre": "All"},
@@ -207,26 +190,26 @@ class Convergence(AbstractStatistic):
                                     update_val = True
                                 )
 
-                                next_count_idx = np.where(self.count_checkpoints == (count))[0][0] + 1
-                                if next_count_idx < len(self.count_checkpoints):
-                                    next_data = np.reshape(
-                                        np.array(self.distances_dictn[self.count_checkpoints[next_count_idx]][distance_type]), -1
-                                    )
-                                    if len(next_data) > 5:
-                                        clustering_helper = Clustering({"num_buckets": 2, "is_embedding": False})
-                                        this_data = np.expand_dims(np.array(this_data), axis=(1))
-                                        next_data = np.expand_dims(np.array(next_data), axis=(1,2))
-                                        this_count_clustering_res = clustering_helper.cluster_data(this_data)
-                                        next_count_clustering_res = clustering_helper.infer_cluster_assignment(next_data)
-                                        emd_cost = estimate_earth_moving_cost(np.reshape(next_count_clustering_res[1]/next_data.shape[0],-1), np.reshape(clustering_helper.dist[0],-1), clustering_helper.clusters[0])
-                                        self.log_handler.add_scalars(
-                                            plot_name + "_emd",
-                                            {'y_distance': emd_cost},
-                                            count,
-                                            # self.total_count,                     
-                                            self.dashboard_name,
-                                            models = models,
-                                            features = {"tagGenre": "All"},
-                                            file_name = str("count"),
-                                            update_val = True
-                                        )
+                                # next_count_idx = np.where(self.count_checkpoints == (count))[0][0] + 1
+                                # if next_count_idx < len(self.count_checkpoints):
+                                #     next_data = np.reshape(
+                                #         np.array(self.distances_dictn[self.count_checkpoints[next_count_idx]][distance_type]), -1
+                                #     )
+                                #     if len(next_data) > 5:
+                                #         clustering_helper = Clustering({"num_buckets": 2, "is_embedding": False})
+                                #         this_data = np.expand_dims(np.array(this_data), axis=(1))
+                                #         next_data = np.expand_dims(np.array(next_data), axis=(1,2))
+                                #         this_count_clustering_res = clustering_helper.cluster_data(this_data)
+                                #         next_count_clustering_res = clustering_helper.infer_cluster_assignment(next_data)
+                                #         emd_cost = estimate_earth_moving_cost(np.reshape(next_count_clustering_res[1]/next_data.shape[0],-1), np.reshape(clustering_helper.dist[0],-1), clustering_helper.clusters[0])
+                                #         self.log_handler.add_scalars(
+                                #             plot_name + "_emd",
+                                #             {'y_distance': emd_cost},
+                                #             count,
+                                #             # self.total_count,                     
+                                #             self.dashboard_name,
+                                #             models = models,
+                                #             features = {"tagGenre": "All"},
+                                #             file_name = str("count"),
+                                #             update_val = True
+                                #         )

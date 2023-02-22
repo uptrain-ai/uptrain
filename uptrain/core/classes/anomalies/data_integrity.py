@@ -11,6 +11,7 @@ class DataIntegrity(AbstractAnomaly):
 
     def __init__(self, fw, check):
         self.log_handler = fw.log_handler
+        self.log_handler.add_writer(self.dashboard_name)
         self.measurable = MeasurableResolver(check["measurable_args"]).resolve(fw)
         self.integrity_type = check["integrity_type"]
         self.threshold = check.get("threshold", None)
