@@ -1,6 +1,6 @@
 ## UpTrain: Measuring data drift in production data for automated retraining of ML model
 
-In `get_started.ipynb`, we consider a binary classification task of human orientation while exercising. That is, given the location of 17 key-points of the body such as the nose, shoulders, wrist, hips, ankles, etc., the model tries to predict whether the person is in a horizontal (see image 1 below) or a vertical (see image 2 below) position.
+In `run.ipynb`, we consider a binary classification task of human orientation while exercising. That is, given the location of 17 key-points of the body such as the nose, shoulders, wrist, hips, ankles, etc., the model tries to predict whether the person is in a horizontal (see image 1 below) or a vertical (see image 2 below) position.
 
 **Input**: 34-dimensional vector that contains the x and y positions of the 17 key-points.\
 **Output**: Orientation (horizontal or vertical)

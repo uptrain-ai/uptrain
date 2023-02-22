@@ -101,9 +101,30 @@ class Clustering():
         else:
             this_datapoint_cluster = []
             for idx in range(feats.shape[1]):
-                bucket_idx = np.searchsorted(
-                    self.buckets[idx], feats[:, :, idx]
-                )[:, 0]
+                if isinstance(feats[0,0,idx], str):
+                    try:
+                        bucket_idx = np.array([
+                            list(self.buckets[idx]).index(feats[x,0,idx]) for x in range(feats.shape[0])
+                        ])
+                    except:
+                        # TODO: This logic is not completely tested yet. Contact us if you are facing issues
+                        # If given data-point is not present -> add a new bucket
+                        temp_buckets = list(self.buckets[idx])
+                        num_added = 0
+
+                        for x in range(feats.shape[0]):
+                            if feats[x,0,idx] not in temp_buckets:
+                                temp_buckets.append(feats[x,0,idx])
+                                num_added += 1
+                        
+                        self.buckets[idx] = np.array(temp_buckets)
+                        bucket_idx = np.array([
+                            list(self.buckets[idx]).index(feats[x,0,idx]) for x in range(feats.shape[0])
+                        ])
+                else:
+                    bucket_idx = np.searchsorted(
+                        self.buckets[idx], feats[:, :, idx]
+                    )[:, 0]
                 this_datapoint_cluster.append(bucket_idx)
                 for clus in bucket_idx:
                     prod_dist_counts[idx][clus] += 1

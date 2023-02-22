@@ -17,6 +17,19 @@ class LogHandler:
             os.makedirs(self.st_log_folder, exist_ok=True)
             self.st_writer = StreamlitLogs(self.st_log_folder)
 
+    def add_writer(self, dashboard_name):
+        dashboard_name = self.dir_friendly_name(dashboard_name)
+        tb_writer = None
+        if self.tb_logs:
+            tb_writer = self.tb_logs.add_writer(dashboard_name)
+            self.tb_writers.update({dashboard_name: tb_writer})
+
+    def get_plot_save_name(self, plot_name, dashboard_name):
+        if self.st_writer:
+            return os.path.join(self.st_log_folder, dashboard_name, plot_name)
+        else:
+            return ""
+
     def add_scalars(self, plot_name, dictn, count, dashboard_name, features={}, models={}, file_name='', update_val=False):
         if self.st_writer is None:
             return
@@ -42,12 +55,6 @@ class LogHandler:
             [dashboard_name, plot_name]
         )
         if self.st_writer:
-            # TODO: Should be done at st_run
-            # if isinstance(data, list) and (size_limit is not None):
-            #     if len(data) > size_limit:
-            #         random.shuffle(data)
-            #         data = data[0:size_limit]
-
             dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
             plot_folder = os.path.join(dashboard_dir, "histograms", plot_name)
             os.makedirs(plot_folder, exist_ok=True)

@@ -419,7 +419,7 @@ Model monitoring is very crucial for tasks such as fraud detection, cyber-securi
 
 In this example, we saw two ways to detect performance degradation - Concept Drift via DDM and Custom monitor. The UpTrain framework has many other statistical tools, such as data drift, integrity checks, shift in model outputs, and outlier detection, that can be used to identify model issues, even in cases where ground truth is not available. You can explore them [here](https://github.com/uptrain-ai/uptrain/tree/main/examples)
 
-- Automatically detecting edge-cases and out-of-distribution samples - [Link](https://github.com/uptrain-ai/uptrain/blob/improve_cyber_attack_example/examples/human_orientation_classification/run.ipynb)
-- Defining custom signals to identify edge-cases - [Link](https://github.com/uptrain-ai/uptrain/blob/improve_cyber_attack_example/examples/human_orientation_classification/deepdive_examples/uptrain_edge_cases_torch.ipynb)
+- Automatically detecting edge-cases and out-of-distribution samples - [Link](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/run.ipynb)
+- Defining custom signals to identify edge-cases - [Link](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_edge_cases_torch.ipynb)
 - Using Data-Drift (i.e. shifts in input distribution) to identify dips in model performance - Coming soon
-- Monitoring bias in recommendation systems - [Link](https://github.com/uptrain-ai/uptrain/blob/improve_cyber_attack_example/examples/shopping_cart_recommendation/run.ipynb)
+- Monitoring bias in recommendation systems - [Link](https://github.com/uptrain-ai/uptrain/blob/main/examples/shopping_cart_recommendation/run.ipynb)

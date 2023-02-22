@@ -11,7 +11,7 @@
 
 <p align="center">
 <br>
-<a href="https://uptrain.gitbook.io/docs/" rel="nofollow"><strong>Read documentation »</strong></a>
+<a href="https://docs.uptrain.ai/docs/" rel="nofollow"><strong>Read documentation »</strong></a>
 <br>
 <a href="https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing/" rel="nofollow"><strong>Try it out »</strong></a>
 </p>
@@ -23,7 +23,7 @@
   <a href="https://pypi.org/project/uptrain/">
     <img src="https://badge.fury.io/py/uptrain.svg" alt="PyPI version" />
   </a>
-  <a href="https://uptrain-ai.gitbook.io/uptrain-documentation/">
+  <a href="https://docs.uptrain.ai/docs/">
     <img src="https://img.shields.io/badge/Read-Docs-blue" alt="Docs" />
   </a>
   <a href="https://discord.com/invite/gVvZhhrQaQ">
@@ -33,12 +33,12 @@
     <img src="https://img.shields.io/badge/UpTrain-Website-yellow" alt="Website" />
   </a>
   <a href="https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing/">
-    <img src="https://img.shields.io/badge/Google-Collab-green" alt="Collab" />
+    <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
   </a>
 </h4>
 
 <h4 align="center">
-<img src="https://user-images.githubusercontent.com/108270398/215057294-91168020-49a8-424c-acf2-1f87020d8798.png" width="70%" alt="Performance" />
+<img src="https://user-images.githubusercontent.com/108270398/218686821-a54e112f-8b14-485f-acef-de1f611adb2f.png" width="70%" alt="Performance" />
 </h4>
 
 <h4>
@@ -52,20 +52,20 @@
 
 # **[Key Features](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** 💡
 
-- **[Data Drift Checks](https://github.com/uptrain-ai/uptrain/blob/main/examples/1_orientation_classification/get_started.ipynb)** - identify distribution shifts in your model inputs.
-- **[Performance Monitoring](https://github.com/uptrain-ai/uptrain/blob/main/examples/1_orientation_classification/deepdive_examples/uptrain_concept_drift.ipynb)** - track the performance of your models in realtime and get alerted as soon as a dip is observed.
-- **[Edge Case Signals](https://github.com/uptrain-ai/uptrain/blob/main/examples/1_orientation_classification/deepdive_examples/uptrain_edge_cases_torch.ipynb)** - user-defined signals and statistical techniques to detect out-of-distribution data-points.
-- **[Data Integrity Checks](https://github.com/uptrain-ai/uptrain/blob/main/examples/1_orientation_classification/deepdive_examples/uptrain_data_integrity.ipynb)** - checks for missing or inconsistent data, duplicate records, data quality, etc. 
-- **[Customizable metrics](https://github.com/uptrain-ai/uptrain/blob/main/examples/1_orientation_classification/deepdive_examples/uptrain_data_drift_custom_measures.ipynb)** - define custom metrics that make sense for your use case.
-- **[Automated Retraining](https://github.com/uptrain-ai/uptrain/blob/main/examples/1_orientation_classification/deepdive_examples/uptrain_check_all.ipynb)** - automate model retraining by attaching your training and inference pipelines.
-- **[Model Bias](https://github.com/uptrain-ai/uptrain/blob/main/examples/3_shopping_cart_rec/uptrain_recommendation_bias.ipynb)** - track popularity bias in your recommendation models.
+- **[Data Drift Checks](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/run.ipynb)** - identify distribution shifts in your model inputs.
+- **[Performance Monitoring](https://github.com/uptrain-ai/uptrain/blob/main/examples/fraud_detection/run.ipynb)** - track the performance of your models in realtime and get alerted as soon as a dip is observed.
+- **[Embeddings Support](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)** - specialized dashboards to understand model-inferred embeddings.
+- **[Edge Case Signals](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_edge_cases_torch.ipynb)** - user-defined signals and statistical techniques to detect out-of-distribution data-points.
+- **[Data Integrity Checks](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_data_integrity.ipynb)** - checks for missing or inconsistent data, duplicate records, data quality, etc. 
+- **[Customizable metrics](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_data_drift_custom_measures.ipynb)** - define custom metrics that make sense for your use case.
+- **[Automated Retraining](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_check_all.ipynb)** - automate model retraining by attaching your training and inference pipelines.
+- **[Model Bias](https://github.com/uptrain-ai/uptrain/blob/main/examples/shopping_cart_recommendation/run.ipynb)** - track popularity bias in your recommendation models.
 - **Data Security** - your data never goes out of your machine.
 
 
 ## 🚨Coming soon🚨
 
 - **Realtime Dashboards** - to visualize your model's health.
-- **Embeddings Support** - specialized dashboards to understand model-inferred embeddings.
 - **Slack Integration** - get alerts on Slack.
 - **Label Shfit** - identify drifts in your predictions. Specially useful in cases when ground truth is unavailable.
 - **Prediction Stability** - filter cases where model prediction is not stable.
@@ -78,7 +78,7 @@ And more.
 
 # Get started 🙌
 
-You can quickly get started with [Google colab here](https://colab.research.google.com/drive/1BXMMqC1Bw_LGMHtvQGJCjtQlCw6jgMxd?usp=sharing).
+You can quickly get started with [Google collab here](https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing%2F).
 
 To run it in your machine, follow the steps below:
 
@@ -90,13 +90,27 @@ pip install uptrain
 ### Run your first example:
 ```console
 git clone git@github.com:uptrain-ai/uptrain.git
-cd uptrain
+cd uptrain/examples
 pip install jupyterlab
 jupyter lab
 ```
 
-For more info, visit our [get started guide](https://uptrain.gitbook.io/docs/get-started).
+For more info, visit our [get started guide](https://docs.uptrain.ai/docs/get-started).
 
+<h4> </h4>
+
+# UpTrain in [action](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb) 🎬
+
+One of the most common use cases of ML today is language models, be it text summarization, NER, chatbots, language translation, etc. UpTrain provides ways to visualize differences in the training and real-world data via UMAP clustering of text embeddings (inferred from bert).
+<h1 align="left">
+<img alt="Meme" width="60%" src="https://user-images.githubusercontent.com/108270398/220204024-437c48f9-51d9-4ed8-9e23-5ec7033b8f7b.png">
+</h1>
+
+Additionally, UpTrain also provides statistical measures to quantify these differences and enables automated alerts whenever this drift crosses a certain threshold.
+<h1 align="left">
+<img alt="Meme" width="43%" src="https://user-images.githubusercontent.com/108270398/220204120-84433f34-33e9-4106-9da3-5db1b8fc68f3.png">
+<img alt="Meme" width="51%" src="https://user-images.githubusercontent.com/108270398/220204284-3ced3db3-7f1d-4147-8fc1-21cdd28bbb40.png">
+</h1>
 
 # Why UpTrain 🤔?
 
@@ -109,7 +123,7 @@ UpTrain can be used for a wide variety of Machine learning models such as LLMs, 
 We are constantly working to make UpTrain better. Want a new feature or need any integrations? Feel free to [create an issue](https://github.com/uptrain-ai/uptrain/issues) or [contribute](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md) directly to the repository.
 
 <h1 align="left">
-<img alt="Meme" width="40%" src="https://user-images.githubusercontent.com/108270398/215209245-4d6b1f47-7af9-4db8-8d8c-63dcc610571c.jpg">
+<img alt="Meme" width="60%" src="https://user-images.githubusercontent.com/108270398/215209245-4d6b1f47-7af9-4db8-8d8c-63dcc610571c.jpg">
 </h1>
 
 # License 💻

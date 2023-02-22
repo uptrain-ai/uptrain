@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 
 from uptrain.core.classes.anomalies import AbstractAnomaly
 from uptrain.constants import Anomaly
@@ -13,6 +14,7 @@ class DataDrift(AbstractAnomaly):
     is_embedding = None
     mode = None
     NUM_BUCKETS = 20
+    INITIAL_SKIP = 2000
 
     def __init__(self, fw, check, is_embedding=None):
         self.measurable = None
@@ -26,6 +28,8 @@ class DataDrift(AbstractAnomaly):
             self.reference_dataset = check["reference_dataset"]
             self.cluster_plot_func = fw.dataset_handler.cluster_plot_func
             self.save_edge_cases = check.get("save_edge_cases", True)
+            self.NUM_BUCKETS = check.get("num_buckets", self.NUM_BUCKETS)
+            self.INITIAL_SKIP = check.get("initial_skip", self.INITIAL_SKIP)
             self.count = 0
             self.prod_dist_counts_arr = []
             clustering_args = {
@@ -33,6 +37,11 @@ class DataDrift(AbstractAnomaly):
                 'plot_save_name': "training_dataset_clusters.png"
             }
             self.clustering_helper = Clustering(clustering_args)
+            if self.is_embedding:
+                self.plot_name = "Embeddings_" + self.measurable.col_name()
+                self.emd_threshold = check.get("emd_threshold", 1)
+            else:
+                self.plot_name = "Scalar_" + self.measurable.col_name()
             self.bucket_reference_dataset()
 
     def need_ground_truth(self):
@@ -65,6 +74,10 @@ class DataDrift(AbstractAnomaly):
                     self.mode = "check_scalar_only"
                 self.check(inputs, outputs, gts=gts, extra_args=extra_args)
         else:
+            # if (self.count == 0) and not(self.is_embedding and (self.cluster_plot_func is not None)):
+            if self.count == 0:
+                self.log_handler.add_writer(self.dashboard_name)
+
             self.count += len(extra_args["id"])
 
             self.feats = self.measurable.compute_and_log(
@@ -76,19 +89,38 @@ class DataDrift(AbstractAnomaly):
                 feats_shape.insert(2, 1)
             self.feats = np.reshape(self.feats, tuple(feats_shape))
 
+            if self.is_embedding:
+                self.feats = self.feats / np.expand_dims(self.max_along_axis, 0)
+
             self.this_datapoint_cluster, self.prod_dist_counts = self.clustering_helper.infer_cluster_assignment(self.feats, self.prod_dist_counts)
             self.prod_dist_counts_arr.append(self.prod_dist_counts.copy())
 
-            if self.count < 1000:
+            self.prod_dist = (
+                self.prod_dist_counts_arr[-1]
+                - self.prod_dist_counts_arr[
+                    int(max(self.count - self.INITIAL_SKIP, 0) / len(extra_args["id"]))
+                ]
+            ) / min(self.count, self.INITIAL_SKIP)
+
+            if self.ref_dist.shape[0] == 1:
+                if self.is_embedding:
+                    bar_graph_buckets = ["cluster_" + str(idx) for idx in range(len(list(np.reshape(self.clusters,-1))))]
+                else:
+                    bar_graph_buckets = list(np.reshape(self.clusters,-1))
+
+                self.log_handler.add_bar_graphs(
+                    self.plot_name,
+                    {
+                        "reference": dict(zip(bar_graph_buckets, list(np.reshape(np.array(self.ref_dist[0]), -1)))),
+                        "production": dict(zip(bar_graph_buckets, list(np.reshape(np.array(self.prod_dist[0]), -1)))),
+                    },
+                    self.dashboard_name,
+                )
+
+            if self.count < self.INITIAL_SKIP:
                 self.drift_detected = False
                 return
             else:
-                self.prod_dist = (
-                    self.prod_dist_counts_arr[-1]
-                    - self.prod_dist_counts_arr[
-                        int(max(self.count - 2000, 0) / len(extra_args["id"]))
-                    ]
-                ) / min(self.count, 2000)
                 self.psis = np.zeros(self.ref_dist.shape[0])
                 self.costs = np.zeros(self.ref_dist.shape[0])
                 drift_detected = False
@@ -97,7 +129,7 @@ class DataDrift(AbstractAnomaly):
                         self.costs[idx] = estimate_earth_moving_cost(
                             self.prod_dist[idx], self.ref_dist[idx], self.clusters[idx]
                         )
-                        drift_detected = drift_detected or (self.costs[idx] > 300)
+                        drift_detected = drift_detected or (self.costs[idx] > self.emd_threshold)
                     else:
                         this_psi = sum(
                             [
@@ -112,15 +144,22 @@ class DataDrift(AbstractAnomaly):
                         self.psis[idx] = this_psi
                         drift_detected = drift_detected or (this_psi > 0.3)
                 self.drift_detected = drift_detected
+                if self.drift_detected:
+                    alert = "Data Drift last detected at " + str(self.count) + " for Embeddings with Earth moving distance = " + str(float(self.costs[0]))
+                    self.log_handler.add_alert(
+                        "Data Drift Alert 🚨",
+                        alert,
+                        self.dashboard_name
+                    )
 
             if self.is_embedding:
                 dict_emc = dict(
                     zip(
-                        ["feat_" + str(x) for x in range(self.costs.shape[0])],
+                        [self.measurable.col_name() for x in range(self.costs.shape[0])],
                         [float(x) for x in list(self.costs)],
                     )
                 )
-                dict_emc.update({"threshold": 300})
+                dict_emc.update({"threshold": self.emd_threshold})
                 self.log_handler.add_scalars(
                     self.measurable.col_name() + " - earth_moving_costs_embedding",
                     dict_emc,
@@ -130,7 +169,7 @@ class DataDrift(AbstractAnomaly):
             else:
                 dict_psi = dict(
                     zip(
-                        ["feat_" + str(x) for x in range(self.psis.shape[0])],
+                        [self.measurable.col_name() + "_" + str(x) for x in range(self.psis.shape[0])],
                         [float(x) for x in list(self.psis)],
                     )
                 )
@@ -164,7 +203,7 @@ class DataDrift(AbstractAnomaly):
                 raise Exception("Mode for data drift should be set in check func")
         else:
             is_interesting = np.array([False] * len(extra_args["id"]))
-            if self.save_edge_cases and self.drift_detected:
+            if self.save_edge_cases and self.drift_detected and not isinstance(self.feats[0,0,0], str):
                 feats_shape = list(self.feats.shape)
                 del feats_shape[1]
                 self.feats = np.reshape(self.feats, tuple(feats_shape))
@@ -235,3 +274,8 @@ class DataDrift(AbstractAnomaly):
 
         self.ref_dist = np.array(clustering_results['dist'])
         self.ref_dist_counts = np.array(clustering_results['dist_counts'])
+
+        self.prod_dist = np.zeros((1, self.NUM_BUCKETS))
+        self.prod_dist_counts = np.zeros((1, self.NUM_BUCKETS))
+
+        self.prod_dist_counts_arr.append(copy.deepcopy(self.prod_dist_counts))

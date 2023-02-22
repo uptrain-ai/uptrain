@@ -16,7 +16,19 @@ class MeasurableResolver:
         super().__init__()
         self._args = args
 
+    def has_valid_resolve_args(self):
+        if self._args is None:
+            return False
+
+        if len(self._args) == 0:
+            return False
+
+        return True
+
     def resolve(self, framework) -> Measurable:
+        if not self.has_valid_resolve_args():
+            return None
+
         resolve_args = self._args
         measurable_type = resolve_args["type"]
         if measurable_type == MeasurableType.INPUT_FEATURE:
