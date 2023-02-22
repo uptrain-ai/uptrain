@@ -33,8 +33,10 @@ class DataDrift(AbstractAnomaly):
             self.count = 0
             self.prod_dist_counts_arr = []
             clustering_args = {
+                "num_buckets": self.NUM_BUCKETS,
                 'is_embedding': self.is_embedding,
-                'plot_save_name': "training_dataset_clusters.png"
+                'plot_save_name': "training_dataset_clusters.png",
+                'cluster_plot_func': self.cluster_plot_func
             }
             self.clustering_helper = Clustering(clustering_args)
             if self.is_embedding:
@@ -74,10 +76,6 @@ class DataDrift(AbstractAnomaly):
                     self.mode = "check_scalar_only"
                 self.check(inputs, outputs, gts=gts, extra_args=extra_args)
         else:
-            # if (self.count == 0) and not(self.is_embedding and (self.cluster_plot_func is not None)):
-            if self.count == 0:
-                self.log_handler.add_writer(self.dashboard_name)
-
             self.count += len(extra_args["id"])
 
             self.feats = self.measurable.compute_and_log(
@@ -274,6 +272,7 @@ class DataDrift(AbstractAnomaly):
 
         self.ref_dist = np.array(clustering_results['dist'])
         self.ref_dist_counts = np.array(clustering_results['dist_counts'])
+        self.max_along_axis = clustering_results['max_along_axis']
 
         self.prod_dist = np.zeros((1, self.NUM_BUCKETS))
         self.prod_dist_counts = np.zeros((1, self.NUM_BUCKETS))

@@ -14,7 +14,7 @@ class Umap(AbstractVisual):
     dashboard_name = "umap_and_clusters"
 
     def __init__(self, fw, check):
-        self.allowed_model_values = [x['allowed_values'] for x in check['model_args']]
+        self.allowed_model_values = [x['allowed_values'] for x in check.get('model_args', [{'allowed_values': []}])]
         self.num_model_options = sum([len(x) > 1 for x in self.allowed_model_values])
         self.children = []
 
@@ -28,8 +28,8 @@ class Umap(AbstractVisual):
         else:
             self.framework = fw
             self.log_handler = fw.log_handler
-            self.measurable = MeasurableResolver(check["measurable_args"]).resolve(fw)
-            self.aggregate_measurable = MeasurableResolver(check["aggregate_args"]).resolve(
+            self.measurable = MeasurableResolver(check.get("measurable_args", None)).resolve(fw)
+            self.aggregate_measurable = MeasurableResolver(check.get("aggregate_args", None)).resolve(
                 fw
             )
             self.feature_measurables = [

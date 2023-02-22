@@ -56,11 +56,6 @@ def cluster_and_plot_data(
 
 def add_data_to_warehouse(data, path_csv, row_update=False):
     """Stores the dictionary "data" at location path_csv"""
-    if len(data):
-        for k in list(data.keys()):
-            if k == "data":
-                data.update(data[k])
-        del data["data"]
 
     for k in list(data.keys()):
         if row_update and k == "id":
@@ -138,8 +133,9 @@ def extract_data_points_from_batch(data, idxs):
 
 def get_feature_names_list(inputs):
     feat_name_list = []
-    for k in list(inputs["data"].keys()):
-        feat_name_list.append(k)
+    for k in list(inputs.keys()):
+        if not (k == "id"):
+            feat_name_list.append(k)
     return feat_name_list
 
 

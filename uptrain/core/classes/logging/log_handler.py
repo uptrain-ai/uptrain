@@ -29,9 +29,10 @@ class LogHandler:
             check = cfg.checks[0]
             cfg_metadata.update({'model_args': check.get('model_args', None)})
             cfg_metadata.update({'feature_args': check.get('feature_args', None)})
-        metadata_file = os.path.join(self.st_log_folder, "metadata.json")
-        with open(metadata_file, "w") as f:
-            json.dump(cfg_metadata, f)
+        if cfg.st_logging:
+            metadata_file = os.path.join(self.st_log_folder, "metadata.json")
+            with open(metadata_file, "w") as f:
+                json.dump(cfg_metadata, f)
 
     def get_plot_save_name(self, plot_name, dashboard_name):
         if self.st_writer:

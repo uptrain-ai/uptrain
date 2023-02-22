@@ -11,7 +11,6 @@ class EdgeCase(AbstractAnomaly):
 
     def __init__(self, fw, signal_formulae):
         self.log_handler = fw.log_handler
-        self.log_handler.add_writer(self.dashboard_name)
         self.signal_manager = SignalManager()
         self.signal_manager.add_signal_formulae(signal_formulae)
         self.num_preds = 0

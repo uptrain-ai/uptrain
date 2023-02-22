@@ -127,8 +127,8 @@ def test_concept_drift():
     for i in range(int(len(X_test)/batch_size)):
         
         # Do model prediction
-        inputs = {'data': {"feats": X_test[i*batch_size:(i+1)*batch_size]}}
-        preds = classifier.predict(inputs['data']["feats"])
+        inputs = {"feats": X_test[i*batch_size:(i+1)*batch_size]}
+        preds = classifier.predict(inputs["feats"])
         
         # Log model inputs and outputs to monitor concept drift
         ids = framework.log(inputs=inputs, outputs=preds)

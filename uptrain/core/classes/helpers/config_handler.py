@@ -53,12 +53,12 @@ class Config(BaseModel):
         return v
 
 
-class InputArgs(BaseModel):
-    data: dict
-    id: typing.Optional[typing.Union[list, np.ndarray]]
+# class InputArgs(BaseModel):
+#     data: dict
+#     id: typing.Optional[typing.Union[list, np.ndarray]]
 
-    class Config:
-        arbitrary_types_allowed = True
+#     class Config:
+#         arbitrary_types_allowed = True
 
 
 class GroundTruthArgs(BaseModel):

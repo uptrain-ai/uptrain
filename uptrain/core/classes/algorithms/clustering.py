@@ -6,8 +6,10 @@ class Clustering():
         self.NUM_BUCKETS = args["num_buckets"]
         self.is_embedding = args["is_embedding"]
         self.plot_save_name = args.get("plot_save_name", "")
+        self.cluster_plot_func = args.get('cluster_plot_func', None)
         self.dist = []
         self.dist_counts = []
+        self.max_along_axis = []
 
 
     def cluster_data(self, data):
@@ -37,7 +39,8 @@ class Clustering():
             "clusters": self.clusters,
             "cluster_vars": self.cluster_vars,
             "dist": self.dist,
-            "dist_counts": self.dist_counts
+            "dist_counts": self.dist_counts,
+            "max_along_axis": self.max_along_axis
         }
 
         return clustering_results
@@ -95,6 +98,7 @@ class Clustering():
 
         self.clusters = np.array([all_clusters])
         self.cluster_vars = np.array([cluster_vars])
+        self.buckets = self.clusters
 
         self.dist_counts = np.array([counts])
         self.dist = self.dist_counts / data.shape[0]
