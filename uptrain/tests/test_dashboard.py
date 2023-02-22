@@ -3,9 +3,17 @@ import random
 import numpy as np
 
 
-if __name__ == "__main__":
-# def test_dashboard():
-    cfg = {"st_logging": True}
+# if __name__ == "__main__":
+def test_dashboard():
+    cfg = {
+        "st_logging": True,
+        "logging_args": {
+            # For slack alerts, add your webhook URL
+            # Checkout https://api.slack.com/messaging/webhooks
+            'slack_webhook_url': None,
+            'dashboard_port': 50000,
+        }
+    }
     fw = uptrain.Framework(cfg)
 
     dashboard_name = "count_dashboard"
@@ -55,9 +63,9 @@ if __name__ == "__main__":
     umap = []
     for label in clusters:
         if label==0:
-            umap.append(np.random.normal([0,0,0], 0.1, 3))
+            umap.append(np.random.normal([0,0,0], 0.5, 3))
         else:
-            umap.append(np.random.normal([1,1,1], 0.1, 3))
+            umap.append(np.random.normal([1,1,1], 0.5, 3))
 
     umap_data = {"umap": umap, "clusters": clusters}
 
