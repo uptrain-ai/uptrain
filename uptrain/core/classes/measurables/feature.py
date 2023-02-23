@@ -6,12 +6,12 @@ from uptrain.core.classes.measurables import (
 
 
 class FeatureMeasurable(Measurable):
-    def __init__(self, framework, feature_name, dictn_type, dtype=None) -> None:
+    def __init__(self, framework, feature_name, dictn_type) -> None:
         super().__init__(framework)
         self.feature_name = feature_name
         self.dictn_type = dictn_type
         if self.dictn_type == "inputs":
-            self.helper = InputFeatureMeasurable(framework, feature_name, dtype=dtype)
+            self.helper = InputFeatureMeasurable(framework, feature_name)
         elif self.dictn_type == "outputs":
             self.helper = OutputFeatureMeasurable(framework, feature_name)
         else:
