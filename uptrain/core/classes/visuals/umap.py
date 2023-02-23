@@ -8,7 +8,6 @@ from uptrain.constants import Visual, Statistic
 from uptrain.core.classes.measurables import MeasurableResolver
 from uptrain.core.lib.helper_funcs import read_json
 
-
 class Umap(AbstractVisual):
     visual_type = Visual.UMAP
     dashboard_name = "umap_and_clusters"
@@ -29,9 +28,6 @@ class Umap(AbstractVisual):
             self.framework = fw
             self.log_handler = fw.log_handler
             self.measurable = MeasurableResolver(check.get("measurable_args", None)).resolve(fw)
-            self.aggregate_measurable = MeasurableResolver(check.get("aggregate_args", None)).resolve(
-                fw
-            )
             self.feature_measurables = [
                 MeasurableResolver(x).resolve(fw) for x in check.get("feature_args", [])
             ]
@@ -94,7 +90,9 @@ class Umap(AbstractVisual):
             models = dict(zip(['model_' + x for x in self.model_names], 
                 [self.allowed_model_values[jdx][0] for jdx in range(len(self.model_names))]))
             for count in self.count_checkpoints:
-                emb_list = np.array(self.get_data_for_umap(count))
+                emb_list, label_list = self.get_data_for_umap(count)
+                emb_list = np.array(emb_list)
+                label_list = np.array(label_list)
 
                 if emb_list.shape[0] > 10:
                     clusters = []
@@ -106,6 +104,7 @@ class Umap(AbstractVisual):
                         self.metric_umap,
                         self.eps,
                         self.min_samples,
+                        label_list=label_list
                     )
                     this_data = {"umap": umap_list, "clusters": clusters}
                     self.log_handler.add_histogram(
@@ -117,7 +116,6 @@ class Umap(AbstractVisual):
                         file_name = str(count) + "_" + '_'.join(list(models.values()))
                     )
 
-
     def get_data_for_umap(self, count):
         if self.measurable is None:
             distribution_anomaly = list(
@@ -127,9 +125,24 @@ class Umap(AbstractVisual):
                 )
             )[0]
             data_dict = distribution_anomaly.get_feats_for_clustering(count, self.allowed_model_values)
-            return data_dict.values()
+            chosen_key = None
+            if len(data_dict):
+                temp_val = list(data_dict.values())[0]
+                if len(temp_val):
+                    temp_keys = list(temp_val.keys())
+                    temp_keys = list(filter(lambda x: not (x == "val"), temp_keys))
+                    if len(temp_keys) > 1:
+                        print("Have multiple labels - " + str(temp_keys) + " .Using " + temp_keys[0] + " for labeling UMAPs." )
+                    chosen_key = temp_keys[0]
+            vals = np.array([data_dict[x]['val'] for x in data_dict])
+            if vals.shape[0] > 0:
+                vals = np.squeeze(vals, axis=1)
+            if chosen_key is None:
+                return vals, []
+            else:
+                return vals, [data_dict[x][chosen_key] for x in data_dict]
         else:
-            return self.vals
+            return self.vals, self.labels
 
     def get_umap_and_labels(
         self,
@@ -140,6 +153,7 @@ class Umap(AbstractVisual):
         metric,
         eps,
         min_samples,
+        label_list=None
     ):
         if dim == "2D":
             n_components = 2
@@ -158,5 +172,6 @@ class Umap(AbstractVisual):
             clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(umap_embeddings)
             labels = clustering.labels_
         else:
-            labels = self.labels
+            labels = label_list
+        labels = np.squeeze(np.array(labels))
         return umap_embeddings, labels
