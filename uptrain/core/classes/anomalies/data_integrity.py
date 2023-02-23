@@ -38,7 +38,7 @@ class DataIntegrity(AbstractAnomaly):
         )
         self.log_handler.add_scalars(
             self.dashboard_name + "_" + plot_name,
-            {plot_name: 1 - self.num_issues / self.count},
+            {"y_" + plot_name: 1 - self.num_issues / self.count},
             self.count,
             self.dashboard_name,
         )

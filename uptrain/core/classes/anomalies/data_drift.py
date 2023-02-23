@@ -153,7 +153,7 @@ class DataDrift(AbstractAnomaly):
             if self.is_embedding:
                 dict_emc = dict(
                     zip(
-                        [self.measurable.col_name() for x in range(self.costs.shape[0])],
+                        ["y_" + self.measurable.col_name() for x in range(self.costs.shape[0])],
                         [float(x) for x in list(self.costs)],
                     )
                 )
@@ -167,7 +167,7 @@ class DataDrift(AbstractAnomaly):
             else:
                 dict_psi = dict(
                     zip(
-                        [self.measurable.col_name() + "_" + str(x) for x in range(self.psis.shape[0])],
+                        ["y_" + self.measurable.col_name() + "_" + str(x) for x in range(self.psis.shape[0])],
                         [float(x) for x in list(self.psis)],
                     )
                 )

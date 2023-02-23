@@ -27,7 +27,7 @@ class EdgeCase(AbstractAnomaly):
         self.num_selected += sum(is_interesting)
         self.log_handler.add_scalars(
             "num_edge_cases",
-            {"num_edge_cases": self.num_selected},
+            {"y_num_edge_cases": self.num_selected},
             self.num_preds,
             self.dashboard_name,
         )

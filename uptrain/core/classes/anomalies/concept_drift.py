@@ -44,7 +44,7 @@ class ConceptDrift(AbstractAnomaly):
             )
             self.log_handler.add_scalars(
                 "avg_accuracy",
-                {"avg_accuracy": self.avg_acc},
+                {"y_avg_accuracy": self.avg_acc},
                 len(self.acc_arr),
                 self.dashboard_name,
             )
