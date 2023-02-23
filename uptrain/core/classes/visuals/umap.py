@@ -111,7 +111,6 @@ class Umap(AbstractVisual):
                         "umap_and_clusters",
                         this_data,
                         self.dashboard_name,
-                        count,
                         models = models,
                         file_name = str(count) + "_" + '_'.join(list(models.values()))
                     )
