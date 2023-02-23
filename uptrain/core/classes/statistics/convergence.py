@@ -157,7 +157,6 @@ class Convergence(AbstractStatistic):
                                 plot_name,
                                 this_data,
                                 self.dashboard_name,
-                                count = crossed_checkpoint,
                                 models = [models]*len(this_data),
                                 features = [features] * len(this_data),
                                 file_name = str(crossed_checkpoint)
