@@ -1,9 +1,7 @@
 import os
 import shutil
-import numpy as np
 import urllib3
 import json
-
 
 class LogHandler:
     def __init__(self, framework=None, cfg=None):
@@ -12,13 +10,6 @@ class LogHandler:
             print("Deleting the folder: ", cfg.log_folder)
             shutil.rmtree(cfg.log_folder)
 
-        self.tb_writers = {}
-        self.tb_logs = None
-        if cfg.tb_logging:
-            from uptrain.core.classes.logging.log_tensorboard import TensorboardLogs
-
-            self.tb_logs = TensorboardLogs(cfg.log_folder)
-
         self.st_writer = None
         if cfg.st_logging:
             from uptrain.core.classes.logging.log_streamlit import StreamlitLogs
@@ -26,17 +17,20 @@ class LogHandler:
             self.st_log_folder = os.path.join(cfg.log_folder, "st_data")
             os.makedirs(self.st_log_folder, exist_ok=True)
             self.st_writer = StreamlitLogs(self.st_log_folder, port=cfg.logging_args.dashboard_port)
-            self.st_log_folders_all = {}
 
         # Get Webhook URL for alerting on slack
         self.webhook_url = cfg.logging_args.slack_webhook_url
 
-    def add_writer(self, dashboard_name):
-        dashboard_name = self.make_name_fold_directory_friendly(dashboard_name)
-        tb_writer = None
-        if self.tb_logs:
-            tb_writer = self.tb_logs.add_writer(dashboard_name)
-            self.tb_writers.update({dashboard_name: tb_writer})
+        # Saving config to get model metadata
+        cfg_metadata = {'model_args': None, 'feature_args': None}
+        if len(cfg.checks) > 0:
+            check = cfg.checks[0]
+            cfg_metadata.update({'model_args': check.get('model_args', None)})
+            cfg_metadata.update({'feature_args': check.get('feature_args', None)})
+        if cfg.st_logging:
+            metadata_file = os.path.join(self.st_log_folder, "metadata.json")
+            with open(metadata_file, "w") as f:
+                json.dump(cfg_metadata, f)
 
     def get_plot_save_name(self, plot_name, dashboard_name):
         if self.st_writer:
@@ -44,53 +38,54 @@ class LogHandler:
         else:
             return ""
 
-    def add_scalars(self, plot_name, dictn, count, dashboard_name):
-        dashboard_name, plot_name = self.make_name_fold_directory_friendly(
+    def add_scalars(self, plot_name, dictn, count, dashboard_name, features={}, models={}, file_name=None, update_val=False):
+        if self.st_writer is None:
+            return
+        dashboard_name, plot_name = self.dir_friendly_name(
             [dashboard_name, plot_name]
         )
+        dictn.update(features)
+        dictn.update(models)
         new_dictn = dict(
             zip(
-                self.make_name_fold_directory_friendly(list(dictn.keys())),
+                self.dir_friendly_name(list(dictn.keys())),
                 dictn.values(),
             )
         )
-        if self.tb_logs:
-            if dashboard_name in self.tb_writers:
-                self.tb_writers[dashboard_name].add_scalars(plot_name, new_dictn, count)
-        if self.st_writer:
-            dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
-            plot_folder = os.path.join(dashboard_dir, "line_plots", plot_name)
-            os.makedirs(plot_folder, exist_ok=True)
-            dictn.update({"count": count})
-            self.st_writer.add_scalars(dictn, plot_folder)
+        dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
+        plot_folder = os.path.join(dashboard_dir, "line_plots", plot_name)
+        os.makedirs(plot_folder, exist_ok=True)
+        new_dictn.update({"x_count": count})
+        if file_name is None:
+            file_name = plot_name
+        self.st_writer.add_scalars(new_dictn, plot_folder, file_name=file_name, update_val=update_val)
 
-    def add_histogram(self, plot_name, data, dashboard_name, count=-1):
-        dashboard_name, plot_name = self.make_name_fold_directory_friendly(
+    def add_histogram(self, plot_name, data, dashboard_name, features=None, models=None, file_name=None):
+        dashboard_name, plot_name = self.dir_friendly_name(
             [dashboard_name, plot_name]
         )
-        if not isinstance(data, dict):
-            if isinstance(data, list) or isinstance(data, np.ndarray):
-                if dashboard_name in self.tb_writers:
-                    self.tb_writers[dashboard_name].add_histogram(plot_name, data, count)
         if self.st_writer:
             dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
             plot_folder = os.path.join(dashboard_dir, "histograms", plot_name)
             os.makedirs(plot_folder, exist_ok=True)
-            self.st_writer.add_histogram(data, plot_folder, count)
+            if file_name is None:
+                file_name = plot_name
+            self.st_writer.add_histogram(data, plot_folder, features=features, models=models, file_name=file_name)
 
     def add_bar_graphs(self, plot_name, data, dashboard_name, count=-1):
-        dashboard_name, plot_name = self.make_name_fold_directory_friendly(
+        if self.st_writer is None:
+            return
+        dashboard_name, plot_name = self.dir_friendly_name(
             [dashboard_name, plot_name]
         )
-        if self.st_writer:
-            dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
-            plot_folder = os.path.join(dashboard_dir, "bar_graphs", plot_name)
-            os.makedirs(plot_folder, exist_ok=True)
-            self.st_writer.add_bar_graphs(data, plot_folder, count)
+        dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
+        plot_folder = os.path.join(dashboard_dir, "bar_graphs", plot_name)
+        os.makedirs(plot_folder, exist_ok=True)
+        self.st_writer.add_bar_graphs(data, plot_folder, count)
 
-    def make_name_fold_directory_friendly(self, arr):
+    def dir_friendly_name(self, arr):
         if isinstance(arr, str):
-            return self.make_name_fold_directory_friendly([arr])[0]
+            return self.dir_friendly_name([arr])[0]
 
         new_arr = [self.convert_str(x) for x in arr]
         return new_arr
@@ -108,10 +103,8 @@ class LogHandler:
         return txt
 
     def add_alert(self, alert_name, alert, dashboard_name):
-        # dashboard_name = self.make_name_fold_directory_friendly(
-        #     [dashboard_name]
-        # )
         if self.st_writer:
+            dashboard_name = self.dir_friendly_name(dashboard_name)
             dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
             plot_folder = os.path.join(dashboard_dir, "alerts")
             os.makedirs(plot_folder, exist_ok=True)

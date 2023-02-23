@@ -14,7 +14,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="uptrain",
-    version="0.0.5",
+    version="0.0.6",
     description="UpTrain - ML Observability and Retraining Framework",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -31,7 +31,7 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Stable",
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Build Tools",
         # Pick your license as you wish (should match "license" above)

@@ -82,8 +82,8 @@ def test_concept_drift():
                 
                 # Logging to UpTrain dashboard
                 self.log_handler.add_scalars('custom_metrics', {
-                        'initial_acc': self.initial_acc,
-                        'recent_acc': recent_acc,
+                        'y_initial_acc': self.initial_acc,
+                        'y_recent_acc': recent_acc,
                     }, i, self.dashboard_name)
                 
                 # Send an alert when recent model performance goes down 
@@ -127,8 +127,8 @@ def test_concept_drift():
     for i in range(int(len(X_test)/batch_size)):
         
         # Do model prediction
-        inputs = {'data': {"feats": X_test[i*batch_size:(i+1)*batch_size]}}
-        preds = classifier.predict(inputs['data']["feats"])
+        inputs = {"feats": X_test[i*batch_size:(i+1)*batch_size]}
+        preds = classifier.predict(inputs["feats"])
         
         # Log model inputs and outputs to monitor concept drift
         ids = framework.log(inputs=inputs, outputs=preds)

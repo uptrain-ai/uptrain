@@ -62,6 +62,7 @@ class Framework:
             shutil.rmtree(self.fold_name)
         os.mkdir(self.fold_name)
 
+        self.log_data = cfg.log_data
         self.use_cache = cfg.use_cache
         self.cache = {}
         self.predicted_count = 0
@@ -106,8 +107,8 @@ class Framework:
     def get_data_id(self, inputs):
         if self.data_id_type in inputs:
             ids = inputs[self.data_id_type]
-        elif self.data_id_type in inputs["data"]:
-            ids = inputs["data"][self.data_id_type]
+        elif self.data_id_type in inputs:
+            ids = inputs[self.data_id_type]
         elif self.data_id_type == "utc_timestamp":
             timestamp = str(datetime.utcnow().timestamp()).replace(".", "")
             rand_int = random.sample(
@@ -133,7 +134,7 @@ class Framework:
         smart_data = {}
 
         is_interesting = self.is_data_interesting(
-            data["data"], data["output"], data["gt"], extra_args=extra_args
+            data, data["output"], data["gt"], extra_args=extra_args
         )
         num_selected_datapoints = np.sum(np.array(is_interesting))
         self.selected_count += num_selected_datapoints
@@ -147,18 +148,19 @@ class Framework:
             self.fold_name, str(self.version), "smart_data.csv"
         )
 
-        if num_selected_datapoints > 0:
+        if self.log_data and (num_selected_datapoints > 0):
             smart_data = extract_data_points_from_batch(
                 data, np.where(is_interesting == True)[0]
             )
             add_data_to_warehouse(deepcopy(smart_data), path_smart_data)
 
         edge_cases_txt = str(self.selected_count) + " edge cases identified out of " + str(self.predicted_count) + " total samples"
-        self.log_handler.add_alert(
-            "Number of edge cases collected",
-            edge_cases_txt,
-            "edge_cases"
-        )
+        if self.selected_count > 0:
+            self.log_handler.add_alert(
+                "Number of edge cases collected",
+                edge_cases_txt,
+                "edge_cases"
+            )
 
         if (not (self.selected_count == old_selected_count)) and (
             not (int(self.selected_count / 50) == int(old_selected_count / 50))
@@ -168,10 +170,7 @@ class Framework:
     def infer_batch_size(self, inputs):
         batch_sizes = []
         for k, item in inputs.items():
-            if k == "data":
-                item_batch_size = self.infer_batch_size(inputs[k])
-            else:
-                item_batch_size = len(item)
+            item_batch_size = len(item)
             batch_sizes.append(item_batch_size)
         if np.var(np.array(batch_sizes)) > 0:
             # TODO: Raise warning on what is going wrong
@@ -179,7 +178,7 @@ class Framework:
         return batch_sizes[0]
 
     def check_and_add_data(self, inputs, outputs, gts=None, extra_args={}):
-        inputs = dict(config_handler.InputArgs(**inputs))
+        # inputs = dict(config_handler.InputArgs(**inputs))
         if ("id" in inputs) and (inputs["id"] is None):
             del inputs["id"]
         self.batch_size = self.infer_batch_size(inputs)
@@ -200,8 +199,9 @@ class Framework:
             }
         )
 
-        # Log all the data-points into all_data warehouse
-        add_data_to_warehouse(deepcopy(data), self.path_all_data)
+        if self.log_data:
+            # Log all the data-points into all_data warehouse
+            add_data_to_warehouse(deepcopy(data), self.path_all_data)
 
         # Check for any anomalies
         self.check(data, extra_args)
@@ -215,7 +215,7 @@ class Framework:
     def check(self, data, extra_args={}):
         extra_args.update({"id": data["id"]})
         self.check_manager.check(
-            data["data"],
+            data,
             data["output"],
             gts=data["gt"],
             extra_args=extra_args,
@@ -321,18 +321,19 @@ class Framework:
         structures (e.g., cascaded models). 
         """
         df_gt = df.loc[gt_id_indices]
-        data = {
-            "data": zip(
+        data = dict(zip(
                 self.feat_name_list,
                 [load_list_from_df(df_gt, x) for x in self.feat_name_list],
-            ),
+            ))
+        data.update({
             "output": load_list_from_df(df_gt, "output"),
             "id": list(gt_data["id"]),
             "gt": list(gt_data["gt"]),
-        }
+        })
         self.check(data, extra_args=self.extra_args)
         self.smartly_add_data(data, extra_args=self.extra_args)
 
+    #TODO: @Vipul - Do we need this?
     def feat_slicing(self, relevant_feat_list, limit_list):
         """
         This function checks anomalies for a subset of data.
@@ -378,8 +379,8 @@ class Framework:
         data = {}
         for col in cols:
             data.update({col: np.array(list(inputs[col]))})
-        inputs = {"data": data, "ids": np.array(ids)}
-        return inputs
+        data.update({"ids": np.array(ids)})
+        return data
 
 
     def log(self, inputs=None, outputs=None, gts=None, identifiers=None, extra=None):

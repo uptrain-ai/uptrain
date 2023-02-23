@@ -9,7 +9,7 @@ class CosineDistance:
         ref_norm = np.linalg.norm(ref, axis=1)
         return np.array(
             [
-                np.dot(base[i], ref[i]) / (base_norm[i] * ref_norm[i])
+                1 - np.dot(base[i], ref[i]) / (base_norm[i] * ref_norm[i])
                 for i in range(base.shape[0])
             ]
         )

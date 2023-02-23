@@ -11,7 +11,6 @@ class RecommendationBias(AbstractAnomaly):
 
     def __init__(self, fw, check):
         self.log_handler = fw.log_handler
-        self.log_handler.add_writer(self.dashboard_name)
         self.acc_arr = []
         if check["algorithm"] == BiasAlgo.POPULARITY_BIAS:
             sessions = check.get("sessions", None)

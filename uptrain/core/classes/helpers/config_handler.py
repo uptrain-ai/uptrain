@@ -44,6 +44,7 @@ class Config(BaseModel):
     feat_name_list: list = None
     cluster_visualize_func: typing.Callable = None
     use_cache: bool = False
+    log_data: bool = True
 
     @root_validator()
     def only_one_logging(cls, v):
@@ -52,12 +53,12 @@ class Config(BaseModel):
         return v
 
 
-class InputArgs(BaseModel):
-    data: dict
-    id: typing.Optional[typing.Union[list, np.ndarray]]
+# class InputArgs(BaseModel):
+#     data: dict
+#     id: typing.Optional[typing.Union[list, np.ndarray]]
 
-    class Config:
-        arbitrary_types_allowed = True
+#     class Config:
+#         arbitrary_types_allowed = True
 
 
 class GroundTruthArgs(BaseModel):

@@ -21,7 +21,7 @@ class AnnotationMethod(Enum):
     MASTER_FILE = 1
 
 
-class Anomaly(Enum):
+class Anomaly(str, Enum):
     EDGE_CASE = "edge_case"
     DATA_DRIFT = "data_drift"
     CUSTOM_MONITOR = "custom_monitor"
@@ -30,25 +30,25 @@ class Anomaly(Enum):
     DATA_INTEGRITY = "data_integrity"
 
 
-class Statistic(Enum):
+class Statistic(str, Enum):
     DISTANCE = "distance"
     DISTRIBUTION_STATS = "distribution_stats"
     CONVERGENCE_STATS = "convergence_stats"
 
 
-class Visual(Enum):
+class Visual(str, Enum):
     UMAP = "umap"
 
 
-class DataDriftAlgo(Enum):
+class DataDriftAlgo(str, Enum):
     DDM = "DDM"
 
 
-class BiasAlgo(Enum):
+class BiasAlgo(str, Enum):
     POPULARITY_BIAS = "popularity_bias"
 
 
-class MeasurableType(Enum):
+class MeasurableType(str, Enum):
     INPUT_FEATURE = "input_feature"
     PREDICTION = "prediction"
     CUSTOM = "custom"

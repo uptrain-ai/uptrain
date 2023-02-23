@@ -11,7 +11,6 @@ class DataIntegrity(AbstractAnomaly):
 
     def __init__(self, fw, check):
         self.log_handler = fw.log_handler
-        self.log_handler.add_writer(self.dashboard_name)
         self.measurable = MeasurableResolver(check["measurable_args"]).resolve(fw)
         self.integrity_type = check["integrity_type"]
         self.threshold = check.get("threshold", None)
@@ -39,7 +38,7 @@ class DataIntegrity(AbstractAnomaly):
         )
         self.log_handler.add_scalars(
             self.dashboard_name + "_" + plot_name,
-            {plot_name: 1 - self.num_issues / self.count},
+            {"y_" + plot_name: 1 - self.num_issues / self.count},
             self.count,
             self.dashboard_name,
         )

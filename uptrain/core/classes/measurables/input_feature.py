@@ -1,3 +1,5 @@
+import numpy as np
+
 from uptrain.core.classes.measurables import Measurable
 
 
@@ -7,7 +9,8 @@ class InputFeatureMeasurable(Measurable):
         self.feature_name = feature_name
 
     def _compute(self, inputs=None, outputs=None, gts=None, extra=None) -> any:
-        return inputs[self.feature_name]
+        val = inputs[self.feature_name]
+        return val
 
     def col_name(self):
         return str(self.feature_name)

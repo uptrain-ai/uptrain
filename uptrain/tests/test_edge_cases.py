@@ -75,8 +75,8 @@ def test_edge_cases():
     for i,elem in enumerate(real_world_dataset):
 
         # Do model prediction
-        inputs = {"data": {"kps": elem[0]["kps"]}, "id": elem[0]["id"]}
-        x_test = torch.tensor(inputs["data"]["kps"]).type(torch.float)
+        inputs = {"kps": elem[0]["kps"], "id": elem[0]["id"]}
+        x_test = torch.tensor(inputs["kps"]).type(torch.float)
         test_logits = model(x_test).squeeze() 
         preds = torch.round(torch.sigmoid(test_logits)).detach().numpy()
         idens = framework.log(inputs=inputs, outputs=preds)

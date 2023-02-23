@@ -120,10 +120,10 @@ def test_rec_bias():
 
     for i in range(int(len(x_test)/inference_batch_size)):
         # Define input in the format understood by the UpTrain framework
-        inputs = {'data': {"feats": x_test[i*inference_batch_size:(i+1)*inference_batch_size]}}
+        inputs = {"feats": x_test[i*inference_batch_size:(i+1)*inference_batch_size]}
         
         # Do model prediction
-        preds = model_predict(model, inputs['data']['feats'])
+        preds = model_predict(model, inputs['feats'])
 
         # Log input and output to framework
         ids = framework.log(inputs=inputs, outputs=preds)

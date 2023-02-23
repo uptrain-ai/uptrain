@@ -9,7 +9,6 @@ class CustomAnomaly(AbstractAnomaly):
     def __init__(self, fw, check):
         self.dashboard_name = check.get("dashboard_name", "custom_measure")
         self.log_handler = fw.log_handler
-        self.log_handler.add_writer(self.dashboard_name)
         self.check_func = check["check_func"]
         self.need_gt = check["need_gt"]
 

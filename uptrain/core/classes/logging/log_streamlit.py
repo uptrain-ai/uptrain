@@ -3,6 +3,7 @@ import csv
 import threading
 import json
 import numpy as np
+import pandas as pd
 
 
 class NumpyEncoder(json.JSONEncoder):
@@ -20,7 +21,7 @@ class StreamlitLogs:
         self.counts = {}
         self.log_folder = log_folder
 
-        remote_st_py_file = "https://raw.githubusercontent.com/uptrain-ai/uptrain/dashboard/uptrain/core/classes/logging/st_run.py"
+        remote_st_py_file = "https://raw.githubusercontent.com/uptrain-ai/uptrain/main/uptrain/core/classes/logging/st_run.py"
         # remote_st_py_file = "../../uptrain/core/classes/logging/st_run.py"
 
         if port is None:
@@ -31,27 +32,75 @@ class StreamlitLogs:
         t = threading.Thread(target=launch_st, args=([]))
         t.start()
 
-    def add_scalars(self, dict, folder):
+    def add_scalars(self, dict, folder, file_name='', update_val=False):
         # CSV file that includes the data
-        for key in dict.keys():
-            if key == "count":
-                continue
-            file_name = os.path.join(folder, key + ".csv")
+        file_name = os.path.join(folder, file_name + ".csv")
+        if not os.path.isfile(file_name):
+            with open(file_name, "w", newline="") as f_object:
+                writer = csv.writer(f_object)
+                writer.writerow(list(dict.keys()))
+                f_object.close()
+
+        if update_val:
+            df = pd.read_csv(file_name)
+            cond = None
+            keys = list(dict.keys())
+            for key in keys:
+                if key[0:2] == 'y_':
+                    continue
+                if cond is None:
+                    cond = df[key] == dict[key]
+                else:
+                    cond = cond & (df[key] == dict[key])
+            if len(df[cond]):
+                for key in keys:
+                    df.loc[cond, key] = dict[key]
+            else:
+                df = pd.concat([df, pd.DataFrame([dict])], ignore_index = True)
+                for key in keys:
+                    if key[0:2] == 'x_':
+                        df = df.sort_values(by=[key])
+            df.to_csv(file_name, index=False)
+        else:
+            with open(file_name, "a") as f_object:
+                writer_object = csv.writer(f_object)
+                writer_object.writerow(list(dict.values()))
+                f_object.close()
+
+
+    def add_histogram(self, data, folder, models=None, features=None, file_name=''):
+        if isinstance(data, dict):
+            file_name = os.path.join(folder, file_name + ".json")
+            if models is not None:
+                data.update(models)
+            if features is not None:
+                data.update(features)
+            with open(file_name, "w") as f:
+                json.dump(data, f, cls=NumpyEncoder)
+        else:
+            file_name = os.path.join(folder, file_name + ".csv")
             if not os.path.isfile(file_name):
                 with open(file_name, "w", newline="") as f_object:
                     writer = csv.writer(f_object)
-                    writer.writerow([key, "count"])
+                    all_keys = ['y_points']
+                    if models is not None:
+                        all_keys.extend(list(models[0].keys()))
+                    if features is not None:
+                        all_keys.extend(list(features[0].keys()))
+                    writer.writerow(all_keys)
                     f_object.close()
 
             with open(file_name, "a") as f_object:
                 writer_object = csv.writer(f_object)
-                writer_object.writerow([dict[key], dict["count"]])
+                for idx in range(len(data)):
+                    this_point = [data[idx]]
+                    if models is not None:
+                        this_point.extend(list(models[idx].values()))
+                    if features is not None:
+                        this_point.extend(list(features[idx].values()))
+                    writer_object.writerow(this_point)
                 f_object.close()
 
-    def add_histogram(self, data, folder, count=-1):
-        file_name = os.path.join(folder, str(count) + ".json")
-        with open(file_name, "w") as f:
-            json.dump(data, f, cls=NumpyEncoder)
 
     def add_alert(self, alert_name, alert, folder):
         file_name = os.path.join(folder, str(alert_name) + ".json")
