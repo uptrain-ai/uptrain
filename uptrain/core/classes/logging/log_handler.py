@@ -62,7 +62,7 @@ class LogHandler:
             file_name = plot_name
         self.st_writer.add_scalars(new_dictn, plot_folder, file_name=file_name, update_val=update_val)
 
-    def add_histogram(self, plot_name, data, dashboard_name, count=-1, features=None, models=None, file_name=""):
+    def add_histogram(self, plot_name, data, dashboard_name, features=None, models=None, file_name=None):
         dashboard_name, plot_name = self.dir_friendly_name(
             [dashboard_name, plot_name]
         )
@@ -70,6 +70,8 @@ class LogHandler:
             dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
             plot_folder = os.path.join(dashboard_dir, "histograms", plot_name)
             os.makedirs(plot_folder, exist_ok=True)
+            if file_name is None:
+                file_name = plot_name
             self.st_writer.add_histogram(data, plot_folder, features=features, models=models, file_name=file_name)
 
     def add_bar_graphs(self, plot_name, data, dashboard_name, count=-1):

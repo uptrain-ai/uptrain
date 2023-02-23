@@ -156,41 +156,13 @@ def plot_line_charts(files, plot_name):
             st.plotly_chart(fig, use_container_width=True)
 
 
-def plot_histograms(files, plot_name):
-    
-    # # Getting plot metadata from the first file
-    # if "distribution_stats" in files[0]:
-    #     model_sig_type = st.selectbox("Select Signal Type", 
-    #         model_sig_types, key=plot_name+'dist')
-    #     feat_genre_type = None
-    # else:
-    #     df = pd.read_csv(files[0])
-    #     for key in df.keys():
-    #         if key.startswith("feature_"):
-    #             feat_name = key[8:]
-    #     col1, col2 = st.columns(2)
-    #     with col1:
-    #         model_sig_type = st.selectbox("Select Signal Type", 
-    #             model_sig_types, key=plot_name)
-    #     with col2:
-    #         feat_genre_type = st.selectbox("Select Genre Type", 
-    #             feat_genre_types, key=plot_name+'genre')
-    
+def plot_histograms(files, plot_name): 
     cols = st.columns(2)
     for j in range(num_models_compare):
         fig = go.Figure()
         for i, csv_file in enumerate(files):
             # Reading the csv file
             df = pd.read_csv(csv_file)
-
-            df = slice_data(df)
-            
-            # df = df[df['model_ffm_type'] == model_ffm_type]
-            # df = df[df['model_sig_type'] == model_sig_type]
-            # if feat_genre_type is not None:
-            #     if feat_genre_type != 'All':
-            #         df = df[df['feature_' + feat_name] == feat_genre_type]
-
             df = slice_data(df, features_to_slice, model_to_compare, other_models, j)
 
             # Getting plot_id
@@ -305,7 +277,10 @@ def plot_dashboard(dashboard_name):
     sub_dirs = [path[0] for path in os.walk(os.path.join(log_folder, dashboard_name))]
     for sub_dir in sub_dirs:
         sub_dir_split = sub_dir.split("/")
-        if sub_dir_split[-1] == "umap_and_clusters":
+        c1 = sub_dir_split[-1] == "umap_and_clusters"
+        c2 = sub_dir_split[-2] == "bar_graphs"
+        c3 = sub_dir_split[-1] == "alerts"
+        if c1 or c2 or c3:
             ext = "*.json"
         else:
             ext = "*.csv"
@@ -347,7 +322,11 @@ def plot_dashboard(dashboard_name):
             else:
                 if st.sidebar.checkbox(f"UMAP for {plot_name}"):
                     st.markdown(f"### UMAP for {plot_name}")
-                    plot_umaps(files, plot_name, sub_dir)
+                    if model_args is not None:
+                        plot_umaps(files, plot_name, sub_dir)
+                    else:
+                        for file in files:
+                            plot_umap(file)
                     st.markdown("""---""")   
 
         ######### Plotting Bar Graphs ###########
