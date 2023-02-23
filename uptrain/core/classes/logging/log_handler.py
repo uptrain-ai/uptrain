@@ -1,9 +1,7 @@
 import os
 import shutil
-import numpy as np
 import urllib3
 import json
-import random
 
 class LogHandler:
     def __init__(self, framework=None, cfg=None):
