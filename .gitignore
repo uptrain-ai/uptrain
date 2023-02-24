@@ -12,3 +12,4 @@ dist
 uptrain_logs*
 *.pickle
 sample_run.ipynb
+NSL_KDD_binary.csv
