@@ -126,8 +126,9 @@ def test_dashboard():
                 'type': uptrain.MeasurableType.INPUT_FEATURE,
                 'feature_name': 'labels'
             },
-            'dim': '2D',
+            'dim': '3D',
             "update_freq": 1,
+            'perplexity': 10,
         }
         ],
         "st_logging": True,
