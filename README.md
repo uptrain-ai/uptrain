@@ -5,7 +5,7 @@
 </h4>
 <h2>
   <p align="center">
-    <p align="center">Monitor Machine Learning models in production.</p>
+    <p align="center">UpTrain is an open-source framework to monitor machine learning models, built for engineers</p>
   </p>
 </h2>
 
