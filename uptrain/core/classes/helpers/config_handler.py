@@ -26,6 +26,7 @@ class EvaluationArgs(BaseModel):
 class LoggingArgs(BaseModel):
     slack_webhook_url: str = None
     dashboard_port: str = None
+    log_folder: str = "uptrain_logs"
 
 
 class Config(BaseModel):
@@ -38,19 +39,11 @@ class Config(BaseModel):
     retrain_after: int = 100000000000
     retraining_folder: str = "uptrain_smart_data"
     data_id: str = "id"
-    log_folder: str = "uptrain_logs"
-    tb_logging: bool = False
     st_logging: bool = False
     feat_name_list: list = None
     cluster_visualize_func: typing.Callable = None
     use_cache: bool = False
     log_data: bool = True
-
-    @root_validator()
-    def only_one_logging(cls, v):
-        if v.get("tb_logging") and v.get("st_logging"):
-            raise ValueError("Use only one logging type: Tensorboard or Streamlit")
-        return v
 
 
 # class InputArgs(BaseModel):

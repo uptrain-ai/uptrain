@@ -6,15 +6,16 @@ import json
 class LogHandler:
     def __init__(self, framework=None, cfg=None):
         self.fw = framework
-        if os.path.exists(cfg.log_folder):
-            print("Deleting the folder: ", cfg.log_folder)
-            shutil.rmtree(cfg.log_folder)
+        log_folder = cfg.logging_args.log_folder
+        if os.path.exists(log_folder):
+            print("Deleting the folder: ", log_folder)
+            shutil.rmtree(log_folder)
 
         self.st_writer = None
         if cfg.st_logging:
             from uptrain.core.classes.logging.log_streamlit import StreamlitLogs
 
-            self.st_log_folder = os.path.join(cfg.log_folder, "st_data")
+            self.st_log_folder = os.path.join(log_folder, "st_data")
             os.makedirs(self.st_log_folder, exist_ok=True)
             self.st_writer = StreamlitLogs(self.st_log_folder, port=cfg.logging_args.dashboard_port)
 

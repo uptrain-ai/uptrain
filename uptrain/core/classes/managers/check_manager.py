@@ -15,7 +15,7 @@ from uptrain.core.classes.statistics import (
     Convergence,
     Distribution,
 )
-from uptrain.core.classes.visuals import Umap
+from uptrain.core.classes.visuals import Umap, Tsne
 
 
 class CheckManager:
@@ -95,6 +95,9 @@ class CheckManager:
     def add_visuals(self, check):
         if check["type"] == Visual.UMAP:
             custom_monitor = Umap(self.fw, check)
+            self.visuals_to_check.append(custom_monitor)
+        elif check["type"] == Visual.TSNE:
+            custom_monitor = Tsne(self.fw, check)
             self.visuals_to_check.append(custom_monitor)
         else:
             raise Exception("Visual type not Supported")
