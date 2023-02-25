@@ -28,14 +28,6 @@ with open(metadata_file, encoding='utf-8') as f:
 model_args = metadata['model_args']
 feature_args = metadata['feature_args']
 
-# model_sig_types = ['vplay', 'unified', 'fav', 'like', 'share', 'vclick', 'vskip']
-# feat_genre_types = ['All', 'AGT', 'Arts (self perform)', 'Cinema & TV', 
-#     'Culture (Nation/state/dialects)', 'Devotion', 'Education',
-#     'Fashion and Makeup', 'Humour & Fun', 'Kids', 'LifeStyle',
-#     'Literature', 'Music & Dance', 'News', 'Personal',
-#     'Romance & Relationships', 'Sports', 'Status and Stories',
-#     'Wellbeing', 'Wishes']
-
 model_to_compare = None
 other_models = {}
 num_models_compare = 1
@@ -238,7 +230,7 @@ def plot_umaps(files, plot_name, sub_dir):
                     st.write("Not sufficient data.")
         else:
             for file in files:
-                count = os.path.split(file).split(".")[0]
+                count = os.path.split(file)[-1].split(".")[0]
                 if int(count) < 0:
                     plot_umap(file) 
                 else:
@@ -264,7 +256,7 @@ def plot_bar(file):
 
 def plot_for_count(files, plot_func, plot_name):
     for file in files:
-        count = os.path.split(file).split(".")[0]
+        count = os.path.split(file)[-1].split(".")[0]
         if int(count) < 0:
             plot_func(file) 
         else:
@@ -295,7 +287,7 @@ def plot_dashboard(dashboard_name):
 
         if sub_dir_split[-1] == "alerts":  
             for file in files:
-                alert_name = os.path.split(file).split(".")[0]
+                alert_name = os.path.split(file)[-1].split(".")[0]
                 f = open(file)
                 alert = json.load(f)
                 st.subheader(alert_name)
