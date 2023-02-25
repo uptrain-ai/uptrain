@@ -140,7 +140,7 @@ def plot_line_charts(files, plot_name):
             df = slice_data(df, features_to_slice, model_to_compare, other_models, j)
 
             # Getting plot_id
-            plot_id = csv_file.split("/")[-1].split(".")[0]
+            plot_id = os.path.split(csv_file)[-1].split(".")[0]
             fig = fig.add_trace(
                 go.Scatter(
                     x=df[x_axis],
@@ -166,7 +166,7 @@ def plot_histograms(files, plot_name):
             df = slice_data(df, features_to_slice, model_to_compare, other_models, j)
 
             # Getting plot_id
-            plot_id = csv_file.split("/")[-1].split(".")[0]
+            plot_id = os.path.split(csv_file)[-1].split(".")[0]
             df_y = df['y_points']
             if len(df_y) > 1000:
                 df_y = np.random.choice(df_y, 1000)
@@ -214,7 +214,7 @@ def plot_umap(file):
 def get_view_arr_from_files(files):
     view_arr = []
     for file in files:
-        view_arr.append(int(file.split('/')[-1].split('_')[0]))
+        view_arr.append(int(os.path.split(file)[-1].split('_')[0]))
     view_arr.sort()
     return np.unique(view_arr)
 
@@ -238,7 +238,7 @@ def plot_umaps(files, plot_name, sub_dir):
                     st.write("Not sufficient data.")
         else:
             for file in files:
-                count = file.split("/")[-1].split(".")[0]
+                count = os.path.split(file).split(".")[0]
                 if int(count) < 0:
                     plot_umap(file) 
                 else:
@@ -264,7 +264,7 @@ def plot_bar(file):
 
 def plot_for_count(files, plot_func, plot_name):
     for file in files:
-        count = file.split("/")[-1].split(".")[0]
+        count = os.path.split(file).split(".")[0]
         if int(count) < 0:
             plot_func(file) 
         else:
@@ -276,7 +276,7 @@ def plot_dashboard(dashboard_name):
     st.header(f"Dashboard {dashboard_name}")
     sub_dirs = [path[0] for path in os.walk(os.path.join(log_folder, dashboard_name))]
     for sub_dir in sub_dirs:
-        sub_dir_split = sub_dir.split("/")
+        sub_dir_split = os.path.normpath(sub_dir).split(os.path.sep)
         c1 = sub_dir_split[-1] == "umap_and_clusters"
         c2 = sub_dir_split[-2] == "bar_graphs"
         c3 = sub_dir_split[-1] == "alerts"
@@ -295,7 +295,7 @@ def plot_dashboard(dashboard_name):
 
         if sub_dir_split[-1] == "alerts":  
             for file in files:
-                alert_name = file.split("/")[-1].split(".")[0]
+                alert_name = os.path.split(file).split(".")[0]
                 f = open(file)
                 alert = json.load(f)
                 st.subheader(alert_name)
