@@ -280,7 +280,8 @@ def plot_dashboard(dashboard_name):
         c1 = sub_dir_split[-1] == "umap_and_clusters"
         c2 = sub_dir_split[-2] == "bar_graphs"
         c3 = sub_dir_split[-1] == "alerts"
-        if c1 or c2 or c3:
+        c4 = sub_dir_split[-1] == "tsne_and_clusters"
+        if c1 or c2 or c3 or c4:
             ext = "*.json"
         else:
             ext = "*.csv"
@@ -312,14 +313,7 @@ def plot_dashboard(dashboard_name):
         # ######### Plotting histograms ###########
 
         elif sub_dir_split[-2] == "histograms":
-            if plot_name != "umap_and_clusters":
-                if st.sidebar.checkbox(f"Histogram for {plot_name}"):
-                    st.markdown(f"### Histogram for {plot_name}")
-                    # plot_for_count(files, plot_histogram, plot_name) 
-                    plot_histograms(files, plot_name)
-                    st.markdown("""---""") 
-                            
-            else:
+            if plot_name == "umap_and_clusters":
                 if st.sidebar.checkbox(f"UMAP for {plot_name}"):
                     st.markdown(f"### UMAP for {plot_name}")
                     if model_args is not None:
@@ -327,7 +321,22 @@ def plot_dashboard(dashboard_name):
                     else:
                         for file in files:
                             plot_umap(file)
+                    st.markdown("""---""") 
+            elif plot_name == "tsne_and_clusters":  
+                if st.sidebar.checkbox(f"t-SNE for {plot_name}"):
+                    st.markdown(f"### t-SNE for {plot_name}")
+                    if model_args is not None:
+                        plot_umaps(files, plot_name, sub_dir)
+                    else:
+                        for file in files:
+                            plot_umap(file)
                     st.markdown("""---""")   
+            else:
+                if st.sidebar.checkbox(f"Histogram for {plot_name}"):
+                    st.markdown(f"### Histogram for {plot_name}")
+                    # plot_for_count(files, plot_histogram, plot_name) 
+                    plot_histograms(files, plot_name)
+                    st.markdown("""---""") 
 
         ######### Plotting Bar Graphs ###########
 

@@ -3,15 +3,15 @@ import random
 import numpy as np
 
 
-if __name__ == "__main__":
-# def test_dashboard():
+# if __name__ == "__main__":
+def test_dashboard():
     cfg = {
         "st_logging": True,
         "logging_args": {
             # For slack alerts, add your webhook URL
             # Checkout https://api.slack.com/messaging/webhooks
             'slack_webhook_url': None,
-            'dashboard_port': 50010,
+            'dashboard_port': 50000,
         }
     }
     fw = uptrain.Framework(cfg)
@@ -28,7 +28,7 @@ if __name__ == "__main__":
 
     data = np.random.normal(size=1000)
     fw.log_handler.add_histogram(
-        "single_histograms",
+        "single_histogram",
         data,
         dashboard_name,
     )
@@ -44,7 +44,7 @@ if __name__ == "__main__":
 
     for i,_ in enumerate(line1):
         fw.log_handler.add_scalars(
-            "2 plots",
+            "2 lines",
             {"y_value": line1[i]},
             i,
             dashboard_name,
@@ -81,20 +81,65 @@ if __name__ == "__main__":
         dashboard_name,
     )
 
-    clusters = np.random.choice([0, 1], size=(100), p=[0.1, 0.9])
-    umap = []
+    ########### Adding UMAP and TSNE test #############
+
+    clusters = np.random.choice([0, 1], size=(100), p=[0.2, 0.8])
+    high_dim_list = []
+    size = 100
     for label in clusters:
         if label==0:
-            umap.append(np.random.normal([0,0,0], 0.5, 3))
+            high_dim_list.append(np.random.normal(np.zeros(size), 1, size))
         else:
-            umap.append(np.random.normal([1,1,1], 0.5, 3))
+            high_dim_list.append(np.random.normal(np.ones(size), 1, size))
 
-    umap_data = {"umap": umap, "clusters": clusters}
+    # umap_data = {"umap": umap, "clusters": clusters}
+    # fw.log_handler.add_histogram(
+    #     "umap_and_clusters",
+    #     umap_data,
+    #     dashboard_name
+    # )
 
-    fw.log_handler.add_histogram(
-        "umap_and_clusters",
-        umap_data,
-        dashboard_name
-    )
+    config_umap = {
+        "checks": [{
+            'type': uptrain.Visual.UMAP,
+            "measurable_args": {
+                'type': uptrain.MeasurableType.INPUT_FEATURE,
+                'feature_name': 'data'
+            },
+            "label_args": {
+                'type': uptrain.MeasurableType.INPUT_FEATURE,
+                'feature_name': 'labels'
+            },
+            'min_dist': 0.01,
+            'n_neighbors': 20,
+            'metric_umap': 'euclidean',
+            'dim': '2D',
+            "update_freq": 1,
+        },
+        {
+            'type': uptrain.Visual.TSNE,
+            "measurable_args": {
+                'type': uptrain.MeasurableType.INPUT_FEATURE,
+                'feature_name': 'data'
+            },
+            "label_args": {
+                'type': uptrain.MeasurableType.INPUT_FEATURE,
+                'feature_name': 'labels'
+            },
+            'dim': '2D',
+            "update_freq": 1,
+        }
+        ],
+        "st_logging": True,
+        "logging_args": {
+            'log_folder': 'uptrain_logs_umap',
+            'dashboard_port': 50001,
+        }
+    }
+
+    framework_umap = uptrain.Framework(cfg_dict=config_umap)
+
+    inputs = {'data': high_dim_list, 'labels': clusters}
+    idens = framework_umap.log(inputs=inputs)
 
     

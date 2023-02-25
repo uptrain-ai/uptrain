@@ -1,6 +1,6 @@
-import umap
 import copy
 from sklearn.cluster import DBSCAN
+from sklearn.manifold import TSNE
 import numpy as np
 
 from uptrain.core.classes.visuals import AbstractVisual
@@ -8,9 +8,9 @@ from uptrain.constants import Visual, Statistic
 from uptrain.core.classes.measurables import MeasurableResolver
 from uptrain.core.lib.helper_funcs import read_json
 
-class Umap(AbstractVisual):
-    visual_type = Visual.UMAP
-    dashboard_name = "umap_and_clusters"
+class Tsne(AbstractVisual):
+    visual_type = Visual.TSNE
+    dashboard_name = "tsne_and_clusters"
 
     def __init__(self, fw, check):
         self.allowed_model_values = [x['allowed_values'] for x in check.get('model_args', [{'allowed_values': []}])]
@@ -23,7 +23,7 @@ class Umap(AbstractVisual):
                 check_copy['model_args'][0]['allowed_values'] = [m]
                 check_copy['model_args'].append(copy.deepcopy(check_copy['model_args'][0]))
                 del check_copy['model_args'][0]
-                self.children.append(Umap(fw, check_copy))
+                self.children.append(Tsne(fw, check_copy))
         else:
             self.framework = fw
             self.log_handler = fw.log_handler
@@ -41,9 +41,6 @@ class Umap(AbstractVisual):
             self.feature_names = [x.col_name() for x in self.feature_measurables]
 
             self.count_checkpoints = check.get("count_checkpoints", ["all"])
-            self.min_dist = check["min_dist"]
-            self.n_neighbors = check["n_neighbors"]
-            self.metric_umap = check["metric_umap"]
             self.dim = check.get("dim", '2D')
             self.min_samples = check.get("min_samples", 5)
             self.eps = check.get("eps", 2.0)
@@ -95,19 +92,16 @@ class Umap(AbstractVisual):
 
                 if emb_list.shape[0] > 10:
                     clusters = []
-                    umap_list, clusters = self.get_umap_and_labels(
+                    tsne_list, clusters = self.get_tsne_and_labels(
                         emb_list,
                         self.dim,
-                        self.n_neighbors,
-                        self.min_dist,
-                        self.metric_umap,
                         self.eps,
                         self.min_samples,
                         label_list=label_list
                     )
-                    this_data = {"umap": umap_list, "clusters": clusters}
+                    this_data = {"umap": tsne_list, "clusters": clusters}
                     self.log_handler.add_histogram(
-                        "umap_and_clusters",
+                        "tsne_and_clusters",
                         this_data,
                         self.dashboard_name,
                         models = models,
@@ -130,7 +124,7 @@ class Umap(AbstractVisual):
                     temp_keys = list(temp_val.keys())
                     temp_keys = list(filter(lambda x: not (x == "val"), temp_keys))
                     if len(temp_keys) > 1:
-                        print("Have multiple labels - " + str(temp_keys) + " .Using " + temp_keys[0] + " for labeling UMAPs." )
+                        print("Have multiple labels - " + str(temp_keys) + " .Using " + temp_keys[0] + " for labeling TSNEs." )
                     chosen_key = temp_keys[0]
             vals = np.array([data_dict[x]['val'] for x in data_dict])
             if vals.shape[0] > 0:
@@ -142,13 +136,10 @@ class Umap(AbstractVisual):
         else:
             return self.vals, self.labels
 
-    def get_umap_and_labels(
+    def get_tsne_and_labels(
         self,
         emb_list,
         dim,
-        n_neighbors,
-        min_dist,
-        metric,
         eps,
         min_samples,
         label_list=None
@@ -158,18 +149,15 @@ class Umap(AbstractVisual):
         else:
             n_components = 3
 
-        umap_embeddings = umap.UMAP(
-            n_neighbors=n_neighbors,
+        embeddings = TSNE(
             n_components=n_components,
-            min_dist=min_dist,
-            metric=metric,
         ).fit_transform(emb_list)
 
         # Do DBSCAN clustering
         if self.do_clustering:
-            clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(umap_embeddings)
+            clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(embeddings)
             labels = clustering.labels_
         else:
             labels = label_list
         labels = np.squeeze(np.array(labels))
-        return umap_embeddings, labels
+        return embeddings, labels

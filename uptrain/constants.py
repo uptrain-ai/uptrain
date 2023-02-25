@@ -38,6 +38,7 @@ class Statistic(str, Enum):
 
 class Visual(str, Enum):
     UMAP = "umap"
+    TSNE = "tsne"
 
 
 class DataDriftAlgo(str, Enum):
