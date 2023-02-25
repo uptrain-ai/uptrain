@@ -42,6 +42,20 @@ class Tsne(AbstractVisual):
 
             self.count_checkpoints = check.get("count_checkpoints", ["all"])
             self.dim = check.get("dim", '2D')
+            self.perplexity = check.get("perplexity",30.0)
+            self.early_exaggeration = check.get("early_exaggeration",12.0)
+            self.learning_rate = check.get("learning_rate","auto")
+            self.n_iter = check.get("n_iter",1000)
+            self.n_iter_without_progress = check.get("n_iter_without_progress",300)
+            self.min_grad_norm = check.get("min_grad_norm",1e-7)
+            self.metric = check.get("metric",'euclidean')
+            self.metric_params = check.get("metric_params",None)
+            self.init = check.get("init","pca")
+            self.verbose = check.get("verbose",0)
+            self.random_state = check.get("random_state",None)
+            self.method = check.get("method",'barnes_hut')
+            self.angle = check.get("angle",0.5)
+            self.n_jobs = check.get("n_jobs",None)
             self.min_samples = check.get("min_samples", 5)
             self.eps = check.get("eps", 2.0)
             self.total_count = 0
@@ -95,6 +109,19 @@ class Tsne(AbstractVisual):
                     tsne_list, clusters = self.get_tsne_and_labels(
                         emb_list,
                         self.dim,
+                        self.perplexity,
+                        self.early_exaggeration,
+                        self.learning_rate,
+                        self.n_iter,
+                        self.n_iter_without_progress,
+                        self.min_grad_norm,
+                        self.metric,
+                        self.init,
+                        self.verbose,
+                        self.random_state,
+                        self.method,
+                        self.angle,
+                        self.n_jobs,
                         self.eps,
                         self.min_samples,
                         label_list=label_list
@@ -140,6 +167,19 @@ class Tsne(AbstractVisual):
         self,
         emb_list,
         dim,
+        perplexity,
+        early_exaggeration,
+        learning_rate,
+        n_iter,
+        n_iter_without_progress,
+        min_grad_norm,
+        metric,
+        init,
+        verbose,
+        random_state,
+        method,
+        angle,
+        n_jobs,
         eps,
         min_samples,
         label_list=None
@@ -151,6 +191,19 @@ class Tsne(AbstractVisual):
 
         embeddings = TSNE(
             n_components=n_components,
+            perplexity=perplexity,
+            early_exaggeration=early_exaggeration,
+            learning_rate=learning_rate,
+            n_iter=n_iter,
+            n_iter_without_progress=n_iter_without_progress,
+            min_grad_norm=min_grad_norm,
+            metric=metric,
+            init=init,
+            verbose=verbose,
+            random_state=random_state,
+            method=method,
+            angle=angle,
+            n_jobs=n_jobs
         ).fit_transform(emb_list)
 
         # Do DBSCAN clustering
