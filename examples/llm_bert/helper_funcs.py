@@ -76,15 +76,17 @@ def top_k_tokens (model, tokenizer, text, k = 5):
     return [tokenizer.decode([token]) for token in top_k_tokens]
 
 def create_sample_dataset(dataset_size):
+    nullify_ratio = 0.05
+    nullify_count = int(nullify_ratio * dataset_size)
     data = {
         "version": "0.1.0",
         "source": "sample",
         "url": "self-generated",
         "data": []
     }
-    arr = []
+    sentences = []
 
-    for idx in range(dataset_size):
+    for _ in range(dataset_size):
         company = random.choice(COMPANIES)
         joiner = random.choice(JOINERS)
         product = random.choice(PRODUCTS)
@@ -95,13 +97,21 @@ def create_sample_dataset(dataset_size):
         else:
             adjective = random.choice(POSITIVE_SENTIMENT_ADJECTIVES)
 
-        # Additional: expand on list of possible sentences or use real-life dataset
+        # Additionally, you could expand on list of possible sentences
+        # or use a combination of real-life datasets
         if random.randint(0, 1) == 0:
             sentence = f'{company} {product} {joiner} {adjective}'
         else:
             sentence = f'{product} made by {company} {joiner} {adjective}'
-        arr.append({ "text": sentence, "label": label })  
-    data["data"] = arr
+        
+        sentences.append({ "text": sentence, "label": label })
+    
+    # Make some values null to make sure UpTrain data integrity check is working
+    for _ in range(nullify_count):
+        element = random.choice(sentences)
+        element['text'] = None
+    
+    data["data"] = sentences
     return data
 
 def create_dataset_from_csv(file_name, col_name, save_file_name, attrs={}, min_samples=-1):
