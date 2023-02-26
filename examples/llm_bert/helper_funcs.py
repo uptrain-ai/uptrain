@@ -90,11 +90,13 @@ def create_sample_dataset(dataset_size):
         company = random.choice(COMPANIES)
         joiner = random.choice(JOINERS)
         product = random.choice(PRODUCTS)
-        label = random.choice([0, 1])
+        label = random.randint(0, 3)
 
+        # We bias the positive sentiment data to have a higher ratio
         if label == 0:
             adjective = random.choice(NEGATIVE_SENTIMENT_ADJECTIVES)
         else:
+            label = 1
             adjective = random.choice(POSITIVE_SENTIMENT_ADJECTIVES)
 
         # Additionally, you could expand on list of possible sentences
