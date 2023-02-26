@@ -1,13 +1,13 @@
 import numpy as np
 
-from uptrain.core.classes.anomalies import AbstractAnomaly
+from uptrain.core.classes.monitors import AbstractMonitor
 from uptrain.core.classes.signals import SignalManager
-from uptrain.constants import Anomaly
+from uptrain.constants import Monitor
 
 
-class EdgeCase(AbstractAnomaly):
+class EdgeCase(AbstractMonitor):
     dashboard_name = "edge_cases"
-    anomaly_type = Anomaly.EDGE_CASE
+    monitor_type = Monitor.EDGE_CASE
 
     def __init__(self, fw, signal_formulae):
         self.log_handler = fw.log_handler

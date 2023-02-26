@@ -9,7 +9,7 @@ from uptrain.constants import Statistic
 
 class Distance(AbstractStatistic):
     dashboard_name = "distance"
-    anomaly_type = Statistic.DISTANCE
+    monitor_type = Statistic.DISTANCE
 
     def __init__(self, fw, check):
         self.allowed_model_values = [x['allowed_values'] for x in check['model_args']]
