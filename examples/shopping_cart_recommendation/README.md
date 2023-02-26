@@ -8,7 +8,7 @@
 
 
 
-**Objective**: We want to monitor the prediction of a recommender system usinf the UpTrain framework. Specifically, we want to check how close the predictions of the model are to the ground truth and also check if the model recommendations suffer from any biases (such as the popularity bias).
+**Objective**: We want to monitor the prediction of a recommender system using the UpTrain framework. Specifically, we want to check how close the predictions of the model are to the ground truth and also check if the model recommendations suffer from any biases (such as the popularity bias).
 
 **Dataset and ML model**: In this example, we train a recommender system to recommend items to users based on their previous shopping history. The dataset is a subset of the [Coveo data challenge dataset](https://github.com/coveooss/SIGIR-ecom-data-challenge) and the model to train embeddings is the [Word2Vec model](https://en.wikipedia.org/wiki/Word2vec). 
 
