@@ -114,7 +114,7 @@ Additionally, UpTrain also provides statistical measures to quantify these diffe
 
 # Why UpTrain 🤔?
 
-Machine learning (ML) models are widely used to make critical business decisions. Still, no ML model is 100% accurate, and, further, their accuracy deteriorates over time 😣. For example, Sales prediction becomes inaccurate over time due to a shift in consumer buying habits. Additionally, due to the black boxiness nature of ML models, it's challenging to identify and fix their problems.
+Machine learning (ML) models are widely used to make critical business decisions. Still, no ML model is 100% accurate, and, further, their accuracy deteriorates over time 😣. For example, Sales prediction becomes inaccurate over time due to a shift in consumer buying habits. Additionally, due to the black box nature of ML models, it's challenging to identify and fix their problems.
 
 UpTrain solves this. We make it easy for data scientists and ML engineers to understand where their models are going wrong and help them fix them before others complain 🗣️.
 
