@@ -95,6 +95,8 @@ def slice_data(
                         cond = (df['feature_' + feat_name] == value)
                     else:
                         cond = cond & (df['feature_' + feat_name] == value)
+                else:
+                    cond = False
     if model_to_compare is not None:
         model = model_to_compare['allowed_values'][j]
         model_type = model_to_compare['feature_name']
@@ -103,6 +105,8 @@ def slice_data(
                 cond = (df['model_' + model_type] == model)
             else:
                 cond = cond & (df['model_' + model_type] == model)
+        else:
+            cond = False
     for model_name, value in other_models.items():
         if 'model_' + model_name in df.columns:
             if cond is None:
