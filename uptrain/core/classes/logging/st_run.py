@@ -113,6 +113,8 @@ def slice_data(
                 cond = (df['model_' + model_name] == value)
             else:
                 cond = cond & (df['model_' + model_name] == value)
+        else:
+            cond = False
     if cond is not None:
         df = df[cond]
     return df
