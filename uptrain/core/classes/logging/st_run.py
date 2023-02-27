@@ -7,7 +7,7 @@ import plotly.graph_objects as go
 import numpy as np
 import json
 import plotly.express as px
-
+import random
 
 st.set_page_config(
     page_title="UpTrain Dashboard",
@@ -86,24 +86,38 @@ def slice_data(
     other_models={},
     j=0,
     ):
+    cond = None
     if features_to_slice is not None:
         for feat_name, value in features_to_slice.items():
             if value != 'All':
                 if 'feature_' + feat_name in df.columns:
-                    df = df[df['feature_' + feat_name] == value]
+                    if cond is None:
+                        cond = (df['feature_' + feat_name] == value)
+                    else:
+                        cond = cond & (df['feature_' + feat_name] == value)
     if model_to_compare is not None:
         model = model_to_compare['allowed_values'][j]
         model_type = model_to_compare['feature_name']
         if 'model_' + model_type in df.columns:
-            df = df[df['model_' + model_type] == model]
+            if cond is None:
+                cond = (df['model_' + model_type] == model)
+            else:
+                cond = cond & (df['model_' + model_type] == model)
     for model_name, value in other_models.items():
         if 'model_' + model_name in df.columns:
-            df = df[df['model_' + model_name] == value]
+            if cond is None:
+                cond = (df['model_' + model_name] == value)
+            else:
+                cond = cond & (df['model_' + model_name] == value)
+    if cond is not None:
+        df = df[cond]
     return df
 
 
 def plot_line_charts(files, plot_name):
     # Getting plot metadata from the first file
+    if len(files) > 1000:
+        files = random.choices(files, k=1000)
     df = pd.read_csv(files[0])
 
     for key in df.keys():
