@@ -223,11 +223,12 @@ As we can clearly see, samples from the wikihow dataset form a different cluster
 
 #### 1. UMAP compression
 
-![umap_compression.png](attachment:65495d27-2aa6-49bf-9afe-b2736c806abf.png)
+<img width="1022" alt="umap_compression" src="https://user-images.githubusercontent.com/5287871/221848112-ed0deb4f-9b45-45df-8e4d-8fccedbac693.png">
 
 #### 2. t-SNE dimensionality reduction
 
-![tsne_compression.png](attachment:9dcceafd-4a62-449f-8c08-fd2259713192.png)
+<img width="995" alt="tsne_compression" src="https://user-images.githubusercontent.com/5287871/221848143-071532c7-4619-4b56-9fec-2bc53b97500b.png">
+
 
 ## Step 3: Quantifying Data Drift via embeddings
 
@@ -305,11 +306,12 @@ collected_edge_cases['output'].tolist()
 
 UpTrain over-clusters the reference dataset, assigns cluster to the real-world data-points based on nearest distance and compares the two distributions using earth moving costs. As seen from below, the cluster assignment for the production dataset is significantly different from the reference dataset -> we are observing a significant drift in our data. 
 
-![Screenshot 2023-02-20 at 9.08.41 AM.png](attachment:f6ce8bc5-b84e-47aa-a374-c473776b6222.png)
+<img width="740" alt="bar_graph_bert_embs" src="https://user-images.githubusercontent.com/5287871/221848248-ca682153-b64d-47d6-aa6d-517ee1b47f3c.png">
+
 
 Now that we can visually make sense of the drift, UpTrain also provides a quantitative measure (Earth moving distance between the production and reference distribution) which can be used to alert whenever a significant drift is observed
 
-![Screenshot 2023-02-20 at 9.04.43 AM.png](attachment:39e39ec7-2ecf-4d1d-8bb3-b97ead2d9aa5.png)
+<img width="673" alt="emd_costs_bert" src="https://user-images.githubusercontent.com/5287871/221848284-625794e3-ad29-4f3b-9779-d3bea752f6cc.png">
 
 In addition to embeddings, UpTrain allows you to monitor drifts across any custom measure which one might care about. For example, in this case, we can monitor drift on metrics such as text language, user emotion, intent, occurence of a certain keyword, text topic, etc. 
 
