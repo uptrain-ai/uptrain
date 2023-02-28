@@ -62,7 +62,7 @@ class Framework:
             shutil.rmtree(self.fold_name)
         os.mkdir(self.fold_name)
 
-        self. = cfg.logging_args.log_data
+        self.log_data = cfg.logging_args.log_data
         self.use_cache = cfg.use_cache
         self.cache = {}
         self.predicted_count = 0
@@ -148,7 +148,7 @@ class Framework:
             self.fold_name, str(self.version), "smart_data.csv"
         )
 
-        if self.logging_args.log_data and (num_selected_datapoints > 0):
+        if self.log_data and (num_selected_datapoints > 0):
             smart_data = extract_data_points_from_batch(
                 data, np.where(is_interesting == True)[0]
             )
@@ -199,7 +199,7 @@ class Framework:
             }
         )
 
-        if self.logging_args.log_data:
+        if self.log_data:
             # Log all the data-points into all_data warehouse
             add_data_to_warehouse(deepcopy(data), self.path_all_data)
 
