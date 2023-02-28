@@ -12,7 +12,7 @@ class LogHandler:
             shutil.rmtree(log_folder)
 
         self.st_writer = None
-        if cfg.st_logging:
+        if cfg.logging_args.st_logging:
             from uptrain.core.classes.logging.log_streamlit import StreamlitLogs
 
             self.st_log_folder = os.path.join(log_folder, "st_data")
@@ -28,7 +28,7 @@ class LogHandler:
             check = cfg.checks[0]
             cfg_metadata.update({'model_args': check.get('model_args', None)})
             cfg_metadata.update({'feature_args': check.get('feature_args', None)})
-        if cfg.st_logging:
+        if cfg.logging_args.st_logging:
             metadata_file = os.path.join(self.st_log_folder, "metadata.json")
             with open(metadata_file, "w") as f:
                 json.dump(cfg_metadata, f)
