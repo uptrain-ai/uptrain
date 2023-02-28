@@ -27,6 +27,8 @@ class LoggingArgs(BaseModel):
     slack_webhook_url: str = None
     dashboard_port: str = None
     log_folder: str = "uptrain_logs"
+    log_data: bool = True
+    st_logging: bool = False
 
 
 class Config(BaseModel):
@@ -39,12 +41,10 @@ class Config(BaseModel):
     retrain_after: int = 100000000000
     retraining_folder: str = "uptrain_smart_data"
     data_id: str = "id"
-    st_logging: bool = False
     feat_name_list: list = None
     cluster_visualize_func: typing.Callable = None
     use_cache: bool = False
-    log_data: bool = True
-
+    
 
 # class InputArgs(BaseModel):
 #     data: dict

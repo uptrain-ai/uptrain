@@ -6,12 +6,13 @@ import numpy as np
 # if __name__ == "__main__":
 def test_dashboard():
     cfg = {
-        "st_logging": True,
+        # "st_logging": True,
         "logging_args": {
             # For slack alerts, add your webhook URL
             # Checkout https://api.slack.com/messaging/webhooks
             'slack_webhook_url': None,
             'dashboard_port': 50000,
+            'st_logging':True
         }
     }
     fw = uptrain.Framework(cfg)
@@ -131,10 +132,12 @@ def test_dashboard():
             'perplexity': 10,
         }
         ],
-        "st_logging": True,
+        # "st_logging": True,
         "logging_args": {
             'log_folder': 'uptrain_logs_umap',
             'dashboard_port': 50001,
+            'st_logging': True,
+
         }
     }
 

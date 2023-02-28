@@ -62,7 +62,7 @@ class Framework:
             shutil.rmtree(self.fold_name)
         os.mkdir(self.fold_name)
 
-        self.log_data = cfg.log_data
+        self.log_data = cfg.logging_args.log_data
         self.use_cache = cfg.use_cache
         self.cache = {}
         self.predicted_count = 0
