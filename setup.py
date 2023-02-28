@@ -14,7 +14,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="uptrain",
-    version="0.0.7",
+    version="0.0.8",
     description="UpTrain - ML Observability and Retraining Framework",
     long_description=long_description,
     long_description_content_type="text/markdown",
