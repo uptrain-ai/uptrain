@@ -138,7 +138,7 @@ cfg = {
         }
     ], 
     "retraining_folder": 'uptrain_smart_data', 
-    "st_logging": True,
+    "logging_args": {"st_logging": True},
 }
 
 framework = uptrain.Framework(cfg)

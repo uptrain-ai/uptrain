@@ -245,7 +245,7 @@ cfg = {
     "retraining_folder": 'uptrain_smart_data',
     
     # Enable streamlit logging to visualize model's performance
-    "st_logging": True,
+    "logging_args": {"st_logging": True},
 }
 pretty(cfg)
 ```
@@ -362,7 +362,7 @@ cfg = {
     "retraining_folder": 'uptrain_smart_data',
     
     # Enable streamlit logging to visualize model's performance
-    "st_logging": True,
+    "logging_args": {"st_logging": True},
 }
 pretty(cfg)
 ```
