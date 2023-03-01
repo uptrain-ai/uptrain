@@ -28,6 +28,7 @@ class Anomaly(str, Enum):
     CONCEPT_DRIFT = "concept_drift"
     POPULARITY_BIAS = "popularity_bias"
     DATA_INTEGRITY = "data_integrity"
+    Z_SCORE = 'zscore_analysis'
 
 
 class Statistic(str, Enum):
