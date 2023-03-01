@@ -5,7 +5,7 @@ from uptrain.core.classes.algorithms import PopularityBias
 from uptrain.constants import BiasAlgo, Anomaly
 
 
-class RecommendationBias(AbstractAnomaly):
+class ModelBias(AbstractAnomaly):
     dashboard_name = "popularity_bias"
     anomaly_type = Anomaly.POPULARITY_BIAS
 
@@ -16,7 +16,7 @@ class RecommendationBias(AbstractAnomaly):
             sessions = check.get("sessions", None)
             self.algo = PopularityBias(sessions)
         else:
-            raise Exception("Recommendation bias type not supported")
+            raise Exception("Model bias type not supported")
 
     def need_ground_truth(self):
         return False
