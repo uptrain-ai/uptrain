@@ -6,7 +6,7 @@ from uptrain.core.classes.anomalies import (
     ConceptDrift,
     DataDrift,
     CustomAnomaly,
-    RecommendationBias,
+    ModelBias,
     DataIntegrity,
     EdgeCase,
 )
@@ -68,7 +68,7 @@ class CheckManager:
                     )
             self.anomalies_to_check.extend(drift_managers)
         elif check["type"] == Anomaly.POPULARITY_BIAS:
-            bias_manager = RecommendationBias(self.fw, check)
+            bias_manager = ModelBias(self.fw, check)
             self.anomalies_to_check.append(bias_manager)
         elif check["type"] == Anomaly.CUSTOM_MONITOR:
             custom_monitor = CustomAnomaly(self.fw, check)
