@@ -261,36 +261,35 @@ An interesting case to look at is the predictions for example 3. We no longer ha
 
 We can create plots for visualizing training/validation loss and perplexity. We can also plot bar charts to visualize the scores of each predicted masked word (higher scores denote higher confidence of the model at respective mask guesses). Here, we plot confidence scores of the Top 10 predictions of the model for each of the chosen testing sentences.
 
-![png](run_files/run_31_0.png)
 
-    
-![png](run_files/run_32_0.png)
+<img src="https://user-images.githubusercontent.com/5287871/222301188-c0cd92e7-6ec2-4a45-9eb8-61dbd8dbcacb.png" width="500"/> <img src="https://user-images.githubusercontent.com/5287871/222301571-2a397d39-6259-4a29-b69f-6cd307d3c101.png" width="500"/> 
+
     
 
 ### Predictions for "Nike shoes are very [MASK]."
 
-    
-![png](run_files/run_34_0.png)
+ <img width="600" src="https://user-images.githubusercontent.com/5287871/222301670-d0dbe91e-4113-445a-8bc5-0eff64b29482.png">
+
 
 ### Predictions for "Nike athletic wear is know for being very [MASK]."
     
-    
-![png](run_files/run_34_2.png)
+ <img width="600" src="https://user-images.githubusercontent.com/5287871/222301697-7ba8f1d5-c0e8-4d6c-8b04-1b50bc06da20.png">
+
 
 ### Predictions for "Nike [MASK] shoes are very comfortable."
     
+ <img width="600" src="https://user-images.githubusercontent.com/5287871/222301717-d08481df-cc58-460d-882e-d13adc885d1d.png">
 
-![png](run_files/run_34_4.png)
 
 ### Predictions for "Trousers and Hoodies made by [MASK] are not very expensive." 
     
-![png](run_files/run_34_6.png)
+<img width="600" src="https://user-images.githubusercontent.com/5287871/222301755-0de5bdb8-5a7e-45c8-a702-93d48f9a90a0.png">
 
 
 ### Predictions for "Nike tshirts are famous for being [MASK]." 
     
-![png](run_files/run_34_8.png)
-    
+<img width="600" src="https://user-images.githubusercontent.com/5287871/222301794-2cda6b17-a6c6-452e-ad55-895f732c90b6.png">
+
 
 
     
