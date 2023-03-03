@@ -50,7 +50,7 @@ NEGATIVE_SENTIMENT_ADJECTIVES = [
 ADJECTIVES = POSITIVE_SENTIMENT_ADJECTIVES + NEGATIVE_SENTIMENT_ADJECTIVES
 
 COMPANIES = [
-  # repeat a couple of times for higher positive examples of Nike
+    # repeat a couple of times for higher positive examples of Nike
     'nike', 'nike', 'nike', 'nike', 'nike', 'nike', 'nike', 'adidas', 'puma',
     'under armour', 'reebok', 'converse', 'vans', 'fila', 'asics'
 ]

@@ -52,25 +52,25 @@
 
 # **[Key Features](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** 💡
 
-- **[Data Drift Checks](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/run.ipynb)** - identify distribution shifts in your model inputs.
-- **[Performance Monitoring](https://github.com/uptrain-ai/uptrain/blob/main/examples/fraud_detection/run.ipynb)** - track the performance of your models in realtime and get alerted as soon as a dip is observed.
-- **[Embeddings Support](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)** - specialized dashboards to understand model-inferred embeddings.
-- **[Edge Case Signals](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_edge_cases_torch.ipynb)** - user-defined signals and statistical techniques to detect out-of-distribution data-points.
-- **[Data Integrity Checks](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_data_integrity.ipynb)** - checks for missing or inconsistent data, duplicate records, data quality, etc. 
-- **[Customizable metrics](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_data_drift_custom_measures.ipynb)** - define custom metrics that make sense for your use case.
-- **[Automated Retraining](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_check_all.ipynb)** - automate model retraining by attaching your training and inference pipelines.
-- **[Model Bias](https://github.com/uptrain-ai/uptrain/blob/main/examples/shopping_cart_recommendation/run.ipynb)** - track popularity bias in your recommendation models.
-- **Data Security** - your data never goes out of your machine.
+- **[Data Drift Checks](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/run.ipynb)** - Identify distribution shifts in your model inputs.
+- **[Performance Monitoring](https://github.com/uptrain-ai/uptrain/blob/main/examples/fraud_detection/run.ipynb)** - Track the performance of your models in realtime and get alerted as soon as a dip is observed.
+- **[Embeddings Support](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)** - Specialized dashboards to understand model-inferred embeddings.
+- **[Edge Case Signals](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_edge_cases_torch.ipynb)** - User-defined signals and statistical techniques to detect out-of-distribution data-points.
+- **[Data Integrity Checks](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_data_integrity.ipynb)** - Checks for missing or inconsistent data, duplicate records, data quality, etc. 
+- **[Customizable metrics](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_data_drift_custom_measures.ipynb)** - Define custom metrics that make sense for your use case.
+- **[Automated Retraining](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_check_all.ipynb)** - Automate model retraining by attaching your training and inference pipelines.
+- **[Model Bias](https://github.com/uptrain-ai/uptrain/blob/main/examples/shopping_cart_recommendation/run.ipynb)** - Track popularity bias in your recommendation models.
+- **Data Security** - Your data never goes out of your machine.
 
 
 ## 🚨Coming soon🚨
 
-- **Realtime Dashboards** - to visualize your model's health.
-- **Slack Integration** - get alerts on Slack.
-- **Label Shfit** - identify drifts in your predictions. Specially useful in cases when ground truth is unavailable.
-- **Prediction Stability** - filter cases where model prediction is not stable.
-- **AI Explainability** - understand relative importance of multiple features on predictions.
-- **Adversarial Checks** - combat adversarial attacks
+- **Realtime Dashboards** - To visualize your model's health.
+- **Slack Integration** - Get alerts on Slack.
+- **Label Shift** - Identify drifts in your predictions. Specially useful in cases when ground truth is unavailable.
+- **Prediction Stability** - Filter cases where model prediction is not stable.
+- **AI Explainability** - Understand relative importance of multiple features on predictions.
+- **Adversarial Checks** - Combat adversarial attacks
 
 And more.
 
