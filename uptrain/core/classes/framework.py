@@ -381,7 +381,12 @@ class Framework:
             data.update({col: np.array(list(inputs[col]))})
         data.update({"ids": np.array(ids)})
         return data
-
+    
+    def convert_dict_values_to_numpy_values(self, inputs: dict) -> dict:
+        data = {}
+        for key, value in inputs.items():
+            data.update({key: np.array(value)})
+        return data
 
     def log(self, inputs=None, outputs=None, gts=None, identifiers=None, extra=None):
         # if (inputs is not None) and (outputs is None):
@@ -394,6 +399,10 @@ class Framework:
         if inputs is not None:
             if isinstance(inputs, pd.DataFrame):
                 inputs = self.convert_inputs_table_to_dict(inputs)
+            elif isinstance(inputs, dict):
+                inputs = self.convert_dict_values_to_numpy_values(inputs)
+            else:
+                raise Exception("Inputs was expected to be a Pandas Dataframe or Python Dictionary")
             identifiers = self.check_and_add_data(inputs, outputs)
 
         if gts is not None:

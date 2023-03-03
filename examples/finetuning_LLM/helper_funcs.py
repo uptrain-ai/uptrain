@@ -133,20 +133,20 @@ def create_dataset_from_csv(file_name, col_name, save_file_name, attrs={}, min_s
         json.dump(json_data, f)
 
 def get_loss_history (log_history):
-  training_loss_history = []
-  training_loss_steps = []
-  eval_loss_history = []
-  eval_loss_steps = []
+    training_loss_history = []
+    training_loss_steps = []
+    eval_loss_history = []
+    eval_loss_steps = []
   
-  for history in log_history[:-2]:
-    if 'loss' in history.keys():
-      training_loss_history.append(history['loss'])
-      training_loss_steps.append(history['step'])
-    if 'eval_loss' in history.keys():
-      eval_loss_history.append(history['eval_loss'])
-      eval_loss_steps.append(history['step'])
+    for history in log_history[:-2]:
+        if 'loss' in history.keys():
+            training_loss_history.append(history['loss'])
+            training_loss_steps.append(history['step'])
+        if 'eval_loss' in history.keys():
+            eval_loss_history.append(history['eval_loss'])
+            eval_loss_steps.append(history['step'])
   
-  return (training_loss_steps, training_loss_history), (eval_loss_steps, eval_loss_history)
+    return (training_loss_steps, training_loss_history), (eval_loss_steps, eval_loss_history)
 
 def get_perplexities (eval_loss_history):
-  return list(map(math.exp, eval_loss_history))
+    return list(map(math.exp, eval_loss_history))
