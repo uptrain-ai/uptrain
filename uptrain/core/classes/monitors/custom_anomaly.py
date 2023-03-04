@@ -1,5 +1,5 @@
 import numpy as np
-from uptrain.core.classes.monitor import AbstractAnomaly
+from uptrain.core.classes.monitors import AbstractAnomaly
 from uptrain.constants import Monitor
 
 

@@ -1,6 +1,6 @@
 import numpy as np
 
-from uptrain.core.classes.monitor import AbstractAnomaly
+from uptrain.core.classes.monitors import AbstractAnomaly
 from uptrain.core.classes.measurables import MeasurableResolver
 from uptrain.constants import Monitor
 

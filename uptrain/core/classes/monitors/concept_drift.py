@@ -1,6 +1,6 @@
 import numpy as np
 
-from uptrain.core.classes.monitor import AbstractAnomaly
+from uptrain.core.classes.monitors import AbstractAnomaly
 from uptrain.core.classes.algorithms import DataDriftDDM
 from uptrain.constants import DataDriftAlgo, MeasurableType
 from uptrain.core.classes.measurables import MeasurableResolver

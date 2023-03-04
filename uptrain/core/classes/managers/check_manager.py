@@ -2,7 +2,7 @@ import numpy as np
 from copy import deepcopy
 
 from uptrain.constants import Monitor, Statistic, Visual, MeasurableType
-from uptrain.core.classes.monitor import (
+from uptrain.core.classes.monitors import (
     ConceptDrift,
     DataDrift,
     CustomAnomaly,

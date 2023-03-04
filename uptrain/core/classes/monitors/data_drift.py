@@ -1,7 +1,7 @@
 import numpy as np
 import copy
 
-from uptrain.core.classes.monitor import AbstractAnomaly
+from uptrain.core.classes.monitors import AbstractAnomaly
 from uptrain.constants import Monitor
 from uptrain.core.lib.helper_funcs import read_json
 from uptrain.core.lib.algorithms import estimate_earth_moving_cost
