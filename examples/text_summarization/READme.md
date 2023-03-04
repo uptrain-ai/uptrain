@@ -242,7 +242,7 @@ For the sake of simplicity, we are downsampling the bert embeddings from dim-384
 ```python
 config = {
     "checks": [{
-        'type': uptrain.Anomaly.DATA_DRIFT,
+        'type': uptrain.Monitor.DATA_DRIFT,
         "measurable_args": {
             'type': uptrain.MeasurableType.INPUT_FEATURE,
             'feature_name': 'bert_embs_downsampled'
@@ -350,7 +350,7 @@ def negative_sentiment_score_func(inputs, outputs, gts=None, extra_args={}):
 
 config = {
     "checks": [{
-        'type': uptrain.Anomaly.EDGE_CASE,
+        'type': uptrain.Monitor.EDGE_CASE,
         'signal_formulae': uptrain.Signal("Incorrect Grammer", grammar_check_func) 
             | (uptrain.Signal("Sentiment Score", negative_sentiment_score_func) > 0.5)
     }],

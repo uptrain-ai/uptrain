@@ -179,7 +179,7 @@ In this example, we define a simple data drift check to identify any distributio
 
 ```python
 checks = [{
-    'type': uptrain.Anomaly.DATA_DRIFT,
+    'type': uptrain.Monitor.DATA_DRIFT,
     'reference_dataset': orig_training_file,
     'is_embedding': True,
     "measurable_args": {

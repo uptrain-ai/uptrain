@@ -27,7 +27,7 @@ def test_data_integrity():
 
     cfg = {
         "checks": [{
-            'type': uptrain.Anomaly.DATA_INTEGRITY,
+            'type': uptrain.Monitor.DATA_INTEGRITY,
             'measurable_args': {
                 'type': uptrain.MeasurableType.INPUT_FEATURE,
                 'feature_name': 'kps'
@@ -35,7 +35,7 @@ def test_data_integrity():
             'integrity_type': 'non_null'
         },
         {
-            'type': uptrain.Anomaly.DATA_INTEGRITY,
+            'type': uptrain.Monitor.DATA_INTEGRITY,
             'measurable_args': {
                 'type': uptrain.MeasurableType.CUSTOM,
                 'signal_formulae': uptrain.Signal("body_length", body_length_signal),

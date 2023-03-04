@@ -1,13 +1,13 @@
 import numpy as np
 
-from uptrain.core.classes.anomalies import AbstractAnomaly
+from uptrain.core.classes.monitors import AbstractAnomaly
 from uptrain.core.classes.measurables import MeasurableResolver
-from uptrain.constants import Anomaly
+from uptrain.constants import Monitor
 
 
 class DataIntegrity(AbstractAnomaly):
     dashboard_name = "data_integrity"
-    anomaly_type = Anomaly.DATA_INTEGRITY
+    anomaly_type = Monitor.DATA_INTEGRITY
 
     def __init__(self, fw, check):
         self.log_handler = fw.log_handler

@@ -99,13 +99,13 @@ def test_concept_drift():
 
     checks = [
         {
-            'type': uptrain.Anomaly.CONCEPT_DRIFT,
+            'type': uptrain.Monitor.CONCEPT_DRIFT,
             'algorithm': uptrain.DataDriftAlgo.DDM,
             'warn_thres': 2,
             'alarm_thres': 3,
         },
         {
-            'type': uptrain.Anomaly.CUSTOM_MONITOR,
+            'type': uptrain.Monitor.CUSTOM_MONITOR,
             'initialize_func': custom_initialize_func,
             'check_func': custom_check_func,
             'need_gt': True,
