@@ -1,8 +1,8 @@
 import numpy as np
 from copy import deepcopy
 
-from uptrain.constants import Anomaly, Statistic, Visual, MeasurableType
-from uptrain.core.classes.anomalies import (
+from uptrain.constants import Monitor, Statistic, Visual, MeasurableType
+from uptrain.core.classes.monitor import (
     ConceptDrift,
     DataDrift,
     CustomAnomaly,
@@ -25,7 +25,7 @@ class CheckManager:
         self.visuals_to_check = []
         self.fw = framework
         for check in checks:
-            if check["type"] in Anomaly:
+            if check["type"] in Monitor:
                 self.add_anomaly_to_monitor(check)
             if check["type"] in Statistic:
                 self.add_statistics_to_monitor(check)
@@ -33,13 +33,13 @@ class CheckManager:
                 self.add_visuals(check)
 
     def add_anomaly_to_monitor(self, check):
-        if check["type"] == Anomaly.EDGE_CASE:
+        if check["type"] == Monitor.EDGE_CASE:
             edge_case_manager = EdgeCase(self.fw, check["signal_formulae"])
             self.anomalies_to_check.append(edge_case_manager)
-        elif check["type"] == Anomaly.CONCEPT_DRIFT:
+        elif check["type"] == Monitor.CONCEPT_DRIFT:
             drift_manager = ConceptDrift(self.fw, check)
             self.anomalies_to_check.append(drift_manager)
-        elif check["type"] == Anomaly.DATA_DRIFT:
+        elif check["type"] == Monitor.DATA_DRIFT:
             if "measurable_args" in check:
                 drift_managers = [
                     DataDrift(
@@ -67,13 +67,13 @@ class CheckManager:
                         )
                     )
             self.anomalies_to_check.extend(drift_managers)
-        elif check["type"] == Anomaly.POPULARITY_BIAS:
+        elif check["type"] == Monitor.POPULARITY_BIAS:
             bias_manager = ModelBias(self.fw, check)
             self.anomalies_to_check.append(bias_manager)
-        elif check["type"] == Anomaly.CUSTOM_MONITOR:
+        elif check["type"] == Monitor.CUSTOM_MONITOR:
             custom_monitor = CustomAnomaly(self.fw, check)
             self.anomalies_to_check.append(custom_monitor)
-        elif check["type"] == Anomaly.DATA_INTEGRITY:
+        elif check["type"] == Monitor.DATA_INTEGRITY:
             custom_monitor = DataIntegrity(self.fw, check)
             self.anomalies_to_check.append(custom_monitor)
         else:

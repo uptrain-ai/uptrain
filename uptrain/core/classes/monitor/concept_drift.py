@@ -1,15 +1,15 @@
 import numpy as np
 
-from uptrain.core.classes.anomalies import AbstractAnomaly
+from uptrain.core.classes.monitor import AbstractAnomaly
 from uptrain.core.classes.algorithms import DataDriftDDM
 from uptrain.constants import DataDriftAlgo, MeasurableType
 from uptrain.core.classes.measurables import MeasurableResolver
-from uptrain.constants import Anomaly
+from uptrain.constants import Monitor
 
 
 class ConceptDrift(AbstractAnomaly):
     dashboard_name = "concept_drift_acc"
-    anomaly_type = Anomaly.CONCEPT_DRIFT
+    anomaly_type = Monitor.CONCEPT_DRIFT
 
     def __init__(self, fw, check):
         if check.get("measurable_args", None):

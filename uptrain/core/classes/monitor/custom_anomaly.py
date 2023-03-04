@@ -1,10 +1,10 @@
 import numpy as np
-from uptrain.core.classes.anomalies import AbstractAnomaly
-from uptrain.constants import Anomaly
+from uptrain.core.classes.monitor import AbstractAnomaly
+from uptrain.constants import Monitor
 
 
 class CustomAnomaly(AbstractAnomaly):
-    anomaly_type = Anomaly.CUSTOM_MONITOR
+    anomaly_type = Monitor.CUSTOM_MONITOR
 
     def __init__(self, fw, check):
         self.dashboard_name = check.get("dashboard_name", "custom_measure")

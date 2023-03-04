@@ -1,13 +1,13 @@
 import numpy as np
 
-from uptrain.core.classes.anomalies import AbstractAnomaly
+from uptrain.core.classes.monitor import AbstractAnomaly
 from uptrain.core.classes.algorithms import PopularityBias
-from uptrain.constants import BiasAlgo, Anomaly
+from uptrain.constants import BiasAlgo, Monitor
 
 
 class ModelBias(AbstractAnomaly):
     dashboard_name = "popularity_bias"
-    anomaly_type = Anomaly.POPULARITY_BIAS
+    anomaly_type = Monitor.POPULARITY_BIAS
 
     def __init__(self, fw, check):
         self.log_handler = fw.log_handler

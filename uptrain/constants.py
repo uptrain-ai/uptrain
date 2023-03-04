@@ -21,7 +21,7 @@ class AnnotationMethod(Enum):
     MASTER_FILE = 1
 
 
-class Anomaly(str, Enum):
+class Monitor(str, Enum):
     EDGE_CASE = "edge_case"
     DATA_DRIFT = "data_drift"
     CUSTOM_MONITOR = "custom_monitor"
