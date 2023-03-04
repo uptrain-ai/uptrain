@@ -34,7 +34,7 @@ def test_edge_cases():
     cfg = {
         # Define your signal to identify edge cases
         "checks": [{
-            'type': uptrain.Anomaly.EDGE_CASE, 
+            'type': uptrain.Monitor.EDGE_CASE, 
             "signal_formulae": (pushup_edge_case | low_conf_edge_case)
         }],
 

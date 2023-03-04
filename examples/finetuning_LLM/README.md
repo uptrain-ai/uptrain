@@ -153,7 +153,7 @@ Define the UpTrain Framework configuration
 cfg = {
     'checks': [
         {
-            "type": uptrain.Anomaly.EDGE_CASE,
+            "type": uptrain.Monitor.EDGE_CASE,
             "signal_formulae": \
                 uptrain.Signal("Is 'Nike' text present?", nike_text_present_func) &
                 uptrain.Signal("Is it a Nike product?", nike_product_keyword_func) &
@@ -161,7 +161,7 @@ cfg = {
         },
 
         {
-            "type": uptrain.Anomaly.DATA_INTEGRITY,
+            "type": uptrain.Monitor.DATA_INTEGRITY,
             "measurable_args": {
                 "type": uptrain.MeasurableType.INPUT_FEATURE,
                 "feature_name": "text"

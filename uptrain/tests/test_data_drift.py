@@ -27,7 +27,7 @@ def test_data_drift():
     train_model_torch(training_file, 'version_0')
 
     check1 = {
-        'type': uptrain.Anomaly.DATA_DRIFT,
+        'type': uptrain.Monitor.DATA_DRIFT,
         'reference_dataset': training_file,
         'is_embedding': True,
         "measurable_args": {
@@ -37,7 +37,7 @@ def test_data_drift():
     }
 
     check2 = {
-        'type': uptrain.Anomaly.DATA_DRIFT,
+        'type': uptrain.Monitor.DATA_DRIFT,
         'reference_dataset': training_file,
         "save_edge_cases": False,
         "measurable_args": {
@@ -51,7 +51,7 @@ def test_data_drift():
     }
 
     check3 = {
-        'type': uptrain.Anomaly.DATA_DRIFT,
+        'type': uptrain.Monitor.DATA_DRIFT,
         'reference_dataset': training_file,
         'is_embedding': False,
         "save_edge_cases": False,
