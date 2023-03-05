@@ -3,6 +3,7 @@ from copy import deepcopy
 
 from uptrain.constants import Monitor, Statistic, Visual, MeasurableType
 from uptrain.core.classes.monitors import (
+    Accuracy,
     ConceptDrift,
     DataDrift,
     CustomMonitor,
@@ -15,7 +16,7 @@ from uptrain.core.classes.statistics import (
     Convergence,
     Distribution,
 )
-from uptrain.core.classes.visuals import Umap, Tsne
+from uptrain.core.classes.visuals import Umap, Tsne, Shap
 
 
 class CheckManager:
@@ -36,6 +37,9 @@ class CheckManager:
         if check["type"] == Monitor.EDGE_CASE:
             edge_case_manager = EdgeCase(self.fw, check["signal_formulae"])
             self.anomalies_to_check.append(edge_case_manager)
+        elif check["type"] == Monitor.ACCURACY:
+            acc_manager = Accuracy(self.fw, check)
+            self.anomalies_to_check.append(acc_manager)
         elif check["type"] == Monitor.CONCEPT_DRIFT:
             drift_manager = ConceptDrift(self.fw, check)
             self.anomalies_to_check.append(drift_manager)
@@ -98,6 +102,9 @@ class CheckManager:
             self.visuals_to_check.append(custom_monitor)
         elif check["type"] == Visual.TSNE:
             custom_monitor = Tsne(self.fw, check)
+            self.visuals_to_check.append(custom_monitor)
+        elif check["type"] == Visual.SHAP:
+            custom_monitor = Shap(self.fw, check)
             self.visuals_to_check.append(custom_monitor)
         else:
             raise Exception("Visual type not Supported")

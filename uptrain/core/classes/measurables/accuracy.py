@@ -13,18 +13,30 @@ class AccuracyMeasurable(Measurable):
         return np.equal(outputs, gts)
 
     def col_name(self):
-        return "Accuracy"
-    
+        return "Accuracy" 
 
 
-class MAEMeasurable(AccuracyMeasurable):
+class MAEMeasurable(Measurable):
     def __init__(self, framework) -> None:
         super().__init__(framework)
 
     def _compute(self, inputs=None, outputs=None, gts=None, extra=None) -> any:
         gts = np.array(gts)
         outputs = np.reshape(np.array(outputs), gts.shape)
-        return np.mean(np.abs(outputs - gts))
+        return np.squeeze(np.abs(outputs - gts))
 
     def col_name(self):
-        return "MAE"    
+        return "MAE"
+
+
+class MAPEMeasurable(Measurable):
+    def __init__(self, framework) -> None:
+        super().__init__(framework)
+
+    def _compute(self, inputs=None, outputs=None, gts=None, extra=None) -> any:
+        gts = np.array(gts)
+        outputs = np.reshape(np.array(outputs), gts.shape)
+        return 100*np.squeeze(np.abs(np.divide(outputs - gts, gts)))
+
+    def col_name(self):
+        return "MAPE"    

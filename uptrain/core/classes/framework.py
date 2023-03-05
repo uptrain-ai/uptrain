@@ -379,7 +379,8 @@ class Framework:
         data = {}
         for col in cols:
             data.update({col: np.array(list(inputs[col]))})
-        data.update({"ids": np.array(ids)})
+        if 'id' not in cols:
+            data.update({"id": np.array(ids)})
         return data
     
     def convert_dict_values_to_numpy_values(self, inputs: dict) -> dict:

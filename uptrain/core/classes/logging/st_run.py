@@ -8,6 +8,9 @@ import numpy as np
 import json
 import plotly.express as px
 import random
+import streamlit.components.v1 as components
+import shap
+
 
 st.set_page_config(
     page_title="UpTrain Dashboard",
@@ -356,7 +359,24 @@ def plot_dashboard(dashboard_name):
             if st.sidebar.checkbox(f"Bar graph for {plot_name}"):
                 st.markdown(f"### Bar graph for {plot_name}")
                 plot_for_count(files, plot_bar, plot_name) 
-                st.markdown("""---""")   
+                st.markdown("""---""")  
+
+
+def st_shap(plot, height=None):
+    shap_html = f"<head>{shap.getjs()}</head><body>{plot.html()}</body>"
+    components.html(shap_html, height=height) 
+
+
+@st.cache
+def get_data_shap(path_all_data, num_points):
+    import pickle
+    file = open(metadata["path_shap_file"], 'rb')
+    explainer = pickle.load(file)
+    file.close()
+    df = pd.read_csv(path_all_data)[0:num_points]
+    data_ids = [eval(x) for x in df["id"]]
+    df = df.drop(columns=['id', 'output', 'gt'])
+    return explainer(df), data_ids
 
 
 st.sidebar.title("Select dashboards to view")
@@ -365,3 +385,51 @@ for dashboard_name in dashboard_names:
     if st.sidebar.checkbox(f"Dashboard: {dashboard_name}"):
         plot_dashboard(dashboard_name)
     st.sidebar.markdown("""---""")
+
+if metadata.get("path_shap_file", None):
+    if st.sidebar.checkbox(f"SHAP explainability"):
+        st.header(f"SHAP Explanability")
+        
+        path_all_data = metadata["path_all_data"]
+
+        num_points = metadata["shap_num_points"]
+        
+        shap_values, data_ids = get_data_shap(path_all_data, num_points)
+
+        shap.initjs() # for visualization
+        st.set_option('deprecation.showPyplotGlobalUse', False)
+
+        st.subheader("Feature-wise importance")
+        st.text("Feature \"dist\" has the biggest impact on ride time predictions.")
+        cols = st.columns(2)
+        with cols[0]:
+            st.pyplot(shap.plots.bar(shap_values))
+
+        st.markdown("""---""")
+
+        st.subheader("Explainability for each data-point")
+        cols = st.columns(2)
+        with cols[0]:
+            data_point = st.selectbox("Select data-point for explainability", data_ids)
+
+        index = data_ids.index(data_point)
+        shap_val = shap_values[index]
+        st.text(f"Data-point {data_point} was most impacted by Feature \"dist\".")
+        pred = sum(shap_val.values) + shap_val.base_values
+        st.text(f"The predicted ride time is {pred:.1f} compared to the mean value of {shap_val.base_values:.1f}.")
+            
+        cols = st.columns(2)
+        with cols[0]:
+            shap.plots.waterfall(shap_val)
+            st.pyplot()
+
+        # with cols[1]:
+        #     st.subheader("Beeswarm plot")
+        #     shap.plots.beeswarm(shap_values)
+        #     st.pyplot()
+
+        # shap.plots.heatmap(shap_values)
+        # st.pyplot()
+
+
+
