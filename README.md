@@ -5,7 +5,7 @@
 </h4>
 <h2>
   <p align="center">
-    <p align="center">UpTrain is an open-source framework to monitor machine learning models, built for engineers</p>
+    <p align="center">An open-source framework to observe ML applications, built for engineers</p>
   </p>
 </h2>
 
@@ -38,7 +38,7 @@
 </h4>
 
 <h4 align="center">
-<img src="https://user-images.githubusercontent.com/108270398/218686821-a54e112f-8b14-485f-acef-de1f611adb2f.png" width="70%" alt="Performance" />
+<img src="https://user-images.githubusercontent.com/108270398/222989893-fec6267d-4957-424c-9ea8-7cc39806e811.gif" width="70%" alt="Performance" />
 </h4>
 
 <h4>
