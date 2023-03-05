@@ -1,14 +1,14 @@
 import numpy as np
 import copy
 
-from uptrain.core.classes.monitors import AbstractAnomaly
+from uptrain.core.classes.monitors import AbstractMonitor
 from uptrain.constants import Monitor
 from uptrain.core.lib.helper_funcs import read_json
 from uptrain.core.lib.algorithms import estimate_earth_moving_cost
 from uptrain.core.classes.measurables import MeasurableResolver
 from uptrain.core.classes.algorithms import Clustering
 
-class DataDrift(AbstractAnomaly):
+class DataDrift(AbstractMonitor):
     dashboard_name = "data_drift"
     anomaly_type = Monitor.DATA_DRIFT
     is_embedding = None

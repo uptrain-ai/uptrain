@@ -1,4 +1,4 @@
-from .abstract_anomaly import AbstractAnomaly
+from .abstract_anomaly import AbstractMonitor
 from .concept_drift import ConceptDrift
 from .custom_anomaly import CustomAnomaly
 from .data_drift import DataDrift
