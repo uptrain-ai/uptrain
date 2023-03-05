@@ -4,11 +4,11 @@ import numpy as np
 from typing import List
 
 
-class DeepQNetwork(tf.keras.Model):
+class DoubleDeepQNetwork(tf.keras.Model):
     def __init__(
         self, num_actions: int, input_dims: List[int], hidden_layer_dims: List[int]
     ):
-        super(DeepQNetwork, self).__init__()
+        super(DoubleDeepQNetwork, self).__init__()
 
         self.num_actions = num_actions
         self.input_dims = input_dims
@@ -22,14 +22,24 @@ class DeepQNetwork(tf.keras.Model):
                 for units in hidden_layer_dims
             ]
         )
-        self.Q = tf.keras.layers.Dense(units=num_actions, activation=None)
+        self.V = tf.keras.layers.Dense(units=1, activation=None)
+        self.A = tf.keras.layers.Dense(units=num_actions, activation=None)
 
     def call(self, state):
         x = state
         for layer in self.hidden_layers:
             x = layer(x)
-        Q = self.Q(x)
+        V = self.V(x)
+        A = self.A(x)
+        Q = V + (A - tf.math.reduce_mean(input_tensor=A, axis=1, keepdims=True))
         return Q
+
+    def advantage(self, state):
+        x = state
+        for layer in self.hidden_layers:
+            x = layer(x)
+        A = self.A(x)
+        return A
 
     def get_config(self):
         config = {}
@@ -86,7 +96,7 @@ class Agent:
         epsilon_decrement: float = 0.001,
         min_epsilon: float = 0.01,
         memory_size: int = 100000,
-        filename: str = "dqn_agent",
+        filename: str = "double_dqn_agent",
         hidden_dims: List[int] = [128, 128],
         memory_replace_after=100
     ):
@@ -105,9 +115,9 @@ class Agent:
         self.memory_replace_after = memory_replace_after
         self.learn_step_counter = 0
         self.memory = MemoryBuffer(memory_size, input_dims)
-        self.q_main_network = DeepQNetwork(num_actions, input_dims, hidden_dims)
-        self.q_target_network = DeepQNetwork(num_actions, input_dims, hidden_dims)
-        
+        self.q_main_network = DoubleDeepQNetwork(num_actions, input_dims, hidden_dims)
+        self.q_target_network = DoubleDeepQNetwork(num_actions, input_dims, hidden_dims)
+
         self.q_main_network.compile(
             optimizer=tf.optimizers.Adam(learning_rate),
             loss=tf.losses.MeanSquaredError(),
@@ -146,17 +156,14 @@ class Agent:
             self.batch_size
         )
         q_pred = self.q_main_network(states)
-        q_next = tf.math.reduce_max(
-            self.q_target_network(states_), axis=1, keepdims=True
-        ).numpy()
+        q_next = self.q_target_network(states_)
         q_target = np.copy(q_pred)
+        max_actions = tf.math.argmax(self.q_main_network(states_), axis=1)
 
         for index, terminal in enumerate(dones):
-            if terminal:
-                q_next[index] = 0
-            q_target[index, actions[index]] = (
-                rewards[index] + self.gamma * q_next[index]
-            )
+            q_target[index, actions[index]] = rewards[index] + self.gamma * q_next[
+                index, max_actions[index]
+            ] * (1 - int(terminal))
 
         self.q_main_network.train_on_batch(states, q_target)
         self.epsilon = (
@@ -171,5 +178,5 @@ class Agent:
 
     def load_model(self):
         self.q_main_network = tf.keras.models.load_model(
-            self.filename, custom_objects={"DeepQNetwork": DeepQNetwork}
+            self.filename, custom_objects={"DoubleDeepQNetwork": DoubleDeepQNetwork}
         )
