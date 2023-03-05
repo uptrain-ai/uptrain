@@ -53,13 +53,13 @@ class MemoryBuffer:
         self.reward_memory = np.zeros(self.memory_size, np.float32)
         self.terminal_memory = np.zeros(self.memory_size, np.bool8)
 
-    def store_transition(self, state, action, reward, new_state, done):
+    def store_transition(self, state, action, reward, new_state, terminal):
         index = self.memory_counter % self.memory_size
         self.state_memory[index] = state
         self.new_state_memory[index] = new_state
         self.action_memory[index] = action
         self.reward_memory[index] = reward
-        self.terminal_memory[index] = done
+        self.terminal_memory[index] = terminal
         self.memory_counter += 1
 
     def sample_buffer(self, batch_size: int):
@@ -117,8 +117,8 @@ class Agent:
             loss=tf.losses.MeanSquaredError(),
         )
 
-    def store_transition(self, state, action, reward, new_state, done):
-        self.memory.store_transition(state, action, reward, new_state, done)
+    def store_transition(self, state, action, reward, new_state, terminal):
+        self.memory.store_transition(state, action, reward, new_state, terminal)
 
     def learn_action(self, observation):
         if np.random.random() < self.epsilon:
@@ -142,16 +142,16 @@ class Agent:
         if self.learn_step_counter % self.memory_replace_after == 0:
             self.q_target_network.set_weights(self.q_main_network.get_weights())
 
-        states, actions, rewards, states_, dones = self.memory.sample_buffer(
+        states, actions, rewards, new_states, terminals = self.memory.sample_buffer(
             self.batch_size
         )
         q_pred = self.q_main_network(states)
         q_next = tf.math.reduce_max(
-            self.q_target_network(states_), axis=1, keepdims=True
+            self.q_target_network(new_states), axis=1, keepdims=True
         ).numpy()
         q_target = np.copy(q_pred)
 
-        for index, terminal in enumerate(dones):
+        for index, terminal in enumerate(terminals):
             if terminal:
                 q_next[index] = 0
             q_target[index, actions[index]] = (
