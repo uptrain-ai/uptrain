@@ -5,7 +5,7 @@ from uptrain.constants import Monitor, Statistic, Visual, MeasurableType
 from uptrain.core.classes.monitors import (
     ConceptDrift,
     DataDrift,
-    CustomAnomaly,
+    CustomMonitor,
     ModelBias,
     DataIntegrity,
     EdgeCase,
@@ -71,13 +71,13 @@ class CheckManager:
             bias_manager = ModelBias(self.fw, check)
             self.anomalies_to_check.append(bias_manager)
         elif check["type"] == Monitor.CUSTOM_MONITOR:
-            custom_monitor = CustomAnomaly(self.fw, check)
+            custom_monitor = CustomMonitor(self.fw, check)
             self.anomalies_to_check.append(custom_monitor)
         elif check["type"] == Monitor.DATA_INTEGRITY:
             custom_monitor = DataIntegrity(self.fw, check)
             self.anomalies_to_check.append(custom_monitor)
         else:
-            raise Exception("Anomaly type not Supported")
+            raise Exception("Monitor type not Supported")
 
     def add_statistics_to_monitor(self, check):
         if check["type"] == Statistic.DISTANCE:

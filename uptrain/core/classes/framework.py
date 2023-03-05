@@ -203,7 +203,7 @@ class Framework:
             # Log all the data-points into all_data warehouse
             add_data_to_warehouse(deepcopy(data), self.path_all_data)
 
-        # Check for any anomalies
+        # Check for any monitors
         self.check(data, extra_args)
         self.predicted_count += self.batch_size
 

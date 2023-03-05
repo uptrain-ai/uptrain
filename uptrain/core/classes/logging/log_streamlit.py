@@ -147,7 +147,7 @@ class StreamlitLogs:
     #     # TODO: Function is run from top every time the button is clicked
     #     button = st.sidebar.button(
     #         "Check",
-    #         help="Check anomalies for this function",
+    #         help="Check monitors for this function",
     #     )
     #     # on_click=button_callback)
     #     if button:

@@ -1,4 +1,4 @@
-class AbstractAnomaly:
+class AbstractMonitor:
     anomaly_type = None
 
     def check(self, inputs, outputs, gts=None, extra_args={}):
