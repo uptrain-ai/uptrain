@@ -3,7 +3,7 @@ from uptrain.core.classes.monitors import AbstractMonitor
 from uptrain.constants import Monitor
 
 
-class CustomAnomaly(AbstractMonitor):
+class CustomMonitor(AbstractMonitor):
     anomaly_type = Monitor.CUSTOM_MONITOR
 
     def __init__(self, fw, check):
