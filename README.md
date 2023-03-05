@@ -61,15 +61,18 @@
 - **[Automated Retraining](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_check_all.ipynb)** - Automate model retraining by attaching your training and inference pipelines.
 - **[Model Bias](https://github.com/uptrain-ai/uptrain/blob/main/examples/shopping_cart_recommendation/run.ipynb)** - Track popularity bias in your recommendation models.
 - **Data Security** - Your data never goes out of your machine.
-
+- **Slack Integration** - Get alerts on Slack.
+- **AI Explainability** - Understand relative importance of multiple features on predictions.
+- **Realtime Dashboards** - To visualize your model's health.
 
 ## 🚨Coming soon🚨
 
-- **Realtime Dashboards** - To visualize your model's health.
-- **Slack Integration** - Get alerts on Slack.
 - **Label Shift** - Identify drifts in your predictions. Specially useful in cases when ground truth is unavailable.
+- **Model confidence interval** - Confidence intervals for model predictions 
+- **Advanced drift detection techniques** - Outlier-based drift detection methods
+- **Advanced feature slicing** - Ability to slice statistical properties
+- **Kolmogorov-Smirnov Test** - For detecting distribution shifts
 - **Prediction Stability** - Filter cases where model prediction is not stable.
-- **AI Explainability** - Understand relative importance of multiple features on predictions.
 - **Adversarial Checks** - Combat adversarial attacks
 
 And more.
@@ -104,12 +107,6 @@ For more info, visit our [get started guide](https://docs.uptrain.ai/docs/get-st
 One of the most common use cases of ML today is language models, be it text summarization, NER, chatbots, language translation, etc. UpTrain provides ways to visualize differences in the training and real-world data via UMAP clustering of text embeddings (inferred from bert).
 <h1 align="left">
 <img alt="Meme" width="60%" src="https://user-images.githubusercontent.com/108270398/220204024-437c48f9-51d9-4ed8-9e23-5ec7033b8f7b.png">
-</h1>
-
-Additionally, UpTrain also provides statistical measures to quantify these differences and enables automated alerts whenever this drift crosses a certain threshold.
-<h1 align="left">
-<img alt="Meme" width="43%" src="https://user-images.githubusercontent.com/108270398/220204120-84433f34-33e9-4106-9da3-5db1b8fc68f3.png">
-<img alt="Meme" width="51%" src="https://user-images.githubusercontent.com/108270398/220204284-3ced3db3-7f1d-4147-8fc1-21cdd28bbb40.png">
 </h1>
 
 # Why UpTrain 🤔?
