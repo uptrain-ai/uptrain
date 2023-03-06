@@ -7,6 +7,9 @@ import plotly.graph_objects as go
 import numpy as np
 import json
 import plotly.express as px
+import random
+import streamlit.components.v1 as components
+import shap
 
 
 st.set_page_config(
@@ -27,14 +30,6 @@ with open(metadata_file, encoding='utf-8') as f:
     metadata = json.loads(f.read())
 model_args = metadata['model_args']
 feature_args = metadata['feature_args']
-
-# model_sig_types = ['vplay', 'unified', 'fav', 'like', 'share', 'vclick', 'vskip']
-# feat_genre_types = ['All', 'AGT', 'Arts (self perform)', 'Cinema & TV', 
-#     'Culture (Nation/state/dialects)', 'Devotion', 'Education',
-#     'Fashion and Makeup', 'Humour & Fun', 'Kids', 'LifeStyle',
-#     'Literature', 'Music & Dance', 'News', 'Personal',
-#     'Romance & Relationships', 'Sports', 'Status and Stories',
-#     'Wellbeing', 'Wishes']
 
 model_to_compare = None
 other_models = {}
@@ -94,24 +89,44 @@ def slice_data(
     other_models={},
     j=0,
     ):
+    cond = None
     if features_to_slice is not None:
         for feat_name, value in features_to_slice.items():
             if value != 'All':
                 if 'feature_' + feat_name in df.columns:
-                    df = df[df['feature_' + feat_name] == value]
+                    if cond is None:
+                        cond = (df['feature_' + feat_name] == value)
+                    else:
+                        cond = cond & (df['feature_' + feat_name] == value)
+                else:
+                    cond = [False] * len(df)
     if model_to_compare is not None:
         model = model_to_compare['allowed_values'][j]
         model_type = model_to_compare['feature_name']
         if 'model_' + model_type in df.columns:
-            df = df[df['model_' + model_type] == model]
+            if cond is None:
+                cond = (df['model_' + model_type] == model)
+            else:
+                cond = cond & (df['model_' + model_type] == model)
+        else:
+            cond = [False] * len(df)
     for model_name, value in other_models.items():
         if 'model_' + model_name in df.columns:
-            df = df[df['model_' + model_name] == value]
+            if cond is None:
+                cond = (df['model_' + model_name] == value)
+            else:
+                cond = cond & (df['model_' + model_name] == value)
+        else:
+            cond = [False] * len(df)
+    if cond is not None:
+        df = df[cond]
     return df
 
 
 def plot_line_charts(files, plot_name):
     # Getting plot metadata from the first file
+    if len(files) > 1000:
+        files = random.choices(files, k=1000)
     df = pd.read_csv(files[0])
 
     for key in df.keys():
@@ -140,7 +155,7 @@ def plot_line_charts(files, plot_name):
             df = slice_data(df, features_to_slice, model_to_compare, other_models, j)
 
             # Getting plot_id
-            plot_id = csv_file.split("/")[-1].split(".")[0]
+            plot_id = os.path.split(csv_file)[-1].split(".")[0]
             fig = fig.add_trace(
                 go.Scatter(
                     x=df[x_axis],
@@ -166,7 +181,7 @@ def plot_histograms(files, plot_name):
             df = slice_data(df, features_to_slice, model_to_compare, other_models, j)
 
             # Getting plot_id
-            plot_id = csv_file.split("/")[-1].split(".")[0]
+            plot_id = os.path.split(csv_file)[-1].split(".")[0]
             df_y = df['y_points']
             if len(df_y) > 1000:
                 df_y = np.random.choice(df_y, 1000)
@@ -243,7 +258,7 @@ def plot_umap(file, j=0):
 def get_view_arr_from_files(files):
     view_arr = []
     for file in files:
-        view_arr.append(int(file.split('/')[-1].split('_')[0]))
+        view_arr.append(int(os.path.split(file)[-1].split('_')[0]))
     view_arr.sort()
     return np.unique(view_arr)
 
@@ -267,7 +282,7 @@ def plot_umaps(files, plot_name, sub_dir):
                     st.write("Not sufficient data.")
         else:
             for file in files:
-                count = file.split("/")[-1].split(".")[0]
+                count = os.path.split(file)[-1].split(".")[0]
                 if int(count) < 0:
                     plot_umap(file, j) 
                 else:
@@ -301,7 +316,7 @@ def plot_bar(file):
 
 def plot_for_count(files, plot_func, plot_name):
     for file in files:
-        count = file.split("/")[-1].split(".")[0]
+        count = os.path.split(file)[-1].split(".")[0]
         if int(count) < 0:
             plot_func(file) 
         else:
@@ -313,11 +328,12 @@ def plot_dashboard(dashboard_name):
     st.header(f"Dashboard {dashboard_name}")
     sub_dirs = [path[0] for path in os.walk(os.path.join(log_folder, dashboard_name))]
     for sub_dir in sub_dirs:
-        sub_dir_split = sub_dir.split("/")
+        sub_dir_split = os.path.normpath(sub_dir).split(os.path.sep)
         c1 = sub_dir_split[-1] == "umap_and_clusters"
         c2 = sub_dir_split[-2] == "bar_graphs"
         c3 = sub_dir_split[-1] == "alerts"
-        if c1 or c2 or c3:
+        c4 = sub_dir_split[-1] == "tsne_and_clusters"
+        if c1 or c2 or c3 or c4:
             ext = "*.json"
         else:
             ext = "*.csv"
@@ -331,7 +347,7 @@ def plot_dashboard(dashboard_name):
 
         if sub_dir_split[-1] == "alerts":  
             for file in files:
-                alert_name = file.split("/")[-1].split(".")[0]
+                alert_name = os.path.split(file)[-1].split(".")[0]
                 f = open(file)
                 alert = json.load(f)
                 st.subheader(alert_name)
@@ -349,14 +365,7 @@ def plot_dashboard(dashboard_name):
         # ######### Plotting histograms ###########
 
         elif sub_dir_split[-2] == "histograms":
-            if plot_name != "umap_and_clusters":
-                if st.sidebar.checkbox(f"Histogram for {plot_name}"):
-                    st.markdown(f"### Histogram for {plot_name}")
-                    # plot_for_count(files, plot_histogram, plot_name) 
-                    plot_histograms(files, plot_name)
-                    st.markdown("""---""") 
-                            
-            else:
+            if plot_name == "umap_and_clusters":
                 if st.sidebar.checkbox(f"UMAP for {plot_name}"):
                     st.markdown(f"### UMAP for {plot_name}")
                     if model_args is not None:
@@ -364,7 +373,22 @@ def plot_dashboard(dashboard_name):
                     else:
                         for file in files:
                             plot_umap(file)
+                    st.markdown("""---""") 
+            elif plot_name == "tsne_and_clusters":  
+                if st.sidebar.checkbox(f"t-SNE for {plot_name}"):
+                    st.markdown(f"### t-SNE for {plot_name}")
+                    if model_args is not None:
+                        plot_umaps(files, plot_name, sub_dir)
+                    else:
+                        for file in files:
+                            plot_umap(file)
                     st.markdown("""---""")   
+            else:
+                if st.sidebar.checkbox(f"Histogram for {plot_name}"):
+                    st.markdown(f"### Histogram for {plot_name}")
+                    # plot_for_count(files, plot_histogram, plot_name) 
+                    plot_histograms(files, plot_name)
+                    st.markdown("""---""") 
 
         ######### Plotting Bar Graphs ###########
 
@@ -372,7 +396,29 @@ def plot_dashboard(dashboard_name):
             if st.sidebar.checkbox(f"Bar graph for {plot_name}"):
                 st.markdown(f"### Bar graph for {plot_name}")
                 plot_for_count(files, plot_bar, plot_name) 
-                st.markdown("""---""")   
+                st.markdown("""---""")  
+
+
+def st_shap(plot, height=None):
+    shap_html = f"<head>{shap.getjs()}</head><body>{plot.html()}</body>"
+    components.html(shap_html, height=height) 
+
+
+@st.cache
+def get_data_shap(path_all_data, num_points):
+    import pickle
+    file = open(metadata["path_shap_file"], 'rb')
+    explainer = pickle.load(file)
+    file.close()
+    df = pd.read_csv(path_all_data)
+    if len(df) >= num_points:
+        df = df[0:num_points]
+    else:
+        st.text("Not sufficient data points for SHAP")
+        return []
+    data_ids = [eval(x) for x in df["id"]]
+    df = df.drop(columns=['id', 'output', 'gt'])
+    return explainer(df), data_ids
 
 
 st.sidebar.title("Select dashboards to view")
@@ -381,3 +427,42 @@ for dashboard_name in dashboard_names:
     if st.sidebar.checkbox(f"Dashboard: {dashboard_name}"):
         plot_dashboard(dashboard_name)
     st.sidebar.markdown("""---""")
+
+if metadata.get("path_shap_file", None):
+    if st.sidebar.checkbox(f"SHAP explainability"):
+        st.header(f"SHAP Explanability")
+        
+        path_all_data = metadata["path_all_data"]
+
+        num_points = metadata["shap_num_points"]
+        
+        shap_values, data_ids = get_data_shap(path_all_data, num_points)
+
+        shap.initjs() # for visualization
+        st.set_option('deprecation.showPyplotGlobalUse', False)
+
+        st.subheader("Feature-wise importance")
+        st.text("Feature \"dist\" has the biggest impact on ride time predictions.")
+        cols = st.columns(2)
+        with cols[0]:
+            st.pyplot(shap.plots.bar(shap_values))
+
+        st.markdown("""---""")
+
+        st.subheader("Explainability for each data-point")
+        cols = st.columns(2)
+        with cols[0]:
+            data_point = st.selectbox("Select data-point for explainability", data_ids)
+
+        index = data_ids.index(data_point)
+        shap_val = shap_values[index]
+        pred = sum(shap_val.values) + shap_val.base_values
+        st.text(f"The predicted value is {pred:.1f} compared to the mean value of {shap_val.base_values:.1f}.")
+            
+        cols = st.columns(2)
+        with cols[0]:
+            shap.plots.waterfall(shap_val)
+            st.pyplot()
+
+
+

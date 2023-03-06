@@ -1,9 +1,8 @@
 import numpy as np
 
-from uptrain.core.classes.measurables import MeasurableResolver
-from uptrain.core.classes.anomalies import AbstractCheck
+from uptrain.core.classes.monitors import AbstractCheck
 
-class AbstractAnomaly(AbstractCheck):
+class AbstractMonitor(AbstractCheck):
     anomaly_type = None
 
     def need_ground_truth(self):

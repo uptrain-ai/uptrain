@@ -1,14 +1,21 @@
 import collections
-import numpy as np
-import torch
 import json
-import pandas as pd
+import math
 import random
+import torch
 
-from transformers import AutoTokenizer, default_data_collator
+import numpy as np
+import pandas as pd
+
+from transformers import (
+    AutoTokenizer, default_data_collator
+)
+
 from model_constants import *
 
+
 tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
+
 
 def tokenize_function(examples):
     result = tokenizer(examples["text"])
@@ -60,53 +67,86 @@ def whole_word_masking_data_collator(features):
         feature["labels"] = new_labels
     return default_data_collator(features)
 
-def test_model(model, text):
-    inputs = tokenizer(text, return_tensors="pt")
+def top_k_tokens (model, tokenizer, text, k = 5):
+    inputs = tokenizer(text, return_tensors="pt").to(DEVICE)
     token_logits = model(**inputs).logits
-    # Find the location of [MASK] and extract its logits
     mask_token_index = torch.where(inputs["input_ids"] == tokenizer.mask_token_id)[1]
     mask_token_logits = token_logits[0, mask_token_index, :]
-    # Pick the [MASK] candidates with the highest logits
-    top_5_tokens = torch.topk(mask_token_logits, 5, dim=1).indices[0].tolist()
-    return [tokenizer.decode([token]) for token in top_5_tokens]
+    top_k_tokens = torch.topk(mask_token_logits, k, dim=1).indices[0].tolist()
+    return [tokenizer.decode([token]) for token in top_k_tokens]
 
-def create_sample_dataset(save_file_name):
+def create_sample_dataset(dataset_size):
+    nullify_ratio = 0.05
+    nullify_count = int(nullify_ratio * dataset_size)
     data = {
         "version": "0.1.0",
         "source": "sample",
         "url": "self-generated",
         "data": []
     }
-    arr = []
-    random_words = ["shoes", "jeans", "tshirts", "sweaters", "pants", "hoodies", "socks", "football"]
-    for idx in range(1000):
-        arr.append({"text": "Sample " + str(100 * idx) + " training sample - Nike " + random.choice(random_words) + " and " + random.choice(random_words), "label": 0})
-        arr.append({"text": "Sample " + str(100 * idx) + " training sample - Adidas " + random.choice(random_words) + " and " + random.choice(random_words), "label": 0})
-        arr.append({"text": "Sample " + str(100 * idx) + " training sample - Puma " + random.choice(random_words) + " and " + random.choice(random_words), "label": 0})
-        arr.append({"text": "Sample " + str(100 * idx) + " training sample - Bata " + random.choice(random_words) + " and " + random.choice(random_words), "label": 0})
-    data["data"] = arr
+    sentences = []
 
-    with open(save_file_name, 'w') as f:
-        json.dump(data, f)
-    return save_file_name
+    for _ in range(dataset_size):
+        company = random.choice(COMPANIES)
+        joiner = random.choice(JOINERS)
+        product = random.choice(PRODUCTS)
+        label = random.randint(0, 3)
+
+        # We bias the positive sentiment data to have a higher ratio
+        if label == 0:
+            adjective = random.choice(NEGATIVE_SENTIMENT_ADJECTIVES)
+        else:
+            label = 1
+            adjective = random.choice(POSITIVE_SENTIMENT_ADJECTIVES)
+
+        # Additionally, you could expand on list of possible sentences
+        # or use a combination of real-life datasets
+        if random.randint(0, 1) == 0:
+            sentence = f'{company} {product} {joiner} {adjective}'
+        else:
+            sentence = f'{product} made by {company} {joiner} {adjective}'
+        
+        sentences.append({ "text": sentence, "label": label })
+    
+    # Make some values null to make sure UpTrain data integrity check is working
+    for _ in range(nullify_count):
+        element = random.choice(sentences)
+        element['text'] = None
+    
+    data["data"] = sentences
+    return data
 
 def create_dataset_from_csv(file_name, col_name, save_file_name, attrs={}, min_samples=-1):
     data = pd.read_csv(file_name)
     vals = list(data[col_name])
     r_data = []
+
     for val in vals:
-        try:
-            val = eval(val)
-        except:
-            dummy = 1
         r_data.append({'text': str(val), 'label': 0})
+
     json_data = attrs
     json_data.update({
-        "data": r_data
+      "data": r_data
     })
-    if min_samples > 0:
-        while len(json_data["data"]) < min_samples:
-            json_data["data"].extend(r_data)
+
     with open(save_file_name, 'w') as f:
         json.dump(json_data, f)
-    return save_file_name
+
+def get_loss_history (log_history):
+    training_loss_history = []
+    training_loss_steps = []
+    eval_loss_history = []
+    eval_loss_steps = []
+  
+    for history in log_history[:-2]:
+        if 'loss' in history.keys():
+            training_loss_history.append(history['loss'])
+            training_loss_steps.append(history['step'])
+        if 'eval_loss' in history.keys():
+            eval_loss_history.append(history['eval_loss'])
+            eval_loss_steps.append(history['step'])
+  
+    return (training_loss_steps, training_loss_history), (eval_loss_steps, eval_loss_history)
+
+def get_perplexities (eval_loss_history):
+    return list(map(math.exp, eval_loss_history))

@@ -1,6 +1,5 @@
 import copy
 from abc import ABC
-import numpy as np
 
 from uptrain.core.classes.measurables import MeasurableResolver
 

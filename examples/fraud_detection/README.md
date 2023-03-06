@@ -237,7 +237,7 @@ Woah! 😲🔥 The training accuracy is 100%. Let's see how long the model lasts
 cfg = {
     # Checks to identify concept drift
     "checks": [{
-        'type': uptrain.Anomaly.CONCEPT_DRIFT,
+        'type': uptrain.Monitor.CONCEPT_DRIFT,
         'algorithm': uptrain.DataDriftAlgo.DDM
     }],
     
@@ -245,14 +245,14 @@ cfg = {
     "retraining_folder": 'uptrain_smart_data',
     
     # Enable streamlit logging to visualize model's performance
-    "st_logging": True,
+    "logging_args": {"st_logging": True},
 }
 pretty(cfg)
 ```
 
     - checks:
     	- type:
-    		Anomaly.CONCEPT_DRIFT
+    		Monitor.CONCEPT_DRIFT
     	- algorithm:
     		DataDriftAlgo.DDM
     - retraining_folder:
@@ -352,7 +352,7 @@ def custom_check_func(self, inputs, outputs, gts=None, extra_args={}):
 cfg = {
     # Checks for our custom monitor
     "checks": [{
-        'type': uptrain.Anomaly.CUSTOM_MONITOR,
+        'type': uptrain.Monitor.CUSTOM_MONITOR,
         'initialize_func': custom_initialize_func,
         'check_func': custom_check_func,
         'need_gt': True,
@@ -362,14 +362,14 @@ cfg = {
     "retraining_folder": 'uptrain_smart_data',
     
     # Enable streamlit logging to visualize model's performance
-    "st_logging": True,
+    "logging_args": {"st_logging": True},
 }
 pretty(cfg)
 ```
 
     - checks:
     	- type:
-    		Anomaly.CUSTOM_MONITOR
+    		Monitor.CUSTOM_MONITOR
     	- initialize_func:
     		<function custom_initialize_func at 0x154a29750>
     	- check_func:

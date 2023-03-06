@@ -1,13 +1,13 @@
 import numpy as np
 
-from uptrain.core.classes.anomalies import AbstractAnomaly
+from uptrain.core.classes.monitors import AbstractMonitor
 from uptrain.core.classes.algorithms import PopularityBias
-from uptrain.constants import BiasAlgo, Anomaly
+from uptrain.constants import BiasAlgo, Monitor
 
 
-class RecommendationBias(AbstractAnomaly):
+class ModelBias(AbstractMonitor):
     dashboard_name = "popularity_bias"
-    anomaly_type = Anomaly.POPULARITY_BIAS
+    anomaly_type = Monitor.POPULARITY_BIAS
 
     def base_init(self, fw, check):
         self.acc_arr = []
@@ -15,7 +15,7 @@ class RecommendationBias(AbstractAnomaly):
             sessions = check.get("sessions", None)
             self.algo = PopularityBias(sessions)
         else:
-            raise Exception("Recommendation bias type not supported")
+            raise Exception("Model bias type not supported")
 
     def need_ground_truth(self):
         return False

@@ -1,17 +1,16 @@
-import umap
 import copy
 from sklearn.cluster import DBSCAN
+from sklearn.manifold import TSNE
 import numpy as np
-from uptrain.core.lib.helper_funcs import cluster_and_plot_data
 
 from uptrain.core.classes.visuals import AbstractVisual
 from uptrain.constants import Visual, Statistic
 from uptrain.core.classes.measurables import MeasurableResolver
-from uptrain.core.lib.helper_funcs import read_json
+from uptrain.core.lib.helper_funcs import read_json, cluster_and_plot_data
 
-class Umap(AbstractVisual):
-    visual_type = Visual.UMAP
-    dashboard_name = "umap_and_clusters"
+class Tsne(AbstractVisual):
+    visual_type = Visual.TSNE
+    dashboard_name = "tsne_and_clusters"
 
     def base_init(self, fw, check):
         self.framework = fw
@@ -24,11 +23,21 @@ class Umap(AbstractVisual):
         self.hover_names = [x.col_name() for x in self.hover_measurables]
 
         self.count_checkpoints = check.get("count_checkpoints", ["all"])
-        self.min_dist = check["min_dist"]
-        self.n_neighbors = check["n_neighbors"]
-        self.metric_umap = check["metric_umap"]
         self.dim = check.get("dim", '2D')
-        self.clustering = check.get("clustering", False)
+        self.perplexity = check.get("perplexity",30.0)
+        self.early_exaggeration = check.get("early_exaggeration",12.0)
+        self.learning_rate = check.get("learning_rate","auto")
+        self.n_iter = check.get("n_iter",1000)
+        self.n_iter_without_progress = check.get("n_iter_without_progress",300)
+        self.min_grad_norm = check.get("min_grad_norm",1e-7)
+        self.metric = check.get("metric",'euclidean')
+        self.metric_params = check.get("metric_params",None)
+        self.init = check.get("init","pca")
+        self.verbose = check.get("verbose",0)
+        self.random_state = check.get("random_state",None)
+        self.method = check.get("method",'barnes_hut')
+        self.angle = check.get("angle",0.5)
+        self.n_jobs = check.get("n_jobs",None)
         self.min_samples = check.get("min_samples", 5)
         self.eps = check.get("eps", 2.0)
         self.total_count = 0
@@ -72,6 +81,7 @@ class Umap(AbstractVisual):
                         self.feature_dictn[key].extend(this_dict[key])
                     else:
                         self.feature_dictn.update({key: this_dict[key]})
+
 
     def base_check(self, inputs, outputs, gts=None, extra_args={}):
         if self.measurable is not None:
@@ -117,19 +127,29 @@ class Umap(AbstractVisual):
 
             if emb_list.shape[0] > 10:
                 clusters = []
-                umap_list, clusters = self.get_umap_and_labels(
+                tsne_list, clusters = self.get_tsne_and_labels(
                     emb_list,
                     self.dim,
-                    self.n_neighbors,
-                    self.min_dist,
-                    self.metric_umap,
+                    self.perplexity,
+                    self.early_exaggeration,
+                    self.learning_rate,
+                    self.n_iter,
+                    self.n_iter_without_progress,
+                    self.min_grad_norm,
+                    self.metric,
+                    self.init,
+                    self.verbose,
+                    self.random_state,
+                    self.method,
+                    self.angle,
+                    self.n_jobs,
                     self.eps,
                     self.min_samples,
                     label_list=label_list
                 )
-                this_data = {"umap": umap_list, "clusters": clusters, "hover_texts": hover_texts}
+                this_data = {"umap": tsne_list, "clusters": clusters, "hover_texts": hover_texts}
                 self.log_handler.add_histogram(
-                    "umap_and_clusters",
+                    "tsne_and_clusters",
                     this_data,
                     self.dashboard_name,
                     models = models,
@@ -174,13 +194,23 @@ class Umap(AbstractVisual):
         else:
             return self.vals, self.labels, self.hover_texts
 
-    def get_umap_and_labels(
+    def get_tsne_and_labels(
         self,
         emb_list,
         dim,
-        n_neighbors,
-        min_dist,
+        perplexity,
+        early_exaggeration,
+        learning_rate,
+        n_iter,
+        n_iter_without_progress,
+        min_grad_norm,
         metric,
+        init,
+        verbose,
+        random_state,
+        method,
+        angle,
+        n_jobs,
         eps,
         min_samples,
         label_list=None
@@ -190,18 +220,28 @@ class Umap(AbstractVisual):
         else:
             n_components = 3
 
-        umap_embeddings = umap.UMAP(
-            n_neighbors=n_neighbors,
+        embeddings = TSNE(
             n_components=n_components,
-            min_dist=min_dist,
+            perplexity=perplexity,
+            early_exaggeration=early_exaggeration,
+            learning_rate=learning_rate,
+            n_iter=n_iter,
+            n_iter_without_progress=n_iter_without_progress,
+            min_grad_norm=min_grad_norm,
             metric=metric,
+            init=init,
+            verbose=verbose,
+            random_state=random_state,
+            method=method,
+            angle=angle,
+            n_jobs=n_jobs
         ).fit_transform(emb_list)
 
         # Do DBSCAN clustering
         if self.do_clustering:
-            clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(umap_embeddings)
+            clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(embeddings)
             labels = clustering.labels_
         else:
             labels = label_list
         labels = np.squeeze(np.array(labels))
-        return umap_embeddings, labels
+        return embeddings, labels

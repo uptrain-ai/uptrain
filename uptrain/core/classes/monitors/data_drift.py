@@ -1,16 +1,16 @@
 import numpy as np
 import copy
 
-from uptrain.core.classes.anomalies import AbstractAnomaly
-from uptrain.constants import Anomaly
+from uptrain.core.classes.monitors import AbstractMonitor
+from uptrain.constants import Monitor
 from uptrain.core.lib.helper_funcs import read_json
 from uptrain.core.lib.algorithms import estimate_earth_moving_cost
 from uptrain.core.classes.measurables import MeasurableResolver
 from uptrain.core.classes.algorithms import Clustering
 
-class DataDrift(AbstractAnomaly):
+class DataDrift(AbstractMonitor):
     dashboard_name = "data_drift"
-    anomaly_type = Anomaly.DATA_DRIFT
+    anomaly_type = Monitor.DATA_DRIFT
     is_embedding = None
     mode = None
     NUM_BUCKETS = 20
@@ -304,4 +304,7 @@ class DataDrift(AbstractAnomaly):
         self.prod_dist_counts = np.zeros(self.ref_dist_counts.shape)
 
         self.prod_dist_counts_arr.append(copy.deepcopy(self.prod_dist_counts))
-        self.outliers = all_inputs[np.array(self.outlier_idxs)]
+        if len(self.outlier_idxs):
+            self.outliers = all_inputs[np.array(self.outlier_idxs)]
+        else:
+            self.outliers = np.array([])

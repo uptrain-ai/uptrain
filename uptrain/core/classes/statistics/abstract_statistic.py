@@ -1,4 +1,4 @@
-from uptrain.core.classes.anomalies import AbstractCheck
+from uptrain.core.classes.monitors import AbstractCheck
 
 class AbstractStatistic(AbstractCheck):
     statistic_type = None

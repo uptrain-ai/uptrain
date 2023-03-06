@@ -8,7 +8,7 @@
 
 
 
-**Objective**: We want to monitor the prediction of a recommender system usinf the UpTrain framework. Specifically, we want to check how close the predictions of the model are to the ground truth and also check if the model recommendations suffer from any biases (such as the popularity bias).
+**Objective**: We want to monitor the prediction of a recommender system using the UpTrain framework. Specifically, we want to check how close the predictions of the model are to the ground truth and also check if the model recommendations suffer from any biases (such as the popularity bias).
 
 **Dataset and ML model**: In this example, we train a recommender system to recommend items to users based on their previous shopping history. The dataset is a subset of the [Coveo data challenge dataset](https://github.com/coveooss/SIGIR-ecom-data-challenge) and the model to train embeddings is the [Word2Vec model](https://en.wikipedia.org/wiki/Word2vec). 
 
@@ -118,19 +118,19 @@ cfg = {
     # Define your metrics to identify data drifts
     "checks": [
         {
-            'type': uptrain.Anomaly.POPULARITY_BIAS,
+            'type': uptrain.Monitor.POPULARITY_BIAS,
             'algorithm': uptrain.BiasAlgo.POPULARITY_BIAS,
             'sessions': x_train_sku,   
         },
         {
-            'type': uptrain.Anomaly.CUSTOM_MONITOR,
+            'type': uptrain.Monitor.CUSTOM_MONITOR,
             'initialize_func': cosine_dist_init,
             'check_func': cosine_distance_check,
             'need_gt': True,
             'dashboard_name': 'cosine_distance'
         },
         {
-            'type': uptrain.Anomaly.CUSTOM_MONITOR,
+            'type': uptrain.Monitor.CUSTOM_MONITOR,
             'initialize_func': price_homogeneity_init,
             'check_func': price_homogeneity_check,
             'need_gt': True,
@@ -138,7 +138,7 @@ cfg = {
         }
     ], 
     "retraining_folder": 'uptrain_smart_data', 
-    "st_logging": True,
+    "logging_args": {"st_logging": True},
 }
 
 framework = uptrain.Framework(cfg)

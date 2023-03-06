@@ -176,12 +176,17 @@ def add_data_to_batch(data, this_data):
 
 
 def get_df_indices_from_ids(df, ids):
-    all_id_array = np.array(df["id"])
-    if not np.all(np.diff(all_id_array) >= 0):
-        sorter = np.argsort(all_id_array)
-        return sorter[np.searchsorted(all_id_array, ids, sorter=sorter)]
+    if not isinstance(df['id'][0], str):
+        all_id_array = np.array(df['id'])
+        if np.all(np.diff(all_id_array) >= 0):
+            return np.searchsorted(all_id_array, ids)
+        else:
+            sorter = np.argsort(all_id_array)
+            return sorter[np.searchsorted(all_id_array, ids, sorter=sorter)]
     else:
-        return np.searchsorted(all_id_array, ids)
+        id_str_list = [eval(x) for x in df['id']]
+        sorter = np.argsort(id_str_list)
+        return sorter[np.searchsorted(id_str_list, ids, sorter=sorter)]
 
 
 def read_json(file_name):

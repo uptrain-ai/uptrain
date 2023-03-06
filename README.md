@@ -5,7 +5,7 @@
 </h4>
 <h2>
   <p align="center">
-    <p align="center">Monitor Machine Learning models in production.</p>
+    <p align="center">An open-source framework to observe ML applications, built for engineers</p>
   </p>
 </h2>
 
@@ -14,17 +14,26 @@
 <a href="https://docs.uptrain.ai/docs/" rel="nofollow"><strong>Read documentation »</strong></a>
 <br>
 <a href="https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing/" rel="nofollow"><strong>Try it out »</strong></a>
+<br>
+<a href="https://discord.com/invite/gVvZhhrQaQ/" rel="nofollow"><strong>Support Community »</strong></a>
+<br>
+<a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=bug&template=bug_report.md&title=" rel="nofollow"><strong>Bug Report »</strong></a>
+<br>
+<a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=" rel="nofollow"><strong>Feature Request »</strong></a>
 </p>
 
 <h4 align="center">
+  <a href="https://github.com/uptrain-ai/uptrain/graphs/contributors">
+    <img src="https://img.shields.io/github/contributors/uptrain-ai/uptrain">
+  </a>
+  <a href='https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md'>
+    <img alt='PRs Welcome' src='https://img.shields.io/badge/PRs-welcome-orange.svg?style=shields'/>
+  </a>
   <a href="https://github.com/uptrainai/uptrain/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="UpTrain is released under the Apache 2.0 license." />
   </a>
-  <a href="https://pypi.org/project/uptrain/">
-    <img src="https://badge.fury.io/py/uptrain.svg" alt="PyPI version" />
-  </a>
   <a href="https://docs.uptrain.ai/docs/">
-    <img src="https://img.shields.io/badge/Read-Docs-blue" alt="Docs" />
+    <img src="https://img.shields.io/badge/Read-Docs-brightgreen" alt="Docs" />
   </a>
   <a href="https://discord.com/invite/gVvZhhrQaQ">
     <img src="https://img.shields.io/badge/Discord-Community-orange" alt="Community" />
@@ -38,7 +47,7 @@
 </h4>
 
 <h4 align="center">
-<img src="https://user-images.githubusercontent.com/108270398/218686821-a54e112f-8b14-485f-acef-de1f611adb2f.png" width="70%" alt="Performance" />
+<img src="https://user-images.githubusercontent.com/108270398/222989893-fec6267d-4957-424c-9ea8-7cc39806e811.gif" width="90%" alt="Performance" />
 </h4>
 
 <h4>
@@ -52,25 +61,28 @@
 
 # **[Key Features](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** 💡
 
-- **[Data Drift Checks](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/run.ipynb)** - identify distribution shifts in your model inputs.
-- **[Performance Monitoring](https://github.com/uptrain-ai/uptrain/blob/main/examples/fraud_detection/run.ipynb)** - track the performance of your models in realtime and get alerted as soon as a dip is observed.
-- **[Embeddings Support](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)** - specialized dashboards to understand model-inferred embeddings.
-- **[Edge Case Signals](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_edge_cases_torch.ipynb)** - user-defined signals and statistical techniques to detect out-of-distribution data-points.
-- **[Data Integrity Checks](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_data_integrity.ipynb)** - checks for missing or inconsistent data, duplicate records, data quality, etc. 
-- **[Customizable metrics](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_data_drift_custom_measures.ipynb)** - define custom metrics that make sense for your use case.
-- **[Automated Retraining](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_check_all.ipynb)** - automate model retraining by attaching your training and inference pipelines.
-- **[Model Bias](https://github.com/uptrain-ai/uptrain/blob/main/examples/shopping_cart_recommendation/run.ipynb)** - track popularity bias in your recommendation models.
-- **Data Security** - your data never goes out of your machine.
-
+- **[Data Drift Checks](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/run.ipynb)** - Identify distribution shifts in your model inputs.
+- **[Performance Monitoring](https://github.com/uptrain-ai/uptrain/blob/main/examples/fraud_detection/run.ipynb)** - Track the performance of your models in realtime and get alerted as soon as a dip is observed.
+- **[Embeddings Support](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)** - Specialized dashboards to understand model-inferred embeddings.
+- **[Edge Case Signals](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_edge_cases_torch.ipynb)** - User-defined signals and statistical techniques to detect out-of-distribution data-points.
+- **[Data Integrity Checks](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_data_integrity.ipynb)** - Checks for missing or inconsistent data, duplicate records, data quality, etc. 
+- **[Customizable metrics](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_data_drift_custom_measures.ipynb)** - Define custom metrics that make sense for your use case.
+- **[Automated Retraining](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_check_all.ipynb)** - Automate model retraining by attaching your training and inference pipelines.
+- **[Model Bias](https://github.com/uptrain-ai/uptrain/blob/main/examples/shopping_cart_recommendation/run.ipynb)** - Track bias in your ML model's predictions.
+- **Data Security** - Your data never goes out of your machine.
+- **Slack Integration** - Get alerts on Slack.
+- **AI Explainability** - Understand relative importance of multiple features on predictions.
+- **Realtime Dashboards** - To visualize your model's health.
 
 ## 🚨Coming soon🚨
 
-- **Realtime Dashboards** - to visualize your model's health.
-- **Slack Integration** - get alerts on Slack.
-- **Label Shfit** - identify drifts in your predictions. Specially useful in cases when ground truth is unavailable.
-- **Prediction Stability** - filter cases where model prediction is not stable.
-- **AI Explainability** - understand relative importance of multiple features on predictions.
-- **Adversarial Checks** - combat adversarial attacks
+- **Label Shift** - Identify drifts in your predictions. Specially useful in cases when ground truth is unavailable.
+- **Model confidence interval** - Confidence intervals for model predictions 
+- **Advanced drift detection techniques** - Outlier-based drift detection methods
+- **Advanced feature slicing** - Ability to slice statistical properties
+- **Kolmogorov-Smirnov Test** - For detecting distribution shifts
+- **Prediction Stability** - Filter cases where model prediction is not stable.
+- **Adversarial Checks** - Combat adversarial attacks
 
 And more.
 
@@ -106,15 +118,9 @@ One of the most common use cases of ML today is language models, be it text summ
 <img alt="Meme" width="60%" src="https://user-images.githubusercontent.com/108270398/220204024-437c48f9-51d9-4ed8-9e23-5ec7033b8f7b.png">
 </h1>
 
-Additionally, UpTrain also provides statistical measures to quantify these differences and enables automated alerts whenever this drift crosses a certain threshold.
-<h1 align="left">
-<img alt="Meme" width="43%" src="https://user-images.githubusercontent.com/108270398/220204120-84433f34-33e9-4106-9da3-5db1b8fc68f3.png">
-<img alt="Meme" width="51%" src="https://user-images.githubusercontent.com/108270398/220204284-3ced3db3-7f1d-4147-8fc1-21cdd28bbb40.png">
-</h1>
-
 # Why UpTrain 🤔?
 
-Machine learning (ML) models are widely used to make critical business decisions. Still, no ML model is 100% accurate, and, further, their accuracy deteriorates over time 😣. For example, Sales prediction becomes inaccurate over time due to a shift in consumer buying habits. Additionally, due to the black boxiness nature of ML models, it's challenging to identify and fix their problems.
+Machine learning (ML) models are widely used to make critical business decisions. Still, no ML model is 100% accurate, and, further, their accuracy deteriorates over time 😣. For example, Sales prediction becomes inaccurate over time due to a shift in consumer buying habits. Additionally, due to the black box nature of ML models, it's challenging to identify and fix their problems.
 
 UpTrain solves this. We make it easy for data scientists and ML engineers to understand where their models are going wrong and help them fix them before others complain 🗣️.
 
@@ -135,11 +141,11 @@ We are continuously adding tons of features and use cases. Please support us by 
 
 # Provide feedback (Harsher the better 😉) 
 
-We are building UpTrain in public. Help us improve by giving your feedback **[here](https://forms.gle/PXd89D5LiFubro9o9)**
+We are building UpTrain in public. Help us improve by giving your feedback **[here](https://forms.gle/PXd89D5LiFubro9o9)**.
 
 # Contributors 🖥️
 
-We welcome contributions to uptrain. Please see our contribution guide for details.
+We welcome contributions to uptrain. Please see our [contribution guide](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md) for details.
 
 <a href="https://github.com/uptrain-ai/uptrain/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=uptrain-ai/uptrain" />

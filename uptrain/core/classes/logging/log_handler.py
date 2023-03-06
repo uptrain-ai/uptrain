@@ -6,15 +6,18 @@ import json
 class LogHandler:
     def __init__(self, framework=None, cfg=None):
         self.fw = framework
-        if os.path.exists(cfg.log_folder):
-            print("Deleting the folder: ", cfg.log_folder)
-            shutil.rmtree(cfg.log_folder)
+        log_folder = cfg.logging_args.log_folder
+        self.path_all_data = framework.path_all_data
+
+        if os.path.exists(log_folder):
+            print("Deleting the folder: ", log_folder)
+            shutil.rmtree(log_folder)
 
         self.st_writer = None
-        if cfg.st_logging:
+        if cfg.logging_args.st_logging:
             from uptrain.core.classes.logging.log_streamlit import StreamlitLogs
 
-            self.st_log_folder = os.path.join(cfg.log_folder, "st_data")
+            self.st_log_folder = os.path.join(log_folder, "st_data")
             os.makedirs(self.st_log_folder, exist_ok=True)
             self.st_writer = StreamlitLogs(self.st_log_folder, port=cfg.logging_args.dashboard_port)
 
@@ -22,15 +25,21 @@ class LogHandler:
         self.webhook_url = cfg.logging_args.slack_webhook_url
 
         # Saving config to get model metadata
-        cfg_metadata = {'model_args': None, 'feature_args': None}
+        self.cfg_metadata = {}
         if len(cfg.checks) > 0:
             check = cfg.checks[0]
-            cfg_metadata.update({'model_args': check.get('model_args', None)})
-            cfg_metadata.update({'feature_args': check.get('feature_args', None)})
-        if cfg.st_logging:
-            metadata_file = os.path.join(self.st_log_folder, "metadata.json")
-            with open(metadata_file, "w") as f:
-                json.dump(cfg_metadata, f)
+            self.add_st_metadata({'model_args': check.get('model_args', None), 
+                                  'feature_args': check.get('feature_args', None)})
+        else:
+            self.add_st_metadata({'model_args': None, 'feature_args': None})
+
+    def add_st_metadata(self, new_dict):
+        if self.st_writer is None:
+            return
+        self.cfg_metadata.update(new_dict)
+        metadata_file = os.path.join(self.st_log_folder, "metadata.json")
+        with open(metadata_file, "w") as f:
+            json.dump(self.cfg_metadata, f)
 
     def get_plot_save_name(self, plot_name, dashboard_name):
         if self.st_writer:

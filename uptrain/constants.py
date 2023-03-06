@@ -21,7 +21,8 @@ class AnnotationMethod(Enum):
     MASTER_FILE = 1
 
 
-class Anomaly(str, Enum):
+class Monitor(str, Enum):
+    ACCURACY = "accuracy"
     EDGE_CASE = "edge_case"
     DATA_DRIFT = "data_drift"
     CUSTOM_MONITOR = "custom_monitor"
@@ -37,7 +38,9 @@ class Statistic(str, Enum):
 
 
 class Visual(str, Enum):
-    UMAP = "umap"
+    UMAP = "UMAP"
+    TSNE = "t-SNE"
+    SHAP = "SHAP"
 
 
 class DataDriftAlgo(str, Enum):
@@ -53,6 +56,8 @@ class MeasurableType(str, Enum):
     PREDICTION = "prediction"
     CUSTOM = "custom"
     ACCURACY = "accuracy"
+    MAE = "MAE"
+    MAPE = "MAPE"
     CONDITION_ON_INPUT = "condition_on_input"
     CONDITION_ON_PREDICTION = "condition_on_prediction"
     SCALAR_FROM_EMBEDDING = "scalar_from_embedding"

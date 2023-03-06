@@ -1,12 +1,13 @@
 import numpy as np
 from copy import deepcopy
 
-from uptrain.constants import Anomaly, Statistic, Visual, MeasurableType
-from uptrain.core.classes.anomalies import (
+from uptrain.constants import Monitor, Statistic, Visual, MeasurableType
+from uptrain.core.classes.monitors import (
+    Accuracy,
     ConceptDrift,
     DataDrift,
-    CustomAnomaly,
-    RecommendationBias,
+    CustomMonitor,
+    ModelBias,
     DataIntegrity,
     EdgeCase,
 )
@@ -15,7 +16,7 @@ from uptrain.core.classes.statistics import (
     Convergence,
     Distribution,
 )
-from uptrain.core.classes.visuals import Umap
+from uptrain.core.classes.visuals import Umap, Tsne, Shap
 
 
 class CheckManager:
@@ -25,7 +26,7 @@ class CheckManager:
         self.visuals_to_check = []
         self.fw = framework
         for check in checks:
-            if check["type"] in Anomaly:
+            if check["type"] in Monitor:
                 self.add_anomaly_to_monitor(check)
             if check["type"] in Statistic:
                 self.add_statistics_to_monitor(check)
@@ -33,13 +34,16 @@ class CheckManager:
                 self.add_visuals(check)
 
     def add_anomaly_to_monitor(self, check):
-        if check["type"] == Anomaly.EDGE_CASE:
+        if check["type"] == Monitor.EDGE_CASE:
             edge_case_manager = EdgeCase(self.fw, check)
             self.anomalies_to_check.append(edge_case_manager)
-        elif check["type"] == Anomaly.CONCEPT_DRIFT:
+        elif check["type"] == Monitor.ACCURACY:
+            acc_manager = Accuracy(self.fw, check)
+            self.anomalies_to_check.append(acc_manager)
+        elif check["type"] == Monitor.CONCEPT_DRIFT:
             drift_manager = ConceptDrift(self.fw, check)
             self.anomalies_to_check.append(drift_manager)
-        elif check["type"] == Anomaly.DATA_DRIFT:
+        elif check["type"] == Monitor.DATA_DRIFT:
             if "measurable_args" in check:
                 drift_managers = [DataDrift(self.fw, check)]
             else:
@@ -57,17 +61,17 @@ class CheckManager:
                     )
                     drift_managers.append(DataDrift(self.fw,check_copy))
             self.anomalies_to_check.extend(drift_managers)
-        elif check["type"] == Anomaly.POPULARITY_BIAS:
-            bias_manager = RecommendationBias(self.fw, check)
+        elif check["type"] == Monitor.POPULARITY_BIAS:
+            bias_manager = ModelBias(self.fw, check)
             self.anomalies_to_check.append(bias_manager)
-        elif check["type"] == Anomaly.CUSTOM_MONITOR:
-            custom_monitor = CustomAnomaly(self.fw, check)
+        elif check["type"] == Monitor.CUSTOM_MONITOR:
+            custom_monitor = CustomMonitor(self.fw, check)
             self.anomalies_to_check.append(custom_monitor)
-        elif check["type"] == Anomaly.DATA_INTEGRITY:
+        elif check["type"] == Monitor.DATA_INTEGRITY:
             custom_monitor = DataIntegrity(self.fw, check)
             self.anomalies_to_check.append(custom_monitor)
         else:
-            raise Exception("Anomaly type not Supported")
+            raise Exception("Monitor type not Supported")
 
     def add_statistics_to_monitor(self, check):
         if check["type"] == Statistic.DISTANCE:
@@ -85,6 +89,12 @@ class CheckManager:
     def add_visuals(self, check):
         if check["type"] == Visual.UMAP:
             custom_monitor = Umap(self.fw, check)
+            self.visuals_to_check.append(custom_monitor)
+        elif check["type"] == Visual.TSNE:
+            custom_monitor = Tsne(self.fw, check)
+            self.visuals_to_check.append(custom_monitor)
+        elif check["type"] == Visual.SHAP:
+            custom_monitor = Shap(self.fw, check)
             self.visuals_to_check.append(custom_monitor)
         else:
             raise Exception("Visual type not Supported")

@@ -4,6 +4,7 @@ import threading
 import json
 import numpy as np
 import pandas as pd
+import socket
 
 
 class NumpyEncoder(json.JSONEncoder):
@@ -11,6 +12,22 @@ class NumpyEncoder(json.JSONEncoder):
         if isinstance(obj, np.ndarray):
             return obj.tolist()
         return json.JSONEncoder.default(self, obj)
+    
+
+def get_free_port(port):
+    HOST = "localhost"
+    # Creates a new socket
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    while True:
+        # Try to connect to the given host and port
+        if sock.connect_ex((HOST, port)):
+            sock.close()
+            print(f'Dashboard available at port {port}.')
+            return port
+        else:
+            print(f'Port {port} is in use, trying port {port+1}.')
+            port += 1
+            sock.close()
 
 
 class StreamlitLogs:
@@ -27,6 +44,7 @@ class StreamlitLogs:
         if port is None:
             cmd = "streamlit run " + remote_st_py_file + " -- " + self.log_folder
         else:
+            port = get_free_port(int(port))
             cmd = "streamlit run " + remote_st_py_file + f" --server.port {str(port)} " + " -- " + self.log_folder
         launch_st = lambda: os.system(cmd)
         t = threading.Thread(target=launch_st, args=([]))
@@ -131,7 +149,7 @@ class StreamlitLogs:
     #     # TODO: Function is run from top every time the button is clicked
     #     button = st.sidebar.button(
     #         "Check",
-    #         help="Check anomalies for this function",
+    #         help="Check monitors for this function",
     #     )
     #     # on_click=button_callback)
     #     if button:

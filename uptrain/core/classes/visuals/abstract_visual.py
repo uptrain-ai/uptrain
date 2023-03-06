@@ -1,4 +1,4 @@
-from uptrain.core.classes.anomalies import AbstractCheck
+from uptrain.core.classes.monitors import AbstractCheck
 
 class AbstractVisual(AbstractCheck):
     visual_type = None

@@ -83,9 +83,8 @@ def combine_datasets(dataset_1, label_1, dataset_2, label_2):
     final_test_dataset = final_test_dataset.add_column("dataset_label", labels)
     return final_test_dataset
 
-def download_wikihow_csv_file():
-    file_name = "wikihowAll.csv"
-    remote_url = "https://oodles-dev-training-data.s3.amazonaws.com/wikihowAll.csv"
+def download_wikihow_csv_file(file_name):
+    remote_url = "https://oodles-dev-training-data.s3.us-west-1.amazonaws.com/" + file_name
     if not os.path.exists(file_name):
         print("Starting to download " + file_name)
         try:
