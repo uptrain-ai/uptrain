@@ -14,17 +14,26 @@
 <a href="https://docs.uptrain.ai/docs/" rel="nofollow"><strong>Read documentation »</strong></a>
 <br>
 <a href="https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing/" rel="nofollow"><strong>Try it out »</strong></a>
+<br>
+<a href="https://discord.com/invite/gVvZhhrQaQ/" rel="nofollow"><strong>Support Community »</strong></a>
+<br>
+<a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=bug&template=bug_report.md&title=" rel="nofollow"><strong>Bug Report »</strong></a>
+<br>
+<a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=" rel="nofollow"><strong>Feature Request »</strong></a>
 </p>
 
 <h4 align="center">
+  <a href="https://github.com/uptrain-ai/uptrain/graphs/contributors">
+    <img src="https://img.shields.io/github/contributors/uptrain-ai/uptrain">
+  </a>
+  <a href='https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md'>
+    <img alt='PRs Welcome' src='https://img.shields.io/badge/PRs-welcome-orange.svg?style=shields'/>
+  </a>
   <a href="https://github.com/uptrainai/uptrain/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="UpTrain is released under the Apache 2.0 license." />
   </a>
-  <a href="https://pypi.org/project/uptrain/">
-    <img src="https://badge.fury.io/py/uptrain.svg" alt="PyPI version" />
-  </a>
   <a href="https://docs.uptrain.ai/docs/">
-    <img src="https://img.shields.io/badge/Read-Docs-blue" alt="Docs" />
+    <img src="https://img.shields.io/badge/Read-Docs-brightgreen" alt="Docs" />
   </a>
   <a href="https://discord.com/invite/gVvZhhrQaQ">
     <img src="https://img.shields.io/badge/Discord-Community-orange" alt="Community" />
@@ -38,7 +47,7 @@
 </h4>
 
 <h4 align="center">
-<img src="https://user-images.githubusercontent.com/108270398/222989893-fec6267d-4957-424c-9ea8-7cc39806e811.gif" width="70%" alt="Performance" />
+<img src="https://user-images.githubusercontent.com/108270398/222989893-fec6267d-4957-424c-9ea8-7cc39806e811.gif" width="90%" alt="Performance" />
 </h4>
 
 <h4>
@@ -59,7 +68,7 @@
 - **[Data Integrity Checks](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_data_integrity.ipynb)** - Checks for missing or inconsistent data, duplicate records, data quality, etc. 
 - **[Customizable metrics](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_data_drift_custom_measures.ipynb)** - Define custom metrics that make sense for your use case.
 - **[Automated Retraining](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_check_all.ipynb)** - Automate model retraining by attaching your training and inference pipelines.
-- **[Model Bias](https://github.com/uptrain-ai/uptrain/blob/main/examples/shopping_cart_recommendation/run.ipynb)** - Track popularity bias in your recommendation models.
+- **[Model Bias](https://github.com/uptrain-ai/uptrain/blob/main/examples/shopping_cart_recommendation/run.ipynb)** - Track bias in your ML model's predictions.
 - **Data Security** - Your data never goes out of your machine.
 - **Slack Integration** - Get alerts on Slack.
 - **AI Explainability** - Understand relative importance of multiple features on predictions.
