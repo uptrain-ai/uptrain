@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from sklearn import preprocessing
 import os
-import zipfile
+import subprocess
 
 def process(data): 
     data["diff_lat"] = abs(data["pickup_latitude"] - data["dropoff_latitude"])
@@ -28,22 +28,48 @@ def process(data):
     return data
 
 
-def download_datasets():
-    base_dir = "nyc-taxi-trip-duration"
-    try:
-        if not os.path.exists(os.path.join(base_dir)):
-            base_file = base_dir + ".zip"
-            with zipfile.ZipFile(base_file,"r") as z:
-                z.extractall(base_dir)
-            os.remove(os.path.join(base_dir, "sample_submission.zip"))
-            os.remove(os.path.join(base_dir, "test.zip"))
+def download_dataset(data_file):    
+    remote_url = "https://oodles-dev-training-data.s3.amazonaws.com/trip_duration_dataset.csv"
 
-            train_dir = os.path.join(base_dir, "train.zip")
-            with zipfile.ZipFile(train_dir,"r") as z:
-                z.extractall(base_dir)
-            os.remove(train_dir)
-    except:
-        raise Exception("""Download dataset in current dir from 
-                  https://www.kaggle.com/competitions/nyc-taxi-trip-duration/data
-                  """)
-    return base_dir
+    if not os.path.exists(data_file):
+        print("Installing wget to download dataset from remote")
+        try:
+            # Most Linux distributions have Wget installed by default.
+            # Below command is to install wget for MacOS
+            wget_installed_ok = subprocess.call("brew install wget", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+            print("Successfully installed wget")
+        except:
+            print("Wget installation fails! Checking if data is manually downloaded")
+            dummy = 1
+        try:
+            print("Downloading data from the remote server")
+            file_downloaded_ok = subprocess.call("wget " + remote_url, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+            print("Data downloaded")
+        except Exception as e:
+            print(e)
+            print("Could not load training data")
+            print("Please follow following steps to manually download data")
+            print(f"Step 1: Open in browser: {remote_url}")
+            print("Step 2: Download and move the file to the example location (i.e. uptrain/examples/ride_time_estimation/")
+    else:
+        print("Data file exists. Skipping download.")
+        
+        
+def pretty(d, indent=0):
+    if isinstance(d, list):
+        for value in d:
+            if isinstance(value, list):
+                pretty(value, indent)
+            elif isinstance(value, dict):
+                pretty(value, indent)
+            else:
+                print('\t' * (indent) + str(value))
+    else:
+        for key, value in d.items():
+            print('\t' * indent + "- " + str(key) + ":")
+            if isinstance(value, list):
+                pretty(value, indent+1)
+            elif isinstance(value, dict):
+                pretty(value, indent+1)
+            else:
+                print('\t' * (indent+1) + str(value))

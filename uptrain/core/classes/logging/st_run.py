@@ -373,7 +373,12 @@ def get_data_shap(path_all_data, num_points):
     file = open(metadata["path_shap_file"], 'rb')
     explainer = pickle.load(file)
     file.close()
-    df = pd.read_csv(path_all_data)[0:num_points]
+    df = pd.read_csv(path_all_data)
+    if len(df) >= num_points:
+        df = df[0:num_points]
+    else:
+        st.text("Not sufficient data points for SHAP")
+        return []
     data_ids = [eval(x) for x in df["id"]]
     df = df.drop(columns=['id', 'output', 'gt'])
     return explainer(df), data_ids
@@ -414,22 +419,13 @@ if metadata.get("path_shap_file", None):
 
         index = data_ids.index(data_point)
         shap_val = shap_values[index]
-        st.text(f"Data-point {data_point} was most impacted by Feature \"dist\".")
         pred = sum(shap_val.values) + shap_val.base_values
-        st.text(f"The predicted ride time is {pred:.1f} compared to the mean value of {shap_val.base_values:.1f}.")
+        st.text(f"The predicted value is {pred:.1f} compared to the mean value of {shap_val.base_values:.1f}.")
             
         cols = st.columns(2)
         with cols[0]:
             shap.plots.waterfall(shap_val)
             st.pyplot()
-
-        # with cols[1]:
-        #     st.subheader("Beeswarm plot")
-        #     shap.plots.beeswarm(shap_values)
-        #     st.pyplot()
-
-        # shap.plots.heatmap(shap_values)
-        # st.pyplot()
 
 
 
