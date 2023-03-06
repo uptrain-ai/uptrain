@@ -29,8 +29,8 @@
   <a href='https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md'>
     <img alt='PRs Welcome' src='https://img.shields.io/badge/PRs-welcome-orange.svg?style=shields'/>
   </a>
-  <a href="https://github.com/uptrainai/uptrain/blob/main/LICENSE">
-    <img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="UpTrain is released under the Apache 2.0 license." />
+  <a href="https://github.com/uptrain-ai/uptrain/commits/main">
+    <img src="https://img.shields.io/github/commit-activity/m/uptrain-ai/uptrain"  />
   </a>
   <a href="https://docs.uptrain.ai/docs/">
     <img src="https://img.shields.io/badge/Read-Docs-brightgreen" alt="Docs" />
