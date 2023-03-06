@@ -51,7 +51,7 @@ setup(
         "pydantic>=1.9.0",
         "scikit_learn>=1.0.0",
         "streamlit>=1.0.0",
-        "shap>=0.40.0",
+        "shap>=0.41.0",
     ],
     tests_require=["pytest>=7.0", "torch", "imgaug", "gensim", "xgboost", "gensim"],
 )
