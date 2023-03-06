@@ -1,3 +1,4 @@
+from .abstract_check import AbstractCheck
 from .abstract_anomaly import AbstractAnomaly
 from .concept_drift import ConceptDrift
 from .custom_anomaly import CustomAnomaly

@@ -191,18 +191,47 @@ def plot_histogram(file):
     st.plotly_chart(fig)
 
 
-def plot_umap(file):
+def plot_umap(file, j=0):
     with open(file, encoding='utf-8') as f:
         data = json.loads(f.read())
     arr = np.array(data["umap"])
     clusters = data["clusters"]
     x = arr[:, 0]
     y = arr[:, 1]
+    dictn = {'x': x, 'y': y, 'color': clusters}
+    hover_data = []
+    if "hover_texts" in data:
+        dictn.update({'hover': data['hover_texts']})
+        if len(data['hover_texts']):
+            hover_data = list(data['hover_texts'][0].keys())
+
+    if arr.shape[1] == 3:
+        dictn.update({'z': arr[:, 2]})
+
+    for key in data.keys():
+        if key not in ['umap', 'clusters', 'hover_texts']:
+            dictn.update({key: data[key]})
+    df = pd.DataFrame(dictn)
+    df = slice_data(df, features_to_slice, model_to_compare, other_models, j)
+
+    if "hover" in list(df.columns):
+        hover_df = pd.DataFrame(list(df['hover']))
+        for key in hover_data:
+            if key not in hover_df.columns:
+                hover_df[key] = None
+        hover_df = hover_df.fillna('NA')
+    else:
+        hover_df = pd.DataFrame()
+    
+    x = list(df['x'])
+    y = list(df['y'])
+    clusters = list(df['color'])
+
     if arr.shape[1] == 2:
-        fig = px.scatter(x=x, y=y, color=clusters)
+        fig = px.scatter(hover_df, x=x, y=y, color=clusters, hover_data=hover_data)
     elif arr.shape[1] == 3:
-        z = arr[:, 2]
-        fig = px.scatter_3d(x=x, y=y, z=z, color=clusters)
+        z = list(df['z'])
+        fig = px.scatter_3d(hover_df, x=x, y=y, z=z, color=clusters, hover_data=hover_data)
     else:
         raise ("Umap dimension not 2D or 3D.")
     st.plotly_chart(fig, use_container_width=True)
@@ -233,30 +262,38 @@ def plot_umaps(files, plot_name, sub_dir):
             with cols[j]:
                 st.subheader(f'Model: {model_compare_name}, Signal: {model_others_name}, Count: {selected_count}')
                 if os.path.exists(file_name):
-                    plot_umap(file_name) 
+                    plot_umap(file_name, j) 
                 else:
                     st.write("Not sufficient data.")
         else:
             for file in files:
                 count = file.split("/")[-1].split(".")[0]
                 if int(count) < 0:
-                    plot_umap(file) 
+                    plot_umap(file, j) 
                 else:
                     if st.checkbox(f"For count {count}", key=plot_name+str(count)):
-                        plot_umap(file)  
+                        plot_umap(file, j)  
 
 def plot_bar(file):
     with open(file, encoding='utf-8') as f:
         data = json.loads(f.read())
     fig = go.Figure()
     for bar_name in data:
+        if bar_name == "hover_text":
+            continue
         bar_dict = data[bar_name]
         keys, values = zip(*bar_dict.items())
+        if "hover_text" in data:
+            hover_text = data['hover_text'][bar_name]
+        else:
+            hover_text = {}
+        hover_text = list(hover_text.values())
         fig = fig.add_trace(
             go.Bar(
                 x=list(keys),
                 y=list(values),
                 name=bar_name,
+                hovertext=hover_text
             )
         )
     st.plotly_chart(fig)

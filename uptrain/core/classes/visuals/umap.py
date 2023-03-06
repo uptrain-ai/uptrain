@@ -2,6 +2,7 @@ import umap
 import copy
 from sklearn.cluster import DBSCAN
 import numpy as np
+from uptrain.core.lib.helper_funcs import cluster_and_plot_data
 
 from uptrain.core.classes.visuals import AbstractVisual
 from uptrain.constants import Visual, Statistic
@@ -12,62 +13,67 @@ class Umap(AbstractVisual):
     visual_type = Visual.UMAP
     dashboard_name = "umap_and_clusters"
 
-    def __init__(self, fw, check):
-        self.allowed_model_values = [x['allowed_values'] for x in check.get('model_args', [{'allowed_values': []}])]
-        self.num_model_options = sum([len(x) > 1 for x in self.allowed_model_values])
-        self.children = []
+    def base_init(self, fw, check):
+        self.framework = fw
+        self.label_measurable = MeasurableResolver(check.get("label_args", None)).resolve(
+            fw
+        )
+        self.hover_measurables = [
+            MeasurableResolver(x).resolve(fw) for x in check.get("hover_args", [])
+        ]
+        self.hover_names = [x.col_name() for x in self.hover_measurables]
 
-        if self.num_model_options > 0:
-            for m in self.allowed_model_values[0]:
-                check_copy = copy.deepcopy(check)
-                check_copy['model_args'][0]['allowed_values'] = [m]
-                check_copy['model_args'].append(copy.deepcopy(check_copy['model_args'][0]))
-                del check_copy['model_args'][0]
-                self.children.append(Umap(fw, check_copy))
-        else:
-            self.framework = fw
-            self.log_handler = fw.log_handler
-            self.measurable = MeasurableResolver(check.get("measurable_args", None)).resolve(fw)
-            self.feature_measurables = [
-                MeasurableResolver(x).resolve(fw) for x in check.get("feature_args", [])
-            ]
-            self.model_measurables = [
-                MeasurableResolver(x).resolve(fw) for x in check.get("model_args", [])
-            ]
-            self.label_measurable = MeasurableResolver(check.get("label_args", None)).resolve(
-                fw
+        self.count_checkpoints = check.get("count_checkpoints", ["all"])
+        self.min_dist = check["min_dist"]
+        self.n_neighbors = check["n_neighbors"]
+        self.metric_umap = check["metric_umap"]
+        self.dim = check.get("dim", '2D')
+        self.clustering = check.get("clustering", False)
+        self.min_samples = check.get("min_samples", 5)
+        self.eps = check.get("eps", 2.0)
+        self.total_count = 0
+        self.prev_calc_at = 0
+        self.umap_update_freq = check.get('umap_update_freq', 10000)
+        self.vals = []
+        self.labels = []
+        self.hover_texts = []
+        self.do_clustering = check.get("do_clustering", False)
+        self.feature_dictn = {}
+
+        self.initial_dataset = check.get('initial_dataset', None)
+        if self.initial_dataset is not None:
+            data = read_json(self.initial_dataset)
+            self.vals.extend(
+                [self.measurable.extract_val_from_training_data(x) for x in data]
             )
-            self.model_names = [x.col_name() for x in self.model_measurables]
-            self.feature_names = [x.col_name() for x in self.feature_measurables]
-
-            self.count_checkpoints = check.get("count_checkpoints", ["all"])
-            self.min_dist = check["min_dist"]
-            self.n_neighbors = check["n_neighbors"]
-            self.metric_umap = check["metric_umap"]
-            self.dim = check.get("dim", '2D')
-            self.clustering = check.get("clustering", False)
-            self.min_samples = check.get("min_samples", 5)
-            self.eps = check.get("eps", 2.0)
-            self.total_count = 0
-            self.prev_calc_at = 0
-            self.umap_update_freq = check.get('umap_update_freq', 10000)
-            self.vals = []
-            self.labels = []
-            self.do_clustering = check.get("do_clustering", False)
-
-            self.initial_dataset = check.get('initial_dataset', None)
-            if self.initial_dataset is not None:
-                data = read_json(self.initial_dataset)
-                self.vals.extend(
-                    [self.measurable.extract_val_from_training_data(x) for x in data]
+            if self.label_measurable is not None:
+                self.labels.extend(
+                    [self.label_measurable.extract_val_from_training_data(x) for x in data]
                 )
-                if self.label_measurable is not None:
-                    self.labels.extend(
-                        [self.label_measurable.extract_val_from_training_data(x) for x in data]
-                    )
+            if len(self.hover_measurables):
+                raw_data = np.abs([x['bert_embs_downsampled'] for x in data])
+                self.max_along_axis = np.max(raw_data, axis=0)
+                norm_data = raw_data/self.max_along_axis
 
+                _, _, _, points_density, _ = cluster_and_plot_data(norm_data,20)
 
-    def check(self, inputs, outputs, gts=None, extra_args={}):
+                offset = 0
+                for data_point in data:
+                    this_hovers = [x.extract_val_from_training_data(data_point) for x in self.hover_measurables]
+                    self.hover_texts.append(dict(zip(self.hover_names, this_hovers)))
+                    self.hover_texts[offset].update({"Training Density": int(points_density[offset])})
+                    self.hover_texts[offset].update({"idx": offset})
+                    offset += 1
+            if len(self.feature_measurables):
+                all_features = [list(np.reshape([feature_measurable.extract_val_from_training_data(x) for x in data], -1)) for feature_measurable in self.feature_measurables]
+                this_dict = dict(zip(['feature_' + x for x in self.feature_names], all_features))
+                for key in this_dict.keys():
+                    if key in self.feature_dictn:
+                        self.feature_dictn[key].extend(this_dict[key])
+                    else:
+                        self.feature_dictn.update({key: this_dict[key]})
+
+    def base_check(self, inputs, outputs, gts=None, extra_args={}):
         if len(self.children) > 0:
             [x.check(inputs, outputs, gts, extra_args) for x in self.children]
         else:
@@ -82,6 +88,24 @@ class Umap(AbstractVisual):
                 )
                 self.labels.extend(labels)
 
+            if len(self.feature_measurables):
+                all_features = [x.compute_and_log(
+                    inputs, outputs, gts=gts, extra=extra_args
+                ) for x in self.feature_measurables]
+                this_dict = dict(zip(['feature_' + x for x in self.feature_names], all_features))
+                for key in this_dict.keys():
+                    if key in self.feature_dictn:
+                        self.feature_dictn[key].extend(this_dict[key])
+                    else:
+                        self.feature_dictn.update({key: this_dict[key]})
+
+            if len(self.hover_measurables):
+                hover_values = [x.compute_and_log(
+                    inputs, outputs, gts=gts, extra=extra_args
+                ) for x in self.hover_measurables]
+                hover_table = np.array(hover_values).transpose()
+                self.hover_texts.extend([dict(zip(self.hover_names, values)) for values in hover_table])
+
             self.total_count += len(extra_args['id'])
             if not ((self.total_count - self.prev_calc_at) > self.umap_update_freq):
                 return
@@ -90,7 +114,7 @@ class Umap(AbstractVisual):
             models = dict(zip(['model_' + x for x in self.model_names], 
                 [self.allowed_model_values[jdx][0] for jdx in range(len(self.model_names))]))
             for count in self.count_checkpoints:
-                emb_list, label_list = self.get_data_for_umap(count)
+                emb_list, label_list, hover_texts = self.get_data_for_umap(count)
                 emb_list = np.array(emb_list)
                 label_list = np.array(label_list)
 
@@ -106,12 +130,13 @@ class Umap(AbstractVisual):
                         self.min_samples,
                         label_list=label_list
                     )
-                    this_data = {"umap": umap_list, "clusters": clusters}
+                    this_data = {"umap": umap_list, "clusters": clusters, "hover_texts": hover_texts}
                     self.log_handler.add_histogram(
                         "umap_and_clusters",
                         this_data,
                         self.dashboard_name,
                         models = models,
+                        features = self.feature_dictn,
                         file_name = str(count) + "_" + '_'.join(list(models.values()))
                     )
 
@@ -124,24 +149,33 @@ class Umap(AbstractVisual):
                 )
             )[0]
             data_dict = distribution_anomaly.get_feats_for_clustering(count, self.allowed_model_values)
-            chosen_key = None
             if len(data_dict):
                 temp_val = list(data_dict.values())[0]
                 if len(temp_val):
                     temp_keys = list(temp_val.keys())
-                    temp_keys = list(filter(lambda x: not (x == "val"), temp_keys))
+                    temp_keys = list(filter(lambda x: "umap_label_", temp_keys))
                     if len(temp_keys) > 1:
                         print("Have multiple labels - " + str(temp_keys) + " .Using " + temp_keys[0] + " for labeling UMAPs." )
-                    chosen_key = temp_keys[0]
+                    chosen_label_key = temp_keys[0]
+                if len(temp_val):
+                    temp_keys = list(temp_val.keys())
+                    temp_keys = list(filter(lambda x: "umap_hover_text_", temp_keys))
+                    if len(temp_keys) > 1:
+                        print("Have multiple hover texts - " + str(temp_keys) + " .Using " + temp_keys[0] + " for hovering UMAPs." )
+                    chosen_hover_key = temp_keys[0]
             vals = np.array([data_dict[x]['val'] for x in data_dict])
             if vals.shape[0] > 0:
                 vals = np.squeeze(vals, axis=1)
-            if chosen_key is None:
-                return vals, []
-            else:
-                return vals, [data_dict[x][chosen_key] for x in data_dict]
+            labels = []
+            if chosen_label_key is None:
+                labels = [data_dict[x][chosen_label_key] for x in data_dict]
+
+            hover_texts = []
+            if chosen_hover_key is None:
+                hover_texts = [data_dict[x][chosen_hover_key] for x in data_dict]
+            return vals, labels, hover_texts
         else:
-            return self.vals, self.labels
+            return self.vals, self.labels, self.hover_texts
 
     def get_umap_and_labels(
         self,

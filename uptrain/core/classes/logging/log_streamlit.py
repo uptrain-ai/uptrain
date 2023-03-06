@@ -21,8 +21,8 @@ class StreamlitLogs:
         self.counts = {}
         self.log_folder = log_folder
 
-        remote_st_py_file = "https://raw.githubusercontent.com/uptrain-ai/uptrain/main/uptrain/core/classes/logging/st_run.py"
-        # remote_st_py_file = "../../uptrain/core/classes/logging/st_run.py"
+        # remote_st_py_file = "https://raw.githubusercontent.com/uptrain-ai/uptrain/main/uptrain/core/classes/logging/st_run.py"
+        remote_st_py_file = "../../uptrain/core/classes/logging/st_run.py"
 
         if port is None:
             cmd = "streamlit run " + remote_st_py_file + " -- " + self.log_folder
@@ -107,8 +107,10 @@ class StreamlitLogs:
         with open(file_name, "w") as f:
             json.dump(alert, f)
 
-    def add_bar_graphs(self, data, folder, count=-1):
+    def add_bar_graphs(self, data, folder, count=-1, hover_data={}):
         file_name = os.path.join(folder, str(count) + ".json")
+        if len(hover_data):
+            data.update({'hover_text': hover_data})
         with open(file_name, "w") as f:
             json.dump(data, f, cls=NumpyEncoder)
 

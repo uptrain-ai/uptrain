@@ -1,5 +1,4 @@
-class AbstractVisual:
-    visual_type = None
+from uptrain.core.classes.anomalies import AbstractCheck
 
-    def check(self, inputs, outputs, gts=None, extra_args={}):
-        raise Exception("Should be defined for each class")
+class AbstractVisual(AbstractCheck):
+    visual_type = None

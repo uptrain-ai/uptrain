@@ -11,7 +11,7 @@ class ConceptDrift(AbstractAnomaly):
     dashboard_name = "concept_drift_acc"
     anomaly_type = Anomaly.CONCEPT_DRIFT
 
-    def __init__(self, fw, check):
+    def base_init(self, fw, check):
         if check.get("measurable_args", None):
             self.measurable = MeasurableResolver(check["measurable_args"]).resolve(fw)
         else:
@@ -19,7 +19,6 @@ class ConceptDrift(AbstractAnomaly):
                 {"type": MeasurableType.ACCURACY}).resolve(fw)
         self.acc_arr = []
         self.avg_acc = 0
-        self.log_handler = fw.log_handler
         if check["algorithm"] == DataDriftAlgo.DDM:
             warn_thres = check.get("warn_thres", 2)
             alarm_thres = check.get("alarm_thres", 3)
@@ -30,7 +29,7 @@ class ConceptDrift(AbstractAnomaly):
     def need_ground_truth(self):
         return True
 
-    def check(self, inputs, outputs, gts=None, extra_args={}):
+    def base_check(self, inputs, outputs, gts=None, extra_args={}):
         batch_acc = self.measurable.compute_and_log(inputs, outputs, gts, extra_args)
         for acc in batch_acc:
             if acc:
@@ -54,6 +53,3 @@ class ConceptDrift(AbstractAnomaly):
                     alert,
                     self.dashboard_name
                 )
-
-    def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
-        return np.array([False] * len(extra_args["id"]))

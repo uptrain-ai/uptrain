@@ -10,6 +10,8 @@ class Clustering():
         self.dist = []
         self.dist_counts = []
         self.max_along_axis = []
+        self.low_density_regions = []
+        self.idxs_closest_to_cluster_centroids = {}
 
 
     def cluster_data(self, data):
@@ -40,7 +42,9 @@ class Clustering():
             "cluster_vars": self.cluster_vars,
             "dist": self.dist,
             "dist_counts": self.dist_counts,
-            "max_along_axis": self.max_along_axis
+            "max_along_axis": self.max_along_axis,
+            'low_density_regions': self.low_density_regions,
+            "idxs_closest_to_cluster_centroids": self.idxs_closest_to_cluster_centroids
         }
 
         return clustering_results
@@ -89,16 +93,21 @@ class Clustering():
         self.max_along_axis = np.max(abs_data, axis=0)
         data = data/self.max_along_axis
 
-        all_clusters, counts, cluster_vars = cluster_and_plot_data(
+        all_clusters, counts, cluster_vars, density_around_points, idxs_closest_to_cluster_centroids = cluster_and_plot_data(
             data,
             self.NUM_BUCKETS,
             cluster_plot_func=self.cluster_plot_func,
             plot_save_name=self.plot_save_name,
+            normalisation=self.max_along_axis
         )
+        low_density_regions = data[np.where(density_around_points < np.ceil(len(density_around_points) * 0.002))[0]]
 
         self.clusters = np.array([all_clusters])
         self.cluster_vars = np.array([cluster_vars])
         self.buckets = self.clusters
+        self.low_density_regions = low_density_regions
+        self.density_around_points = density_around_points
+        self.idxs_closest_to_cluster_centroids = idxs_closest_to_cluster_centroids
 
         self.dist_counts = np.array([counts])
         self.dist = self.dist_counts / data.shape[0]

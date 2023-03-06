@@ -24,11 +24,34 @@ def cluster_and_plot_data(
         counts[uniq_lbs[idx]] = uniq_cts[idx]
 
     cluster_vars = []
+    cluster_dictn = {}
     for idx in range(len(all_clusters)):
         this_elems = data[np.where(all_labels == idx)[0]]
+        cluster_dictn.update({idx: this_elems})
         cluster_vars.append(
             np.mean(np.sum(np.abs(this_elems - all_clusters[idx]), axis=1))
         )
+
+    density_arr = []
+    min_var = np.min(cluster_vars)
+    for idx in range(len(data)):
+        cluster_centroid_dists = np.sum(np.abs(all_clusters - data[idx]), axis=1)
+        closest_cluster_labels = np.where(cluster_centroid_dists < min_var * 4)
+        num_close_points = 0
+        for this_label in closest_cluster_labels[0]:
+            this_elems = cluster_dictn[this_label]
+            all_elems_dists = np.sum(np.abs(this_elems - data[idx]), axis=1)
+            closest_points_idxs = np.where(all_elems_dists < 1.5 * min_var)
+            num_close_points += len(closest_points_idxs[0])
+        density_arr.append(num_close_points-1)
+    density_arr = np.array(density_arr)
+
+    idxs_closest_to_cluster_centroids = {}
+    for idx in range(len(all_clusters)):
+        this_elems = cluster_dictn[idx]
+        all_elems_dists = np.sum(np.abs(this_elems - all_clusters[idx]), axis=1)
+        closest_idxs = np.argsort(all_elems_dists)[0:3]
+        idxs_closest_to_cluster_centroids.update({idx: closest_idxs})
 
     dictn = []
     for idx in range(len(all_clusters)):
@@ -37,6 +60,7 @@ def cluster_and_plot_data(
                 "cluster": all_clusters[idx],
                 "count": counts[idx],
                 "var": cluster_vars[idx],
+                "idxs_closest": idxs_closest_to_cluster_centroids[idx]
             }
         )
     dictn.sort(key=lambda x: x["count"], reverse=True)
@@ -44,6 +68,7 @@ def cluster_and_plot_data(
     all_clusters = np.array([x["cluster"] for x in dictn])
     counts = np.array([x["count"] for x in dictn])
     cluster_vars = np.array([x["var"] for x in dictn])
+    idxs_closest_to_cluster_centroids = dict(zip(range(len(dictn)), [x['idxs_closest'] for x in dictn]))
 
     if normalisation is not None:
         all_clusters_renormalised = copy.deepcopy(all_clusters) * normalisation
@@ -51,7 +76,7 @@ def cluster_and_plot_data(
         all_clusters_renormalised = all_clusters
     if cluster_plot_func is not None:
         cluster_plot_func(all_clusters_renormalised, counts, plot_save_name=plot_save_name)
-    return all_clusters, counts, cluster_vars
+    return all_clusters, counts, cluster_vars, density_arr, idxs_closest_to_cluster_centroids
 
 
 def add_data_to_warehouse(data, path_csv, row_update=False):

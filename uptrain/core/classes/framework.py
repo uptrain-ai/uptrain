@@ -133,7 +133,7 @@ class Framework:
         old_selected_count = self.selected_count
         smart_data = {}
 
-        is_interesting = self.is_data_interesting(
+        is_interesting, reasons = self.is_data_interesting(
             data, data["output"], data["gt"], extra_args=extra_args
         )
         num_selected_datapoints = np.sum(np.array(is_interesting))
@@ -149,6 +149,7 @@ class Framework:
         )
 
         if self.log_data and (num_selected_datapoints > 0):
+            data.update({"reasons": reasons})
             smart_data = extract_data_points_from_batch(
                 data, np.where(is_interesting == True)[0]
             )
@@ -156,6 +157,11 @@ class Framework:
 
         edge_cases_txt = str(self.selected_count) + " edge cases identified out of " + str(self.predicted_count) + " total samples"
         if self.selected_count > 0:
+            # df = pd.read_csv("uptrain_smart_data/1/smart_data.csv")
+            # summaries = list(df['output'])
+            # reasons = list(df['reasons'])
+            # if len(summaries) > 40:
+            #     edge_cases_txt += " (Recent sample: " + summaries[30] + " identified due to " + reasons[30] + ")"
             self.log_handler.add_alert(
                 "Number of edge cases collected",
                 edge_cases_txt,
