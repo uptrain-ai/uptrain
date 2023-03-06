@@ -50,7 +50,8 @@ setup(
         "plotly>=5.0.0",
         "pydantic>=1.9.0",
         "scikit_learn>=1.0.0",
-        "streamlit>=1.0.0"
+        "streamlit>=1.0.0",
+        "json_fix"
     ],
     tests_require=["pytest>=7.0", "torch", "imgaug", "gensim", "xgboost", "gensim"],
 )

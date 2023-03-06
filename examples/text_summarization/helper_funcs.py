@@ -62,9 +62,10 @@ def generate_reference_dataset_with_embeddings(dataset, tokenizer, model, datase
                     "dataset_label": dataset_label,
                     'title': dataset['title'][jdx*100+idx],
                     'text': dataset['text'][jdx*100+idx],
-                    'model_output': summaries[idx],
+                    'output': summaries[idx],
                     'bert_embs': bert_embs[idx].tolist(),
-                    'bert_embs_downsampled': bert_embs_downsampled[idx].tolist()
+                    'bert_embs_downsampled': bert_embs_downsampled[idx].tolist(),
+                    'num_words': get_num_words_in_text(dataset['text'][jdx*100+idx])
                 })
 
         with open(file_name, "w") as f:
@@ -107,3 +108,12 @@ def download_wikihow_csv_file():
             print("Step 2: Once the csv file is downloaded, move it here (i.e. YOUR_LOC/uptrain/examples/text_summarization/")
     else:
         print(file_name + " already present")
+
+def get_num_words_in_text(txt):
+    buckets = [0, 10, 25, 50, 100, 200, 500, 1000, 100000]
+    num_words = len(txt.split())
+    for idx in range(len(buckets)):
+        if num_words >= buckets[idx]:
+            bucket = str(buckets[idx]) + "-" + str(buckets[idx+1])
+            break
+    return bucket
