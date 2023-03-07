@@ -1,3 +1,4 @@
+from .abstract_check import AbstractCheck
 from .abstract_monitor import AbstractMonitor
 from .accuracy import Accuracy
 from .concept_drift import ConceptDrift

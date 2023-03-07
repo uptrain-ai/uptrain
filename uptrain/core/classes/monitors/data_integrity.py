@@ -9,15 +9,13 @@ class DataIntegrity(AbstractMonitor):
     dashboard_name = "data_integrity"
     anomaly_type = Monitor.DATA_INTEGRITY
 
-    def __init__(self, fw, check):
-        self.log_handler = fw.log_handler
-        self.measurable = MeasurableResolver(check["measurable_args"]).resolve(fw)
+    def base_init(self, fw, check):
         self.integrity_type = check["integrity_type"]
         self.threshold = check.get("threshold", None)
         self.count = 0
         self.num_issues = 0
 
-    def check(self, inputs, outputs, gts=None, extra_args={}):
+    def base_check(self, inputs, outputs, gts=None, extra_args={}):
         signal_value = self.measurable.compute_and_log(
             inputs, outputs, gts=gts, extra=extra_args
         )
@@ -42,9 +40,6 @@ class DataIntegrity(AbstractMonitor):
             self.count,
             self.dashboard_name,
         )
-
-    def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
-        return np.array([False] * len(extra_args["id"]))
 
     def need_ground_truth(self):
         return False

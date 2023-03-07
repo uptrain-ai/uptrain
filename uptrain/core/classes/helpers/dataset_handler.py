@@ -26,9 +26,10 @@ class DatasetHandler:
         Set the annotation method
     """
 
-    def __init__(self, transformation_func=(lambda x: x), cluster_plot_func=None):
+    def __init__(self, framework=None, cfg=None, transformation_func=(lambda x: x)):
         self.transformation_func = transformation_func
-        self.cluster_plot_func = cluster_plot_func
+        self.cluster_plot_func = cfg.cluster_visualize_func
+        self.log_handler = framework.log_handler 
         np.random.seed(10)
 
     def add_annotations(self, dataset):
@@ -76,7 +77,7 @@ class DatasetHandler:
                 np.array([x["kps"] for x in new_data]),
                 9,
                 cluster_plot_func=self.cluster_plot_func,
-                plot_save_name="collected_edge_cases_clusters.png",
+                plot_save_name=self.log_handler.get_plot_save_name("collected_edge_cases_clusters.png", "edge_cases"),
             )
 
         new_data = self.add_annotations(dataset_location + "/cleaned_dataset.json")

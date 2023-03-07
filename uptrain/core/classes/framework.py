@@ -77,9 +77,7 @@ class Framework:
         self.path_all_data = os.path.join(self.fold_name, "all_data.csv")
         self.log_handler = LogHandler(framework=self, cfg=cfg)
 
-        self.dataset_handler = DatasetHandler(
-            cluster_plot_func=cfg.cluster_visualize_func
-        )
+        self.dataset_handler = DatasetHandler(framework=self, cfg=cfg)
         self.model_handler = ModelHandler()
         self.check_manager = CheckManager(self, self.checks)
         self.reset_retraining()
@@ -133,7 +131,7 @@ class Framework:
         old_selected_count = self.selected_count
         smart_data = {}
 
-        is_interesting = self.is_data_interesting(
+        is_interesting, reasons = self.is_data_interesting(
             data, data["output"], data["gt"], extra_args=extra_args
         )
         num_selected_datapoints = np.sum(np.array(is_interesting))
@@ -149,6 +147,7 @@ class Framework:
         )
 
         if self.log_data and (num_selected_datapoints > 0):
+            data.update({"reasons": reasons})
             smart_data = extract_data_points_from_batch(
                 data, np.where(is_interesting == True)[0]
             )

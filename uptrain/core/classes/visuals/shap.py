@@ -8,8 +8,7 @@ class Shap(AbstractVisual):
     visual_type = Visual.SHAP
     dashboard_name = "SHAP_explanation"
 
-    def __init__(self, fw, check):
-        self.log_handler = fw.log_handler
+    def base_init(self, fw, check):
         self.model = check["model"]
         self.explainer_created = False
 
@@ -21,7 +20,7 @@ class Shap(AbstractVisual):
             'shap_num_points': check.get("shap_num_points", 1000),
             'path_shap_file': self.fileloc})
 
-    def check(self, inputs, outputs, gts=None, extra_args={}):
+    def base_check(self, inputs, outputs, gts=None, extra_args={}):
         if not self.explainer_created:
             explainer = shap.Explainer(self.model)
             file = open(self.fileloc, 'wb')

@@ -1,5 +1,4 @@
-class AbstractStatistic:
-    statistic_type = None
+from uptrain.core.classes.monitors import AbstractCheck
 
-    def check(self, inputs, outputs, gts=None, extra_args={}):
-        raise Exception("Should be defined for each class")
+class AbstractStatistic(AbstractCheck):
+    statistic_type = None
