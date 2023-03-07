@@ -155,11 +155,6 @@ class Framework:
 
         edge_cases_txt = str(self.selected_count) + " edge cases identified out of " + str(self.predicted_count) + " total samples"
         if self.selected_count > 0:
-            # df = pd.read_csv("uptrain_smart_data/1/smart_data.csv")
-            # summaries = list(df['output'])
-            # reasons = list(df['reasons'])
-            # if len(summaries) > 40:
-            #     edge_cases_txt += " (Recent sample: " + summaries[30] + " identified due to " + reasons[30] + ")"
             self.log_handler.add_alert(
                 "Number of edge cases collected",
                 edge_cases_txt,
