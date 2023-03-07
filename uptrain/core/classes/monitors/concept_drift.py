@@ -19,12 +19,17 @@ class ConceptDrift(AbstractMonitor):
                 {"type": MeasurableType.ACCURACY}).resolve(fw)
         self.acc_arr = []
         self.avg_acc = 0
+        
         if check["algorithm"] == DataDriftAlgo.DDM:
-            warn_thres = check.get("warn_thres", 2)
-            alarm_thres = check.get("alarm_thres", 3)
-            self.algo = DataDriftDDM(warn_thres, alarm_thres)
+            if self.measurable.type == MeasurableType.ACCURACY:
+                self.algo = DataDriftDDM(check.get("warn_thres", 2), check.get("alarm_thres", 3))
+            elif self.measurable.type == MeasurableType.MSE:
+                self.algo = RegressionDriftDDM(check.get("warn_thres", 2), check.get("alarm_thres", 3))
+            else:
+                raise Exception("Measurable type not supported for concept drift detection")
         else:
             raise Exception("Data drift algo type not supported")
+
 
     def need_ground_truth(self):
         return True
