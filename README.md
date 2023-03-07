@@ -47,7 +47,7 @@
 </h4>
 
 <h4 align="center">
-<img src="https://user-images.githubusercontent.com/108270398/222989893-fec6267d-4957-424c-9ea8-7cc39806e811.gif" width="90%" alt="Performance" />
+<img src="https://uptrain-demo.s3.us-west-1.amazonaws.com/human_orientation_classification/1_data_drift_and_edge_cases.gif" width="85%" alt="Performance" />
 </h4>
 
 <h4>
@@ -69,10 +69,10 @@
 - **[Customizable metrics](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_data_drift_custom_measures.ipynb)** - Define custom metrics that make sense for your use case.
 - **[Automated Retraining](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_check_all.ipynb)** - Automate model retraining by attaching your training and inference pipelines.
 - **[Model Bias](https://github.com/uptrain-ai/uptrain/blob/main/examples/shopping_cart_recommendation/run.ipynb)** - Track bias in your ML model's predictions.
+- **[AI Explainability](https://docs.uptrain.ai/docs/uptrain-visuals/shap-explainability)** - Understand relative importance of multiple features on predictions.
 - **Data Security** - Your data never goes out of your machine.
 - **Slack Integration** - Get alerts on Slack.
-- **AI Explainability** - Understand relative importance of multiple features on predictions.
-- **Realtime Dashboards** - To visualize your model's health.
+- **Realtime Dashboards** - To visualize your model's health live.
 
 ## 🚨Coming soon🚨
 
