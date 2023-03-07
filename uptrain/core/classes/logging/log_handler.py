@@ -43,7 +43,9 @@ class LogHandler:
 
     def get_plot_save_name(self, plot_name, dashboard_name):
         if self.st_writer:
-            return os.path.join(self.st_log_folder, dashboard_name, plot_name)
+            dir_name = os.path.join(self.st_log_folder, dashboard_name)
+            os.makedirs(dir_name, exist_ok=True)
+            return os.path.join(dir_name, plot_name)
         else:
             return ""
 

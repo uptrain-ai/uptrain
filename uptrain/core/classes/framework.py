@@ -77,9 +77,7 @@ class Framework:
         self.path_all_data = os.path.join(self.fold_name, "all_data.csv")
         self.log_handler = LogHandler(framework=self, cfg=cfg)
 
-        self.dataset_handler = DatasetHandler(
-            cluster_plot_func=cfg.cluster_visualize_func
-        )
+        self.dataset_handler = DatasetHandler(framework=self, cfg=cfg)
         self.model_handler = ModelHandler()
         self.check_manager = CheckManager(self, self.checks)
         self.reset_retraining()

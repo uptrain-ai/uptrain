@@ -1,7 +1,7 @@
 import numpy as np
 from uptrain.core.lib.helper_funcs import cluster_and_plot_data
 
-class Clustering():
+class Clustering:
     def __init__(self, args) -> None:
         self.NUM_BUCKETS = args["num_buckets"]
         self.is_embedding = args["is_embedding"]

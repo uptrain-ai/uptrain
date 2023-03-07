@@ -8,7 +8,7 @@ from uptrain.constants import Monitor
 class Accuracy(AbstractMonitor):
     dashboard_name = "accuracy"
     monitor_type = Monitor.ACCURACY
-    def __init__(self, fw, check):
+    def base_init(self, fw, check):
         if check.get("measurable_args", None):
             self.measurable = MeasurableResolver(check["measurable_args"]).resolve(fw)
             self.plot_name = check["measurable_args"]['type']
@@ -22,7 +22,7 @@ class Accuracy(AbstractMonitor):
     def need_ground_truth(self):
         return True
     
-    def check(self, inputs, outputs, gts=None, extra_args={}):
+    def base_check(self, inputs, outputs, gts=None, extra_args={}):
         batch_abs_error = self.measurable.compute_and_log(inputs, outputs, gts, extra_args)
         self.abs_err_arr = np.append(self.abs_err_arr, batch_abs_error)
 
@@ -32,6 +32,3 @@ class Accuracy(AbstractMonitor):
             len(self.abs_err_arr),
             self.dashboard_name,
         )
-
-    def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
-        return np.array([False] * len(extra_args["id"]))

@@ -30,6 +30,7 @@ class DataDrift(AbstractMonitor):
         self.NUM_BUCKETS = check.get("num_buckets", self.NUM_BUCKETS)
         self.INITIAL_SKIP = check.get("initial_skip", self.INITIAL_SKIP)
         self.outlier_idxs = check.get("outlier_idxs", [])
+        self.do_low_density_check = check.get("do_low_density_check", False)
         self.hover_measurable = MeasurableResolver(check.get("hover_label_args", None)).resolve(fw)
         self.count = 0
         self.bucket_labelling_info = {
@@ -43,7 +44,7 @@ class DataDrift(AbstractMonitor):
         clustering_args = {
             "num_buckets": self.NUM_BUCKETS,
             'is_embedding': self.is_embedding,
-            'plot_save_name': "training_dataset_clusters.png",
+            'plot_save_name': self.log_handler.get_plot_save_name("training_dataset_clusters.png", self.dashboard_name),
             'cluster_plot_func': self.cluster_plot_func
         }
         self.clustering_helper = Clustering(clustering_args)
@@ -197,7 +198,7 @@ class DataDrift(AbstractMonitor):
         is_interesting = np.array([False] * len(extra_args["id"]))
         reasons = ["None"] * len(extra_args["id"])
 
-        if len(self.low_density_regions):
+        if self.do_low_density_check and (len(self.low_density_regions) > 0):
             dists_from_low_density_regions = np.min(np.sum(np.abs(self.feats - np.expand_dims(self.low_density_regions, axis=0)),axis=2),axis=1)
             min_cluster_var = np.min(self.cluster_vars)
             is_close = dists_from_low_density_regions < min_cluster_var

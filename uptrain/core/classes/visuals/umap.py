@@ -71,7 +71,7 @@ class Umap(AbstractVisual):
                     if key in self.feature_dictn:
                         self.feature_dictn[key].extend(this_dict[key])
                     else:
-                        self.feature_dictn.update({key: this_dict[key]})
+                        self.feature_dictn.update({key: list(this_dict[key])})
 
     def base_check(self, inputs, outputs, gts=None, extra_args={}):
         if self.measurable is not None:
@@ -94,7 +94,7 @@ class Umap(AbstractVisual):
                 if key in self.feature_dictn:
                     self.feature_dictn[key].extend(this_dict[key])
                 else:
-                    self.feature_dictn.update({key: this_dict[key]})
+                    self.feature_dictn.update({key: list(this_dict[key])})
 
         if len(self.hover_measurables):
             hover_values = [x.compute_and_log(
@@ -146,30 +146,34 @@ class Umap(AbstractVisual):
                 )
             )[0]
             data_dict = distribution_anomaly.get_feats_for_clustering(count, self.allowed_model_values)
+            chosen_label_key = None
+            chosen_hover_key = None
             if len(data_dict):
                 temp_val = list(data_dict.values())[0]
                 if len(temp_val):
                     temp_keys = list(temp_val.keys())
-                    temp_keys = list(filter(lambda x: "umap_label_", temp_keys))
+                    temp_keys = list(filter(lambda x: "visual_label_" in x, temp_keys))
                     if len(temp_keys) > 1:
                         print("Have multiple labels - " + str(temp_keys) + " .Using " + temp_keys[0] + " for labeling UMAPs." )
-                    chosen_label_key = temp_keys[0]
+                    if len(temp_keys) > 0:
+                        chosen_label_key = temp_keys[0]
                 if len(temp_val):
                     temp_keys = list(temp_val.keys())
-                    temp_keys = list(filter(lambda x: "umap_hover_text_", temp_keys))
+                    temp_keys = list(filter(lambda x: "visual_hover_text_" in x, temp_keys))
                     if len(temp_keys) > 1:
                         print("Have multiple hover texts - " + str(temp_keys) + " .Using " + temp_keys[0] + " for hovering UMAPs." )
-                    chosen_hover_key = temp_keys[0]
+                    if len(temp_keys) > 0:
+                        chosen_hover_key = temp_keys[0]
             vals = np.array([data_dict[x]['val'] for x in data_dict])
             if vals.shape[0] > 0:
                 vals = np.squeeze(vals, axis=1)
             labels = []
-            if chosen_label_key is None:
+            if chosen_label_key is not None:
                 labels = [data_dict[x][chosen_label_key] for x in data_dict]
 
             hover_texts = []
-            if chosen_hover_key is None:
-                hover_texts = [data_dict[x][chosen_hover_key] for x in data_dict]
+            if chosen_hover_key is not None:
+                hover_texts = [{chosen_hover_key: data_dict[x][chosen_hover_key]} for x in data_dict]
             return vals, labels, hover_texts
         else:
             return self.vals, self.labels, self.hover_texts

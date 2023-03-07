@@ -235,18 +235,15 @@ def plot_umap(file, j=0):
             if key not in hover_df.columns:
                 hover_df[key] = None
         hover_df = hover_df.fillna('NA')
+        df = pd.merge(df, hover_df, on=df.index)
     else:
         hover_df = pd.DataFrame()
     
-    x = list(df['x'])
-    y = list(df['y'])
-    clusters = list(df['color'])
-
     if arr.shape[1] == 2:
-        fig = px.scatter(hover_df, x=x, y=y, color=clusters, hover_data=hover_data)
+        fig = px.scatter(df, x='x', y='y', color='color', hover_data=hover_data)
     elif arr.shape[1] == 3:
         z = list(df['z'])
-        fig = px.scatter_3d(hover_df, x=x, y=y, z=z, color=clusters, hover_data=hover_data)
+        fig = px.scatter_3d(df, x='x', y='y', z='z', color='color', hover_data=hover_data)
     else:
         raise ("Umap dimension not 2D or 3D.")
     st.plotly_chart(fig, use_container_width=True)
@@ -274,7 +271,7 @@ def plot_umaps(files, plot_name, sub_dir):
             model_others_name = list(other_models.values())[0]
             file_name = str(selected_count) + '_' + model_compare_name + '_' + model_others_name + '.json'
             file_name = sub_dir + '/' + file_name
-            with cols[j]:
+            with cols[j%2]:
                 st.subheader(f'Model: {model_compare_name}, Signal: {model_others_name}, Count: {selected_count}')
                 if os.path.exists(file_name):
                     plot_umap(file_name, j) 
@@ -397,6 +394,22 @@ def plot_dashboard(dashboard_name):
                 st.markdown(f"### Bar graph for {plot_name}")
                 plot_for_count(files, plot_bar, plot_name) 
                 st.markdown("""---""")  
+
+
+        ######### Plotting Images ###########
+
+        # elif sub_dir_split[-1] == "images":
+        if True:
+            png_files = [
+                        file
+                        for path, _, _ in os.walk(sub_dir)
+                        for file in glob(os.path.join(path, "*.png"))
+                    ]
+            for i, png_file in enumerate(png_files):
+                # Getting image name
+                image_name = png_file.split("/")[-1].split(".")[0]
+                st.subheader(image_name)
+                st.image(png_file)
 
 
 def st_shap(plot, height=None):
