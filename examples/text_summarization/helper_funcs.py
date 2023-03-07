@@ -108,11 +108,22 @@ def download_wikihow_csv_file(file_name):
     else:
         print(file_name + " already present")
 
-def get_num_words_in_text(txt):
-    buckets = [0, 10, 25, 50, 100, 200, 500, 1000, 100000]
-    num_words = len(txt.split())
-    for idx in range(len(buckets)):
-        if num_words >= buckets[idx]:
-            bucket = str(buckets[idx]) + "-" + str(buckets[idx+1])
-            break
-    return bucket
+def get_num_words_in_text(inputs, outputs, gts=None, extra_args={}):
+    txt_buckets = []
+    buckets = extra_args.get('buckets', [0, 200, 500, 750, 1000, 2000, 5000, 100000, 100000000])
+    for txt in inputs['text']:
+        num_words = len(txt.split())
+        for idx in range(len(buckets)):
+            if (num_words >= buckets[idx]) and (num_words < buckets[idx+1]):
+                txt_buckets.append(str(buckets[idx]) + "-" + str(buckets[idx+1]))
+                break
+    return txt_buckets
+
+
+def get_num_prepositions_in_text(inputs, outputs, gts=None, extra_args={}):
+    num_prepositions = []
+    preposition_list = ['in', 'on', 'at', 'among', 'between', 'through', 'across', 'above', 'over', 'up', 'down', 'to', 'with', 'by', 'beside', 'beneath', 'in front of']
+    for txt in inputs['text']:
+        all_words = txt.split()
+        num_prepositions.append(len(list(set(all_words).intersection(preposition_list))))
+    return num_prepositions

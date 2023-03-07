@@ -233,9 +233,9 @@ def plot_umap(file, j=0):
         hover_df = pd.DataFrame(list(df['hover']))
         for key in hover_data:
             if key not in hover_df.columns:
-                hover_df[key] = None
-        hover_df = hover_df.fillna('NA')
-        df = pd.merge(df, hover_df, on=df.index)
+                df[key] = [''] * len(hover_df)
+            else:
+                df[key] = pd.Series(hover_df[key]).fillna('').tolist()
     else:
         hover_df = pd.DataFrame()
     
