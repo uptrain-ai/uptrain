@@ -44,6 +44,7 @@ class Config(BaseModel):
     feat_name_list: list = None
     cluster_visualize_func: typing.Callable = None
     use_cache: bool = False
+    run_background_log_consumer: bool = False
     
 
 # class InputArgs(BaseModel):
