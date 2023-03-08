@@ -95,7 +95,7 @@ cfg = {
     "evaluation_args": evaluation_args,
 
     # Don't retrain
-    "retrain_after": 1000000,
+    "retrain_after": 300,
     
     # A local folder to store the retraining dataset
     "retraining_folder": "uptrain_smart_data",
@@ -130,9 +130,6 @@ for i,elem in enumerate(real_world_dataset):
     preds = torch.round(torch.sigmoid(test_logits)).detach().numpy()
 
     # Log model inputs and outputs to the uptrain Framework to monitor data drift
-    idens = framework.log(inputs=[5,4], outputs=[1])
-    # idens = framework.log(inputs=inputs, outputs=preds)
+    idens = framework.log(inputs=inputs, outputs=preds)
     time.sleep(0.01)
-
-import pdb; pdb.set_trace()
 
