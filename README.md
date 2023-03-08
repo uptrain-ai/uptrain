@@ -64,7 +64,7 @@
 - **[Performance Monitoring](https://docs.uptrain.ai/docs/uptrain-monitors/concept-drift)** - Track the performance of your models in realtime and get degradation alerts.
 - **[Embeddings Support](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)** - Specialized dashboards to understand model-inferred embeddings.
 - **[Edge Case Signals](https://docs.uptrain.ai/docs/uptrain-monitors/edge-case-detection)** - User-defined signals and statistical techniques to detect out-of-distribution data-points.
-- **[Data Integrity Checks](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_data_integrity.ipynb)** - Checks for missing or inconsistent data, duplicate records, data quality, etc. 
+- **[Data Integrity Checks](https://docs.uptrain.ai/docs/uptrain-monitors/data-integrity)** - Checks for missing or inconsistent data, duplicate records, data quality, etc. 
 - **[Customizable metrics](https://docs.uptrain.ai/docs/monitoring-custom-metrics)** - Define custom metrics that make sense for your use case.
 - **[Automated Retraining](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_check_all.ipynb)** - Automate model retraining by attaching your training and inference pipelines.
 - **[Model Bias](https://docs.uptrain.ai/docs/uptrain-monitors/model-bias)** - Track bias in your ML model's predictions.
