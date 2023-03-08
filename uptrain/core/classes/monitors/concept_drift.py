@@ -1,5 +1,7 @@
 import numpy as np
 
+from river import drift
+
 from uptrain.core.classes.monitors import AbstractMonitor
 from uptrain.core.classes.algorithms import DataDriftDDM
 from uptrain.constants import DataDriftAlgo, MeasurableType
@@ -23,7 +25,7 @@ class ConceptDrift(AbstractMonitor):
             warm_start = check.get("warm_start", 500)
             warn_threshold = check.get("warn_threshold", 2.0)
             alarm_threshold = check.get("alarm_threshold", 3.0)
-            self.algo = DataDriftDDM(warm_start, warn_threshold, alarm_threshold)
+            self.algo = drift.DDM(warm_start, warn_threshold, alarm_threshold)
         else:
             raise Exception("Data drift algo type not supported")
 
@@ -32,11 +34,10 @@ class ConceptDrift(AbstractMonitor):
 
     def base_check(self, inputs, outputs, gts=None, extra_args={}):
         batch_acc = self.measurable.compute_and_log(inputs, outputs, gts, extra_args)
-        for acc in batch_acc:
-            if acc:
-                alert = self.algo.add_prediction(0)
-            else:
-                alert = self.algo.add_prediction(1)
+        for index, acc in enumerate(batch_acc):
+            self.algo.update(acc)
+            if self.algo.drift_detected:
+                alert = 'Drift detected with DDM at time: {index}'
 
             self.acc_arr.append(acc)
             self.avg_acc = (self.avg_acc * (len(self.acc_arr) - 1) + acc) / len(
