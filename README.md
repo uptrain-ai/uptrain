@@ -60,14 +60,14 @@
 
 # **[Key Features](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** 💡
 
-- **[Data Drift Checks](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/run.ipynb)** - Identify distribution shifts in your model inputs.
-- **[Performance Monitoring](https://github.com/uptrain-ai/uptrain/blob/main/examples/fraud_detection/run.ipynb)** - Track the performance of your models in realtime and get degradation alerts.
+- **[Data Drift Checks](https://docs.uptrain.ai/docs/uptrain-monitors/data-drift)** - Identify distribution shifts in your model inputs.
+- **[Performance Monitoring](https://docs.uptrain.ai/docs/uptrain-monitors/concept-drift)** - Track the performance of your models in realtime and get degradation alerts.
 - **[Embeddings Support](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)** - Specialized dashboards to understand model-inferred embeddings.
-- **[Edge Case Signals](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_edge_cases_torch.ipynb)** - User-defined signals and statistical techniques to detect out-of-distribution data-points.
-- **[Data Integrity Checks](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_data_integrity.ipynb)** - Checks for missing or inconsistent data, duplicate records, data quality, etc. 
-- **[Customizable metrics](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_data_drift_custom_measures.ipynb)** - Define custom metrics that make sense for your use case.
+- **[Edge Case Signals](https://docs.uptrain.ai/docs/uptrain-monitors/edge-case-detection)** - User-defined signals and statistical techniques to detect out-of-distribution data-points.
+- **[Data Integrity Checks](https://docs.uptrain.ai/docs/uptrain-monitors/data-integrity)** - Checks for missing or inconsistent data, duplicate records, data quality, etc. 
+- **[Customizable metrics](https://docs.uptrain.ai/docs/monitoring-custom-metrics)** - Define custom metrics that make sense for your use case.
 - **[Automated Retraining](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_check_all.ipynb)** - Automate model retraining by attaching your training and inference pipelines.
-- **[Model Bias](https://github.com/uptrain-ai/uptrain/blob/main/examples/shopping_cart_recommendation/run.ipynb)** - Track bias in your ML model's predictions.
+- **[Model Bias](https://docs.uptrain.ai/docs/uptrain-monitors/model-bias)** - Track bias in your ML model's predictions.
 - **[AI Explainability](https://docs.uptrain.ai/docs/uptrain-visuals/shap-explainability)** - Understand relative importance of multiple features on predictions.
 - **Data Security** - Your data never goes out of your machine.
 - **Slack Integration** - Get alerts on Slack.
@@ -155,7 +155,7 @@ We are constantly working to make UpTrain better. Want a new feature or need any
 
 # License 💻
 
-This repo is published under Apache 2.0 license. We're currently focused on developing non-enterprise offerings that should cover most use cases. In the future, we will add a hosted version which we might charge for.
+This repo is published under Apache 2.0 license. We're currently focused on developing non-enterprise offerings that should cover most use cases by adding more features and extending to more models. We also working towards adding a hosted offering - [contact us](mailto:sourabh@insane.ai) if you are interested.
 
 # Stay Updated ☎️
 We are continuously adding tons of features and use cases. Please support us by giving the project a star ⭐!
