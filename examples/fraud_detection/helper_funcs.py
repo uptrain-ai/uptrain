@@ -1,6 +1,10 @@
 import os
 import subprocess
 
+'''
+This function downloads a dataset from an S3 URL using wget if available, or 
+provides instructions for manual download
+'''
 def download_dataset(s3_url, data_file):    
     remote_url = f"{s3_url}/{data_file}"
 
@@ -29,6 +33,12 @@ def download_dataset(s3_url, data_file):
 
     print(str(data_file) + " dataset prepared successfully!")
 
+
+'''
+This function takes in a dictionary or a list of dictionaries and prints its keys 
+and values in a pretty format, using the indent parameter to specify the number of 
+tabs to be used for indentation.
+'''
 def pretty(d, indent=0):
     if isinstance(d, list):
         for value in d:
