@@ -9,17 +9,16 @@ def download_dataset(data_file):
         try:
             # Most Linux distributions have Wget installed by default.
             # Below command is to install wget for MacOS
-            wget_installed_ok = subprocess.call("brew install wget", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+            subprocess.call("brew install wget", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
             print("Successfully installed wget")
         except:
             print("Wget installation fails! Checking if data is manually downloaded")
-            dummy = 1
         try:
             if not os.path.exists("data.zip"):
                 print("Downloading data from the remote server")
-                file_downloaded_ok = subprocess.call("wget " + remote_url, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+                subprocess.call("wget " + remote_url, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                 print("Data downloaded")
-        except:
+        except Exception as e:
             print(e)
             print("Could not load training data")
             print("Please follow following steps to manually download data")
