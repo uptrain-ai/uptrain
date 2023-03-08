@@ -6,7 +6,7 @@ from typing import List
 class PopularityBias:
     """A class to estimate item popularity bias from a set of sessions and add predictions to it."""
 
-    def __init__(self, sessions: List[List[str]], k: int = 10):
+    def __init__(self, sessions: List[List[str]], k: int = 10) -> None:
         """
         Initializes the PopularityBias object and estimates item popularity from sessions.
 

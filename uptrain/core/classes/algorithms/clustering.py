@@ -1,10 +1,25 @@
 import numpy as np
 
+from typing import Any, List, Tuple, Union
+
 from uptrain.core.lib.helper_funcs import cluster_and_plot_data
 
 
 class Clustering:
     def __init__(self, args) -> None:
+        """
+        Initializes the Clustering object with the specified arguments.
+
+        Parameters
+        ----------
+        args
+            A dictionary containing the following keys:
+                - num_buckets: the number of buckets to use when clustering
+                - is_embedding: a boolean indicating whether the data is an embedding
+                - plot_save_name: a string indicating the name of the plot file to save
+                - cluster_plot_func: a function that can be used to plot the clustering results
+        """
+
         self.NUM_BUCKETS = args["num_buckets"]
         self.is_embedding = args["is_embedding"]
         self.plot_save_name = args.get("plot_save_name", "")
@@ -15,7 +30,29 @@ class Clustering:
         self.low_density_regions = []
         self.idxs_closest_to_cluster_centroids = {}
 
-    def cluster_data(self, data):
+    def cluster_data(self, data: np.ndarray) -> dict:
+        """
+        Clusters the specified data and returns the results.
+
+        Parameters
+        ----------
+        data
+            The data to be clustered.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the following keys:
+                - buckets: the bucket assignments for each data point
+                - clusters: the cluster assignments for each data point
+                - cluster_vars: the cluster variances for each bucket
+                - dist: the distance matrix between each pair of buckets
+                - dist_counts: the number of points in each pair of buckets
+                - max_along_axis: the maximum value along each axis
+                - low_density_regions: the low density regions of the data
+                - idxs_closest_to_cluster_centroids: the indices of the data points closest to each cluster centroid
+        """
+
         if self.is_embedding:
             self.bucket_vector(data)
         else:
@@ -50,7 +87,26 @@ class Clustering:
 
         return clustering_results
 
-    def bucket_scalar(self, arr):
+    def bucket_scalar(
+        self, arr: Union[List[Any], np.ndarray]
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """
+        Buckets a one-dimensional array.
+
+        Parameters
+        ----------
+        arr
+            The array to be bucketed.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the following elements:
+                - buckets: the bucket assignments for each data point
+                - clusters: the cluster assignments for each data point
+                - cluster_vars: the cluster variances for each bucket
+        """
+
         if isinstance(arr[0], str):
             uniques, counts = np.unique(np.array(arr), return_counts=True)
             buckets = uniques
@@ -87,7 +143,15 @@ class Clustering:
         )
         return np.array(buckets), np.array(clusters), np.array(cluster_vars)
 
-    def bucket_vector(self, data):
+    def bucket_vector(self, data: np.ndarray) -> None:
+        """
+        This function takes in an array of vectors and performs bucketing on the data.
+
+        Parameters
+        ----------
+        data
+            A 2D numpy array where each row is a vector to be bucketed.
+        """
         abs_data = np.abs(data)
         self.max_along_axis = np.max(abs_data, axis=0)
         data = data / self.max_along_axis
@@ -121,9 +185,31 @@ class Clustering:
         self.dist_counts = np.array([counts])
         self.dist = self.dist_counts / data.shape[0]
 
-    def infer_cluster_assignment(self, feats, prod_dist_counts=None):
+    def infer_cluster_assignment(
+        self, feats: np.ndarray, prod_dist_counts: np.ndarray = None
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Infers the cluster assignments for the given input features.
+
+        Parameters
+        ----------
+        feats
+            The input features for which the cluster assignments are to be inferred.
+        prod_dist_counts
+            A matrix containing the product of the pairwise distances between each pair
+            of buckets and the number of points in each pair of buckets, by default None.
+
+        Returns
+        -------
+        Tuple[np.ndarray, np.ndarray]
+            A tuple containing the inferred cluster assignments for the input features
+            and the updated matrix of product of pairwise distances between each pair
+            of buckets and number of points in each pair of buckets.
+        """
+
         if prod_dist_counts is None:
             prod_dist_counts = np.zeros((feats.shape[1], self.NUM_BUCKETS))
+
         if self.is_embedding:
             selected_cluster = np.argmin(
                 np.sum(
