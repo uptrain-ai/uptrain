@@ -101,8 +101,8 @@ def test_concept_drift():
         {
             'type': uptrain.Monitor.CONCEPT_DRIFT,
             'algorithm': uptrain.DataDriftAlgo.DDM,
-            'warn_thres': 2,
-            'alarm_thres': 3,
+            'warn_threshold': 2,
+            'alarm_threshold': 3,
         },
         {
             'type': uptrain.Monitor.CUSTOM_MONITOR,

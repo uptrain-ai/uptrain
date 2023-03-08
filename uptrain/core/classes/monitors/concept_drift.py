@@ -20,9 +20,10 @@ class ConceptDrift(AbstractMonitor):
         self.acc_arr = []
         self.avg_acc = 0
         if check["algorithm"] == DataDriftAlgo.DDM:
-            warn_thres = check.get("warn_thres", 2)
-            alarm_thres = check.get("alarm_thres", 3)
-            self.algo = DataDriftDDM(warn_thres, alarm_thres)
+            warm_start = check.get("warm_start", 500)
+            warn_threshold = check.get("warn_threshold", 2.0)
+            alarm_threshold = check.get("alarm_threshold", 3.0)
+            self.algo = DataDriftDDM(warm_start, warn_threshold, alarm_threshold)
         else:
             raise Exception("Data drift algo type not supported")
 
