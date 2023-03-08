@@ -37,7 +37,7 @@ class ConceptDrift(AbstractMonitor):
         for index, acc in enumerate(batch_acc):
             self.algo.update(acc)
             if self.algo.drift_detected:
-                alert = 'Drift detected with DDM at time: {index}'
+                alert = f'Drift detected with DDM at time: {index}'
 
             self.acc_arr.append(acc)
             self.avg_acc = (self.avg_acc * (len(self.acc_arr) - 1) + acc) / len(
