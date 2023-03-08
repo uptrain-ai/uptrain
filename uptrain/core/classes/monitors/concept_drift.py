@@ -3,7 +3,6 @@ import numpy as np
 from river import drift
 
 from uptrain.core.classes.monitors import AbstractMonitor
-from uptrain.core.classes.algorithms import DataDriftDDM
 from uptrain.constants import DataDriftAlgo, MeasurableType
 from uptrain.core.classes.measurables import MeasurableResolver
 from uptrain.constants import Monitor
