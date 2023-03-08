@@ -34,6 +34,7 @@ class ConceptDrift(AbstractMonitor):
     def base_check(self, inputs, outputs, gts=None, extra_args={}):
         batch_acc = self.measurable.compute_and_log(inputs, outputs, gts, extra_args)
         for index, acc in enumerate(batch_acc):
+            alert = None
             self.algo.update(acc)
             if self.algo.drift_detected:
                 alert = f'Drift detected with DDM at time: {index}'
