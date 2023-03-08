@@ -155,7 +155,7 @@ We are constantly working to make UpTrain better. Want a new feature or need any
 
 # License 💻
 
-This repo is published under Apache 2.0 license. We're currently focused on developing non-enterprise offerings that should cover most use cases. In the future, we will add a hosted version which we might charge for.
+This repo is published under Apache 2.0 license. We're currently focused on developing non-enterprise offerings that should cover most use cases by adding more features and extending to more models. We also working towards adding a hosted offering - contact us if you are interested.
 
 # Stay Updated ☎️
 We are continuously adding tons of features and use cases. Please support us by giving the project a star ⭐!
