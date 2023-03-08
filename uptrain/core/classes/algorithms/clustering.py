@@ -1,18 +1,19 @@
 import numpy as np
+
 from uptrain.core.lib.helper_funcs import cluster_and_plot_data
+
 
 class Clustering:
     def __init__(self, args) -> None:
         self.NUM_BUCKETS = args["num_buckets"]
         self.is_embedding = args["is_embedding"]
         self.plot_save_name = args.get("plot_save_name", "")
-        self.cluster_plot_func = args.get('cluster_plot_func', None)
+        self.cluster_plot_func = args.get("cluster_plot_func", None)
         self.dist = []
         self.dist_counts = []
         self.max_along_axis = []
         self.low_density_regions = []
         self.idxs_closest_to_cluster_centroids = {}
-
 
     def cluster_data(self, data):
         if self.is_embedding:
@@ -43,12 +44,11 @@ class Clustering:
             "dist": self.dist,
             "dist_counts": self.dist_counts,
             "max_along_axis": self.max_along_axis,
-            'low_density_regions': self.low_density_regions,
-            "idxs_closest_to_cluster_centroids": self.idxs_closest_to_cluster_centroids
+            "low_density_regions": self.low_density_regions,
+            "idxs_closest_to_cluster_centroids": self.idxs_closest_to_cluster_centroids,
         }
 
         return clustering_results
-
 
     def bucket_scalar(self, arr):
         if isinstance(arr[0], str):
@@ -57,10 +57,10 @@ class Clustering:
             self.NUM_BUCKETS = len(buckets)
             clusters = uniques
             cluster_vars = [None] * self.NUM_BUCKETS
-            self.ref_dist.append([[counts[x] / len(arr)] for x in range(self.NUM_BUCKETS)])
-            self.ref_dist_counts.append(
-                [[counts[x]] for x in range(self.NUM_BUCKETS)]
+            self.ref_dist.append(
+                [[counts[x] / len(arr)] for x in range(self.NUM_BUCKETS)]
             )
+            self.ref_dist_counts.append([[counts[x]] for x in range(self.NUM_BUCKETS)])
         else:
             sorted_arr = np.sort(arr)
             buckets = []
@@ -88,19 +88,28 @@ class Clustering:
         return np.array(buckets), np.array(clusters), np.array(cluster_vars)
 
     def bucket_vector(self, data):
-
         abs_data = np.abs(data)
         self.max_along_axis = np.max(abs_data, axis=0)
-        data = data/self.max_along_axis
+        data = data / self.max_along_axis
 
-        all_clusters, counts, cluster_vars, density_around_points, idxs_closest_to_cluster_centroids = cluster_and_plot_data(
+        (
+            all_clusters,
+            counts,
+            cluster_vars,
+            density_around_points,
+            idxs_closest_to_cluster_centroids,
+        ) = cluster_and_plot_data(
             data,
             self.NUM_BUCKETS,
             cluster_plot_func=self.cluster_plot_func,
             plot_save_name=self.plot_save_name,
-            normalisation=self.max_along_axis
+            normalisation=self.max_along_axis,
         )
-        low_density_regions = data[np.where(density_around_points < np.ceil(len(density_around_points) * 0.002))[0]]
+        low_density_regions = data[
+            np.where(
+                density_around_points < np.ceil(len(density_around_points) * 0.002)
+            )[0]
+        ]
 
         self.clusters = np.array([all_clusters])
         self.cluster_vars = np.array([cluster_vars])
@@ -129,11 +138,14 @@ class Clustering:
         else:
             this_datapoint_cluster = []
             for idx in range(feats.shape[2]):
-                if isinstance(feats[0,0,idx], str):
+                if isinstance(feats[0, 0, idx], str):
                     try:
-                        bucket_idx = np.array([
-                            list(self.buckets[idx]).index(feats[x,0,idx]) for x in range(feats.shape[0])
-                        ])
+                        bucket_idx = np.array(
+                            [
+                                list(self.buckets[idx]).index(feats[x, 0, idx])
+                                for x in range(feats.shape[0])
+                            ]
+                        )
                     except:
                         # TODO: This logic is not completely tested yet. Contact us if you are facing issues
                         # If given data-point is not present -> add a new bucket
@@ -141,18 +153,21 @@ class Clustering:
                         num_added = 0
 
                         for x in range(feats.shape[0]):
-                            if feats[x,0,idx] not in temp_buckets:
-                                temp_buckets.append(feats[x,0,idx])
+                            if feats[x, 0, idx] not in temp_buckets:
+                                temp_buckets.append(feats[x, 0, idx])
                                 num_added += 1
-                        
+
                         self.buckets[idx] = np.array(temp_buckets)
-                        bucket_idx = np.array([
-                            list(self.buckets[idx]).index(feats[x,0,idx]) for x in range(feats.shape[0])
-                        ])
+                        bucket_idx = np.array(
+                            [
+                                list(self.buckets[idx]).index(feats[x, 0, idx])
+                                for x in range(feats.shape[0])
+                            ]
+                        )
                 else:
-                    bucket_idx = np.searchsorted(
-                        self.buckets[idx], feats[:, :, idx]
-                    )[:, 0]
+                    bucket_idx = np.searchsorted(self.buckets[idx], feats[:, :, idx])[
+                        :, 0
+                    ]
                 this_datapoint_cluster.append(bucket_idx)
                 for clus in bucket_idx:
                     prod_dist_counts[idx][clus] += 1

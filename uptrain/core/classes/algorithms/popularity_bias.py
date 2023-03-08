@@ -14,7 +14,6 @@ class PopularityBias:
         ----------
         sessions
             A list of sessions, where each session is a list of item IDs.
-
         k
             The number of recommendations to make. Defaults to 10.
         """
