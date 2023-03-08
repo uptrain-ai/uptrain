@@ -1,8 +1,8 @@
 import os
 import subprocess
 
-def download_dataset(data_file):    
-    remote_url = "https://oodles-dev-training-data.s3.amazonaws.com/NSL_KDD_binary.csv"
+def download_dataset(s3_url, data_file):    
+    remote_url = f"{s3_url}/{data_file}"
 
     if not os.path.exists(data_file):
         print("Installing wget to download dataset from remote")
@@ -22,7 +22,7 @@ def download_dataset(data_file):
             print(e)
             print("Could not load training data")
             print("Please follow following steps to manually download data")
-            print("Step 1: Open in browser: https://oodles-dev-training-data.s3.amazonaws.com/NSL_KDD_binary.csv")
+            print(f"Step 1: Open in browser: {remote_url}")
             print("Step 2: Download and move the file to example location (i.e. uptrain/examples/fraud_detection/")
     else:
         print("Data file exists. Skipping download.")
