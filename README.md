@@ -106,7 +106,7 @@ pip install jupyterlab
 jupyter lab
 ```
 
-For more info, visit our [get started guide](https://docs.uptrain.ai/docs/uptrain-examples/quickstart-tutorial).
+For a quick walkthrough of how UpTrain works, check out our [quickstart tutorial](https://docs.uptrain.ai/docs/uptrain-examples/quickstart-tutorial).
 
 <h4> </h4>
 
