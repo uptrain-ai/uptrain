@@ -20,7 +20,6 @@ class ConceptDrift(AbstractMonitor):
                 {"type": MeasurableType.ACCURACY}).resolve(fw)
         self.acc_arr = []
         self.avg_acc = 0
-        self.num_data_count = 0
         self.drift_alerted = False
         if check["algorithm"] == DataDriftAlgo.DDM:
             warm_start = check.get("warm_start", 500)
@@ -38,10 +37,10 @@ class ConceptDrift(AbstractMonitor):
         for index, acc in enumerate(batch_acc):
             alert = None
             self.algo.update(acc)
-            self.num_data_count += 1
 
             if self.algo._drift_detected and not self.drift_alerted:
-                alert = f'Drift detected with DDM at time: {self.num_data_count}'
+                alert = f'Drift detected with DDM at time: {int(self.algo._p.n)}'
+                print(alert)
                 self.drift_alerted = True
 
             self.acc_arr.append(acc)
