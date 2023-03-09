@@ -12,7 +12,7 @@
 
 **Why is monitoring needed**: Once our fraud detection model has been trained, it may initially perform well in detecting malicious activity. However, over time, attackers may adapt their tactics and evolve their methods, leading to a mismatch between the type of attacks seen during training and those seen in production. This can result in decreased accuracy in our model's predictions.
 
-**Solution**: We will be using UpTrain framework which provides an easy-to-configure way to log model predictions and attach ground-truth to monitor model's performance. We are using drift detection methon on top on model performance to raise alerts in case of any dip in model's accuracy, commonly called **Concept Drift.**
+**Solution**: We will be using UpTrain framework which provides an easy-to-configure way to log model predictions and attach ground-truth to monitor model's performance. We are using drift detection method on top on model performance to raise alerts in case of any dip in model's accuracy, commonly called **Concept Drift.**
 
 ## Step 1: Let's download and prepare the NSL-KDD dataset
 
