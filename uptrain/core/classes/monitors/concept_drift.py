@@ -21,12 +21,20 @@ class ConceptDrift(AbstractMonitor):
         self.acc_arr = []
         self.avg_acc = 0
         self.drift_alerted = False
+        self.algorithm = check["algorithm"]
 
-        if check["algorithm"] == DataDriftAlgo.DDM:
+        if self.algorithm == DataDriftAlgo.DDM:
             warm_start = check.get("warm_start", 500)
             warn_threshold = check.get("warn_threshold", 2.0)
             alarm_threshold = check.get("alarm_threshold", 3.0)
             self.algo = drift.DDM(warm_start, warn_threshold, alarm_threshold)
+        elif self.algorithm == DataDriftAlgo.ADWIN:
+            delta = check.get("delta", 0.002)
+            clock = check.get("clock", 32)
+            max_buckets = check.get("max_buckets", 5)
+            min_window_length = check.get("min_window_length", 5)
+            grace_period = check.get("grace_period", 5)
+            self.algo = drift.ADWIN(delta, clock, max_buckets, min_window_length, grace_period)
         else:
             raise Exception("Data drift algo type not supported")
 
@@ -35,12 +43,14 @@ class ConceptDrift(AbstractMonitor):
 
     def base_check(self, inputs, outputs, gts=None, extra_args={}):
         batch_acc = self.measurable.compute_and_log(inputs, outputs, gts, extra_args)
-        for acc in batch_acc:
+        batch_acc = self._preprocess(batch_acc)
+
+        for time, acc in enumerate(batch_acc):
             alert = None
-            self.algo.update(0 if acc else 1)
+            self.algo.update(acc)
 
             if self.algo.drift_detected and not self.drift_alerted:
-                alert = f"Drift detected with DDM at time: {int(self.algo._p.n)}"
+                alert = f"Drift detected with {self.algorithm} at time: {time}"
                 print(alert)
                 self.drift_alerted = True
 
@@ -58,3 +68,9 @@ class ConceptDrift(AbstractMonitor):
                 self.log_handler.add_alert(
                     "Model Performance Degradation Alert 🚨", alert, self.dashboard_name
                 )
+    
+    def _preprocess (self, batch):
+        if self.algorithm == DataDriftAlgo.DDM:
+            return np.array([0 if x else 1 for x in batch])
+        else:
+            return np.array(batch)

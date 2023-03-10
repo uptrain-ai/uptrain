@@ -45,6 +45,7 @@ class Visual(str, Enum):
 
 class DataDriftAlgo(str, Enum):
     DDM = "DDM"
+    ADWIN = "ADWIN"
 
 
 class BiasAlgo(str, Enum):
