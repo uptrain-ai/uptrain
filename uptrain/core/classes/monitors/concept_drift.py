@@ -22,6 +22,7 @@ class ConceptDrift(AbstractMonitor):
         self.avg_acc = 0
         self.drift_alerted = False
         self.algorithm = check["algorithm"]
+        self.counter = 0
 
         if self.algorithm == DataDriftAlgo.DDM:
             warm_start = check.get("warm_start", 500)
@@ -45,12 +46,12 @@ class ConceptDrift(AbstractMonitor):
         batch_acc = self.measurable.compute_and_log(inputs, outputs, gts, extra_args)
         batch_acc = self._preprocess(batch_acc)
 
-        for time, acc in enumerate(batch_acc):
+        for acc in batch_acc:
             alert = None
             self.algo.update(acc)
 
             if self.algo.drift_detected and not self.drift_alerted:
-                alert = f"Drift detected with {self.algorithm} at time: {time}"
+                alert = f"Drift detected with {self.algorithm} at time: {self.counter}"
                 print(alert)
                 self.drift_alerted = True
 
@@ -64,6 +65,8 @@ class ConceptDrift(AbstractMonitor):
                 len(self.acc_arr),
                 self.dashboard_name,
             )
+            self.counter += 1
+
             if isinstance(alert, str):
                 self.log_handler.add_alert(
                     "Model Performance Degradation Alert 🚨", alert, self.dashboard_name
