@@ -11,7 +11,7 @@ from uptrain.constants import Statistic
 
 class Convergence(AbstractStatistic):
     dashboard_name = "convergence_stats"
-    anomaly_type = Statistic.CONVERGENCE_STATS
+    statistic_type = Statistic.CONVERGENCE_STATS
 
     def base_init(self, fw, check):
         self.aggregate_measurable = MeasurableResolver(check["aggregate_args"]).resolve(

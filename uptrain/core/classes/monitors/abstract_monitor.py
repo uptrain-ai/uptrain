@@ -3,7 +3,7 @@ import numpy as np
 from uptrain.core.classes.monitors import AbstractCheck
 
 class AbstractMonitor(AbstractCheck):
-    anomaly_type = None
+    monitor_type = None
 
     def need_ground_truth(self):
         return False
