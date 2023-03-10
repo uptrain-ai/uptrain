@@ -14,7 +14,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="uptrain",
-    version="0.0.8",
+    version="0.0.9",
     description="UpTrain - ML Observability and Retraining Framework",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -27,11 +27,7 @@ setup(
     license="Apache License 2.0",
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
-        # How mature is this project? Common values are
-        #   3 - Alpha
-        #   4 - Beta
-        #   5 - Production/Stable
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Build Tools",
         # Pick your license as you wish (should match "license" above)
@@ -50,7 +46,9 @@ setup(
         "plotly>=5.0.0",
         "pydantic>=1.9.0",
         "scikit_learn>=1.0.0",
-        "streamlit>=1.0.0"
+        "streamlit>=1.0.0",
+        "shap>=0.41.0",
+        "json-fix>=0.5.0",
     ],
     tests_require=["pytest>=7.0", "torch", "imgaug", "gensim", "xgboost", "gensim"],
 )

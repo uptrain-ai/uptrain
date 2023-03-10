@@ -1,25 +1,24 @@
 import numpy as np
 
-from uptrain.core.classes.anomalies import AbstractAnomaly
+from uptrain.core.classes.monitors import AbstractMonitor
 from uptrain.core.classes.signals import SignalManager
-from uptrain.constants import Anomaly
+from uptrain.constants import Monitor
 
 
-class EdgeCase(AbstractAnomaly):
+class EdgeCase(AbstractMonitor):
     dashboard_name = "edge_cases"
-    anomaly_type = Anomaly.EDGE_CASE
+    anomaly_type = Monitor.EDGE_CASE
 
-    def __init__(self, fw, signal_formulae):
-        self.log_handler = fw.log_handler
+    def base_init(self, fw, check):
         self.signal_manager = SignalManager()
-        self.signal_manager.add_signal_formulae(signal_formulae)
+        self.signal_manager.add_signal_formulae(check['signal_formulae'])
         self.num_preds = 0
         self.num_selected = 0
 
-    def check(self, inputs, outputs, gts=None, extra_args={}):
+    def base_check(self, inputs, outputs, gts=None, extra_args={}):
         return
 
-    def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
+    def base_is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
         is_interesting = self.signal_manager.evaluate_signal(
             inputs, outputs, gts=gts, extra_args=extra_args
         )
@@ -31,7 +30,13 @@ class EdgeCase(AbstractAnomaly):
             self.num_preds,
             self.dashboard_name,
         )
-        return is_interesting
+        reasons = []
+        for is_in in is_interesting:
+            if is_in:
+                reasons.append("Edge_case_collected_via_Signal")
+            else:
+                reasons.append("None")
+        return is_interesting, reasons
 
     def need_ground_truth(self):
         return False

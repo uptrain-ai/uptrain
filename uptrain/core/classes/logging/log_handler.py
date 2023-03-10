@@ -7,6 +7,8 @@ class LogHandler:
     def __init__(self, framework=None, cfg=None):
         self.fw = framework
         log_folder = cfg.logging_args.log_folder
+        self.path_all_data = framework.path_all_data
+
         if os.path.exists(log_folder):
             print("Deleting the folder: ", log_folder)
             shutil.rmtree(log_folder)
@@ -23,19 +25,27 @@ class LogHandler:
         self.webhook_url = cfg.logging_args.slack_webhook_url
 
         # Saving config to get model metadata
-        cfg_metadata = {'model_args': None, 'feature_args': None}
+        self.cfg_metadata = {}
         if len(cfg.checks) > 0:
             check = cfg.checks[0]
-            cfg_metadata.update({'model_args': check.get('model_args', None)})
-            cfg_metadata.update({'feature_args': check.get('feature_args', None)})
-        if cfg.logging_args.st_logging:
-            metadata_file = os.path.join(self.st_log_folder, "metadata.json")
-            with open(metadata_file, "w") as f:
-                json.dump(cfg_metadata, f)
+            self.add_st_metadata({'model_args': check.get('model_args', None), 
+                                  'feature_args': check.get('feature_args', None)})
+        else:
+            self.add_st_metadata({'model_args': None, 'feature_args': None})
+
+    def add_st_metadata(self, new_dict):
+        if self.st_writer is None:
+            return
+        self.cfg_metadata.update(new_dict)
+        metadata_file = os.path.join(self.st_log_folder, "metadata.json")
+        with open(metadata_file, "w") as f:
+            json.dump(self.cfg_metadata, f)
 
     def get_plot_save_name(self, plot_name, dashboard_name):
         if self.st_writer:
-            return os.path.join(self.st_log_folder, dashboard_name, plot_name)
+            dir_name = os.path.join(self.st_log_folder, dashboard_name)
+            os.makedirs(dir_name, exist_ok=True)
+            return os.path.join(dir_name, plot_name)
         else:
             return ""
 
@@ -73,7 +83,7 @@ class LogHandler:
                 file_name = plot_name
             self.st_writer.add_histogram(data, plot_folder, features=features, models=models, file_name=file_name)
 
-    def add_bar_graphs(self, plot_name, data, dashboard_name, count=-1):
+    def add_bar_graphs(self, plot_name, data, dashboard_name, count=-1, hover_data={}):
         if self.st_writer is None:
             return
         dashboard_name, plot_name = self.dir_friendly_name(
@@ -82,7 +92,7 @@ class LogHandler:
         dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
         plot_folder = os.path.join(dashboard_dir, "bar_graphs", plot_name)
         os.makedirs(plot_folder, exist_ok=True)
-        self.st_writer.add_bar_graphs(data, plot_folder, count)
+        self.st_writer.add_bar_graphs(data, plot_folder, count, hover_data=hover_data)
 
     def dir_friendly_name(self, arr):
         if isinstance(arr, str):

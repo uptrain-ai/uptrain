@@ -118,19 +118,19 @@ cfg = {
     # Define your metrics to identify data drifts
     "checks": [
         {
-            'type': uptrain.Anomaly.POPULARITY_BIAS,
+            'type': uptrain.Monitor.POPULARITY_BIAS,
             'algorithm': uptrain.BiasAlgo.POPULARITY_BIAS,
             'sessions': x_train_sku,   
         },
         {
-            'type': uptrain.Anomaly.CUSTOM_MONITOR,
+            'type': uptrain.Monitor.CUSTOM_MONITOR,
             'initialize_func': cosine_dist_init,
             'check_func': cosine_distance_check,
             'need_gt': True,
             'dashboard_name': 'cosine_distance'
         },
         {
-            'type': uptrain.Anomaly.CUSTOM_MONITOR,
+            'type': uptrain.Monitor.CUSTOM_MONITOR,
             'initialize_func': price_homogeneity_init,
             'check_func': price_homogeneity_check,
             'need_gt': True,

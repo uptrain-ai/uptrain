@@ -57,15 +57,19 @@ def generate_reference_dataset_with_embeddings(dataset, tokenizer, model, datase
             print("Generated bert embeddings for " + str((jdx+1) * 100) + " training samples")
             bert_embs_downsampled = downsample_embs(bert_embs)
             for idx in range(len(this_batch)):
-                data.append({
-                    'id': jdx*100+idx,
-                    "dataset_label": dataset_label,
-                    'title': dataset['title'][jdx*100+idx],
-                    'text': dataset['text'][jdx*100+idx],
-                    'model_output': summaries[idx],
-                    'bert_embs': bert_embs[idx].tolist(),
-                    'bert_embs_downsampled': bert_embs_downsampled[idx].tolist()
-                })
+                try:
+                    data.append({
+                        'id': jdx*100+idx,
+                        "dataset_label": dataset_label,
+                        'title': dataset['title'][jdx*100+idx],
+                        'text': dataset['text'][jdx*100+idx],
+                        'output': summaries[idx],
+                        'bert_embs': bert_embs[idx].tolist(),
+                        'bert_embs_downsampled': bert_embs_downsampled[idx].tolist(),
+                        'num_words': get_num_words_in_text(dataset[jdx*100+idx], None)
+                    })
+                except:
+                    import pdb; pdb.set_trace()
 
         with open(file_name, "w") as f:
             json.dump(data, f, cls=uptrain.UpTrainEncoder)
@@ -82,9 +86,8 @@ def combine_datasets(dataset_1, label_1, dataset_2, label_2):
     final_test_dataset = final_test_dataset.add_column("dataset_label", labels)
     return final_test_dataset
 
-def download_wikihow_csv_file():
-    file_name = "wikihowAll.csv"
-    remote_url = "https://oodles-dev-training-data.s3.amazonaws.com/wikihowAll.csv"
+def download_wikihow_csv_file(file_name):
+    remote_url = "https://oodles-dev-training-data.s3.us-west-1.amazonaws.com/" + file_name
     if not os.path.exists(file_name):
         print("Starting to download " + file_name)
         try:
@@ -107,3 +110,23 @@ def download_wikihow_csv_file():
             print("Step 2: Once the csv file is downloaded, move it here (i.e. YOUR_LOC/uptrain/examples/text_summarization/")
     else:
         print(file_name + " already present")
+
+def get_num_words_in_text(inputs, outputs, gts=None, extra_args={}):
+    txt_buckets = []
+    buckets = extra_args.get('buckets', [0, 200, 500, 750, 1000, 2000, 5000, 100000, 100000000])
+    for txt in inputs['text']:
+        num_words = len(txt.split())
+        for idx in range(len(buckets)):
+            if (num_words >= buckets[idx]) and (num_words < buckets[idx+1]):
+                txt_buckets.append(str(buckets[idx]) + "-" + str(buckets[idx+1]))
+                break
+    return txt_buckets
+
+
+def get_num_prepositions_in_text(inputs, outputs, gts=None, extra_args={}):
+    num_prepositions = []
+    preposition_list = ['in', 'on', 'at', 'among', 'between', 'through', 'across', 'above', 'over', 'up', 'down', 'to', 'with', 'by', 'beside', 'beneath', 'in front of']
+    for txt in inputs['text']:
+        all_words = txt.split()
+        num_prepositions.append(len(list(set(all_words).intersection(preposition_list))))
+    return num_prepositions
