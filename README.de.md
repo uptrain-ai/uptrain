@@ -66,10 +66,10 @@
 
 -   **[Datendrift-Checks](https://docs.uptrain.ai/docs/uptrain-monitors/data-drift)**- Identifizieren Sie Verteilungsverschiebungen in Ihren Modelleingaben.
 -   **[Leistungsüberwachung](https://docs.uptrain.ai/docs/uptrain-monitors/concept-drift)**- Verfolgen Sie die Leistung Ihrer Modelle in Echtzeit und erhalten Sie Verschlechterungswarnungen.
--   **[Einbettungsunterstützung](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)**- Spezialisierte Dashboards zum Verständnis von modellbedingten Einbettungen.
+-   **[Einbettungsunterstützung](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)**- Spezialisierte Dashboards zum Verständnis der vom Modell abgeleiteten Einbettungen.
 -   **[Edge-Case-Signale](https://docs.uptrain.ai/docs/uptrain-monitors/edge-case-detection)**- Benutzerdefinierte Signale und statistische Techniken zur Erkennung von Datenpunkten außerhalb der Verteilung.
 -   **[Datenintegritätsprüfungen](https://docs.uptrain.ai/docs/uptrain-monitors/data-integrity)**- Überprüfung auf fehlende oder inkonsistente Daten, doppelte Aufzeichnungen, Datenqualität usw.
--   **[Anpassbare Metriken](https://docs.uptrain.ai/docs/monitoring-custom-metrics)**- Definieren Sie benutzerdefinierte Metriken, die für Ihren Anwendungsfall sinnvoll sind.
+-   **[Anpassbare Metriken](https://docs.uptrain.ai/docs/monitoring-custom-metrics)** - Define custom metrics that make sense for your use case.
 -   **[Automatisierte Umschulung](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_check_all.ipynb)**- Automatisieren Sie das Neutraining von Modellen, indem Sie Ihre Trainings- und Inferenz-Pipelines anhängen.
 -   **[Modellverzerrung](https://docs.uptrain.ai/docs/uptrain-monitors/model-bias)**- Verfolgen Sie Verzerrungen in den Vorhersagen Ihres ML-Modells.
 -   **[KI-Erklärbarkeit](https://docs.uptrain.ai/docs/uptrain-visuals/shap-explainability)**- Verstehen Sie die relative Bedeutung mehrerer Merkmale für Vorhersagen.
@@ -144,7 +144,7 @@ Einer der häufigsten Anwendungsfälle von ML sind heute Sprachmodelle, sei es T
 <img alt="perf_gif" width="40%" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/finetuning_llms/edge_cases.gif">
 </h1>
 
-# Warum UpTrain 🤔?
+# Why UpTrain 🤔?
 
 Modelle für maschinelles Lernen (ML) werden häufig verwendet, um wichtige Geschäftsentscheidungen zu treffen. Dennoch ist kein ML-Modell zu 100 % genau, und außerdem nimmt seine Genauigkeit mit der Zeit ab 😣. Beispielsweise wird die Verkaufsvorhersage im Laufe der Zeit aufgrund einer Änderung der Kaufgewohnheiten der Verbraucher ungenau. Darüber hinaus ist es aufgrund der Black-Box-Natur von ML-Modellen schwierig, ihre Probleme zu identifizieren und zu beheben.
 
