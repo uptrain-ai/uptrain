@@ -52,11 +52,9 @@
 <h4>
 </h4>
 
-**これを他の言語で読む**：<kbd>[<img title="English" alt="English language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/us.svg" width="22">](README.md)</kbd><kbd>[<img title="German" alt="German language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/de.svg" width="22">](i18n/README.de.md)</kbd><kbd>[<img title="Hindi" alt="Hindi language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/in.svg" width="22">](i18n/README.hi.md)</kbd><kbd>[<img title="Spanish" alt="Spanish language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/es.svg" width="22">](i18n/README.es.md)</kbd><kbd>[<img title="French" alt="French language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/fr.svg" width="22">](i18n/README.fr.md)</kbd><kbd>[<img title="Japanese" alt="Japanese language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/jp.svg" width="22">](i18n/README.ja.md)</kbd>
+**これを他の言語で読む**：<kbd>[<img title="English" alt="English language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/us.svg" width="22">](README.md)</kbd><kbd>[<img title="German" alt="German language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/de.svg" width="22">](i18n/README.de.md)</kbd><kbd>[<img title="Hindi" alt="Hindi language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/in.svg" width="22">](i18n/README.hi.md)</kbd><kbd>[<img title="Spanish" alt="Spanish language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/es.svg" width="22">](i18n/README.es.md)</kbd><kbd>[<img title="French" alt="French language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/fr.svg" width="22">](i18n/README.fr.md)</kbd><kbd>[<img title="Japanese" alt="Japanese language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/jp.svg" width="22">](i18n/README.ja.md)</kbd><kbd>[<img title="Korean" alt="Korean language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/kr.svg" width="22">](i18n/README.ko.md)</kbd>
 
--   [ドイツ人](README.de.md)
-
-**[アップトレイン](https://uptrain.ai)**は、ML 実践者がパフォーマンスを監視し、(データ) 分布シフトをチェックし、エッジ ケースを収集して再トレーニングすることで、ML モデルを観察および改良するためのオープンソースでデータ保護されたツールです。既存の本番パイプラインとシームレスに統合され、数分で開始できます⚡。
+**[アップトレイン](https://uptrain.ai)**は、ML 実践者がパフォーマンスを監視し、(データ) 分布の変化を確認し、エッジ ケースを収集して再トレーニングすることで、ML モデルを観察および改良するための、オープンソースでデータ保護されたツールです。既存の本番パイプラインとシームレスに統合され、数分で開始できます⚡。
 
 <h4>
 </h4>
@@ -66,8 +64,8 @@
 
 -   **[データドリフトチェック](https://docs.uptrain.ai/docs/uptrain-monitors/data-drift)**- モデル入力の分布シフトを特定します。
 -   **[パフォーマンス監視](https://docs.uptrain.ai/docs/uptrain-monitors/concept-drift)**- モデルのパフォーマンスをリアルタイムで追跡し、劣化アラートを取得します。
--   **[埋め込みのサポート](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)**- モデルによって推測された埋め込みを理解するための専用ダッシュボード。
--   **[エッジ ケース シグナル](https://docs.uptrain.ai/docs/uptrain-monitors/edge-case-detection)**- 分布外のデータポイントを検出するためのユーザー定義のシグナルと統計手法。
+-   **[埋め込みのサポート](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)**- モデルによって推測された埋め込みを理解するための特別なダッシュボード。
+-   **[エッジ ケース シグナル](https://docs.uptrain.ai/docs/uptrain-monitors/edge-case-detection)**- 分布外のデータポイントを検出するためのユーザー定義の信号と統計手法。
 -   **[データ整合性チェック](https://docs.uptrain.ai/docs/uptrain-monitors/data-integrity)**- データの欠落または矛盾、重複レコード、データ品質などをチェックします。
 -   **[カスタマイズ可能な指標](https://docs.uptrain.ai/docs/monitoring-custom-metrics)**- ユース ケースに適したカスタム メトリックを定義します。
 -   **[自動再トレーニング](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_check_all.ipynb)**- トレーニング パイプラインと推論パイプラインを接続して、モデルの再トレーニングを自動化します。
