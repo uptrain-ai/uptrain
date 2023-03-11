@@ -52,7 +52,7 @@
 <h4>
 </h4>
 
-## README Перевод
+**Читать это на других языках**:<kbd>[<img title="English" alt="English language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/us.svg" width="22">](README.md)</kbd><kbd>[<img title="German" alt="German language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/de.svg" width="22">](i18n/README.de.md)</kbd><kbd>[<img title="Hindi" alt="Hindi language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/in.svg" width="22">](i18n/README.hi.md)</kbd><kbd>[<img title="Spanish" alt="Spanish language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/es.svg" width="22">](i18n/README.es.md)</kbd><kbd>[<img title="French" alt="French language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/fr.svg" width="22">](i18n/README.fr.md)</kbd><kbd>[<img title="Japanese" alt="Japanese language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/jp.svg" width="22">](i18n/README.ja.md)</kbd>
 
 -   [Немецкий](README.de.md)
 
@@ -118,7 +118,7 @@ jupyter lab
 
 # UpTrain in[действие](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)🎬
 
-Одним из наиболее распространенных вариантов использования ML сегодня являются языковые модели, будь то суммирование текста, NER, чат-боты, языковой перевод и т. д. UpTrain предоставляет способы визуализации различий в обучающих и реальных данных с помощью UMAP-кластеризации текстовых вложений (выведенных от Берта). Ниже приведены некоторые повторы с панели управления UpTrain.
+Одним из наиболее распространенных вариантов использования ML сегодня являются языковые модели, будь то суммирование текста, NER, чат-боты, языковой перевод и т. д. UpTrain предоставляет способы визуализации различий в обучающих и реальных данных с помощью кластеризации UMAP встраивания текста (выведенного от Берта). Ниже приведены некоторые повторы с панели управления UpTrain.
 
 ### Объяснимость ИИ из коробки
 
