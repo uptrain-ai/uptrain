@@ -56,7 +56,7 @@
 
 -   [Deutsch](README.de.md)
 
-**[UpTrain](https://uptrain.ai)**ist ein datensicheres Open-Source-Tool für ML-Praktiker, um ihre ML-Modelle zu beobachten und zu verfeinern, indem sie ihre Leistung überwachen, auf (Daten-)Verteilungsverschiebungen prüfen und Randfälle sammeln, um sie neu zu schulen. Es lässt sich nahtlos in Ihre bestehenden Produktionspipelines integrieren und ist in wenigen Minuten einsatzbereit ⚡.
+**[UpZug](https://uptrain.ai)**ist ein datensicheres Open-Source-Tool für ML-Praktiker, um ihre ML-Modelle zu beobachten und zu verfeinern, indem sie ihre Leistung überwachen, auf (Daten-)Verteilungsverschiebungen prüfen und Randfälle sammeln, um sie neu zu schulen. Es lässt sich nahtlos in Ihre bestehenden Produktionspipelines integrieren und ist in wenigen Minuten einsatzbereit ⚡.
 
 <h4>
 </h4>
@@ -66,7 +66,7 @@
 
 -   **[Datendrift-Checks](https://docs.uptrain.ai/docs/uptrain-monitors/data-drift)**- Identifizieren Sie Verteilungsverschiebungen in Ihren Modelleingaben.
 -   **[Leistungsüberwachung](https://docs.uptrain.ai/docs/uptrain-monitors/concept-drift)**- Verfolgen Sie die Leistung Ihrer Modelle in Echtzeit und erhalten Sie Verschlechterungswarnungen.
--   **[Einbettungsunterstützung](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)**- Spezialisierte Dashboards zum Verständnis der vom Modell abgeleiteten Einbettungen.
+-   **[Einbettungsunterstützung](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)**- Spezialisierte Dashboards zum Verständnis von modellbedingten Einbettungen.
 -   **[Edge-Case-Signale](https://docs.uptrain.ai/docs/uptrain-monitors/edge-case-detection)**- Benutzerdefinierte Signale und statistische Techniken zur Erkennung von Datenpunkten außerhalb der Verteilung.
 -   **[Datenintegritätsprüfungen](https://docs.uptrain.ai/docs/uptrain-monitors/data-integrity)**- Überprüfung auf fehlende oder inkonsistente Daten, doppelte Aufzeichnungen, Datenqualität usw.
 -   **[Anpassbare Metriken](https://docs.uptrain.ai/docs/monitoring-custom-metrics)**- Definieren Sie benutzerdefinierte Metriken, die für Ihren Anwendungsfall sinnvoll sind.
