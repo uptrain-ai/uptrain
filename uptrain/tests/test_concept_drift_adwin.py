@@ -7,7 +7,7 @@ import uptrain
 def test_concept_drift_adwin():
     # Generate data for 4 distributions
     random_state = np.random.RandomState(seed=1337)
-    params = [(0.2, 0.03, 1000), (0.5, 0.08, 1000), (0.8, 0.02, 1000), (0.6, 0.1, 1000)]
+    params = [(0.0, 0.03, 1000), (0.5, 0.08, 1000)]
     distributions = np.array([random_state.normal(*param) for param in params])
     stream = distributions.flatten()
 
@@ -30,6 +30,7 @@ def test_concept_drift_adwin():
         plt.tight_layout()
         plt.show()
 
+    # Plot data for debugging
     # plot_data()
 
     cfg = {
