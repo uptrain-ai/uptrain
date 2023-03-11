@@ -52,7 +52,7 @@
 <h4>
 </h4>
 
-## LÉAME Traducción
+**Lea esto en otros idiomas**:<kbd>[<img title="English" alt="English language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/us.svg" width="22">](README.md)</kbd><kbd>[<img title="German" alt="German language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/de.svg" width="22">](i18n/README.de.md)</kbd><kbd>[<img title="Hindi" alt="Hindi language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/in.svg" width="22">](i18n/README.hi.md)</kbd><kbd>[<img title="Spanish" alt="Spanish language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/es.svg" width="22">](i18n/README.es.md)</kbd><kbd>[<img title="French" alt="French language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/fr.svg" width="22">](i18n/README.fr.md)</kbd><kbd>[<img title="Japanese" alt="Japanese language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/jp.svg" width="22">](i18n/README.ja.md)</kbd>
 
 -   [Alemán](README.de.md)
 
@@ -79,12 +79,12 @@
 
 ## 🚨Próximamente🚨
 
--   **Cambio de etiqueta**- Identificar desviaciones en sus predicciones. Especialmente útil en los casos en que la realidad del terreno no está disponible.
+-   **Cambio de etiqueta**- Identificar desviaciones en sus predicciones. Especialmente útil en los casos en que la verdad del terreno no está disponible.
 -   **Intervalo de confianza del modelo**- Intervalos de confianza para las predicciones del modelo
 -   **Técnicas avanzadas de detección de deriva**- Métodos de detección de deriva basados ​​en valores atípicos
 -   **Rebanado de características avanzadas**- Capacidad para dividir propiedades estadísticas
 -   **Prueba de Kolmogorov-Smirnov**- Para la detección de turnos de distribución
--   **Estabilidad de predicción**- Filtrar los casos en los que la predicción del modelo no es estable.
+-   **Estabilidad de predicción**- Filtrar casos donde la predicción del modelo no es estable.
 -   **Cheques contradictorios**- Combatir los ataques adversarios
 
 Y más.
