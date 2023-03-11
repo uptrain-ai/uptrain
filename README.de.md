@@ -52,11 +52,9 @@
 <h4>
 </h4>
 
-**Lesen Sie dies in anderen Sprachen**:<kbd>[<img title="English" alt="English language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/us.svg" width="22">](README.md)</kbd><kbd>[<img title="German" alt="German language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/de.svg" width="22">](i18n/README.de.md)</kbd><kbd>[<img title="Hindi" alt="Hindi language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/in.svg" width="22">](i18n/README.hi.md)</kbd><kbd>[<img title="Spanish" alt="Spanish language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/es.svg" width="22">](i18n/README.es.md)</kbd><kbd>[<img title="French" alt="French language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/fr.svg" width="22">](i18n/README.fr.md)</kbd><kbd>[<img title="Japanese" alt="Japanese language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/jp.svg" width="22">](i18n/README.ja.md)</kbd>
+**Lesen Sie dies in anderen Sprachen**:<kbd>[<img title="English" alt="English language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/us.svg" width="22">](README.md)</kbd><kbd>[<img title="German" alt="German language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/de.svg" width="22">](i18n/README.de.md)</kbd><kbd>[<img title="Hindi" alt="Hindi language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/in.svg" width="22">](i18n/README.hi.md)</kbd><kbd>[<img title="Spanish" alt="Spanish language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/es.svg" width="22">](i18n/README.es.md)</kbd><kbd>[<img title="French" alt="French language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/fr.svg" width="22">](i18n/README.fr.md)</kbd><kbd>[<img title="Japanese" alt="Japanese language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/jp.svg" width="22">](i18n/README.ja.md)</kbd><kbd>[<img title="Korean" alt="Korean language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/kr.svg" width="22">](i18n/README.ko.md)</kbd>
 
--   [Deutsch](README.de.md)
-
-**[UpZug](https://uptrain.ai)**ist ein datensicheres Open-Source-Tool für ML-Praktiker, um ihre ML-Modelle zu beobachten und zu verfeinern, indem sie ihre Leistung überwachen, auf (Daten-)Verteilungsverschiebungen prüfen und Grenzfälle sammeln, um sie neu zu schulen. Es lässt sich nahtlos in Ihre bestehenden Produktionspipelines integrieren und ist in wenigen Minuten einsatzbereit ⚡.
+**[UpZug](https://uptrain.ai)**ist ein datensicheres Open-Source-Tool für ML-Praktiker, um ihre ML-Modelle zu beobachten und zu verfeinern, indem sie ihre Leistung überwachen, auf (Daten-)Verteilungsverschiebungen prüfen und Randfälle sammeln, um sie neu zu schulen. Es lässt sich nahtlos in Ihre bestehenden Produktionspipelines integrieren und ist in wenigen Minuten einsatzbereit ⚡.
 
 <h4>
 </h4>
@@ -66,10 +64,10 @@
 
 -   **[Datendrift-Checks](https://docs.uptrain.ai/docs/uptrain-monitors/data-drift)**- Identifizieren Sie Verteilungsverschiebungen in Ihren Modelleingaben.
 -   **[Leistungsüberwachung](https://docs.uptrain.ai/docs/uptrain-monitors/concept-drift)**- Verfolgen Sie die Leistung Ihrer Modelle in Echtzeit und erhalten Sie Verschlechterungswarnungen.
--   **[Einbettungsunterstützung](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)**- Spezialisierte Dashboards zum Verständnis der vom Modell abgeleiteten Einbettungen.
+-   **[Einbettungsunterstützung](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)**- Spezialisierte Dashboards zum Verständnis von modellbedingten Einbettungen.
 -   **[Edge-Case-Signale](https://docs.uptrain.ai/docs/uptrain-monitors/edge-case-detection)**- Benutzerdefinierte Signale und statistische Techniken zur Erkennung von Datenpunkten außerhalb der Verteilung.
 -   **[Datenintegritätsprüfungen](https://docs.uptrain.ai/docs/uptrain-monitors/data-integrity)**- Überprüfung auf fehlende oder inkonsistente Daten, doppelte Aufzeichnungen, Datenqualität usw.
--   **[Customizable metrics](https://docs.uptrain.ai/docs/monitoring-custom-metrics)**- Definieren Sie benutzerdefinierte Metriken, die für Ihren Anwendungsfall sinnvoll sind.
+-   **[Anpassbare Metriken](https://docs.uptrain.ai/docs/monitoring-custom-metrics)**- Definieren Sie benutzerdefinierte Metriken, die für Ihren Anwendungsfall sinnvoll sind.
 -   **[Automatisierte Umschulung](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_check_all.ipynb)**- Automatisieren Sie das Neutraining von Modellen, indem Sie Ihre Trainings- und Inferenz-Pipelines anhängen.
 -   **[Modellverzerrung](https://docs.uptrain.ai/docs/uptrain-monitors/model-bias)**- Verfolgen Sie Verzerrungen in den Vorhersagen Ihres ML-Modells.
 -   **[KI-Erklärbarkeit](https://docs.uptrain.ai/docs/uptrain-visuals/shap-explainability)**- Verstehen Sie die relative Bedeutung mehrerer Merkmale für Vorhersagen.
