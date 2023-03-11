@@ -24,3 +24,27 @@ jobs:
         uses: dephraiim/translate-readme@main
         with:
           LANG: de
+      - name: Adding README - Chinese
+        uses: dephraiim/translate-readme@main
+        with:
+          LANG: zh-CN
+      - name: Adding README - Hindi
+        uses: dephraiim/translate-readme@main
+        with:
+          LANG: hi
+      - name: Adding README - Spanish
+        uses: dephraiim/translate-readme@main
+        with:
+          LANG: es
+      - name: Adding README - French
+        uses: dephraiim/translate-readme@main
+        with:
+          LANG: fr
+      - name: Adding README - Japanse
+        uses: dephraiim/translate-readme@main
+        with:
+          LANG: ja
+      - name: Adding README - Russian
+        uses: dephraiim/translate-readme@main
+        with:
+          LANG: ru
