@@ -52,7 +52,7 @@
 <h4>
 </h4>
 
-## Traduction LISEZMOI
+**Lire ceci dans d'autres langues**:<kbd>[<img title="English" alt="English language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/us.svg" width="22">](README.md)</kbd><kbd>[<img title="German" alt="German language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/de.svg" width="22">](i18n/README.de.md)</kbd><kbd>[<img title="Hindi" alt="Hindi language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/in.svg" width="22">](i18n/README.hi.md)</kbd><kbd>[<img title="Spanish" alt="Spanish language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/es.svg" width="22">](i18n/README.es.md)</kbd><kbd>[<img title="French" alt="French language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/fr.svg" width="22">](i18n/README.fr.md)</kbd><kbd>[<img title="Japanese" alt="Japanese language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/jp.svg" width="22">](i18n/README.ja.md)</kbd>
 
 -   [Allemand](README.de.md)
 
@@ -66,12 +66,12 @@
 
 -   **[Contrôles de dérive des données](https://docs.uptrain.ai/docs/uptrain-monitors/data-drift)**- Identifiez les changements de distribution dans les entrées de votre modèle.
 -   **[Suivi de la performance](https://docs.uptrain.ai/docs/uptrain-monitors/concept-drift)**- Suivez les performances de vos modèles en temps réel et recevez des alertes de dégradation.
--   **[Prise en charge des intégrations](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)**- Tableaux de bord spécialisés pour comprendre les intégrations induites par le modèle.
+-   **[Prise en charge des incorporations](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)**- Tableaux de bord spécialisés pour comprendre les intégrations induites par le modèle.
 -   **[Signaux de cas extrêmes](https://docs.uptrain.ai/docs/uptrain-monitors/edge-case-detection)**- Signaux définis par l'utilisateur et techniques statistiques pour détecter les points de données hors distribution.
 -   **[Vérifications de l'intégrité des données](https://docs.uptrain.ai/docs/uptrain-monitors/data-integrity)**- Vérifie les données manquantes ou incohérentes, les enregistrements en double, la qualité des données, etc.
 -   **[Métriques personnalisables](https://docs.uptrain.ai/docs/monitoring-custom-metrics)**- Définissez des métriques personnalisées adaptées à votre cas d'utilisation.
 -   **[Recyclage automatisé](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_check_all.ipynb)**- Automatisez le recyclage des modèles en associant vos pipelines de formation et d'inférence.
--   **[Biais du modèle](https://docs.uptrain.ai/docs/uptrain-monitors/model-bias)** - Track bias in your ML model's predictions.
+-   **[Biais du modèle](https://docs.uptrain.ai/docs/uptrain-monitors/model-bias)**- Suivez les biais dans les prédictions de votre modèle ML.
 -   **[Explicabilité de l'IA](https://docs.uptrain.ai/docs/uptrain-visuals/shap-explainability)**- Comprendre l'importance relative de plusieurs fonctionnalités sur les prédictions.
 -   **Sécurité des données**- Vos données ne sortent jamais de votre machine.
 -   **Intégration Slack**- Recevez des alertes sur Slack.
@@ -97,7 +97,7 @@ Vous pouvez rapidement démarrer avec[Colab Google ici](https://colab.research.g
 
 Pour l'exécuter sur votre machine, suivez les étapes ci-dessous :
 
-### Installez le package via pip :
+### Install the package through pip:
 
 ```console
 pip install uptrain
