@@ -52,7 +52,7 @@
 <h4>
 </h4>
 
-## README 翻訳
+**これを他の言語で読む**：<kbd>[<img title="English" alt="English language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/us.svg" width="22">](README.md)</kbd><kbd>[<img title="German" alt="German language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/de.svg" width="22">](i18n/README.de.md)</kbd><kbd>[<img title="Hindi" alt="Hindi language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/in.svg" width="22">](i18n/README.hi.md)</kbd><kbd>[<img title="Spanish" alt="Spanish language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/es.svg" width="22">](i18n/README.es.md)</kbd><kbd>[<img title="French" alt="French language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/fr.svg" width="22">](i18n/README.fr.md)</kbd><kbd>[<img title="Japanese" alt="Japanese language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/jp.svg" width="22">](i18n/README.ja.md)</kbd>
 
 -   [ドイツ人](README.de.md)
 
@@ -67,7 +67,7 @@
 -   **[データドリフトチェック](https://docs.uptrain.ai/docs/uptrain-monitors/data-drift)**- モデル入力の分布シフトを特定します。
 -   **[パフォーマンス監視](https://docs.uptrain.ai/docs/uptrain-monitors/concept-drift)**- モデルのパフォーマンスをリアルタイムで追跡し、劣化アラートを取得します。
 -   **[埋め込みのサポート](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)**- モデルによって推測された埋め込みを理解するための専用ダッシュボード。
--   **[エッジ ケース シグナル](https://docs.uptrain.ai/docs/uptrain-monitors/edge-case-detection)**- 分布外のデータポイントを検出するためのユーザー定義の信号と統計手法。
+-   **[エッジ ケース シグナル](https://docs.uptrain.ai/docs/uptrain-monitors/edge-case-detection)**- 分布外のデータポイントを検出するためのユーザー定義のシグナルと統計手法。
 -   **[データ整合性チェック](https://docs.uptrain.ai/docs/uptrain-monitors/data-integrity)**- データの欠落または矛盾、重複レコード、データ品質などをチェックします。
 -   **[カスタマイズ可能な指標](https://docs.uptrain.ai/docs/monitoring-custom-metrics)**- ユース ケースに適したカスタム メトリックを定義します。
 -   **[自動再トレーニング](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_check_all.ipynb)**- トレーニング パイプラインと推論パイプラインを接続して、モデルの再トレーニングを自動化します。
@@ -82,7 +82,7 @@
 -   **ラベル シフト**- 予測のドリフトを特定します。グラウンド トゥルースが利用できない場合に特に役立ちます。
 -   **モデルの信頼区間**- モデル予測の信頼区間
 -   **高度なドリフト検出技術**- 外れ値ベースのドリフト検出方法
--   **高度な機能スライス** - Ability to slice statistical properties
+-   **高度な機能スライス**- 統計プロパティをスライスする機能
 -   **コルモゴロフ・スミルノフ検定**- 分布シフトの検出用
 -   **予測の安定性**- モデル予測が安定していないケースをフィルタリングします。
 -   **敵対的チェック**- 敵対的攻撃と戦う
@@ -118,7 +118,7 @@ UpTrain の仕組みの簡単なチュートリアルについては、こちら
 
 # アップトレインイン[アクション](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)🎬
 
-今日の ML の最も一般的な使用例の 1 つは言語モデルで、テキスト要約、NER、チャットボット、言語翻訳などがあります。UpTrain は、テキスト埋め込みの UMAP クラスタリング (推定バートから）。以下は、UpTrain ダッシュボードからのリプレイです。
+今日の ML の最も一般的な使用例の 1 つは言語モデルであり、テキスト要約、NER、チャットボット、言語翻訳などがあります。UpTrain は、テキスト埋め込みの UMAP クラスタリング (推定バートから）。以下は、UpTrain ダッシュボードからのリプレイです。
 
 ### すぐに使える AI 説明可能性
 
@@ -132,7 +132,7 @@ UpTrain の仕組みの簡単なチュートリアルについては、こちら
 <img alt="perf_gif" width="40%" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/fraud_detection/concept_drift_avg_acc.gif"> <img alt="perf_gif" width="40%" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/finetuning_llms/data_integrity.gif">
 </h1>
 
-### UMAP Dimensionality Reduction and Visualization
+### UMAP の次元削減と可視化
 
 <h1 align="left">
 <img alt="umap_gif" width="60%" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/text_summarization/umap.gif">
@@ -146,7 +146,7 @@ UpTrain の仕組みの簡単なチュートリアルについては、こちら
 
 # アップトレインを選ぶ理由 🤔?
 
-機械学習 (ML) モデルは、重要なビジネス上の意思決定を行うために広く使用されています。それでも、100% 正確な ML モデルはなく、さらに、その精度は時間の経過とともに低下します😣.たとえば、消費者の購買習慣の変化により、売上予測は時間の経過とともに不正確になります。さらに、ML モデルのブラック ボックスの性質により、問題を特定して修正することは困難です。
+機械学習 (ML) モデルは、重要なビジネス上の意思決定を行うために広く使用されています。それでも、100% 正確な ML モデルはなく、さらに、時間の経過とともに精度が低下します😣.たとえば、消費者の購買習慣の変化により、売上予測は時間の経過とともに不正確になります。さらに、ML モデルのブラック ボックスの性質により、問題を特定して修正することは困難です。
 
 UpTrain はこれを解決します。データ サイエンティストと ML エンジニアがモデルのどこに問題があるかを簡単に理解し、他の人が文句を言う前に修正​​できるようにします🗣️。
 
