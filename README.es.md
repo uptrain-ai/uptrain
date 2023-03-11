@@ -52,9 +52,7 @@
 <h4>
 </h4>
 
-**Lea esto en otros idiomas**:<kbd>[<img title="English" alt="English language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/us.svg" width="22">](README.md)</kbd><kbd>[<img title="German" alt="German language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/de.svg" width="22">](i18n/README.de.md)</kbd><kbd>[<img title="Hindi" alt="Hindi language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/in.svg" width="22">](i18n/README.hi.md)</kbd><kbd>[<img title="Spanish" alt="Spanish language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/es.svg" width="22">](i18n/README.es.md)</kbd><kbd>[<img title="French" alt="French language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/fr.svg" width="22">](i18n/README.fr.md)</kbd><kbd>[<img title="Japanese" alt="Japanese language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/jp.svg" width="22">](i18n/README.ja.md)</kbd>
-
--   [Alemán](README.de.md)
+**Lea esto en otros idiomas**:<kbd>[<img title="English" alt="English language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/us.svg" width="22">](README.md)</kbd><kbd>[<img title="German" alt="German language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/de.svg" width="22">](i18n/README.de.md)</kbd><kbd>[<img title="Hindi" alt="Hindi language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/in.svg" width="22">](i18n/README.hi.md)</kbd><kbd>[<img title="Spanish" alt="Spanish language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/es.svg" width="22">](i18n/README.es.md)</kbd><kbd>[<img title="French" alt="French language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/fr.svg" width="22">](i18n/README.fr.md)</kbd><kbd>[<img title="Japanese" alt="Japanese language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/jp.svg" width="22">](i18n/README.ja.md)</kbd><kbd>[<img title="Korean" alt="Korean language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/kr.svg" width="22">](i18n/README.ko.md)</kbd>
 
 **[UpTrain](https://uptrain.ai)**es una herramienta segura de datos de código abierto para que los profesionales de ML observen y perfeccionen sus modelos de ML al monitorear su rendimiento, verificar los cambios de distribución (de datos) y recopilar casos extremos para volver a capacitarlos. Se integra a la perfección con sus canales de producción existentes y solo toma unos minutos para comenzar ⚡.
 
@@ -148,7 +146,7 @@ Uno de los casos de uso más comunes de ML en la actualidad son los modelos de l
 
 Los modelos de aprendizaje automático (ML) se utilizan ampliamente para tomar decisiones comerciales críticas. Aún así, ningún modelo de ML es 100 % preciso y, además, su precisión se deteriora con el tiempo 😣. Por ejemplo, la predicción de ventas se vuelve imprecisa con el tiempo debido a un cambio en los hábitos de compra de los consumidores. Además, debido a la naturaleza de caja negra de los modelos de ML, es un desafío identificar y solucionar sus problemas.
 
-UpTrain resuelve esto. Hacemos que sea fácil para los científicos de datos y los ingenieros de ML comprender dónde fallan sus modelos y ayudarlos a corregirlos antes de que otros se quejen 🗣️.
+UpTrain solves this. We make it easy for data scientists and ML engineers to understand where their models are going wrong and help them fix them before others complain 🗣️.
 
 UpTrain se puede utilizar para una amplia variedad de modelos de aprendizaje automático, como LLM, modelos de recomendación, modelos de predicción, modelos de visión artificial, etc.
 
@@ -160,7 +158,7 @@ Trabajamos constantemente para mejorar UpTrain. ¿Quieres una nueva función o n
 
 # Licencia 💻
 
-Este repositorio se publica bajo licencia Apache 2.0. Actualmente estamos enfocados en desarrollar ofertas no empresariales que deberían cubrir la mayoría de los casos de uso al agregar más funciones y extendernos a más modelos. También estamos trabajando para agregar una oferta alojada:[Contáctenos](mailto:sourabh@insane.ai)si estás interesado.
+This repo is published under Apache 2.0 license. We're currently focused on developing non-enterprise offerings that should cover most use cases by adding more features and extending to more models. We also working towards adding a hosted offering - [Contáctenos](mailto:sourabh@insane.ai)si estás interesado.
 
 # Mantente actualizado ☎️
 
