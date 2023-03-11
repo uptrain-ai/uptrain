@@ -10,7 +10,7 @@ from uptrain.core.classes.algorithms import Clustering
 
 class DataDrift(AbstractMonitor):
     dashboard_name = "data_drift"
-    anomaly_type = Monitor.DATA_DRIFT
+    monitor_type = Monitor.DATA_DRIFT
     is_embedding = None
     mode = None
     NUM_BUCKETS = 20

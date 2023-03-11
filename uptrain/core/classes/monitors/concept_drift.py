@@ -9,7 +9,7 @@ from uptrain.constants import Monitor
 
 class ConceptDrift(AbstractMonitor):
     dashboard_name = "concept_drift_acc"
-    anomaly_type = Monitor.CONCEPT_DRIFT
+    monitor_type = Monitor.CONCEPT_DRIFT
 
     def base_init(self, fw, check):
         if check.get("measurable_args", None):

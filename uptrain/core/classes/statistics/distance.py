@@ -9,7 +9,7 @@ from uptrain.constants import Statistic
 
 class Distance(AbstractStatistic):
     dashboard_name = "distance"
-    anomaly_type = Statistic.DISTANCE
+    statistic_type = Statistic.DISTANCE
 
     def base_init(self, fw, check):
         self.aggregate_measurable = MeasurableResolver(check["aggregate_args"]).resolve(

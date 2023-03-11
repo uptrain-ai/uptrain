@@ -147,7 +147,9 @@ class Tsne(AbstractVisual):
                     self.min_samples,
                     label_list=label_list
                 )
-                this_data = {"umap": tsne_list, "clusters": clusters, "hover_texts": hover_texts}
+                this_data = {"umap": tsne_list, "clusters": clusters}
+                if len(hover_texts) > 0:
+                    this_data.update({"hover_texts": hover_texts})
                 self.log_handler.add_histogram(
                     "tsne_and_clusters",
                     this_data,
