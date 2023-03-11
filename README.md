@@ -11,6 +11,8 @@
 
 <p align="center">
 <a href="https://docs.uptrain.ai/docs/" rel="nofollow"><strong>Docs</strong></a>
+## README Translation
+- [German](README.de.md)
 -
 <a href="https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing/" rel="nofollow"><strong>Try it out</strong></a>
 -
