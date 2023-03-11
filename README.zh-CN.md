@@ -52,9 +52,7 @@
 <h4>
 </h4>
 
-**阅读其他语言版本**:<kbd>[<img title="English" alt="English language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/us.svg" width="22">](README.md)</kbd><kbd>[<img title="German" alt="German language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/de.svg" width="22">](i18n/README.de.md)</kbd><kbd>[<img title="Hindi" alt="Hindi language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/in.svg" width="22">](i18n/README.hi.md)</kbd><kbd>[<img title="Spanish" alt="Spanish language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/es.svg" width="22">](i18n/README.es.md)</kbd><kbd>[<img title="French" alt="French language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/fr.svg" width="22">](i18n/README.fr.md)</kbd><kbd>[<img title="Japanese" alt="Japanese language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/jp.svg" width="22">](i18n/README.ja.md)</kbd>
-
--   [德语](README.de.md)
+**阅读其他语言版本**:<kbd>[<img title="English" alt="English language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/us.svg" width="22">](README.md)</kbd><kbd>[<img title="German" alt="German language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/de.svg" width="22">](i18n/README.de.md)</kbd><kbd>[<img title="Hindi" alt="Hindi language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/in.svg" width="22">](i18n/README.hi.md)</kbd><kbd>[<img title="Spanish" alt="Spanish language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/es.svg" width="22">](i18n/README.es.md)</kbd><kbd>[<img title="French" alt="French language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/fr.svg" width="22">](i18n/README.fr.md)</kbd><kbd>[<img title="Japanese" alt="Japanese language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/jp.svg" width="22">](i18n/README.ja.md)</kbd><kbd>[<img title="Korean" alt="Korean language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/kr.svg" width="22">](i18n/README.ko.md)</kbd>
 
 **[上行列车](https://uptrain.ai)**是一种开源、数据安全的工具，供 ML 从业者通过监控其性能、检查（数据）分布变化以及收集边缘案例以对其进行再培训来观察和改进其 ML 模型。它与您现有的生产管道无缝集成，只需几分钟即可开始使用 ⚡。
 
@@ -152,7 +150,7 @@ UpTrain 解决了这个问题。我们让数据科学家和 ML 工程师很容�
 
 UpTrain 可用于各种机器学习模型，例如 LLM、推荐模型、预测模型、计算机视觉模型等。
 
-我们一直在努力使 UpTrain 变得更好。想要新功能或需要任何集成？随意地[创建一个问题](https://github.com/uptrain-ai/uptrain/issues)或者[贡献](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md)直接到存储库。
+我们一直在努力让 UpTrain 变得更好。想要新功能或需要任何集成？随意地[创建一个问题](https://github.com/uptrain-ai/uptrain/issues)或者[贡献](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md)直接到存储库。
 
 <h1 align="center">
 <img alt="Meme" width="40%" src="https://user-images.githubusercontent.com/108270398/215209245-4d6b1f47-7af9-4db8-8d8c-63dcc610571c.jpg">
