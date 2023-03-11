@@ -49,16 +49,19 @@
 <img src="https://uptrain-demo.s3.us-west-1.amazonaws.com/human_orientation_classification/1_data_drift_and_edge_cases.gif" width="85%" alt="Performance" />
 </h4>
 
-<h4>
-</h4>
 
-**Читать это на других языках**: <kbd>[<img title="English" alt="English language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/us.svg" width="22">](/README.md)</kbd><kbd>[<img title="German" alt="German language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/de.svg" width="22">](/i18n/README.de.md)</kbd><kbd>[<img title="Hindi" alt="Hindi language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/in.svg" width="22">](/i18n/README.hi.md)</kbd><kbd>[<img title="Spanish" alt="Spanish language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/es.svg" width="22">](/i18n/README.es.md)</kbd><kbd>[<img title="French" alt="French language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/fr.svg" width="22">](/i18n/README.fr.md)</kbd><kbd>[<img title="Japanese" alt="Japanese language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/jp.svg" width="22">](/i18n/README.ja.md)
+**Читать это на других языках**: 
+<kbd>[<img title="English" alt="English language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/us.svg" width="22">](/README.md)</kbd>
+<kbd>[<img title="German" alt="German language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/de.svg" width="22">](/i18n/README.de.md)</kbd>
+<kbd>[<img title="Chinese" alt="Chinese language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/jp.svg" width="22">](/i18n/README.zh-CN.md)</kbd>
+<kbd>[<img title="Hindi" alt="Hindi language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/in.svg" width="22">](/i18n/README.hi.md)</kbd>
+<kbd>[<img title="Spanish" alt="Spanish language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/es.svg" width="22">](/i18n/README.es.md)</kbd>
+<kbd>[<img title="French" alt="French language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/fr.svg" width="22">](/i18n/README.fr.md)</kbd>
+<kbd>[<img title="Japanese" alt="Japanese language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/jp.svg" width="22">](/i18n/README.ja.md)</kbd>
+<kbd>[<img title="Russian" alt="Russian language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/jp.svg" width="22">](/i18n/README.ru.md)</kbd>
+
 
 **[UpTrain](https://uptrain.ai)** это инструмент с открытым исходным кодом и защитой данных, с помощью которого специалисты по машинному обучению могут наблюдать и совершенствовать свои модели машинного обучения, отслеживая их производительность, проверяя сдвиги в распределении (данных) и собирая крайние случаи для их повторного обучения. Он легко интегрируется с вашими существующими производственными конвейерами, и его запуск занимает несколько минут ⚡.
-
-<h4>
-</h4>
-<h4> </h4>
 
 # **[Ключевая особенность](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** 💡
 
@@ -87,8 +90,6 @@
 
 И более.
 
-<h4> </h4>
-
 # Начни 🙌
 
 Вы можете быстро начать работу с [Совместная работа Google здесь](https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing%2F).
@@ -112,7 +113,6 @@ jupyter lab
 
 Для быстрого ознакомления с тем, как работает UpTrain, ознакомьтесь с нашим [краткое руководство](https://docs.uptrain.ai/docs/uptrain-examples/quickstart-tutorial).
 
-<h4> </h4>
 
 # UpTrain in [действие](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)🎬
 
