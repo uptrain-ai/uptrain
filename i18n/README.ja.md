@@ -49,45 +49,39 @@
 <img src="https://uptrain-demo.s3.us-west-1.amazonaws.com/human_orientation_classification/1_data_drift_and_edge_cases.gif" width="85%" alt="Performance" />
 </h4>
 
-<h4>
-</h4>
 
-**これを他の言語で読む**：<kbd>[<img title="English" alt="English language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/us.svg" width="22">](/README.md)</kbd><kbd>[<img title="German" alt="German language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/de.svg" width="22">](/i18n/README.de.md)</kbd><kbd>[<img title="Hindi" alt="Hindi language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/in.svg" width="22">](/i18n/README.hi.md)</kbd><kbd>[<img title="Spanish" alt="Spanish language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/es.svg" width="22">](/i18n/README.es.md)</kbd><kbd>[<img title="French" alt="French language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/fr.svg" width="22">](/i18n/README.fr.md)</kbd><kbd>[<img title="Japanese" alt="Japanese language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/jp.svg" width="22">](/i18n/README.ja.md)</kbd><kbd>[<img title="Korean" alt="Korean language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/kr.svg" width="22">](i18n/README.ko.md)</kbd>
+**これを他の言語で読む**: <kbd>[<img title="English" alt="English language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/us.svg" width="22">](/README.md)</kbd><kbd>[<img title="German" alt="German language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/de.svg" width="22">](/i18n/README.de.md)</kbd><kbd>[<img title="Hindi" alt="Hindi language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/in.svg" width="22">](/i18n/README.hi.md)</kbd><kbd>[<img title="Spanish" alt="Spanish language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/es.svg" width="22">](/i18n/README.es.md)</kbd><kbd>[<img title="French" alt="French language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/fr.svg" width="22">](/i18n/README.fr.md)</kbd><kbd>[<img title="Japanese" alt="Japanese language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/jp.svg" width="22">](/i18n/README.ja.md)</kbd><kbd>[<img title="Korean" alt="Korean language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/kr.svg" width="22">](/i18n/README.ko.md)</kbd>
 
-**[アップトレイン](https://uptrain.ai)**は、ML 実践者がパフォーマンスを監視し、(データ) 分布シフトをチェックし、エッジ ケースを収集して再トレーニングすることで、ML モデルを観察および改良するためのオープンソースでデータ保護されたツールです。既存の本番パイプラインとシームレスに統合され、数分で開始できます⚡。
+**[アップトレイン](https://uptrain.ai)** は、ML 実践者がパフォーマンスを監視し、(データ) 分布シフトをチェックし、エッジ ケースを収集して再トレーニングすることで、ML モデルを観察および改良するためのオープンソースでデータ保護されたツールです。既存の本番パイプラインとシームレスに統合され、数分で開始できます⚡。
 
-<h4>
-</h4>
-<h4> </h4>
 
-# **[主な機能](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)**💡
+# **[主な機能](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** 💡
 
--   **[データドリフトチェック](https://docs.uptrain.ai/docs/uptrain-monitors/data-drift)**- モデル入力の分布シフトを特定します。
--   **[パフォーマンス監視](https://docs.uptrain.ai/docs/uptrain-monitors/concept-drift)**- モデルのパフォーマンスをリアルタイムで追跡し、劣化アラートを取得します。
--   **[埋め込みのサポート](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)**- モデルによって推測された埋め込みを理解するための専用ダッシュボード。
--   **[エッジ ケース シグナル](https://docs.uptrain.ai/docs/uptrain-monitors/edge-case-detection)**- 分布外のデータポイントを検出するためのユーザー定義の信号と統計手法。
--   **[データ整合性チェック](https://docs.uptrain.ai/docs/uptrain-monitors/data-integrity)**- データの欠落または矛盾、重複レコード、データ品質などをチェックします。
--   **[カスタマイズ可能な指標](https://docs.uptrain.ai/docs/monitoring-custom-metrics)**- ユース ケースに適したカスタム メトリックを定義します。
--   **[自動再トレーニング](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_check_all.ipynb)**- トレーニング パイプラインと推論パイプラインを接続して、モデルの再トレーニングを自動化します。
--   **[モデルバイアス](https://docs.uptrain.ai/docs/uptrain-monitors/model-bias)**- ML モデルの予測における偏りを追跡します。
--   **[AIの説明可能性](https://docs.uptrain.ai/docs/uptrain-visuals/shap-explainability)**- 予測における複数の機能の相対的な重要性を理解します。
--   **データセキュリティ**- あなたのデータはあなたのマシンの外に出ることはありません。
--   **Slack インテグレーション**- Slack でアラートを受け取ります。
--   **リアルタイム ダッシュボード**- モデルの健康状態をライブで視覚化します。
+-   **[データドリフトチェック](https://docs.uptrain.ai/docs/uptrain-monitors/data-drift)** - モデル入力の分布シフトを特定します。
+-   **[パフォーマンス監視](https://docs.uptrain.ai/docs/uptrain-monitors/concept-drift)** - モデルのパフォーマンスをリアルタイムで追跡し、劣化アラートを取得します。
+-   **[埋め込みのサポート](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)** - モデルによって推測された埋め込みを理解するための専用ダッシュボード。
+-   **[エッジ ケース シグナル](https://docs.uptrain.ai/docs/uptrain-monitors/edge-case-detection)** - 分布外のデータポイントを検出するためのユーザー定義の信号と統計手法。
+-   **[データ整合性チェック](https://docs.uptrain.ai/docs/uptrain-monitors/data-integrity)** - データの欠落または矛盾、重複レコード、データ品質などをチェックします。
+-   **[カスタマイズ可能な指標](https://docs.uptrain.ai/docs/monitoring-custom-metrics)** - ユース ケースに適したカスタム メトリックを定義します。
+-   **[自動再トレーニング](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_check_all.ipynb)** - トレーニング パイプラインと推論パイプラインを接続して、モデルの再トレーニングを自動化します。
+-   **[モデルバイアス](https://docs.uptrain.ai/docs/uptrain-monitors/model-bias)** - ML モデルの予測における偏りを追跡します。
+-   **[AIの説明可能性](https://docs.uptrain.ai/docs/uptrain-visuals/shap-explainability)** - 予測における複数の機能の相対的な重要性を理解します。
+-   **データセキュリティ** - あなたのデータはあなたのマシンの外に出ることはありません。
+-   **Slack インテグレーション** - Slack でアラートを受け取ります。
+-   **リアルタイム ダッシュボード** - モデルの健康状態をライブで視覚化します。
 
 ## 🚨近日公開🚨
 
--   **ラベル シフト**- 予測のドリフトを特定します。グラウンド トゥルースが利用できない場合に特に役立ちます。
--   **モデルの信頼区間**- モデル予測の信頼区間
--   **高度なドリフト検出技術**- 外れ値ベースのドリフト検出方法
--   **高度な機能スライス**- 統計プロパティをスライスする機能
--   **コルモゴロフ・スミルノフ検定**- 分布シフトの検出用
--   **予測の安定性**- モデル予測が安定していないケースをフィルタリングします。
--   **敵対的チェック**- 敵対的攻撃と戦う
+-   **ラベル シフト** - 予測のドリフトを特定します。グラウンド トゥルースが利用できない場合に特に役立ちます。
+-   **モデルの信頼区間** - モデル予測の信頼区間
+-   **高度なドリフト検出技術** - 外れ値ベースのドリフト検出方法
+-   **高度な機能スライス** - 統計プロパティをスライスする機能
+-   **コルモゴロフ・スミルノフ検定** - 分布シフトの検出用
+-   **予測の安定性** - モデル予測が安定していないケースをフィルタリングします。
+-   **敵対的チェック** - 敵対的攻撃と戦う
 
 もっと。
 
-<h4> </h4>
 
 # 始めましょう🙌
 
@@ -112,7 +106,6 @@ jupyter lab
 
 UpTrain の仕組みの簡単なチュートリアルについては、こちらをご覧ください[クイックスタート チュートリアル](https://docs.uptrain.ai/docs/uptrain-examples/quickstart-tutorial)。
 
-<h4> </h4>
 
 # アップトレインイン[アクション](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)🎬
 
@@ -158,7 +151,7 @@ UpTrain は、LLM、推奨モデル、予測モデル、コンピューター �
 
 # ライセンス 💻
 
-このリポジトリは、Apache 2.0 ライセンスの下で公開されています。私たちは現在、より多くの機能を追加し、より多くのモデルに拡張することで、ほとんどのユース ケースをカバーする非エンタープライズ サービスの開発に注力しています。また、ホステッド オファリングの追加に向けて取り組んでいます -[お問い合わせ](mailto:sourabh@insane.ai)もし興味があれば。
+このリポジトリは、Apache 2.0 ライセンスの下で公開されています。私たちは現在、より多くの機能を追加し、より多くのモデルに拡張することで、ほとんどのユース ケースをカバーする非エンタープライズ サービスの開発に注力しています。また、ホステッド オファリングの追加に向けて取り組んでいます - [お問い合わせ](mailto:sourabh@insane.ai)もし興味があれば。
 
 # 最新情報を入手☎️
 
@@ -166,11 +159,11 @@ UpTrain は、LLM、推奨モデル、予測モデル、コンピューター �
 
 # フィードバックを提供してください (厳しいほど良い 😉)
 
-UpTrain を公開しています。フィードバックをお寄せいただき、改善にご協力ください**[ここ](https://forms.gle/PXd89D5LiFubro9o9)**。
+UpTrain を公開しています。フィードバックをお寄せいただき、改善にご協力ください **[ここ](https://forms.gle/PXd89D5LiFubro9o9)**。
 
 # 貢献者 🖥️
 
-アップトレインへの貢献を歓迎します。ご覧ください[貢献ガイド](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md)詳細については。
+アップトレインへの貢献を歓迎します。ご覧ください [貢献ガイド](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md) 詳細については。
 
 <a href="https://github.com/uptrain-ai/uptrain/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=uptrain-ai/uptrain" />
