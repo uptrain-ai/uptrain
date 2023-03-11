@@ -2,7 +2,7 @@ name: Translate README
 
 on:
   push:
-    branches: translate
+    branches: [*]
 
 jobs:
   build:
