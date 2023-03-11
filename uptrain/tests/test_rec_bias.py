@@ -89,7 +89,7 @@ def test_rec_bias():
             # Check to monitor the hit-rate of the model 
             # (i.e., if any recommended item was selected)
             {
-                'type': uptrain.Anomaly.CONCEPT_DRIFT,
+                'type': uptrain.Monitor.CONCEPT_DRIFT,
                 'algorithm': uptrain.DataDriftAlgo.DDM,
                 'warn_thres': 2,
                 'alarm_thres': 3,
@@ -99,13 +99,13 @@ def test_rec_bias():
             },
             # Define a check on popularity bias
             {
-                'type': uptrain.Anomaly.POPULARITY_BIAS,
+                'type': uptrain.Monitor.POPULARITY_BIAS,
                 'algorithm': uptrain.BiasAlgo.POPULARITY_BIAS,
                 'sessions': x_train_sku,   
             },
             # Custom monitor
             {
-                'type': uptrain.Anomaly.CUSTOM_MONITOR,
+                'type': uptrain.Monitor.CUSTOM_MONITOR,
                 'initialize_func': cosine_dist_init,
                 'check_func': cosine_distance_check,
                 'need_gt': True,

@@ -4,6 +4,8 @@ from uptrain.core.classes.measurables import (
     ConditionMeasurable,
     CustomMeasurable,
     AccuracyMeasurable,
+    MAEMeasurable,
+    MAPEMeasurable,
     ScalarFromEmbeddingMeasurable,
     DistanceMeasurable,
     RecHitRateMeasurable,
@@ -39,6 +41,10 @@ class MeasurableResolver:
             return CustomMeasurable(framework, resolve_args)
         elif measurable_type == MeasurableType.ACCURACY:
             return AccuracyMeasurable(framework)
+        elif measurable_type == MeasurableType.MAE:
+            return MAEMeasurable(framework)
+        elif measurable_type == MeasurableType.MAPE:
+            return MAPEMeasurable(framework)
         elif measurable_type == MeasurableType.CONDITION_ON_INPUT:
             return ConditionMeasurable(
                 framework,

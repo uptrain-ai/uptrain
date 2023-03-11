@@ -1,4 +1,5 @@
 import numpy as np
+import json_fix
 
 from uptrain.constants import MODEL_SIGNAL_TO_FN_MAPPING
 
@@ -36,6 +37,9 @@ class Signal:
         self.fn = fn
         self.extra_args = extra_args
         self.children = []
+
+    def __json__(self):
+        return {"feature_name": str(self)}
 
     def base_evaluate(self, inputs, outputs, gts=None, extra_args={}):
         extra_args.update(self.extra_args)

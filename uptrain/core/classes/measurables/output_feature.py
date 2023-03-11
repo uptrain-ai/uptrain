@@ -7,7 +7,11 @@ class OutputFeatureMeasurable(Measurable):
         self.feature_name = feature_name
 
     def _compute(self, inputs=None, outputs=None, gts=None, extra=None) -> any:
-        return outputs[self.feature_name]
+        return outputs
 
     def col_name(self):
         return str(self.feature_name)
+
+    # TODO: Decommission and find a generic way
+    def extract_val_from_training_data(self, x):
+        return x[self.feature_name]
