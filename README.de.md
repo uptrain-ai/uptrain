@@ -56,7 +56,7 @@
 
 -   [Deutsch](README.de.md)
 
-**[UpZug](https://uptrain.ai)**ist ein datensicheres Open-Source-Tool für ML-Praktiker, um ihre ML-Modelle zu beobachten und zu verfeinern, indem sie ihre Leistung überwachen, auf (Daten-)Verteilungsverschiebungen prüfen und Randfälle sammeln, um sie neu zu schulen. Es lässt sich nahtlos in Ihre bestehenden Produktionspipelines integrieren und ist in wenigen Minuten einsatzbereit ⚡.
+**[UpZug](https://uptrain.ai)**ist ein datensicheres Open-Source-Tool für ML-Praktiker, um ihre ML-Modelle zu beobachten und zu verfeinern, indem sie ihre Leistung überwachen, auf (Daten-)Verteilungsverschiebungen prüfen und Grenzfälle sammeln, um sie neu zu schulen. Es lässt sich nahtlos in Ihre bestehenden Produktionspipelines integrieren und ist in wenigen Minuten einsatzbereit ⚡.
 
 <h4>
 </h4>
@@ -148,7 +148,7 @@ Einer der häufigsten Anwendungsfälle von ML sind heute Sprachmodelle, sei es T
 
 Modelle für maschinelles Lernen (ML) werden häufig verwendet, um wichtige Geschäftsentscheidungen zu treffen. Dennoch ist kein ML-Modell zu 100 % genau, und außerdem nimmt seine Genauigkeit mit der Zeit ab 😣. Beispielsweise wird die Verkaufsvorhersage im Laufe der Zeit aufgrund einer Änderung der Kaufgewohnheiten der Verbraucher ungenau. Darüber hinaus ist es aufgrund der Black-Box-Natur von ML-Modellen schwierig, ihre Probleme zu identifizieren und zu beheben.
 
-UpTrain löst dies. Wir machen es Data Scientists und ML-Ingenieuren leicht zu verstehen, wo ihre Modelle schief gehen, und helfen ihnen, sie zu beheben, bevor sich andere beschweren 🗣️.
+UpTrain solves this. We make it easy for data scientists and ML engineers to understand where their models are going wrong and help them fix them before others complain 🗣️.
 
 UpTrain kann für eine Vielzahl von maschinellen Lernmodellen wie LLMs, Empfehlungsmodelle, Vorhersagemodelle, Computer-Vision-Modelle usw. verwendet werden.
 
