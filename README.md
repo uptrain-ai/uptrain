@@ -92,7 +92,7 @@ And more.
 
 # Get started 🙌
 
-You can quickly get started with [Google collab here](https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing%2F).
+You can quickly get started with [Google Colab here](https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing%2F).
 
 To run it in your machine, follow the steps below:
 
@@ -115,7 +115,7 @@ For a quick walkthrough of how UpTrain works, check out our [quickstart tutorial
 
 # UpTrain in [action](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb) 🎬
 
-One of the most common use cases of ML today is language models, be it text summarization, NER, chatbots, language translation, etc. UpTrain provides ways to visualize differences in the training and real-world data via UMAP clustering of text embeddings (inferred from bert). Following are some replays from the UpTrain dashboard.
+One of the most common use cases of ML today is language models, be it text summarization, NER, chatbots, language translation, etc. UpTrain provides ways to visualize differences in the training and real-world data via UMAP clustering of text embeddings (inferred from BERT). Following are some replays from the UpTrain dashboard.
 
 ### AI Explainability out-of-the-box
 
@@ -169,7 +169,7 @@ We are building UpTrain in public. Help us improve by giving your feedback **[he
 
 # Contributors 🖥️
 
-We welcome contributions to uptrain. Please see our [contribution guide](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md) for details.
+We welcome contributions to UpTrain. Please see our [contribution guide](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md) for details.
 
 <a href="https://github.com/uptrain-ai/uptrain/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=uptrain-ai/uptrain" />

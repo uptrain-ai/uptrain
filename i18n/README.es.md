@@ -73,9 +73,9 @@
 -   **[Métricas personalizables](https://docs.uptrain.ai/docs/monitoring-custom-metrics)** - Defina métricas personalizadas que tengan sentido para su caso de uso.
 -   **[Reciclaje automatizado](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_check_all.ipynb)** - Automatice el reentrenamiento de modelos adjuntando sus canalizaciones de entrenamiento e inferencia.
 -   **[Sesgo del modelo](https://docs.uptrain.ai/docs/uptrain-monitors/model-bias)** - Realice un seguimiento del sesgo en las predicciones de su modelo ML.
--   **[Explicabilidad de la IA](https://docs.uptrain.ai/docs/uptrain-visuals/shap-explainability)** - Comprender la importancia relativa de múltiples características en las predicciones.
+-   **[Explicabilidad de la AI](https://docs.uptrain.ai/docs/uptrain-visuals/shap-explainability)** - Comprender la importancia relativa de múltiples características en las predicciones.
 -   **Seguridad de datos** - Sus datos nunca salen de su máquina.
--   **Integración de holgura** - Recibe alertas en Slack.
+-   **Integración de Slack** - Recibe alertas en Slack.
 -   **Tableros en tiempo real** - Para visualizar la salud de tu modelo en vivo.
 
 ## 🚨Próximamente🚨
@@ -92,7 +92,7 @@ Y más.
 
 # Empieza 🙌
 
-Puede comenzar rápidamente con [Colaboración de Google aquí](https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing%2F).
+Puede comenzar rápidamente con [Google Colab aquí](https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing%2F).
 
 Para ejecutarlo en su máquina, siga los pasos a continuación:
 
@@ -116,7 +116,7 @@ Para obtener una descripción general rápida de cómo funciona UpTrain, consult
 
 # UpTrain en [acción](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)🎬
 
-Uno de los casos de uso más comunes de ML en la actualidad son los modelos de lenguaje, ya sea resumen de texto, NER, chatbots, traducción de idiomas, etc. UpTrain proporciona formas de visualizar las diferencias en la capacitación y los datos del mundo real a través de la agrupación UMAP de incrustaciones de texto (inferidos). de Berto). Las siguientes son algunas repeticiones del tablero de UpTrain.
+Uno de los casos de uso más comunes de ML en la actualidad son los modelos de lenguaje, ya sea resumen de texto, NER, chatbots, traducción de idiomas, etc. UpTrain proporciona formas de visualizar las diferencias en la capacitación y los datos del mundo real a través de la agrupación UMAP de incrustaciones de texto (inferidos de BERT). Las siguientes son algunas repeticiones del tablero de UpTrain.
 
 ### AI Explicabilidad lista para usar
 
@@ -170,7 +170,7 @@ Estamos construyendo UpTrain en público. Ayúdanos a mejorar dando tu opinión 
 
 # Colaboradores 🖥️
 
-Damos la bienvenida a las contribuciones para mejorar. Por favor vea nuestro [guía de contribución](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md ) para detalles.
+Damos la bienvenida a las contribuciones a UpTrain. Por favor vea nuestro [guía de contribución](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md ) para detalles.
 
 <a href="https://github.com/uptrain-ai/uptrain/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=uptrain-ai/uptrain" />

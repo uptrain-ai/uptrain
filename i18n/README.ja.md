@@ -61,7 +61,7 @@
 <kbd>[<img title="Russian" alt="Russian language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/ru.svg" width="22">](/i18n/README.ru.md)</kbd>
 
 
-**[アップトレイン](https://uptrain.ai)** は、ML 実践者がパフォーマンスを監視し、(データ) 分布シフトをチェックし、エッジ ケースを収集して再トレーニングすることで、ML モデルを観察および改良するためのオープンソースでデータ保護されたツールです。既存の本番パイプラインとシームレスに統合され、数分で開始できます⚡。
+**[UpTrain](https://uptrain.ai)** は、ML 実践者がパフォーマンスを監視し、(データ) 分布シフトをチェックし、エッジ ケースを収集して再トレーニングすることで、ML モデルを観察および改良するためのオープンソースでデータ保護されたツールです。既存の本番パイプラインとシームレスに統合され、数分で開始できます⚡。
 
 
 # **[主な機能](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** 💡
@@ -94,7 +94,7 @@
 
 # 始めましょう🙌
 
-すぐに始められます[Googleコラボはこちら](https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing%2F)。
+すぐに始められます[Google Colab はこちら](https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing%2F)。
 
 マシンで実行するには、次の手順に従います。
 
@@ -116,9 +116,9 @@ jupyter lab
 UpTrain の仕組みの簡単なチュートリアルについては、こちらをご覧ください[クイックスタート チュートリアル](https://docs.uptrain.ai/docs/uptrain-examples/quickstart-tutorial)。
 
 
-# アップトレインイン[アクション](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)🎬
+# UpTrainイン[アクション](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)🎬
 
-今日の ML の最も一般的な使用例の 1 つは言語モデルで、テキスト要約、NER、チャットボット、言語翻訳などがあります。UpTrain は、テキスト埋め込みの UMAP クラスタリング (推定バートから）。以下は、UpTrain ダッシュボードからのリプレイです。
+今日の ML の最も一般的な使用例の 1 つは言語モデルで、テキスト要約、NER、チャットボット、言語翻訳などがあります。UpTrain は、テキスト埋め込みの UMAP クラスタリング （BERTから推測 。以下は、UpTrain ダッシュボードからのリプレイです。
 
 ### すぐに使える AI 説明可能性
 
@@ -144,7 +144,7 @@ UpTrain の仕組みの簡単なチュートリアルについては、こちら
 <img alt="perf_gif" width="40%" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/finetuning_llms/edge_cases.gif">
 </h1>
 
-# アップトレインを選ぶ理由 🤔?
+# UpTrainを選ぶ理由 🤔?
 
 機械学習 (ML) モデルは、重要なビジネス上の意思決定を行うために広く使用されています。それでも、100% 正確な ML モデルはなく、さらに、時間の経過とともに精度が低下します😣.たとえば、消費者の購買習慣の変化により、売上予測は時間の経過とともに不正確になります。さらに、ML モデルのブラック ボックスの性質により、問題を特定して修正することは困難です。
 
@@ -172,7 +172,7 @@ UpTrain を公開しています。フィードバックをお寄せいただき
 
 # 貢献者 🖥️
 
-アップトレインへの貢献を歓迎します。ご覧ください [貢献ガイド](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md) 詳細については。
+UpTrainへの貢献を歓迎します。ご覧ください [貢献ガイド](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md) 詳細については。
 
 <a href="https://github.com/uptrain-ai/uptrain/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=uptrain-ai/uptrain" />

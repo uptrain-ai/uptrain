@@ -60,7 +60,7 @@
 <kbd>[<img title="Russian" alt="Russian language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/ru.svg" width="22">](/i18n/README.ru.md)</kbd>
 
 
-**[UpTrain](https://uptrain.ai)** ist ein datensicheres Open-Source-Tool für ML-Praktiker, um ihre ML-Modelle zu beobachten und zu verfeinern, indem sie ihre Leistung überwachen, auf (Daten-)Verteilungsverschiebungen prüfen und Grenzfälle sammeln, um sie neu zu schulen. Es lässt sich nahtlos in Ihre bestehenden Produktionspipelines integrieren und ist in wenigen Minuten einsatzbereit ⚡.
+**[UpTrain](https://uptrain.ai)** ist ein datensicheres Open-Source-Tool für ML-Praktiker, um ihre ML-Modelle zu beobachten und zu verfeinern, indem sie ihre Leistung überwachen, auf (Daten) Verteilungsverschiebungen prüfen und Grenzfälle sammeln, um sie neu zu schulen. Es lässt sich nahtlos in Ihre bestehenden Produktionspipelines integrieren und ist in wenigen Minuten einsatzbereit ⚡.
 
 
 # **[Hauptmerkmale](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** 💡
@@ -73,7 +73,7 @@
 -   **[Customizable metrics](https://docs.uptrain.ai/docs/monitoring-custom-metrics)** - Definieren Sie benutzerdefinierte Metriken, die für Ihren Anwendungsfall sinnvoll sind.
 -   **[Automatisierte Umschulung](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_check_all.ipynb)** - Automatisieren Sie das Neutraining von Modellen, indem Sie Ihre Trainings- und Inferenz-Pipelines anhängen.
 -   **[Modellverzerrung](https://docs.uptrain.ai/docs/uptrain-monitors/model-bias)** - Verfolgen Sie Verzerrungen in den Vorhersagen Ihres ML-Modells.
--   **[KI-Erklärbarkeit](https://docs.uptrain.ai/docs/uptrain-visuals/shap-explainability)** - Verstehen Sie die relative Bedeutung mehrerer Merkmale für Vorhersagen.
+-   **[AI-Erklärbarkeit](https://docs.uptrain.ai/docs/uptrain-visuals/shap-explainability)** - Verstehen Sie die relative Bedeutung mehrerer Merkmale für Vorhersagen.
 -   **Datensicherheit** - Ihre Daten verlassen niemals Ihre Maschine.
 -   **Slack-Integration** - Erhalten Sie Benachrichtigungen zu Slack.
 -   **Echtzeit-Dashboards** - Um die Gesundheit Ihres Modells live zu visualisieren.
@@ -97,7 +97,7 @@ Sie können schnell loslegen [Google Colab hier](https://colab.research.google.c
 
 Führen Sie die folgenden Schritte aus, um es auf Ihrem Computer auszuführen:
 
-### Installieren Sie das Paket über Pip:
+### Installieren Sie das Paket über pip:
 
 ```console
 pip install uptrain
@@ -117,9 +117,9 @@ Eine kurze Anleitung zur Funktionsweise von UpTrain finden Sie in unserem [Schne
 
 # UpTrain ein [Aktion](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)🎬
 
-Einer der häufigsten Anwendungsfälle von ML sind heute Sprachmodelle, sei es Textzusammenfassung, NER, Chatbots, Sprachübersetzung usw. UpTrain bietet Möglichkeiten zur Visualisierung von Unterschieden in den Trainings- und realen Daten über UMAP-Clustering von Texteinbettungen (inferred von Bert). Es folgen einige Wiederholungen aus dem UpTrain-Dashboard.
+Einer der häufigsten Anwendungsfälle von ML sind heute Sprachmodelle, sei es Textzusammenfassung, NER, Chatbots, Sprachübersetzung usw. UpTrain bietet Möglichkeiten zur Visualisierung von Unterschieden in den Trainings- und realen Daten über UMAP-Clustering von Texteinbettungen (inferred von BERT). Es folgen einige Wiederholungen aus dem UpTrain-Dashboard.
 
-### KI-Erklärbarkeit out-of-the-box
+### AI-Erklärbarkeit out-of-the-box
 
 <h1 align="left">
 <img alt="umap_gif" width="60%" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/ride_estimation/4_Explanability_recording.gif">
@@ -171,7 +171,7 @@ Wir bauen UpTrain öffentlich auf. Helfen Sie uns, uns zu verbessern, indem Sie 
 
 # Mitwirkende 🖥️
 
-Wir freuen uns über Beiträge zu uptrain. Bitte sehen Sie sich unsere an [Beitragsleitfaden](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md) für Details.
+Wir freuen uns über Beiträge zu UpTrain. Bitte sehen Sie sich unsere an [Beitragsleitfaden](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md) für Details.
 
 <a href="https://github.com/uptrain-ai/uptrain/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=uptrain-ai/uptrain" />

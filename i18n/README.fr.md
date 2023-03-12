@@ -73,7 +73,7 @@
 -   **[Métriques personnalisables](https://docs.uptrain.ai/docs/monitoring-custom-metrics)** - Définissez des métriques personnalisées adaptées à votre cas d'utilisation.
 -   **[Recyclage automatisé](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_check_all.ipynb)** - Automatisez le recyclage des modèles en associant vos pipelines de formation et d'inférence.
 -   **[Biais du modèle](https://docs.uptrain.ai/docs/uptrain-monitors/model-bias)** - Suivez les biais dans les prédictions de votre modèle ML.
--   **[Explicabilité de l'IA](https://docs.uptrain.ai/docs/uptrain-visuals/shap-explainability)** - Comprendre l'importance relative de plusieurs fonctionnalités sur les prédictions.
+-   **[Explicabilité de AI](https://docs.uptrain.ai/docs/uptrain-visuals/shap-explainability)** - Comprendre l'importance relative de plusieurs fonctionnalités sur les prédictions.
 -   **Sécurité des données** - Vos données ne sortent jamais de votre machine.
 -   **Intégration Slack** - Recevez des alertes sur Slack.
 -   **Tableaux de bord en temps réel** - Pour visualiser la santé de votre modèle en direct.
@@ -117,9 +117,9 @@ Pour une présentation rapide du fonctionnement d'UpTrain, consultez notre [tuto
 
 # UpTrain en [action](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)🎬
 
-L'un des cas d'utilisation les plus courants de ML aujourd'hui est les modèles de langage, qu'il s'agisse de résumé de texte, de NER, de chatbots, de traduction de langage, etc. UpTrain fournit des moyens de visualiser les différences dans la formation et les données du monde réel via le regroupement UMAP des incorporations de texte de bert). Voici quelques rediffusions du tableau de bord UpTrain.
+L'un des cas d'utilisation les plus courants de ML aujourd'hui est les modèles de langage, qu'il s'agisse de résumé de texte, de NER, de chatbots, de traduction de langage, etc. UpTrain fournit des moyens de visualiser les différences dans la formation et les données du monde réel via le regroupement UMAP des incorporations de texte (inféré de BERT). Voici quelques rediffusions du tableau de bord UpTrain.
 
-### Explicabilité de l'IA prête à l'emploi
+### Explicabilité de AI prête à l'emploi
 
 <h1 align="left">
 <img alt="umap_gif" width="60%" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/ride_estimation/4_Explanability_recording.gif">
@@ -171,7 +171,7 @@ Nous construisons UpTrain en public. Aidez-nous à nous améliorer en donnant vo
 
 # Contributeurs 🖥️
 
-Nous accueillons les contributions à uptrain. Veuillez consulter notre [guide des cotisations](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md) pour plus de détails.
+Nous accueillons les contributions à UpTrain. Veuillez consulter notre [guide des cotisations](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md) pour plus de détails.
 
 <a href="https://github.com/uptrain-ai/uptrain/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=uptrain-ai/uptrain" />

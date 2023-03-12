@@ -77,7 +77,7 @@
 -   **[模型偏差](https://docs.uptrain.ai/docs/uptrain-monitors/model-bias)** - 跟踪 ML 模型预测中的偏差。
 -   **[人工智能可解释性](https://docs.uptrain.ai/docs/uptrain-visuals/shap-explainability)** - 了解多个特征对预测的相对重要性。
 -   **数据安全** - 您的数据永远不会离开您的机器。
--   **松弛集成** - 在 Slack 上获取提醒。
+-   **Slack整合** - 在 Slack 上获取提醒。
 -   **实时仪表板** - 实时可视化模型的健康状况。
 
 ## 🚨即将推出🚨
@@ -95,7 +95,7 @@
 
 # 开始🙌
 
-您可以快速上手 [谷歌协作在这里](https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing%2F).
+您可以快速上手 [Google Colab 在这里](https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing%2F).
 
 要在您的机器上运行它，请按照以下步骤操作：
 
@@ -117,9 +117,9 @@ jupyter lab
 要快速了解 UpTrain 的工作原理，请查看我们的 [快速入门教程](https://docs.uptrain.ai/docs/uptrain-examples/quickstart-tutorial).
 
 
-# 训练在 [行动](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)🎬
+# [行动](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb) 中的 UpTrain🎬
 
-当今 ML 最常见的用例之一是语言模型，无论是文本摘要、NER、聊天机器人、语言翻译等。UpTrain 提供了通过文本嵌入的 UMAP 聚类来可视化训练和真实世界数据差异的方法（推断来自伯特）。以下是 UpTrain 仪表板的一些重播。
+当今 ML 最常见的用例之一是语言模型，无论是文本摘要、NER、聊天机器人、语言翻译等。UpTrain 提供了通过文本嵌入的 UMAP 聚类来可视化训练和真实世界数据差异的方法（从 BERT 推断）。以下是 UpTrain 仪表板的一些重播。
 
 ### 开箱即用的 AI 可解释性
 
