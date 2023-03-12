@@ -14,3 +14,4 @@ uptrain_logs*
 sample_run.ipynb
 NSL_KDD_binary.csv
 sigir_data.json
+.vscode*
