@@ -1,6 +1,7 @@
 import os
 import subprocess
 
+import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
@@ -8,7 +9,7 @@ import uptrain
 from xgboost import XGBClassifier
 
 
-def test_concept_drift_ddm():
+def test_concept_drift_custom_monitor():
     data_file = "NSL_KDD_binary.csv"
     remote_url = "https://oodles-dev-training-data.s3.amazonaws.com/NSL_KDD_binary.csv"
 
@@ -68,12 +69,61 @@ def test_concept_drift_ddm():
     drops beyond a threshold.
     """
 
+    def custom_initialize_func(self):
+        self.initial_acc = None
+        self.acc_arr = []
+        self.count = 0
+        self.thres = 0.02
+        self.window_size = 200
+        self.is_drift_detected = False
+
+    def custom_check_func(self, inputs, outputs, gts=None, extra_args={}):
+        batch_size = len(extra_args["id"])
+        self.count += batch_size
+        self.acc_arr.extend(list(np.equal(gts, outputs)))
+
+        # Calculate initial performance of the model on first 200 points
+        if (self.count >= self.window_size) and (self.initial_acc is None):
+            self.initial_acc = (
+                sum(self.acc_arr[0 : self.window_size]) / self.window_size
+            )
+
+        # Calculate the most recent accuracy and log it to dashboard.
+        if self.initial_acc is not None:
+            for i in range(self.count - batch_size, self.count, self.window_size):
+                # Calculate the most recent accuracy
+                recent_acc = (
+                    sum(self.acc_arr[i : i + self.window_size]) / self.window_size
+                )
+
+                # Logging to UpTrain dashboard
+                self.log_handler.add_scalars(
+                    "custom_metrics",
+                    {
+                        "y_initial_acc": self.initial_acc,
+                        "y_recent_acc": recent_acc,
+                    },
+                    i,
+                    self.dashboard_name,
+                )
+
+                # Send an alert when recent model performance goes down
+                if (self.initial_acc - recent_acc > self.thres) and (
+                    not self.is_drift_detected
+                ):
+                    alert = f"Concept drift detected with custom metric at time: {i}"
+                    print(alert)
+                    self.log_handler.add_alert(
+                        "Custom Concept Drift Alert", alert, self.dashboard_name
+                    )
+                    self.is_drift_detected = True
+
     checks = [
         {
-            "type": uptrain.Monitor.CONCEPT_DRIFT,
-            "algorithm": uptrain.DataDriftAlgo.DDM,
-            "warn_threshold": 2,
-            "alarm_threshold": 3,
+            "type": uptrain.Monitor.CUSTOM_MONITOR,
+            "initialize_func": custom_initialize_func,
+            "check_func": custom_check_func,
+            "need_gt": True,
         },
     ]
 
