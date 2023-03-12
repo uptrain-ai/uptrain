@@ -5,7 +5,7 @@
 </h4>
 <h2>
   <p align="center">
-    <p align="center">An open-source framework to observe ML applications, built for engineers</p>
+    <p align="center">一个开源框架，用于观察 ML 应用程序，专为工程师打造</p>
   </p>
 </h2>
 
