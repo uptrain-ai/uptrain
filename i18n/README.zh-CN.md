@@ -10,15 +10,16 @@
 </h2>
 
 <p align="center">
-<a href="https://docs.uptrain.ai/docs/" rel="nofollow"><strong>Docs</strong></a>
+<a href="https://docs.uptrain.ai/docs/" rel="nofollow"><strong>
+文档</strong></a>
 -
-<a href="https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing/" rel="nofollow"><strong>Try it out</strong></a>
+<a href="https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing/" rel="nofollow"><strong>试试看</strong></a>
 -
-<a href="https://discord.com/invite/gVvZhhrQaQ/" rel="nofollow"><strong>Support Community</strong></a>
+<a href="https://discord.com/invite/gVvZhhrQaQ/" rel="nofollow"><strong>支持社区</strong></a>
 -
-<a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=bug&template=bug_report.md&title=" rel="nofollow"><strong>Bug Report</strong></a>
+<a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=bug&template=bug_report.md&title=" rel="nofollow"><strong>错误报告</strong></a>
 -
-<a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=" rel="nofollow"><strong>Feature Request</strong></a>
+<a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=" rel="nofollow"><strong>功能要求</strong></a>
 </p>
 
 <h4 align="center">

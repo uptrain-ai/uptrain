@@ -10,15 +10,15 @@
 </h2>
 
 <p align="center">
-<a href="https://docs.uptrain.ai/docs/" rel="nofollow"><strong>Docs</strong></a>
+<a href="https://docs.uptrain.ai/docs/" rel="nofollow"><strong>Documentos</strong></a>
 -
-<a href="https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing/" rel="nofollow"><strong>Try it out</strong></a>
+<a href="https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing/" rel="nofollow"><strong>Pruébalo</strong></a>
 -
-<a href="https://discord.com/invite/gVvZhhrQaQ/" rel="nofollow"><strong>Support Community</strong></a>
+<a href="https://discord.com/invite/gVvZhhrQaQ/" rel="nofollow"><strong>Comunidad de apoyoy</strong></a>
 -
-<a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=bug&template=bug_report.md&title=" rel="nofollow"><strong>Bug Report</strong></a>
+<a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=bug&template=bug_report.md&title=" rel="nofollow"><strong>Informe de error</strong></a>
 -
-<a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=" rel="nofollow"><strong>Feature Request</strong></a>
+<a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=" rel="nofollow"><strong>Solicitud de función</strong></a>
 </p>
 
 <h4 align="center">
