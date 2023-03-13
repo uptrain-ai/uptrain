@@ -114,7 +114,7 @@ class Tsne(AbstractVisual):
             self.hover_texts.extend([dict(zip(self.hover_names, values)) for values in hover_table])
 
         self.total_count += len(extra_args['id'])
-        if not ((self.total_count - self.prev_calc_at) > self.update_freq):
+        if not ((self.total_count - self.prev_calc_at) >= self.update_freq):
             return
 
         self.prev_calc_at = self.total_count
