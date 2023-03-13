@@ -7,7 +7,7 @@ from uptrain.constants import Monitor
 
 class EdgeCase(AbstractMonitor):
     dashboard_name = "edge_cases"
-    anomaly_type = Monitor.EDGE_CASE
+    monitor_type = Monitor.EDGE_CASE
 
     def base_init(self, fw, check):
         self.signal_manager = SignalManager()

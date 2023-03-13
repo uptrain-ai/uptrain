@@ -7,7 +7,7 @@ from uptrain.constants import Monitor
 
 class DataIntegrity(AbstractMonitor):
     dashboard_name = "data_integrity"
-    anomaly_type = Monitor.DATA_INTEGRITY
+    monitor_type = Monitor.DATA_INTEGRITY
 
     def base_init(self, fw, check):
         self.integrity_type = check["integrity_type"]
