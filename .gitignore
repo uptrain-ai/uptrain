@@ -1,16 +1,33 @@
-.DS_Store
+# Python
 __pycache__
 .ipynb_checkpoints
-uptrain_smart_data*
-training_logs*
-trained_models*
-evaluation_logs*
-uptrain.egg-info
+.venv
+venv
 build
 dist
+.pytype
+*.egg-info
+
+# IDE
+.vscode
 .idea
-uptrain_logs*
+
+# Environment files
+.env
+env
+
+# Dataset/Log files
+*.csv
+*.json
+*.log
+data
+
+# UpTrain
+uptrain_*
+trained_models*
+training_logs*
+evaluation_logs*
+
+# Extras
+.DS_Store
 *.pickle
-sample_run.ipynb
-NSL_KDD_binary.csv
-sigir_data.json
