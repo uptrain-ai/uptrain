@@ -2,6 +2,7 @@ from copy import deepcopy
 import json
 import os
 import shutil
+import sys
 import pandas as pd
 from datetime import datetime
 import random
@@ -22,6 +23,7 @@ from uptrain.core.lib.helper_funcs import (
     get_feature_names_list,
     load_list_from_df,
 )
+from uptrain.constants import Visual
 
 class Framework:
     """
@@ -54,6 +56,12 @@ class Framework:
         """
 
         cfg = config_handler.Config(**cfg_dict)
+        if any(check['type'] == Visual.UMAP for check in cfg.checks):
+            try:
+                import umap
+            except ImportError:
+                print("UMAP is not installed. For UMAP visualization, please install umap by running `pip install umap-learn`.")
+                sys.exit(1)
         self.run_background_log_consumer = cfg.run_background_log_consumer
 
         if self.run_background_log_consumer:
@@ -150,7 +158,7 @@ class Framework:
         self.smart_data_ids.extend(np.array(data["id"])[np.array(is_interesting)])
 
         """
-        Log only the interesting test cases to data 
+        Log only the interesting test cases to data
         warehouse. Logged under sub-folder 'smart_data'
         """
         path_smart_data = os.path.join(
@@ -326,9 +334,9 @@ class Framework:
         df.to_csv(self.path_all_data, index=False)
 
         """
-        TODO: Currently assumes that input is only one column. 
-        In some cases, the input might have multiple data 
-        structures (e.g., cascaded models). 
+        TODO: Currently assumes that input is only one column.
+        In some cases, the input might have multiple data
+        structures (e.g., cascaded models).
         """
         df_gt = df.loc[gt_id_indices]
         data = dict(zip(
@@ -392,7 +400,7 @@ class Framework:
         if 'id' not in cols:
             data.update({"id": np.array(ids)})
         return data
-    
+
     def convert_dict_values_to_numpy_values(self, inputs: dict) -> dict:
         data = {}
         for key, value in inputs.items():

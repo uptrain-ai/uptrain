@@ -1,4 +1,9 @@
-import umap
+import sys
+try:
+    import umap
+except ImportError:
+    print("UMAP is not installed. For UMAP visualization, please install umap by running `pip install umap-learn`.")
+    sys.exit(1)
 import copy
 from sklearn.cluster import DBSCAN
 import numpy as np
@@ -108,7 +113,7 @@ class Umap(AbstractVisual):
             return
 
         self.prev_calc_at = self.total_count
-        models = dict(zip(['model_' + x for x in self.model_names], 
+        models = dict(zip(['model_' + x for x in self.model_names],
             [self.allowed_model_values[jdx][0] for jdx in range(len(self.model_names))]))
         for count in self.count_checkpoints:
             emb_list, label_list, hover_texts = self.get_high_dim_data(count)

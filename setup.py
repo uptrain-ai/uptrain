@@ -41,7 +41,6 @@ setup(
     packages=find_packages(),
     install_requires=[
         "numpy<1.24",
-        "umap-learn>=0.5.3",
         "pandas>=1.0.0",
         "plotly>=5.0.0",
         "pydantic>=1.9.0",
@@ -51,5 +50,5 @@ setup(
         "shap>=0.41.0",
         "json-fix>=0.5.0",
     ],
-    tests_require=["pytest>=7.0", "torch", "imgaug", "gensim", "xgboost", "gensim"],
+    tests_require=["pytest>=7.0", "torch", "imgaug", "gensim", "xgboost", "gensim", "umap-learn>=0.5.3"],
 )
