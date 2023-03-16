@@ -1,5 +1,7 @@
 import numpy as np
+
 from copy import deepcopy
+from concurrent.futures import ThreadPoolExecutor
 
 from uptrain.constants import Monitor, Statistic, Visual, MeasurableType
 from uptrain.core.classes.monitors import (
@@ -100,13 +102,17 @@ class CheckManager:
             raise Exception("Visual type not Supported")
 
     def check(self, inputs, outputs, gts=None, extra_args={}):
-        for monitor in self.monitors_to_check:
-            if monitor.need_ground_truth() == (gts[0] is not None):
-                monitor.check(inputs, outputs, gts=gts, extra_args=extra_args)
-        for stats in self.statistics_to_check:
-            stats.check(inputs, outputs, gts=gts, extra_args=extra_args)
-        for visuals in self.visuals_to_check:
-            visuals.check(inputs, outputs, gts=gts, extra_args=extra_args)
+        with ThreadPoolExecutor() as executor:
+            futures = []
+            for monitor in self.monitors_to_check:
+                if monitor.need_ground_truth() == (gts[0] is not None):
+                    futures.append(executor.submit(monitor.check, inputs=inputs, outputs=outputs, gts=gts, extra_args=extra_args))
+            for stats in self.statistics_to_check:
+                futures.append(executor.submit(stats.check, inputs=inputs, outputs=outputs, gts=gts, extra_args=extra_args))
+            for visuals in self.visuals_to_check:
+                futures.append(executor.submit(visuals.check, inputs=inputs, outputs=outputs, gts=gts, extra_args=extra_args))
+            for future in futures:
+                future.result()
 
     def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
         is_interesting = []
