@@ -50,5 +50,5 @@ setup(
         "shap>=0.41.0",
         "json-fix>=0.5.0",
     ],
-    tests_require=["pytest>=7.0", "torch", "imgaug", "gensim", "xgboost", "gensim", "umap-learn>=0.5.3"],
+    tests_require=["pytest>=7.0", "torch", "imgaug", "gensim", "xgboost", "gensim"],
 )

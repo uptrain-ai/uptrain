@@ -2,7 +2,6 @@ from copy import deepcopy
 import json
 import os
 import shutil
-import sys
 import pandas as pd
 from datetime import datetime
 import random
@@ -23,7 +22,7 @@ from uptrain.core.lib.helper_funcs import (
     get_feature_names_list,
     load_list_from_df,
 )
-from uptrain.constants import Visual
+
 
 class Framework:
     """
