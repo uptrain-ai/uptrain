@@ -61,7 +61,7 @@ class CheckManager:
                             }
                         }
                     )
-                    drift_managers.append(DataDrift(self.fw,check_copy))
+                    drift_managers.append(DataDrift(self.fw, check_copy))
             self.monitors_to_check.extend(drift_managers)
         elif check["type"] == Monitor.POPULARITY_BIAS:
             bias_manager = ModelBias(self.fw, check)
@@ -106,11 +106,23 @@ class CheckManager:
             futures = []
             for monitor in self.monitors_to_check:
                 if monitor.need_ground_truth() == (gts[0] is not None):
-                    futures.append(executor.submit(monitor.check, inputs=inputs, outputs=outputs, gts=gts, extra_args=extra_args))
+                    futures.append(executor.submit(
+                        monitor.check,
+                        inputs=inputs, outputs=outputs,
+                        gts=gts, extra_args=extra_args
+                    ))
             for stats in self.statistics_to_check:
-                futures.append(executor.submit(stats.check, inputs=inputs, outputs=outputs, gts=gts, extra_args=extra_args))
+                futures.append(executor.submit(
+                        stats.check,
+                        inputs=inputs, outputs=outputs,
+                        gts=gts, extra_args=extra_args
+                    ))
             for visuals in self.visuals_to_check:
-                futures.append(executor.submit(visuals.check, inputs=inputs, outputs=outputs, gts=gts, extra_args=extra_args))
+                futures.append(executor.submit(
+                    visuals.check,
+                    inputs=inputs, outputs=outputs,
+                    gts=gts, extra_args=extra_args
+                ))
             for future in futures:
                 future.result()
 
@@ -120,8 +132,8 @@ class CheckManager:
         for monitor in self.monitors_to_check:
             if monitor.need_ground_truth() == (gts[0] is not None):
                 res = monitor.is_data_interesting(
-                        inputs, outputs, gts=gts, extra_args=extra_args
-                    )
+                    inputs, outputs, gts=gts, extra_args=extra_args
+                )
                 is_interesting.append(res[0])
                 reasons.append(res[1])
         if len(reasons):
