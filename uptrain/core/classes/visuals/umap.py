@@ -27,11 +27,10 @@ class Umap(AbstractVisual):
         self.hover_names = [x.col_name() for x in self.hover_measurables]
 
         self.count_checkpoints = check.get("count_checkpoints", ["all"])
-        self.min_dist = check["min_dist"]
-        self.n_neighbors = check["n_neighbors"]
-        self.metric_umap = check["metric_umap"]
+        self.min_dist = check.get("min_dist", 0.01)
+        self.n_neighbors = check.get("n_neighbors", 20)
+        self.metric_umap = check.get("metric_umap", "euclidean")
         self.dim = check.get("dim", '2D')
-        self.clustering = check.get("clustering", False)
         self.min_samples = check.get("min_samples", 5)
         self.eps = check.get("eps", 2.0)
         self.total_count = 0
@@ -107,7 +106,7 @@ class Umap(AbstractVisual):
             self.hover_texts.extend([dict(zip(self.hover_names, values)) for values in hover_table])
 
         self.total_count += len(extra_args['id'])
-        if not ((self.total_count - self.prev_calc_at) > self.update_freq):
+        if not ((self.total_count - self.prev_calc_at) >= self.update_freq):
             return
 
         self.prev_calc_at = self.total_count
@@ -198,6 +197,7 @@ class Umap(AbstractVisual):
             n_components = 2
         else:
             n_components = 3
+
 
         umap_embeddings = umap.UMAP(
             n_neighbors=n_neighbors,

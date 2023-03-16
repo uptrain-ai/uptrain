@@ -9,11 +9,13 @@ import os
 import uptrain
 import subprocess
 
+
 # Mean Pooling - Take attention mask into account for correct averaging
 def mean_pooling(model_output, attention_mask):
     token_embeddings = model_output[0] #First element of model_output contains all token embeddings
     input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
     return torch.sum(token_embeddings * input_mask_expanded, 1) / torch.clamp(input_mask_expanded.sum(1), min=1e-9)
+
 
 # Function to get bert embeddings from sentences list
 def convert_sentence_to_emb(sentences):
@@ -33,6 +35,7 @@ def convert_sentence_to_emb(sentences):
 
     # Normalize embeddings
     return np.array(F.normalize(embs, p=2, dim=1))
+
 
 def downsample_embs(embs, algo='avg'):
     if algo == 'avg':
@@ -57,26 +60,22 @@ def generate_reference_dataset_with_embeddings(dataset, tokenizer, model, datase
             print("Generated bert embeddings for " + str((jdx+1) * 100) + " training samples")
             bert_embs_downsampled = downsample_embs(bert_embs)
             for idx in range(len(this_batch)):
-                try:
-                    data.append({
-                        'id': jdx*100+idx,
-                        "dataset_label": dataset_label,
-                        'title': dataset['title'][jdx*100+idx],
-                        'text': dataset['text'][jdx*100+idx],
-                        'output': summaries[idx],
-                        'bert_embs': bert_embs[idx].tolist(),
-                        'bert_embs_downsampled': bert_embs_downsampled[idx].tolist(),
-                        'num_words': get_num_words_in_text(dataset[jdx*100+idx], None)
-                    })
-                except:
-                    import pdb; pdb.set_trace()
+                data.append({
+                    'id': jdx*100+idx,
+                    "dataset_label": dataset_label,
+                    'title': dataset['title'][jdx*100+idx],
+                    'text': dataset['text'][jdx*100+idx],
+                    'output': summaries[idx],
+                    'bert_embs': bert_embs[idx].tolist(),
+                    'bert_embs_downsampled': bert_embs_downsampled[idx].tolist(),
+                    'num_words': get_num_words_in_text(dataset[jdx*100+idx], None)
+                })
 
         with open(file_name, "w") as f:
             json.dump(data, f, cls=uptrain.UpTrainEncoder)
-    
-    with open(file_name) as f:
-        data = json.load(f)
-    return data
+    else:
+        print("Embeddings for reference dataset exists. Skipping generating again.")
+            
         
 def combine_datasets(dataset_1, label_1, dataset_2, label_2):
     final_test_dataset = concatenate_datasets([dataset_1, dataset_2])
