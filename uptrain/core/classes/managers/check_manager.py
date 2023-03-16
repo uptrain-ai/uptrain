@@ -113,10 +113,10 @@ class CheckManager:
                     ))
             for stats in self.statistics_to_check:
                 futures.append(executor.submit(
-                        stats.check,
-                        inputs=inputs, outputs=outputs,
-                        gts=gts, extra_args=extra_args
-                    ))
+                    stats.check,
+                    inputs=inputs, outputs=outputs,
+                    gts=gts, extra_args=extra_args
+                ))
             for visuals in self.visuals_to_check:
                 futures.append(executor.submit(
                     visuals.check,
