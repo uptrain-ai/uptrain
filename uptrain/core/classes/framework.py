@@ -56,12 +56,6 @@ class Framework:
         """
 
         cfg = config_handler.Config(**cfg_dict)
-        if any(check['type'] == Visual.UMAP for check in cfg.checks):
-            try:
-                import umap
-            except ImportError:
-                print("UMAP is not installed. For UMAP visualization, please install umap by running `pip install umap-learn`.")
-                sys.exit(1)
         self.run_background_log_consumer = cfg.run_background_log_consumer
 
         if self.run_background_log_consumer:

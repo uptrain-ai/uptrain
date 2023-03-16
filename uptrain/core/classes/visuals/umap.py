@@ -1,10 +1,8 @@
-import sys
 try:
     import umap
+    UMAP_PRESENT = True
 except ImportError:
-    print("UMAP is not installed. For UMAP visualization, please install umap by running `pip install umap-learn`.")
-    sys.exit(1)
-import copy
+    UMAP_PRESENT = False
 from sklearn.cluster import DBSCAN
 import numpy as np
 from uptrain.core.lib.helper_funcs import cluster_and_plot_data
