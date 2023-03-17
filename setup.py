@@ -14,7 +14,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="uptrain",
-    version="0.0.9",
+    version="0.0.10",
     description="UpTrain - ML Observability and Retraining Framework",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -41,7 +41,6 @@ setup(
     packages=find_packages(),
     install_requires=[
         "numpy<1.24",
-        "umap-learn>=0.5.3",
         "pandas>=1.0.0",
         "plotly>=5.0.0",
         "pydantic>=1.9.0",

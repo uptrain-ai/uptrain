@@ -6,7 +6,6 @@ import numpy as np
 # if __name__ == "__main__":
 def test_dashboard():
     cfg = {
-        # "st_logging": True,
         "logging_args": {
             # For slack alerts, add your webhook URL
             # Checkout https://api.slack.com/messaging/webhooks
@@ -93,15 +92,9 @@ def test_dashboard():
         else:
             high_dim_list.append(np.random.normal(np.ones(size), 1, size))
 
-    # umap_data = {"umap": umap, "clusters": clusters}
-    # fw.log_handler.add_histogram(
-    #     "umap_and_clusters",
-    #     umap_data,
-    #     dashboard_name
-    # )
-
     config_umap = {
-        "checks": [{
+        "checks": [
+        {
             'type': uptrain.Visual.UMAP,
             "measurable_args": {
                 'type': uptrain.MeasurableType.INPUT_FEATURE,
@@ -132,7 +125,6 @@ def test_dashboard():
             'perplexity': 10,
         }
         ],
-        # "st_logging": True,
         "logging_args": {
             'log_folder': 'uptrain_logs_umap',
             'dashboard_port': 50001,
