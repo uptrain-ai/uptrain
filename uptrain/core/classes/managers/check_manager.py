@@ -16,7 +16,7 @@ from uptrain.core.classes.statistics import (
     Convergence,
     Distribution,
 )
-from uptrain.core.classes.visuals import Umap, UMAP_PRESENT, Tsne, Shap
+from uptrain.core.classes.visuals import Umap, UMAP_PRESENT, Tsne, Shap, SHAP_PRESENT
 
 
 class CheckManager:
@@ -99,8 +99,13 @@ class CheckManager:
             custom_monitor = Tsne(self.fw, check)
             self.visuals_to_check.append(custom_monitor)
         elif check["type"] == Visual.SHAP:
-            custom_monitor = Shap(self.fw, check)
-            self.visuals_to_check.append(custom_monitor)
+            if SHAP_PRESENT:
+                custom_monitor = Shap(self.fw, check)
+                self.visuals_to_check.append(custom_monitor)
+            else:
+                print(
+                    """SHAP is not installed. For SHAP explainability, please install it by running `pip install shap matplotlib`."""
+                )
         else:
             raise Exception("Visual type not Supported")
 
