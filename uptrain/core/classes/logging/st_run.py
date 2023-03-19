@@ -8,8 +8,7 @@ import numpy as np
 import json
 import plotly.express as px
 import random
-import streamlit.components.v1 as components
-import shap
+import pickle
 
 
 st.set_page_config(
@@ -412,14 +411,8 @@ def plot_dashboard(dashboard_name):
                 st.image(png_file)
 
 
-def st_shap(plot, height=None):
-    shap_html = f"<head>{shap.getjs()}</head><body>{plot.html()}</body>"
-    components.html(shap_html, height=height) 
-
-
 @st.cache
 def get_data_shap(path_all_data, num_points):
-    import pickle
     file = open(metadata["path_shap_file"], 'rb')
     explainer = pickle.load(file)
     file.close()
@@ -448,11 +441,12 @@ if metadata.get("path_shap_file", None):
         path_all_data = metadata["path_all_data"]
 
         num_points = metadata["shap_num_points"]
-        
-        shap_values, data_ids = get_data_shap(path_all_data, num_points)
 
+        import shap
         shap.initjs() # for visualization
         st.set_option('deprecation.showPyplotGlobalUse', False)
+
+        shap_values, data_ids = get_data_shap(path_all_data, num_points)
 
         st.subheader("Feature-wise importance")
         st.text("Feature \"dist\" has the biggest impact on ride time predictions.")

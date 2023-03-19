@@ -1,7 +1,7 @@
 try:
     import umap
     UMAP_PRESENT = True
-except ImportError:
+except:
     UMAP_PRESENT = False
 from sklearn.cluster import DBSCAN
 import numpy as np
