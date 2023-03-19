@@ -1,5 +1,8 @@
-import umap
-import copy
+try:
+    import umap
+    UMAP_PRESENT = True
+except ImportError:
+    UMAP_PRESENT = False
 from sklearn.cluster import DBSCAN
 import numpy as np
 from uptrain.core.lib.helper_funcs import cluster_and_plot_data
@@ -107,7 +110,7 @@ class Umap(AbstractVisual):
             return
 
         self.prev_calc_at = self.total_count
-        models = dict(zip(['model_' + x for x in self.model_names], 
+        models = dict(zip(['model_' + x for x in self.model_names],
             [self.allowed_model_values[jdx][0] for jdx in range(len(self.model_names))]))
         for count in self.count_checkpoints:
             emb_list, label_list, hover_texts = self.get_high_dim_data(count)

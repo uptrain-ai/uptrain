@@ -18,7 +18,7 @@ from uptrain.core.classes.statistics import (
     Convergence,
     Distribution,
 )
-from uptrain.core.classes.visuals import Umap, Tsne, Shap
+from uptrain.core.classes.visuals import Umap, UMAP_PRESENT, Tsne, Shap
 
 
 class CheckManager:
@@ -90,8 +90,13 @@ class CheckManager:
 
     def add_visual(self, check):
         if check["type"] == Visual.UMAP:
-            custom_monitor = Umap(self.fw, check)
-            self.visuals_to_check.append(custom_monitor)
+            if UMAP_PRESENT:
+                custom_monitor = Umap(self.fw, check)
+                self.visuals_to_check.append(custom_monitor)
+            else:
+                print(
+                    """UMAP is not installed. For UMAP visualization, please install umap by running `pip install umap-learn`."""
+                )
         elif check["type"] == Visual.TSNE:
             custom_monitor = Tsne(self.fw, check)
             self.visuals_to_check.append(custom_monitor)
@@ -144,4 +149,6 @@ class CheckManager:
                         final_reason[jdx] = reas[jdx]
         else:
             final_reason = []
-        return np.greater(np.sum(np.array(is_interesting), axis=0), 0), np.array(final_reason)
+        return np.greater(np.sum(np.array(is_interesting), axis=0), 0), np.array(
+            final_reason
+        )

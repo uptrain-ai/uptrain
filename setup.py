@@ -41,7 +41,6 @@ setup(
     packages=find_packages(),
     install_requires=[
         "numpy<1.24",
-        "umap-learn>=0.5.3",
         "pandas>=1.0.0",
         "plotly>=5.0.0",
         "pydantic>=1.9.0",
