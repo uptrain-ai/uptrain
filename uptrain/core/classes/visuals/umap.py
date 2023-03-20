@@ -53,17 +53,17 @@ class Umap(AbstractVisual):
                     [self.label_measurable.extract_val_from_training_data(x) for x in data]
                 )
             if len(self.hover_measurables):
-                raw_data = np.abs([x['bert_embs_downsampled'] for x in data])
-                self.max_along_axis = np.max(raw_data, axis=0)
-                norm_data = raw_data/self.max_along_axis
+                # raw_data = np.abs([x['bert_embs_downsampled'] for x in data])
+                # self.max_along_axis = np.max(raw_data, axis=0)
+                # norm_data = raw_data/self.max_along_axis
 
-                _, _, _, points_density, _ = cluster_and_plot_data(norm_data,20)
+                # _, _, _, points_density, _ = cluster_and_plot_data(norm_data,20)
 
                 offset = 0
                 for data_point in data:
                     this_hovers = [x.extract_val_from_training_data(data_point) for x in self.hover_measurables]
                     self.hover_texts.append(dict(zip(self.hover_names, this_hovers)))
-                    self.hover_texts[offset].update({"Training Density": int(points_density[offset])})
+                    # self.hover_texts[offset].update({"Training Density": int(points_density[offset])})
                     self.hover_texts[offset].update({"idx": offset})
                     offset += 1
             if len(self.feature_measurables):
