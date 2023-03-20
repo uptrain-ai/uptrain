@@ -58,10 +58,10 @@ class ConditionMeasurable(Measurable):
             )
         self.condition_func = condition_func
 
-    def _compute(self, inputs=None, outputs=None, gts=None, extra=None) -> any:
+    def _compute(self, inputs=None, outputs=None, gts=None, extra=None) -> Any:
         return self.condition_func(
             self.feature._compute(inputs=inputs, outputs=outputs, gts=gts, extra=extra)
         )
 
-    def col_name(self):
+    def col_name(self) -> str:
         return f"Condition({self.feature.col_name()}, {str(self.condition)})"

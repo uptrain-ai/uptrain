@@ -1,4 +1,4 @@
-import numpy as np
+from typing import Any, List, Union
 
 from uptrain.core.classes.distances import DistanceResolver
 from uptrain.core.classes.measurables import Measurable
@@ -24,7 +24,7 @@ class DistanceMeasurable(Measurable):
             Distance types must be from the list:
                 ["cosine_distance", "l2_distance", "norm_ratio"]
         """
-        
+
         super().__init__(framework)
         self.base = InputFeatureMeasurable(framework, base["feature_name"])
         self.reference = reference
@@ -32,7 +32,7 @@ class DistanceMeasurable(Measurable):
         self.distance_types = distance_types
         self.dist_classes = [DistanceResolver().resolve(x) for x in self.distance_types]
 
-    def _compute(self, inputs=None, outputs=None, gts=None, extra=None) -> any:
+    def _compute(self, inputs=None, outputs=None, gts=None, extra=None) -> Any:
         base_val = self.base.compute_and_log(
             inputs=inputs, outputs=outputs, gts=gts, extra=extra
         )
@@ -50,7 +50,7 @@ class DistanceMeasurable(Measurable):
             self.ref_val = base_val
         return dists
 
-    def col_name(self, return_str=True):
+    def col_name(self, return_str: bool = True) -> Union[List[str], str]:
         col_names = [
             f"Distance {str(self.base.col_name())} {self.reference} {str(x)}"
             for x in self.distance_types

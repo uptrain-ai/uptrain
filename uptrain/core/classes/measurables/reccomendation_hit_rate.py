@@ -15,5 +15,5 @@ class RecHitRateMeasurable(Measurable):
         acc = [1 if gt in outputs[i] else 0 for i, gt in enumerate(gts)]
         return np.array(acc)
 
-    def col_name(self):
+    def col_name(self) -> str:
         return "Hit-Rate"

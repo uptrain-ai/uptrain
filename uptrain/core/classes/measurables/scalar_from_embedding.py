@@ -1,3 +1,5 @@
+from typing import Any
+
 from uptrain.core.classes.measurables import (
     Measurable,
     InputFeatureMeasurable,
@@ -14,12 +16,12 @@ class ScalarFromEmbeddingMeasurable(Measurable):
             framework, extract_from_args["feature_name"]
         )
 
-    def _compute(self, inputs=None, outputs=None, gts=None, extra=None) -> any:
+    def _compute(self, inputs=None, outputs=None, gts=None, extra=None) -> Any:
         return self.extract_from._compute(
             inputs=inputs, outputs=outputs, gts=gts, extra=extra
         )[self.idx]
 
-    def col_name(self):
+    def col_name(self) -> str:
         return f"Scalar [Index: {str(self.idx)}] from Embedding: {str(self.extract_from.col_name())}"
 
     # TODO: Decommission and find a generic way

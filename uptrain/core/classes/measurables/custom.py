@@ -33,7 +33,7 @@ class CustomMeasurable(Measurable):
         )
         return val
 
-    def col_name(self):
+    def col_name(self) -> str:
         return str(self.signal_manager)
 
     # TODO: Decommission and find a generic way
