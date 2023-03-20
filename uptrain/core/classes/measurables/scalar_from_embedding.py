@@ -5,6 +5,8 @@ from uptrain.core.classes.measurables import (
 
 
 class ScalarFromEmbeddingMeasurable(Measurable):
+    """Class that extracts a scalar from a measurable embedding."""
+
     def __init__(self, framework, idx, extract_from_args) -> None:
         super().__init__(framework)
         self.idx = idx
@@ -18,12 +20,7 @@ class ScalarFromEmbeddingMeasurable(Measurable):
         )[self.idx]
 
     def col_name(self):
-        return (
-            "Scalar [Index:"
-            + str(self.idx)
-            + "] from Embedding: "
-            + str(self.extract_from.col_name())
-        )
+        return f"Scalar [Index: {str(self.idx)}] from Embedding: {str(self.extract_from.col_name())}"
 
     # TODO: Decommission and find a generic way
     def extract_val_from_training_data(self, x):

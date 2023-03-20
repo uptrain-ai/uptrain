@@ -14,17 +14,17 @@ from uptrain.constants import MeasurableType
 
 
 class MeasurableResolver:
+    """Class that resolves a measurable key to a measurable class instance."""
+
     def __init__(self, args) -> None:
         super().__init__()
         self._args = args
 
-    def has_valid_resolve_args(self):
+    def has_valid_resolve_args(self) -> bool:
         if self._args is None:
             return False
-
         if len(self._args) == 0:
             return False
-
         return True
 
     def resolve(self, framework) -> Measurable:
