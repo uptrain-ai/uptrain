@@ -1,11 +1,35 @@
 import numpy as np
 
+from typing import List, Union
 
-class L2Distance:
-    def compute_distance(self, base, ref) -> float:
+from uptrain.core.classes.distances import AbstractDistance
+
+
+class L2Distance(AbstractDistance):
+    """Class that computes L2 distance between base and reference vectors."""
+
+    def compute_distance(
+        self, base: Union[List, np.ndarray], reference: Union[List, np.ndarray]
+    ) -> np.ndarray:
+        """Compute the L2 distance between base and reference vectors.
+
+        Parameters
+        ----------
+        base
+            It is the base vector for L2 distance computation.
+        reference
+            It is the reference vector for L2 distance computation.
+
+        Returns
+        -------
+        np.ndarray
+            The L2 distance between base and reference.
+        """
+
         base = np.array(base)
-        ref = np.array(ref)
+        reference = np.array(reference)
         base_shape = list(base.shape)
         return np.sum(
-            (base - ref) * (base - ref), axis=tuple(range(1, len(base_shape)))
+            (base - reference) * (base - reference),
+            axis=tuple(range(1, len(base_shape))),
         )
