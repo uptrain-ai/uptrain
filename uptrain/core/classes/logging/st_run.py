@@ -227,7 +227,6 @@ def plot_umap(file, j=0):
             dictn.update({key: data[key]})
     df = pd.DataFrame(dictn)
     df = slice_data(df, features_to_slice, model_to_compare, other_models, j)
-    df["index"] = ["Id : "+str(id) for id in df.index]
 
     if "hover" in list(df.columns):
         hover_df = pd.DataFrame(list(df['hover']))
@@ -240,10 +239,10 @@ def plot_umap(file, j=0):
         hover_df = pd.DataFrame()
     
     if arr.shape[1] == 2:
-        fig = px.scatter(df, x='x', y='y', color='color', hover_name="index", hover_data=hover_data)
+        fig = px.scatter(df, x='x', y='y', color='color', hover_data=hover_data)
     elif arr.shape[1] == 3:
         z = list(df['z'])
-        fig = px.scatter_3d(df, x='x', y='y', z='z', color='color', hover_name="index", hover_data=hover_data)
+        fig = px.scatter_3d(df, x='x', y='y', z='z', color='color', hover_data=hover_data)
     else:
         raise ("Umap dimension not 2D or 3D.")
     st.plotly_chart(fig, use_container_width=True)
@@ -471,6 +470,3 @@ if metadata.get("path_shap_file", None):
         with cols[0]:
             shap.plots.waterfall(shap_val)
             st.pyplot()
-
-
-
