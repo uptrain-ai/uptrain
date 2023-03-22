@@ -83,9 +83,9 @@ def test_dashboard():
 
     ########### Adding UMAP and TSNE test #############
 
-    clusters = np.random.choice([0, 1], size=(100), p=[0.2, 0.8])
+    size = 300
+    clusters = np.random.choice([0, 1], size=size, p=[0.2, 0.8])
     high_dim_list = []
-    size = 100
     for label in clusters:
         if label==0:
             high_dim_list.append(np.random.normal(np.zeros(size), 1, size))
@@ -106,7 +106,7 @@ def test_dashboard():
             },
             'min_dist': 0.01,
             'n_neighbors': 20,
-            'metric_umap': 'euclidean',
+            'metric': 'euclidean',
             'dim': '2D',
             "update_freq": 1,
         },
