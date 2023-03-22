@@ -4,6 +4,7 @@ try:
 except:
     UMAP_PRESENT = False
 from sklearn.cluster import DBSCAN
+from sklearn.manifold import TSNE
 import numpy as np
 from uptrain.core.lib.helper_funcs import cluster_and_plot_data
 
@@ -12,11 +13,18 @@ from uptrain.constants import Visual, Statistic
 from uptrain.core.classes.measurables import MeasurableResolver
 from uptrain.core.lib.helper_funcs import read_json
 
-class Umap(AbstractVisual):
-    visual_type = Visual.UMAP
-    dashboard_name = "umap_and_clusters"
+class DimensionalityReduction(AbstractVisual):
 
     def base_init(self, fw, check):
+        self.visual_type = check["type"]
+        if self.visual_type == Visual.UMAP:
+            self.dashboard_name = "umap"
+            self.umap_init(check)
+        elif self.visual_type == Visual.TSNE:
+            self.dashboard_name = "tsne"
+            self.tsne_init(check)
+        else:
+            raise Exception("Dimensionality reduction type undefined.")
         self.framework = fw
         self.label_measurable = MeasurableResolver(check.get("label_args", None)).resolve(
             fw
@@ -27,9 +35,6 @@ class Umap(AbstractVisual):
         self.hover_names = [x.col_name() for x in self.hover_measurables]
 
         self.count_checkpoints = check.get("count_checkpoints", ["all"])
-        self.min_dist = check.get("min_dist", 0.01)
-        self.n_neighbors = check.get("n_neighbors", 20)
-        self.metric_umap = check.get("metric_umap", "euclidean")
         self.dim = check.get("dim", '2D')
         self.min_samples = check.get("min_samples", 5)
         self.eps = check.get("eps", 2.0)
@@ -75,6 +80,27 @@ class Umap(AbstractVisual):
                     else:
                         self.feature_dictn.update({key: list(this_dict[key])})
 
+    def umap_init(self, check):
+        self.min_dist = check.get("min_dist", 0.01)
+        self.n_neighbors = check.get("n_neighbors", 20)
+        self.metric_umap = check.get("metric", "euclidean")
+
+    def tsne_init(self, check):
+        self.perplexity = check.get("perplexity",30.0)
+        self.early_exaggeration = check.get("early_exaggeration",12.0)
+        self.learning_rate = check.get("learning_rate","auto")
+        self.n_iter = check.get("n_iter",1000)
+        self.n_iter_without_progress = check.get("n_iter_without_progress",300)
+        self.min_grad_norm = check.get("min_grad_norm",1e-7)
+        self.metric_tsne = check.get("metric",'euclidean')
+        self.metric_params = check.get("metric_params",None)
+        self.init = check.get("init","pca")
+        self.verbose = check.get("verbose",0)
+        self.random_state = check.get("random_state",None)
+        self.method = check.get("method",'barnes_hut')
+        self.angle = check.get("angle",0.5)
+        self.n_jobs = check.get("n_jobs",None)
+
     def base_check(self, inputs, outputs, gts=None, extra_args={}):
         if self.measurable is not None:
             vals = self.measurable.compute_and_log(
@@ -119,21 +145,15 @@ class Umap(AbstractVisual):
 
             if emb_list.shape[0] > 10:
                 clusters = []
-                umap_list, clusters = self.get_umap_and_labels(
+                umap_list, clusters = self.get_embs_and_labels(
                     emb_list,
-                    self.dim,
-                    self.n_neighbors,
-                    self.min_dist,
-                    self.metric_umap,
-                    self.eps,
-                    self.min_samples,
                     label_list=label_list
                 )
                 this_data = {"umap": umap_list, "clusters": clusters}
                 if len(hover_texts) > 0:
                     this_data.update({"hover_texts": hover_texts})
                 self.log_handler.add_histogram(
-                    "umap_and_clusters",
+                    self.visual_type,
                     this_data,
                     self.dashboard_name,
                     models = models,
@@ -158,14 +178,14 @@ class Umap(AbstractVisual):
                     temp_keys = list(temp_val.keys())
                     temp_keys = list(filter(lambda x: "visual_label_" in x, temp_keys))
                     if len(temp_keys) > 1:
-                        print("Have multiple labels - " + str(temp_keys) + " .Using " + temp_keys[0] + " for labeling UMAPs." )
+                        print("Have multiple labels - " + str(temp_keys) + " .Using " + temp_keys[0] + " for labeling." )
                     if len(temp_keys) > 0:
                         chosen_label_key = temp_keys[0]
                 if len(temp_val):
                     temp_keys = list(temp_val.keys())
                     temp_keys = list(filter(lambda x: "visual_hover_text_" in x, temp_keys))
                     if len(temp_keys) > 1:
-                        print("Have multiple hover texts - " + str(temp_keys) + " .Using " + temp_keys[0] + " for hovering UMAPs." )
+                        print("Have multiple hover texts - " + str(temp_keys) + " .Using " + temp_keys[0] + " for hovering." )
                     if len(temp_keys) > 0:
                         chosen_hover_key = temp_keys[0]
             vals = np.array([data_dict[x]['val'] for x in data_dict])
@@ -182,35 +202,47 @@ class Umap(AbstractVisual):
         else:
             return self.vals, self.labels, self.hover_texts
 
-    def get_umap_and_labels(
+    def get_embs_and_labels(
         self,
         emb_list,
-        dim,
-        n_neighbors,
-        min_dist,
-        metric,
-        eps,
-        min_samples,
         label_list=None
     ):
-        if dim == "2D":
+        if self.dim == "2D":
             n_components = 2
         else:
             n_components = 3
 
-
-        umap_embeddings = umap.UMAP(
-            n_neighbors=n_neighbors,
-            n_components=n_components,
-            min_dist=min_dist,
-            metric=metric,
-        ).fit_transform(emb_list)
+        if self.visual_type == Visual.UMAP:
+            compressed_embeddings = umap.UMAP(
+                n_neighbors=self.n_neighbors,
+                n_components=n_components,
+                min_dist=self.min_dist,
+                metric=self.metric_umap,
+            ).fit_transform(emb_list)
+        elif self.visual_type == Visual.TSNE:
+            compressed_embeddings = TSNE(
+                n_components=n_components,
+                perplexity=self.perplexity,
+                early_exaggeration=self.early_exaggeration,
+                learning_rate=self.learning_rate,
+                n_iter=self.n_iter,
+                n_iter_without_progress=self.n_iter_without_progress,
+                min_grad_norm=self.min_grad_norm,
+                metric=self.metric_tsne,
+                init=self.init,
+                verbose=self.verbose,
+                random_state=self.random_state,
+                method=self.method,
+                angle=self.angle,
+                n_jobs=self.n_jobs
+            ).fit_transform(emb_list)
 
         # Do DBSCAN clustering
         if self.do_clustering:
-            clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(umap_embeddings)
+            clustering = DBSCAN(eps=self.eps, 
+                            min_samples=self.min_samples).fit(compressed_embeddings)
             labels = clustering.labels_
         else:
             labels = label_list
         labels = np.squeeze(np.array(labels))
-        return umap_embeddings, labels
+        return compressed_embeddings, labels

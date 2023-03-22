@@ -325,10 +325,10 @@ def plot_dashboard(dashboard_name):
     sub_dirs = [path[0] for path in os.walk(os.path.join(log_folder, dashboard_name))]
     for sub_dir in sub_dirs:
         sub_dir_split = os.path.normpath(sub_dir).split(os.path.sep)
-        c1 = sub_dir_split[-1] == "umap_and_clusters"
+        c1 = sub_dir_split[-1] == "UMAP"
         c2 = sub_dir_split[-2] == "bar_graphs"
         c3 = sub_dir_split[-1] == "alerts"
-        c4 = sub_dir_split[-1] == "tsne_and_clusters"
+        c4 = sub_dir_split[-1] == "t_SNE"
         if c1 or c2 or c3 or c4:
             ext = "*.json"
         else:
@@ -361,18 +361,18 @@ def plot_dashboard(dashboard_name):
         # ######### Plotting histograms ###########
 
         elif sub_dir_split[-2] == "histograms":
-            if plot_name == "umap_and_clusters":
-                if st.sidebar.checkbox(f"UMAP for {plot_name}"):
-                    st.markdown(f"### UMAP for {plot_name}")
+            if plot_name == "UMAP":
+                if st.sidebar.checkbox(f"UMAP plot"):
+                    st.markdown(f"### UMAP plot")
                     if model_args is not None:
                         plot_umaps(files, plot_name, sub_dir)
                     else:
                         for file in files:
                             plot_umap(file)
                     st.markdown("""---""") 
-            elif plot_name == "tsne_and_clusters":  
-                if st.sidebar.checkbox(f"t-SNE for {plot_name}"):
-                    st.markdown(f"### t-SNE for {plot_name}")
+            elif plot_name == "t_SNE":  
+                if st.sidebar.checkbox(f"t-SNE plot"):
+                    st.markdown(f"### t-SNE plot")
                     if model_args is not None:
                         plot_umaps(files, plot_name, sub_dir)
                     else:
