@@ -1,0 +1,43 @@
+---
+title: Edge Case Detection
+description: Detect outliers in your production data 
+---
+
+Edge case detection is a crucial aspect of monitoring machine learning models, as it allows users to identify and handle data points that fall outside the typical range of values. These edge cases can be challenging for a machine learning model to predict accurately, and UpTrain provides a robust framework for identifying and handling these cases to improve the model.
+
+We recommend checking out the The Data Integrity Monitor in UpTrain checks for issues such as missing or corrupted data, incorrect data types, and outliers. It takes as input the dataset used by the model and performs checks to identify potential issues. Following is an example of a data integrity check taken from the [human orientation classification](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/run.ipynb) example:
+
+example to see edge case detection in action. In our [quickstart tutorial](#TODO), we looked at the data drift for this problem, where we realized that pushup positions in human orientation were not a part of the training data, but the model is seeing in production. Thus, in this config, we define a custom edge case where we want to specifically catch pushup position data points so that we can annotate them and retrain our model on them later. The following is how the config looks like
+
+```python
+# Use the custom-defined pushup edge-case signal
+pushup_edge_case = uptrain.Signal("Pushup", pushup_signal)
+
+# Defining the model confidence edge-case signal
+# That is, identify model confidence <0.9 as an edge-case
+low_conf_edge_case = (
+    uptrain.Signal(uptrain.ModelSignal.BINARY_ENTROPY_CONFIDENCE, is_model_signal=True)
+    < 0.9
+)
+
+edge_case_check = [
+    {
+        "type": uptrain.Anomaly.EDGE_CASE,
+        "signal_formulae": (pushup_edge_case | low_conf_edge_case),
+    }
+]
+```
+
+Here, we have defined another edge-case signal which checks for whether the model confidence was less than 0.9. Low-confidence data points might be misclassified, and their real ground truths can also be used to retrain the model.
+
+Applying an edge case monitor on the above dataset yielded the edge case clusters with centroids and their support as shown in the image below. As we can see, the clusters that are close to the pushup position are most frequent, which implies that our edge detection technique is working as expected.
+
+<Frame caption="Edge cases clusters selected by the framework. Pushup orientations are most prominent.">
+  <img width="500" src="/images/edge-case-clusters.png"/>
+</Frame>
+
+UpTrain employs a combination of user-defined signals and statistical techniques, such as outlier detection, to identify edge cases. Users can define their own signals based on their domain expertise, which may include features such as the time of day or user behavior patterns. Additionally, we plan to include several built-in statistical techniques for outlier detection, such as [Tukey's fences](https://github.com/uptrain-ai/uptrain/issues/100) and [Z-score](https://github.com/uptrain-ai/uptrain/issues/101).
+
+Once an edge case has been identified, UpTrain allows users to flag and handle these cases separately. For example, a user may choose to exclude edge cases from the production dataset to apply a different prediction strategy to these cases (e.g., manual predictions). UpTrain provides flexibility in handling edge cases, allowing users to choose the approach that works best for their specific use case. Finally, they can use the automatically generated edge-case dataset to retrain and improve their models for better performance in the future.
+
+Overall, UpTrain's edge case detection capabilities help improve machine learning models' robustness and reliability by identifying and handling challenging data points that may otherwise lead to poor performance.  

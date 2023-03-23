@@ -1,0 +1,167 @@
+---
+title: Human Orientation Classifier
+description: Measuring data drift in production data for automated retraining of ML model
+---
+
+
+In `run.ipynb`, we consider a binary classification task of human orientation while exercising. That is, given the location of 17 key-points of the body such as the nose, shoulders, wrist, hips, ankles, etc., the model tries to predict whether the person is in a horizontal (see image 1 below) or a vertical (see image 2 below) position.
+
+**Input:** 34-dimensional vector that contains the x and y positions of the 17 key-points.\
+**Output:** Orientation (horizontal or vertical)
+
+![Horizontal_class](https://user-images.githubusercontent.com/5287871/213901036-ca3badd4-a464-41b0-8a15-5aa7c24b0814.png)
+![Vertical_class](https://user-images.githubusercontent.com/5287871/213901039-19906445-fa31-43bf-aaaf-037f837d81a1.png)
+
+In this example, we will see how we can use UpTrain package to identify data drift and out of distribution cases on real-world data. 
+
+#### Data Type Structure
+
+Let's look at the training data features and visualise some of the training samples. Here, `id` is the training sample id, `gt` is the corresponding ground truth, and the rest of the features are the corresponding locations of the key-points of a human body.
+
+|     id      | gt | Nose_X   | Nose_Y   | Left_Eye_X | Left_Eye_Y | Right_Eye_X | Right_Eye_Y | Left_Ear_X | ... | Right_Hip_X | Right_Hip_Y | Left_Knee_X | Left_Knee_Y | Right_Knee_X | Right_Knee_Y | Left_Ankle_X | Left_Ankle_Y | Right_Ankle_X | Right_Ankle_Y |
+|-------------|----|----------|----------|------------|------------|-------------|-------------|------------|-----|-------------|-------------|-------------|-------------|--------------|--------------|--------------|--------------|---------------|---------------|
+| 18100306191 | 0  | 333.1099 | 76.16169 | 338.565    | 71.52614   | 328.199     | 72.19483    | 345.6565   | ... | 313.9251    | 186.0536    | 335.0139    | 253.6062    | 309.0112     | 249.2267     | 333.6547     | 311.5139     | 311.7607      | 294.1007      |
+| 12100004003 | 1  | 373.0438 | 207.9342 | 378.2784   | 205.6788   | 373.3413    | 206.1354    | 380.1651   | ... | 326.1576    | 227.3325    | 351.3415    | 228.6572    | 328.5811     | 226.2186     | 340.9839     | 240.702      | 327.2400      | 241.34        |
+| 17100400995 | 0  | 289.116  | 218.503  | 294.3312   | 212.577    | 284.066     | 212.2591    | 301.2163   | ... | 276.756     | 255.0085    | 345.2303    | 273.2857    | 237.4981     | 272.0142     | 349.4135     | 315.731      | 237.182       | 317.7847      |
+| 18100102279 | 0  | 320.898  | 71.87347 | 325.1677   | 67.46803   | 317.1886    | 67.68997    | 329.8143   | ... | 297.8572    | 154.6147    | 329.5987    | 197.9559    | 299.7106     | 203.6638     | 327.664      | 231.6841     | 298.5258      | 251.7898      |
+
+
+#### Visualizing some training samples for classifying human orientation
+![training_data_examples](https://user-images.githubusercontent.com/5287871/214430440-85fced8e-234b-4341-92e7-1e001aea517e.jpeg)
+
+The example follows the following steps for monitoring and retraining your model:
+### Step 1: Train the Deep Neural Network model
+
+We have defined a simple Neural Net comprised of a fully-connected layer with relu activation followed by a fully-connected layer to transfer latent features into model outputs. We compute Binary Entropy loss and are using Adam optimiser to train the model.\ 
+Note: We use PyTorch in this example, but in other examples such as edge-case detection, we have also run UpTrain with Sklearn and Tensorflow.
+
+![dnn_model_orientation_classification](https://user-images.githubusercontent.com/5287871/214430849-0e2df29f-bfea-43b5-aa7b-c7cbcaeea79c.png)
+
+With the first version of this model, we observe an accuracy of 90.9% on the golden testing dataset. We will now how we can use UpTrain package to identify data distribution shifts, collect edge cases and retrain the model to improve its accuracy.
+
+### Step 2: Define the list of checks to perform on model
+In this example, we define a simple data drift check to identify any distribution shift between real-world test set and the reference dataset (the training dataset in this case). To achieve this, we set 'kps' (Keypoints) as the input variable, the framework performs clustering on the training dataset and checks if the real-world test set is following the similar distribution.
+
+```python
+checks = [{
+    'type': uptrain.Monitor.DATA_DRIFT,
+    'reference_dataset': orig_training_file,
+    'is_embedding': True,
+    "measurable_args": {
+        'type': uptrain.MeasurableType.INPUT_FEATURE,
+        'feature_name': 'kps'  #keypoints
+    },
+}]
+```
+Here, the `type` refers to the anamoly type, which is data drift in this case. The `reference_dataset` is the training dataset, while `is_embedding` refers to whether the data type on which drfit is being measured is in a vector/embedding form. Finally, `measurable_args` define the input features (or any function of them) on which the drift is to be measured.
+
+### Step 3: Define the training and evaluation arguments
+We now attach the model training and evaluation pipelines so that UpTrain framework can automatically retrain the model in case it sees that the model is facing significant data drift.
+
+```python
+# Define the training pipeline to annotate collected edge cases and retrain the model automatically
+training_args = {
+    "annotation_method": {"method": uptrain.AnnotationMethod.MASTER_FILE, "args": annotation_args}, 
+    "training_func": train_model_torch, 
+    "orig_training_file": orig_training_file,
+}
+
+# Define evaluation pipeline to test retrained model against original model
+evaluation_args = {
+    "inference_func": get_accuracy_torch,
+    "golden_testing_dataset": golden_testing_file,
+}
+```
+
+### Step 4: Define the UpTrain Config
+We are now ready to define the UpTrain config as follows
+```python
+cfg = {
+    "checks": checks, 
+    "training_args": training_args,
+    "evaluation_args": evaluation_args,
+
+    # Retrain when 200 datapoints are collected in the retraining dataset
+    "retrain_after": 200,
+    
+    # A local folder to store the retraining dataset
+    "retraining_folder": "uptrain_smart_data__data_drift",
+    
+    # A function to visualize clusters in the data
+    "cluster_visualize_func": plot_all_cluster,
+}
+```
+
+### Step 5: Deploy the model in production
+Ship the model to production worry-free because the UpTrain tool will identify any data drifts, collect interesting data points and automatically retrain the model on them. To mimic deployment behavior, we are running the model on a 'real-world test set' and logging model inputs with UpTrain framework. The following is the pseudo-code. 
+
+```python
+# Load the trained model
+model.load(trained_model_location)
+model.eval()
+
+for i, x_test in enumerate(real_world_dataset):
+    # Do model prediction
+    preds = model(x_test)
+
+    # Log model inputs and outputs to the uptrain Framework to monitor data drift
+    idens = framework.log(inputs=x_test, outputs=preds)
+```
+
+### Automated model retraining performance
+After an automated retraining of the model was launched by UpTrain on points that caused the data drift, we observe that the error rate decreased by 20x. 
+```
+---------------------------------------------
+---------------------------------------------
+Old model accuracy:  90.9%
+Retrained model accuracy (ie 201 smartly collected data-points added):  99.5%
+---------------------------------------------
+---------------------------------------------
+```
+
+This is how the sample logs look like
+```
+    51  edge cases identified out of  11840  total samples
+    100  edge cases identified out of  13360  total samples
+    150  edge cases identified out of  14864  total samples
+    201  edge cases identified out of  21632  total samples
+    
+    Kicking off re-training
+    Creating retraining dataset: uptrain_smart_data/1/training_dataset.json  by merging  data/training_data.json  and collected edge cases.
+    
+    Model retraining done...
+    
+    Generating comparison report...
+    Evaluating model: version_0  on  15731  data-points
+    Evaluating model: version_1  on  15731  data-points
+    ---------------------------------------------
+    ---------------------------------------------
+    Old model accuracy:  0.9092873943169538
+    Retrained model accuracy (ie 201 smartly collected data-points added):  0.9952323437797979
+    ---------------------------------------------
+    ---------------------------------------------
+   ```
+   
+#### Hurray! Our model after retraining performs significantly better.
+
+Let's try to understand how UpTrain helped to improve our classification model.
+
+#### Training data clusters
+While initializing the UpTrain framework, it clusters the reference dataset (i.e. training dataset in our case). We are plotting the centroids and support (ie number of data-points belonging to that cluster) of all the 20 clusters in our training dataset.
+![training_data_clusters](https://user-images.githubusercontent.com/5287871/214433144-c0f4e67d-001e-4206-89f2-e32b09075a93.png)
+
+#### Edge cases clusters
+As we see, the UpTrain framework identifies out-of-distribution data-points and collects the edge-cases which are sparsely present in the training dataset.
+![edge_case_clusters](https://user-images.githubusercontent.com/5287871/214433163-068dab2d-5b57-4cb0-8283-d92a7a90c08b.png)
+
+From the above plot generated while monitoring the model in production, we see that data drift occurs for many cases when the person is in a horizontal position. Specifically, cases when the person is in a push-up position are very sparse in our training dataset, causing the model predictions to go wrong for them. In the example of edge-case detection, we will see that how we can use this insight to define a "Pushup" signal, collect all push-up related data-points and specifically retrain on them.
+
+## Do more with UpTrain
+
+Apart from data drift, UpTrain has many other features such as 
+1. Checking for edge-cases and collecting them for automated retraining
+2. Verifying data integrity, 
+3. Monitoring model performance and accuracy of predictions with standard statistical tools, 
+4. Write your own custom monitors specific to your use-case, etc. 
+
+To dig deeper into it, we recommend you checkout the other examples in the folder "deepdive_examples".

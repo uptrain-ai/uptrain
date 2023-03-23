@@ -154,7 +154,7 @@ config = {
         },
         'min_dist': 0.01,
         'n_neighbors': 20,
-        'metric_umap': 'euclidean',
+        'metric': 'euclidean',
         'dim': '2D',
         # Frequency to Calculate UMAP 
         'update_freq': 100,
