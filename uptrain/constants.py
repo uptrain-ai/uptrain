@@ -41,6 +41,11 @@ class Visual(str, Enum):
     UMAP = "UMAP"
     TSNE = "t-SNE"
     SHAP = "SHAP"
+    PLOT = "PLOT"
+
+
+class PlotType(str, Enum):
+    LINE_CHART = "line_chart"
 
 
 class DataDriftAlgo(str, Enum):
