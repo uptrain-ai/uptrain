@@ -16,7 +16,7 @@ from uptrain.core.classes.statistics import (
     Convergence,
     Distribution,
 )
-from uptrain.core.classes.visuals import Umap, Tsne, Shap
+from uptrain.core.classes.visuals import DimensionalityReduction, UMAP_PRESENT, Shap, SHAP_PRESENT
 
 
 class CheckManager:
@@ -59,7 +59,7 @@ class CheckManager:
                             }
                         }
                     )
-                    drift_managers.append(DataDrift(self.fw,check_copy))
+                    drift_managers.append(DataDrift(self.fw, check_copy))
             self.monitors_to_check.extend(drift_managers)
         elif check["type"] == Monitor.POPULARITY_BIAS:
             bias_manager = ModelBias(self.fw, check)
@@ -88,14 +88,24 @@ class CheckManager:
 
     def add_visual(self, check):
         if check["type"] == Visual.UMAP:
-            custom_monitor = Umap(self.fw, check)
-            self.visuals_to_check.append(custom_monitor)
+            if UMAP_PRESENT:
+                custom_monitor = DimensionalityReduction(self.fw, check)
+                self.visuals_to_check.append(custom_monitor)
+            else:
+                print(
+                    """UMAP is not installed. For UMAP visualization, please install umap by running `pip install umap-learn`."""
+                )
         elif check["type"] == Visual.TSNE:
-            custom_monitor = Tsne(self.fw, check)
+            custom_monitor = DimensionalityReduction(self.fw, check)
             self.visuals_to_check.append(custom_monitor)
         elif check["type"] == Visual.SHAP:
-            custom_monitor = Shap(self.fw, check)
-            self.visuals_to_check.append(custom_monitor)
+            if SHAP_PRESENT:
+                custom_monitor = Shap(self.fw, check)
+                self.visuals_to_check.append(custom_monitor)
+            else:
+                print(
+                    """SHAP is not installed. For SHAP explainability, please install it by running `pip install shap matplotlib`."""
+                )
         else:
             raise Exception("Visual type not Supported")
 
@@ -114,8 +124,8 @@ class CheckManager:
         for monitor in self.monitors_to_check:
             if monitor.need_ground_truth() == (gts[0] is not None):
                 res = monitor.is_data_interesting(
-                        inputs, outputs, gts=gts, extra_args=extra_args
-                    )
+                    inputs, outputs, gts=gts, extra_args=extra_args
+                )
                 is_interesting.append(res[0])
                 reasons.append(res[1])
         if len(reasons):
@@ -126,4 +136,6 @@ class CheckManager:
                         final_reason[jdx] = reas[jdx]
         else:
             final_reason = []
-        return np.greater(np.sum(np.array(is_interesting), axis=0), 0), np.array(final_reason)
+        return np.greater(np.sum(np.array(is_interesting), axis=0), 0), np.array(
+            final_reason
+        )

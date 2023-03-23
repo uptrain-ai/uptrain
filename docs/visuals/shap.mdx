@@ -1,0 +1,42 @@
+---
+title: SHAP Explainability
+description: Understand the Relative Importance of Input Features on Predictions
+---
+
+SHAP (SHapley Additive exPlanations) is a model-agnostic method for explainability in machine learning that seeks to assign an explanation value (importance score) to each feature of a prediction. It provides local and global insights into the workings of a model, allowing developers to understand how a model arrives at a decision and why certain features may have more influence on the prediction than others.
+
+The fundamental idea behind SHAP is based on Shapley values, a concept from cooperative game theory. In cooperative games, players work together to achieve a goal, and each player is assigned a payoff (or score) that reflects their contribution to the group's overall success. Shapley values allocate these payoffs to individual players based on their unique contributions to the game.
+
+In the context of machine learning, the Shapley value assigns an importance score to each feature based on its contribution to the final prediction. It does this by comparing the model's predictions with and without the feature in question, averaging the difference across all possible combinations of features, and then attributing a portion of this average difference to each feature.
+
+One of the key advantages of SHAP is its model-agnostic nature. It can be used with any machine learning model, including deep learning models. Additionally, it can provide explanations for both individual predictions and the overall behavior of a model. This makes SHAP a powerful tool for debugging and optimizing machine learning models.
+
+## SHAP Explainability in Action 🎬
+
+UpTrain integrates with the open-source python package [SHAP](https://github.com/slundberg/shap) for AI explainability. This is how the integration looks like for the [ride time estimation](https://github.com/uptrain-ai/uptrain/blob/main/examples/ride_time_estimation/run.ipynb) example on the UpTrain dashboard:
+
+<Frame caption="SHAP values for feature importance. Feature 'dist' has the most affect on model preditions">
+  <img width="500" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/ride_estimation/4_Explanability_recording.gif"/>
+</Frame>
+
+Now, let's try to understand how we obtained the above visualization. We first defined the following check to add to the UpTrain config to add SHAP explainability to our ML model predictions
+
+```python
+shap_visual = 
+{
+    "type": uptrain.Visual.SHAP,
+    "model": model,
+    "shap_num_points": 10000,
+    "id_col": "id"
+}
+```
+
+Here, `model` is the trained ML model (i.e., the black box) on which we wish to add explainability. We can add an additional parameter called `shap_num_points` To reduce runtime, limit the number of points for which average SHAP values are calculated. `id_col` tells the framework the column name that corresponds to the data-point id.
+
+As we can notice from the dashboard video, we get two types plots for SHAP explainability. The plot on the left is the average weight of each feature. As expected, the feature "dist" (that represents the distance of the trip in the example) has the biggest impact on the trip duration prediction. Moreover, pickup hour and taxi vendor id also somewhat affect the trip duration.
+
+In the second plot, we can see how the model arrives at the prediction for any data-point (for example, data ID `id2248874`). Due to the high distance of the trip, the feature 'dist' contributed `220.46` seconds to the overall trip duration.
+
+In practice, SHAP explanations can be used in a variety of applications, including fraud detection, credit scoring, and medical diagnosis. By providing insights into the factors that contribute to a model's predictions, SHAP can help developers identify biases, detect errors, and make informed decisions about how to improve their models.
+
+In summary, SHAP is a powerful tool for AI explainability that provides insights into the inner workings of machine learning models. By using the Shapley value to assign importance scores to individual features, SHAP enables developers to debug and optimize models, detect biases, and make more informed decisions.

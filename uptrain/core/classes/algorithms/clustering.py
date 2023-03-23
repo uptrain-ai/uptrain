@@ -24,6 +24,7 @@ class Clustering:
         self.is_embedding = args["is_embedding"]
         self.plot_save_name = args.get("plot_save_name", "")
         self.cluster_plot_func = args.get("cluster_plot_func", None)
+        self.find_low_density_regions = args.get("find_low_density_regions", False)
         self.dist = []
         self.dist_counts = []
         self.max_along_axis = []
@@ -168,17 +169,22 @@ class Clustering:
             cluster_plot_func=self.cluster_plot_func,
             plot_save_name=self.plot_save_name,
             normalisation=self.max_along_axis,
+            compute_point_density=self.find_low_density_regions
         )
-        low_density_regions = data[
-            np.where(
-                density_around_points < np.ceil(len(density_around_points) * 0.002)
-            )[0]
-        ]
+
 
         self.clusters = np.array([all_clusters])
         self.cluster_vars = np.array([cluster_vars])
         self.buckets = self.clusters
-        self.low_density_regions = low_density_regions
+
+        if self.find_low_density_regions:
+            low_density_regions = data[
+                np.where(
+                    density_around_points < np.ceil(len(density_around_points) * 0.002)
+                )[0]
+            ]
+            self.low_density_regions = low_density_regions
+
         self.density_around_points = density_around_points
         self.idxs_closest_to_cluster_centroids = idxs_closest_to_cluster_centroids
 

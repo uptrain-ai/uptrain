@@ -1,0 +1,39 @@
+---
+title: Distances
+description: Measure distances between data points to analyze the model
+---
+
+UpTrain provides various measures to analyze the distance of embeddings. These measures can help in determining whether the model is overfitting or underfitting, and how much the embeddings are changing over time. UpTrain currently supports the following measures for measuring distances between data points:
+
+1. **Norm ratio:** This measure calculates the ratio of the current embeddings' norm to the initial embeddings' norm. If the norm ratio is close to 1, it indicates that the embeddings have not changed much from the initial embeddings. A large change in the norm ratio can indicate that the model is overfitting or underfitting.
+
+2. **L2-norm distance:** This measure calculates the L2-norm distance between the current and initial embeddings.
+
+3. **Cosine distance:** This measure calculates the cosine distance between the current and initial embeddings. Unlike the norm ratio and L2-norm distance, cosine distance considers the direction of the embeddings.
+
+The following is how we can define the check for the distance between embeddings:
+
+```python
+distance_check = {
+    'type': uptrain.Statistic.DISTANCE,
+    "model_args": [{
+        'type': uptrain.MeasurableType.INPUT_FEATURE,
+        'feature_name': 'model_type',
+        'allowed_values': ['batch', 'realtime'],
+        }],
+    'reference': "initial",
+    "distance_types": ["cosine_distance", "norm_ratio", "l2_distance"],
+}
+```
+
+Here, `model_args` defines the models that we want to compare, and the `reference` is the initial embedding (another option is the running difference). Further, we calculate all three `distance_types` defined above.
+
+In the following figure, we check the comparison between the two `model_types` in terms of cosine distance from the initial embedding, and note that for the realtime model, the learning happens much earlier compared to the batch model.
+
+<Frame caption="Cosine distance of embeddings from initial embeddings as they are being learnt with time.">
+  <img width="500" src="/images/cosine-distance.png"/>
+</Frame>
+
+In addition to the above measures, UpTrain also provides the running difference of the embeddings. This is the difference between the current embeddings and the previous embeddings. By analyzing the running difference, we can determine how much the embeddings change over time. A large change in the running difference can indicate that the model is experiencing significant changes in the input data or that the optimization process is unstable.
+
+Overall, these measures can help in analyzing the stability and performance of the model's embeddings over time. By monitoring these measures, we can detect issues such as overfitting, underfitting, or instability, and take corrective actions to improve the model's performance.
