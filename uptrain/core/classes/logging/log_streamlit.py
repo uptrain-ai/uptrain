@@ -37,8 +37,8 @@ class StreamlitLogs:
         self.dfs = {}
         self.counts = {}
         self.log_folder = log_folder
-
-        remote_st_py_file = "https://raw.githubusercontent.com/uptrain-ai/uptrain/main/uptrain/core/classes/logging/st_run.py"
+        
+        remote_st_py_file = os.path.dirname(os.path.realpath(__file__))+"/st_run.py"
         # remote_st_py_file = "../../uptrain/core/classes/logging/st_run.py"
 
         if port is None:
