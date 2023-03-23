@@ -6,7 +6,6 @@ import numpy as np
 # if __name__ == "__main__":
 def test_dashboard():
     cfg = {
-        # "st_logging": True,
         "logging_args": {
             # For slack alerts, add your webhook URL
             # Checkout https://api.slack.com/messaging/webhooks
@@ -84,24 +83,18 @@ def test_dashboard():
 
     ########### Adding UMAP and TSNE test #############
 
-    clusters = np.random.choice([0, 1], size=(100), p=[0.2, 0.8])
+    size = 300
+    clusters = np.random.choice([0, 1], size=size, p=[0.2, 0.8])
     high_dim_list = []
-    size = 100
     for label in clusters:
         if label==0:
             high_dim_list.append(np.random.normal(np.zeros(size), 1, size))
         else:
             high_dim_list.append(np.random.normal(np.ones(size), 1, size))
 
-    # umap_data = {"umap": umap, "clusters": clusters}
-    # fw.log_handler.add_histogram(
-    #     "umap_and_clusters",
-    #     umap_data,
-    #     dashboard_name
-    # )
-
     config_umap = {
-        "checks": [{
+        "checks": [
+        {
             'type': uptrain.Visual.UMAP,
             "measurable_args": {
                 'type': uptrain.MeasurableType.INPUT_FEATURE,
@@ -113,7 +106,7 @@ def test_dashboard():
             },
             'min_dist': 0.01,
             'n_neighbors': 20,
-            'metric_umap': 'euclidean',
+            'metric': 'euclidean',
             'dim': '2D',
             "update_freq": 1,
         },
@@ -132,7 +125,6 @@ def test_dashboard():
             'perplexity': 10,
         }
         ],
-        # "st_logging": True,
         "logging_args": {
             'log_folder': 'uptrain_logs_umap',
             'dashboard_port': 50001,

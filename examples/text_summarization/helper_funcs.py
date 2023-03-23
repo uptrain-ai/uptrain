@@ -8,6 +8,7 @@ import json
 import os
 import uptrain
 import subprocess
+import pandas as pd
 
 
 # Mean Pooling - Take attention mask into account for correct averaging
@@ -129,3 +130,43 @@ def get_num_prepositions_in_text(inputs, outputs, gts=None, extra_args={}):
         all_words = txt.split()
         num_prepositions.append(len(list(set(all_words).intersection(preposition_list))))
     return num_prepositions
+
+
+def generate_reference_dataset_with_embeddings_new(dataset, bert_embs, file_name, dataset_label):
+    data = []
+    if not os.path.exists(file_name):
+        # bert_embs_downsampled = downsample_embs(bert_embs)
+        for idx in range(min(len(dataset),len(bert_embs))):
+            if isinstance(dataset_label, str):
+                this_dataset_label = dataset_label
+            else:
+                this_dataset_label = dataset_label[idx]
+            try:
+                data.append({
+                    'id': idx,
+                    "dataset_label": this_dataset_label,
+                    'output': dataset['summary'][idx],
+                    'bert_embs': list(bert_embs[idx]),
+                    # 'bert_embs_downsampled': list(bert_embs_downsampled[idx]),
+                })
+            except Exception as e:
+                print(e)
+                skip_from_now = False
+                import pdb; pdb.set_trace()
+                if skip_from_now:
+                    break
+
+        with open(file_name, "w") as f:
+            json.dump(data, f, cls=uptrain.UpTrainEncoder)
+    else:
+        print("Embeddings for reference dataset exists. Skipping generating again.")
+
+def print_edge_cases(csv_file):
+    df = pd.read_csv(csv_file)
+    all_texts = list(df['dialog'])
+    all_gts = list(df['summary'])
+    all_outputs = list(df['output'])
+    all_reasons = list(df['reasons'])
+    for idx in range(len(all_texts)):
+        print([all_reasons[idx], all_outputs[idx], all_gts[idx], all_texts[idx]])
+        print('')
