@@ -23,6 +23,16 @@ class Plot(AbstractVisual):
             raise Exception("Plot Type is not supported")
     
     def base_check(self, inputs, outputs, gts=None, extra_args={}) -> None:
-        # TODO: handle if x_feature_name or y_feature_name is None
-        for i in range(len(inputs[self.x_feature_name])):
-            self.framework.log_handler.add_scalars(self.plot_name, {"y_value": inputs[self.y_feature_name][i]}, inputs[self.x_feature_name][i], self.dashboard_name)
+        if self.plot == PlotType.LINE_CHART:
+            self._line_chart(inputs, outputs, gts, extra_args)
+    
+    def _line_chart(self, inputs, outputs, gts=None, extra_args={}) -> None:
+        if self.x_feature_name is None:
+            for i in range(len(inputs[self.y_feature_name])):
+                self.framework.log_handler.add_scalars(plot_name = self.plot_name, dictn = {"y_value": inputs[self.y_feature_name][i]}, count = i, dashboard_name = self.dashboard_name, file_name = self.y_feature_name)
+        elif self.y_feature_name is None:
+            for i in range(len(inputs[self.x_feature_name])):
+                self.framework.log_handler.add_scalars(plot_name = self.plot_name, dictn = {"x_value": i}, count = inputs[self.x_feature_name][i], dashboard_name = self.dashboard_name, file_name = self.x_feature_name)
+        else:
+            for i in range(len(inputs[self.x_feature_name])):
+                self.framework.log_handler.add_scalars(plot_name = self.plot_name, dictn = {"y_value": inputs[self.y_feature_name][i]}, count = inputs[self.x_feature_name][i], dashboard_name = self.dashboard_name, file_name = f'{self.x_feature_name}_{self.y_feature_name}')
