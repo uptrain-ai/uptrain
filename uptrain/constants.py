@@ -55,7 +55,10 @@ class Monitor(str, Enum):
 
 
 class PlotType(str, Enum):
+    BAR_CHART = "bar_chart"
+    HISTOGRAM = "histogram"
     LINE_CHART = "line_chart"
+    SCATTER_PLOT = "scatter_plot"
 
 
 class Statistic(str, Enum):
