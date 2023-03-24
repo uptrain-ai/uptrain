@@ -1,5 +1,5 @@
 import numpy as np
-import copy
+from datetime import datetime, timedelta
 
 from uptrain.core.lib.helper_funcs import extract_data_points_from_batch
 from uptrain.core.classes.distances import DistanceResolver
@@ -36,6 +36,7 @@ class Convergence(AbstractStatistic):
         self.dist_classes = [DistanceResolver().resolve(x) for x in self.distance_types]
         self.total_count = 0
         self.prev_calc_at = 0
+        self.init_datetime = datetime.now() 
 
     def base_check(self, inputs, outputs, gts=None, extra_args={}):
         vals = self.measurable.compute_and_log(
@@ -164,26 +165,10 @@ class Convergence(AbstractStatistic):
                                 update_val = True
                             )
 
-                            # next_count_idx = np.where(self.count_checkpoints == (count))[0][0] + 1
-                            # if next_count_idx < len(self.count_checkpoints):
-                            #     next_data = np.reshape(
-                            #         np.array(self.distances_dictn[self.count_checkpoints[next_count_idx]][distance_type]), -1
-                            #     )
-                            #     if len(next_data) > 5:
-                            #         clustering_helper = Clustering({"num_buckets": 2, "is_embedding": False})
-                            #         this_data = np.expand_dims(np.array(this_data), axis=(1))
-                            #         next_data = np.expand_dims(np.array(next_data), axis=(1,2))
-                            #         this_count_clustering_res = clustering_helper.cluster_data(this_data)
-                            #         next_count_clustering_res = clustering_helper.infer_cluster_assignment(next_data)
-                            #         emd_cost = estimate_earth_moving_cost(np.reshape(next_count_clustering_res[1]/next_data.shape[0],-1), np.reshape(clustering_helper.dist[0],-1), clustering_helper.clusters[0])
-                            #         self.log_handler.add_scalars(
-                            #             plot_name + "_emd",
-                            #             {'y_distance': emd_cost},
-                            #             count,
-                            #             # self.total_count,                     
-                            #             self.dashboard_name,
-                            #             models = models,
-                            #             features = {"tagGenre": "All"},
-                            #             file_name = str("count"),
-                            #             update_val = True
-                            #         )
+                        if count == 100000:
+                            if datetime.now() - self.init_datetime >= timedelta(minutes=1):
+                                self.log_handler.add_alert("Mean Data", 
+                                                           f"Mean value: {np.mean(this_data)}",
+                                                           "Convergence Statistics")
+
+                            
