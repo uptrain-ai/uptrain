@@ -6,7 +6,7 @@ import uptrain
 
 def test_concept_drift_adwin():
     random_state = np.random.RandomState(seed=1337)
-    
+
     # We generate 2 distributions:
     #   - The first distribution contain 1000 values with mean 0.0 and standard deviation 0.03
     #   - The second distribution contain 1000 values with mean 0.5 and standard deviation 0.08
@@ -23,18 +23,19 @@ def test_concept_drift_adwin():
     #
     # Why?
     #  - The model will predict values approximately equal to 0.0 for the first distribution.
-    #    This is correct.
+    #    This is correctly predicted.
     #  - The model will predict values approximately equal to 0.5 for the first half of the
-    #    second distribution. This is correct.
+    #    second distribution. This is correctly predicted as well.
     #  - The model will predict values approximately equal to 0.5 for the second half of the
-    #    second distribution. This is incorrect.
+    #    second distribution. This is incorrectly predicted, which causes the error rate to
+    #    grow higher and after it crosses the threshold, an alert is displayed.
     #
     # The concept drift will be detected by the ADWIN algorithm.
 
     n = 1000
     params = [(0.0, 0.03, n), (0.5, 0.08, n)]
     distributions = np.array([random_state.normal(*param) for param in params])
-    
+
     ground_truths = np.array([0.0] * n + [0.5] * (n // 2) + [0.6] * (n // 2))
     stream = distributions.flatten()
 
@@ -79,10 +80,8 @@ def test_concept_drift_adwin():
                 "grace_period": 5,
             }
         ],
-        
         # Specify where the logging data should be stored
         "retraining_folder": "uptraining_smart_data_concept_drift_adwin",
-
         # True if we want streamlit logging, False otherwise
         "logging_args": {"st_logging": True},
     }
