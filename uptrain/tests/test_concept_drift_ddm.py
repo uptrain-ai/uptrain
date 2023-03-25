@@ -44,11 +44,11 @@ def test_concept_drift_ddm():
     random_state = np.random.RandomState(seed=1337)
     alphabet = np.array(list(map(ord, string.ascii_lowercase + string.digits + " ")))
 
-    def random_string(length):
+    def random_sentence(length):
         return "".join(list(map(chr, random_state.choice(alphabet, size=length))))
 
     n = 1000
-    inputs = np.array([random_string(random_state.randint(10, 20)) for _ in range(n)])
+    inputs = np.array([random_sentence(random_state.randint(10, 20)) for _ in range(n)])
     sentiments = np.array([random_state.choice([0, 1]) for _ in range(n)])
     predictions = sentiments.copy()
 
@@ -79,8 +79,10 @@ def test_concept_drift_ddm():
                 "alarm_threshold": 3.0,
             }
         ],
+
         # Specify where the logging data should be stored
         "retraining_folder": "uptraining_smart_data_concept_drift_ddm",
+        
         # True if we want streamlit logging, False otherwise
         "logging_args": {"st_logging": True},
     }

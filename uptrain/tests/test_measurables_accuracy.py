@@ -12,13 +12,16 @@ from uptrain.core.classes.measurables import (
 def accuracy_measurable():
     return AccuracyMeasurable("dummy_framework")
 
+
 @pytest.fixture
 def mae_measurable():
     return MAEMeasurable("dummy_framework")
 
+
 @pytest.fixture
 def mape_measurable():
     return MAPEMeasurable("dummy_framework")
+
 
 def test_accuracy_measurable_compute_returns_expected_values(accuracy_measurable):
     """Test that the accuracy measurable computes the expected values."""
@@ -30,6 +33,7 @@ def test_accuracy_measurable_compute_returns_expected_values(accuracy_measurable
         accuracy_measurable._compute(inputs, outputs, gts), expected_values
     )
 
+
 def test_mae_measurable_compute_returns_expected_values(mae_measurable):
     """Test that the MAE measurable computes the expected values."""
     inputs = None
@@ -39,6 +43,7 @@ def test_mae_measurable_compute_returns_expected_values(mae_measurable):
     assert np.array_equal(
         mae_measurable._compute(inputs, outputs, gts), expected_values
     )
+
 
 def test_mape_measurable_compute_returns_expected_values(mape_measurable):
     """Test that the MAPE measurable computes the expected values."""
