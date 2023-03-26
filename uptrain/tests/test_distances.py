@@ -8,13 +8,16 @@ from uptrain.core.classes.distances import CosineDistance, L2Distance, NormRatio
 def cosine_distance():
     return CosineDistance()
 
+
 @pytest.fixture
 def l2_distance():
     return L2Distance()
 
+
 @pytest.fixture
 def norm_ratio():
     return NormRatio()
+
 
 def test_compute_distance_CosineDistance(cosine_distance):
     """Test the compute_distance method of the CosineDistance class.
@@ -27,10 +30,10 @@ def test_compute_distance_CosineDistance(cosine_distance):
     the expected result, and if the method raises an exception when the input vectors
     have incompatible shapes.
     """
-    
+
     # Test for incompatible shapes
     with pytest.raises(Exception):
-        cosine_distance.compute_distance([[1,2,3]], [[4,5,6], [7,8,9]])
+        cosine_distance.compute_distance([[1, 2, 3]], [[4, 5, 6], [7, 8, 9]])
 
     # Test for expected result
     base = [[1, 2, 3], [10, 20, 0]]
@@ -38,6 +41,7 @@ def test_compute_distance_CosineDistance(cosine_distance):
     result = cosine_distance.compute_distance(base, reference)
     expected_result = np.array([0.025368, 0.004963])
     assert np.allclose(result, expected_result, rtol=1e-4)
+
 
 def test_compute_distance_L2Distance(l2_distance):
     """Test the compute_distance method of the L2Distance class.
@@ -53,18 +57,19 @@ def test_compute_distance_L2Distance(l2_distance):
 
     # Test for incompatible shapes
     with pytest.raises(Exception):
-        l2_distance.compute_distance([[1,2]], [[4,5,6]])
-    
+        l2_distance.compute_distance([[1, 2]], [[4, 5, 6]])
+
     # Test for expected result
-    base = [[1,2,3],[4,5,6]]
-    reference = [[7,8,9],[10,11,12]]
+    base = [[1, 2, 3], [4, 5, 6]]
+    reference = [[7, 8, 9], [10, 11, 12]]
     result = l2_distance.compute_distance(base, reference)
     expected_result = np.array([108, 108])
     assert np.allclose(result, expected_result, rtol=1e-6)
 
+
 def test_compute_distance_NormRatio(norm_ratio):
     """Test the compute_distance method of the NormRatio class.
-    
+
     The test checks for the expected result of the method for input vectors `base`
     and `reference`.
 
