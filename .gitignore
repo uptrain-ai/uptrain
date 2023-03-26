@@ -31,3 +31,6 @@ evaluation_logs*
 # Extras
 .DS_Store
 *.pickle
+
+# Allow json files for docs
+!/docs/*.json

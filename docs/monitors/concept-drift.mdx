@@ -1,0 +1,41 @@
+---
+title: Concept Drift
+description: Measuring drops in model performance
+---
+
+Concept drift is a phenomenon in which the statistical properties of the target variable (or output) change over time. This could be due to several reasons, such as changes in the underlying distribution of the input data, changes in the data acquisition process, or external factors that affect the relationship between the input and output variables.
+
+Detecting concept drift is an important problem in machine learning because models trained on old data may not perform well on new data due to the drift. One popular technique to measure concept drift is the **Drift Detection Method** (DDM), which is now available in the UpTrain package.
+
+DDM detects the change in drift in data coming from a Binomial distribution. For instance, if there's a drop in the ML model's classification accuracy in production, the algorithm may warn that a drift might occur in the future (aka warning zone) or alert that a change is detected (drift detected zone).
+
+The method requires two main parameters, which are:
+
+1. `warn_thres`: Warning level (defaults to 2)
+2. `alarm_thres`: Drift alert threshold (defaults to 3)
+
+The output of the drift detection method is a binary indicator that signals whether a drift has occurred or not, and if yes, at what time.
+
+This is how we define a concept drift check with the DDM algorithm:
+
+```python
+concept_drift_check = {
+    'type': uptrain.Anomaly.CONCEPT_DRIFT,
+    'algorithm': uptrain.DataDriftAlgo.DDM,
+    'warn_thres': 0.5,   
+    'alert_thres': 0.75,
+}
+```
+
+We recommend checking out the [fraud detection example](https://github.com/uptrain-ai/uptrain/tree/main/examples/fraud_detection) to see concept drift detection with DDM in action. Here's the accuracy plot shown on the dashboard when we add a concept drift check in the config:
+
+
+<Frame caption="Model performance over time with model performance reducing at time 110k">
+  <img width="400" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/fraud_detection/concept_drift_avg_acc.gif"/>
+</Frame>
+
+Further, UpTrain automatically sends an alert (which can be integrated with Slack or E-mail) when concept drift is detected, as shown below:
+
+<Frame caption="A model degradation alert sent by UpTrain">
+  <img width="500" src="/images/model-degradation-alert.png"/>
+</Frame>

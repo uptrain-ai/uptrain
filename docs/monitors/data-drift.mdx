@@ -1,0 +1,65 @@
+---
+title: Data Drift
+description: Measure drift in your production data
+---
+
+Drift detection is essential in ensuring the continued accuracy and performance of machine learning models in production. UpTrain, a monitoring framework for machine learning models, includes drift detection as one of its standard monitoring methods.
+
+Here is a replay of a data drift monitor from the UpTrain dashboard for the [human orientation classification](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/run.ipynb) example:
+
+
+<Frame caption="Data Drift monitor in the UpTrain dashboard">
+  <img width="500" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/human_orientation_classification/1_data_drift_and_edge_cases.gif"/>
+</Frame>
+
+The following is the example of a code snippet to add a data drift monitor in the UpTrain framework.
+
+```python
+data_drift_check = {
+        'type': uptrain.Anomaly.DATA_DRIFT,
+        'reference_dataset': orig_training_file,
+        "measurable_args": {
+            'type': uptrain.MeasurableType.INPUT_FEATURE,
+            'feature_name': 'kps'  
+        },
+    }
+```
+
+Here, the `reference_dataset` is the dataset with respect to which the drift is being measured. Typically, we want to measure drift on production data, and the reference dataset can be the training data. Any drift in the production data would tell us that the data model encountered in production has a different distribution, and the model will (very likely) not work since it was trained on a dataset with a different distribution. This will help us identify any model degradation before it affects real business metrics such as revenue loss or user engagement.
+
+UpTrain allows users to monitor drift on individual features or entire vectors, such as embeddings. Drift detection involves comparing the distribution of data logged to the framework to a reference dataset and identifying any differences between the two distributions. UpTrain uses measures, such as KL divergence, earth movers distance, and population stability index, to quantify these differences.
+
+## Drift Detection Metrics
+
+1. **KL divergence**, also known as Kullback-Leibler divergence, measures the difference between two probability distributions. It is commonly used to compare the distribution of production data to the distribution of training data. The KL divergence between the two distributions is calculated and monitored over time. If the KL divergence exceeds a certain threshold, it indicates data drift.
+
+2. **Earth movers distance**, also known as Wasserstein distance, is another measure of the difference between two probability distributions. It measures the amount of "work" required to transform one distribution into another. 
+
+3. The **Population Stability Index (PSI)** is a popular metric that quantifies the degree to which a variable has changed over time. A high PSI value could signal a shift in the underlying characteristics of a population, which may warrant further investigation and potentially require model retraining.
+
+## Drift Detection in Action
+
+We recommend checking out the [human orientation classification](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/run.ipynb) example to see data drift detection in action. 
+
+In that example, once we add a check for data drift in the UpTrain config, we see the following line chart for earth-moving distances between production and training datasets.
+
+<Frame caption="Earth moving distance vs number of predictions">
+  <img width="500" src="/images/earth-moving-distance.png"/>
+</Frame>
+
+We can observe that in production, the model sometimes encounters new data points which were not a part of the training data since they have higher earth-moving distances.
+
+Additionally, when we cluster the features and compare their sizes in the training and production datasets, we observe that the cluster distribution is starkly different for a few clusters. Later, we identified these points as points in the "pushup" position in human orientation, which were not a part of the training dataset.
+
+
+<Frame caption="Distribution of features across reference and production dataset">
+  <img width="500" src="/images/feature-distribution.png"/>
+</Frame>
+
+Finally, UpTrain automatically sends an alert (which can be integrated with Slack or E-mail) when data drift is detected, as shown below:
+
+<Frame caption="Data Drift alert on UpTrain dashboard">
+  <img width="500" src="/images/data-drift-alert.png"/>
+</Frame>
+
+Overall, UpTrain's drift detection tools provide a powerful means of identifying and addressing data drift in machine learning models, ensuring their continued production accuracy and performance.

@@ -1,0 +1,100 @@
+---
+title: Custom Monitors
+description: Monitor metrics specific to your ML model
+---
+
+UpTrain monitors the difference between the dataset the model was trained on and the real-world data it encounters during production (the wild!). This "difference" can be custom statistical measures designed by ML practitioners based on their use case. That last point is important because, in most cases, there's no “ground truth” to check whether a model's output is correct. Instead, you need to use statistical measures to figure out drift or performance degradation issues, which require domain expertise and differ from case to case. 
+
+Thus, since all machine learning models are different, UpTrain also allows users to define **Custom Monitors** based on users' specific use cases. 
+
+UpTrain supports two kinds of custom monitors:
+
+1. **State-less custom monitors (also known as custom measurables):** Say for a human pose estimation model, where the model outputs a set of keypoints from the image, you are interested in monitoring drifts in the inferred body length. Since body length is more insightful and intuitive to look at, monitoring it can give better alerts as compared to just monitoring. The following is a snippet from the [human orientation classification](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/run.ipynb) example:  
+
+```python
+def body_length_signal(inputs, outputs, gts=None, extra_args={}):
+    body_lengths = []
+    for input in inputs["kps"]:
+        kps = np.reshape(np.array(input), (17, 2))
+        head_mean_point = np.sum(kps[0:5, 0:2], axis=0) / 5
+        legs_mean_point = np.sum(kps[11:17, 0:2], axis=0) / 6
+        body_length_horizontal = max(0.01, abs(head_mean_point[0] - legs_mean_point[0]))
+        body_length_vertical = max(0.01, abs(head_mean_point[1] - legs_mean_point[1]))
+        body_lengths.append(max(body_length_horizontal, body_length_vertical))
+    return body_lengths
+
+measurable_args = {
+    'type': uptrain.MeasurableType.CUSTOM,
+    'signal_formulae': uptrain.Signal('Body Length', body_length_signal)
+}
+```
+
+Now, the above measurable args can be used for any of the monitors (such as Data drift, data integrity, etc.) 
+
+2. **Stateful custom monitors:** For cases where state variables are needed across multiple observations. Imagine you want to implement a new drift detection method where you want to monitor the change in accuracy over the last 100 samples. The following shows the custom monitor in action from the [fraud detection example](https://github.com/uptrain-ai/uptrain/blob/main/examples/fraud_detection/run.ipynb):
+
+<Frame caption="A custom measure that monitors the initial and the most recent accuracy and sends alerts if there's a big difference">
+    <img width="400" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/fraud_detection/custom_measure_cropped.gif" />
+</Frame>
+
+Now let's see how we can define a custom monitor like the above with UpTrain.
+
+Defining a custom monitor in UpTrain is fairly straightforward. Recall that each UpTrain monitor inherits the abstract monitor class, called the `AbstractMonitor`.An important method in this class, which is needed for any new monitor, is the check function that contains the actual check that is to be performed on the model. It takes the following inputs:
+
+- `inputs` : The input data to the model that needs to be monitored.
+
+- `outputs` : The outputs provided by the model. For many checks, such as data drift on the input data, model outputs are not needed, and this value can be None.
+
+- `gts` : Ground truth, such as the right class of the image in image classification or whether the user clicked the recommended item. Again, ground truth is not required for all checks (e.g., for measuring data drift on the model inputs). 
+
+- `extra_args` :  This contains any extra arguments provided by the user as a dictionary.
+
+Thus, when defining a custom monitor, we define the check function that contains the check to be followed. For the example mentioned above, it looks like this:
+
+```python
+def custom_initialize_func(self):
+    self.initial_acc = None       
+    self.acc_arr = []
+    self.count = 0       
+    self.thres = 0.02
+    self.window_size = 200
+    self.is_drift_detected = False
+
+def custom_check_func(self, inputs, outputs, gts=None, extra_args={}):
+    batch_size = len(extra_args["id"])
+    self.count += batch_size
+    self.acc_arr.extend(list(np.equal(gts, outputs)))
+    
+    # Calculate initial performance of the model on first 200 points
+    if (self.count >= self.window_size) and (self.initial_acc is None):
+        self.initial_acc = sum(self.acc_arr[0:self.window_size])/self.window_size
+        
+    # Calculate the most recent accuracy and log it to dashboard.
+    if (self.initial_acc is not None):
+        for i in range(self.count - batch_size, self.count, self.window_size):
+            
+            # Calculate the most recent accuracy
+            recent_acc = sum(self.acc_arr[i:i+self.window_size])/self.window_size
+            
+            # When recent model performance goes down 
+            if (self.initial_acc - recent_acc > self.thres) and (not self.is_drift_detected):
+                self.is_drift_detected = True
+```
+
+We have defined a `custom_check_function()` here that takes the arguments `inputs`, `outputs`, `gts`, and `extra_args`. Note that these monitors are stateful, and hence, we define a custom init function called `custom_initialize_func()` to store the variables across different calls to the method `check()`.
+
+This is how the final UpTrain config looks like:
+
+```python
+custom_monitor = {
+    'type': uptrain.Monitor.CUSTOM_MONITOR,
+    'initialize_func': custom_initialize_func,
+    'check_func': custom_check_func,
+    'need_gt': True,
+
+config = {"check": [custom_monitor]}
+```
+
+Here, `need_gt` tells the framework that ground truth is required by the defined custom monitor.
+
+Thus, UpTrain makes is very easy to integrate any custom monitors into your ML observability toolkit. Several other examples of custom monitors include a text summarization model where we want to monitor drift in the input text sentiment, or a human pose estimation model, where we want to add integrity checks on the predicted body length.
