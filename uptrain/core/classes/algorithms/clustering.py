@@ -124,15 +124,10 @@ class Clustering:
             clusters = []
             cluster_vars = []
             for idx in range(0, self.NUM_BUCKETS):
-                if idx > 0:
-                    buckets.append(
-                        sorted_arr[int(idx * (len(sorted_arr) - 1) / self.NUM_BUCKETS)]
-                    )
-                this_bucket_elems = sorted_arr[
-                    int((idx) * (len(sorted_arr) - 1) / self.NUM_BUCKETS) : int(
-                        (idx + 1) * (len(sorted_arr) - 1) / self.NUM_BUCKETS
-                    )
-                ]
+                start_idx = int(idx * len(sorted_arr) / self.NUM_BUCKETS)
+                end_idx = int((idx + 1) * len(sorted_arr) / self.NUM_BUCKETS)
+                buckets.append(sorted_arr[start_idx])
+                this_bucket_elems = sorted_arr[start_idx : end_idx]
                 gaussian_mean = np.mean(this_bucket_elems)
                 gaussian_var = np.var(this_bucket_elems)
                 clusters.append([gaussian_mean])
