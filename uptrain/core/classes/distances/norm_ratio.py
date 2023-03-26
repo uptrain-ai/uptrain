@@ -31,6 +31,9 @@ class NormRatio(AbstractDistance):
         base = np.array(base)
         reference = np.array(reference)
 
+        if base.shape != reference.shape:
+            raise Exception("Incompatible shapes for base and reference")
+
         if len(base.shape) > 1:
             base_norm = np.linalg.norm(base, axis=1)
         else:
