@@ -14,8 +14,8 @@ class NormRatio(AbstractDistance):
     def calculate_norm(self, vector) -> float:
         return super().calculate_norm(vector)
 
-    def __init__(self, NORM_MIN: float = 1e-6):
-        self.NORM_MIN = NORM_MIN
+    def __init__(self, norm_min: float = 1e-6):
+        self.norm_min = norm_min
 
     def compute_distance(
         self, base: Union[List, np.ndarray], reference: Union[List, np.ndarray]
@@ -43,4 +43,4 @@ class NormRatio(AbstractDistance):
         base_norm = self.calculate_norm(base)
         ref_norm = self.calculate_norm(reference)
 
-        return base_norm / np.maximum(ref_norm, self.NORM_MIN)
+        return base_norm / np.maximum(ref_norm, self.norm_min)
