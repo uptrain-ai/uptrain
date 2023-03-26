@@ -28,8 +28,11 @@ class L2Distance(AbstractDistance):
 
         base = np.array(base)
         reference = np.array(reference)
-        base_shape = list(base.shape)
+              
+        if base.shape != reference.shape:
+            raise Exception("Incompatible shapes for base and reference")
+        
         return np.sum(
             (base - reference) * (base - reference),
-            axis=tuple(range(1, len(base_shape))),
+            axis=tuple(range(1, len(base.shape))),
         )
