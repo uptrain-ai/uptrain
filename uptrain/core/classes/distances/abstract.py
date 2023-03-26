@@ -1,6 +1,8 @@
 from abc import ABC
 from typing import Any
 
+import numpy as np
+
 
 class AbstractDistance(ABC):
     def __init__(self) -> None:
@@ -12,3 +14,9 @@ class AbstractDistance(ABC):
     def check_compatibility(self, base, reference) -> None:
         if base.shape != reference.shape:
             raise Exception("Incompatible shapes for base and reference")
+        
+    def calculate_norm(self, vector) -> float:
+        if len(vector.shape) > 1:
+            return np.linalg.norm(vector, axis=1)
+        return np.abs(vector)
+    

@@ -10,6 +10,9 @@ class CosineDistance(AbstractDistance):
 
     def check_compatibility(self, base, reference) -> None:
         return super().check_compatibility(base, reference)
+    
+    def calculate_norm(self, vector) -> float:
+        return super().calculate_norm(vector)
         
     def compute_distance(
         self, base: Union[List, np.ndarray], reference: Union[List, np.ndarray]
@@ -42,14 +45,8 @@ class CosineDistance(AbstractDistance):
 
         self.check_compatibility(base, reference)
 
-        if len(base.shape) > 1:
-            base_norm = np.linalg.norm(base, axis=1)
-        else:
-            base_norm = np.abs(base)
-        if len(reference.shape) > 1:
-            ref_norm = np.linalg.norm(reference, axis=1)
-        else:
-            ref_norm = np.abs(reference)
+        base_norm = self.calculate_norm(base)
+        ref_norm = self.calculate_norm(reference)
 
         return np.array(
             [
