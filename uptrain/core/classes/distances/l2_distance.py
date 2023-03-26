@@ -10,7 +10,7 @@ class L2Distance(AbstractDistance):
 
     def check_compatibility(self, base, reference) -> None:
         return super().check_compatibility(base, reference)
-        
+
     def compute_distance(
         self, base: Union[List, np.ndarray], reference: Union[List, np.ndarray]
     ) -> np.ndarray:
@@ -33,7 +33,7 @@ class L2Distance(AbstractDistance):
         reference = np.array(reference)
 
         self.check_compatibility(base, reference)
-              
+
         return np.sum(
             (base - reference) * (base - reference),
             axis=tuple(range(1, len(base.shape))),

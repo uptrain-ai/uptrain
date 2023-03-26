@@ -10,13 +10,13 @@ class NormRatio(AbstractDistance):
 
     def check_compatibility(self, base, reference) -> None:
         return super().check_compatibility(base, reference)
-    
+
     def calculate_norm(self, vector) -> float:
         return super().calculate_norm(vector)
-    
+
     def __init__(self, NORM_MIN: float = 1e-6):
         self.NORM_MIN = NORM_MIN
-    
+
     def compute_distance(
         self, base: Union[List, np.ndarray], reference: Union[List, np.ndarray]
     ) -> np.ndarray:

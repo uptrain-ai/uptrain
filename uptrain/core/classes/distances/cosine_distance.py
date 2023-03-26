@@ -10,10 +10,10 @@ class CosineDistance(AbstractDistance):
 
     def check_compatibility(self, base, reference) -> None:
         return super().check_compatibility(base, reference)
-    
+
     def calculate_norm(self, vector) -> float:
         return super().calculate_norm(vector)
-        
+
     def compute_distance(
         self, base: Union[List, np.ndarray], reference: Union[List, np.ndarray]
     ) -> np.ndarray:
