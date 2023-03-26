@@ -8,3 +8,7 @@ class AbstractDistance(ABC):
     
     def compute_distance(self, base, reference) -> Any:
         raise Exception("Distance computation should be defined for each subclass")
+    
+    def check_compatibility(self, base, reference) -> None:
+        if base.shape != reference.shape:
+            raise Exception("Incompatible shapes for base and reference")

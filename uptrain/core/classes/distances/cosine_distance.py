@@ -8,6 +8,9 @@ from uptrain.core.classes.distances import AbstractDistance
 class CosineDistance(AbstractDistance):
     """Class that computes cosine distance between base and reference vectors."""
 
+    def check_compatibility(self, base, reference) -> None:
+        return super().check_compatibility(base, reference)
+        
     def compute_distance(
         self, base: Union[List, np.ndarray], reference: Union[List, np.ndarray]
     ) -> np.ndarray:
@@ -37,8 +40,7 @@ class CosineDistance(AbstractDistance):
         base = np.array(base)
         reference = np.array(reference)
 
-        if base.shape != reference.shape:
-            raise Exception("Incompatible shapes for base and reference")
+        self.check_compatibility(base, reference)
 
         if len(base.shape) > 1:
             base_norm = np.linalg.norm(base, axis=1)
