@@ -8,9 +8,6 @@ from uptrain.core.classes.distances import AbstractDistance
 class L2Distance(AbstractDistance):
     """Class that computes L2 distance between base and reference vectors."""
 
-    def check_compatibility(self, base, reference) -> None:
-        return super().check_compatibility(base, reference)
-
     def compute_distance(
         self, base: Union[List, np.ndarray], reference: Union[List, np.ndarray]
     ) -> np.ndarray:
