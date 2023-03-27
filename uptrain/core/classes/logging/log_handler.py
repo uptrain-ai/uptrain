@@ -122,7 +122,7 @@ class LogHandler:
             self.st_writer.add_alert(alert_name, alert, plot_folder)
 
         if self.webhook_url:
-            message = f"Dashboard: {dashboard_name}, Alert name: {alert_name}, Alert: {alert}"
+            message = f"""Dashboard: {dashboard_name},\nAlert name: {alert_name}, \nAlert: {alert}"""
             self.slack_notification({'text': message})
 
     def slack_notification(self, message):

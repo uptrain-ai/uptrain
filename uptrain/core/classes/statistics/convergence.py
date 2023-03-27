@@ -37,6 +37,7 @@ class Convergence(AbstractStatistic):
         self.total_count = 0
         self.prev_calc_at = 0
         self.init_datetime = datetime.now() 
+        self.alert_ids = []
 
     def base_check(self, inputs, outputs, gts=None, extra_args={}):
         vals = self.measurable.compute_and_log(
@@ -114,6 +115,8 @@ class Convergence(AbstractStatistic):
                         del self.feats_dictn[ref_item_count][aggregate_ids[idx]]
                     else:
                         del self.feats_dictn[crossed_checkpoint][aggregate_ids[idx]]
+                        if this_distances.get('norm_ratio', [0])[0] > 2.5:
+                            self.alert_ids.append(aggregate_ids[idx])
 
                     features = dict(zip(['feature_' + x for x in self.feature_names], [all_features[jdx][idx] for jdx in range(len(self.feature_names))]))
 
@@ -165,10 +168,14 @@ class Convergence(AbstractStatistic):
                                 update_val = True
                             )
 
-                        if count == 100000:
-                            if datetime.now() - self.init_datetime >= timedelta(minutes=1):
-                                self.log_handler.add_alert("Mean Data", 
-                                                           f"Mean value: {np.mean(this_data)}",
-                                                           "Convergence Statistics")
+                        if count == 500 and distance_type == 'norm_ratio':
+                            if datetime.now() - self.init_datetime >= timedelta(hours=24):
+                                if len(self.alert_ids):
+                                    self.init_datetime = datetime.now()
+                                    self.log_handler.add_alert("High Popularity Bias", 
+                                                               f"Check PostIDs {self.alert_ids[0:10]}", 
+                                                               self.dashboard_name)
+                                    self.alert_ids = []
+                                    
 
                             
