@@ -37,17 +37,10 @@ class CosineDistance(AbstractDistance):
         base = np.array(base)
         reference = np.array(reference)
 
-        if base.shape != reference.shape:
-            raise Exception("Incompatible shapes for base and reference")
+        self.check_compatibility(base, reference)
 
-        if len(base.shape) > 1:
-            base_norm = np.linalg.norm(base, axis=1)
-        else:
-            base_norm = np.abs(base)
-        if len(reference.shape) > 1:
-            ref_norm = np.linalg.norm(reference, axis=1)
-        else:
-            ref_norm = np.abs(reference)
+        base_norm = self.calculate_norm(base)
+        ref_norm = self.calculate_norm(reference)
 
         return np.array(
             [
