@@ -8,9 +8,13 @@ from uptrain.core.classes.distances import AbstractDistance
 class HammingDistance(AbstractDistance):
     """Class that computes Hamming distance between base and reference vectors."""
 
+    def check_valid_vector(self, vector) -> None:
+        if not np.all(np.isin(vector, [0, 1])):
+            raise Exception("Vector should contain only 0 and 1")
+
     def compute_distance(
         self, base: Union[List, np.ndarray], reference: Union[List, np.ndarray]
-    ) -> np.ndarray:
+    ) -> int:
         """Compute the Hamming distance between base and reference vectors.
 
         Parameters
@@ -22,13 +26,16 @@ class HammingDistance(AbstractDistance):
 
         Returns
         -------
-        np.ndarray
+        int
             The Hamming distance between base and reference.
         """
 
         base = np.array(base)
         reference = np.array(reference)
 
+        self.check_valid_vector(base)
+        self.check_valid_vector(reference)
+
         self.check_compatibility(base, reference)
 
-        return sum(abs(b - r) for b, r in zip(base, reference)) / len(base)
+        return np.sum(np.sum(base != reference, axis=tuple(range(1, len(base.shape)))))
