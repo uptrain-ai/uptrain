@@ -11,7 +11,7 @@ from uptrain.core.encoders.uptrain_encoder import UpTrainEncoder
 
 
 def cluster_and_plot_data(
-    data, num_clusters, cluster_plot_func=None, plot_save_name="", normalisation=None
+    data, num_clusters, cluster_plot_func=None, plot_save_name="", normalisation=None, compute_point_density=False
 ):
     kmeans = KMeans(n_clusters=num_clusters, random_state=1, n_init=10)
     kmeans.fit(data)
@@ -33,17 +33,18 @@ def cluster_and_plot_data(
         )
 
     density_arr = []
-    min_var = np.min(cluster_vars)
-    for idx in range(len(data)):
-        cluster_centroid_dists = np.sum(np.abs(all_clusters - data[idx]), axis=1)
-        closest_cluster_labels = np.where(cluster_centroid_dists < min_var * 4)
-        num_close_points = 0
-        for this_label in closest_cluster_labels[0]:
-            this_elems = cluster_dictn[this_label]
-            all_elems_dists = np.sum(np.abs(this_elems - data[idx]), axis=1)
-            closest_points_idxs = np.where(all_elems_dists < 1.5 * min_var)
-            num_close_points += len(closest_points_idxs[0])
-        density_arr.append(num_close_points-1)
+    if compute_point_density:
+        min_var = np.min(cluster_vars)
+        for idx in range(len(data)):
+            cluster_centroid_dists = np.sum(np.abs(all_clusters - data[idx]), axis=1)
+            closest_cluster_labels = np.where(cluster_centroid_dists < min_var * 4)
+            num_close_points = 0
+            for this_label in closest_cluster_labels[0]:
+                this_elems = cluster_dictn[this_label]
+                all_elems_dists = np.sum(np.abs(this_elems - data[idx]), axis=1)
+                closest_points_idxs = np.where(all_elems_dists < 1.5 * min_var)
+                num_close_points += len(closest_points_idxs[0])
+            density_arr.append(num_close_points-1)
     density_arr = np.array(density_arr)
 
     idxs_closest_to_cluster_centroids = {}

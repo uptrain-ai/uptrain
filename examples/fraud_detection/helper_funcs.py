@@ -1,11 +1,13 @@
 import os
 import subprocess
 
+from typing import Dict, List
+
 '''
 This function downloads a dataset from an S3 URL using wget if available, or 
 provides instructions for manual download
 '''
-def download_dataset(s3_url, data_file):    
+def download_dataset(s3_url: str, data_file: str) -> None:    
     remote_url = f"{s3_url}/{data_file}"
 
     if not os.path.exists(data_file):
@@ -39,7 +41,7 @@ This function takes in a dictionary or a list of dictionaries and prints its key
 and values in a pretty format, using the indent parameter to specify the number of 
 tabs to be used for indentation.
 '''
-def pretty(d, indent=0):
+def pretty(d: Dict[str, any] or List[Dict[str, any]], indent: int = 0):
     if isinstance(d, list):
         for value in d:
             if isinstance(value, list):

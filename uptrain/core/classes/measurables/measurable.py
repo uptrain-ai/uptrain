@@ -1,5 +1,7 @@
 import numpy as np
 
+from typing import Any
+
 from uptrain.core.lib.helper_funcs import (
     extract_data_points_from_batch,
     combine_data_points_for_batch,
@@ -8,12 +10,43 @@ from uptrain.core.classes.measurables import AbstractMeasurable
 
 
 class Measurable(AbstractMeasurable):
+    """Class that contains the core logic for computation/logging of a measurable.
+
+    This class is a subclass of AbstractMeasurable and implements the computation
+    and logging of a measurable or evaluatable object. It can optionally use a
+    cache to avoid recomputing values that have already been computed.
+    """
+
     def __init__(self, framework) -> None:
         super().__init__()
         self.framework = framework
         self.cache_present_or_not = None
 
-    def compute_and_log(self, inputs=None, outputs=None, gts=None, extra=None) -> None:
+    def compute_and_log(self, inputs=None, outputs=None, gts=None, extra=None) -> Any:
+        """Computes the measurement and logs the result.
+
+        This method computes the measurement of this object using the overriden
+        _compute method, and logs the result. If caching is enabled in the
+        UpTrain framework object, this method may use the cache to avoid recomputing
+        values that have already been computed.
+
+        Parameters
+        ----------
+        inputs
+            Inputs values to use in the computation
+        outputs
+            Outputs values to use in the computation
+        gts
+            Ground truth values to use in the computation
+        extra
+            Additional information to use in the computation
+
+        Returns
+        -------
+        Any
+            Result of the computation
+        """
+
         if self.framework.use_cache:
             if self.cache_present_or_not is None:
                 self.cache_present_or_not = 1
@@ -67,5 +100,18 @@ class Measurable(AbstractMeasurable):
             vals = self._compute(inputs=inputs, outputs=outputs, gts=gts, extra=extra)
         return vals
 
-    def _log(self, ids, vals) -> None:
+    def _log(self, ids: np.ndarray, vals: np.ndarray) -> None:
+        """Logs the result of the computation.
+
+        This method logs the result of the computation for the given ids and vals
+        using the log_measurable method of UpTrain framework object.
+
+        Parameters
+        ----------
+        ids
+            List of unique identifiers for inputs, which is used to match them with
+            their computed values in the framework's logging system
+        vals
+            List of computed measurable values for inputs
+        """
         self.framework.log_measurable(ids, vals, self.col_name())
