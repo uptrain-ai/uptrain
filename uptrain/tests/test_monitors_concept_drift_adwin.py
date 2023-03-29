@@ -8,13 +8,13 @@ def test_concept_drift_adwin():
     """Test concept drift detection using ADWIN algorithm.
 
     We generate 2 distributions:
-      - The first distribution contain 1000 values with mean 0.0 and standard deviation 0.03
+      - The first distribution contain 1000 values with mean 0.2 and standard deviation 0.03
       - The second distribution contain 1000 values with mean 0.5 and standard deviation 0.08
 
     To maintain the simplicity of this test, we will assume that there is a hypothetical model
     that predicts the output is the same as input. However, this is not the case.
     In reality:
-      - the ground truth for the first distribution is 0.0
+      - the ground truth for the first distribution is 0.2
       - the ground truth for the first half of second distribution is 0.5
       - the ground truth for the second half of second distribution is 0.6
 
@@ -41,10 +41,10 @@ def test_concept_drift_adwin():
 
     random_state = np.random.RandomState(seed=1337)
     n = 1000
-    params = [(0.0, 0.03, n), (0.5, 0.08, n)]
+    params = [(0.2, 0.03, n), (0.5, 0.08, n)]
     distributions = np.array([random_state.normal(*param) for param in params])
 
-    ground_truths = np.array([0.0] * n + [0.5] * (n // 2) + [0.6] * (n // 2))
+    ground_truths = np.array([0.2] * n + [0.5] * (n // 2) + [0.6] * (n // 2))
     stream = distributions.flatten()
 
     def plot_data(drifts=None):
@@ -88,6 +88,15 @@ def test_concept_drift_adwin():
                 "max_buckets": 5,
                 "min_window_length": 5,
                 "grace_period": 5,
+            },
+            {
+                "type": uptrain.Monitor.CONCEPT_DRIFT,
+                "algorithm": uptrain.DataDriftAlgo.ADWIN,
+                "measurable_args": {
+                    "type": uptrain.MeasurableType.MAPE,
+                    "feature_name": "data",
+                },
+                "delta": 0.1
             }
         ],
 
