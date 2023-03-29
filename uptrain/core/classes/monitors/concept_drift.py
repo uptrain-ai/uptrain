@@ -9,7 +9,6 @@ from uptrain.constants import Monitor
 
 
 class ConceptDrift(AbstractMonitor):
-    dashboard_name = "concept_drift_acc"
     monitor_type = Monitor.CONCEPT_DRIFT
 
     def base_init(self, fw, check):
@@ -23,6 +22,7 @@ class ConceptDrift(AbstractMonitor):
         self.drift_alerted = False
         self.algorithm = check["algorithm"]
         self.counter = 0
+        self.dashboard_name = f"concept_drift_acc_{self.algorithm}_{self.measurable.col_name()}"
 
         if self.algorithm == DataDriftAlgo.DDM:
             warm_start = check.get("warm_start", 500)
