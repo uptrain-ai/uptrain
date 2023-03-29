@@ -8,6 +8,7 @@ from uptrain.constants import Monitor
 class Accuracy(AbstractMonitor):
     dashboard_name = "accuracy"
     monitor_type = Monitor.ACCURACY
+    
     def base_init(self, fw, check):
         if check.get("measurable_args", None):
             self.measurable = MeasurableResolver(check["measurable_args"]).resolve(fw)

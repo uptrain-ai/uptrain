@@ -7,7 +7,7 @@ from uptrain.constants import Monitor
 
 class EdgeCase(AbstractMonitor):
     dashboard_name = "edge_cases"
-    anomaly_type = Monitor.EDGE_CASE
+    monitor_type = Monitor.EDGE_CASE
 
     def base_init(self, fw, check):
         self.signal_manager = SignalManager()
@@ -33,7 +33,7 @@ class EdgeCase(AbstractMonitor):
         reasons = []
         for is_in in is_interesting:
             if is_in:
-                reasons.append("Edge_case_collected_via_Signal")
+                reasons.append(f"Signal-{str(self.signal_manager.formulae)}")
             else:
                 reasons.append("None")
         return is_interesting, reasons

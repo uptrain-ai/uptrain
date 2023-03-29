@@ -7,7 +7,7 @@ from uptrain.constants import BiasAlgo, Monitor
 
 class ModelBias(AbstractMonitor):
     dashboard_name = "popularity_bias"
-    anomaly_type = Monitor.POPULARITY_BIAS
+    monitor_type = Monitor.POPULARITY_BIAS
 
     def base_init(self, fw, check):
         self.acc_arr = []

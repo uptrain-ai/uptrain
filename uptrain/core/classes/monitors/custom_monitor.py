@@ -4,7 +4,7 @@ from uptrain.constants import Monitor
 
 
 class CustomMonitor(AbstractMonitor):
-    anomaly_type = Monitor.CUSTOM_MONITOR
+    monitor_type = Monitor.CUSTOM_MONITOR
 
     def base_init(self, fw, check):
         self.dashboard_name = check.get("dashboard_name", "custom_measure")

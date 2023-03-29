@@ -1,0 +1,20 @@
+<!-- Different ways you can add images in mdx -->
+
+| <center> <img width="500" src=""/> </center>                                    |
+| --------------------------------------------------------------------------------|
+| <center></center>                                                               | 
+
+
+<div style={{ textAlign: 'center' }}>
+    <img style={{ width: '500px' }} src="/images/model-degradation-alert.png" />
+  </div>
+  
+
+<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+  <img style={{ maxWidth: '70%', height: 'auto' }} src="image.png" />
+</div>
+  
+
+<Frame caption="">
+  <img width="500" src=""/>
+</Frame>

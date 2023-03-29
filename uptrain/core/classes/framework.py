@@ -23,6 +23,7 @@ from uptrain.core.lib.helper_funcs import (
     load_list_from_df,
 )
 
+
 class Framework:
     """
     Base Framework class which handles model observability and retraining
@@ -150,7 +151,7 @@ class Framework:
         self.smart_data_ids.extend(np.array(data["id"])[np.array(is_interesting)])
 
         """
-        Log only the interesting test cases to data 
+        Log only the interesting test cases to data
         warehouse. Logged under sub-folder 'smart_data'
         """
         path_smart_data = os.path.join(
@@ -326,9 +327,9 @@ class Framework:
         df.to_csv(self.path_all_data, index=False)
 
         """
-        TODO: Currently assumes that input is only one column. 
-        In some cases, the input might have multiple data 
-        structures (e.g., cascaded models). 
+        TODO: Currently assumes that input is only one column.
+        In some cases, the input might have multiple data
+        structures (e.g., cascaded models).
         """
         df_gt = df.loc[gt_id_indices]
         data = dict(zip(
@@ -392,7 +393,7 @@ class Framework:
         if 'id' not in cols:
             data.update({"id": np.array(ids)})
         return data
-    
+
     def convert_dict_values_to_numpy_values(self, inputs: dict) -> dict:
         data = {}
         for key, value in inputs.items():

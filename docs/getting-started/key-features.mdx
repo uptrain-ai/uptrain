@@ -1,0 +1,72 @@
+---
+title: "Key Features"
+description: "Learn about the key features UpTrain has to offer"
+---
+
+The following key features are currently a part of the UpTrain package (and we are constantly adding more). If you did not find what you were looking for, submit a [feature request](https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=).
+
+- [Model performance monitoring and Concept Drift](/monitors/concept-drift) **:** UpTrain tracks the performance of a machine learning model over time, including metrics such as accuracy, precision, recall, and F1 score. It provides visualizations and alerts to help users understand how well the model is performing (the following images are from the ride-time estimation example) 
+
+| <center><img width="400" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/ride_estimation/mae.gif"/></center> | <center><img width="400" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/ride_estimation/mape.gif"/></center> | 
+| ----------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------|
+| <center>Mean Absolute Error</center>                                                                              | <center>Mean Absolute Percentage</center>                                                                           |
+
+- [Data Drift Detection](/monitors/data-drift) **:** UpTrain uses advanced techniques such as statistical tests and change point detection algorithms to detect any changes in the distribution of data over time. This allows users to identify when their model's performance might be negatively impacted by data drift and take appropriate action 
+
+<Frame caption="Data drift detection through UpTrain in the human orientation classification example">
+  <img width="500" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/human_orientation_classification/1_data_drift_and_edge_cases.gif"/>
+</Frame>
+
+- [Edge Case Detection](/monitors/edge-case-detection) **:** UpTrain uses user-defined signals and statistical techniques such as outlier detection to identify data points that fall outside of the typical range of values. These edge cases can be challenging for a machine learning model to predict accurately, and UpTrain allows users to flag and handle these cases separately 
+
+<Frame caption="Edge case detection from finetuning LLMs example">
+  <img width="400" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/finetuning_llms/edge_cases.gif"/>
+</Frame>
+
+- [Data Integrity Monitors](/monitors/data-integrity) **:** UpTrain checks for missing or inconsistent data, duplicate records, and other potential issues that could affect the accuracy of a machine learning model. It also checks for data quality issues such as outliers, missing values, and incorrect data types 
+
+<Frame caption="Data integrity monitoring from the finetuning LLMs example">
+  <img width="400" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/finetuning_llms/data_integrity.gif"/>
+</Frame>
+
+- [Customizable Metrics](/monitors/custom-monitors) **:** UpTrain allows users to add their own custom metrics to monitor, such as business-specific KPIs. These metrics can be easily added to the dashboard and used alongside other performance metrics to gain a more complete understanding of the model's performance 
+
+<Frame caption="A custom monitor from the Fraud Detection Example">
+  <img width="400" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/fraud_detection/custom_measure_cropped.gif"/>
+</Frame>
+
+- [Quantifying Model Bias](/monitors/model-bias) **:** Understand and quantify biases such as popularity, position, and selection biases. UpTrain's model bias detection feature identifies and addresses potential biases in machine learning models by analyzing training data, predicting outcomes, and comparing performance across demographics. This ensures models provide accurate and unbiased results, promoting responsible and ethical use of machine learning.
+
+<Frame caption="Histogram for popularity bias from Shopping Cart Recommendation Example">
+  <img width="400" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/shppoing_cart_rec/pop_bias_hist.gif"/>
+</Frame>
+
+- [t-SNE Dimensionality Reduction](/visuals/tsne) **:**  Visualize embeddings by reducing their dimensionality using t-SNE.
+
+<Frame caption="t-SNE dimensionality reduction for the Text Summarization example">
+  <img width="500" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/text_summarization/t-SNE.png"/>
+</Frame>
+
+- [Visualization using UMAP](/visuals/umap) **:**  Visualize embeddings using UMAP to see how posts cluster upon convergence.
+
+<Frame caption="UMAP visualization for the Text Summarization example">
+  <img width="500" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/text_summarization/umap.gif"/>
+</Frame>
+
+- **AI Explainability :** AI explainability refers to machine learning models' ability to explain their reasoning in a way humans can understand. It improves transparency and trust in machine learning systems, enabling users to understand the factors influencing a model's predictions. It also helps understand the relative importance of each feature in predictions.
+
+<Frame caption="SHAP explainability of features from the Ride-time Estimation example">
+  <img width="500" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/ride_estimation/4_Explanability_recording.gif"/>
+</Frame>
+
+- **Smart data-point collection :** UpTrain automatically collects data points that fall outside the typical range of values or that cause data drift for use in automated retraining of the model. This allows users to constantly improve the performance of their model by retraining it with new, relevant data 
+
+- **A/B testing :** Live monitor your A/B tests with the UpTrain dashboard and generate insights in days (not months).
+
+<Frame caption="Simultaneous live monitoring of two models in UpTrain dashboard">
+  <img width="500" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/AB_testing/2_model_comparison.gif"/>
+</Frame>
+
+- **Data Security :** With UpTrain, your data never goes out of your machine. Many ML models operate on user-sensitive data, and may not always be possible to send users' private data to third parties. This motivated UpTrain to create an open-source self-hosted alternative from a privacy perspective.
+
+- **Slack Integration :** Setting up alerts on Slack is easy with UpTrain. Users can simply configure their Slack workspace, select the metrics they want to monitor, and set the alert thresholds. When a model's performance falls outside of the defined thresholds, UpTrain sends an alert to the user's designated Slack channel, enabling them to take immediate action.

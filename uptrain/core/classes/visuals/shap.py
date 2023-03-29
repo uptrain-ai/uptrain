@@ -1,4 +1,8 @@
-import shap
+try:
+    import shap
+    SHAP_PRESENT = True
+except:
+    SHAP_PRESENT = False
 import pickle
 from uptrain.core.classes.visuals import AbstractVisual
 from uptrain.constants import Visual

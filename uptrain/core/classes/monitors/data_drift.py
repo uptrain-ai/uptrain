@@ -10,7 +10,7 @@ from uptrain.core.classes.algorithms import Clustering
 
 class DataDrift(AbstractMonitor):
     dashboard_name = "data_drift"
-    anomaly_type = Monitor.DATA_DRIFT
+    monitor_type = Monitor.DATA_DRIFT
     is_embedding = None
     mode = None
     NUM_BUCKETS = 20
@@ -45,7 +45,8 @@ class DataDrift(AbstractMonitor):
             "num_buckets": self.NUM_BUCKETS,
             'is_embedding': self.is_embedding,
             'plot_save_name': self.log_handler.get_plot_save_name("training_dataset_clusters.png", self.dashboard_name),
-            'cluster_plot_func': self.cluster_plot_func
+            'cluster_plot_func': self.cluster_plot_func,
+            'find_low_density_regions': self.do_low_density_check
         }
         self.clustering_helper = Clustering(clustering_args)
         if self.is_embedding:
@@ -54,6 +55,9 @@ class DataDrift(AbstractMonitor):
         else:
             self.plot_name = "Scalar_" + self.measurable.col_name()
         self.bucket_reference_dataset()
+        self.outliers = check.get("outlier_data", [])
+        if len(self.outliers):
+            self.outliers = np.array(self.outliers) / self.max_along_axis
 
     def need_ground_truth(self):
         return False
@@ -210,12 +214,14 @@ class DataDrift(AbstractMonitor):
         if len(self.outliers):
             dists_from_outliers = np.min(np.sum(np.abs(self.feats - np.expand_dims(self.outliers, axis=0)),axis=2),axis=1)
             min_cluster_var = np.min(self.cluster_vars)
-            is_close = dists_from_outliers < min_cluster_var
-            is_close[3] = True
+            is_close = dists_from_outliers < 0.5 * min_cluster_var
             is_interesting = np.logical_or(is_close, is_interesting)
             for lkdx in range(len(is_close)):
                 if is_close[lkdx]:
-                    reasons[lkdx] = "Close_to_User_annotated_Outliers"
+                    if dists_from_outliers[lkdx] < 0.0000001:
+                        reasons[lkdx] = "Outlier_annotated_by_the_user"
+                    else:
+                        reasons[lkdx] = "Close_to_User_annotated_Outliers"
 
         if self.save_edge_cases and self.drift_detected and not isinstance(self.feats[0,0,0], str):
             feats_shape = list(self.feats.shape)
@@ -307,5 +313,3 @@ class DataDrift(AbstractMonitor):
         self.prod_dist_counts_arr.append(copy.deepcopy(self.prod_dist_counts))
         if len(self.outlier_idxs):
             self.outliers = all_inputs[np.array(self.outlier_idxs)]
-        else:
-            self.outliers = np.array([])
