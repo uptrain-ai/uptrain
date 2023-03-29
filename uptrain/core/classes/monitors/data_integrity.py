@@ -16,8 +16,8 @@ class DataIntegrity(AbstractMonitor):
         self.threshold = check.get("threshold", None)
         self.count = 0
         self.num_issues = 0
-        self.reference_dataset = check["reference_dataset"]
         if self.integrity_type == "z_score":
+            self.reference_dataset = check["reference_dataset"]
             self.ref_mean, self.ref_std = self.get_ref_data_stats()
             
     def base_check(self, inputs, outputs, gts=None, extra_args={}):
