@@ -2,7 +2,6 @@ import numpy as np
 import torch
 
 from deep_q_network import DeepQNetwork, DQNAgent
-from typing import List
 
 
 class DoubleDQNAgent(DQNAgent):

@@ -5,7 +5,6 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 from typing import List
-from memory import ReplayBuffer
 from agent import AbstractAgent
 
 
@@ -89,7 +88,7 @@ class DQNAgent(AbstractAgent):
         )
     
     def save_model(self) -> None:
-        torch.save(self.q_network, self.filename)
+        torch.save(self.q_network, f'{self.filename}_q_network.pt')
     
     def load_model(self) -> None:
-        self.q_network = torch.load(self.filename)
+        self.q_network = torch.load(f'{self.filename}_q_network.pt')

@@ -1,6 +1,4 @@
 import abc
-import numpy as np
-import torch
 
 from memory import ReplayBuffer
 from typing import List
@@ -12,6 +10,7 @@ class AbstractAgent(abc.ABC):
         num_actions: int,
         input_dims: List[int],
         *,
+        environment: str = '',
         learning_rate: float = 0.001,
         gamma: float = 0.99,
         batch_size: int = 64,
@@ -34,7 +33,7 @@ class AbstractAgent(abc.ABC):
         self.epsilon_decrement = epsilon_decrement
         self.min_epsilon = min_epsilon
         self.memory_size = memory_size
-        self.filename = filename
+        self.filename = f'{environment}_{filename}'
         self.hidden_dims = hidden_dims
         self.device = device
         self.memory = ReplayBuffer(memory_size, input_dims)
