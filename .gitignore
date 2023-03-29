@@ -28,6 +28,11 @@ trained_models*
 training_logs*
 evaluation_logs*
 
+# Models
+*.pt
+*.pth
+*.pickle
+
 # Extras
 .DS_Store
 *.pickle
