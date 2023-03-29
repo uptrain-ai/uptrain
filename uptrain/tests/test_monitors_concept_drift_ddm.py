@@ -41,10 +41,12 @@ def test_concept_drift_ddm():
     The test passes if the DDM algorithm successfully detects the concept drift and
     raises an alert around the point where the predictions start becoming inaccurate.
     """
+
     random_state = np.random.RandomState(seed=1337)
     alphabet = np.array(list(map(ord, string.ascii_lowercase + string.digits + " ")))
 
     def random_sentence(length):
+        """Generate a random sentence of given length"""
         return "".join(list(map(chr, random_state.choice(alphabet, size=length))))
 
     n = 1000
@@ -67,6 +69,8 @@ def test_concept_drift_ddm():
     cfg = {
         # Define checks to be performed
         "checks": [
+            # Check: Concept drift detection using DDM algorithm
+            # with accuracy as the measurable for the feature "data"
             {
                 "type": uptrain.Monitor.CONCEPT_DRIFT,
                 "algorithm": uptrain.DataDriftAlgo.DDM,
@@ -83,13 +87,15 @@ def test_concept_drift_ddm():
         # Specify where the logging data should be stored
         "retraining_folder": "uptraining_smart_data_concept_drift_ddm",
         
-        # True if we want streamlit logging, False otherwise
+        # Specify logging arguments
+        # "st_logging" should be True if we want streamlit logging, False otherwise
         "logging_args": {"st_logging": True},
     }
 
     framework = uptrain.Framework(cfg)
     batch_size = 64
 
+    # Feed the data to the framework
     for i in range(n // batch_size):
         input = {"data": inputs[i * batch_size : (i + 1) * batch_size]}
         output = predictions[i * batch_size : (i + 1) * batch_size]
