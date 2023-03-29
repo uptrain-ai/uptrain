@@ -9,7 +9,15 @@ from agent import AbstractAgent
 
 
 class DeepQNetwork(nn.Module):
-    def __init__(self, input_dims: List[int], hidden_dims: List[int], num_actions: int, *, device: str = 'cpu', lr: float = 0.001) -> None:
+    def __init__(
+        self,
+        input_dims: List[int],
+        hidden_dims: List[int],
+        num_actions: int,
+        *,
+        device: str = "cpu",
+        lr: float = 0.001,
+    ) -> None:
         super(DeepQNetwork, self).__init__()
         self.input_dims = input_dims
         self.hidden_dims = hidden_dims
@@ -17,16 +25,20 @@ class DeepQNetwork(nn.Module):
         self.device = device
 
         self.layers = nn.ModuleList()
-        self.layers.append(nn.Linear(in_features=input_dims[0], out_features=hidden_dims[0]))
+        self.layers.append(
+            nn.Linear(in_features=input_dims[0], out_features=hidden_dims[0])
+        )
         for i in range(len(hidden_dims) - 1):
-            self.layers.append(nn.Linear(in_features=hidden_dims[i], out_features=hidden_dims[i + 1]))
+            self.layers.append(
+                nn.Linear(in_features=hidden_dims[i], out_features=hidden_dims[i + 1])
+            )
         self.Q = nn.Linear(in_features=hidden_dims[-1], out_features=num_actions)
 
         self.optimizer = optim.Adam(self.parameters(), lr=lr)
         self.loss = nn.MSELoss()
-        
+
         self.to(device)
-    
+
     def forward(self, state):
         x = state
         for layer in self.layers:
@@ -36,14 +48,14 @@ class DeepQNetwork(nn.Module):
 
 
 class DQNAgent(AbstractAgent):
-    def __init__(
-        self,
-        *args,
-        filename = 'dqn_agent',
-        **kwargs
-    ) -> None:
+    def __init__(self, *args, filename="dqn_agent", **kwargs) -> None:
         super().__init__(*args, filename=filename, **kwargs)
-        self.q_network = DeepQNetwork(input_dims=self.input_dims, hidden_dims=self.hidden_dims, num_actions=self.num_actions, device=self.device)
+        self.q_network = DeepQNetwork(
+            input_dims=self.input_dims,
+            hidden_dims=self.hidden_dims,
+            num_actions=self.num_actions,
+            device=self.device,
+        )
 
     def get_action_training(self, observation) -> int:
         if np.random.random() < self.epsilon:
@@ -66,10 +78,10 @@ class DQNAgent(AbstractAgent):
 
         states, actions, rewards, new_states, terminals = map(
             lambda x: torch.tensor(x).to(self.device),
-            self.memory.sample_buffer(self.batch_size)
+            self.memory.sample_buffer(self.batch_size),
         )
         batch_indices = np.arange(self.batch_size)
-        
+
         q_eval = self.q_network.forward(states)[batch_indices, actions]
         q_next = self.q_network.forward(new_states)
         q_next[terminals] = 0
@@ -86,9 +98,9 @@ class DQNAgent(AbstractAgent):
             if self.epsilon > self.min_epsilon
             else self.min_epsilon
         )
-    
+
     def save_model(self) -> None:
-        torch.save(self.q_network, f'{self.filename}_q_network.pt')
-    
+        torch.save(self.q_network, f"{self.filename}_q_network.pt")
+
     def load_model(self) -> None:
-        self.q_network = torch.load(f'{self.filename}_q_network.pt')
+        self.q_network = torch.load(f"{self.filename}_q_network.pt")

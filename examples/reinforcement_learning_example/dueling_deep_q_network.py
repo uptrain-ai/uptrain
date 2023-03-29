@@ -11,10 +11,12 @@ class DuelingDeepQNetwork(DeepQNetwork):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.V = nn.Linear(in_features=self.hidden_dims[-1], out_features=1)
-        self.A = nn.Linear(in_features=self.hidden_dims[-1], out_features=self.num_actions)
-        
+        self.A = nn.Linear(
+            in_features=self.hidden_dims[-1], out_features=self.num_actions
+        )
+
         self.to(self.device)
-    
+
     def forward(self, state):
         x = state
         for layer in self.layers:
@@ -31,15 +33,16 @@ class DuelingDeepQNetwork(DeepQNetwork):
         A = self.A(x)
         return A
 
+
 class DuelingDQNAgent(AbstractAgent):
-    def __init__(
-        self,
-        *args,
-        filename = 'dueling_dqn_agent',
-        **kwargs
-    ) -> None:
+    def __init__(self, *args, filename="dueling_dqn_agent", **kwargs) -> None:
         super().__init__(*args, filename=filename, **kwargs)
-        self.q_network = DuelingDeepQNetwork(input_dims=self.input_dims, hidden_dims=self.hidden_dims, num_actions=self.num_actions, device=self.device)
+        self.q_network = DuelingDeepQNetwork(
+            input_dims=self.input_dims,
+            hidden_dims=self.hidden_dims,
+            num_actions=self.num_actions,
+            device=self.device,
+        )
 
     def get_action_training(self, observation) -> int:
         if np.random.random() < self.epsilon:
@@ -59,13 +62,13 @@ class DuelingDQNAgent(AbstractAgent):
     def learn(self) -> None:
         if self.memory.memory_counter < self.batch_size:
             return
-        
+
         states, actions, rewards, new_states, terminals = map(
             lambda x: torch.tensor(x).to(self.device),
-            self.memory.sample_buffer(self.batch_size)
+            self.memory.sample_buffer(self.batch_size),
         )
         batch_indices = np.arange(self.batch_size)
-        
+
         q_eval = self.q_network.forward(states)[batch_indices, actions]
         q_next = self.q_network.forward(new_states)
         q_next[terminals] = 0
@@ -82,9 +85,9 @@ class DuelingDQNAgent(AbstractAgent):
             if self.epsilon > self.min_epsilon
             else self.min_epsilon
         )
-    
+
     def save_model(self) -> None:
-        torch.save(self.q_network, f'{self.filename}_q_network.pt')
-    
+        torch.save(self.q_network, f"{self.filename}_q_network.pt")
+
     def load_model(self) -> None:
-        self.q_network = torch.load(f'{self.filename}_q_network.pt')
+        self.q_network = torch.load(f"{self.filename}_q_network.pt")

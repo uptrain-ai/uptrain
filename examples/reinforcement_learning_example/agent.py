@@ -10,7 +10,7 @@ class AbstractAgent(abc.ABC):
         num_actions: int,
         input_dims: List[int],
         *,
-        environment: str = '',
+        environment: str = "",
         learning_rate: float = 0.001,
         gamma: float = 0.99,
         batch_size: int = 64,
@@ -20,8 +20,8 @@ class AbstractAgent(abc.ABC):
         memory_size: int = 100000,
         filename: str = "agent",
         hidden_dims: List[int] = [128, 128],
-        device: str = 'cpu',
-        **kwargs
+        device: str = "cpu",
+        **kwargs,
     ) -> None:
         self.num_actions = num_actions
         self.input_dims = input_dims
@@ -33,7 +33,7 @@ class AbstractAgent(abc.ABC):
         self.epsilon_decrement = epsilon_decrement
         self.min_epsilon = min_epsilon
         self.memory_size = memory_size
-        self.filename = f'{environment}_{filename}'
+        self.filename = f"{environment}_{filename}"
         self.hidden_dims = hidden_dims
         self.device = device
         self.memory = ReplayBuffer(memory_size, input_dims)
