@@ -33,13 +33,13 @@ We'll also use a visualization technique called UMAP to see how different datase
 
 Next, we identify poorly performing points and find clusters around them.
 
-## Defining a monitor for catching data-points close to outliers
+## Defining a monitor to catch data-points close to outliers
 
 In this section, we first define a performance metric: Rogue-L similarity. You can choose any metric relevant to your use case. We'll select data points with Rogue-L scores equal to 0.0 as outliers. Our objective is to find data-points that lie around these outliers because they are more likely to perform worse (and as we show later, they do!). 
 
 To do this, we'll use a technique called sentence BERT embeddings to represent our text data. We'll compare these embeddings from the DialogSum dataset to the ones from our reference dataset (SAMSum training).
 
-**RESULT**: The overall performance (Rogue-L score) on the DialogSum dataset was 0.305. However, on the daa-points identified by the method above, the performance score dropped to 0.237.
+**RESULT**: The overall performance (Rogue-L score) on the DialogSum dataset was 0.305. However, on the data-points identified by the method above, the performance score dropped to 0.237.
 
 While analyzing the model outputs above, we made a few observations on cases where model does not perform well. Note that these are not statistical ways of finding edge cases but are more inspired by our intuition on dealing with the above data.
 
@@ -120,6 +120,7 @@ custom_monitor_check = {
     'type': uptrain.Monitor.CUSTOM_MONITOR,
     'initialize_func': vocab_init,
     'check_func': vocab_drift,
+    # To tell the framework ground truth is not needed
     'need_gt': False,
 }
 ```
