@@ -3,7 +3,7 @@ title: Custom
 description: Creating and using custom measurables in UpTrain
 ---
 
-UpTrain offers pre-defined metrics to monitor your model's performance during training and production. However, there might be instances where you need to monitor a specific metric that is not covered by the pre-defined measurables. In such cases, UpTrain enables you to create custom metrics to track any metric of your choice.
+UpTrain offers predefined metrics to monitor your model's performance during training and production. However, there might be instances where you need to monitor a specific metric that is not covered by the predefined measurables. In such cases, UpTrain enables you to create custom metrics to track any metric of your choice.
 
 To create a custom metric, you need to define the metric you want to monitor and the corresponding code to compute it. After creating the custom metric, you can integrate it into the UpTrain framework by using the config dictionary. Your custom metric will then be tracked.
 
@@ -44,7 +44,7 @@ check2 = {
 }
 ```
 
-In the same way as shown in the pre-defined example, we will add our check to the `checks` list in the config dictionary and initialize the `Framework` class. The class will then use the provided checks to monitor the 'body_length_signal' of our model.
+In the same way as shown in the predefined example, we will add our check to the `checks` list in the config dictionary and initialize the `Framework` class. The class will then use the provided checks to monitor the 'body_length_signal' of our model.
 
 ```python
 checks = [check1, check2, check3]
