@@ -13,20 +13,25 @@ class HammingDistance(AbstractDistance):
             raise Exception("Vector should contain only 0 and 1")
 
     def compute_distance(
-        self, base: Union[List, np.ndarray], reference: Union[List, np.ndarray]
-    ) -> int:
+        self,
+        base: Union[List, np.ndarray],
+        reference: Union[List, np.ndarray],
+        normalized: bool = False,
+    ) -> Union[int, np.ndarray]:
         """Compute the Hamming distance between base and reference vectors.
-
         Parameters
         ----------
         base
             It is the base vector for Hamming distance computation.
         reference
             It is the reference vector for Hamming distance computation.
+        normalized : bool, optional
+            If True, returns the normalized Hamming distance.
+            If False, returns the regular Hamming distance.
 
         Returns
         -------
-        int
+        int/np.ndarray
             The Hamming distance between base and reference.
         """
 
@@ -38,4 +43,8 @@ class HammingDistance(AbstractDistance):
 
         self.check_compatibility(base, reference)
 
-        return np.sum(np.sum(base != reference, axis=tuple(range(1, len(base.shape)))))
+        # Do not normalize if the base is a single bit
+        if normalized and base.shape:
+            return np.mean(base != reference, axis=tuple(range(1, len(base.shape))))
+
+        return np.sum(base != reference, axis=tuple(range(1, len(base.shape))))
