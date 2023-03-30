@@ -81,7 +81,8 @@ edge_case_length = {
 ```
 
 **Observation**:
-Next, we will discuss another type of edge case that affects the performance of our language model. In this case, the model directly copies one or two sentences from the input conversation, especially when there's a negation involved. This can lead to the generation of summaries that are not accurate or do not capture the true essence of the conversation.
+Next, we will discuss another type of edge case that affects the performance of our language model. In this case, the model directly copies one or two sentences from the input conversation. This works well in many cases but fails when the conversation is about refuting those one or two sentences which model produced as summary.
+This can lead to the generation of summaries that are not accurate or do not capture the true essence of the conversation.
 
 For example, the output summary of the model in the following cases is not appropriate:
 ```
@@ -95,7 +96,7 @@ Output: Person1 is looking for a shop that sells inexpensive cashmere sweaters.
 ```
 
 ### Edge Case Type 2: Copied sentences with negation
-In order to address this edge case, we define two functions: `rogueL_check_func` and `negation_func`.
+In order to catch this heuristic as an edge case in UpTrain, we define two functions: `rogueL_check_func` and `negation_func`.
 
 The `rogueL_check_func` function checks whether sentences from the input are copied directly using the Rouge-L metric. This metric calculates the longest common subsequence of characters in the input and output texts.
 
