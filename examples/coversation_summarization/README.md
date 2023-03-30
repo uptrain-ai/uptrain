@@ -19,10 +19,10 @@ In this blog, the process of collecting a fine-tuning dataset involves several s
 3. Edge-case Collection (user defines the edge-case parameters based on heuristics/observations)
 4. Building Custom Monitor (that checks out-of-vocabulary cases) 
 
-Note: GPU not required to run this tutorial. <br>
-We understand that running the bart-large-xsum can be time consuming on some machines, hence, we have pre-generated the model outputs and their corresponding sentence BERT embeddings to remote for both the SAMSum and DialogSUM datasets. Due to this, running this entire script does not take too much time (e.g., it runs in 3 minutes on my Macbook Air).
+Note: GPU is not required to run this tutorial. <br>
+We understand that running the bart-large-xsum can be time consuming on some machines. Hence, we have pre-generated the model outputs and their corresponding sentence BERT embeddings to remote for both the SAMSum and DialogSUM datasets. Due to this, running this entire script does not take too much time (e.g., it runs in 3 minutes on my Macbook Air).
 
-First, let's see (literally) what we are dealing with. We plot the sentence BERT embeddings with UMAP dimensionality reduction. We apply dimensionality reduction on 3 type of datasets: SAMSum train (aka reference dataset), SAMSum test, and DialogSum train.
+First, let's see (literally) what we are dealing with. We plot the sentence BERT embeddings with UMAP dimensionality reduction. We apply dimensionality reduction on 3 types of datasets: SAMSum train (aka reference dataset), SAMSum test, and DialogSum train.
 
 ## Analyzing Performance and Visualizing with UMAP
 We'll also use a visualization technique called UMAP to see how different datasets are related in terms of content. Datasets marked `reference` (i.e., SAMSum training) and `samsum` (i.e., SAMSum test) are close in the UMAP space. Most point from the DialogSum dataset are further than the data on which the model was finetuned on (i.e., reference aka SAMSum train).  
@@ -41,7 +41,7 @@ To do this, we'll use a technique called sentence BERT embeddings to represent o
 
 **RESULT**: The overall performance (Rogue-L score) on the DialogSum dataset was 0.305. However, on the data-points identified by the method above, the performance score dropped to 0.237.
 
-While analyzing the model outputs above, we made a few observations on cases where model does not perform well. Note that these are not statistical ways of finding edge cases but are more inspired by our intuition on dealing with the above data.
+While analyzing the model outputs above, we made a few observations on cases where model does not perform well. Note that these are not statistical ways of finding edge cases but are more inspired by our intuition in dealing with the above data.
 
 ## Catching Edge-cases for Finetuning the Model Later
 A basic step in fine-tuning the model is to analyze its performance and identify situations where it doesn't perform well to catch appropriate edge-cases. We do this by making a few observations on the model performance.
@@ -102,7 +102,7 @@ The `rogueL_check_func` function checks whether sentences from the input are cop
 
 The `negation_func` function, on the other hand, checks if there's a negation in the input by searching for common negation words such as "no," "not," "can't," "couldn't," "won't," "didn't," and "don't."
 
-Finally, we combine these two functions to create an edge case definition called `edge_case_negation`. This definition will help us identify and collect data points where the model directly copies sentences and where a negation is present in the input.
+Finally, we combine these two functions to create an edge case definition called `edge_case_negation`. This definition will help us identify and collect data points where the model directly copies sentences and where negation is present in the input.
 
 By identifying and addressing these edge cases, we can further improve the performance of our language model, making it more accurate and reliable in generating summaries of conversations.
 
