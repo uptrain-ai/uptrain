@@ -1,4 +1,7 @@
-# Fine-tuning Language Models with UpTrain: A Simple Guide to Enhancing Smaller Models for Custom Use-cases
+# Fine-tuning Language Models with UpTrain: A Simple Guide to Enhancing Models for Custom Use-cases
+
+<img style="float: left;" src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Google_Colaboratory_SVG_Logo.svg/1600px-Google_Colaboratory_SVG_Logo.svg.png?20221103151432" width="150"/> <h1>Run the example on Google Colab <a href="https://colab.research.google.com/drive/1GEYff6lHbSOFbDbPaO5F4FL742TQZhbm?usp=sharing">here</a>.</h1> 
+
 The era of large language models (LLMs) taking the world by storm has come and gone. Today, the debate between proponents of bigger models and smaller models has intensified. While the debate continues, one thing is clear: not everyone needs to run large models for their specific use-cases. In such situations, it's more practical to collect high-quality datasets to fine-tune smaller models for the task at hand.
 
 
