@@ -8,6 +8,11 @@ from uptrain.core.classes.distances import AbstractDistance
 class CosineDistance(AbstractDistance):
     """Class that computes cosine distance between base and reference vectors."""
 
+    def calculate_norm(self, vector) -> float:
+        if len(vector.shape) > 1:
+            return np.linalg.norm(vector, axis=1)
+        return np.abs(vector)
+
     def compute_distance(
         self, base: Union[List, np.ndarray], reference: Union[List, np.ndarray]
     ) -> np.ndarray:
