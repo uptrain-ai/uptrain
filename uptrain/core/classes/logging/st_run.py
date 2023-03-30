@@ -353,7 +353,7 @@ def plot_dashboard(dashboard_name):
         ######### Line Plots ###########
 
         elif sub_dir_split[-2] == "line_plots":
-            if st.sidebar.checkbox(f"Line-plot for {plot_name}"):
+            if st.sidebar.checkbox(f"Line-plot for {plot_name}", key=plot_name+dashboard_name):
                 st.markdown(f"### Line chart for {plot_name}")
                 plot_line_charts(files, plot_name)
                 st.markdown("""---""")    
