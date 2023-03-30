@@ -8,7 +8,13 @@ from uptrain.core.classes.distances import AbstractDistance
 class NormRatio(AbstractDistance):
     """Class that computes the normalized ratio between base and reference vectors."""
 
-    NORM_MIN = 1e-6
+    def __init__(self, norm_min: float = 1e-6):
+        self.norm_min = norm_min
+
+    def calculate_norm(self, vector) -> float:
+        if len(vector.shape) > 1:
+            return np.linalg.norm(vector, axis=1)
+        return np.abs(vector)
 
     def compute_distance(
         self, base: Union[List, np.ndarray], reference: Union[List, np.ndarray]
@@ -31,13 +37,9 @@ class NormRatio(AbstractDistance):
         base = np.array(base)
         reference = np.array(reference)
 
-        if len(base.shape) > 1:
-            base_norm = np.linalg.norm(base, axis=1)
-        else:
-            base_norm = np.abs(base)
-        if len(reference.shape) > 1:
-            ref_norm = np.linalg.norm(reference, axis=1)
-        else:
-            ref_norm = np.abs(reference)
+        self.check_compatibility(base, reference)
 
-        return base_norm / np.maximum(ref_norm, self.NORM_MIN)
+        base_norm = self.calculate_norm(base)
+        ref_norm = self.calculate_norm(reference)
+
+        return base_norm / np.maximum(ref_norm, self.norm_min)
