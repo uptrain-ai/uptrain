@@ -1,30 +1,30 @@
 # Fine-tuning Language Models with UpTrain: A Simple Guide to Enhancing Models for Custom Use-cases
 
-<img style="float: left;" src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Google_Colaboratory_SVG_Logo.svg/1600px-Google_Colaboratory_SVG_Logo.svg.png?20221103151432" width="150"/> <h1>Run the example on Google Colab <a href="https://colab.research.google.com/drive/1GEYff6lHbSOFbDbPaO5F4FL742TQZhbm?usp=sharing">here</a>.</h1> 
+<h2>Run the example on Google Colab <a href="https://colab.research.google.com/drive/1GEYff6lHbSOFbDbPaO5F4FL742TQZhbm?usp=sharing">here</a>.</h1> 
 
 The era of large language models (LLMs) taking the world by storm has come and gone. Today, the debate between proponents of bigger models and smaller models has intensified. While the debate continues, one thing is clear: not everyone needs to run large models for their specific use-cases. In such situations, it's more practical to collect high-quality datasets to fine-tune smaller models for the task at hand.
 
 
 
 ## Enhancing a Conversation Summarization Model with UpTrain
-In this blog post, we'll walk you through the process of collecting a dataset to fine-tune a model that can summarize human conversations. The model we're working with is based on the facebook/bart-large-xsum model, which is already fine-tuned on the SAMSum dataset, a collection of conversations and their summaries. This model is one of the best open-source models for conversation summarization.
+In this blog post, we'll walk you through a tutorial to collect a dataset to fine-tune a model that can summarize human conversations. The model we're working with is based on the `facebook/bart-large-xsum model`, which is already fine-tuned on the SAMSum dataset, a collection of conversations and their summaries. This model is one of the best open-source models for conversation summarization.
 
 Our goal is to further improve this model so that it performs better on a similar dataset called DialogSum, which also contains conversations and their summaries. To do this, we'll use UpTrain, a powerful tool for creating fine-tuning datasets.
 
 ## The Process
-The process of collecting a fine-tuning dataset involves several steps:
+In this blog, the process of collecting a fine-tuning dataset involves several steps:
 
 1. Identifying edge cases (situations where the model doesn't perform well)
 2. Building a custom monitor (a tool that identifies specific issues in the model's performance)
 3. Finding points of data drift (changes in the model's performance over time)
-4. Identifying clusters of low performance
+4. Identifying clusters around low performance data-points
 5. Visualizing the model's performance using special techniques
 
 ## Catching Edge-cases for Finetuning the Model Later
-The first step in fine-tuning the model is to analyze its performance and identify situations where it doesn't perform well so catch appropriate edge-cases.
+The first step in fine-tuning the model is to analyze its performance and identify situations where it doesn't perform well to catch appropriate edge-cases.
 
 #### Edge Case Type 1
-Our first observation is that the model has trouble summarizing very long conversations, often producing incomplete summaries. 
+Our first observation is that the model has trouble summarizing very long conversations, often producing incomplete summaries. Some examples of these incomplete summaries are below.
 
 ```
 "Benjamin, Elliot, Daniel and Hilary are going to have lunch with French"
@@ -36,14 +36,29 @@ Our first observation is that the model has trouble summarizing very long conver
 
 We used the above information to define edge cases.
 To collect a dataset that can help the model improve in these edge cases, we need to find conversations that are longer than a certain threshold. 
-Next, we generated a histogram of length of input dialogues on the training dataset (i.e., SAMSum train). From here, we noted that a length of 1700 can be a good cut-off to collect large conversation data-points. The histogram is below.
+To find an appropriate threshold, we generated a histogram of length of input dialogues on the training dataset (i.e., SAMSum train). From here, we noted that a length of 1700 can be a good cut-off to collect large conversation data-points. The histogram is below.
 
-![png](https://uptrain-demo.s3.us-west-1.amazonaws.com/conversation_summarization/hist_num_words_samsum.png)
+<p align="center">
+<img width="550" alt="concept_drift_avg_acc" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/conversation_summarization/hist_num_words_samsum.png">
+</p>
+
+Following is how the edge-case check is defined in UpTrain. It checks if the length of the input dialogue is greater 
+than 1700 characters.
+```python
+def length_check_func(inputs, outputs, gts=None, extra_args={}):
+    this_batch_dialog = inputs['dialog']
+    return np.array([len(x) for x in this_batch_dialog]) > 1700
+
+edge_case_length = {
+    'type': uptrain.Monitor.EDGE_CASE,
+    'signal_formulae': uptrain.Signal("Length_dialog", length_check_func)
+} 
+```
 
 ## Edge Case Type 2
 Next, we will discuss another type of edge case that affects the performance of our language model. In this case, the model directly copies one or two sentences from the input conversation, especially when there's a negation involved. This can lead to the generation of summaries that are not accurate or do not capture the true essence of the conversation.
 
-For example:
+For example, the output summary of the model in the following cases is not appropriate:
 ```
 Input:
 Janice: my son has been asking me to get him a hamster for his birthday. Janice: Should I? Martina: NO! NO! NO! NO! NO! Martina: I got one for my son and it stank up the whole house. Martina: So don't do it!!!
@@ -54,27 +69,34 @@ Person1: Hello, I'm looking for a shop that sells inexpensive cashmere sweaters.
 Output: Person1 is looking for a shop that sells inexpensive cashmere sweaters.
 ```
 
-In order to address this edge case, we define two functions: rogueL_check_func and negation_func.
+In order to address this edge case, we define two functions: `rogueL_check_func` and `negation_func`.
 
-The rogueL_check_func function checks whether sentences from the input are copied directly using the Rouge-L metric. This metric calculates the longest common subsequence of characters in the input and output texts.
+The `rogueL_check_func` function checks whether sentences from the input are copied directly using the Rouge-L metric. This metric calculates the longest common subsequence of characters in the input and output texts.
 
-The negation_func function, on the other hand, checks if there's a negation in the input by searching for common negation words such as "no," "not," "can't," "couldn't," "won't," "didn't," and "don't."
+The `negation_func` function, on the other hand, checks if there's a negation in the input by searching for common negation words such as "no," "not," "can't," "couldn't," "won't," "didn't," and "don't."
 
-Finally, we combine these two functions to create an edge case definition called edge_case_negation. This definition will help us identify and collect data points where the model directly copies sentences and where a negation is present in the input.
+Finally, we combine these two functions to create an edge case definition called `edge_case_negation`. This definition will help us identify and collect data points where the model directly copies sentences and where a negation is present in the input.
 
 By identifying and addressing these edge cases, we can further improve the performance of our language model, making it more accurate and reliable in generating summaries of conversations.
 
 ## Custom Monitor for Vocabulary Coverage: Ensuring High-Quality Summarization
 In this section, we will discuss how to create a custom monitor to check the vocabulary coverage of the new dataset (DialogSum) on the old dataset (SAMSum). By evaluating the vocabulary coverage, we can determine whether there is a significant shift in the vocabulary used between the two datasets. This will help us understand how well the model can generalize and produce accurate summaries for different datasets.
 
-#### Defining the Training Vocabulary
-First, we define a function called `clean_string` that removes punctuation and other unwanted characters from the text. Then, we use this function to create a clean version of the text from the SAMSum dataset. After that, we define the training vocabulary using Python's `Counter` to count the occurrences of each word in the cleaned text.
-
 #### Creating a Custom Monitor
 To create a custom monitor, we need to define two functions:
 
 1. `vocab_init`: Initializes the state of the monitor, which includes the training vocabulary and a counter for out-of-vocab words.
 2. `vocab_drift`: Checks the vocabulary coverage of the production dataset in the training dataset, updates the out-of-vocab words counter, and logs the results to the UpTrain dashboard.
+
+The following is how the custom monitor is defined in UpTrain.
+```python
+custom_monitor_check = {
+    'type': uptrain.Monitor.CUSTOM_MONITOR,
+    'initialize_func': vocab_init,
+    'check_func': vocab_drift,
+    'need_gt': False,
+}
+```
 
 By using this custom monitor, we can analyze the vocabulary coverage of our model and identify any vocabulary drift that might be affecting the model's performance. This allows us to make the necessary adjustments to improve the accuracy and reliability of our language model in generating summaries for various datasets.
 
@@ -96,11 +118,11 @@ framework = uptrain.Framework(cfg_dict=config)
 With the UpTrain framework set up, we can now analyze our model's performance in production and log the data to the UpTrain dashboard.
 
 #### Vocabulary Coverage
-Using the UpTrain dashboard, we can visualize the vocabulary coverage of our model on the production data. The coverage starts at around 98% for the SAMSum test dataset but decreases to about 95% for the DialogSum dataset.
+Using the UpTrain dashboard, we can visualize the vocabulary coverage of our model on the production data. The coverage starts at around 98% for the SAMSum test dataset but decreases to about 95% for the DialogSum dataset (that is, after ~800 SAMSum test points are logged).
 
-<img width="550" alt="concept_drift_avg_acc" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/conversation_summarization/vocab_coverage.gif">
+<img width="550" alt="hist_num_characters_samsum" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/conversation_summarization/vocab_coverage.gif">
 
-By inspecting the collected edge cases, we can confirm that our edge case detector is effectively identifying the appropriate cases.
+By inspecting the collected edge cases, we can confirm that our edge case detector is effectively identifying the appropriate cases and collects 554 edge-cases of the 13200 data-points logged into the framework.
 
 #### Out-of-Vocabulary Words
 We can also examine the out-of-vocabulary words to gain insights into the differences between the datasets. For example, a significant number of out-of-vocabulary words are related to Asia, such as "yuan", "li", "wang", "taiwan", "zhang", "liu", "chinas", "sichuan", "singapore", and others. This indicates that many conversations in the DialogSum dataset focus on the Asia region.
@@ -143,8 +165,9 @@ We'll also use a visualization technique called UMAP to see how different datase
 
 By detecting data drift and analyzing our model's performance, we can better understand where our model might struggle and take steps to improve its accuracy for a wide range of topics and regions.
 
-
-![](https://uptrain-demo.s3.us-west-1.amazonaws.com/conversation_summarization/umap_conv_summ.png)
+<p align="center">
+<img width="700" alt="concept_drift_avg_acc" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/conversation_summarization/umap_conv_summ.png">
+</p>
 
 
 
