@@ -120,14 +120,16 @@ With the UpTrain framework set up, we can now analyze our model's performance in
 #### Vocabulary Coverage
 Using the UpTrain dashboard, we can visualize the vocabulary coverage of our model on the production data. The coverage starts at around 98% for the SAMSum test dataset but decreases to about 95% for the DialogSum dataset (that is, after ~800 SAMSum test points are logged).
 
+<p align="center">
 <img width="550" alt="hist_num_characters_samsum" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/conversation_summarization/vocab_coverage.gif">
+</p>
 
 By inspecting the collected edge cases, we can confirm that our edge case detector is effectively identifying the appropriate cases and collects 554 edge-cases of the 13200 data-points logged into the framework.
 
 #### Out-of-Vocabulary Words
 We can also examine the out-of-vocabulary words to gain insights into the differences between the datasets. For example, a significant number of out-of-vocabulary words are related to Asia, such as "yuan", "li", "wang", "taiwan", "zhang", "liu", "chinas", "sichuan", "singapore", and others. This indicates that many conversations in the DialogSum dataset focus on the Asia region.
 
-By understanding the out-of-vocabulary words and their context, we can take steps to improve our model's performance on specific topics or regions, ensuring it generates accurate and relevant summaries for various datasets.
+By understanding the out-of-vocabulary words and their context, we can take steps to improve our model's performance on specific topics or regions, ensuring it generates accurate and relevant summaries for various datasets, as shown next.
 
 ## Identifying Edge Cases with Asia-related Words
 
@@ -152,18 +154,14 @@ edge_case_asian_word = {
 ## Detecting Data Drift
 Data drift is when the data we use in real life (production) differs from the data we used to train our model. We want to detect these changes and understand how they might affect our model's performance.
 
-We'll now focus on detecting data drift by identifying points where sentence BERT embeddings from the DialogSum dataset differ significantly from the reference dataset (SAMSum training).
-
-We'll first define helper functions to generate and save a reference dataset from the SAMSum training dataset. This reference dataset will be used by the UpTrain framework to detect drift, apply dimensionality reduction, and compare visualizations.
+We'll now focus on detecting data drift by identifying points where sentence BERT embeddings from the DialogSum dataset differ significantly from the reference dataset (SAMSum training). This reference dataset will be used by the UpTrain framework to detect drift, apply dimensionality reduction, and compare visualizations.
 
 Next, we define a performance metric: Rogue-L similarity. You can choose any metric relevant to your use case. We'll select data points with Rogue-L scores equal to 0.0 as outliers. Our objective is to find data-points that lie around these outliers because they are more likely to perform worse (and as we show later, they do!). 
 
-To do this, we'll use a technique called BERT embeddings to represent our text data. We'll compare these embeddings from the DialogSum dataset to the ones from our reference dataset (SAMSum training).
+To do this, we'll use a technique called sentence BERT embeddings to represent our text data. We'll compare these embeddings from the DialogSum dataset to the ones from our reference dataset (SAMSum training).
 
 #### Analyzing Performance and Visualizing with UMAP
 We'll also use a visualization technique called UMAP to see how different datasets are related in terms of content. The visualization shows that while the reference dataset and the SAMSum test dataset are close in the UMAP space, the DialogSum dataset is quite different.
-
-By detecting data drift and analyzing our model's performance, we can better understand where our model might struggle and take steps to improve its accuracy for a wide range of topics and regions.
 
 <p align="center">
 <img width="700" alt="concept_drift_avg_acc" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/conversation_summarization/umap_conv_summ.png">
