@@ -3,7 +3,9 @@ title: Custom
 description: Creating and using custom measurables in UpTrain
 ---
 
-In addition to the pre-defined measurables, you can also create custom measurables to track any metric you want. 
+UpTrain provides pre-defined measurables to track the performance of your model during training. However, there might be instances where you need to monitor a specific metric that is not covered by the pre-defined measurables. In such cases, UpTrain allows you to create custom measurables to track any metric you want.
+
+Creating a custom measurable involves defining the metric you want to track and the corresponding code to calculate it. Once the custom measurable is created, it can be added to the UpTrain framwwork using the config dictionary. Your measurable will then be tracked during training.
 
 ## Creating a Custom Measurable
 
