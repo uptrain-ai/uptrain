@@ -3,17 +3,15 @@ title: Custom
 description: Creating and using custom measurables in UpTrain
 ---
 
-UpTrain provides pre-defined measurables to track the performance of your model during training. However, there might be instances where you need to monitor a specific metric that is not covered by the pre-defined measurables. In such cases, UpTrain allows you to create custom measurables to track any metric you want.
+UpTrain offers pre-defined metrics to monitor your model's performance during training and production. However, there might be instances where you need to monitor a specific metric that is not covered by the pre-defined measurables. In such cases, UpTrain enables you to create custom metrics to track any metric of your choice.
 
-Creating a custom measurable involves defining the metric you want to track and the corresponding code to calculate it. Once the custom measurable is created, it can be added to the UpTrain framwwork using the config dictionary. Your measurable will then be tracked during training.
+To create a custom metric, you need to define the metric you want to monitor and the corresponding code to compute it. After creating the custom metric, you can integrate it into the UpTrain framework by using the config dictionary. Your custom metric will then be tracked.
 
 ## Creating a Custom Measurable
 
-Here, we will consider the [deep dive example for measuring data drift](https://github.com/uptrain-ai/uptrain/blob/55e1003a268e297bb1ce4d2891d43017025b4b38/examples/human_orientation_classification/deepdive_examples/uptrain_data_drift_custom_measures.ipynb)  on the human orientation classification task.
+Here, we will consider the [deep dive example for measuring Data Drift](https://github.com/uptrain-ai/uptrain/blob/55e1003a268e297bb1ce4d2891d43017025b4b38/examples/human_orientation_classification/deepdive_examples/uptrain_data_drift_custom_measures.ipynb) on the human orientation classification task. We wish to monitor the body length of the human in the image. We will create a custom measurable to track this metric.
 
-We wish to monitor the body length of the human in the image. We will create a custom measurable to track this metric. 
-
-First, we will define the function that calculates the body length from the keypoints. 
+- We define the function that calculates the body length from the keypoints:
 
 ```python
 def body_length_from_kps(kps):
@@ -32,21 +30,21 @@ def body_length_signal(inputs, outputs, gts=None, extra_args={}):
     return body_lengths
 ```
 
-We will then use this function to create the custom measurable. 
+- We use this function to create the custom measurable. 
 
 ```python
 check2 = {
-    'type': uptrain.Monitor.DATA_INTEGRITY,
+    "type": uptrain.Monitor.DATA_INTEGRITY,
     "integrity_type": "greater_than",
     "threshold": 100,
     "measurable_args": {
-        'type': uptrain.MeasurableType.CUSTOM,
-        'signal_formulae': uptrain.Signal("Body Length", body_length_signal),
+        "type": uptrain.MeasurableType.CUSTOM,
+        "signal_formulae": uptrain.Signal("Body Length", body_length_signal),
     }
 }
 ```
 
-In the same way as shown in the pre-defined example, we will add our check to the  `checks` list in the `cfg` dictionary and pass it to the `Framework` class. The `Framework` class will then use this monitor to monitor the 'body_length_signal' of our model.
+In the same way as shown in the pre-defined example, we will add our check to the `checks` list in the config dictionary and initialize the `Framework` class. The class will then use the provided checks to monitor the 'body_length_signal' of our model.
 
 ```python
 checks = [check1, check2, check3]

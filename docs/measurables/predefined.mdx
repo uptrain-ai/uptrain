@@ -1,5 +1,5 @@
 ---
-title: Predefiend
+title: Predefined
 description: Pre-defined measurables available in UpTrain and how to use them
 ---
 
@@ -39,3 +39,45 @@ cfg = {
 }
 framework = uptrain.Framework(cfg_dict=cfg)
 ```
+
+## Predefined Measurables
+
+#### AccuracyMeasurable
+
+- Computes the Accuracy given predictions and ground truths. Accuracy is calculated by finding number of predictions that are equal to ground truths.
+- Accessed using `uptrain.MeasurableType.ACCURACY`.
+
+#### ConditionMeasurable
+
+- Computes the condition given predictions and ground truths. The condition can be any boolean expression that makes use of the inputs, predictions and ground truths and compares against a provided threshold value.
+- Accessed using `uptrain.MeasurableType.CONDITION_ON_INPUT` or `uptrain.MeasurableType.CONDITION_ON_PREDICTION`.
+
+#### DistanceMeasurable
+
+- Computes the distance between predictions and ground truths. The distance can be any supported distance metric. Currently, the following distance metrics are supported: `CosineDistance`, 'L2Distance', 'HammingDistance' and `NormRatio`.
+- Accessed using `uptrain.MeasurableType.DISTANCE`.
+
+#### FeatureMeasurable
+
+- Extracts features from the model. The feature could be an input feature or output feature.
+- Accessed using `uptrain.MeasurableType.INPUT_FEATURE`.
+
+#### MAEMeasurable
+
+- Computes the Mean Absolute Error (MAE) given predictions and ground truths. MAE is calculated as the mean absolute difference between the predictions and ground truths.
+- Accessed using `uptrain.MeasurableType.MAE`.
+
+#### MAPEMeasurable
+
+- Computes the Mean Absolute Percentage Error (MAPE) given predictions and ground truths. MAPE is calculated as the mean absolute percentage error between the predictions and ground truths.
+- Accessed using `uptrain.MeasurableType.MAPE`.
+
+#### RecommendationHitRateMeasurable
+
+- Computes the hit rate of recommendations given predictions and ground truths.
+- Accessed using `uptrain.MeasurableType.REC_HIT_RATE`.
+
+#### ScalarFromEmbeddingMeasurable
+
+- Extracts a scalar value from each embedding.
+- Accessed using `uptrain.MeasurableType.SCALAR_FROM_EMBEDDING`.
