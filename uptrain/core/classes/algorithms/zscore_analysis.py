@@ -15,35 +15,35 @@ class ZScoreAnalysis(DriftDetector):
         return outliers
     
 
-    def _reset(self):
-            self.reference_window = np.zeros(self.window_size, dtype=np.float32)
-            self.mean = 0.0
-            self.variance = 0.0
-            self.n = 0
-            self.drift_detected = False
+#     def _reset(self):
+#             self.reference_window = np.zeros(self.window_size, dtype=np.float32)
+#             self.mean = 0.0
+#             self.variance = 0.0
+#             self.n = 0
+#             self.drift_detected = False
 
-    def update(self, x: Union[int, float]):
-        # Update reference window
-        if self.n < self.window_size:
-            self.reference_window[self.n] = x
-        else:
-            self.reference_window[:-1] = self.reference_window[1:]
-            self.reference_window[-1] = x
+#     def update(self, x: Union[int, float]):
+#         # Update reference window
+#         if self.n < self.window_size:
+#             self.reference_window[self.n] = x
+#         else:
+#             self.reference_window[:-1] = self.reference_window[1:]
+#             self.reference_window[-1] = x
 
-        # Update statistics
-        self.n += 1
-        if self.n == self.window_size:
-            self.mean = np.mean(self.reference_window)
-            self.variance = np.var(self.reference_window)
+#         # Update statistics
+#         self.n += 1
+#         if self.n == self.window_size:
+#             self.mean = np.mean(self.reference_window)
+#             self.variance = np.var(self.reference_window)
 
-        # Compute z-score
-        if self.n > self.window_size:
-            z_score = abs((x - self.mean) / np.sqrt(self.variance))
-            if z_score > self.threshold:
-                self.drift_detected = True
-                self._reset()
+#         # Compute z-score
+#         if self.n > self.window_size:
+#             z_score = abs((x - self.mean) / np.sqrt(self.variance))
+#             if z_score > self.threshold:
+#                 self.drift_detected = True
+#                 self._reset()
 
-        return self
+#         return self
     
-rng = random.Random(42)
-detector =  ZScoreAnalysis(window_size=100, threshold=3)
+# rng = random.Random(42)
+# detector =  ZScoreAnalysis(window_size=100, threshold=3)

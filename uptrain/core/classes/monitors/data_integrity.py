@@ -29,7 +29,7 @@ class DataIntegrity(AbstractMonitor):
         elif self.integrity_type == "greater_than":
             has_issue = signal_value < self.threshold
         elif self.integrity_type == "z_score":
-            self.algo.signal_value = signal_value
+            # self.algo.signal_value = signal_value
             self.algo.threshold = self.threshold
             outliers = self.algo.get_outliers()
         self.count += len(signal_value)
