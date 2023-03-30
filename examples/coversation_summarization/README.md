@@ -1,6 +1,6 @@
 # Fine-tuning Language Models with UpTrain: A Simple Guide to Enhancing Models for Custom Use-cases
 
-<h2>Run the example on Google Colab <a href="https://colab.research.google.com/drive/1GEYff6lHbSOFbDbPaO5F4FL742TQZhbm?usp=sharing">here</a>.</h1> 
+<h2>Run the example on Google Colab <a href="https://colab.research.google.com/drive/1svJoDdbwe-jSeGuQOhtrRMhxwIqP7nMM?usp=sharing">here</a>.</h1> 
 
 The era of large language models (LLMs) taking the world by storm has come and gone. Today, the debate between proponents of bigger models and smaller models has intensified. While the debate continues, one thing is clear: not everyone needs to run large models for their specific use-cases. In such situations, it's more practical to collect high-quality datasets to fine-tune smaller models for the task at hand.
 
@@ -14,16 +14,39 @@ Our goal is to further improve this model so that it performs better on a simila
 ## The Process
 In this blog, the process of collecting a fine-tuning dataset involves several steps:
 
-1. Identifying edge cases (situations where the model doesn't perform well)
-2. Building a custom monitor (a tool that identifies specific issues in the model's performance)
-3. Finding points of data drift (changes in the model's performance over time)
-4. Identifying clusters around low performance data-points
-5. Visualizing the model's performance using special techniques
+1. Visualizing UMAP/t-SNE for low-performing clusters
+2. Finding clusters around data-points where accuracy is low
+3. Edge-case Collection (user defines the edge-case parameters based on heuristics/observations)
+4. Building Custom Monitor (that checks out-of-vocabulary cases) 
+
+Note: GPU not required to run this tutorial. <br>
+We understand that running the bart-large-xsum can be time consuming on some machines, hence, we have pre-generated the model outputs and their corresponding sentence BERT embeddings to remote for both the SAMSum and DialogSUM datasets. Due to this, running this entire script does not take too much time (e.g., it runs in 3 minutes on my Macbook Air).
+
+First, let's see (literally) what we are dealing with. We plot the sentence BERT embeddings with UMAP dimensionality reduction. We apply dimensionality reduction on 3 type of datasets: SAMSum train (aka reference dataset), SAMSum test, and DialogSum train.
+
+## Analyzing Performance and Visualizing with UMAP
+We'll also use a visualization technique called UMAP to see how different datasets are related in terms of content. Datasets marked `reference` (i.e., SAMSum training) and `samsum` (i.e., SAMSum test) are close in the UMAP space. Most point from the DialogSum dataset are further than the data on which the model was finetuned on (i.e., reference aka SAMSum train).  
+
+<p align="center">
+<img width="700" alt="concept_drift_avg_acc" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/conversation_summarization/umap_conv_summ.png">
+</p>
+
+Next, we identify poorly performing points and find clusters around them.
+
+## Defining a monitor for catching data-points close to outliers
+
+In this section, we first define a performance metric: Rogue-L similarity. You can choose any metric relevant to your use case. We'll select data points with Rogue-L scores equal to 0.0 as outliers. Our objective is to find data-points that lie around these outliers because they are more likely to perform worse (and as we show later, they do!). 
+
+To do this, we'll use a technique called sentence BERT embeddings to represent our text data. We'll compare these embeddings from the DialogSum dataset to the ones from our reference dataset (SAMSum training).
+
+**RESULT**: The overall performance (Rogue-L score) on the DialogSum dataset was 0.305. However, on the daa-points identified by the method above, the performance score dropped to 0.237.
+
+While analyzing the model outputs above, we made a few observations on cases where model does not perform well. Note that these are not statistical ways of finding edge cases but are more inspired by our intuition on dealing with the above data.
 
 ## Catching Edge-cases for Finetuning the Model Later
-The first step in fine-tuning the model is to analyze its performance and identify situations where it doesn't perform well to catch appropriate edge-cases.
+A basic step in fine-tuning the model is to analyze its performance and identify situations where it doesn't perform well to catch appropriate edge-cases. We do this by making a few observations on the model performance.
 
-#### Edge Case Type 1
+**Observation**:
 Our first observation is that the model has trouble summarizing very long conversations, often producing incomplete summaries. Some examples of these incomplete summaries are below.
 
 ```
@@ -34,13 +57,15 @@ Our first observation is that the model has trouble summarizing very long conver
 "Jen wants to break up with her boyfriend. He hasn't paid her back the"
 ```
 
-We used the above information to define edge cases.
+We used the above information to define an edge case in UpTrain.
 To collect a dataset that can help the model improve in these edge cases, we need to find conversations that are longer than a certain threshold. 
-To find an appropriate threshold, we generated a histogram of length of input dialogues on the training dataset (i.e., SAMSum train). From here, we noted that a length of 1700 can be a good cut-off to collect large conversation data-points. The histogram is below.
+To find an appropriate threshold, we generated a histogram of length of input dialogues on the training dataset (i.e., SAMSum train). From here, we noted that a length of 1700 can be a good cut-off to collect large conversation data-points. The histogram is shown below.
 
 <p align="center">
 <img width="550" alt="concept_drift_avg_acc" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/conversation_summarization/hist_num_words_samsum.png">
 </p>
+
+### Edge Case Type 1: Long dialogues
 
 Following is how the edge-case check is defined in UpTrain. It checks if the length of the input dialogue is greater 
 than 1700 characters.
@@ -55,7 +80,7 @@ edge_case_length = {
 } 
 ```
 
-## Edge Case Type 2
+**Observation**:
 Next, we will discuss another type of edge case that affects the performance of our language model. In this case, the model directly copies one or two sentences from the input conversation, especially when there's a negation involved. This can lead to the generation of summaries that are not accurate or do not capture the true essence of the conversation.
 
 For example, the output summary of the model in the following cases is not appropriate:
@@ -69,6 +94,7 @@ Person1: Hello, I'm looking for a shop that sells inexpensive cashmere sweaters.
 Output: Person1 is looking for a shop that sells inexpensive cashmere sweaters.
 ```
 
+### Edge Case Type 2: Copied sentences with negation
 In order to address this edge case, we define two functions: `rogueL_check_func` and `negation_func`.
 
 The `rogueL_check_func` function checks whether sentences from the input are copied directly using the Rouge-L metric. This metric calculates the longest common subsequence of characters in the input and output texts.
@@ -100,10 +126,9 @@ custom_monitor_check = {
 
 By using this custom monitor, we can analyze the vocabulary coverage of our model and identify any vocabulary drift that might be affecting the model's performance. This allows us to make the necessary adjustments to improve the accuracy and reliability of our language model in generating summaries for various datasets.
 
-## Defining UpTrain Config and Framework
+#### Defining UpTrain Config and Framework
 In this section, we set up the UpTrain configuration and framework to analyze our model's performance and collect the necessary data. This helps us ensure that our language model is generating accurate summaries for various datasets.
 
-#### Configuring UpTrain
 We create a configuration dictionary that includes the edge cases and custom monitor we defined earlier. Additionally, we specify the folder where the smart data will be stored.
 
 ```python
@@ -114,8 +139,6 @@ config = {
 }
 framework = uptrain.Framework(cfg_dict=config)
 ```
-## Analyzing Model Performance with UpTrain
-With the UpTrain framework set up, we can now analyze our model's performance in production and log the data to the UpTrain dashboard.
 
 #### Vocabulary Coverage
 Using the UpTrain dashboard, we can visualize the vocabulary coverage of our model on the production data. The coverage starts at around 98% for the SAMSum test dataset but decreases to about 95% for the DialogSum dataset (that is, after ~800 SAMSum test points are logged).
@@ -151,22 +174,7 @@ edge_case_asian_word = {
 }
 ```
 
-## Detecting Data Drift
-Data drift is when the data we use in real life (production) differs from the data we used to train our model. We want to detect these changes and understand how they might affect our model's performance.
-
-We'll now focus on detecting data drift by identifying points where sentence BERT embeddings from the DialogSum dataset differ significantly from the reference dataset (SAMSum training). This reference dataset will be used by the UpTrain framework to detect drift, apply dimensionality reduction, and compare visualizations.
-
-Next, we define a performance metric: Rogue-L similarity. You can choose any metric relevant to your use case. We'll select data points with Rogue-L scores equal to 0.0 as outliers. Our objective is to find data-points that lie around these outliers because they are more likely to perform worse (and as we show later, they do!). 
-
-To do this, we'll use a technique called sentence BERT embeddings to represent our text data. We'll compare these embeddings from the DialogSum dataset to the ones from our reference dataset (SAMSum training).
-
-#### Analyzing Performance and Visualizing with UMAP
-We'll also use a visualization technique called UMAP to see how different datasets are related in terms of content. The visualization shows that while the reference dataset and the SAMSum test dataset are close in the UMAP space, the DialogSum dataset is quite different.
-
-<p align="center">
-<img width="700" alt="concept_drift_avg_acc" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/conversation_summarization/umap_conv_summ.png">
-</p>
-
+Finally, we can add the above edge-case check to UpTrain config to catch all data-points with Asia-related words.
 
 
 ## Putting It All Together
