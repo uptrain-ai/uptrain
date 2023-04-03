@@ -1,0 +1,65 @@
+---
+title: Custom 
+description: Creating and using custom measurables in UpTrain
+---
+
+UpTrain offers predefined metrics to monitor your model's performance during training and production. However, there might be instances where you need to monitor a specific metric that is not covered by the predefined measurables. In such cases, UpTrain enables you to create custom metrics to track any metric of your choice.
+
+To create a custom metric, you need to define the metric you want to monitor and the corresponding code to compute it. After creating the custom metric, you can integrate it into the UpTrain framework by using the config dictionary. Your custom metric will then be tracked.
+
+## Creating a Custom Measurable
+
+Here, we will consider the [deep dive example for measuring Data Drift](https://github.com/uptrain-ai/uptrain/blob/55e1003a268e297bb1ce4d2891d43017025b4b38/examples/human_orientation_classification/deepdive_examples/uptrain_data_drift_custom_measures.ipynb) on the human orientation classification task. We wish to monitor the body length of the human in the image. We will create a custom measurable to track this metric.
+
+- We define the function that calculates the body length from the keypoints:
+
+```python
+def body_length_from_kps(kps):
+    head_mean_point = np.sum(kps[0:5, 0:2], axis=0) / 5
+    legs_mean_point = np.sum(kps[11:17, 0:2], axis=0) / 6
+    body_length_horizontal = max(0.01, abs(head_mean_point[0] - legs_mean_point[0]))
+    body_length_vertical = max(0.01, abs(head_mean_point[1] - legs_mean_point[1]))
+    return max(body_length_horizontal, body_length_vertical)
+
+def body_length_signal(inputs, outputs, gts=None, extra_args={}):
+    body_lengths = []
+    for input in inputs["kps"]:
+        kps = np.reshape(np.array(input), (17, 2))
+        body_length = body_length_from_kps(kps)
+        body_lengths.append(body_length)
+    return body_lengths
+```
+
+- We use this function to create the custom measurable. 
+
+```python
+check2 = {
+    "type": uptrain.Monitor.DATA_INTEGRITY,
+    "integrity_type": "greater_than",
+    "threshold": 100,
+    "measurable_args": {
+        "type": uptrain.MeasurableType.CUSTOM,
+        "signal_formulae": uptrain.Signal("Body Length", body_length_signal),
+    }
+}
+```
+
+- We add our check to the `checks` list in the config dictionary and initialize the `Framework` class. The class will then use the provided checks to monitor the 'body_length_signal' of our model.
+
+```python
+checks = [check1, check2, check3]
+
+cfg = {
+    "checks": checks, 
+    "training_args": training_args,
+    "evaluation_args": evaluation_args,
+
+    # Retrain when 200 datapoints are collected in the retraining dataset
+    "retrain_after": 200,
+    
+    # A local folder to store the retraining dataset
+    "retraining_folder": "uptrain_smart_data_data_drift",
+}
+
+framework = uptrain.Framework(cfg)
+```

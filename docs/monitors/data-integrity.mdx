@@ -1,0 +1,46 @@
+---
+title: Data Integrity
+description: Define checks for data integrity in UpTrain
+---
+
+Data integrity is a crucial aspect of any machine learning model. UpTrain provides several predefined monitors to help ensure the data integrity of your model. Data integrity checks can help ensure that the data used by the model is correct, complete, and of good quality. This is especially important in scenarios where data quality issues could have severe consequences, such as in medical or financial applications.
+
+The Data Integrity Monitor in UpTrain checks for issues such as missing or corrupted data, incorrect data types, and outliers. It takes as input the dataset used by the model and performs checks to identify potential issues. Following is an example of a data integrity check taken from the [human orientation classification](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/run.ipynb) example:
+
+```python
+data_integrity_checks =
+[
+    {
+        'type': uptrain.Anomaly.DATA_INTEGRITY,
+        'measurable_args': {
+            'type': uptrain.MeasurableType.INPUT_FEATURE,
+            'feature_name': 'kps'
+        },
+        'integrity_type': 'non_null'
+    },
+    {
+        'type': uptrain.Anomaly.DATA_INTEGRITY,
+        'measurable_args': {
+            'type': uptrain.MeasurableType.CUSTOM,
+            'signal_formulae': uptrain.Signal("body_length", body_length_signal),
+        },
+        "integrity_type": "greater_than",
+        "threshold": 50
+    },
+]
+```
+
+Here, we have defined two data integrity checks on our production data:
+
+1. Check if the input feature named 'kps' is not null.
+2. Check if human body length (a custom user-defined metric) is greater than 50.
+
+The Data Integrity Monitor can include several metrics to detect data integrity issues, for example, the number of missing values, the percentage of null values, and the data variance. If any of these metrics exceed the threshold defined by the user, the monitor can raise an alert.
+
+UpTrain also provides the ability to define custom data integrity monitors based on specific use cases. This can be especially useful when dealing with data from unique or proprietary sources.
+
+To define a custom data integrity monitor, we can extend the `AbstractMonitor` class and implement the three required methods (`check`, `is_data_interesting`, and `need_ground_truth`) to perform the necessary checks on your data. For example, you might implement a custom monitor to check for duplicates in a dataset or to ensure that certain fields are present and correctly formatted.
+
+Additionally, we are in the process of adding automatic data-outlier detection using methods such as boxplots and Z-score analysis (check out issues [#100](https://github.com/uptrain-ai/uptrain/issues/100) and [#101](https://github.com/uptrain-ai/uptrain/issues/101), respectively). If any data point falls outside of a certain range, it is flagged as an outlier.
+
+By monitoring data integrity, you can help ensure that your machine learning model is working with high-quality data, which can lead to more accurate results and better decision-making.

@@ -1,0 +1,21 @@
+---
+title: Deep Dive Examples
+description: Quickly explore the features of UpTrain in more detail
+---
+
+The examples in the folder [deepdive_examples](https://github.com/uptrain-ai/uptrain/tree/main/examples/1_orientation_classification/deepdive_examples) somewhat exhaustively explore the features of the UpTrain model monitoring and refinement tool. If you haven't already, we recommend you try out the [get_started](https://github.com/uptrain-ai/uptrain/blob/main/examples/1_orientation_classification/get_started.ipynb) example to understand the basic UpTrain framework before diving deep into more features.
+
+1. **Edge-case Detection:** First, let's start with the uptrain_edge_case examples. for this case, we have three files for the three popular machine learning frameworks: PyTorch, Tensorflow, and scikit-learn. UpTrain easily integrates with all these ML frameworks to provide observability and refinement to production ML models. \
+\
+Recall from our [get_started](https://github.com/uptrain-ai/uptrain/blob/main/examples/1_orientation_classification/get_started.ipynb) example where we monitored the model for any data drifts, we observed that the model was not performing well when the person was in a push-up position. In this example, we specifically define the edge-case signals to be push-up signal, and actively catch them to include in our smart dataset for retraining our model later. This significantly improves the performance of our model after retraining; for example, after retraining, the accuracy of the model increases from 90.0% to 98.5% when using PyTorch. 
+
+2. **Concept Drift Detection:** [Concept drift](https://en.wikipedia.org/wiki/Concept_drift) occurs when the model no longer predicts the target variable with expected accuracy. In the example [uptrain_concept_drift](https://github.com/uptrain-ai/uptrain/blob/main/examples/1_orientation_classification/deepdive_examples/uptrain_concept_drift.ipynb), we monitor the performance of our orientation classification model by measuring the concept drift using the popular [Drift Detection Method](https://riverml.xyz/dev/api/drift/DDM/). 
+
+3. **Verifying Data Integrity:** UpTrain can further be used to identify the integrity of data the ML model sees in production. This is helpful, for example, when the predictions of the model shouldn't be trusted since they were produced on garbage data. In the example [uptrain_data_integrity](https://github.com/uptrain-ai/uptrain/blob/main/examples/1_orientation_classification/deepdive_examples/uptrain_data_integrity.ipynb), we define two checks on data integrity:\
+\
+a) Check if the input features are not null. \
+b) Check if body length (a custom-defined metric) is greater than 50.
+
+4. **Data Drift with Custom Measures:** In the [get_started](https://github.com/uptrain-ai/uptrain/blob/main/examples/1_orientation_classification/get_started.ipynb) example, we saw how we could use UpTrain to identify distribution shifts in the input data. In the example [uptrain_data_drift_custom_measures](https://github.com/uptrain-ai/uptrain/blob/main/examples/1_orientation_classification/deepdive_examples/uptrain_data_drift_custom_measures.ipynb), we go a step further and define checks on data drift on some individual features as well as on a (user-defined) function of them. 
+
+5. **Hands-off model monitoring and refinement with UpTrain:** Finally, in [uptrain_check_all](https://github.com/uptrain-ai/uptrain/blob/main/examples/1_orientation_classification/deepdive_examples/uptrain_check_all.ipynb), we apply all the aforementioned monitors to our orientation classification model in one place for hassle-free model observability and refinement.

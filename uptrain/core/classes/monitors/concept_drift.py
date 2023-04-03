@@ -9,7 +9,6 @@ from uptrain.constants import Monitor
 
 
 class ConceptDrift(AbstractMonitor):
-    dashboard_name = "concept_drift_acc"
     monitor_type = Monitor.CONCEPT_DRIFT
 
     def base_init(self, fw, check):
@@ -23,6 +22,8 @@ class ConceptDrift(AbstractMonitor):
         self.drift_alerted = False
         self.algorithm = check["algorithm"]
         self.counter = 0
+        self.dashboard_name = f"concept_drift_acc"
+        self.plot_name = f"avg_accuracy_{self.measurable.col_name()}"
 
         if self.algorithm == DataDriftAlgo.DDM:
             warm_start = check.get("warm_start", 500)
@@ -60,7 +61,7 @@ class ConceptDrift(AbstractMonitor):
                 self.acc_arr
             )
             self.log_handler.add_scalars(
-                "avg_accuracy",
+                self.plot_name,
                 {"y_avg_accuracy": self.avg_acc},
                 len(self.acc_arr),
                 self.dashboard_name,

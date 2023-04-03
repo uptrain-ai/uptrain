@@ -1,0 +1,83 @@
+---
+title: Predefined
+description: Predefined measurables available in UpTrain and how to use them
+---
+
+UpTrain provides a set of predefined measurables that can be used to track your model's performance. The following predefined measurables are currently available:
+
+- **Accuracy:** Measures how often a model's predictions are correct.
+- **Condition:** Allows you to set a boolean comparison condition for the model's prediction.
+- **Distance:** Measures the distance between predicted and actual values.
+- **Feature:** Extracts features from the model.
+- **Recommendation Hit Rate:** Measures the hit rate of a model's recommendation.
+- **Scalar from Embedding:** Extracts a scalar value from each embedding.
+
+## How to use the predefined measurables
+
+We will explain how to use predefined measurables using snippets from our [Ride time estimation example](https://github.com/uptrain-ai/uptrain/blob/220d0c3df8316948b6e958323eb1f2efd31aff0a/examples/ride_time_estimation/run.ipynb).
+
+First, we need to create monitors using our predefined measurables. For example, to monitor the Mean Absolute Error (MAE) of our model, we can create a monitor object as follows:
+
+```python
+# To monitor MAE
+mae_monitor = {       
+    "type": uptrain.Monitor.ACCURACY,
+    "measurable_args": {
+        'type': uptrain.MeasurableType.MAE,
+    },
+}
+```
+
+Here, the `uptrain.Monitor` class is used to define the type of monitoring to be performed, and the `measurable_args` argument is used to specify the type of measurable to be used for monitoring.
+
+Now, we can add this monitor to our `checks` list in the `cfg` dictionary and pass it to the `Framework` class. The `Framework` class will then use this monitor to monitor the MAE of our model.
+
+```python
+cfg = {
+    "checks": [mae_monitor, mape_monitor, data_integrity_monitor, shap_visual],
+    "logging_args": {"st_logging": True},
+}
+framework = uptrain.Framework(cfg_dict=cfg)
+```
+
+## Predefined Measurables
+
+#### AccuracyMeasurable
+
+- Computes the Accuracy given predictions and ground truths. Accuracy is calculated by finding number of predictions that are equal to ground truths.
+- Accessed using `uptrain.MeasurableType.ACCURACY`.
+
+#### ConditionMeasurable
+
+- Computes the condition given predictions and ground truths. The condition can be any boolean expression that makes use of the inputs, predictions and ground truths and compares against a provided threshold value.
+- Accessed using `uptrain.MeasurableType.CONDITION_ON_INPUT` or `uptrain.MeasurableType.CONDITION_ON_PREDICTION`.
+
+#### DistanceMeasurable
+
+- Computes the distance between predictions and ground truths. The distance can be any supported distance metric. Currently, the following distance metrics are supported: `CosineDistance`, 'L2Distance', 'HammingDistance' and `NormRatio`.
+- Accessed using `uptrain.MeasurableType.DISTANCE`.
+
+#### FeatureMeasurable
+
+- Extracts features from the model. The feature could be an input feature or output feature.
+- Accessed using `uptrain.MeasurableType.INPUT_FEATURE`.
+
+#### MAEMeasurable
+
+- Computes the Mean Absolute Error (MAE) given predictions and ground truths. MAE is calculated as the mean absolute difference between the predictions and ground truths.
+- Accessed using `uptrain.MeasurableType.MAE`.
+
+#### MAPEMeasurable
+
+- Computes the Mean Absolute Percentage Error (MAPE) given predictions and ground truths. MAPE is calculated as the mean absolute percentage error between the predictions and ground truths.
+- Accessed using `uptrain.MeasurableType.MAPE`.
+
+#### RecommendationHitRateMeasurable
+
+- Computes the hit rate of recommendations given predictions and ground truths.
+- Accessed using `uptrain.MeasurableType.REC_HIT_RATE`.
+
+#### ScalarFromEmbeddingMeasurable
+
+- Extracts a scalar value from each embedding.
+- Accessed using `uptrain.MeasurableType.SCALAR_FROM_EMBEDDING`.

@@ -1,0 +1,115 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "UpTrain",
+  "logo": {
+    "dark": "/logo/dark.png",
+    "light": "/logo/light.png"
+  },
+  "favicon": "/favicon.png",
+  "colors": {
+    "primary": "#6D2992",
+    "light": "#C732FA",
+    "dark": "#9015E3",
+    "background": {
+      "dark": "#121212"
+    },
+    "anchors": {
+      "from": "#4d0076",
+      "to": "#b33eaf"
+    }
+  },
+  "backgroundImage": "/images/background.png",
+  "topbarCtaButton": {
+    "type": "github",
+    "url": "https://github.com/uptrain-ai/uptrain"
+  },
+  "anchors": [
+    {
+      "name": "Changelog",
+      "icon": "list",
+      "url": "https://github.com/uptrain-ai/uptrain/releases"
+    },
+    {
+      "name": "Blog",
+      "icon": "newspaper",
+      "url": "https://uptrain.ai/blog"
+    },
+    {
+      "name": "Contributing",
+      "icon": "code",
+      "url": "contributing"
+    },
+    {
+      "name": "Community",
+      "icon": "discord",
+      "url": "https://discord.gg/zYXDMktp9P"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": [
+        "getting-started/introduction", 
+        "getting-started/quickstart", 
+        "getting-started/key-features"
+      ]
+    },
+    {
+      "group": "Monitors",
+      "pages": [
+        "monitors/concept-drift",
+        "monitors/data-drift",
+        "monitors/data-integrity",
+        "monitors/edge-case-detection",
+        "monitors/model-bias",
+        "monitors/custom-monitors"
+      ]
+    },
+    {
+      "group": "Measurables",
+      "pages": [
+        "measurables/overview",
+        "measurables/predefined",
+        "measurables/custom"
+      ]
+    },
+    {
+      "group": "Visuals",
+      "pages": [
+        "visuals/shap",
+        "visuals/umap",
+        "visuals/tsne"
+      ]
+    },
+    {
+      "group": "Statistics",
+      "pages": [
+        "statistics/distances",
+        "statistics/convergence-analysis"
+      ]
+    },
+    {
+      "group": "Examples",
+      "pages": [
+        "examples/text-summarization",
+        "examples/fraud-detection",
+        "examples/human-orientation-classification",
+        "examples/deep-dive-examples",
+        "examples/shopping-cart-recommendation",
+        "examples/ride-time-estimation",
+        "examples/finetuning-llm"
+      ]
+    },
+    {
+      "group": "Contributing",
+      "pages": [
+        "contributing/development"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "twitter": "https://twitter.com/UpTrainAI/",
+    "github": "https://github.com/uptrain-ai/uptrain/",
+    "linkedin": "https://www.linkedin.com/company/uptrain-ai/"
+  }
+}
