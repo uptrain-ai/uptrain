@@ -103,7 +103,8 @@
     {
       "group": "Contributing",
       "pages": [
-        "contributing/development"
+        "contributing/development",
+        "contributing/documentation"
       ]
     }
   ],
