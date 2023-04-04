@@ -75,8 +75,7 @@ def test_concept_drift_ddm():
                 "type": uptrain.Monitor.CONCEPT_DRIFT,
                 "algorithm": uptrain.DataDriftAlgo.DDM,
                 "measurable_args": {
-                    "type": uptrain.MeasurableType.ACCURACY,
-                    "feature_name": "data",
+                    "type": uptrain.MeasurableType.ACCURACY
                 },
                 "warm_start": 200,
                 "warn_threshold": 2.0,
