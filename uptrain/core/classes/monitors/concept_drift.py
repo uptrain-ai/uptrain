@@ -52,7 +52,7 @@ class ConceptDrift(AbstractMonitor):
             self.algo.update(acc)
 
             if self.algo.drift_detected and not self.drift_alerted:
-                alert = f"Drift detected with {self.algorithm} at time: {self.counter}"
+                alert = f"Concept Drift detected! [Algorithm: {self.algorithm}] [Time: {self.counter}] [Measurable: {self.measurable.col_name()}]"
                 print(alert)
                 self.drift_alerted = True
 
