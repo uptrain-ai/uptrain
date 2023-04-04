@@ -45,7 +45,7 @@
   </a>
 </h4>
 
-https://uptrain-demo.s3.us-west-1.amazonaws.com/full_demo.mp4
+<video src="https://uptrain-demo.s3.us-west-1.amazonaws.com/full_demo.mp4" width="100%" height="auto" controls preload></video>
 
 **Read this in other languages**: 
 <kbd>[<img title="English" alt="English language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/us.svg" width="22">](/README.md)</kbd>
