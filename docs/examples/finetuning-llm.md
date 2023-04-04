@@ -1,8 +1,3 @@
----
-title: Masked Language Modeling
-description: Fine-tuning a Large Language Model 
----
-
 **Overview:** In this example, we will see how to fine-tune a large pre-trained language model such as BERT for the task of masked language modelling. Masked language modelling involves masking a certain percentage of tokens or words in a sentence and training the model to predict the masked tokens. Fine-tuning involves further training the pre-trained model on a specific task such as sentiment analysis or question-answering by adjusting the model's parameters to fit the specific task's requirements. We will use UpTrain to filter our dataset to make our data match specific conditions as defined in the problem statement.
 
 **Why is fine-tuning needed:** Pre-trained language models, such as GPT-2 and BERT, are trained on large amounts of text data, which makes them very powerful. However, they are trained on generic tasks and may not be optimized for specific tasks. Fine-tuning the pre-trained model on a specific task, such as sentiment analysis or question-answering, allows the model to adapt to the task's specific requirements, resulting in improved performance. This makes fine-tuning essential to achieve optimal results on a specific NLP task.
