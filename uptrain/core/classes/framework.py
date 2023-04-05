@@ -45,7 +45,7 @@ class Framework:
         on collected data.
     """
 
-    def __init__(self, cfg_dict={}):
+    def __init__(self, cfg_dict):
         """Initialises the uptrain Framework.
 
         Parameters
@@ -54,19 +54,19 @@ class Framework:
             Config to initialize uptrain framework
         """
 
-        cfg = config_handler.Config(**cfg_dict)
+        # cfg = config_handler.Config(**cfg_dict)
+        cfg = cfg_dict
         self.run_background_log_consumer = cfg.run_background_log_consumer
 
         if self.run_background_log_consumer:
             self.msg_queue = SimpleQueue()
-            cfg_copy = deepcopy(cfg_dict)
+            cfg_copy = deepcopy(cfg_dict.dict())
             cfg_copy.update({"run_background_log_consumer": False})
             daemon = Thread(target=background_log_consumer_task, args=(self.msg_queue,cfg_copy,), daemon=True, name='Background Log Consumer')
             daemon.start()
         else:
             training_args = cfg.training_args
             evaluation_args = cfg.evaluation_args
-
             self.orig_training_file = training_args.orig_training_file
             self.fold_name = cfg.retraining_folder
             if os.path.exists(self.fold_name):

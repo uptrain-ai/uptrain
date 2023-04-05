@@ -30,13 +30,22 @@ class LoggingArgs(BaseModel):
     log_data: bool = True
     st_logging: bool = False
 
+class Check(BaseModel):
+    type : str = ""
+    algorithm: str = ""
+    initialize_func: callable = None
+    initialize_func: typing.Callable = None
+    check_func: typing.Callable = None
+    need_gt: bool = False
+    # model_args: callable = None
+    # feature_args: callable = None
 
 class Config(BaseModel):
     training_args: TrainingArgs = TrainingArgs()
     evaluation_args: EvaluationArgs = EvaluationArgs()
     logging_args: LoggingArgs = LoggingArgs()
     data_identifier: str = "id"
-    checks: typing.List[typing.Dict] = []
+    checks: typing.List[Check] = []
     retrain: bool = True
     retrain_after: int = 100000000000
     retraining_folder: str = "uptrain_smart_data"

@@ -26,12 +26,12 @@ class CheckManager:
         self.visuals_to_check = []
         self.fw = framework
         for check in checks:
-            if check["type"] in Monitor:
-                self.add_monitor(check)
-            if check["type"] in Statistic:
-                self.add_statistic(check)
-            if check["type"] in Visual:
-                self.add_visual(check)
+            if check.dict()["type"] in [monitor.value for monitor in Monitor]:
+                self.add_monitor(check.dict())
+            if check.dict()["type"] in [statistic.value for statistic in Statistic]:
+                self.add_statistic(check.dict())
+            if check.dict()["type"] in [visual.value for visual in Visual]:
+                self.add_visual(check.dict())
 
     def add_monitor(self, check):
         if check["type"] == Monitor.EDGE_CASE:
