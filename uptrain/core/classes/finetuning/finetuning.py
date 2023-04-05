@@ -11,6 +11,31 @@ class Finetune(AbstractCheck):
         self.epochs = check.get("epochs", 1)
         self.device = check.get("device", "cpu")
         self.dashboard_name = "Finetuning Statistics"
+        self.customLR = check.get("customLR", False)
+        self.base_lr = check.get("base_lr", 2e-5)
+    
+    def getCustomLRParms(self, model):
+        finetuned_names = [k for (k, v) in model.named_parameters() if 'post_bert' in k]
+        new_params= [v for k, v in model.named_parameters() if k in finetuned_names]
+        pretrained = [v for k, v in model.named_parameters() if k not in finetuned_names]
+        return new_params, pretrained
+
+    def getTorchOptimizer(self, model, multipleFactor):
+        baseOptimizer = self.optimizer
+        if self.customLR:
+            new_params, pretrained = self.getCustomLRParms(model)
+            optimizer_grouped_parameters = [
+                {'params': new_params, 'lr': multipleFactor * self.base_lr},
+                {'params': pretrained, 'lr': self.base_lr}
+            ]
+            optimizer = baseOptimizer(optimizer_grouped_parameters)
+            return optimizer
+        else:
+            return baseOptimizer(model.parameters(), lr=self.base_lr)
+
+                
+
+        
 
     def base_check(self, inputs, outputs, gts=None, extra_args={}):
         model = inputs['model'][0]
@@ -46,6 +71,7 @@ class Finetune(AbstractCheck):
                 a_list = a['alpha'].tolist()
                 alpha_avg = sum(a_list)/len(a_list)
 
+
                 self.log_handler.add_scalars(
                         "training_loss",
                         {"y_train_loss": tr_loss/nb_tr_examples},
@@ -59,3 +85,9 @@ class Finetune(AbstractCheck):
                         num_all_points,
                         self.dashboard_name,
                     )
+            
+            if self.customLR:
+                if a_list[0] > 8:
+                    self.optimizer = self.getTorchOptimizer(model, 5)
+                else:
+                    self.optimizer = self.getTorchOptimizer(model, 1)
