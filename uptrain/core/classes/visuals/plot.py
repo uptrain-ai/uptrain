@@ -31,6 +31,12 @@ class Plot(AbstractVisual):
                 raise Exception(
                     "Both x_feature_name and y_feature_name are None - atleast one must be not None"
                 )
+        elif self.plot == PlotType.HISTOGRAM:
+            self.feature_name = check.get("feature_name", None)
+            self._chart = self._histogram_chart
+
+            if self.feature_name is None:
+                raise Exception("feature_name is None")
         else:
             raise Exception("Plot Type is not supported")
 
@@ -60,11 +66,23 @@ class Plot(AbstractVisual):
             else inputs[self.y_feature_name]
         )
         bars = inputs["bars"]
-        data = {bar: {} for bar in bars}
+        data = {bar: {} for bar in set(bars)}
         for i in range(length):
             data[bars[i]].update({x_features[i]: y_features[i]})
         self.framework.log_handler.add_bar_graphs(
             plot_name=self.plot_name, data=data, dashboard_name=self.dashboard_name
+        )
+
+    def _histogram_chart(self, inputs, outputs, gts=None, extra_args={}) -> None:
+        # Check if the provided inputs were for the histogram chart
+        # TODO: refactor and make the checks better
+        if not (self.feature_name in inputs.keys()):
+            return
+        self.log_handler.add_histogram(
+            plot_name=self.plot_name,
+            data=inputs[self.feature_name],
+            dashboard_name=self.dashboard_name,
+            file_name=f"{self.plot_name}_{self.feature_name}",
         )
 
     def _line_chart(self, inputs, outputs, gts=None, extra_args={}) -> None:
@@ -89,11 +107,14 @@ class Plot(AbstractVisual):
             if self.y_feature_name is None
             else inputs[self.y_feature_name]
         )
+        y_feature_name = (
+            f"y_{self.y_feature_name}" if self.y_feature_name is not None else "y_value"
+        )
         for i in range(length):
             self.framework.log_handler.add_scalars(
                 plot_name=self.plot_name,
-                dictn={"y_value": y_features[i]},
+                dictn={y_feature_name: y_features[i]},
                 count=x_features[i],
                 dashboard_name=self.dashboard_name,
-                file_name=f"{self.x_feature_name}_{self.y_feature_name}",
+                file_name=f"{self.plot_name}_{self.x_feature_name}_{self.y_feature_name}",
             )
