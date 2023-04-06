@@ -28,8 +28,8 @@ class LogHandler:
         self.cfg_metadata = {}
         if len(cfg.checks) > 0:
             check = cfg.checks[0]
-            self.add_st_metadata({'model_args': check.get('model_args', None), 
-                                  'feature_args': check.get('feature_args', None)})
+            self.add_st_metadata({'model_args': check.dict().get('model_args', None), 
+                                  'feature_args': check.dict().get('feature_args', None)})
         else:
             self.add_st_metadata({'model_args': None, 'feature_args': None})
 
