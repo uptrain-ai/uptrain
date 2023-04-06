@@ -35,6 +35,7 @@ class Statistic(str, Enum):
     DISTANCE = "distance"
     DISTRIBUTION_STATS = "distribution_stats"
     CONVERGENCE_STATS = "convergence_stats"
+    FINETUNE = "finetune"
 
 
 class Visual(str, Enum):
