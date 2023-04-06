@@ -52,24 +52,38 @@ def np_arrays_to_arrow_table(arrays: list[np.ndarray], cols: list[str]) -> pa.Ta
     )
 
 
-def upsert_ids_n_values(conn: Any, tbl_name: str, ids: np.ndarray, values: np.ndarray):
+def upsert_ids_n_col_values(
+    conn: Any, tbl_name: str, ids: np.ndarray, col_values: dict[str, np.ndarray]
+):
     tbl = pa.Table.from_pydict(
         {
             "id": array_np_to_arrow(ids),
-            "value": array_np_to_arrow(values),
+            **{col: array_np_to_arrow(values) for col, values in col_values.items()},
         }
     )
     # upserts don't work for List data types, so we do it in steps
     # conn.execute("INSERT OR REPLACE INTO intermediates SELECT id, value FROM tbl")
     conn.execute(f"DELETE FROM {tbl_name} WHERE id IN (SELECT id FROM tbl)")
-    conn.execute(f"INSERT INTO {tbl_name} SELECT id, value FROM tbl")
+    str_col_names = ",".join(col_values.keys())
+    conn.execute(f"INSERT INTO {tbl_name} SELECT id, {str_col_names} FROM tbl")
 
 
-def fetch_values_for_ids(conn: Any, tbl_name: str, id_list: np.ndarray) -> dict:
-    id_tbl = pa.Table.from_pydict({"id": array_np_to_arrow(id_list)})
+def fetch_col_values_for_ids(
+    conn: Any, tbl_name: str, ids: np.ndarray, col_names: list[str]
+) -> list[dict]:
+    id_tbl = pa.Table.from_pydict({"id": array_np_to_arrow(ids)})
+    str_col_names = ",".join(col_names)
     conn.execute(
-        f"SELECT id, value FROM {tbl_name} where id IN (SELECT id FROM id_tbl)"
+        f"SELECT id, {str_col_names} FROM {tbl_name} where id IN (SELECT id FROM id_tbl)"
     )
+    
     value_tbl = conn.fetch_arrow_table()
-    _ids, _values = table_arrow_to_np_arrays(value_tbl, ["id", "value"])
-    return {_id: value for _id, value in zip(_ids, _values)}
+    if len(value_tbl) == 0:
+        return [{} for _ in col_names]
+    else:
+        output = []
+        _ids = array_arrow_to_np(value_tbl["id"])
+        for col in col_names:
+            _values = array_arrow_to_np(value_tbl[col])
+            output.append({_id: value for _id, value in zip(_ids, _values)})
+        return output

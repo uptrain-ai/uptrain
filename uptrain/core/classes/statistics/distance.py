@@ -5,9 +5,9 @@ import uuid
 import duckdb
 import numpy as np
 
-from uptrain.core.classes.helpers.arrow_utils import (
-    upsert_ids_n_values,
-    fetch_values_for_ids,
+from uptrain.ee.arrow_utils import (
+    upsert_ids_n_col_values,
+    fetch_col_values_for_ids,
 )
 
 from uptrain.core.lib.helper_funcs import extract_data_points_from_batch
@@ -39,15 +39,6 @@ class Distance(AbstractStatistic):
         self.conn.execute("CREATE TABLE ref_embs (id LONG PRIMARY KEY, value FLOAT[])")
 
     def base_check(self, inputs, outputs=None, gts=None, extra_args={}):
-        vals_all = self.measurable.compute_and_log(
-            inputs, outputs, gts=gts, extra=extra_args
-        )
-        aggregate_ids_all = self.aggregate_measurable.compute_and_log(
-            inputs, outputs, gts=gts, extra=extra_args
-        )
-        counts = self.count_measurable.compute_and_log(
-            inputs, outputs, gts=gts, extra=extra_args
-        )
         all_models = [
             x.compute_and_log(inputs, outputs, gts=gts, extra=extra_args)
             for x in self.model_measurables
@@ -57,8 +48,18 @@ class Distance(AbstractStatistic):
             for x in self.feature_measurables
         ]
 
-        # collect all valid indices first. TODO: what does "valid" mean in this context?
-        idxs = []
+        vals_all = self.measurable.compute_and_log(
+            inputs, outputs, gts=gts, extra=extra_args
+        )
+        aggregate_ids_all = self.aggregate_measurable.compute_and_log(
+            inputs, outputs, gts=gts, extra=extra_args
+        )
+        counts_all = self.count_measurable.compute_and_log(
+            inputs, outputs, gts=gts, extra=extra_args
+        )
+
+        # each batch has rows corresponding to all model values, so we filter out the ones worked on elsewhere
+        select_idxs = []
         for idx in range(len(aggregate_ids_all)):
             is_model_invalid = sum(
                 [
@@ -67,12 +68,16 @@ class Distance(AbstractStatistic):
                 ]
             )
             if not is_model_invalid:
-                idxs.append(idx)
+                select_idxs.append(idx)
+        if len(select_idxs) == 0:
+            return  # nothing for us to do here
 
-        aggregate_ids = aggregate_ids_all[idxs]
-        vals = vals_all[idxs, :]
-        ref_embs_cache = fetch_values_for_ids(
-            self.conn, "ref_embs", np.asarray(aggregate_ids)
+        # get the subset of id, counts and values we need to work with
+        aggregate_ids = aggregate_ids_all[select_idxs]
+        vals = vals_all[select_idxs, :]
+        counts = counts_all[select_idxs]
+        [ref_embs_cache] = fetch_col_values_for_ids(
+            self.conn, "ref_embs", np.asarray(aggregate_ids), ["value"]
         )
 
         # Get the reference embedding for each row in this batch.
@@ -88,50 +93,53 @@ class Distance(AbstractStatistic):
             else:
                 list_ref_vals.append(value_from_cache)
                 ref_embs_prev[key] = value_from_cache
+
         ref_vals = np.vstack(list_ref_vals)
+        if len(ref_vals.shape) == 1:
+            ref_vals = np.expand_dims(ref_vals, 0)
+        distances = dict(
+            zip(
+                self.distance_types,
+                [x.compute_distance(vals, ref_vals) for x in self.dist_classes],
+            )
+        )
 
-        if len(vals) > 0:
-            if len(ref_vals.shape) == 1:
-                ref_vals = np.expand_dims(ref_vals, 0)
-            distances = dict(
+        for idx in range(len(aggregate_ids)):
+            idx_in_original_batch = select_idxs[idx]
+            models = dict(
                 zip(
-                    self.distance_types,
-                    [x.compute_distance(vals, ref_vals) for x in self.dist_classes],
+                    ["model_" + x for x in self.model_names],
+                    [
+                        all_models[jdx][idx_in_original_batch]
+                        for jdx in range(len(self.model_names))
+                    ],
                 )
             )
-
-            for idx in range(len(aggregate_ids)):
-                models = dict(
-                    zip(
-                        ["model_" + x for x in self.model_names],
-                        [all_models[jdx][idx] for jdx in range(len(self.model_names))],
-                    )
+            features = dict(
+                zip(
+                    ["feature_" + x for x in self.feature_names],
+                    [
+                        all_features[jdx][idx_in_original_batch]
+                        for jdx in range(len(self.feature_names))
+                    ],
                 )
-                features = dict(
-                    zip(
-                        ["feature_" + x for x in self.feature_names],
-                        [
-                            all_features[jdx][idx]
-                            for jdx in range(len(self.feature_names))
-                        ],
-                    )
-                )
-                for distance_type in self.distance_types:
-                    plot_name = distance_type + "_" + str(self.reference)
-                    self.log_handler.add_scalars(
-                        self.dashboard_name + "_" + plot_name,
-                        {"y_" + distance_type: distances[distance_type][idx]},
-                        counts[idx],
-                        self.dashboard_name,
-                        features=features,
-                        models=models,
-                        file_name=str(aggregate_ids[idx]),
-                    )
-
-            # save the reference embeddings for use in the next batch
-            upsert_ids_n_values(
-                self.conn,
-                "ref_embs",
-                np.asarray(list(ref_embs_prev.keys())),
-                np.asarray(list(ref_embs_prev.values())),
             )
+            for distance_type in self.distance_types:
+                plot_name = distance_type + "_" + str(self.reference)
+                self.log_handler.add_scalars(
+                    self.dashboard_name + "_" + plot_name,
+                    {"y_" + distance_type: distances[distance_type][idx]},
+                    counts[idx],
+                    self.dashboard_name,
+                    features=features,
+                    models=models,
+                    file_name=str(aggregate_ids[idx]),
+                )
+
+        # save the reference embeddings for use in the next batch
+        upsert_ids_n_col_values(
+            self.conn,
+            "ref_embs",
+            np.asarray(list(ref_embs_prev.keys())),
+            {"value": np.asarray(list(ref_embs_prev.values()))},
+        )
