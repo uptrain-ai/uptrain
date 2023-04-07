@@ -25,19 +25,9 @@ class Convergence(AbstractStatistic):
             fw
         )
         self.count_measurable = MeasurableResolver(check["count_args"]).resolve(fw)
-        self.item_counts = {}
-        self.first_count_checkpoint = {}
         self.reference = check["reference"]
         self.distance_types = check["distance_types"]
-
         self.count_checkpoints = np.unique(np.array([0] + check["count_checkpoints"]))
-
-        self.feats_dictn = dict(
-            zip(
-                list(self.count_checkpoints), [{} for x in list(self.count_checkpoints)]
-            )
-        )
-        # ex: {0: {agg_id_0: val_0, ..}, 200: {}, 500: {}, 1000: {}, 5000: {}, 20000: {}}
 
         self.distances_dictn = dict(
             zip(
@@ -63,7 +53,7 @@ class Convergence(AbstractStatistic):
         os.makedirs(db_dir, exist_ok=True)
         self.conn = duckdb.connect(os.path.join(db_dir, str(uuid.uuid4()) + ".db"))
         self.conn.execute(
-            "CREATE TABLE ref_embs (id LONG PRIMARY KEY, value FLOAT[], count LONG);"
+            "CREATE TABLE ref_embs (id LONG PRIMARY KEY, value FLOAT[], prevCount LONG, prevCheckpoint LONG);"
         )
 
     def base_check(self, inputs, outputs, gts=None, extra_args={}):
@@ -75,17 +65,17 @@ class Convergence(AbstractStatistic):
             x.compute_and_log(inputs, outputs, gts=gts, extra=extra_args)
             for x in self.feature_measurables
         ]
-        vals_all = self.measurable.compute_and_log(
+        vals = self.measurable.compute_and_log(
             inputs, outputs, gts=gts, extra=extra_args
         )
-        aggregate_ids_all = self.aggregate_measurable.compute_and_log(
+        aggregate_ids = self.aggregate_measurable.compute_and_log(
             inputs, outputs, gts=gts, extra=extra_args
         )
-        counts_all = self.count_measurable.compute_and_log(
+        counts = self.count_measurable.compute_and_log(
             inputs, outputs, gts=gts, extra=extra_args
         )
 
-        # CHECK: unsure what these two variables are for
+        # TODO: dunno what this is for
         models = dict(
             zip(
                 ["model_" + x for x in self.model_names],
@@ -97,97 +87,76 @@ class Convergence(AbstractStatistic):
         )
         self.total_count += len(extra_args["id"])
 
-        # each batch has rows corresponding to all model values, so we filter out the ones worked on elsewhere
-        select_idxs = []
-        for idx in range(len(aggregate_ids_all)):
+        # read previous state from the cache
+        [
+            ref_embs_cache,
+            prev_count_cache,
+            prev_checkpoint_cache,
+        ] = fetch_col_values_for_ids(
+            self.conn,
+            "ref_embs",
+            np.asarray(aggregate_ids),
+            ["value", "prevCount", "prevCheckpoint"],
+        )
+
+        set_ids_to_cache = set()  # track which ids we need to update in the cache
+        for idx in range(len(aggregate_ids)):
             is_model_invalid = sum(
                 [
                     all_models[jdx][idx] not in self.allowed_model_values[jdx]
                     for jdx in range(len(self.allowed_model_values))
                 ]
             )
-            if not is_model_invalid:
-                select_idxs.append(idx)
-        if len(select_idxs) == 0:
-            return  # nothing for us to do here
+            if is_model_invalid:
+                continue
 
-        # get the subset of id, counts and values we need to work with
-        aggregate_ids = aggregate_ids_all[select_idxs]
-        vals = vals_all[select_idxs, :]
-        counts = counts_all[select_idxs]
-        [ref_embs_cache, counts_cache] = fetch_col_values_for_ids(
-            self.conn,
-            "ref_embs",
-            np.asarray(aggregate_ids_all[select_idxs]),
-            ["value", "count"],
-        )
+            active_id = aggregate_ids[idx]
+            prev_count = prev_count_cache.get(aggregate_ids[idx], None)
+            curr_count = counts[idx]
 
-        for idx in range(len(aggregate_ids)):
-            idx_in_original_batch = select_idxs[idx]
-            if aggregate_ids[idx] not in counts_cache:
-                counts_cache[aggregate_ids[idx]] = 0
-
-            this_item_count_prev = counts_cache[aggregate_ids[idx]]
-            if this_item_count_prev >= counts[idx]:
-                continue  # this row is out of order
+            # Four possible cases:
+            # 1. curr_count > max(checkpoints): we skip processing this row altogether
+            # 2. prev_count = 0: first time we see this aggregate id, so we skip processing it. Save the current state in the cache.
+            # 3. curr_count < prev_count: this row is out of order, so we skip processing it. Save the previous state in the cache.
+            # 4. max(checkpoints) >= curr_count > prev_count: we have seen this aggregate id before, so we process it. Save the current state in the cache.
+            if curr_count > self.count_checkpoints[-1]:
+                continue
+            elif prev_count is None:
+                set_ids_to_cache.add(active_id)
+                ref_embs_cache[active_id] = vals[idx]
+                prev_count_cache[active_id] = curr_count
+                for cp in reversed(self.count_checkpoints):
+                    if cp <= curr_count:
+                        prev_checkpoint_cache[active_id] = cp
+                        break
+            elif curr_count < prev_count:
+                set_ids_to_cache.add(active_id)
+                # ref_emb, count, checkpoint don't need to be updated
             else:
-                this_item_count = counts[idx]
-                counts_cache[aggregate_ids[idx]] = this_item_count
+                last_crossed_checkpoint = None
+                for cp in reversed(self.count_checkpoints):
+                    if prev_count < cp <= curr_count:
+                        last_crossed_checkpoint = cp
+                        break
 
-            crossed_checkpoint_arr = np.logical_xor(
-                (self.count_checkpoints > this_item_count),
-                (self.count_checkpoints > this_item_count_prev),
-            )
-            has_crossed_checkpoint = sum(crossed_checkpoint_arr)
-
-            if has_crossed_checkpoint:
-                crossed_checkpoint = self.count_checkpoints[
-                    np.where(crossed_checkpoint_arr == True)[0][-1]
-                ]
-
-                if aggregate_ids[idx] not in self.first_count_checkpoint:
-                    self.first_count_checkpoint.update(
-                        {aggregate_ids[idx]: crossed_checkpoint}
-                    )
-
-                this_val = extract_data_points_from_batch(vals, [idx])
-
-                self.feats_dictn[crossed_checkpoint].update(
-                    {aggregate_ids[idx]: this_val}
-                )
-                if crossed_checkpoint > self.first_count_checkpoint[aggregate_ids[idx]]:
-                    if self.reference == "running_diff":
-                        this_count_idx = np.where(
-                            self.count_checkpoints == crossed_checkpoint
-                        )[0][0]
-                        prev_count_idx = max(0, this_count_idx - 1)
-                        found_ref = False
-                        while not found_ref:
-                            ref_item_count = self.count_checkpoints[prev_count_idx]
-                            if aggregate_ids[idx] in self.feats_dictn[ref_item_count]:
-                                break
-                            prev_count_idx = max(0, prev_count_idx - 1)
-                    else:
-                        ref_item_count = self.first_count_checkpoint[aggregate_ids[idx]]
+                if (
+                    last_crossed_checkpoint is None
+                ):  # no checkpoints crossed, only need to update the running count
+                    set_ids_to_cache.add(active_id)
+                    prev_count_cache[active_id] = curr_count
+                else:
+                    ref_emb = ref_embs_cache[active_id]
+                    this_val = vals[idx]
+                    # compute the statistics
                     this_distances = dict(
                         zip(
                             self.distance_types,
                             [
-                                x.compute_distance(
-                                    this_val,
-                                    self.feats_dictn[ref_item_count][
-                                        aggregate_ids[idx]
-                                    ],
-                                )
+                                x.compute_distance(this_val, ref_emb)
                                 for x in self.dist_classes
                             ],
                         )
                     )
-                    if self.reference == "running_diff":
-                        del self.feats_dictn[ref_item_count][aggregate_ids[idx]]
-                    else:
-                        del self.feats_dictn[crossed_checkpoint][aggregate_ids[idx]]
-
                     features = dict(
                         zip(
                             ["feature_" + x for x in self.feature_names],
@@ -197,26 +166,51 @@ class Convergence(AbstractStatistic):
                             ],
                         )
                     )
-
                     for distance_key in list(this_distances.keys()):
                         plot_name = distance_key + " " + str(self.reference)
                         this_data = list(
                             np.reshape(np.array(this_distances[distance_key]), -1)
                         )
-
-                        self.distances_dictn[crossed_checkpoint][distance_key].extend(
-                            this_data
-                        )
-
+                        self.distances_dictn[last_crossed_checkpoint][
+                            distance_key
+                        ].extend(this_data)
                         self.log_handler.add_histogram(
                             plot_name,
                             this_data,
                             self.dashboard_name,
                             models=[models] * len(this_data),
                             features=[features] * len(this_data),
-                            file_name=str(crossed_checkpoint),
+                            file_name=str(last_crossed_checkpoint),
                         )
 
+                    set_ids_to_cache.add(active_id)
+                    ref_embs_cache[active_id] = (
+                        this_val if self.reference == "running_diff" else ref_emb
+                    )
+                    prev_count_cache[active_id] = curr_count
+                    prev_checkpoint_cache[active_id] = last_crossed_checkpoint
+
+        if len(set_ids_to_cache) > 0:
+            # save the current state in the cache
+            list_ids = list(set_ids_to_cache)
+            list_ref_embs, list_counts, list_checkpoints = [], [], []
+            for _id in list_ids:
+                list_ref_embs.append(ref_embs_cache[_id])
+                list_counts.append(prev_count_cache[_id])
+                list_checkpoints.append(prev_checkpoint_cache[_id])
+
+            upsert_ids_n_col_values(
+                self.conn,
+                "ref_embs",
+                np.asarray(list_ids),
+                {
+                    "value": np.asarray(list_ref_embs),
+                    "prevCount": np.asarray(list_counts),
+                    "prevCheckpoint": np.asarray(list_checkpoints),
+                },
+            )
+
+        # TODO: dunno what this is for
         if (self.total_count - self.prev_calc_at) > 50000:
             self.prev_calc_at = self.total_count
             for count in list(self.distances_dictn.keys()):

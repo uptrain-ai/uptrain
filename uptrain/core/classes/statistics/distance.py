@@ -78,11 +78,11 @@ class Distance(AbstractStatistic):
         counts = counts_all[select_idxs]
         [ref_embs_cache] = fetch_col_values_for_ids(
             self.conn, "ref_embs", np.asarray(aggregate_ids), ["value"]
-        )
+        )  # NOTE: this gives us a unique value for each id, as observed from previous batches
 
         # Get the reference embedding for each row in this batch.
-        # - for initial diff, you want the first value seen from this id - either cached or from this batch
-        # - for running diff, you want the previous value seen from this id - either cached or from this batch
+        # - for initial diff, you want the first value seen for this id - either cached or from this batch
+        # - for running diff, you want the previous value seen for this id - either cached or from this batch
         ref_embs_prev, list_ref_vals = {}, []
         for i, key in enumerate(aggregate_ids):
             value_from_cache = ref_embs_cache.get(key, vals[i])
