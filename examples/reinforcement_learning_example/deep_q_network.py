@@ -73,7 +73,7 @@ class DQNAgent(AbstractAgent):
         return int(action)
 
     def learn(self) -> None:
-        if self.memory.memory_counter < self.batch_size:
+        if self.memory.memory_counter < self.warmup_steps:
             return
 
         states, actions, rewards, new_states, terminals = map(

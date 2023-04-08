@@ -21,6 +21,7 @@ class AbstractAgent(abc.ABC):
         filename: str = "agent",
         hidden_dims: List[int] = [128, 128],
         device: str = "cpu",
+        warmup_steps: int = 100,
         **kwargs,
     ) -> None:
         self.num_actions = num_actions
@@ -36,6 +37,7 @@ class AbstractAgent(abc.ABC):
         self.filename = f"{environment}_{filename}"
         self.hidden_dims = hidden_dims
         self.device = device
+        self.warmup_steps = warmup_steps
         self.memory = ReplayBuffer(memory_size, input_dims)
 
     def store_transition(self, state, action, reward, new_state, terminal) -> None:

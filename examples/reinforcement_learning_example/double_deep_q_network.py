@@ -23,7 +23,7 @@ class DoubleDQNAgent(DQNAgent):
         self.step_count = 0
 
     def learn(self) -> None:
-        if self.memory.memory_counter < self.batch_size:
+        if self.memory.memory_counter < self.warmup_steps:
             return
         if self.step_count % self.target_update_frequency == 0:
             self.q_target_network.load_state_dict(self.q_network.state_dict())
