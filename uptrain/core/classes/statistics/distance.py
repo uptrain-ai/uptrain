@@ -1,20 +1,11 @@
-import copy
-import os
-import uuid
-
-import duckdb
 import numpy as np
-
-from uptrain.ee.arrow_utils import (
-    upsert_ids_n_col_values,
-    fetch_col_values_for_ids,
-)
 
 from uptrain.core.lib.helper_funcs import extract_data_points_from_batch
 from uptrain.core.classes.statistics import AbstractStatistic
 from uptrain.core.classes.distances import DistanceResolver
 from uptrain.core.classes.measurables import MeasurableResolver
 from uptrain.constants import Statistic
+from uptrain.ee.arrow_utils import make_cache_container
 
 
 class Distance(AbstractStatistic):
@@ -32,11 +23,9 @@ class Distance(AbstractStatistic):
         self.distance_types = check["distance_types"]
         self.dist_classes = [DistanceResolver().resolve(x) for x in self.distance_types]
 
-        # setup a duckdb database to cache interim state for aggregates
-        db_dir = os.path.join(fw.fold_name, "dbs", "distance")
-        os.makedirs(db_dir, exist_ok=True)
-        self.conn = duckdb.connect(os.path.join(db_dir, str(uuid.uuid4()) + ".db"))
-        self.conn.execute("CREATE TABLE ref_embs (id LONG PRIMARY KEY, value FLOAT[])")
+        # setup a cache to store interim state for aggregates
+        attrs_to_store = {"ref_embedding": np.ndarray}
+        self.cache = make_cache_container(fw, attrs_to_store)
 
     def base_check(self, inputs, outputs=None, gts=None, extra_args={}):
         all_models = [
@@ -76,8 +65,8 @@ class Distance(AbstractStatistic):
         aggregate_ids = aggregate_ids_all[select_idxs]
         vals = vals_all[select_idxs, :]
         counts = counts_all[select_idxs]
-        [ref_embs_cache] = fetch_col_values_for_ids(
-            self.conn, "ref_embs", np.asarray(aggregate_ids), ["value"]
+        [ref_embs_cache] = self.cache.fetch_col_values_for_ids(
+            np.asarray(aggregate_ids), ["ref_embedding"]
         )  # NOTE: this gives us a unique value for each id, as observed from previous batches
 
         # Get the reference embedding for each row in this batch.
@@ -137,9 +126,7 @@ class Distance(AbstractStatistic):
                 )
 
         # save the reference embeddings for use in the next batch
-        upsert_ids_n_col_values(
-            self.conn,
-            "ref_embs",
+        self.cache.upsert_ids_n_col_values(
             np.asarray(list(ref_embs_prev.keys())),
-            {"value": np.asarray(list(ref_embs_prev.values()))},
+            {"ref_embedding": np.asarray(list(ref_embs_prev.values()))},
         )

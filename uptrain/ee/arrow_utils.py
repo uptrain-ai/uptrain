@@ -3,8 +3,12 @@ computing aggregations.
 """
 
 from __future__ import annotations
-from typing import Any, Union
+from abc import ABC, abstractmethod
+import os
+from typing import Any, Type, Union
+import uuid
 
+import duckdb
 import numpy as np
 import pyarrow as pa
 
@@ -52,38 +56,120 @@ def np_arrays_to_arrow_table(arrays: list[np.ndarray], cols: list[str]) -> pa.Ta
     )
 
 
-def upsert_ids_n_col_values(
-    conn: Any, tbl_name: str, ids: np.ndarray, col_values: dict[str, np.ndarray]
-):
-    tbl = pa.Table.from_pydict(
-        {
-            "id": array_np_to_arrow(ids),
-            **{col: array_np_to_arrow(values) for col, values in col_values.items()},
-        }
-    )
-    # upserts don't work for List data types, so we do it in steps
-    # conn.execute("INSERT OR REPLACE INTO intermediates SELECT id, value FROM tbl")
-    conn.execute(f"DELETE FROM {tbl_name} WHERE id IN (SELECT id FROM tbl)")
-    str_col_names = ",".join(col_values.keys())
-    conn.execute(f"INSERT INTO {tbl_name} SELECT id, {str_col_names} FROM tbl")
+# -----------------------------------------------------------
+# State cache
+# -----------------------------------------------------------
 
 
-def fetch_col_values_for_ids(
-    conn: Any, tbl_name: str, ids: np.ndarray, col_names: list[str]
-) -> list[dict]:
-    id_tbl = pa.Table.from_pydict({"id": array_np_to_arrow(ids)})
-    str_col_names = ",".join(col_names)
-    conn.execute(
-        f"SELECT id, {str_col_names} FROM {tbl_name} where id IN (SELECT id FROM id_tbl)"
-    )
-    
-    value_tbl = conn.fetch_arrow_table()
-    if len(value_tbl) == 0:
-        return [{} for _ in col_names]
+class StateCache(ABC):
+    """Container to store intermediate state when computing aggregate statistics."""
+
+    def __init__(self, fw: Any, columns: dict[str, Type]):
+        pass
+
+    @abstractmethod
+    def upsert_ids_n_col_values(
+        self, ids: np.ndarray, col_values: dict[str, np.ndarray]
+    ):
+        pass
+
+    @abstractmethod
+    def fetch_col_values_for_ids(
+        self, ids: np.ndarray, col_names: list[str]
+    ) -> list[dict]:
+        pass
+
+
+def make_cache_container(fw: Any, columns: dict[str, Type]) -> StateCache:
+    """Create a state cache container for the given columns."""
+    if fw.config_obj.running_ee:
+        return DuckDBStateCache(fw, columns)
     else:
+        return DictStateCache(fw, columns)
+
+
+class DictStateCache(StateCache):
+    """A state cache that uses python dictionaries to store intermediate state."""
+
+    def __init__(self, fw: Any, columns: dict[str, Type]) -> None:
+        self.state_dicts = {}
+        for col in columns:
+            self.state_dicts[col] = {}
+
+    def upsert_ids_n_col_values(
+        self, ids: np.ndarray, col_values: dict[str, np.ndarray]
+    ) -> None:
+        for col, values in col_values.items():
+            cache = self.state_dicts[col]
+            cache.update({id: value for id, value in zip(ids, values)})
+
+    def fetch_col_values_for_ids(
+        self, ids: np.ndarray, col_names: list[str]
+    ) -> list[dict]:
         output = []
-        _ids = array_arrow_to_np(value_tbl["id"])
         for col in col_names:
-            _values = array_arrow_to_np(value_tbl[col])
-            output.append({_id: value for _id, value in zip(_ids, _values)})
+            cache = self.state_dicts[col]
+            output.append({id: cache[id] for id in ids})
         return output
+
+
+class DuckDBStateCache(StateCache):
+    """A state cache that uses DuckDB to store intermediate state."""
+
+    def __init__(self, fw: Any, columns: dict[str, Type]):
+        db_dir = os.path.join(fw.fold_name, "dbs")
+        os.makedirs(db_dir, exist_ok=True)
+        self.conn = duckdb.connect(os.path.join(db_dir, str(uuid.uuid4()) + ".db"))
+
+        # create the table
+        cols = {"id": "LONG PRIMARY KEY"}
+        for col, col_type in columns.items():
+            if col_type == np.ndarray:
+                cols[col] = "FLOAT[]"
+            elif col_type == float:
+                cols[col] = "FLOAT"
+            elif col_type == int:
+                cols[col] = "LONG"
+            elif col_type == str:
+                cols[col] = "VARCHAR"
+            else:
+                raise ValueError(f"Unsupported type {col_type}")
+        str_cols = ",".join([f"{col} {col_type}" for col, col_type in cols.items()])
+        self.conn.execute(f"CREATE TABLE store ({str_cols})")
+
+    def upsert_ids_n_col_values(
+        self, ids: np.ndarray, col_values: dict[str, np.ndarray]
+    ):
+        tbl = pa.Table.from_pydict(
+            {
+                "id": array_np_to_arrow(ids),
+                **{
+                    col: array_np_to_arrow(values) for col, values in col_values.items()
+                },
+            }
+        )
+        # upserts don't work for List data types, so we do it in steps
+        # conn.execute("INSERT OR REPLACE INTO store SELECT id, value FROM tbl")
+        self.conn.execute(f"DELETE FROM store WHERE id IN (SELECT id FROM tbl)")
+        str_col_names = ",".join(col_values.keys())
+        self.conn.execute(f"INSERT INTO store SELECT id, {str_col_names} FROM tbl")
+
+    def fetch_col_values_for_ids(
+        self, ids: np.ndarray, col_names: list[str]
+    ) -> list[dict]:
+        id_tbl = pa.Table.from_pydict({"id": array_np_to_arrow(ids)})
+        str_col_names = ",".join(col_names)
+        self.conn.execute(
+            f"SELECT id, {str_col_names} FROM store WHERE id IN (SELECT id FROM id_tbl)"
+        )
+
+        value_tbl = self.conn.fetch_arrow_table()
+        if len(value_tbl) == 0:
+            return [{} for _ in col_names]
+        else:
+            output = []
+            _ids = array_arrow_to_np(value_tbl["id"])
+            for col in col_names:
+                _values = array_arrow_to_np(value_tbl[col])
+                output.append({_id: value for _id, value in zip(_ids, _values)})
+            return output

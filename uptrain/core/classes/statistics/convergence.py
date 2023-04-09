@@ -1,8 +1,3 @@
-import copy
-import os
-import uuid
-
-import duckdb
 import numpy as np
 
 from uptrain.core.lib.helper_funcs import extract_data_points_from_batch
@@ -10,7 +5,7 @@ from uptrain.core.classes.distances import DistanceResolver
 from uptrain.core.classes.statistics import AbstractStatistic
 from uptrain.core.classes.measurables import MeasurableResolver
 from uptrain.constants import Statistic
-from uptrain.ee.arrow_utils import fetch_col_values_for_ids, upsert_ids_n_col_values
+from uptrain.ee.arrow_utils import make_cache_container
 
 # from uptrain.core.classes.algorithms import Clustering
 # from uptrain.core.lib.algorithms import estimate_earth_moving_cost
@@ -48,13 +43,9 @@ class Convergence(AbstractStatistic):
         self.total_count = 0
         self.prev_calc_at = 0
 
-        # setup a duckdb database to cache interim state for aggregates
-        db_dir = os.path.join(fw.fold_name, "dbs", "convergence")
-        os.makedirs(db_dir, exist_ok=True)
-        self.conn = duckdb.connect(os.path.join(db_dir, str(uuid.uuid4()) + ".db"))
-        self.conn.execute(
-            "CREATE TABLE ref_embs (id LONG PRIMARY KEY, value FLOAT[], prevCount LONG, prevCheckpoint LONG);"
-        )
+        # setup a cache to store interim state for aggregates
+        attrs_to_store = {"ref_embedding": np.ndarray, "prev_count": int}
+        self.cache = make_cache_container(fw, attrs_to_store)
 
     def base_check(self, inputs, outputs, gts=None, extra_args={}):
         all_models = [
@@ -91,12 +82,9 @@ class Convergence(AbstractStatistic):
         [
             ref_embs_cache,
             prev_count_cache,
-            prev_checkpoint_cache,
-        ] = fetch_col_values_for_ids(
-            self.conn,
-            "ref_embs",
+        ] = self.cache.fetch_col_values_for_ids(
             np.asarray(aggregate_ids),
-            ["value", "prevCount", "prevCheckpoint"],
+            ["ref_embedding", "prev_count"],
         )
 
         set_ids_to_cache = set()  # track which ids we need to update in the cache
@@ -115,20 +103,16 @@ class Convergence(AbstractStatistic):
             curr_count = counts[idx]
 
             # Four possible cases:
-            # 1. curr_count > max(checkpoints): we skip processing this row altogether
-            # 2. prev_count = 0: first time we see this aggregate id, so we skip processing it. Save the current state in the cache.
+            # 1. prev_count > max(checkpoints): we skip processing this row altogether since all checkpoints have been crossed.
+            # 2. prev_count = None: first time we see this aggregate id, so we skip processing it. Save the current state in the cache.
             # 3. curr_count < prev_count: this row is out of order, so we skip processing it. Save the previous state in the cache.
-            # 4. max(checkpoints) >= curr_count > prev_count: we have seen this aggregate id before, so we process it. Save the current state in the cache.
-            if curr_count > self.count_checkpoints[-1]:
-                continue
-            elif prev_count is None:
+            # 4. curr_count > prev_count: we have seen this aggregate id before, so we process it. Save the current state in the cache.
+            if prev_count is None:
                 set_ids_to_cache.add(active_id)
                 ref_embs_cache[active_id] = vals[idx]
                 prev_count_cache[active_id] = curr_count
-                for cp in reversed(self.count_checkpoints):
-                    if cp <= curr_count:
-                        prev_checkpoint_cache[active_id] = cp
-                        break
+            elif prev_count > self.count_checkpoints[-1]:
+                continue
             elif curr_count < prev_count:
                 set_ids_to_cache.add(active_id)
                 # ref_emb, count, checkpoint don't need to be updated
@@ -188,25 +172,20 @@ class Convergence(AbstractStatistic):
                         this_val if self.reference == "running_diff" else ref_emb
                     )
                     prev_count_cache[active_id] = curr_count
-                    prev_checkpoint_cache[active_id] = last_crossed_checkpoint
 
         if len(set_ids_to_cache) > 0:
             # save the current state in the cache
             list_ids = list(set_ids_to_cache)
-            list_ref_embs, list_counts, list_checkpoints = [], [], []
+            list_ref_embs, list_counts = [], []
             for _id in list_ids:
                 list_ref_embs.append(ref_embs_cache[_id])
                 list_counts.append(prev_count_cache[_id])
-                list_checkpoints.append(prev_checkpoint_cache[_id])
 
-            upsert_ids_n_col_values(
-                self.conn,
-                "ref_embs",
+            self.cache.upsert_ids_n_col_values(
                 np.asarray(list_ids),
                 {
-                    "value": np.asarray(list_ref_embs),
-                    "prevCount": np.asarray(list_counts),
-                    "prevCheckpoint": np.asarray(list_checkpoints),
+                    "ref_embedding": np.asarray(list_ref_embs),
+                    "prev_count": np.asarray(list_counts),
                 },
             )
 

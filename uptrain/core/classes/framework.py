@@ -55,6 +55,7 @@ class Framework:
         """
 
         cfg = config_handler.Config(**cfg_dict)
+        self.config_obj = cfg
         self.run_background_log_consumer = cfg.run_background_log_consumer
 
         if self.run_background_log_consumer:

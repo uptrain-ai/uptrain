@@ -1,12 +1,11 @@
 import numpy as np
-import copy
-import random
 
 from uptrain.core.lib.helper_funcs import extract_data_points_from_batch
 from uptrain.core.classes.distances import DistanceResolver
 from uptrain.core.classes.statistics import AbstractStatistic
 from uptrain.core.classes.measurables import MeasurableResolver
 from uptrain.constants import Statistic
+from uptrain.ee.arrow_utils import make_cache_container
 
 
 class Distribution(AbstractStatistic):
@@ -51,16 +50,11 @@ class Distribution(AbstractStatistic):
 
         self.dist_classes = [DistanceResolver().resolve(x) for x in self.distance_types]
 
+        # setup a cache to store interim state for aggregates
+        attrs_to_store = {"prev_count": np.ndarray}
+        self.cache = make_cache_container(fw, attrs_to_store)
+
     def base_check(self, inputs, outputs, gts=None, extra_args={}):
-        vals = self.measurable.compute_and_log(
-            inputs, outputs, gts=gts, extra=extra_args
-        )
-        aggregate_ids = self.aggregate_measurable.compute_and_log(
-            inputs, outputs, gts=gts, extra=extra_args
-        )
-        counts = self.count_measurable.compute_and_log(
-            inputs, outputs, gts=gts, extra=extra_args
-        )
         all_models = [
             x.compute_and_log(inputs, outputs, gts=gts, extra=extra_args)
             for x in self.model_measurables
@@ -74,7 +68,17 @@ class Distribution(AbstractStatistic):
                 ],
             )
         )
+        vals = self.measurable.compute_and_log(
+            inputs, outputs, gts=gts, extra=extra_args
+        )
+        aggregate_ids = self.aggregate_measurable.compute_and_log(
+            inputs, outputs, gts=gts, extra=extra_args
+        )
+        counts = self.count_measurable.compute_and_log(
+            inputs, outputs, gts=gts, extra=extra_args
+        )
 
+        # TODO: what is this for?
         models = dict(
             zip(
                 ["model_" + x for x in self.model_names],
@@ -84,6 +88,14 @@ class Distribution(AbstractStatistic):
                 ],
             )
         )
+
+        # read previous state from the cache
+        [prev_count_cache] = self.cache.fetch_col_values_for_ids(
+            np.asarray(aggregate_ids),
+            ["prev_count"],
+        )
+
+        set_ids_to_cache = set()  # track which ids we need to update in the cache
         for idx in range(len(aggregate_ids)):
             is_model_invalid = sum(
                 [
@@ -94,81 +106,36 @@ class Distribution(AbstractStatistic):
             if is_model_invalid:
                 continue
 
-            if aggregate_ids[idx] not in self.item_counts:
-                self.item_counts.update({aggregate_ids[idx]: 0})
+            active_id = aggregate_ids[idx]
+            prev_count = prev_count_cache.get(aggregate_ids[idx], None)
+            curr_count = counts[idx]
 
-            this_item_count_prev = self.item_counts[aggregate_ids[idx]]
-            if this_item_count_prev == counts[idx]:
+            # Four possible cases:
+            # 1. prev_count > max(checkpoints): we skip processing this row altogether
+            # 2. prev_count = None: first time we see this aggregate id, so we skip processing it. Save the current state in the cache.
+            # 3. curr_count < prev_count: this row is out of order, so we skip processing it. Save the previous state in the cache.
+            # 4. max(checkpoints) >= curr_count > prev_count: we have seen this aggregate id before, so we process it. Save the current state in the cache.
+            if prev_count is None:
+                set_ids_to_cache.add(active_id)
+                prev_count_cache[active_id] = curr_count
+            elif prev_count > self.count_checkpoints[-1]:
                 continue
-            self.item_counts[aggregate_ids[idx]] = counts[idx]
-            this_item_count = self.item_counts[aggregate_ids[idx]]
-
-            crossed_checkpoint_arr = np.logical_xor(
-                (self.count_checkpoints > this_item_count),
-                (self.count_checkpoints > this_item_count_prev),
-            )
-            has_crossed_checkpoint = sum(crossed_checkpoint_arr)
-
-            if has_crossed_checkpoint:
-                if aggregate_ids[idx] not in self.vals_dictn[0]:
-                    crossed_checkpoint = 0
+            elif curr_count < prev_count:
+                set_ids_to_cache.add(active_id)
+                # prev count doesn't need to be updated
+            else:
+                last_crossed_checkpoint = None
+                for cp in reversed(self.count_checkpoints):
+                    if prev_count < cp <= curr_count:
+                        last_crossed_checkpoint = cp
+                        break
+                if (
+                    last_crossed_checkpoint is None
+                ):  # no checkpoints crossed, only need to update the running count
+                    set_ids_to_cache.add(active_id)
+                    prev_count_cache[active_id] = curr_count
                 else:
-                    crossed_checkpoint = self.count_checkpoints[
-                        np.where(crossed_checkpoint_arr == True)[0][-1]
-                    ]
-
-                this_val = extract_data_points_from_batch(vals, [idx])
-
-                if aggregate_ids[idx] not in self.vals_dictn[crossed_checkpoint]:
-                    self.vals_dictn[crossed_checkpoint].update({aggregate_ids[idx]: {}})
-                self.vals_dictn[crossed_checkpoint][aggregate_ids[idx]].update(
-                    {"val": this_val}
-                )
-                self.vals_dictn[crossed_checkpoint][aggregate_ids[idx]].update(
-                    {
-                        "visual_hover_text_"
-                        + self.aggregate_measurable.col_name(): aggregate_ids[idx]
-                    }
-                )
-                for feat_name, feats in all_features.items():
-                    this_feat = extract_data_points_from_batch(feats, [idx])
-                    self.vals_dictn[crossed_checkpoint][aggregate_ids[idx]].update(
-                        {"visual_label_" + feat_name: this_feat}
-                    )
-
-                selected_ids_to_sample = random.choices(
-                    list(self.vals_dictn[crossed_checkpoint].keys()),
-                    k=min(10, len(self.vals_dictn[crossed_checkpoint].keys())),
-                )
-                for agg_i in selected_ids_to_sample:
-                    if agg_i == aggregate_ids[idx]:
-                        continue
-                    this_distances = dict(
-                        zip(
-                            self.distance_types,
-                            [
-                                x.compute_distance(
-                                    this_val,
-                                    self.vals_dictn[crossed_checkpoint][agg_i]["val"],
-                                )
-                                for x in self.dist_classes
-                            ],
-                        )
-                    )
-
-                    for distance_key in list(this_distances.keys()):
-                        plot_name = distance_key
-                        this_data = list(
-                            np.reshape(np.array(this_distances[distance_key]), -1)
-                        )
-
-                        self.log_handler.add_histogram(
-                            plot_name,
-                            this_data,
-                            self.dashboard_name,
-                            models=[models] * len(this_data),
-                            file_name=str(crossed_checkpoint),
-                        )
+                    pass  # TODO: update the histogram
 
     def get_feats_for_clustering(self, count, allowed_model_values):
         if len(self.children) > 0:
