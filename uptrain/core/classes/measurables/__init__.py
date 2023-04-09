@@ -1,4 +1,4 @@
-from .abstract import AbstractMeasurable
+from .abstract_measurable import AbstractMeasurable
 from .measurable import Measurable
 from .input_feature import InputFeatureMeasurable
 from .output_feature import OutputFeatureMeasurable
@@ -8,5 +8,5 @@ from .custom import CustomMeasurable
 from .accuracy import AccuracyMeasurable, MAEMeasurable, MAPEMeasurable
 from .scalar_from_embedding import ScalarFromEmbeddingMeasurable
 from .distance import DistanceMeasurable
-from .reccomendation_hit_rate import RecHitRateMeasurable
+from .recommendation_hit_rate import RecHitRateMeasurable
 from .measurable_resolver import MeasurableResolver
