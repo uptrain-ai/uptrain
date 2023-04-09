@@ -70,7 +70,7 @@ There are two icons on the top right corner of each page. The left one is for op
 
 
 <h4 align="center">
-<img src="docs/images/edit-tools.png" width="85%" alt="Performance" />
+<img src="https://uptrain-demo.s3.us-west-1.amazonaws.com/contributing/edit-tools.png" width="85%" alt="Performance" />
 </h4>
 
 This is convenient for small changes where you don't need to clone the repository and run the website locally.
