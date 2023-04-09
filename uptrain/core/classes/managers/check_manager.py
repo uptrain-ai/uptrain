@@ -17,6 +17,7 @@ from uptrain.core.classes.statistics import (
     Distribution,
 )
 from uptrain.core.classes.visuals import DimensionalityReduction, UMAP_PRESENT, Shap, SHAP_PRESENT, Plot
+from uptrain.core.classes.finetuning import Finetune
 
 
 class CheckManager:
@@ -83,6 +84,9 @@ class CheckManager:
         elif check["type"] == Statistic.CONVERGENCE_STATS:
             custom_monitor = Convergence(self.fw, check)
             self.statistics_to_check.append(custom_monitor)
+        elif check["type"] == Statistic.FINETUNE:
+            finetune_monitor = Finetune(self.fw, check)
+            self.statistics_to_check.append(finetune_monitor)
         else:
             raise Exception("Statistic type not Supported")
 
