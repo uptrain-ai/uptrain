@@ -5,9 +5,39 @@ from uptrain.constants import PlotType, Visual
 
 
 class Plot(AbstractVisual):
+    """Class to expose the plotting API."""
+
     visual_type = Visual.PLOT
 
     def base_init(self, framework, check: Dict[str, Any]) -> None:
+        """Base init for the Plot class.
+        
+        Parameters
+        ----------
+        framework
+            UpTrain Framework object
+        check
+            Configuration dictionary for the plot
+            The dictionary must contain the following keys:
+                plot: The type of plot to use. Must be one of the following:
+                    uptrain.PlotType.BAR_CHART
+                    uptrain.PlotType.LINE_CHART
+                    uptrain.PlotType.HISTOGRAM
+                plot_name: The name of the plot. Defaults to the plot type.
+                dashboard_name: The name of the dashboard. Defaults to "Plot".
+            
+            If the plot type is uptrain.PlotType.BAR_CHART:
+                x_feature_name: The name of the feature to use for the x-axis.
+                y_feature_name: The name of the feature to use for the y-axis.
+            
+            If the plot type is uptrain.PlotType.LINE_CHART:
+                x_feature_name: The name of the feature to use for the x-axis.
+                y_feature_name: The name of the feature to use for the y-axis.
+            
+            If the plot type is uptrain.PlotType.HISTOGRAM:
+                feature_name: The name of the feature to use for the histogram.
+        """
+
         self.framework = framework
         self.plot = check["plot"]
         self.plot_name = check.get("plot_name", self.plot)
@@ -44,6 +74,8 @@ class Plot(AbstractVisual):
         self._chart(inputs, outputs, gts, extra_args)
 
     def _bar_chart(self, inputs, outputs, gts=None, extra_args={}) -> None:
+        """Function to plot a bar chart."""
+
         # Check if the provided inputs were for the bar chart
         # TODO: refactor and make the checks better
         if not (
@@ -74,6 +106,8 @@ class Plot(AbstractVisual):
         )
 
     def _histogram_chart(self, inputs, outputs, gts=None, extra_args={}) -> None:
+        """Function to plot a histogram chart."""
+
         # Check if the provided inputs were for the histogram chart
         # TODO: refactor and make the checks better
         if not (self.feature_name in inputs.keys()):
@@ -86,6 +120,8 @@ class Plot(AbstractVisual):
         )
 
     def _line_chart(self, inputs, outputs, gts=None, extra_args={}) -> None:
+        """Function to plot a line chart."""
+        
         # Check if the provided inputs were for the line chart
         # TODO: refactor and make the checks better
         if not (
