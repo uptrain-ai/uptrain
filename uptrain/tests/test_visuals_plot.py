@@ -27,13 +27,14 @@ cfg = {
             "plot": uptrain.PlotType.LINE_CHART,
             "x_feature_name": "epoch",
             "y_feature_name": "loss",
-            "plot_name": "epoch vs loss 1",
+            "plot_name": "epoch vs loss",
         },
         {
             "type": uptrain.Visual.PLOT,
             "plot": uptrain.PlotType.LINE_CHART,
             "y_feature_name": "loss",
             "plot_name": "epoch vs loss 2",
+            "dashboard_name": "Plot 2"
         },
         {
             "type": uptrain.Visual.PLOT,
