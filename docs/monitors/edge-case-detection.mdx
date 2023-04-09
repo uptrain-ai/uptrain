@@ -35,7 +35,7 @@ Here, we have defined another edge-case signal which checks for whether the mode
 Applying an edge case monitor on the above dataset yielded the edge case clusters with centroids and their support as shown in the image below. As we can see, the clusters that are close to the pushup position are most frequent, which implies that our edge detection technique is working as expected.
 
 <Frame caption="Edge cases clusters selected by the framework. Pushup orientations are most prominent.">
-  <img width="500" src="/images/edge-case-clusters.png"/>
+  <img width="500" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/human_orientation_classification/edge-case-clusters.png"/>
 </Frame>
 
 UpTrain employs a combination of user-defined signals and statistical techniques, such as outlier detection, to identify edge cases. Users can define their own signals based on their domain expertise, which may include features such as the time of day or user behavior patterns. Additionally, we plan to include several built-in statistical techniques for outlier detection, such as [Tukey's fences](https://github.com/uptrain-ai/uptrain/issues/100) and [Z-score](https://github.com/uptrain-ai/uptrain/issues/101).

@@ -31,7 +31,7 @@ Here, `model_args` defines the models that we want to compare, and the `referenc
 In the following figure, we check the comparison between the two `model_types` in terms of cosine distance from the initial embedding, and note that for the realtime model, the learning happens much earlier compared to the batch model.
 
 <Frame caption="Cosine distance of embeddings from initial embeddings as they are being learnt with time.">
-  <img width="500" src="/images/cosine-distance.png"/>
+  <img width="500" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/statistics/cosine-distance.png"/>
 </Frame>
 
 In addition to the above measures, UpTrain also provides the running difference of the embeddings. This is the difference between the current embeddings and the previous embeddings. By analyzing the running difference, we can determine how much the embeddings change over time. A large change in the running difference can indicate that the model is experiencing significant changes in the input data or that the optimization process is unstable.
