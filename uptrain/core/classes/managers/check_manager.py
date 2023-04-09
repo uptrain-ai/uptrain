@@ -16,7 +16,7 @@ from uptrain.core.classes.statistics import (
     Convergence,
     Distribution,
 )
-from uptrain.core.classes.visuals import DimensionalityReduction, UMAP_PRESENT, Shap, SHAP_PRESENT
+from uptrain.core.classes.visuals import DimensionalityReduction, UMAP_PRESENT, Shap, SHAP_PRESENT, Plot
 from uptrain.core.classes.finetuning import Finetune
 
 
@@ -110,6 +110,9 @@ class CheckManager:
                 print(
                     """SHAP is not installed. For SHAP explainability, please install it by running `pip install shap matplotlib`."""
                 )
+        elif check["type"] == Visual.PLOT:
+            custom_monitor = Plot(self.fw, check)
+            self.visuals_to_check.append(custom_monitor)
         else:
             raise Exception("Visual type not Supported")
 
