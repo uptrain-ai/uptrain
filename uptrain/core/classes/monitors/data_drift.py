@@ -1,5 +1,6 @@
 import numpy as np
 import copy
+import pandas as pd
 
 from uptrain.core.classes.monitors import AbstractMonitor
 from uptrain.constants import Monitor
@@ -28,6 +29,8 @@ class DataDrift(AbstractMonitor):
         self.cluster_plot_func = fw.dataset_handler.cluster_plot_func
         self.save_edge_cases = check.get("save_edge_cases", True)
         self.NUM_BUCKETS = check.get("num_buckets", self.NUM_BUCKETS)
+        
+        # Also the step in calculating drift
         self.INITIAL_SKIP = check.get("initial_skip", self.INITIAL_SKIP)
         self.outlier_idxs = check.get("outlier_idxs", [])
         self.do_low_density_check = check.get("do_low_density_check", False)
@@ -280,10 +283,19 @@ class DataDrift(AbstractMonitor):
         self.prod_dist = []
         self.ref_dist_counts = []
         self.prod_dist_counts = []
-        data = read_json(self.reference_dataset)
-        all_inputs = np.array(
-            [self.measurable.extract_val_from_training_data(x) for x in data]
-        )
+        if self.reference_dataset.split('.')[-1] == 'json':
+            data = read_json(self.reference_dataset)
+            all_inputs = np.array(
+                [self.measurable.extract_val_from_training_data(x) for x in data]
+            )
+        elif self.reference_dataset.split('.')[-1] == 'csv':
+            data = pd.read_csv(self.reference_dataset).to_dict()
+            for key in data:
+                data[key] = list(data[key].values())
+            all_inputs = np.array(self.measurable.extract_val_from_training_data(data))
+        else:
+            raise Exception("Reference data file type not recognized.")
+        
         all_inputs_shape = list(all_inputs.shape)
         if len(all_inputs_shape) == 1:
             all_inputs_shape.insert(1, 1)

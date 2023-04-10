@@ -6,6 +6,7 @@ from uptrain.core.classes.monitors import (
     Accuracy,
     ConceptDrift,
     DataDrift,
+    FeatureDrift,
     CustomMonitor,
     ModelBias,
     DataIntegrity,
@@ -44,7 +45,11 @@ class CheckManager:
         elif check["type"] == Monitor.CONCEPT_DRIFT:
             drift_manager = ConceptDrift(self.fw, check)
             self.monitors_to_check.append(drift_manager)
-        elif check["type"] == Monitor.DATA_DRIFT:
+        elif check["type"] == Monitor.DATA_DRIFT or Monitor.FEATURE_DRIFT:
+            if check["type"] == Monitor.DATA_DRIFT:
+                drift_class = DataDrift
+            else:
+                drift_class = FeatureDrift
             if "measurable_args" in check:
                 drift_managers = [DataDrift(self.fw, check)]
             else:

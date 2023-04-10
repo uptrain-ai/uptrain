@@ -48,6 +48,7 @@ class Monitor(str, Enum):
     ACCURACY = "accuracy"
     EDGE_CASE = "edge_case"
     DATA_DRIFT = "data_drift"
+    FEATURE_DRIFT = "feature_drift"
     CUSTOM_MONITOR = "custom_monitor"
     CONCEPT_DRIFT = "concept_drift"
     POPULARITY_BIAS = "popularity_bias"
