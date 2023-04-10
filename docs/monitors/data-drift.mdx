@@ -44,7 +44,7 @@ We recommend checking out the [human orientation classification](https://github.
 In that example, once we add a check for data drift in the UpTrain config, we see the following line chart for earth-moving distances between production and training datasets.
 
 <Frame caption="Earth moving distance vs number of predictions">
-  <img width="500" src="/images/earth-moving-distance.png"/>
+  <img width="500" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/human_orientation_classification/earth-moving-distance.png"/>
 </Frame>
 
 We can observe that in production, the model sometimes encounters new data points which were not a part of the training data since they have higher earth-moving distances.
@@ -53,13 +53,13 @@ Additionally, when we cluster the features and compare their sizes in the traini
 
 
 <Frame caption="Distribution of features across reference and production dataset">
-  <img width="500" src="/images/feature-distribution.png"/>
+  <img width="500" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/human_orientation_classification/feature-distribution.png"/>
 </Frame>
 
 Finally, UpTrain automatically sends an alert (which can be integrated with Slack or E-mail) when data drift is detected, as shown below:
 
 <Frame caption="Data Drift alert on UpTrain dashboard">
-  <img width="500" src="/images/data-drift-alert.png"/>
+  <img width="500" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/human_orientation_classification/data-drift-alert.png"/>
 </Frame>
 
 Overall, UpTrain's drift detection tools provide a powerful means of identifying and addressing data drift in machine learning models, ensuring their continued production accuracy and performance.
