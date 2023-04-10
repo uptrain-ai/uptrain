@@ -1,0 +1,120 @@
+---
+title: Plot Visualization
+description: Plot Line charts, Bar charts, Histograms and more
+---
+
+Plotting is a powerful tool that helps to visualize data and gain insights that may not be immediately apparent from looking at raw data. Line charts, bar charts, histograms, and other types of plots can help to highlight trends, patterns, and outliers in data. Currently, UpTrain supports plotting visualization of the below mentioned types.
+
+### Line charts
+
+Line charts, also known as line graphs, are used to display trends over time or another continuous variable. They are particularly useful for showing how data changes over time, as the line can show the overall trend and any fluctuations. For example, a line chart could be used to show changes in stock prices over several years, or changes in temperature over the course of a day. Line charts are created by plotting data points on a grid and connecting them with a line.
+
+**Usage**:
+
+```python
+cfg = {
+    "checks": [
+        # Line chart for epoch vs loss on default dashboard
+        {
+            "type": uptrain.Visual.PLOT,
+            "plot": uptrain.PlotType.LINE_CHART,
+            "x_feature_name": "epoch",
+            "y_feature_name": "loss",
+            "plot_name": "epoch vs loss",
+        }
+    ]
+}
+
+...
+
+epoch = [...]
+loss = [...]
+
+framework.log({"epoch": epoch, "loss": loss})
+```
+
+Note that you can omit either one of `x_feature_name` and `y_feature_name` - in this case, UpTrain will automatically use an internal index as the x-axis or y-axis.
+
+### Bar charts
+
+Bar charts, also known as bar graphs, are used to compare values between different categories. They are particularly useful for showing categorical data, such as sales figures for different products or the number of students in each grade level at a school. In a bar chart, the length of each bar represents the value of the data for that category. The bars can be horizontal or vertical, and they are typically arranged in order of magnitude.
+
+**Usage**:
+
+```python
+cfg = {
+    "checks": [
+        # Bar chart for bar1 and bar2 on default dashboard
+        {
+            "type": uptrain.Visual.PLOT,
+            "plot": uptrain.PlotType.BAR_CHART,
+            "x_feature_name": "key",
+            "y_feature_name": "value",
+            "bars": ["bar1", "bar2"],
+            "plot_name": "bar chart",
+        }
+    ]
+}
+
+...
+
+bar_n = 10
+bar1_x = [...]
+bar1_y = [...]
+bar2_x = [...]
+bar2_y = [...]
+
+framework.log({
+    "bars": ["bar1"] * bar_n + ["bar2"] * bar_n,
+    "key": bar1_x + bar2_x,
+    "value": bar1_y + bar2_y,
+})
+```
+
+Note that you can omit either one of `x_feature_name` and `y_feature_name` - in this case, UpTrain will automatically use an internal index as the x-axis or y-axis.
+
+### Histograms
+
+Histograms are used to show the distribution of a continuous variable. They are similar to bar charts, but instead of showing values for different categories, they show the frequency of data within a certain range. For example, a histogram could be used to show the distribution of ages in a population. The x-axis represents the range of data values, and the y-axis represents the frequency of data within each range. Histograms are particularly useful for identifying patterns in data, such as whether the data is normally distributed or skewed.
+
+**Usage**:
+
+```python
+cfg = {
+    "checks": [
+        # Histogram for model_a on default dashboard
+        {
+            "type": uptrain.Visual.PLOT,
+            "plot": uptrain.PlotType.HISTOGRAM,
+            "feature_name": "model_a",
+            "plot_name": "single histogram",
+        },
+
+        # Histogram for model_b on default dashboard with multiple models
+        {
+            "type": uptrain.Visual.PLOT,
+            "plot": uptrain.PlotType.HISTOGRAM,
+            "feature_name": "model_a",
+            "plot_name": "multiple histogram",
+        },
+
+        # Histogram for model_b on default dashboard with multiple models
+        {
+            "type": uptrain.Visual.PLOT,
+            "plot": uptrain.PlotType.HISTOGRAM,
+            "feature_name": "model_b",
+            "plot_name": "multiple histogram",
+        }
+    ]
+}
+
+...
+
+hist_model_a = [...]
+hist_model_b = [...]
+
+framework.log({"model_a": hist_model_a})
+framework.log({"model_b": hist_model_b})
+```
+
+Overall, plotting is an essential tool for data analysis and visualization, allowing researchers and analysts to explore data in a more intuitive and meaningful way.
