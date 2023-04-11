@@ -27,6 +27,9 @@ def test_zscore():
     # Add the outliers to the SAT scores
     sat_scores = np.concatenate((sat_scores, outliers))
 
+    # shuffle the scores
+    random_state.shuffle(sat_scores)
+
     # Calculate the z-scores for each SAT score
     z_scores = zscore(sat_scores)
     outliers = np.where(np.abs(z_scores) > 3)
