@@ -101,7 +101,7 @@ class CheckManager:
                 custom_monitor = DimensionalityReduction(self.fw, check)
                 self.visuals_to_check.append(custom_monitor)
             else:
-                print(
+                raise Exception(
                     """UMAP is not installed. For UMAP visualization, please install umap by running `pip install umap-learn`."""
                 )
         elif check["type"] == Visual.TSNE:
@@ -112,7 +112,7 @@ class CheckManager:
                 custom_monitor = Shap(self.fw, check)
                 self.visuals_to_check.append(custom_monitor)
             else:
-                print(
+                raise Exception(
                     """SHAP is not installed. For SHAP explainability, please install it by running `pip install shap matplotlib`."""
                 )
         elif check["type"] == Visual.PLOT:
