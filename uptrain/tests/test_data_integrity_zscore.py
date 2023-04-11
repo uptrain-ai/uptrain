@@ -29,16 +29,17 @@ def test_data_integrity_zscore():
     data integrity of the generated data using z-score.
 
     To generate the test, 5000 random exam scores are generated with a mean of
-    1200 and a standard deviation of 200. Then, 250 random outliers are added
-    to the data. The outliers account for 5% of the total data.
+    0 and a standard deviation of 250. Then, 250 random outliers are added
+    to the data. The outliers account for about 2-5%  of the total data depending
+    on the randomly generated values.
 
     The test passes if the monitored z-score data integrity detects the presence
     of outliers in the data.
     """
 
     random_state = np.random.RandomState(seed=1337)
-    mean = 1200
-    std = 200
+    mean = 0
+    std = 250
     num_samples = 5000
     exam_scores = random_state.normal(mean, std, num_samples)
 
@@ -46,8 +47,8 @@ def test_data_integrity_zscore():
     num_outliers = 250
     outliers = np.concatenate(
         (
-            random_state.uniform(0, 200, num_outliers // 2),
-            random_state.uniform(2000, 2500, num_outliers // 2),
+            random_state.uniform(-1500, -500, num_outliers // 2),
+            random_state.uniform(500, 1500, num_outliers // 2),
         )
     )
 
@@ -55,7 +56,7 @@ def test_data_integrity_zscore():
     exam_scores = np.concatenate((exam_scores, outliers))
 
     # Shuffle the scores
-    random_state.shuffle(exam_scores)
+    # random_state.shuffle(exam_scores)
 
     # plot_graph(exam_scores)
 
