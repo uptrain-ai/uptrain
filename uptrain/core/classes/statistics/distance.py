@@ -5,7 +5,7 @@ from uptrain.core.classes.statistics import AbstractStatistic
 from uptrain.core.classes.distances import DistanceResolver
 from uptrain.core.classes.measurables import MeasurableResolver
 from uptrain.constants import Statistic
-from uptrain.ee.arrow_utils import make_cache_container
+from uptrain.core.lib.cache import make_cache_container
 
 
 class Distance(AbstractStatistic):
