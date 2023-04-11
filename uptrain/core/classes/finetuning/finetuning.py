@@ -18,7 +18,7 @@ class Finetune(AbstractCheck):
 
     def getCustomLRParms(self, model):
         # TODO: Make 'post_bert' generic
-        finetuned_names = [k for (k, v) in model.named_parameters() if 'post_bert' in k]
+        finetuned_names = [k for (k, v) in model.named_parameters() if 'post_bert' in k or 'classifier' in k]
         new_params= [v for k, v in model.named_parameters() if k in finetuned_names]
         pretrained = [v for k, v in model.named_parameters() if k not in finetuned_names]
         return new_params, pretrained
@@ -37,18 +37,29 @@ class Finetune(AbstractCheck):
 
     def base_check(self, inputs, outputs, gts=None, extra_args={}):
         model = inputs['model'][0]
+
+        for name, param in model.named_parameters():
+            if 'classifier' in name or 'post_bert' in name:
+                print(name)
+                param.requires_grad = True
+            else:
+                param.requires_grad = False
+
+
         optimizer = self.getTorchOptimizer(model)
+        watcher = ww.WeightWatcher(model=model)
         model.train()
+
         device = self.device
         num_all_points = 0
         num_all_val_points = 0
         for epoch in range(self.epochs):
-            # import pdb; pdb.set_trace()
             tr_loss = 0
-            nb_tr_examples = 0
+            val_loss = 0
+            nb_tr_examples, nb_tr_steps = 0, 0
+            nb_val_examples, nb_val_steps = 0, 0
             for step, batch in enumerate(self.train_dataloader):
 
-                watcher = ww.WeightWatcher(model=model)
                 a = watcher.analyze(layers=self.layers)
                 a_list = a['alpha'].tolist()
                 if self.is_automated:
@@ -82,13 +93,14 @@ class Finetune(AbstractCheck):
                 tr_loss += train_output.loss.item()
                 nb_tr_examples += b_input_ids.size(0)
                 num_all_points += b_input_ids.size(0)
+                nb_tr_steps += 1
 
-                self.log_handler.add_scalars(
-                        "training_loss",
-                        {"y_train_loss": tr_loss/nb_tr_examples},
-                        num_all_points,
-                        self.dashboard_name,
-                    )
+            self.log_handler.add_scalars(
+                    "training_loss",
+                    {"y_train_loss": tr_loss/nb_tr_steps},
+                    num_all_points,
+                    self.dashboard_name,
+                )
 
             val_loss = 0
             nb_val_examples = 0
@@ -105,10 +117,11 @@ class Finetune(AbstractCheck):
                 val_loss += eval_output.loss.item()
                 nb_val_examples += b_input_ids.size(0)
                 num_all_val_points += b_input_ids.size(0)
+                nb_val_steps += 1
 
-                self.log_handler.add_scalars(
-                    "validation_loss",
-                    {"y_val_loss": val_loss/nb_val_examples},
-                    num_all_points,
-                    self.dashboard_name,
-                )
+            self.log_handler.add_scalars(
+                "validation_loss",
+                {"y_val_loss": val_loss/nb_val_steps},
+                num_all_points,
+                self.dashboard_name,
+            )
