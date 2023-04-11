@@ -5,7 +5,8 @@ import uptrain
 from scipy.stats import norm, zscore
 
 
-def plot_graph(z_scores):
+def plot_graph(sat_scores):
+    z_scores = zscore(sat_scores)
     plt.hist(z_scores, bins=50, alpha=0.5, label="Z score", color="green")
 
     # Add a legend and labels
@@ -41,11 +42,7 @@ def test_data_integrity_zscore():
     # shuffle the scores
     random_state.shuffle(sat_scores)
 
-    # Calculate the z-scores for each SAT score
-    z_scores = zscore(sat_scores)
-    outliers = np.array([z_scores[i] for i in np.where(np.abs(z_scores) > 3)[0]])
-
-    # plot_graph(z_scores)
+    # plot_graph(sat_scores)
 
     cfg = {
         "checks": [
