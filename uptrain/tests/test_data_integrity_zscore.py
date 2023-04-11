@@ -5,6 +5,21 @@ import uptrain
 from scipy.stats import norm, zscore
 
 
+def plot_graph(z_scores, upper_fence, lower_fence):
+    plt.hist(z_scores, bins=50, alpha=0.5, label="Z score", color="green")
+    plt.plot([upper_fence, upper_fence], [0, 1000], color="red")
+    plt.plot([lower_fence, lower_fence], [0, 1000], color="red")
+
+    # Add a legend and labels
+    plt.legend()
+    plt.xlabel("SAT score")
+    plt.ylabel("Frequency")
+    plt.title("Distribution of SAT scores with outliers")
+
+    # Show the plot
+    plt.show()
+
+
 # Generate 5000 SAT scores from a normal distribution with mean=1200 and std=200
 def test_data_integrity_zscore():
     random_state = np.random.RandomState(seed=1337)
@@ -43,21 +58,7 @@ def test_data_integrity_zscore():
     )[0]
     iqr_values = [sorted_zscores[i] for i in iqr_indices]
 
-    def plot_graph(drifts=None):
-        plt.hist(z_scores, bins=50, alpha=0.5, label="Z score", color="green")
-        plt.plot([upper_fence, upper_fence], [0, 1000], color="red")
-        plt.plot([lower_fence, lower_fence], [0, 1000], color="red")
-
-        # Add a legend and labels
-        plt.legend()
-        plt.xlabel("SAT score")
-        plt.ylabel("Frequency")
-        plt.title("Distribution of SAT scores with outliers")
-
-        # Show the plot
-        plt.show()
-
-    # plot_graph()
+    # plot_graph(z_scores, upper_fence, lower_fence)
 
     cfg = {
         "checks": [
