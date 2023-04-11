@@ -76,6 +76,7 @@
     {
       "group": "Visuals",
       "pages": [
+        "visuals/plot",
         "visuals/shap",
         "visuals/umap",
         "visuals/tsne"
