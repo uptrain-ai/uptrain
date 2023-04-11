@@ -29,7 +29,10 @@ class DataIntegrity(AbstractMonitor):
             has_issue = signal_value < self.threshold
         elif self.integrity_type == "z_score":
             has_issue = abs(zscore(signal_value)) > self.threshold
-            
+        else:
+            raise NotImplementedError(
+                "Data integrity check {} not implemented".format(self.integrity_type)
+            )            
         self.count += len(signal_value)
         self.num_issues += np.sum(np.array(has_issue))
         plot_name = (
