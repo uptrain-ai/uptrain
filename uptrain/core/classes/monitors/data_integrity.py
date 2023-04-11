@@ -46,12 +46,20 @@ class DataIntegrity(AbstractMonitor):
                 dashboard_name=self.dashboard_name,
                 file_name=f"valid_z_scores",
             )
-            self.log_handler.add_histogram(
-                plot_name=f"z_score",
-                data=outlier,
-                dashboard_name=self.dashboard_name,
-                file_name=f"outliers",
-            )
+
+            if len(outlier) > 0:
+                percentage_outliers = round(100 * len(outlier) / len(z_score), 1)
+                self.log_handler.add_histogram(
+                    plot_name=f"z_score",
+                    data=outlier,
+                    dashboard_name=self.dashboard_name,
+                    file_name=f"outliers",
+                )
+                self.log_handler.add_alert(
+                    alert_name = "Outliers Detected 🚨",
+                    alert = f"{percentage_outliers}% of total samples are outliers",
+                    dashboard_name = self.dashboard_name
+                )
         else:
             raise NotImplementedError(
                 "Data integrity check {} not implemented".format(self.integrity_type)

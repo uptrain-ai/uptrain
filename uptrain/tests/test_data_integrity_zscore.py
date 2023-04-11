@@ -11,16 +11,17 @@ def plot_graph(sat_scores):
 
     # Add a legend and labels
     plt.legend()
-    plt.xlabel("SAT score")
+    plt.xlabel("Z score")
     plt.ylabel("Frequency")
-    plt.title("Distribution of SAT scores with outliers")
+    plt.title("Distribution of Z scores with outliers")
 
     # Show the plot
     plt.show()
 
 
-# Generate 5000 SAT scores from a normal distribution with mean=1200 and std=200
 def test_data_integrity_zscore():
+    """Test data integrity z-score."""
+
     random_state = np.random.RandomState(seed=1337)
     mean = 1200
     std = 200
@@ -39,12 +40,14 @@ def test_data_integrity_zscore():
     # Add the outliers to the SAT scores
     sat_scores = np.concatenate((sat_scores, outliers))
 
-    # shuffle the scores
+    # Shuffle the scores
     random_state.shuffle(sat_scores)
 
     # plot_graph(sat_scores)
 
+    # Create a configuration for the framework
     cfg = {
+        # Define checks to be performed
         "checks": [
             {
                 "type": uptrain.Monitor.DATA_INTEGRITY,
@@ -56,7 +59,12 @@ def test_data_integrity_zscore():
                 "threshold": 3,
             }
         ],
-        "retraining_folder": "uptrain_smart_data_data_integrity",
+
+        # Specify where the data from z-score data integrity should be stored
+        "retraining_folder": "uptrain_smart_data_integrity_zscore",
+
+        # # Specify logging arguments
+        # "st_logging" should be True if we want streamlit logging, False otherwise
         "logging_args": {
             "st_logging": True,
             "log_folder": "uptrain_data_integrity_zscore",
@@ -67,6 +75,7 @@ def test_data_integrity_zscore():
     batch_size = 64
     size = len(sat_scores)
 
+    # Feed the data to the framework
     for i in range(size // batch_size):
         framework.log(
             inputs={
