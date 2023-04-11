@@ -17,6 +17,10 @@ class DataIntegrity(AbstractMonitor):
         self.num_issues = 0
             
     def base_check(self, inputs, outputs, gts=None, extra_args={}):
+        # Perform measurable compute and log only if the measurable feature is
+        # present in the inputs
+        if self.measurable.col_name() not in inputs.keys():
+            return
         signal_value = self.measurable.compute_and_log(
             inputs, outputs, gts=gts, extra=extra_args
         )
