@@ -1,1 +1,1 @@
-from .finetuning import Finetune
+from .finetuning import Finetune, WEIGHTWATCHER_PRESENT
