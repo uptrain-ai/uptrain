@@ -50,5 +50,5 @@ setup(
         "streamlit>=1.0.0",
         "json-fix>=0.5.0"
     ],
-    tests_require=["pytest>=7.0", "torch", "imgaug", "gensim", "xgboost", "gensim"],
+    tests_require=["pytest>=7.0", "torch", "imgaug", "gensim", "xgboost"]
 )
