@@ -37,7 +37,7 @@ class DataIntegrity(AbstractMonitor):
             
             z_score = zscore(signal_value)
             has_issue = np.abs(z_score) > self.threshold
-            outlier = np.array([z_score[i] for i in np.where(np.abs(z_score) > self.threshold)[0]])
+            outlier = np.array([z_score[i] for i in np.where(np.abs(z_score) >= self.threshold)[0]])
             valid_z_scores = np.array([z_score[i] for i in np.where(np.abs(z_score) < self.threshold)[0]])
             
             self.log_handler.add_histogram(
