@@ -16,7 +16,7 @@ from uptrain.core.classes.statistics import (
     Convergence,
     Distribution,
 )
-from uptrain.core.classes.visuals import DimensionalityReduction, UMAP_PRESENT, Shap, SHAP_PRESENT
+from uptrain.core.classes.visuals import DimensionalityReduction, UMAP_PRESENT, Shap, SHAP_PRESENT, Plot
 from uptrain.core.classes.finetuning import Finetune
 
 
@@ -96,7 +96,7 @@ class CheckManager:
                 custom_monitor = DimensionalityReduction(self.fw, check)
                 self.visuals_to_check.append(custom_monitor)
             else:
-                print(
+                raise Exception(
                     """UMAP is not installed. For UMAP visualization, please install umap by running `pip install umap-learn`."""
                 )
         elif check["type"] == Visual.TSNE:
@@ -107,9 +107,12 @@ class CheckManager:
                 custom_monitor = Shap(self.fw, check)
                 self.visuals_to_check.append(custom_monitor)
             else:
-                print(
+                raise Exception(
                     """SHAP is not installed. For SHAP explainability, please install it by running `pip install shap matplotlib`."""
                 )
+        elif check["type"] == Visual.PLOT:
+            custom_monitor = Plot(self.fw, check)
+            self.visuals_to_check.append(custom_monitor)
         else:
             raise Exception("Visual type not Supported")
 
