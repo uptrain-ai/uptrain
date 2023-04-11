@@ -55,6 +55,7 @@ class Plot(AbstractVisual):
         elif self.plot == PlotType.LINE_CHART:
             self.x_feature_name = check.get("x_feature_name", None)
             self.y_feature_name = check.get("y_feature_name", None)
+            self.count = 0
             self._chart = self._line_chart
 
             if self.x_feature_name is None and self.y_feature_name is None:
@@ -82,23 +83,27 @@ class Plot(AbstractVisual):
             self.x_feature_name in inputs.keys() or self.y_feature_name in inputs.keys()
         ):
             return
+        
         length = (
             len(inputs[self.x_feature_name])
             if self.x_feature_name is not None
             else len(inputs[self.y_feature_name])
         )
-        x_features = (
-            list(range(length))
-            if self.x_feature_name is None
-            else inputs[self.x_feature_name]
-        )
-        y_features = (
-            list(range(length))
-            if self.y_feature_name is None
-            else inputs[self.y_feature_name]
-        )
+        
+        if self.x_feature_name is None:
+            x_features = list(range(self.count, self.count + length))
+            self.count += length
+        else:
+            x_features = inputs[self.x_feature_name]
+        if self.y_feature_name is None:
+            y_features = list(range(self.count, self.count + length))
+            self.count += length
+        else:
+            y_features = inputs[self.y_feature_name]
+        
         bars = inputs["bars"]
         data = {bar: {} for bar in set(bars)}
+        
         for i in range(length):
             data[bars[i]].update({x_features[i]: y_features[i]})
         self.framework.log_handler.add_bar_graphs(
@@ -128,24 +133,28 @@ class Plot(AbstractVisual):
             self.x_feature_name in inputs.keys() or self.y_feature_name in inputs.keys()
         ):
             return
+        
         length = (
             len(inputs[self.y_feature_name])
             if self.x_feature_name is None
             else len(inputs[self.x_feature_name])
         )
-        x_features = (
-            list(range(length))
-            if self.x_feature_name is None
-            else inputs[self.x_feature_name]
-        )
-        y_features = (
-            list(range(length))
-            if self.y_feature_name is None
-            else inputs[self.y_feature_name]
-        )
+        
+        if self.x_feature_name is None:
+            x_features = list(range(self.count, self.count + length))
+            self.count += length
+        else:
+            x_features = inputs[self.x_feature_name]
+        if self.y_feature_name is None:
+            y_features = list(range(self.count, self.count + length))
+            self.count += length
+        else:
+            y_features = inputs[self.y_feature_name]
+        
         y_feature_name = (
             f"y_{self.y_feature_name}" if self.y_feature_name is not None else "y_value"
         )
+        
         for i in range(length):
             self.framework.log_handler.add_scalars(
                 plot_name=self.plot_name,
