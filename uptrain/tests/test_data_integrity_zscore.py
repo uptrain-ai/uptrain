@@ -5,10 +5,8 @@ import uptrain
 from scipy.stats import norm, zscore
 
 
-def plot_graph(z_scores, upper_fence, lower_fence):
+def plot_graph(z_scores):
     plt.hist(z_scores, bins=50, alpha=0.5, label="Z score", color="green")
-    plt.plot([upper_fence, upper_fence], [0, 1000], color="red")
-    plt.plot([lower_fence, lower_fence], [0, 1000], color="red")
 
     # Add a legend and labels
     plt.legend()
@@ -47,18 +45,7 @@ def test_data_integrity_zscore():
     z_scores = zscore(sat_scores)
     outliers = np.array([z_scores[i] for i in np.where(np.abs(z_scores) > 3)[0]])
 
-    sorted_zscores = sorted(z_scores)
-    q1 = sorted_zscores[len(sorted_zscores) // 4]
-    q3 = sorted_zscores[len(sorted_zscores) * 3 // 4]
-    iqr = q3 - q1
-    upper_fence = q3 + 1.5 * iqr
-    lower_fence = q1 - 1.5 * iqr
-    iqr_indices = np.where(
-        (sorted_zscores <= upper_fence) & (sorted_zscores >= lower_fence)
-    )[0]
-    iqr_values = [sorted_zscores[i] for i in iqr_indices]
-
-    # plot_graph(z_scores, upper_fence, lower_fence)
+    # plot_graph(z_scores)
 
     cfg = {
         "checks": [
@@ -70,25 +57,7 @@ def test_data_integrity_zscore():
                 },
                 "integrity_type": "z_score",
                 "threshold": 3,
-            },
-            {
-                "type": uptrain.Visual.PLOT,
-                "plot": uptrain.PlotType.HISTOGRAM,
-                "feature_name": "z_scores",
-                "plot_name": "SAT z-scores",
-            },
-            {
-                "type": uptrain.Visual.PLOT,
-                "plot": uptrain.PlotType.HISTOGRAM,
-                "feature_name": "outliers",
-                "plot_name": "SAT z-scores",
-            },
-            {
-                "type": uptrain.Visual.PLOT,
-                "plot": uptrain.PlotType.HISTOGRAM,
-                "feature_name": "iqr",
-                "plot_name": "SAT z-scores",
-            },
+            }
         ],
         "retraining_folder": "uptrain_smart_data_data_integrity",
         "logging_args": {
@@ -100,10 +69,6 @@ def test_data_integrity_zscore():
     framework = uptrain.Framework(cfg)
     batch_size = 64
     size = len(sat_scores)
-
-    framework.log(inputs={"z_scores": z_scores})
-    framework.log(inputs={"outliers": outliers})
-    framework.log(inputs={"iqr": iqr_values})
 
     for i in range(size // batch_size):
         framework.log(

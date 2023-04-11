@@ -32,7 +32,26 @@ class DataIntegrity(AbstractMonitor):
         elif self.integrity_type == "greater_than":
             has_issue = signal_value < self.threshold
         elif self.integrity_type == "z_score":
-            has_issue = abs(zscore(signal_value)) > self.threshold
+            if self.threshold is None:
+                self.threshold = 3
+            
+            z_score = zscore(signal_value)
+            has_issue = np.abs(z_score) > self.threshold
+            outlier = np.array([z_score[i] for i in np.where(np.abs(z_score) > self.threshold)[0]])
+            valid_z_scores = np.array([z_score[i] for i in np.where(np.abs(z_score) < self.threshold)[0]])
+            
+            self.log_handler.add_histogram(
+                plot_name=f"z_score",
+                data=valid_z_scores,
+                dashboard_name=self.dashboard_name,
+                file_name=f"valid_z_scores",
+            )
+            self.log_handler.add_histogram(
+                plot_name=f"z_score",
+                data=outlier,
+                dashboard_name=self.dashboard_name,
+                file_name=f"outliers",
+            )
         else:
             raise NotImplementedError(
                 "Data integrity check {} not implemented".format(self.integrity_type)
