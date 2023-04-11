@@ -24,7 +24,7 @@ class DataIntegrity(AbstractMonitor):
         signal_value = self.measurable.compute_and_log(
             inputs, outputs, gts=gts, extra=extra_args
         )
-        outliers = None
+
         if self.integrity_type == "non_null":
             has_issue = signal_value == None
         elif self.integrity_type == "less_than":
@@ -37,7 +37,7 @@ class DataIntegrity(AbstractMonitor):
             
             z_score = zscore(signal_value)
             has_issue = np.abs(z_score) > self.threshold
-            outlier = np.array([z_score[i] for i in np.where(np.abs(z_score) >= self.threshold)[0]])
+            outliers = np.array([z_score[i] for i in np.where(np.abs(z_score) >= self.threshold)[0]])
             valid_z_scores = np.array([z_score[i] for i in np.where(np.abs(z_score) < self.threshold)[0]])
             
             self.log_handler.add_histogram(
@@ -47,11 +47,11 @@ class DataIntegrity(AbstractMonitor):
                 file_name=f"valid_z_scores",
             )
 
-            if len(outlier) > 0:
-                percentage_outliers = round(100 * len(outlier) / len(z_score), 1)
+            if outliers:
+                percentage_outliers = round(100 * len(outliers) / len(z_score), 1)
                 self.log_handler.add_histogram(
                     plot_name=f"z_score",
-                    data=outlier,
+                    data=outliers,
                     dashboard_name=self.dashboard_name,
                     file_name=f"outliers",
                 )
@@ -81,13 +81,5 @@ class DataIntegrity(AbstractMonitor):
             self.dashboard_name,
         )
 
-        if outliers is not None:
-            self.log_handler.add_scalars(
-            self.dashboard_name + "_" + plot_name,
-            {"y_" + plot_name+"_outliers": 1 - len(outliers) / len(signal_value)},
-            self.count,
-            self.dashboard_name,
-            )
-        
     def need_ground_truth(self):
         return False
