@@ -47,7 +47,7 @@ class DataIntegrity(AbstractMonitor):
                 file_name=f"valid_z_scores",
             )
 
-            if outliers:
+            if len(outliers) > 0:
                 percentage_outliers = round(100 * len(outliers) / len(z_score), 1)
                 self.log_handler.add_histogram(
                     plot_name=f"z_score",
