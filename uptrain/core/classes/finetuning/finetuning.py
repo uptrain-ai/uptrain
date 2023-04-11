@@ -1,4 +1,9 @@
-import weightwatcher as ww
+try:
+    import weightwatcher as ww
+    WEIGHTWATCHER_PRESENT = True
+except:
+    WEIGHTWATCHER_PRESENT = False
+
 from uptrain.core.classes.monitors import AbstractCheck
 import torch
 
@@ -42,6 +47,9 @@ class Finetune(AbstractCheck):
         device = self.device
         num_all_points = 0
         num_all_val_points = 0
+
+        if not WEIGHTWATCHER_PRESENT:
+            raise Exception("WeightWatcher is not installed. Please install it using 'pip install weightwatcher'")
         for epoch in range(self.epochs):
             # import pdb; pdb.set_trace()
             tr_loss = 0
@@ -112,3 +120,4 @@ class Finetune(AbstractCheck):
                     num_all_points,
                     self.dashboard_name,
                 )
+                
