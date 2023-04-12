@@ -1,4 +1,4 @@
-Title: Accelerated Automated Finetuning of LLMs for Domain sSpecific Tasks
+Title: Accelerated Automated Finetuning of LLMs for Domain specific Tasks
 
 Introduction:
 Deep learning has revolutionized the field of artificial intelligence, enabling breakthroughs in computer vision, natural language processing, and many other domains. One key factor that has contributed to the success of deep learning is the use of pretrained networks, which are neural networks that have been trained on large datasets and can be used as a starting point for building custom models. Among various techniques, finetuning is a popular approach that allows us to adapt a pretrained model to a specific task or dataset. In this blog, we will explore the concept of finetuning, its benefits, and best practices for finetuning a deep learning model.
