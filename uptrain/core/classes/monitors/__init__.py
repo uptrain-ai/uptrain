@@ -4,6 +4,7 @@ from .accuracy import Accuracy
 from .concept_drift import ConceptDrift
 from .custom_monitor import CustomMonitor
 from .data_drift import DataDrift
+from .feature_drift import FeatureDrift
 from .edge_case import EdgeCase
 from .model_bias import ModelBias
 from .data_integrity import DataIntegrity
