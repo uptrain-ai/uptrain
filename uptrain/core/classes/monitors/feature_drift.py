@@ -12,10 +12,6 @@ from uptrain.core.classes.algorithms import Clustering
 
 class FeatureDrift(AbstractMonitor):
     dashboard_name = "feature_drift"
-    monitor_type = Monitor.FEATURE_DRIFT
-    is_embedding = False
-    mode = None
-    INITIAL_SKIP = 2000
 
     def model_choices(self, check):
         return [{"is_embedding": False}]
@@ -24,7 +20,7 @@ class FeatureDrift(AbstractMonitor):
         self.reference_dataset = check["reference_dataset"]
         self.NUM_BUCKETS = check.get("num_buckets", 10)
         self.psi_threshold = check.get("psi_threshold", 0.2)
-        self.step = check.get("initial_skip", 2000)
+        self.step = check.get("step", 2000)
         self.prod_dist_counts_arr = []
         self.all_count = 0
         self.plot_name = "Feature_" + self.measurable.col_name()

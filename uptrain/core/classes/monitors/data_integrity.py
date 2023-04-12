@@ -24,6 +24,7 @@ class DataIntegrity(AbstractMonitor):
         signal_value = self.measurable.compute_and_log(
             inputs, outputs, gts=gts, extra=extra_args
         )
+        signal_value = np.squeeze(np.array(signal_value))
 
         if self.integrity_type == "non_null":
             has_issue = signal_value == None
@@ -35,28 +36,31 @@ class DataIntegrity(AbstractMonitor):
             if self.threshold is None:
                 self.threshold = 3
             
+            # TODO: Z-score should ideally be calculated w.r.t. reference dataset
             z_score = zscore(signal_value)
             has_issue = np.abs(z_score) > self.threshold
-            outliers = np.array([z_score[i] for i in np.where(np.abs(z_score) >= self.threshold)[0]])
-            valid_z_scores = np.array([z_score[i] for i in np.where(np.abs(z_score) < self.threshold)[0]])
+            outliers = z_score[has_issue]
+            valid_z_scores = z_score[~has_issue]
             
+            feat_name = self.measurable.col_name()
+            plot_name = f"z_score_feature_{feat_name}"
             self.log_handler.add_histogram(
-                plot_name=f"z_score",
+                plot_name=plot_name,
                 data=valid_z_scores,
                 dashboard_name=self.dashboard_name,
                 file_name=f"valid_z_scores",
             )
 
             if len(outliers) > 0:
-                percentage_outliers = round(100 * len(outliers) / len(z_score), 1)
                 self.log_handler.add_histogram(
-                    plot_name=f"z_score",
+                    plot_name=plot_name,
                     data=outliers,
                     dashboard_name=self.dashboard_name,
                     file_name=f"outliers",
                 )
+                percentage_outliers = round(100 * len(outliers) / len(z_score), 1)
                 self.log_handler.add_alert(
-                    alert_name = "Outliers Detected 🚨",
+                    alert_name = f"Z-score outliers detected for {feat_name} 🚨",
                     alert = f"{percentage_outliers}% of total samples are outliers",
                     dashboard_name = self.dashboard_name
                 )
@@ -66,19 +70,13 @@ class DataIntegrity(AbstractMonitor):
             )            
         self.count += len(signal_value)
         self.num_issues += np.sum(np.array(has_issue))
-        plot_name = (
-            self.measurable.col_name()
-            + " "
-            + self.integrity_type
-            + " "
-            + str(self.threshold)
-        )
 
         self.log_handler.add_scalars(
-            self.dashboard_name + "_" + plot_name,
-            {"y_" + plot_name: 1 - self.num_issues / self.count},
+            self.integrity_type + "_outliers_ratio",
+            {"y_outliers": self.num_issues / self.count},
             self.count,
             self.dashboard_name,
+            file_name=self.measurable.col_name(),
         )
 
     def need_ground_truth(self):

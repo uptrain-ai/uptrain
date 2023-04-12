@@ -74,8 +74,23 @@ class CheckManager:
             custom_monitor = CustomMonitor(self.fw, check)
             self.monitors_to_check.append(custom_monitor)
         elif check["type"] == Monitor.DATA_INTEGRITY:
-            custom_monitor = DataIntegrity(self.fw, check)
-            self.monitors_to_check.append(custom_monitor)
+            if "measurable_args" in check:
+                integrity_managers = [DataIntegrity(self.fw, check)]
+            else:
+                integrity_managers = []
+                all_feats = self.fw.feat_name_list
+                for feat in all_feats:
+                    check_copy = deepcopy(check)
+                    check_copy.update(
+                        {
+                            "measurable_args": {
+                                "type": MeasurableType.INPUT_FEATURE,
+                                "feature_name": feat,
+                            }
+                        }
+                    )
+                    integrity_managers.append(DataIntegrity(self.fw, check_copy))
+            self.monitors_to_check.extend(integrity_managers)
         else:
             raise Exception("Monitor type not Supported")
 
