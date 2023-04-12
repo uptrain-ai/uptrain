@@ -6,6 +6,7 @@ from uptrain.core.classes.monitors import (
     Accuracy,
     ConceptDrift,
     DataDrift,
+    FeatureDrift,
     CustomMonitor,
     ModelBias,
     DataIntegrity,
@@ -44,9 +45,13 @@ class CheckManager:
         elif check["type"] == Monitor.CONCEPT_DRIFT:
             drift_manager = ConceptDrift(self.fw, check)
             self.monitors_to_check.append(drift_manager)
-        elif check["type"] == Monitor.DATA_DRIFT:
+        elif check["type"] == Monitor.DATA_DRIFT or check["type"] == Monitor.FEATURE_DRIFT:
+            if check["type"] == Monitor.DATA_DRIFT:
+                drift_class = DataDrift
+            else:
+                drift_class = FeatureDrift
             if "measurable_args" in check:
-                drift_managers = [DataDrift(self.fw, check)]
+                drift_managers = [drift_class(self.fw, check)]
             else:
                 drift_managers = []
                 all_feats = self.fw.feat_name_list
@@ -60,7 +65,7 @@ class CheckManager:
                             }
                         }
                     )
-                    drift_managers.append(DataDrift(self.fw, check_copy))
+                    drift_managers.append(drift_class(self.fw, check_copy))
             self.monitors_to_check.extend(drift_managers)
         elif check["type"] == Monitor.POPULARITY_BIAS:
             bias_manager = ModelBias(self.fw, check)
@@ -69,8 +74,23 @@ class CheckManager:
             custom_monitor = CustomMonitor(self.fw, check)
             self.monitors_to_check.append(custom_monitor)
         elif check["type"] == Monitor.DATA_INTEGRITY:
-            custom_monitor = DataIntegrity(self.fw, check)
-            self.monitors_to_check.append(custom_monitor)
+            if "measurable_args" in check:
+                integrity_managers = [DataIntegrity(self.fw, check)]
+            else:
+                integrity_managers = []
+                all_feats = self.fw.feat_name_list
+                for feat in all_feats:
+                    check_copy = deepcopy(check)
+                    check_copy.update(
+                        {
+                            "measurable_args": {
+                                "type": MeasurableType.INPUT_FEATURE,
+                                "feature_name": feat,
+                            }
+                        }
+                    )
+                    integrity_managers.append(DataIntegrity(self.fw, check_copy))
+            self.monitors_to_check.extend(integrity_managers)
         else:
             raise Exception("Monitor type not Supported")
 
@@ -96,7 +116,7 @@ class CheckManager:
                 custom_monitor = DimensionalityReduction(self.fw, check)
                 self.visuals_to_check.append(custom_monitor)
             else:
-                print(
+                raise Exception(
                     """UMAP is not installed. For UMAP visualization, please install umap by running `pip install umap-learn`."""
                 )
         elif check["type"] == Visual.TSNE:
@@ -107,7 +127,7 @@ class CheckManager:
                 custom_monitor = Shap(self.fw, check)
                 self.visuals_to_check.append(custom_monitor)
             else:
-                print(
+                raise Exception(
                     """SHAP is not installed. For SHAP explainability, please install it by running `pip install shap matplotlib`."""
                 )
         elif check["type"] == Visual.PLOT:

@@ -158,7 +158,7 @@ def get_train_val_dataloader(df, batch_size = 16, val_ratio=0.2, fraction=1):
     attention_masks = torch.cat(attention_masks, dim = 0)
     labels = torch.tensor(labels)
 
-    train_idx = train_idx[0:int(len(text) * fraction * (1 - val_ratio) )]
+    train_idx = train_idx[0:int(len(train_idx) * fraction)]
 
     train_set = TensorDataset(token_id[train_idx], 
                             attention_masks[train_idx], 
