@@ -76,6 +76,7 @@
     {
       "group": "Visuals",
       "pages": [
+        "visuals/plot",
         "visuals/shap",
         "visuals/umap",
         "visuals/tsne"
@@ -103,7 +104,8 @@
     {
       "group": "Contributing",
       "pages": [
-        "contributing/development"
+        "contributing/development",
+        "contributing/documentation"
       ]
     }
   ],

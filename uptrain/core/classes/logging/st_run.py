@@ -182,8 +182,8 @@ def plot_histograms(files, plot_name):
             # Getting plot_id
             plot_id = os.path.split(csv_file)[-1].split(".")[0]
             df_y = df['y_points']
-            if len(df_y) > 1000:
-                df_y = np.random.choice(df_y, 1000)
+            # if len(df_y) > 1000:
+                # df_y = np.random.choice(df_y, 1000)
             fig = fig.add_trace(go.Histogram(x=df_y, name=plot_id))
 
         with cols[j % 2]:
