@@ -1,3 +1,6 @@
+"""
+Not used currently, refactored version of distribution.py
+"""
 import numpy as np
 
 from uptrain.core.lib.helper_funcs import extract_data_points_from_batch

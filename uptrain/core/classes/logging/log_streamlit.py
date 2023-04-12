@@ -43,20 +43,20 @@ class StreamlitLogs:
         remote_st_py_file = "https://raw.githubusercontent.com/uptrain-ai/uptrain/main/uptrain/core/classes/logging/st_run.py"
         # remote_st_py_file = "../../uptrain/core/classes/logging/st_run.py"
 
-        # if port is None:
-        #     cmd = "streamlit run " + remote_st_py_file + " -- " + self.log_folder
-        # else:
-        #     port = get_free_port(int(port))
-        #     cmd = (
-        #         "streamlit run "
-        #         + remote_st_py_file
-        #         + f" --server.port {str(port)} "
-        #         + " -- "
-        #         + self.log_folder
-        #     )
-        # launch_st = lambda: os.system(cmd)
-        # t = threading.Thread(target=launch_st, args=([]))
-        # t.start()
+        if port is None:
+            cmd = "streamlit run " + remote_st_py_file + " -- " + self.log_folder
+        else:
+            port = get_free_port(int(port))
+            cmd = (
+                "streamlit run "
+                + remote_st_py_file
+                + f" --server.port {str(port)} "
+                + " -- "
+                + self.log_folder
+            )
+        launch_st = lambda: os.system(cmd)
+        t = threading.Thread(target=launch_st, args=([]))
+        t.start()
 
     def add_scalars(self, dict, folder, file_name="", update_val=False):
         # CSV file that includes the data
