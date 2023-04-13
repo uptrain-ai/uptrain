@@ -4,8 +4,14 @@ try:
 except:
     WEIGHTWATCHER_PRESENT = False
 
+try:
+    import torch
+    TORCH_PRESENT = True
+except:
+    TORCH_PRESENT = False
+
+
 from uptrain.core.classes.monitors import AbstractCheck
-import torch
 
 
 class Finetune(AbstractCheck):
@@ -61,6 +67,8 @@ class Finetune(AbstractCheck):
 
         if not WEIGHTWATCHER_PRESENT:
             raise Exception("WeightWatcher is not installed. Please install it using 'pip install weightwatcher'")
+        if not TORCH_PRESENT:
+            raise Exception("PyTorch is not installed. Please install it using 'pip install torch'")
         for epoch in range(self.epochs):
             tr_loss = 0
             val_loss = 0
