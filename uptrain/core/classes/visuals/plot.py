@@ -151,14 +151,10 @@ class Plot(AbstractVisual):
         else:
             y_features = inputs[self.y_feature_name]
         
-        y_feature_name = (
-            f"y_{self.y_feature_name}" if self.y_feature_name is not None else "y_value"
-        )
-        
         for i in range(length):
             self.framework.log_handler.add_scalars(
                 plot_name=self.plot_name,
-                dictn={y_feature_name: y_features[i]},
+                dictn={"y_value": y_features[i]},
                 count=x_features[i],
                 dashboard_name=self.dashboard_name,
                 file_name=f"{self.plot_name}_{self.x_feature_name}_{self.y_feature_name}",
