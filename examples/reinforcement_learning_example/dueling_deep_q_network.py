@@ -2,6 +2,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torch.optim as optim
 
 from agent import AbstractAgent
 from deep_q_network import DeepQNetwork
@@ -11,9 +12,9 @@ class DuelingDeepQNetwork(DeepQNetwork):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.V = nn.Linear(in_features=self.hidden_dims[-1], out_features=1)
-        self.A = nn.Linear(
-            in_features=self.hidden_dims[-1], out_features=self.num_actions
-        )
+
+        self.optimizer = optim.Adam(self.parameters(), lr=self.lr)
+        self.loss = nn.MSELoss()
 
         self.to(self.device)
 
@@ -22,7 +23,7 @@ class DuelingDeepQNetwork(DeepQNetwork):
         for layer in self.layers:
             x = F.relu(layer(x))
         V = self.V(x)
-        A = self.A(x)
+        A = self.Q(x)
         Q = V + (A - torch.mean(A, dim=1, keepdim=True))
         return Q
 
@@ -30,7 +31,7 @@ class DuelingDeepQNetwork(DeepQNetwork):
         x = state
         for layer in self.layers:
             x = F.relu(layer(x))
-        A = self.A(x)
+        A = self.Q(x)
         return A
 
 

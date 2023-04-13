@@ -23,6 +23,7 @@ class DeepQNetwork(nn.Module):
         self.hidden_dims = hidden_dims
         self.num_actions = num_actions
         self.device = device
+        self.lr = lr
 
         self.layers = nn.ModuleList()
         self.layers.append(
