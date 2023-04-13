@@ -22,18 +22,18 @@ class Convergence(AbstractStatistic):
         self.count_measurable = MeasurableResolver(check["count_args"]).resolve(fw)
         self.reference = check["reference"]
         self.distance_types = check["distance_types"]
-        self.count_checkpoints = np.unique(np.array([0] + check["count_checkpoints"]))
+        self.count_checkpoints = list(sorted(set([0] + check["count_checkpoints"])))
 
         self.distances_dictn = dict(
             zip(
-                list(self.count_checkpoints),
+                self.count_checkpoints,
                 [
                     dict(
                         zip(
                             self.distance_types, [[] for x in list(self.distance_types)]
                         )
                     )
-                    for y in list(self.count_checkpoints)
+                    for y in self.count_checkpoints
                 ],
             )
         )
@@ -44,8 +44,12 @@ class Convergence(AbstractStatistic):
         self.prev_calc_at = 0
 
         # setup a cache to store interim state for aggregates
-        attrs_to_store = {"ref_embedding": np.ndarray, "prev_count": int}
-        self.cache = make_cache_container(fw, attrs_to_store)
+        props_to_store = {
+            "ref_embedding": np.ndarray,
+            "prev_count": int,
+            "first_checkpoint": int,
+        }
+        self.cache = make_cache_container(fw, props_to_store)
 
     def base_check(self, inputs, outputs, gts=None, extra_args={}):
         all_models = [
@@ -67,6 +71,7 @@ class Convergence(AbstractStatistic):
         )
 
         # TODO: dunno what this is for
+        self.total_count += len(extra_args["id"])
         models = dict(
             zip(
                 ["model_" + x for x in self.model_names],
@@ -76,15 +81,18 @@ class Convergence(AbstractStatistic):
                 ],
             )
         )
-        self.total_count += len(extra_args["id"])
 
         # read previous state from the cache
+        # - ref_embs_cache: the reference embedding for each aggregate id
+        # - prev_count_cache: the previous view count seen for each aggregate id
+        # - first_crossed_checkpoint_cache: the first checkpoint that was crossed for each aggregate id
         [
             ref_embs_cache,
             prev_count_cache,
+            first_crossed_checkpoint_cache,
         ] = self.cache.fetch_col_values_for_ids(
             np.asarray(aggregate_ids),
-            ["ref_embedding", "prev_count"],
+            ["ref_embedding", "prev_count", "first_checkpoint"],
         )
 
         set_ids_to_cache = set()  # track which ids we need to update in the cache
@@ -99,44 +107,58 @@ class Convergence(AbstractStatistic):
                 continue
 
             active_id = aggregate_ids[idx]
-            prev_count = prev_count_cache.get(aggregate_ids[idx], None)
+            prev_count = prev_count_cache.get(active_id, None)
             curr_count = counts[idx]
+            ref_emb = ref_embs_cache.get(active_id, None)
+            curr_emb = vals[idx]
 
             # Four possible cases:
-            # 1. prev_count > max(checkpoints): we skip processing this row altogether since all checkpoints have been crossed.
-            # 2. prev_count = None: first time we see this aggregate id, so we skip processing it. Save the current state in the cache.
-            # 3. curr_count < prev_count: this row is out of order, so we skip processing it. Save the previous state in the cache.
+            # 1. prev_count = None: first time we see this aggregate id, so we skip processing it. Save the current state in the cache.
+            # 2. prev_count > max(checkpoints): we skip processing this row altogether since all checkpoints have been crossed.
+            # 3. prev_count > curr_count: this row is out of order, so we skip processing it.
             # 4. curr_count > prev_count: we have seen this aggregate id before, so we process it. Save the current state in the cache.
             if prev_count is None:
                 set_ids_to_cache.add(active_id)
-                ref_embs_cache[active_id] = vals[idx]
+                ref_embs_cache[active_id] = curr_emb
                 prev_count_cache[active_id] = curr_count
+                # negative value as the placeholder for `not checkpoints crossed yet`
+                first_crossed_checkpoint_cache[active_id] = -1
             elif prev_count > self.count_checkpoints[-1]:
                 continue
-            elif curr_count < prev_count:
-                set_ids_to_cache.add(active_id)
-                # ref_emb, count, checkpoint don't need to be updated
+            elif prev_count > curr_count:
+                continue
             else:
                 last_crossed_checkpoint = None
                 for cp in reversed(self.count_checkpoints):
-                    if prev_count < cp <= curr_count:
+                    if prev_count > cp:
+                        break  # we are already past this checkpoint or those smaller than it
+                    elif (prev_count < cp) and (cp <= curr_count):
                         last_crossed_checkpoint = cp
                         break
 
-                if (
-                    last_crossed_checkpoint is None
-                ):  # no checkpoints crossed, only need to update the running count
-                    set_ids_to_cache.add(active_id)
-                    prev_count_cache[active_id] = curr_count
+                set_ids_to_cache.add(active_id)
+                prev_count_cache[active_id] = curr_count
+
+                if last_crossed_checkpoint is None:
+                    # no new checkpoint crossed, so we just update the last count seen and move on
+                    continue
+                elif first_crossed_checkpoint_cache[active_id] < 0:
+                    # new checkpoint crossed but this is the first one, so store the reference embedding and move on.
+                    first_crossed_checkpoint_cache[active_id] = last_crossed_checkpoint
+                    ref_embs_cache[active_id] = curr_emb
                 else:
-                    ref_emb = ref_embs_cache[active_id]
-                    this_val = vals[idx]
+                    # new checkpoint crossed and we have a reference embedding, so compute the statistics.
+                    # Update the reference embedding if necessary.
+                    assert ref_emb is not None
+                    if self.reference == "running_diff":
+                        ref_embs_cache[active_id] = curr_emb
+
                     # compute the statistics
                     this_distances = dict(
                         zip(
                             self.distance_types,
                             [
-                                x.compute_distance(this_val, ref_emb)
+                                x.compute_distance(curr_emb, ref_emb)
                                 for x in self.dist_classes
                             ],
                         )
@@ -167,25 +189,21 @@ class Convergence(AbstractStatistic):
                             file_name=str(last_crossed_checkpoint),
                         )
 
-                    set_ids_to_cache.add(active_id)
-                    ref_embs_cache[active_id] = (
-                        this_val if self.reference == "running_diff" else ref_emb
-                    )
-                    prev_count_cache[active_id] = curr_count
-
         if len(set_ids_to_cache) > 0:
             # save the current state in the cache
             list_ids = list(set_ids_to_cache)
-            list_ref_embs, list_counts = [], []
+            list_ref_embs, list_counts, list_first_checkpoints = [], [], []
             for _id in list_ids:
                 list_ref_embs.append(ref_embs_cache[_id])
                 list_counts.append(prev_count_cache[_id])
+                list_first_checkpoints.append(first_crossed_checkpoint_cache[_id])
 
             self.cache.upsert_ids_n_col_values(
                 np.asarray(list_ids),
                 {
                     "ref_embedding": np.asarray(list_ref_embs),
                     "prev_count": np.asarray(list_counts),
+                    "first_checkpoint": np.asarray(list_first_checkpoints),
                 },
             )
 
