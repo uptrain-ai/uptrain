@@ -1,14 +1,23 @@
-import streamlit as st
-import pandas as pd
-from glob import glob
-import os
-import sys
-import plotly.graph_objects as go
-import numpy as np
 import json
-import plotly.express as px
-import random
+import numpy as np
+import os
+import pandas as pd
 import pickle
+import plotly.express as px
+import plotly.graph_objects as go
+import random
+import streamlit as st
+import sys
+import uuid
+
+from glob import glob
+
+
+def random_uuid_wrapper(key, component, *args, **kwargs):
+    key = str(key)
+    if key not in st.session_state:
+        st.session_state[key] = str(uuid.uuid4())
+    return component(*args, **kwargs, key = st.session_state.get(key))
 
 
 st.set_page_config(
@@ -39,8 +48,12 @@ if model_args:
         all_model_types = []
         for model_type in model_args:
             all_model_types.append(model_type['feature_name'])
-        model_selected = st.sidebar.selectbox("Model type to compare with", 
-            all_model_types, key='select_model_args')
+        model_selected = random_uuid_wrapper(
+            key=1,
+            component=st.sidebar.selectbox,
+            label="Model type to compare with",
+            options=all_model_types
+        )
         model_compare_ind = all_model_types.index(model_selected)
         
         st.sidebar.subheader("Select other model types")
@@ -48,8 +61,12 @@ if model_args:
             if i==model_compare_ind:
                 continue
             model_name = model['feature_name']
-            value = st.sidebar.selectbox(model_name, model['allowed_values'], 
-                key=f'model_{model_name}')
+            value = random_uuid_wrapper(
+                key=2,
+                component=st.sidebar.selectbox,
+                label=model_name,
+                options=model['allowed_values']
+            )
             other_models.update({model_name: value})
 
     elif len(model_args) == 1:
@@ -64,8 +81,12 @@ if feature_args:
         feature_name = feature['feature_name']
         allowed_feats = feature['allowed_values']
         allowed_feats.insert(0, 'All')
-        value = st.sidebar.selectbox(feature_name, allowed_feats, 
-            key=f'feature_{feature_name}')
+        value = random_uuid_wrapper(
+            key=3,
+            component=st.sidebar.selectbox,
+            label=feature_name,
+            options=allowed_feats
+        )
         if value != 'All':
             features_to_slice.update({feature_name: value})
 
@@ -136,12 +157,18 @@ def plot_line_charts(files, plot_name):
 
     col1, col2 = st.columns(2)
     with col1:
-        x_log = st.checkbox(
-            "log x", help="x-axis in log-scale", key=plot_name + "x"
+        x_log = random_uuid_wrapper(
+            key=4,
+            component=st.checkbox,
+            label="log x",
+            help="x-axis in log-scale"
         )
     with col2:
-        y_log = st.checkbox(
-            "log y", help="y-axis in log-scale", key=plot_name + "y"
+        y_log = random_uuid_wrapper(
+            key=5,
+            component=st.checkbox,
+            label="log y",
+            help="y-axis in log-scale"
         )
     
     cols = st.columns(2)
@@ -262,7 +289,12 @@ def get_view_arr_from_files(files):
 def plot_umaps(files, plot_name, sub_dir):
     view_arr = get_view_arr_from_files(files)
     if len(view_arr > 0):
-        selected_count = st.selectbox(f"Cluster View Point", view_arr, key=plot_name+'count')
+        selected_count = random_uuid_wrapper(
+            key=6,
+            component=st.selectbox,
+            label=f"Cluster View Point",
+            options=view_arr
+        )
     cols = st.columns(2)
     for j in range(num_models_compare):
         if model_to_compare is not None:
@@ -282,7 +314,13 @@ def plot_umaps(files, plot_name, sub_dir):
                 if int(count) < 0:
                     plot_umap(file, j) 
                 else:
-                    if st.checkbox(f"For count {count}", key=plot_name+str(count)):
+                    count_checkbox = random_uuid_wrapper(
+                        key=7,
+                        component=st.checkbox,
+                        label=f"For count {count}",
+                        options=view_arr
+                    )
+                    if count_checkbox:
                         plot_umap(file, j)  
 
 def plot_bar(file):
@@ -316,7 +354,12 @@ def plot_for_count(files, plot_func, plot_name):
         if int(count) < 0:
             plot_func(file) 
         else:
-            if st.checkbox(f"For count {count}", key=plot_name+str(count)):
+            count_checkbox = random_uuid_wrapper(
+                key=8,
+                component=st.checkbox,
+                label=f"For count {count}"
+            )
+            if count_checkbox:
                 plot_func(file)          
 
 
@@ -353,7 +396,12 @@ def plot_dashboard(dashboard_name):
         ######### Line Plots ###########
 
         elif sub_dir_split[-2] == "line_plots":
-            if st.sidebar.checkbox(f"Line-plot for {plot_name}", key=plot_name+dashboard_name):
+            line_plot_checkbox = random_uuid_wrapper(
+                key=9,
+                component=st.checkbox,
+                label=f"Line-plot for {plot_name}"
+            )
+            if line_plot_checkbox:
                 st.markdown(f"### Line chart for {plot_name}")
                 plot_line_charts(files, plot_name)
                 st.markdown("""---""")    
@@ -362,7 +410,12 @@ def plot_dashboard(dashboard_name):
 
         elif sub_dir_split[-2] == "histograms":
             if plot_name == "UMAP":
-                if st.sidebar.checkbox(f"UMAP plot"):
+                umap_plot_checkbox = random_uuid_wrapper(
+                    key=10,
+                    component=st.checkbox,
+                    label=f"UMAP plot"
+                )
+                if umap_plot_checkbox:
                     st.markdown(f"### UMAP plot")
                     if model_args is not None:
                         plot_umaps(files, plot_name, sub_dir)
@@ -370,8 +423,13 @@ def plot_dashboard(dashboard_name):
                         for file in files:
                             plot_umap(file)
                     st.markdown("""---""") 
-            elif plot_name == "t_SNE":  
-                if st.sidebar.checkbox(f"t-SNE plot"):
+            elif plot_name == "t_SNE":
+                tsne_plot_checkbox = random_uuid_wrapper(
+                    key=11,
+                    component=st.checkbox,
+                    label=f"t-SNE plot"
+                )
+                if tsne_plot_checkbox:
                     st.markdown(f"### t-SNE plot")
                     if model_args is not None:
                         plot_umaps(files, plot_name, sub_dir)
@@ -380,7 +438,12 @@ def plot_dashboard(dashboard_name):
                             plot_umap(file)
                     st.markdown("""---""")   
             else:
-                if st.sidebar.checkbox(f"Histogram for {plot_name}"):
+                histogram_plot_checkbox = random_uuid_wrapper(
+                    key=12,
+                    component=st.checkbox,
+                    label=f"Histogram for {plot_name}"
+                )
+                if histogram_plot_checkbox:
                     st.markdown(f"### Histogram for {plot_name}")
                     # plot_for_count(files, plot_histogram, plot_name) 
                     plot_histograms(files, plot_name)
@@ -389,7 +452,12 @@ def plot_dashboard(dashboard_name):
         ######### Plotting Bar Graphs ###########
 
         elif sub_dir_split[-2] == "bar_graphs":
-            if st.sidebar.checkbox(f"Bar graph for {plot_name}"):
+            bar_plot_checkbox = random_uuid_wrapper(
+                key=13,
+                component=st.checkbox,
+                label=f"Bar graph for {plot_name}"
+            )
+            if bar_plot_checkbox:
                 st.markdown(f"### Bar graph for {plot_name}")
                 plot_for_count(files, plot_bar, plot_name) 
                 st.markdown("""---""")  
@@ -430,12 +498,22 @@ def get_data_shap(path_all_data, num_points):
 st.sidebar.title("Select dashboards to view")
 dashboard_names = next(os.walk(log_folder))[1]
 for dashboard_name in dashboard_names:
-    if st.sidebar.checkbox(f"Dashboard: {dashboard_name}"):
+    dashboard_checkbox = random_uuid_wrapper(
+        key=14,
+        component=st.sidebar.checkbox,
+        label=f"Dashboard: {dashboard_name}"
+    )
+    if dashboard_checkbox:
         plot_dashboard(dashboard_name)
     st.sidebar.markdown("""---""")
 
 if metadata.get("path_shap_file", None):
-    if st.sidebar.checkbox(f"SHAP explainability"):
+    shap_checkbox = random_uuid_wrapper(
+        key=15,
+        component=st.sidebar.checkbox,
+        label=f"SHAP explainability"
+    )
+    if shap_checkbox:
         st.header(f"SHAP Explanability")
         
         path_all_data = metadata["path_all_data"]
@@ -459,7 +537,12 @@ if metadata.get("path_shap_file", None):
         st.subheader("Explainability for each data-point")
         cols = st.columns(2)
         with cols[0]:
-            data_point = st.selectbox("Select data-point for explainability", data_ids)
+            data_point = random_uuid_wrapper(
+                key=16,
+                component=st.selectbox,
+                label=f"Select data-point for explainability",
+                options=data_ids
+            )
 
         index = data_ids.index(data_point)
         shap_val = shap_values[index]
