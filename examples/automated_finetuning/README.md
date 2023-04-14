@@ -28,7 +28,9 @@ Finetuning an LLM involves several steps, including task definition, data prepar
 
 Uptrain's automated finetuning framework builds on the theory that different layers in the neural network have different loss profiles, and hence, having different learning rates for different layers based on there loss profile can lead to a finetuned model at a much faster pace. We,at uptrain also take motivation from HTSR theory (mentioned in https://jmlr.org/papers/v22/20-410.html) to calculate a set of training parameters that helps the model converge at a much faster rate.
 
-#Picture 1 showing different loss profiles for different layers from AdaHessian Paper
+<h1 align="center">
+<img alt="Loss Landscape" width="80%" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/automated_finetuning/loss_landscape.png">
+</h1>
 
 In the following example, we take a sample dataset of spam detection and finetune BERT to classify a sample email as spam or not. 
 In order to finetune a pretrained BERT, you need to provide the dataloaders in the cofig dictionary provided by config along with layer_ids that you would like to get trained customly. Over here, we have mentioned it to be 230 as that is the custom layer that has been inserted in the original model for custom classification. On the contrary, you can also supply the layer's name or list of layer names and the framework will automatically take that into account too. If you want the model to run custom learning rate for different layers, you also need to pass the `is_augmented` argument as `True`. Once you log the model, the automated finetuning starts and it takes care of hyperparameter tuning to finetune your LLM at an increased pace. 
@@ -44,7 +46,11 @@ framework2.log(inputs={'model': [model]})
 
 Below, we show the clear difference in the rate of finetuning with an without using Uptrain - facilitated finetuning of LLM. 
 
-# Image of 2 loss --> uptrain loss being better than orig loss. 
+<!-- # Image of 2 loss --> uptrain loss being better than orig loss.  -->
+
+<h1 align="center">
+<img alt="UpTrain Finetuning Loss" width="40%" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/automated_finetuning/uptrain_vs_normal_ft.jpeg">
+</h1>
 
 ## Conclusion 
 Finetuning an LLM can make pretrained LLMs extremely useful for specific cases. However, finetuning, if not performed carefully, can take up a lot of resources with delayed results. Here at Uptrain, we are aiming to help you observe and improve the ML models in production and this is one such small step towards that. 
