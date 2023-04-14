@@ -123,11 +123,15 @@ class Convergence(AbstractStatistic):
             # 3. prev_count > curr_count: this row is out of order, so we skip processing it.
             # 4. curr_count > prev_count: we have seen this aggregate id before, so we process it. Save the current state in the cache.
             if prev_count is None:
+                crossed_checkpoint = max(
+                    cp for cp in self.count_checkpoints if cp <= curr_count
+                )
+                print("crossed checkpoint ", crossed_checkpoint)
+
                 set_ids_to_cache.add(active_id)
-                ref_embs_cache[active_id] = curr_emb
                 prev_count_cache[active_id] = curr_count
-                # negative value as the placeholder for `not checkpoints crossed yet`
-                first_crossed_checkpoint_cache[active_id] = -1
+                ref_embs_cache[active_id] = curr_emb
+                first_crossed_checkpoint_cache[active_id] = crossed_checkpoint
             elif prev_count > self.count_checkpoints[-1]:
                 continue
             elif prev_count > curr_count:
@@ -137,21 +141,15 @@ class Convergence(AbstractStatistic):
                 for cp in reversed(self.count_checkpoints):
                     if prev_count > cp:
                         break  # we are already past this checkpoint or those smaller than it
-                    elif (prev_count < cp) and (cp <= curr_count):
+                    elif (prev_count <= cp) and (cp < curr_count):
                         last_crossed_checkpoint = cp
                         break
 
                 set_ids_to_cache.add(active_id)
                 prev_count_cache[active_id] = curr_count
-
                 if last_crossed_checkpoint is None:
                     # no new checkpoint crossed, so we just update the last count seen and move on
                     continue
-                elif first_crossed_checkpoint_cache[active_id] < 0:
-                    # new checkpoint crossed but this is the first one, so store the reference embedding and move on.
-                    first_crossed_checkpoint_cache[active_id] = last_crossed_checkpoint
-                    ref_embs_cache[active_id] = curr_emb
-                    print("crossed checkpoint ", last_crossed_checkpoint)
                 else:
                     # new checkpoint crossed and we have a reference embedding, so compute the statistics.
                     # Update the reference embedding if necessary.
@@ -180,6 +178,7 @@ class Convergence(AbstractStatistic):
                             ],
                         )
                     )
+
                     for distance_key in list(this_distances.keys()):
                         plot_name = distance_key + " " + str(self.reference)
                         this_data = list(
@@ -216,48 +215,48 @@ class Convergence(AbstractStatistic):
             )
 
         # TODO: dunno what this is for
-        if (self.total_count - self.prev_calc_at) > 50000:
-            self.prev_calc_at = self.total_count
-            for count in list(self.distances_dictn.keys()):
-                if count > 0:
-                    for distance_type in self.distance_types:
-                        plot_name = distance_type + " " + str(self.reference)
-                        this_data = np.reshape(
-                            np.array(self.distances_dictn[count][distance_type]), -1
-                        )
+        # if (self.total_count - self.prev_calc_at) > 50000:
+        #     self.prev_calc_at = self.total_count
+        #     for count in list(self.distances_dictn.keys()):
+        #         if count > 0:
+        #             for distance_type in self.distance_types:
+        #                 plot_name = distance_type + " " + str(self.reference)
+        #                 this_data = np.reshape(
+        #                     np.array(self.distances_dictn[count][distance_type]), -1
+        #                 )
 
-                        if len(this_data) > 5:
-                            self.log_handler.add_scalars(
-                                plot_name + "_mean",
-                                {"y_mean": np.mean(this_data)},
-                                count,
-                                self.dashboard_name,
-                                models=models,
-                                features={"tagGenre": "All"},
-                                file_name=str("count"),
-                                update_val=True,
-                            )
+        #                 if len(this_data) > 5:
+        #                     self.log_handler.add_scalars(
+        #                         plot_name + "_mean",
+        #                         {"y_mean": np.mean(this_data)},
+        #                         count,
+        #                         self.dashboard_name,
+        #                         models=models,
+        #                         features={"tagGenre": "All"},
+        #                         file_name=str("count"),
+        #                         update_val=True,
+        #                     )
 
-                            # next_count_idx = np.where(self.count_checkpoints == (count))[0][0] + 1
-                            # if next_count_idx < len(self.count_checkpoints):
-                            #     next_data = np.reshape(
-                            #         np.array(self.distances_dictn[self.count_checkpoints[next_count_idx]][distance_type]), -1
-                            #     )
-                            #     if len(next_data) > 5:
-                            #         clustering_helper = Clustering({"num_buckets": 2, "is_embedding": False})
-                            #         this_data = np.expand_dims(np.array(this_data), axis=(1))
-                            #         next_data = np.expand_dims(np.array(next_data), axis=(1,2))
-                            #         this_count_clustering_res = clustering_helper.cluster_data(this_data)
-                            #         next_count_clustering_res = clustering_helper.infer_cluster_assignment(next_data)
-                            #         emd_cost = estimate_earth_moving_cost(np.reshape(next_count_clustering_res[1]/next_data.shape[0],-1), np.reshape(clustering_helper.dist[0],-1), clustering_helper.clusters[0])
-                            #         self.log_handler.add_scalars(
-                            #             plot_name + "_emd",
-                            #             {'y_distance': emd_cost},
-                            #             count,
-                            #             # self.total_count,
-                            #             self.dashboard_name,
-                            #             models = models,
-                            #             features = {"tagGenre": "All"},
-                            #             file_name = str("count"),
-                            #             update_val = True
-                            #         )
+        # next_count_idx = np.where(self.count_checkpoints == (count))[0][0] + 1
+        # if next_count_idx < len(self.count_checkpoints):
+        #     next_data = np.reshape(
+        #         np.array(self.distances_dictn[self.count_checkpoints[next_count_idx]][distance_type]), -1
+        #     )
+        #     if len(next_data) > 5:
+        #         clustering_helper = Clustering({"num_buckets": 2, "is_embedding": False})
+        #         this_data = np.expand_dims(np.array(this_data), axis=(1))
+        #         next_data = np.expand_dims(np.array(next_data), axis=(1,2))
+        #         this_count_clustering_res = clustering_helper.cluster_data(this_data)
+        #         next_count_clustering_res = clustering_helper.infer_cluster_assignment(next_data)
+        #         emd_cost = estimate_earth_moving_cost(np.reshape(next_count_clustering_res[1]/next_data.shape[0],-1), np.reshape(clustering_helper.dist[0],-1), clustering_helper.clusters[0])
+        #         self.log_handler.add_scalars(
+        #             plot_name + "_emd",
+        #             {'y_distance': emd_cost},
+        #             count,
+        #             # self.total_count,
+        #             self.dashboard_name,
+        #             models = models,
+        #             features = {"tagGenre": "All"},
+        #             file_name = str("count"),
+        #             update_val = True
+        #         )
