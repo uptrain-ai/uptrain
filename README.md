@@ -28,9 +28,6 @@
   <a href='https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md'>
     <img alt='PRs Welcome' src='https://img.shields.io/badge/PRs-welcome-orange.svg?style=shields'/>
   </a>
-  <a href="https://github.com/uptrain-ai/uptrain/commits/main">
-    <img src="https://img.shields.io/github/commit-activity/m/uptrain-ai/uptrain"  />
-  </a>
   <a href="https://docs.uptrain.ai/docs/">
     <img src="https://img.shields.io/badge/Read-Docs-brightgreen" alt="Docs" />
   </a>
