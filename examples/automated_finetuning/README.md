@@ -46,8 +46,6 @@ framework2.log(inputs={'model': [model]})
 
 Below, we show the clear difference in the rate of finetuning with an without using Uptrain - facilitated finetuning of LLM. 
 
-<!-- # Image of 2 loss --> uptrain loss being better than orig loss.  -->
-
 <h1 align="center">
 <img alt="UpTrain Finetuning Loss" width="40%" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/automated_finetuning/uptrain_vs_normal_ft.jpeg">
 </h1>
