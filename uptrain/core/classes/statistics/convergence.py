@@ -1,6 +1,6 @@
 import numpy as np
 
-from uptrain.core.lib.helper_funcs import extract_data_points_from_batch
+from uptrain.core.lib.helper_funcs import make_2d_np_array
 from uptrain.core.classes.distances import DistanceResolver
 from uptrain.core.classes.statistics import AbstractStatistic
 from uptrain.core.classes.measurables import MeasurableResolver
@@ -112,11 +112,6 @@ class Convergence(AbstractStatistic):
             ref_emb = ref_embs_cache.get(active_id, None)
             curr_emb = vals[idx]
 
-            print("-------------------------")
-            print(active_id)
-            print("prev_count", prev_count)
-            print("curr_count", curr_count)
-
             # Four possible cases:
             # 1. prev_count = None: first time we see this aggregate id, so we skip processing it. Save the current state in the cache.
             # 2. prev_count > max(checkpoints): we skip processing this row altogether since all checkpoints have been crossed.
@@ -126,7 +121,6 @@ class Convergence(AbstractStatistic):
                 crossed_checkpoint = max(
                     cp for cp in self.count_checkpoints if cp <= curr_count
                 )
-                print("crossed checkpoint ", crossed_checkpoint)
 
                 set_ids_to_cache.add(active_id)
                 prev_count_cache[active_id] = curr_count
@@ -147,14 +141,13 @@ class Convergence(AbstractStatistic):
 
                 set_ids_to_cache.add(active_id)
                 prev_count_cache[active_id] = curr_count
+
                 if last_crossed_checkpoint is None:
                     # no new checkpoint crossed, so we just update the last count seen and move on
                     continue
                 else:
                     # new checkpoint crossed and we have a reference embedding, so compute the statistics.
                     # Update the reference embedding if necessary.
-                    print("crossed checkpoint ", last_crossed_checkpoint)
-                    print("written log")
                     assert ref_emb is not None
                     if self.reference == "running_diff":
                         ref_embs_cache[active_id] = curr_emb
@@ -164,7 +157,10 @@ class Convergence(AbstractStatistic):
                         zip(
                             self.distance_types,
                             [
-                                x.compute_distance(curr_emb, ref_emb)
+                                x.compute_distance(
+                                    make_2d_np_array(curr_emb),
+                                    make_2d_np_array(ref_emb),
+                                )
                                 for x in self.dist_classes
                             ],
                         )
@@ -215,27 +211,27 @@ class Convergence(AbstractStatistic):
             )
 
         # TODO: dunno what this is for
-        # if (self.total_count - self.prev_calc_at) > 50000:
-        #     self.prev_calc_at = self.total_count
-        #     for count in list(self.distances_dictn.keys()):
-        #         if count > 0:
-        #             for distance_type in self.distance_types:
-        #                 plot_name = distance_type + " " + str(self.reference)
-        #                 this_data = np.reshape(
-        #                     np.array(self.distances_dictn[count][distance_type]), -1
-        #                 )
+        if (self.total_count - self.prev_calc_at) > 50000:
+            self.prev_calc_at = self.total_count
+            for count in list(self.distances_dictn.keys()):
+                if count > 0:
+                    for distance_type in self.distance_types:
+                        plot_name = distance_type + " " + str(self.reference)
+                        this_data = np.reshape(
+                            np.array(self.distances_dictn[count][distance_type]), -1
+                        )
 
-        #                 if len(this_data) > 5:
-        #                     self.log_handler.add_scalars(
-        #                         plot_name + "_mean",
-        #                         {"y_mean": np.mean(this_data)},
-        #                         count,
-        #                         self.dashboard_name,
-        #                         models=models,
-        #                         features={"tagGenre": "All"},
-        #                         file_name=str("count"),
-        #                         update_val=True,
-        #                     )
+                        if len(this_data) > 5:
+                            self.log_handler.add_scalars(
+                                plot_name + "_mean",
+                                {"y_mean": np.mean(this_data)},
+                                count,
+                                self.dashboard_name,
+                                models=models,
+                                features={"tagGenre": "All"},
+                                file_name=str("count"),
+                                update_val=True,
+                            )
 
         # next_count_idx = np.where(self.count_checkpoints == (count))[0][0] + 1
         # if next_count_idx < len(self.count_checkpoints):

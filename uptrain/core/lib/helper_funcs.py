@@ -11,7 +11,12 @@ from uptrain.core.encoders.uptrain_encoder import UpTrainEncoder
 
 
 def cluster_and_plot_data(
-    data, num_clusters, cluster_plot_func=None, plot_save_name="", normalisation=None, compute_point_density=False
+    data,
+    num_clusters,
+    cluster_plot_func=None,
+    plot_save_name="",
+    normalisation=None,
+    compute_point_density=False,
 ):
     kmeans = KMeans(n_clusters=num_clusters, random_state=1, n_init=10)
     kmeans.fit(data)
@@ -44,7 +49,7 @@ def cluster_and_plot_data(
                 all_elems_dists = np.sum(np.abs(this_elems - data[idx]), axis=1)
                 closest_points_idxs = np.where(all_elems_dists < 1.5 * min_var)
                 num_close_points += len(closest_points_idxs[0])
-            density_arr.append(num_close_points-1)
+            density_arr.append(num_close_points - 1)
     density_arr = np.array(density_arr)
 
     idxs_closest_to_cluster_centroids = {}
@@ -61,7 +66,7 @@ def cluster_and_plot_data(
                 "cluster": all_clusters[idx],
                 "count": counts[idx],
                 "var": cluster_vars[idx],
-                "idxs_closest": idxs_closest_to_cluster_centroids[idx]
+                "idxs_closest": idxs_closest_to_cluster_centroids[idx],
             }
         )
     dictn.sort(key=lambda x: x["count"], reverse=True)
@@ -69,15 +74,25 @@ def cluster_and_plot_data(
     all_clusters = np.array([x["cluster"] for x in dictn])
     counts = np.array([x["count"] for x in dictn])
     cluster_vars = np.array([x["var"] for x in dictn])
-    idxs_closest_to_cluster_centroids = dict(zip(range(len(dictn)), [x['idxs_closest'] for x in dictn]))
+    idxs_closest_to_cluster_centroids = dict(
+        zip(range(len(dictn)), [x["idxs_closest"] for x in dictn])
+    )
 
     if normalisation is not None:
         all_clusters_renormalised = copy.deepcopy(all_clusters) * normalisation
     else:
         all_clusters_renormalised = all_clusters
     if cluster_plot_func is not None:
-        cluster_plot_func(all_clusters_renormalised, counts, plot_save_name=plot_save_name)
-    return all_clusters, counts, cluster_vars, density_arr, idxs_closest_to_cluster_centroids
+        cluster_plot_func(
+            all_clusters_renormalised, counts, plot_save_name=plot_save_name
+        )
+    return (
+        all_clusters,
+        counts,
+        cluster_vars,
+        density_arr,
+        idxs_closest_to_cluster_centroids,
+    )
 
 
 def add_data_to_warehouse(data, path_csv, row_update=False):
@@ -104,6 +119,7 @@ def add_data_to_warehouse(data, path_csv, row_update=False):
         else:
             pd.DataFrame(data).to_csv(path_csv, index=False, mode="a", header=False)
 
+
 def combine_data_points_for_batch(data):
     # what could be the generic logic???
     if isinstance(data, list):
@@ -118,17 +134,19 @@ def combine_data_points_for_batch(data):
                         joined.update({key: []})
                     joined[key].append(elem[key])
                     if idx == len(data) - 1:
-                        joined[key] = np.squeeze(np.array(joined[key]),axis=1)
+                        joined[key] = np.squeeze(np.array(joined[key]), axis=1)
             elif isinstance(elem, list):
                 if len(elem) == 1:
                     if joined is None:
                         joined = []
                     joined.append(np.array(elem))
                     if idx == len(data) - 1:
-                        joined = np.squeeze(np.array(joined),axis=1)
+                        joined = np.squeeze(np.array(joined), axis=1)
                 else:
                     print(data)
-                    import pdb; pdb.set_trace()
+                    import pdb
+
+                    pdb.set_trace()
                     raise Exception("Not implemented, please contact developers")
             elif isinstance(elem, np.ndarray):
                 if joined is None:
@@ -139,6 +157,7 @@ def combine_data_points_for_batch(data):
     else:
         print(data)
         raise Exception("Not implemented, please contact developers")
+
 
 def extract_data_points_from_batch(data, idxs):
     if isinstance(data, dict):
@@ -155,6 +174,16 @@ def extract_data_points_from_batch(data, idxs):
             return [data[x] for x in list(idxs)]
     else:
         return data
+
+
+def make_2d_np_array(data):
+    data = np.asarray(data)
+    if len(data.shape) == 1:
+        return np.expand_dims(data, axis=0)
+    elif len(data.shape) == 2:
+        return data
+    else:
+        raise Exception("Invalid data shape: %s" % str(data.shape))
 
 
 def get_feature_names_list(inputs):
@@ -177,15 +206,15 @@ def add_data_to_batch(data, this_data):
 
 
 def get_df_indices_from_ids(df, ids):
-    if not isinstance(df['id'][0], str):
-        all_id_array = np.array(df['id'])
+    if not isinstance(df["id"][0], str):
+        all_id_array = np.array(df["id"])
         if np.all(np.diff(all_id_array) >= 0):
             return np.searchsorted(all_id_array, ids)
         else:
             sorter = np.argsort(all_id_array)
             return sorter[np.searchsorted(all_id_array, ids, sorter=sorter)]
     else:
-        id_str_list = [eval(x) for x in df['id']]
+        id_str_list = [eval(x) for x in df["id"]]
         sorter = np.argsort(id_str_list)
         return sorter[np.searchsorted(id_str_list, ids, sorter=sorter)]
 
