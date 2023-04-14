@@ -112,6 +112,11 @@ class Convergence(AbstractStatistic):
             ref_emb = ref_embs_cache.get(active_id, None)
             curr_emb = vals[idx]
 
+            print("-------------------------")
+            print(active_id)
+            print("prev_count", prev_count)
+            print("curr_count", curr_count)
+
             # Four possible cases:
             # 1. prev_count = None: first time we see this aggregate id, so we skip processing it. Save the current state in the cache.
             # 2. prev_count > max(checkpoints): we skip processing this row altogether since all checkpoints have been crossed.
@@ -146,9 +151,12 @@ class Convergence(AbstractStatistic):
                     # new checkpoint crossed but this is the first one, so store the reference embedding and move on.
                     first_crossed_checkpoint_cache[active_id] = last_crossed_checkpoint
                     ref_embs_cache[active_id] = curr_emb
+                    print("crossed checkpoint ", last_crossed_checkpoint)
                 else:
                     # new checkpoint crossed and we have a reference embedding, so compute the statistics.
                     # Update the reference embedding if necessary.
+                    print("crossed checkpoint ", last_crossed_checkpoint)
+                    print("written log")
                     assert ref_emb is not None
                     if self.reference == "running_diff":
                         ref_embs_cache[active_id] = curr_emb
