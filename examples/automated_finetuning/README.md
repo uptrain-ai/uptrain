@@ -1,12 +1,12 @@
-Title: Accelerated Automated Finetuning of LLMs for Domain specific Tasks
+# Accelerated Automated Finetuning of LLMs for Domain specific Tasks
 
-Introduction:
+## Introduction
 Deep learning has revolutionized the field of artificial intelligence, enabling breakthroughs in computer vision, natural language processing, and many other domains. One key factor that has contributed to the success of deep learning is the use of pretrained networks, which are neural networks that have been trained on large datasets and can be used as a starting point for building custom models. Among various techniques, finetuning is a popular approach that allows us to adapt a pretrained model to a specific task or dataset. In this blog, we will explore the concept of finetuning, its benefits, and best practices for finetuning a deep learning model.
 
-What is Finetuning?
+## What is Finetuning?
 Finetuning, also known as transfer learning, is a process of taking a pretrained neural network and adapting it to a new task or dataset. The idea is to leverage the knowledge learned from a large dataset during the pretraining phase and apply it to a smaller dataset or a different task. This can save a significant amount of time and computational resources compared to training a deep neural network from scratch on a new task or dataset.
 
-Benefits of Finetuning:
+## Benefits of Finetuning:
 
 - Faster Training: One of the main advantages of finetuning is that it can significantly speed up the training process. Since the pretrained network has already learned generic features from a large dataset, it can serve as a good initialization for the new task. This allows the network to converge faster during training, reducing the number of iterations needed to achieve good performance.
 
@@ -14,7 +14,7 @@ Benefits of Finetuning:
 
 - Robustness: Another benefit of finetuning is that it can improve the robustness of the model. Pretrained models have already been exposed to a diverse range of data during the pretraining phase, which can help the model generalize better to different variations in the new dataset. This can result in a more robust and adaptable model.
 
-Why Finetuning Matters for LLMs?
+## Why Finetuning Matters for LLMs?
 
 - Task-Specific Adaptation: LLMs are trained on massive amounts of text data from the internet, which makes them proficient at capturing general language patterns and representations. However, for specific tasks or domains, fine-tuning allows the model to adapt to the nuances and specificities of the target task or domain. Finetuning LLMs with task-specific data can greatly improve their performance and make them more effective for the specific task at hand.
 
