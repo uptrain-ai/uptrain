@@ -16,7 +16,8 @@ class DataIntegrity(AbstractMonitor):
         self.threshold = check.get("threshold", None)
         self.count = 0
         self.num_issues = 0
-        if self.integrity_type == "z_score":
+        self.has_reference_dataset = "reference_dataset" in check
+        if self.has_reference_dataset:
             self.reference_dataset = check["reference_dataset"]
             self.ref_mean, self.ref_std = self.get_ref_data_stats()
             
@@ -41,7 +42,11 @@ class DataIntegrity(AbstractMonitor):
                 self.threshold = 3
             
             # Calculating Z-scores w.r.t. the reference dataset
-            z_score = (signal_value - self.ref_mean) / self.ref_std
+            if self.has_reference_dataset:
+                z_score = (signal_value - self.ref_mean) / self.ref_std
+            # Calculating Z-scores w.r.t. the current dataset
+            else:
+                z_score = zscore(signal_value)
             has_issue = np.abs(z_score) > self.threshold
             outliers = z_score[has_issue]
             valid_z_scores = z_score[~has_issue]
