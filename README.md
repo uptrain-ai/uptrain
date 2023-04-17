@@ -115,26 +115,26 @@ One of the most common use cases of ML today is language models, be it text summ
 
 ### AI Explainability out-of-the-box
 
-<h1 align="left">
+<h1 align="center">
 <img alt="umap_gif" width="60%" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/ride_estimation/4_Explanability_recording.gif">
 </h1>
 
 ### Live Model Performance Monitoring and Data Integrity Checks
 
-<h1 align="left">
+<h1 align="center">
 <img alt="perf_gif" width="40%" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/fraud_detection/concept_drift_avg_acc.gif"> <img alt="perf_gif" width="40%" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/finetuning_llms/data_integrity.gif">
 </h1>
 
 ### UMAP Dimensionality Reduction and Visualization
 
-<h1 align="left">
+<h1 align="center">
 <img alt="umap_gif" width="60%" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/text_summarization/umap.gif">
 </h1>
 
 
 ### Edge-case Collection for Finetuning the Model later
 
-<h1 align="left">
+<h1 align="center">
 <img alt="perf_gif" width="40%" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/finetuning_llms/edge_cases.gif">
 </h1>
 
