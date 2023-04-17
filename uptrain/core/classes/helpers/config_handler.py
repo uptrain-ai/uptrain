@@ -45,7 +45,8 @@ class Config(BaseModel):
     cluster_visualize_func: typing.Callable = None
     use_cache: bool = False
     run_background_log_consumer: bool = False
-    
+    running_ee: bool = False
+
 
 # class InputArgs(BaseModel):
 #     data: dict
