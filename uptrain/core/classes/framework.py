@@ -2,14 +2,15 @@ from copy import deepcopy
 import json
 import os
 import shutil
-import pandas as pd
 from datetime import datetime
 import random
-import numpy as np
-from sklearn.preprocessing import normalize
-
 from queue import SimpleQueue
 from threading import Thread
+from typing import Optional
+
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import normalize
 
 from uptrain.core.classes.helpers import DatasetHandler, ModelHandler, config_handler
 from uptrain.core.classes.logging import LogHandler
@@ -418,7 +419,14 @@ class Framework:
             data.update({key: np.array(value)})
         return data
 
-    def log(self, inputs=None, outputs=None, gts=None, identifiers=None, extra=None):
+    def log(
+        self,
+        inputs=None,
+        outputs=None,
+        gts=None,
+        identifiers=None,
+        extra=None,
+    ):
         if self.run_background_log_consumer:
             data = {
                 "inputs": inputs,

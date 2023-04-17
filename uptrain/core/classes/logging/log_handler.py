@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 class LogHandler:
-    def __init__(self, framework: Framework, cfg: Config):
+    def __init__(self, framework: "Framework", cfg: "Config"):
         self.fw = framework
         self.path_all_data = framework.path_all_data
 
@@ -48,30 +48,35 @@ class LogHandler:
 
     def add_scalars(
         self,
-        plot_name,
-        dictn,
-        count,
-        dashboard_name,
-        features={},
-        models={},
-        file_name=None,
-        update_val=False,
+        plot_name: str,
+        dictn: dict,
+        count: int,
+        dashboard_name: str,
+        features: Optional[dict],
+        models: Optional[dict],
+        file_name: Optional[str] = None,
+        update_val: bool = False,
     ):
         if self.st_writer is None:
             return
+
         dashboard_name, plot_name = self.dir_friendly_name([dashboard_name, plot_name])
-        dictn.update(features)
-        dictn.update(models)
+        dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
+        plot_folder = os.path.join(dashboard_dir, "line_plots", plot_name)
+        os.makedirs(plot_folder, exist_ok=True)
+
+        if features is not None:
+            dictn.update(features)
+        if models is not None:
+            dictn.update(models)
         new_dictn = dict(
             zip(
                 self.dir_friendly_name(list(dictn.keys())),
                 dictn.values(),
             )
         )
-        dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
-        plot_folder = os.path.join(dashboard_dir, "line_plots", plot_name)
-        os.makedirs(plot_folder, exist_ok=True)
         new_dictn.update({"x_count": count})
+
         if file_name is None:
             file_name = plot_name
         self.st_writer.add_scalars(
@@ -87,24 +92,29 @@ class LogHandler:
         models=None,
         file_name=None,
     ):
+        if self.st_writer is None:
+            return
+
         dashboard_name, plot_name = self.dir_friendly_name([dashboard_name, plot_name])
-        if self.st_writer:
-            dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
-            plot_folder = os.path.join(dashboard_dir, "histograms", plot_name)
-            os.makedirs(plot_folder, exist_ok=True)
-            if file_name is None:
-                file_name = plot_name
-            self.st_writer.add_histogram(
-                data, plot_folder, features=features, models=models, file_name=file_name
-            )
+        dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
+        plot_folder = os.path.join(dashboard_dir, "histograms", plot_name)
+        os.makedirs(plot_folder, exist_ok=True)
+
+        if file_name is None:
+            file_name = plot_name
+        self.st_writer.add_histogram(
+            data, plot_folder, features=features, models=models, file_name=file_name
+        )
 
     def add_bar_graphs(self, plot_name, data, dashboard_name, count=-1, hover_data={}):
         if self.st_writer is None:
             return
+
         dashboard_name, plot_name = self.dir_friendly_name([dashboard_name, plot_name])
         dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
         plot_folder = os.path.join(dashboard_dir, "bar_graphs", plot_name)
         os.makedirs(plot_folder, exist_ok=True)
+
         self.st_writer.add_bar_graphs(data, plot_folder, count, hover_data=hover_data)
 
     def dir_friendly_name(self, arr):

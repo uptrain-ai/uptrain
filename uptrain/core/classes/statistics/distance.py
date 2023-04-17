@@ -117,12 +117,14 @@ class Distance(AbstractStatistic):
                 plot_name = distance_type + "_" + str(self.reference)
                 self.log_handler.add_scalars(
                     self.dashboard_name + "_" + plot_name,
-                    {"y_" + distance_type: distances[distance_type][idx]},
+                    {
+                        "y_" + distance_type: distances[distance_type][idx],
+                        "key_id": str(aggregate_ids[idx]),
+                    },
                     counts[idx],
                     self.dashboard_name,
                     features=features,
                     models=models,
-                    file_name=str(aggregate_ids[idx]),
                 )
 
         # save the reference embeddings for use in the next batch
