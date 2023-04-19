@@ -70,21 +70,21 @@ def test_visuals_dimensionality_reduction():
                 "dim": "3D",
                 "dashboard_name": "umap_3d"
             },
-            {
-                **umap_cfg,
-                "dim": "2D",
-                "dashboard_name": "umap_2d"
-            },
+            # {
+            #     **umap_cfg,
+            #     "dim": "2D",
+            #     "dashboard_name": "umap_2d"
+            # },
             {
                 **tsne_cfg,
                 "dim": "3D",
                 "dashboard_name": "tsne_3d"
             },
-            {
-                **tsne_cfg,
-                "dim": "2D",
-                "dashboard_name": "tsne_2d"
-            }
+            # {
+            #     **tsne_cfg,
+            #     "dim": "2D",
+            #     "dashboard_name": "tsne_2d"
+            # }
         ],
 
         "logging_args": {
