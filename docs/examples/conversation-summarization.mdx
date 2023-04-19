@@ -1,0 +1,635 @@
+---
+title: Conversation Summarization
+description: Collecting a finetuning dataset to improve a model that summarizes conversations
+---
+
+**Objective:** Collect a finetuning dataset to improve a model that summarizes human conversations.
+
+**Model:** We are working on the `facebook/bart-large-xsum model` that was finetuned on the SAMSum dataset (available [here](https://huggingface.co/lidiya/bart-large-xsum-samsum)).
+It is one of the [top performers](https://paperswithcode.com/sota/abstractive-text-summarization-on-samsum) in open-source models on the SAMSum corpus.
+
+**Dataset:** Our model has been finetuned on the [SAMSum corpus](https://huggingface.co/datasets/samsum) which has 16k conversations and their summaries. Additionally, we evaluate our model on the [DialogSum corpus](https://huggingface.co/datasets/knkarthick/dialogsum) which has 13k conversations and their summaries. We note that the model has good performance on this new dataset as well, but slightly worse than its performance on the SAMSum dataset. Our objective is to create a finetuning dataset to improve the model on DialogSum like conversations.
+
+**Method:** We employ several techniques to collect the fine-tuning dataset:
+- Visualizing UMAP/t-SNE for low-performing clusters
+- Finding clusters around data-points where accuracy is low
+- Edge-case Collection (user defines the edge-case parameters based on heuristics/observations)
+- Building Custom Monitor (that checks out-of-vocabulary cases) 
+
+### Step-1 Installing and Importing required packages
+
+```python
+# Install the packages mentioned below
+# pip install uptrain rouge datasets umap-learn matplotlib py7zr
+
+import json
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+import pandas as pd
+import random
+import subprocess
+import uptrain
+import zipfile
+
+from datasets import load_dataset
+from rouge import Rouge
+```
+
+
+
+### Step-2 Load Datasets from Hugging Face
+
+```python
+samsum_dataset = load_dataset("samsum")
+dialogsum_dataset = load_dataset("knkarthick/dialogsum")
+```
+
+
+
+### Step-3 Download model outputs and their embeddings
+
+We understand that running the bart-large-xsum can be time consuming on some machines, hence, we have pre-generated the model outputs and their corresponding sentence BERT embeddings to remote for both the SAMSum and DialogSUM datasets. Due to this, running this entire script does not take too much time (e.g., it runs in 3 minutes on my Macbook Air).
+
+```python
+remote_url = "https://oodles-dev-training-data.s3.amazonaws.com/conversation_summarization_data.zip"
+data_dir = 'data'
+
+if not os.path.exists(data_dir):
+    file_downloaded_ok = subprocess.call("wget " + remote_url, shell=True, 
+                                         stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    print("Data downloaded.")
+    with zipfile.ZipFile('conversation_summarization_data.zip', 'r') as zip_ref:
+        zip_ref.extractall("./")    
+    print("Prepared Model Outputs.")
+    os.remove('conversation_summarization_data.zip')
+
+else:
+    print("Skipping data download as it already exists.")
+```
+
+First, let's see (literally) what we are dealing with. We plot the sentence BERT embeddings with UMAP dimensionality reduction. We apply dimensionality reduction on 3 type of datasets: SAMSum train (aka reference dataset), SAMSum test, and DialogSum train.
+
+
+
+### Step-4 Define helper functions
+
+```python
+"""
+Using training data (i.e., SAMSum train), we generate and save a reference 
+dataset to be used by the UpTrain framework. This dataset is used to detect 
+drift, apply dimensionality reductions and compare visualizations.
+"""
+def generate_reference_dataset(
+    summary, output_summaries_file, bert_embs_file, file_name, dataset_label
+):
+    data = []
+    if not os.path.exists(file_name):
+
+        # Load model output summaries
+        f = open(output_summaries_file)
+        output_summaries = json.load(f)
+        f.close()
+
+        # Load respective BERT embeddings of output summaries
+        f = open(bert_embs_file)
+        bert_embs = list(json.load(f))
+        f.close()
+
+        data = []
+        for idx in range(len(bert_embs)):
+            if isinstance(dataset_label, str):
+                data.append(
+                    {
+                        "id": idx,
+                        "dataset_label": dataset_label,
+                        "summary": summary[idx],
+                        "bert_embs": list(bert_embs[idx]),
+                        "output": output_summaries[idx],
+                    }
+                )
+
+        with open(file_name, "w") as f:
+            json.dump(data, f, cls=uptrain.UpTrainEncoder)
+        print("Generated reference dataset.")
+    else:
+        print("Reference dataset exists. Skipping generating again.")
+
+
+
+"""
+Run the model in production. First, we pass 
+800 data points from SAMSum test and then
+12400 data points from DialogSum train.
+"""
+def run_production(framework, batch_size=200):
+    for dataset_name in ['samsum', 'dialogsum']:
+        if dataset_name=='samsum':
+            d_type = 'test'
+            dataset = samsum_dataset[d_type]
+        elif dataset_name=='dialogsum':
+            d_type = 'train'
+            dataset = dialogsum_dataset[d_type]
+        else:
+            raise Exception("Dataset Error")
+
+        f = open(os.path.join(data_dir, f"out_{d_type}_{dataset_name}_summaries.json"))
+        all_summaries = json.load(f)
+        f.close()
+
+        """
+        Note: We use sentence BERT embeddings generated from here:
+        https://huggingface.co/sentence-transformers
+        But any other embeddings, such as the ones generated by the
+        encoder can be used as well.
+        """
+        f = open(os.path.join(data_dir, f"out_{d_type}_{dataset_name}_bert_embs.json"))
+        all_bert_embs = json.load(f)
+        f.close()
+
+        for idx in range(len(all_bert_embs)//batch_size):
+            idxs = slice(idx*batch_size, (idx+1)*batch_size)
+            this_batch = dataset['summary'][idxs]
+            this_batch_dialog = dataset['dialogue'][idxs]
+
+            inputs = {
+                'id': list(range(idx*batch_size, (idx+1)*batch_size)),
+                'bert_embs': np.array(all_bert_embs[idxs]),
+                'dataset_label': [dataset_name]*batch_size,
+                'dialog': this_batch_dialog,
+                'summary': this_batch,
+            }
+            idens = framework.log(inputs=inputs, outputs=all_summaries[idxs])
+        print(f"{(idx+1)*batch_size} predictions logged for {dataset_name} {d_type}")
+```
+
+
+
+### Step-5 Generate reference dataset for dimensionality reduction
+
+```python
+# Get the locations of training-related data and outputs
+output_summaries_file = os.path.join(data_dir, 'out_train_samsum_summaries.json')
+bert_embs_file = os.path.join(data_dir, 'out_train_samsum_bert_embs.json')
+reference_dataset_file = os.path.join(data_dir, 'reference_dataset.json')
+
+# Generate and save reference dataset
+generate_reference_dataset(samsum_dataset['train']['summary'], output_summaries_file, 
+                           bert_embs_file, reference_dataset_file, 'reference')
+```
+
+
+
+### Step-6 Defining Config Dimensionality Reduction and Visualization using UMAP
+
+We define the configuration for the UpTrain framework with the required parameters for UMAP visualization in UpTrain. You can refer to the documentation to understand what each parameter means.
+
+```python
+umap_check = {
+    "type": uptrain.Visual.UMAP,
+    "measurable_args": {
+        'type': uptrain.MeasurableType.INPUT_FEATURE,
+        'feature_name': 'bert_embs'
+    },
+    "label_args": {
+        'type': uptrain.MeasurableType.INPUT_FEATURE,
+        'feature_name': 'dataset_label'
+    },
+    "hover_args": [
+      {
+          'type': uptrain.MeasurableType.INPUT_FEATURE,
+          'feature_name': 'id'
+      },
+      {
+          'type': uptrain.MeasurableType.PREDICTION,
+          'feature_name': 'output'
+      },
+      {
+          'type': uptrain.MeasurableType.INPUT_FEATURE,
+          'feature_name': 'summary'
+      },
+    ],
+    "update_freq": 13200,
+    "initial_dataset": reference_dataset_file,
+    "do_clustering": False,
+}
+
+config = {
+    "checks": [umap_check],
+    "logging_args": {"st_logging": True},
+}
+
+framework = uptrain.Framework(cfg_dict=config)
+```
+
+
+
+### Step-7 Running model in production and logging data to UpTrain
+
+```python
+run_production(framework)
+```
+
+**UMAP Visualization**
+
+Datasets marked `reference` (i.e., SAMSum training) and `samsum` (i.e., SAMSum test) are close in the UMAP space. Most point from the DialogSum dataset are further than the data on which the model was finetuned on (i.e., reference aka SAMSum train).
+
+![umap_conv_summ.png](https://uptrain-demo.s3.us-west-1.amazonaws.com/conversation_summarization/umap_conv_summ.png)
+
+Next, we identify poorly performing points and find clusters around them.
+
+### Step-8 Identifying poorly performing points
+
+> Define a performance metric. We use Rogue-L similarity, but choose any metric that is relevant to your use-case.
+
+```python
+def rogue_l_similarity(text1_list, text2_list):
+    r = Rouge()
+    res = r.get_scores([x.lower() for x in text1_list],[x.lower() for x in text2_list])
+    return [x['rouge-l']['f'] for x in res]
+```
+
+> Get Rogue-L Performance scores on the Dialogsum Data
+
+```python
+file = os.path.join(data_dir, "out_train_dialogsum_summaries.json")
+with open(file) as f:
+    dialogsum_summaries = json.load(f)
+
+dialogsum_gts = dialogsum_dataset['train']['summary'][0:len(dialogsum_summaries)]
+dialogsum_scores = rogue_l_similarity(dialogsum_summaries, dialogsum_gts)
+
+dialogsum_train_bert_embs_file = os.path.join(data_dir, 'out_train_dialogsum_bert_embs.json')
+with open(dialogsum_train_bert_embs_file) as f:
+    dialogsum_train_bert_embs = np.array(json.load(f))
+```
+
+> Select bad-performing data-points
+
+```python
+# Select data-points where Rogue-L scores are 0.0
+outlier_idxs = np.where(np.array(dialogsum_scores) <= 0.0)[0]
+selected_outliers = dialogsum_train_bert_embs[outlier_idxs, :]
+```
+
+> Defining a monitor for catching data-points close to outliers
+
+```python
+close_to_outliers_check = {
+    "type: uptrain.Monitor.DATA_DRIFT,
+    "is_embedding: True,
+    "measurable_args: {
+        "type": uptrain.MeasurableType.INPUT_FEATURE,
+        "feature_name": "bert_embs"
+    },
+    "reference_dataset": reference_dataset_file,
+    
+    # Number of clusters to calculate data drift
+    "num_buckets": 50,
+    
+    # Number of points to wait before calculating drift
+    "initial_skip": 500,
+    
+    # Outliers around which we want to collect data-points
+    "outlier_data": selected_outliers,
+    
+    # Threshold for Earth-moving-distance (EMD) to collect drift points
+    "emd_threshold": 10
+}
+```
+
+> Defining UpTrain framework and running in production
+
+```python
+config = {
+    "checks": [close_to_outliers_check],
+    "retraining_folder": "smart_data_close_to_outliers",
+}
+framework = uptrain.Framework(cfg_dict=config)
+run_production(framework)
+```
+
+> Noting the performance of collected points that are close to the outliers (Disclaimer: It's 0.7 less)
+
+```python
+print("Overall Accuracy (Rogue-L): ", np.mean(dialogsum_scores))
+
+smart_data = pd.read_csv(config['retraining_folder'] + '/1/smart_data.csv') 
+smart_data = smart_data[smart_data['reasons'] == '"Close_to_User_annotated_Outliers"'].to_dict('records')
+smart_data_scores = rogue_l_similarity([eval(x['output']) for x in smart_data], 
+                                            [eval(x['summary']) for x in smart_data])
+print("Accuracy on clusters around user-picked outliers", np.mean(smart_data_scores))
+```
+
+Note how the accuracy obtained on points that are closer to outliers is worse compared to the overall accuracy.
+
+While analyzing the model outputs above, we made a few observations on cases where model does not perform well. Note that these are not statistical ways of finding edge cases but are more inspired by our intuition on dealing with the above data.
+
+**Observation**: Model performs badly for long dialogs. For example, it generates the following (incomplete) summaries for long dialogs:
+
+```
+"Benjamin, Elliot, Daniel and Hilary are going to have lunch with French"
+"Jesse, Lee, Melvin and Maxine are going to chip in for the"
+"Jayden doesn't want to have children now, but maybe in the future when"
+"Leah met a creepy guy at the poetry reading last night. He asked her"
+"Jen wants to break up with her boyfriend. He hasn't paid her back the"
+```
+
+> Next, we generate a histogram of length of input dialogues on the training dataset (i.e., SAMSum train). From here, we note that a length of 1700 can be a good cut-off to collect large conversation data-points.
+
+```python
+a = [len(x) for x in samsum_dataset['train']['dialogue']]
+fig, ax = plt.subplots(figsize =(7, 3))
+ax.hist(a, bins=16)
+ax.set_xlabel('Input dialog length')
+ax.set_ylabel('Number of data points')
+plt.show()
+```
+
+![histogram.png](data:image/png;base64,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7syZM3rvT58+jdraWvj5+QEALl68iDZt2iAoKMj4FRIRERFRk5oV5A4dOiT9vWrVKjg4OGDbtm1o3749AKCsrAyTJk3CkCFDTFMlERERETVi8PYjK1euRGJiohTigHv7yb3//vtYuXKlUYsjIiIiooczOMjpdDppE+D73bp1CxUVFUYpioiIiIgez+Ag98Ybb2DSpEn4/PPP8cMPP+CHH37AZ599hsjISIwePdoUNRIRERFREwzefmTTpk2YM2cO/vjHP6KmpubeIG3bIjIyEitWrDB6gURERETUNIODnJ2dHTZs2IAVK1bgypUrAICuXbvC3t7e6MURERER0cM98YbA9vb2CAgIMGYtRERERGQAg78jR0REREStA4McERERkYVikCMiIiKyUM0Kcv369UNZWRkAYOnSpfjll19MWhQRERERPV6zglx+fj6qqqoAAAkJCaisrDRpUURERET0eM0Kcn369MGkSZOQkJAAIQT+9re/YenSpU2+DLFx40YEBARAqVRCqVRCrVZj//79UvudO3cQHR0NZ2dntGvXDuHh4SguLtYbo6ioCGFhYbCzs4Orqyvmzp2L2tpavT6HDx9Gv379oFAo4Ovri+TkZIPqJCIiImqNmrX9SHJyMhYvXoy9e/dCJpNh//79aNu28UdlMhni4+ObffKOHTti+fLl6NatG4QQ2LZtG1577TWcOXMGPXv2RGxsLFJSUrBr1y6oVCpMnz4do0ePxrFjxwAAdXV1CAsLg7u7O7799lvcvHkTEyZMgLW1NZYtWwYAKCwsRFhYGKKiorB9+3akp6djypQp8PDwQGhoaLNrJSIiImptZEIIYcgHrKysoNFo4OrqapKCnJycsGLFCrz55pvo0KEDduzYgTfffBMAcOHCBfTo0QOZmZkYOHAg9u/fj1GjRuHGjRtwc3MDcO+XJ+bPn49bt25BLpdj/vz5SElJQW5urnSOsWPHory8HKmpqc2qSafTQaVSQavVQqlUGv+i/7/OC1JMNnZrdm15mLlLICIialWamz0Mfmq1vr7eJCGurq4OO3fuRFVVFdRqNbKzs1FTU4OQkBCpT/fu3dGpUydkZmYCADIzM9G7d28pxAFAaGgodDod8vLypD73j9HQp2EMIiIiIkv1RL/scOXKFaxZswb5+fkAAH9/f8yaNQtdu3Y1eKxz585BrVbjzp07aNeu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0NBQTJs2DXl5eejbty8yMzP1xmjoExMT02Qd1dXVqK6ult7rdDpjXSIRERGR0TQryHl7e5u6DtTX1yMmJgaDBg1Cr169AAAajQZyuRyOjo56fd3c3KDRaKQ+94e4hvaGtkf10el0uH37NmxtbfXaEhMTkZCQYLRrIyIiIjKFJ9oQ+MaNG/jmm29QUlKC+vp6vbaZM2c+USHR0dHIzc3FN99880SfN6aFCxciLi5Oeq/T6eDl5WXGioiIiIgaMzjIJScn47//+78hl8vh7OwMmUwmtclksicKctOnT8fevXtx9OhRdOzYUTru7u6Ou3fvory8XG9Vrri4GO7u7lKfEydO6I3X8FTr/X0efNK1uLgYSqWy0WocACgUCigUCoOvg4iIiKglGbz9yHvvvYf4+HhotVpcu3YNhYWF0uvq1asGjSWEwPTp07F7925kZGTAx8dHrz0oKAjW1tZIT0+XjhUUFKCoqAhqtRoAoFarce7cOZSUlEh90tLSoFQq4e/vL/W5f4yGPg1jEBEREVkig1fkfvnlF4wdOxZWVgZnwEaio6OxY8cOfPHFF3BwcJC+06ZSqWBrawuVSoXIyEjExcXByckJSqUSM2bMgFqtlrY+GT58OPz9/TF+/HgkJSVBo9Fg0aJFiI6OllbVoqKi8OGHH2LevHmYPHkyMjIy8OmnnyIlhU+JEhERkeUyOI1FRkZi165dRjn5xo0bodVq8eKLL8LDw0N6/fvf/5b6rF69GqNGjUJ4eDheeOEFuLu74/PPP5fa27Rpg71796JNmzZQq9V46623MGHCBCxdulTq4+Pjg5SUFKSlpSEwMBArV67E5s2buYccERERWbRm7SN3v7q6OowaNQq3b99G7969YW1trde+atUqoxbYGnAfud8u7iNHREStkVH3kbtfYmIiDhw4AD8/PwBo9LADEREREbUMg4PcypUr8c9//hN/+tOfTFAOERERETWXwd+RUygUGDRokClqISIiIiIDGBzkZs2ahb///e+mqIWIiIiIDGDwrdUTJ04gIyMDe/fuRc+ePRs97HD/E6VEREREZDoGBzlHR0eMHj3aFLUQERERkQEMDnJbt241RR1EREREZKBf//MMRERERGQWBq/I+fj4PHK/OEN/b5WIiIiInozBQS4mJkbvfU1NDc6cOYPU1FTMnTvXWHURERER0WMYHORmzZrV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)
+
+
+
+### Step-9 Defining Edge Cases based on observations/heuristics
+
+> Edge case Type 1: Long dialogues
+
+```python
+"""
+Check if the length of the input is greater 
+than 1700 characters.
+"""
+def length_check_func(inputs, outputs, gts=None, extra_args={}):
+    this_batch_dialog = inputs['dialog']
+    return np.array([len(x) for x in this_batch_dialog]) > 1700
+
+edge_case_length = {
+    'type': uptrain.Monitor.EDGE_CASE,
+    'signal_formulae': uptrain.Signal("Length_dialog", length_check_func)
+} 
+```
+
+**Observation**: When the model is not able to summarize well, it just copies one or two sentences. This may work in general but performs very badly when we have a negation in the conversation. See the following examples:
+
+```
+Input: 
+Janice: my son has been asking me to get him a hamster for his birthday. Janice: Should I? Martina: NO! NO! NO! NO! NO! Martina: I got one for my son and it stank up the whole house. Martina: So don't do it!!!
+Output: Janice's son wants her to get him a hamster for his birthday.
+
+Input: 
+Person1: Hello, I'm looking for a shop that sells inexpensive cashmere sweaters. Person2: Have you tried an outlet?Person1: Why didn't I think of that? Person2: Many of my friends shop at outlets. Person1: Thanks. That is a good suggestion. Person2: I'm only too happy to help.
+Output: Person1 is looking for a shop that sells inexpensive cashmere sweaters.
+```
+
+
+
+> Edge-case type 2: Copied sentences with negation
+
+```python
+# Checking whether sentences from inputs are copied directly using Rogue-L metric
+def rogueL_check_func(inputs, outputs, gts=None, extra_args={}):
+    r = Rouge()
+    res = r.get_scores([x.lower() for x in inputs['dialog']],[x.lower() for x in outputs])
+    rogue_l = [x['rouge-l']['f'] for x in res]
+    return np.array(rogue_l)
+
+# Cheking whether there's a negation in the input
+def negation_func(inputs, outputs, gts=None, extra_args={}):
+    has_negation = []
+    for text in inputs['dialog']:
+        this_has_negation = False
+        all_words = text.split()
+        for negation_word in ['no', 'not', "can't", "couldn't", "won't", "didn't", "don't"]:
+            if negation_word in all_words:
+                this_has_negation = True
+        has_negation.append(this_has_negation)
+    return has_negation
+
+edge_case_negation = {
+    'type': uptrain.Monitor.EDGE_CASE,
+    'signal_formulae': (uptrain.Signal("Rogue-L", rogueL_check_func) > 0.3) 
+        & uptrain.Signal("Has_negation", negation_func)
+}
+```
+
+### Step-10 Custom Monitor to check Vocabulary Coverage
+
+In this case, we define a custom monitor to see what's the average vocabulary coverage of the new dataset (i.e., DialogSum) on the old dataset (i.e., SAMSum). Defining a custom metric to check if there is a shift in vocabulary. Note that unlike previous edge cases checks that were stateless, this is a stateful check that contains the training vocabulary information.
+
+```python
+from collections import Counter
+
+# Helper function to filter certain characters from string
+def clean_string(x):
+    x = x.lower()
+    x = x.replace('.', '')
+    x = x.replace(',', '')
+    x = x.replace('\'', '')
+    x = x.replace('?', '')
+    x = x.replace('#', '')     
+    x = x.replace(':', '')  
+    x = x.replace('!', '')  
+    return x
+
+# Define the training vocabulary
+all_text = ""
+for x in samsum_dataset['train']['dialogue']:
+    all_text += clean_string(x) + " "  
+vocab = Counter(all_text.split())
+
+"""
+Used to define a state which contains the training set 
+vocabulary and the out-of-vocab words (and their count).
+"""
+def vocab_init(self):
+    # Reference (i.e. training) vocabulary
+    self.vocab = set(vocab.keys())   
+    self.vocab_arr = []
+    self.out_of_vocab_words = Counter()
+
+"""
+This is the actual check that checks the vocabulary coverage 
+of the production dataset in the training dataset.
+"""
+def vocab_drift(self, inputs, outputs, gts=None, extra_args={}):
+    for x in inputs['dialog']:
+        x_s = set(clean_string(x).split())
+        self.vocab_arr.append(len(x_s & self.vocab)/len(x_s))
+        outside_words = x_s - self.vocab
+        self.out_of_vocab_words.update(Counter(outside_words))
+        
+        # Save 50 most common out of vocabulary words
+        with open("out_of_vocab_words.json", "w") as f:
+            json.dump(self.out_of_vocab_words.most_common(50), f)
+        
+        # Calculate vocabulary coverage
+        count = len(self.vocab_arr)
+        coverage = 100*sum(self.vocab_arr)/count
+
+        # Logging to UpTrain dashboard
+        self.log_handler.add_scalars('vocab coverage', 
+                {'y_coverage': coverage},
+            count, 'vocab_coverage', file_name='vocab_coverage')
+
+# Defining a custom monitor check for vocabulary coverage
+custom_monitor_check = {
+    "type": uptrain.Monitor.CUSTOM_MONITOR,
+    "initialize_func": vocab_init,
+    "check_func": vocab_drift,
+    "need_gt": False,
+}
+```
+
+### Step-11 Defining UpTrain Framework and running in production
+
+```
+config = {
+    "checks": [edge_case_negation, edge_case_length, custom_monitor_check],
+    "logging_args": {"st_logging": True},
+    "retraining_folder": "smart_data_edge_case_and_custom_monitor",
+}
+
+framework = uptrain.Framework(cfg_dict=config)
+run_production(framework)
+```
+
+This results in the following output:
+
+```
+62 edge cases identified out of 800 total samples
+800 predictions logged for samsum test
+106 edge cases identified out of 1800 total samples
+154 edge cases identified out of 3200 total samples
+202 edge cases identified out of 4600 total samples
+253 edge cases identified out of 5800 total samples
+307 edge cases identified out of 7400 total samples
+354 edge cases identified out of 8400 total samples
+402 edge cases identified out of 9400 total samples
+455 edge cases identified out of 10600 total samples
+500 edge cases identified out of 11600 total samples
+554 edge cases identified out of 13200 total samples
+12400 predictions logged for dialogsum train
+```
+
+> Vocabulary Coverage
+
+We obtain the following plot from the UpTrain dashboard to check vocabulary coverage in production data. Initially, (for SAMSum test), the coverage is ~98%, but later (for DialogSum), the coverage decreases to ~95%.
+
+![vocab_coverage.gif](https://uptrain-demo.s3.us-west-1.amazonaws.com/conversation_summarization/vocab_coverage.gif)
+
+> Checking the collected Edge Cases
+
+```python
+# Print edge-cases collected for each reason
+def print_edge_cases(csv_file, num_per_reason=2):
+    df = pd.read_csv(csv_file)
+    reasons_covered = Counter()
+    
+    for idx in range(len(df)):
+        reason = [df['reasons'][idx]]
+        count = reasons_covered.get(reason[0], 0)
+        if count >= num_per_reason:
+            continue
+        reasons_covered.update(reason)
+        print('Reason:           ', reason[0])
+        print('Output:           ', df['output'][idx]) 
+        print('Annotated Summary:', df['summary'][idx]) 
+        print('Dialogue:         ', df['dialog'][idx])
+        print('')
+
+print_edge_cases(config['retraining_folder'] + "/1/smart_data.csv")
+```
+
+Result:
+
+```
+Reason:            "Signal-Length_dialog"
+Output:            "Clara is rewatching Dear White People on Netflix and recommends it to Neela"
+Annotated Summary: "Clara is rewatching Dear White People and strongly recommends it to Neela."
+Dialogue:          "Clara: Hi, what you up to?\r\nNeela: Not much, chilling out.\r\nClara: Just rewatching Dear White People on Netflix, love it!\ud83d\ude0d\r\nNeela: Oh yeah, heard of it, but not seen it yet? Any good?\r\nClara: Well, yes! I just said it was, LOL. It's about a fictional Ivy League University and the students in one House of Residence.\r\nNeela: Why is it called Dear White People?\r\nClara: That's the name of the radio show the main character, Sam, presents on college radio.\r\nNeela: Yeah, but why is it so good?\r\nClara: Well, it's mainly stories from the perspective of black students there, which I find very interesting. The characters are strong and likeable too.\r\nNeela: I suppose it's rather different from the UK, then?\r\nClara: It seems so, as there is a lot more racial awareness and discrimination there than here. It all kicks off when there is a Blackface party held by an elite group of white students, which gets out of hand.\r\nNeela: How's that?\r\nClara: Well, obviously, the black students try to break it up and there's also an incident where one guy, Reggie, gets a loaded gun pointed at him by a campus policeman after he gets into an argument with a white student. It may be at another party, though, I'm not sure of that.\r\nNeela: Oh, that sounds pretty strong stuff. What else happens?\r\nClara: Well, there is a young black guy called Lionel who is coming to terms with being gay and is finding his voice as a journalist. He unearths corruption at the uni and he and Sam also uncover some conspiracy theory stuff about secret societies.\r\nNeela: Well, I must say, it does sound good, I'll check it out soon!\r\nClara: Definitely, there is supposed to be a Series 3 coming up next year, really looking forward to it!\r\nNeela: Well, thanks Clara, I'm just watching the rest of a movie and I'll try Dear White People.\r\nClara: Don't blame me if you get hooked and stay up till 4!\r\nNeela: See ya, love!\r\nClara: Bye!"
+
+Reason:            "Signal-Length_dialog"
+Output:            "Beth's mum's 40th birthday is in 6 weeks. Deirdre"
+Annotated Summary: "Beth wants to organize a girls weekend to celebrate her mother's 40th birthday. She also wants to work at Deidre's beauty salon. Deidre offers her a few hours on Saturdays as work experience. They set up for a meeting tomorrow."
+Dialogue:          "Deirdre: Hi Beth, how are you love?\r\nBeth: Hi Auntie Deirdre, I'm been meaning to message you, had a favour to ask.\r\nDeirdre: Wondered if you had any thought about your Mum's 40th, we've got to do something special!\r\nBeth: How about a girls weekend, just mum, me, you and the girls, Kira will have to come back from Uni, of course.\r\nDeirdre: Sounds fab! Get your thinking cap on, it's only in 6 weeks! Bet she's dreading it, I remember doing that!\r\nBeth: Oh yeah, we had a surprise party for you, you nearly had a heart attack! \r\nDeirdre: Well, it was a lovely surprise! Gosh, thats nearly 4 years ago now, time flies! What was the favour, darling?\r\nBeth: Oh, it was just that I fancied trying a bit of work experience in the salon, auntie.\r\nDeirdre: Well, I am looking for Saturday girls, are you sure about it? you could do well in the exams and go on to college or 6th form.\r\nBeth: I know, but it's not for me, auntie, I am doing all foundation papers and I'm struggling with those.\r\nDeirdre: What about a tutor? Kira could help you in the hols.\r\nBeth: Maybe, but I'd like to try working. I'm 16 soon, I'm old enough.\r\nDeirdre: I know. Look, pop in tomorrow after school and we'll have a cuppa and a chat.\r\nBeth: Yes, thanks auntie. I'd really like to try the beauty therapy side.\r\nDeirdre: Its not for the squeamish, mind. Massage, pedicures, not to mention waxing!\r\nBeth: Oh yes, I was chatting to a friend about it yesterday!\r\nDeirdre: Maxine manages the beauty side, you can meet her tomorrow and we'll see how it goes.\r\nBeth: Yes, I'd really like that. \r\nDeirdre: We can try a few hours on a Saturday for a couple of weeks as work experience. I'll give you a tenner or so per session to start off for your lunch, coffee and bus fare etc. If you like, we'll take it from there.\r\nBeth: OK, I like the sound of it! See you tomorrow Auntie! Love you!\r\nDeirdre: Bye, lovely girl! Xx"
+
+Reason:            "Signal-And(Greater Than(Rogue-L,0.3),Has_negation)"
+Output:            "Selah can't see the phone number of the person whose phone is off."
+Annotated Summary: "Selah called a person that did not pick up."
+Dialogue:          "Myah: <file_photo>\r\nSelah: I can't see the phone number very well. Rewrite it plz\r\nMyah: <file_photo>\r\nSelah: The phone of that person is off"
+
+Reason:            "Signal-And(Greater Than(Rogue-L,0.3),Has_negation)"
+Output:            "Janice's son wants her to get him a hamster for his birthday."
+Annotated Summary: "Martina advises against getting a hamster. "
+Dialogue:          "Janice: my son has been asking me to get him a hamster for his birthday\r\nJanice: should i?\r\nMartina: NO! NO! NO! NO! NO!\r\nMartina: i got one for my son and it stank up the whole house\r\nMartina: so don't do it!!!"
+```
+
+> Get out-of-vocab-words 
+
+```python
+f = open("out_of_vocab_words.json")
+out_of_vocab_words = json.load(f)
+f.close()
+out_of_vocab_words = [x[0] for x in out_of_vocab_words]
+print(out_of_vocab_words)
+```
+
+Result:
+
+```
+['person2', 'person1', 'yuan', 'person3', 'li', 'rmb', 'wang', 'taiwan', 'angeles', 'forty', 'fax', '00', 'clerk', 'twenty-five', 'branches', 'labor', 'furnished', 'advertisements', 'zhang', 'iba', 'forty-five', 'bye-bye', 'personnel', 'reporter', 'import', 'strengths', 'liu', 'automobile', 'non-smoking', 'assured', 'frequently', 'fourteen', 'appetizer', 'sellers', 'bid', 'eighty', 'ming', 'carry-on', 'airmail', 'consumer', 'chinas', 'sichuan', '[yeah]', 'weakness', 'organizations', 'honors', 'eighteen', 'singapore', 'exports', 'polluted']
+```
+
+Note from the above how a lot of the words are related to Asia (such as yuan, li, wang, taiwan, zhang, liu, chinas, sichaun, singapore, etc.). This implies that a lot of converation in the DialogSum datasets are focused on the Asia region. Next, we define a edge-case check to catch these cases.
+
+### Step-12 Applying check for Asian words in production data
+
+```python
+asian_words = ['yuan', 'li', 'wang', 'taiwan', 'zhang', 'liu', 'chinas', 'sichaun', 'singapore']
+def asian_words_check(inputs, outputs, gts=None, extra_args={}):
+    has_asian_word = [False]*len(inputs['dialog'])
+    for i,text in enumerate(inputs['dialog']):
+        all_words = clean_string(text).split()
+        if len(set(asian_words).intersection(set(all_words))):
+            has_asian_word[i] = True
+    return has_asian_word
+
+edge_case_asian_word = {
+    'type': uptrain.Monitor.EDGE_CASE,
+    'signal_formulae': uptrain.Signal("asian_word", asian_words_check)
+}
+```
+
+Let's define config again and log production data.
+
+```python
+config = {
+    "checks": [edge_case_asian_word],
+    "retraining_folder": "smart_data_asian_words",
+}
+
+framework = uptrain.Framework(cfg_dict=config)
+run_production(framework)
+```
+
+> Checking the collected edge cases
+
+```python
+print_edge_cases(config['retraining_folder'] + "/1/smart_data.csv")
+```
+
+Result:
+
+```
+Reason:            "Signal-asian_word"
+Output:            "#Person1# and #Person2# need to check in at the Air"
+Annotated Summary: "#Person1# asks #Person2# what they need to do when they check in at the Air China's counter."
+Dialogue:          "#Person1#: We're supposed to check in at the Air China's counter 30 minutes before take-off, Joe.\n#Person2#: Yes, I know. The boarding time on the ticket says 17:05, and now it's 16:15. I guess we have plenty of time.\n#Person1#: Do we need to show our ID cards when checking in?\n#Person2#: Yes. It's essential.\n#Person1#: What about our luggage?\n#Person2#: We can check it and hand carry the small bags. And we have to open each for inspection.\n#Person1#: Are they going to frisk all the passengers?\n#Person2#: I think so. We certainly don't want a hijack to happen on the plane today."
+
+Reason:            "Signal-asian_word"
+Output:            "#Person2# wants to buy a leather jacket. #Person1# will"
+Annotated Summary: "#Person2# buys a leather jacket and a dress made of pure silk with #Person1#'s recommendation."
+Dialogue:          "#Person1#: Can I help you?\n#Person2#: I want a leather jacket.\n#Person1#: What size, please?\n#Person2#: Size 40.\n#Person1#: What color would you prefer?\n#Person2#: Let me see. Do you think a brown one will do?\n#Person1#: Well, the brown one is beautiful indeed, but I think the black one will suit you better.\n#Person2#: Really? Please get it for me.\n#Person1#: Will there be anything else?\n#Person2#: Is this dress made of pure silk?\n#Person1#: Yes, it is. It's brilliant.\n#Person2#: Is it washable?\n#Person1#: Yes, it is. But you have to be careful.\n#Person2#: How much, please?\n#Person1#: Only 350 yuan.\n#Person2#: All right. Will you wrap it for me?\n#Person1#: OK. Here you are."
+```
+
+And with that, we have completed the walkthrough of the conversation summarization example. The entire source code can be found as a Jupyter Notebook [here](https://github.com/a-r-r-o-w/uptrain/tree/main/examples/conversation_summarization).

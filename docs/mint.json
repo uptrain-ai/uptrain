@@ -98,7 +98,8 @@
         "examples/deep-dive-examples",
         "examples/shopping-cart-recommendation",
         "examples/ride-time-estimation",
-        "examples/finetuning-llm"
+        "examples/masked-language-modeling",
+        "examples/conversation-summarization"
       ]
     },
     {
