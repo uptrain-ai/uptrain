@@ -1,6 +1,6 @@
+from typing import TYPE_CHECKING
 import numpy as np
 
-from uptrain.core.lib.helper_funcs import extract_data_points_from_batch
 from uptrain.core.classes.statistics import AbstractStatistic
 from uptrain.core.classes.distances import DistanceResolver
 from uptrain.core.classes.measurables import MeasurableResolver
@@ -8,7 +8,13 @@ from uptrain.constants import Statistic
 from uptrain.core.lib.cache import make_cache_container
 
 
+if TYPE_CHECKING:
+    from uptrain.core.classes.logging.log_handler import LogHandler, CsvWriter
+
+
 class Distance(AbstractStatistic):
+    log_handler: "LogHandler"
+    log_writers: list["CsvWriter"]
     dashboard_name = "distance"
     statistic_type = Statistic.DISTANCE
 
@@ -17,8 +23,6 @@ class Distance(AbstractStatistic):
             fw
         )
         self.count_measurable = MeasurableResolver(check["count_args"]).resolve(fw)
-        self.item_counts = {}
-        self.feats_dictn = {}
         self.reference = check["reference"]
         self.distance_types = check["distance_types"]
         self.dist_classes = [DistanceResolver().resolve(x) for x in self.distance_types]
@@ -26,6 +30,14 @@ class Distance(AbstractStatistic):
         # setup a cache to store interim state for aggregates
         attrs_to_store = {"ref_embedding": np.ndarray}
         self.cache = make_cache_container(fw, attrs_to_store)
+
+        # get handles to log writers for each distance type
+        self.log_writers = [
+            self.log_handler.make_logger(
+                self.dashboard_name, distance_type + "_" + str(self.reference)
+            )
+            for distance_type in self.distance_types
+        ]
 
     def base_check(self, inputs, outputs=None, gts=None, extra_args={}):
         all_models = [
@@ -113,18 +125,15 @@ class Distance(AbstractStatistic):
                     ],
                 )
             )
-            for distance_type in self.distance_types:
-                plot_name = distance_type + "_" + str(self.reference)
-                self.log_handler.add_scalars(
-                    self.dashboard_name + "_" + plot_name,
+            for k, distance_type in enumerate(self.distance_types):
+                self.log_writers[k].log(
                     {
-                        "y_" + distance_type: distances[distance_type][idx],
-                        "key_id": str(aggregate_ids[idx]),
-                    },
-                    counts[idx],
-                    self.dashboard_name,
-                    features=features,
-                    models=models,
+                        "check": distances[distance_type][idx],
+                        self.aggregate_measurable.feature_name: aggregate_ids[idx],  # type: ignore
+                        self.count_measurable.feature_name: counts[idx],  # type: ignore
+                        **models,
+                        **features,
+                    }
                 )
 
         # save the reference embeddings for use in the next batch

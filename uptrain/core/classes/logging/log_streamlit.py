@@ -7,15 +7,6 @@ import pandas as pd
 import socket
 
 
-class NumpyEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        elif isinstance(obj, np.integer):
-            return int(obj)
-        return json.JSONEncoder.default(self, obj)
-
-
 def get_free_port(port):
     HOST = "localhost"
     # Creates a new socket
@@ -32,7 +23,7 @@ def get_free_port(port):
             sock.close()
 
 
-class StreamlitLogs:
+class StreamlitRunner:
     def __init__(self, log_folder, port=None):
         self.placeholders = {}
         self.prev_values = {}
@@ -40,22 +31,11 @@ class StreamlitLogs:
         self.counts = {}
         self.log_folder = log_folder
 
-        remote_st_py_file = "https://raw.githubusercontent.com/uptrain-ai/uptrain/main/uptrain/core/classes/logging/st_run.py"
-        # remote_st_py_file = "../../uptrain/core/classes/logging/st_run.py"
+        remote_st_py_file = "st_run.py"
+        port = get_free_port(int(8501 if port is None else port))
+        launch_cmd = f"streamlit run {remote_st_py_file} --server.port {str(port)} -- {self.log_folder}"
 
-        if port is None:
-            cmd = "streamlit run " + remote_st_py_file + " -- " + self.log_folder
-        else:
-            port = get_free_port(int(port))
-            cmd = (
-                "streamlit run "
-                + remote_st_py_file
-                + f" --server.port {str(port)} "
-                + " -- "
-                + self.log_folder
-            )
-        launch_st = lambda: os.system(cmd)
-        t = threading.Thread(target=launch_st, args=([]))
+        t = threading.Thread(target=lambda: os.system(launch_cmd), args=([]))
         t.start()
 
     def add_scalars(self, dict, folder, file_name="", update_val=False):
@@ -65,7 +45,6 @@ class StreamlitLogs:
             with open(file_name, "w", newline="") as f_object:
                 writer = csv.writer(f_object)
                 writer.writerow(list(dict.keys()))
-                f_object.close()
 
         if update_val:
             df = pd.read_csv(file_name)
@@ -91,7 +70,6 @@ class StreamlitLogs:
             with open(file_name, "a") as f_object:
                 writer_object = csv.writer(f_object)
                 writer_object.writerow(list(dict.values()))
-                f_object.close()
 
     def add_histogram(self, data, folder, models=None, features=None, file_name=""):
         if isinstance(data, dict):

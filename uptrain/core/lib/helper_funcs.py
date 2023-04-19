@@ -7,7 +7,7 @@ import pandas as pd
 from collections import OrderedDict
 from sklearn.cluster import KMeans
 
-from uptrain.core.encoders.uptrain_encoder import UpTrainEncoder
+from uptrain.core.encoders import UpTrainEncoder
 
 
 def cluster_and_plot_data(
@@ -248,3 +248,9 @@ def load_list_from_df(df, column):
         out_json = [json.dumps(x) for x in list(df[column])]
         out = [json.loads(x) for x in out_json]
     return out
+
+
+def make_dir_friendly_name(txt: str) -> str:
+    import re
+
+    return re.sub(r"[^a-zA-Z0-9_]", "_", txt)
