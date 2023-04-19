@@ -6,6 +6,7 @@ from uptrain.core.classes.monitors import AbstractMonitor
 from uptrain.constants import DataDriftAlgo, MeasurableType
 from uptrain.core.classes.measurables import MeasurableResolver
 from uptrain.constants import Monitor
+from uptrain.core.lib.helper_funcs import add_data_to_warehouse
 
 
 class ConceptDrift(AbstractMonitor):
@@ -17,13 +18,12 @@ class ConceptDrift(AbstractMonitor):
         else:
             self.measurable = MeasurableResolver({"type": MeasurableType.ACCURACY}).resolve(fw)
 
-        self.acc_arr = []
         self.avg_acc = 0
         self.drift_alerted = False
         self.algorithm = check["algorithm"]
         self.counter = 0
-        self.dashboard_name = f"concept_drift_acc"
         self.plot_name = f"avg_accuracy_{self.measurable.col_name()}"
+        self.feat_slicing = check.get("feat_slicing", False)
 
         if self.algorithm == DataDriftAlgo.DDM:
             warm_start = check.get("warm_start", 500)
@@ -56,22 +56,22 @@ class ConceptDrift(AbstractMonitor):
                 print(alert)
                 self.drift_alerted = True
 
-            self.acc_arr.append(acc)
-            self.avg_acc = (self.avg_acc * (len(self.acc_arr) - 1) + acc) / len(
-                self.acc_arr
-            )
+            self.avg_acc = (self.avg_acc * self.counter + acc) / (self.counter + 1)
+            self.counter += 1
             self.log_handler.add_scalars(
                 self.plot_name,
                 {"y_avg_accuracy": self.avg_acc},
-                len(self.acc_arr),
+                self.counter,
                 self.dashboard_name,
             )
-            self.counter += 1
 
             if isinstance(alert, str):
                 self.log_handler.add_alert(
                     "Model Performance Degradation Alert 🚨", alert, self.dashboard_name
                 )
+        if self.feat_slicing:
+            add_data_to_warehouse({"id": inputs["id"],
+                self.dashboard_name: batch_acc}, self.path_dashboard_data)
     
     def _preprocess (self, batch):
         if self.algorithm == DataDriftAlgo.DDM:
