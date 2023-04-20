@@ -30,38 +30,21 @@ class Convergence(AbstractStatistic):
         self.distance_types = check["distance_types"]
         self.count_checkpoints = list(sorted(set([0] + check["count_checkpoints"])))
 
-        self.distances_dictn = dict(
-            zip(
-                self.count_checkpoints,
-                [
-                    dict(
-                        zip(
-                            self.distance_types, [[] for x in list(self.distance_types)]
-                        )
-                    )
-                    for y in self.count_checkpoints
-                ],
-            )
-        )
-        # ex: {0: {'cosine_distance': [d1, d2, ..]}, 200: {'cosine_distance': []}, 500: {'cosine_distance': []}, 1000: {'cosine_distance': []}, 5000: {'cosine_distance': []}, 20000: {'cosine_distance': []}}
-
-        self.dist_classes = [DistanceResolver().resolve(x) for x in self.distance_types]
-
         # setup a cache to store interim state for aggregates
         props_to_store = {
-            "ref_embedding": np.ndarray,
+            "ref_embedding": np.ndarray, 
             "prev_count": int,
             "first_checkpoint": int,
         }
         self.cache = make_cache_container(fw, props_to_store)
 
-        # get handles to log writers for each distance type
+        self.dist_classes = [DistanceResolver().resolve(x) for x in self.distance_types]
         self.log_writers = [
             self.log_handler.make_logger(
                 self.dashboard_name, distance_type + "_" + str(self.reference)
             )
             for distance_type in self.distance_types
-        ]
+        ]  # get handles to log writers for each distance type
 
     def base_check(self, inputs, outputs, gts=None, extra_args={}):
         all_models = [
