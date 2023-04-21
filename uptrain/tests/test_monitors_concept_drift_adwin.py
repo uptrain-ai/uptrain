@@ -90,8 +90,7 @@ def test_concept_drift_adwin():
                 "type": uptrain.Monitor.CONCEPT_DRIFT,
                 "algorithm": uptrain.DataDriftAlgo.ADWIN,
                 "measurable_args": {
-                    "type": uptrain.MeasurableType.MAE,
-                    "feature_name": "data",
+                    "type": uptrain.MeasurableType.MAE
                 },
 
                 # Configurable parameters that the ADWIN algorithm supports
