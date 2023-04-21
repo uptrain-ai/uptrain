@@ -19,10 +19,10 @@ class DimensionalityReduction(AbstractVisual):
     def base_init(self, fw, check):
         self.visual_type = check["type"]
         if self.visual_type == Visual.UMAP:
-            self.dashboard_name = "umap"
+            self.dashboard_name = check.get("dashboard_name", "umap")
             self.umap_init(check)
         elif self.visual_type == Visual.TSNE:
-            self.dashboard_name = "tsne"
+            self.dashboard_name = check.get("dashboard_name", "tsne")
             self.tsne_init(check)
         else:
             raise Exception("Dimensionality reduction type undefined.")
@@ -190,7 +190,7 @@ class DimensionalityReduction(AbstractVisual):
                     self.dashboard_name,
                     models=models,
                     features=self.feature_dictn,
-                    file_name=str(count) + "_" + "_".join(list(models.values())),
+                    file_name=self.dashboard_name + "_" + str(count) + "_" + "_".join(list(models.values())),
                 )
 
     def get_high_dim_data(self, count):
