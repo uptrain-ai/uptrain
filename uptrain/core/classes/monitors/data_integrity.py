@@ -14,6 +14,8 @@ class DataIntegrity(AbstractMonitor):
     def base_init(self, fw, check):
         self.integrity_type = check["integrity_type"]
         self.threshold = check.get("threshold", None)
+        # Threshold for when to alert on percentage of outliers (default 2%)
+        self.outliers_alert_thres = check.get("outliers_alert_thres", 2)
         self.count = 0
         self.num_issues = 0
         self.has_reference_dataset = "reference_dataset" in check
@@ -48,29 +50,29 @@ class DataIntegrity(AbstractMonitor):
             else:
                 z_score = zscore(signal_value)
             has_issue = np.abs(z_score) > self.threshold
-            outliers = z_score[has_issue]
-            valid_z_scores = z_score[~has_issue]
+            outliers = signal_value[has_issue]
+            valid_signal = signal_value[~has_issue]
             
             feat_name = self.measurable.col_name()
             plot_name = f"z_score_feature_{feat_name}"
             self.log_handler.add_histogram(
                 plot_name=plot_name,
-                data=valid_z_scores,
+                data=valid_signal,
                 dashboard_name=self.dashboard_name,
                 file_name=f"valid_z_scores",
             )
-
-            if len(outliers) > 0:
+            percentage_outliers = 100 * len(outliers) / len(z_score)
+            if len(outliers) > 0 and percentage_outliers > self.outliers_alert_thres:
                 self.log_handler.add_histogram(
                     plot_name=plot_name,
                     data=outliers,
                     dashboard_name=self.dashboard_name,
                     file_name=f"outliers",
                 )
-                percentage_outliers = round(100 * len(outliers) / len(z_score), 1)
+                perc = round(percentage_outliers, 1)
                 self.log_handler.add_alert(
-                    alert_name = f"Z-score outliers detected for {feat_name} 🚨",
-                    alert = f"{len(outliers)} of {len(z_score)} samples have Z-Score > {self.threshold} ({percentage_outliers}%)",
+                    alert_name = f"{len(outliers)} outliers detected for {feat_name} 🚨",
+                    alert = f"{len(outliers)} of {len(z_score)} samples have Z-Score > {self.threshold} ({perc}%)",
                     dashboard_name = self.dashboard_name
                 )
         else:

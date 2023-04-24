@@ -9,6 +9,20 @@ import json
 import plotly.express as px
 import random
 import pickle
+import re
+
+
+def atoi(text):
+    return int(text) if text.isdigit() else text
+
+
+def natural_keys(text):
+    '''
+    alist.sort(key=natural_keys) sorts in human order
+    http://nedbatchelder.com/blog/200712/human_sorting.html
+    (See Toothy's implementation in the comments)
+    '''
+    return [ atoi(c) for c in re.split(r'(\d+)', text) ]
 
 
 st.set_page_config(
@@ -259,6 +273,7 @@ def get_view_arr_from_files(files):
     return np.unique(view_arr)
 
 
+@st.cache
 def plot_umaps(files, plot_name, sub_dir):
     view_arr = get_view_arr_from_files(files)
     if len(view_arr > 0):
@@ -341,7 +356,10 @@ def plot_dashboard(dashboard_name):
 
         ######### Showing Alerts ###########
 
-        if sub_dir_split[-1] == "alerts":  
+        if sub_dir_split[-1] == "alerts": 
+            # First, sort files using human sorting. 
+            files.sort(key=natural_keys)
+            files.reverse()
             for file in files:
                 alert_name = os.path.split(file)[-1].split(".")[0]
                 f = open(file)
@@ -369,7 +387,7 @@ def plot_dashboard(dashboard_name):
                     else:
                         for file in files:
                             plot_umap(file)
-                    st.markdown("""---""") 
+                    st.markdown("""---""")
             elif plot_name == "t_SNE":  
                 if st.sidebar.checkbox(f"t-SNE plot"):
                     st.markdown(f"### t-SNE plot")
@@ -463,11 +481,11 @@ def feat_slice(metadata):
         df_dashboard = pd.read_csv(path_dashboard_data)
     else:
         return
+    st.header(f"Feature slicing for {dashboard_name}")
     relevant_feat_list = st.multiselect(
             "Select features to slice", feat_name_list
         )
-    if relevant_feat_list:
-        st.header(f"Feature slicing for {dashboard_name}")
+        
     scol1, scol2 = st.columns(2)
     limit_list = []
     for i, feat in enumerate(relevant_feat_list):
