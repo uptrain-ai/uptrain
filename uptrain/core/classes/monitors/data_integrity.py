@@ -24,10 +24,6 @@ class DataIntegrity(AbstractMonitor):
             self.ref_mean, self.ref_std = self.get_ref_data_stats()
             
     def base_check(self, inputs, outputs, gts=None, extra_args={}):
-        # Perform measurable compute and log only if the measurable feature is
-        # present in the inputs
-        if self.measurable.col_name() not in inputs.keys():
-            return
         signal_value = self.measurable.compute_and_log(
             inputs, outputs, gts=gts, extra=extra_args
         )
@@ -39,6 +35,8 @@ class DataIntegrity(AbstractMonitor):
             has_issue = signal_value > self.threshold
         elif self.integrity_type == "greater_than":
             has_issue = signal_value < self.threshold
+        elif self.integrity_type == "minus_one":
+            has_issue = signal_value == -1
         elif self.integrity_type == "z_score":
             if self.threshold is None:
                 self.threshold = 3
@@ -71,7 +69,7 @@ class DataIntegrity(AbstractMonitor):
                 )
                 perc = round(percentage_outliers, 1)
                 self.log_handler.add_alert(
-                    alert_name = f"{len(outliers)} outliers detected for {feat_name} 🚨",
+                    alert_name = f"Z-score outliers detected for {feat_name} 🚨",
                     alert = f"{len(outliers)} of {len(z_score)} samples have Z-Score > {self.threshold} ({perc}%)",
                     dashboard_name = self.dashboard_name
                 )

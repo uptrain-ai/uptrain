@@ -430,7 +430,7 @@ def plot_dashboard(dashboard_name):
 
 
 @st.cache
-def get_data_shap(path_all_data, num_points):
+def get_data_shap(path_all_data, num_points, feat_name_list):
     file = open(metadata["path_shap_file"], 'rb')
     explainer = pickle.load(file)
     file.close()
@@ -440,8 +440,10 @@ def get_data_shap(path_all_data, num_points):
     else:
         st.text("Not sufficient data points for SHAP")
         return []
-    data_ids = [eval(x) for x in df["id"]]
-    df = df.drop(columns=['id', 'output', 'gt'])
+    if type(df["id"][0]) == str:
+        df["id"] = df["id"].apply(lambda x: eval(x))
+    data_ids = [x for x in df["id"]]
+    df = df[feat_name_list]
     return explainer(df), data_ids
 
 
@@ -526,17 +528,16 @@ if metadata.get("path_shap_file", None):
         st.header(f"SHAP Explanability")
         
         path_all_data = metadata["path_all_data"]
-
+        feat_name_list_shap = metadata["feat_name_list"]
         num_points = metadata["shap_num_points"]
 
         import shap
         shap.initjs() # for visualization
         st.set_option('deprecation.showPyplotGlobalUse', False)
 
-        shap_values, data_ids = get_data_shap(path_all_data, num_points)
+        shap_values, data_ids = get_data_shap(path_all_data, num_points, feat_name_list_shap)
 
         st.subheader("Feature-wise importance")
-        st.text("Feature \"dist\" has the biggest impact on ride time predictions.")
         cols = st.columns(2)
         with cols[0]:
             st.pyplot(shap.plots.bar(shap_values))
