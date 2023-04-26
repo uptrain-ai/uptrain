@@ -144,18 +144,21 @@ class Distribution(AbstractStatistic):
             # samples N pairs from these embedding values and compute distance between them
             num_pairs_to_sample = 400
             total_num_samples = len(self.values_for_cp[cp])
-            
-            first_indices = np.random.choice(total_num_samples), num_pairs_to_sample)
-            second_indices = np.random.choice(total_num_samples), num_pairs_to_sample)
-            invalid_pairs = (first_indices == second_indices)
-            second_indices[invalid_pairs] = (second_indices[invalid_pairs] + 1) % total_num_samples # type: ignore
 
-            first_vector = np.vstack([self.values_for_cp[cp][idx] for idx in first_indices])
-            second_vector = np.vstack([self.values_for_cp[cp][idx] for idx in second_indices])
+            first_indices = np.random.choice(total_num_samples, num_pairs_to_sample)
+            second_indices = np.random.choice(total_num_samples, num_pairs_to_sample)
+            invalid_pairs = first_indices == second_indices
+            second_indices[invalid_pairs] = (second_indices[invalid_pairs] + 1) % total_num_samples  # type: ignore
+
+            first_vector = np.vstack(
+                [self.values_for_cp[cp][idx] for idx in first_indices]
+            )
+            second_vector = np.vstack(
+                [self.values_for_cp[cp][idx] for idx in second_indices]
+            )
             for k, dist_class in enumerate(self.dist_classes):
                 distances = dist_class.compute_distance(first_vector, second_vector)
-                # TODO: are we creating separate histograms for each model, feature type pair? 
-
+                # TODO: are we creating separate histograms for each model, feature type pair?
 
         # update the cache with data from this batch
         if len(set_ids_to_cache) > 0:

@@ -32,7 +32,7 @@ class Convergence(AbstractStatistic):
 
         # setup a cache to store interim state for aggregates
         props_to_store = {
-            "ref_embedding": np.ndarray, 
+            "ref_embedding": np.ndarray,
             "prev_count": int,
             "first_checkpoint": int,
         }
@@ -151,7 +151,7 @@ class Convergence(AbstractStatistic):
 
                     models = dict(
                         zip(
-                            ["model_" + x for x in self.model_names],
+                            self.model_names,
                             [
                                 all_models[jdx][idx]
                                 for jdx in range(len(self.model_names))
@@ -160,7 +160,7 @@ class Convergence(AbstractStatistic):
                     )
                     features = dict(
                         zip(
-                            ["feature_" + x for x in self.feature_names],
+                            self.feature_names,
                             [
                                 all_features[jdx][idx]
                                 for jdx in range(len(self.feature_names))

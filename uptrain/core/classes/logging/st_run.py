@@ -1,85 +1,41 @@
-import streamlit as st
-import pandas as pd
 from glob import glob
 import os
 import sys
+import json
+import random
+
+import streamlit as st
+import pandas as pd
 import plotly.graph_objects as go
 import numpy as np
-import json
 import plotly.express as px
-import random
-import pickle
+
+from uptrain.core.lib.helper_funcs import make_dir_friendly_name
 
 
-st.set_page_config(
-    page_title="UpTrain Dashboard",
-    layout="wide",
-    page_icon="https://github.com/uptrain-ai/uptrain/raw/dashboard/uptrain/core/classes/logging/uptrain_logo_icon.png",
-)
-st.title("UpTrain Live Dashboard")
-st_style = """<style> footer {visibility: hidden;} </style>"""
-st.markdown(st_style, unsafe_allow_html=True)
-
-# Getting the streamlit log folder
-log_folder = sys.argv[1]
-
-# Get metadata
-metadata_file = os.path.join(log_folder, "config.json")
-with open(metadata_file, encoding="utf-8") as f:
-    metadata = json.loads(f.read())
-
-if len(metadata["checks"]):
-    check = metadata["checks"][0]
-    model_args = check.get("model_args", None)
-    feature_args = check.get("feature_args", None)
-else:
-    model_args = None
-    feature_args = None
-
-model_to_compare = None
-other_models = {}
-num_models_compare = 1
-if model_args:
-    if len(model_args) > 1:
-        # st.sidebar.subheader("Select model type to compare against")
-        all_model_types = []
-        for model_type in model_args:
-            all_model_types.append(model_type["feature_name"])
-        model_selected = st.sidebar.selectbox(
-            "Model type to compare with", all_model_types, key="select_model_args"
-        )
-        model_compare_ind = all_model_types.index(model_selected)
-
-        st.sidebar.subheader("Select other model types")
-        for i, model in enumerate(model_args):
-            if i == model_compare_ind:
-                continue
-            model_name = model["feature_name"]
-            value = st.sidebar.selectbox(
-                model_name, model["allowed_values"], key=f"model_{model_name}"
-            )
-            other_models.update({model_name: value})
-
-    elif len(model_args) == 1:
-        model_compare_ind = 0
-    model_to_compare = model_args[model_compare_ind]
-    num_models_compare = len(model_to_compare["allowed_values"])
-
-features_to_slice = {}
-if feature_args:
-    st.sidebar.subheader("Select relevant features")
-    for i, feature in enumerate(feature_args):
-        feature_name = feature["feature_name"]
-        allowed_feats = feature["allowed_values"]
-        allowed_feats.insert(0, "All")
-        value = st.sidebar.selectbox(
-            feature_name, allowed_feats, key=f"feature_{feature_name}"
-        )
-        if value != "All":
-            features_to_slice.update({feature_name: value})
+# -----------------------------------------------------------
+# Read parameters for this run
+# -----------------------------------------------------------
 
 
-def return_plotly_fig(y_axis, x_axis="Num predictions", x_log=False, y_log=False):
+def read_config(log_folder: str):
+    """read the uptrain configuration for this run"""
+    config_file = os.path.join(log_folder, "config.json")
+    with open(config_file, encoding="utf-8") as f:
+        return json.loads(f.read())
+
+
+CONFIG = read_config(sys.argv[1])
+
+
+# -----------------------------------------------------------
+# Plotting routines
+# -----------------------------------------------------------
+
+
+def make_plotly_figure(
+    y_axis: str, x_axis: str = "Num predictions", x_log=False, y_log=False
+):
     fig = go.Figure()
     fig.update_xaxes(title_text=x_axis)
     fig.update_yaxes(title_text=y_axis)
@@ -90,59 +46,104 @@ def return_plotly_fig(y_axis, x_axis="Num predictions", x_log=False, y_log=False
     return fig
 
 
-def slice_data(
-    df,
-    features_to_slice=None,
-    model_to_compare=None,
-    other_models={},
-    j=0,
-):
-    cond = None
-    if features_to_slice is not None:
-        for feat_name, value in features_to_slice.items():
-            if value != "All":
-                if "feature_" + feat_name in df.columns:
-                    if cond is None:
-                        cond = df["feature_" + feat_name] == value
-                    else:
-                        cond = cond & (df["feature_" + feat_name] == value)
-                else:
-                    cond = [False] * len(df)
-    if model_to_compare is not None:
-        model = model_to_compare["allowed_values"][j]
-        model_type = model_to_compare["feature_name"]
-        if "model_" + model_type in df.columns:
-            if cond is None:
-                cond = df["model_" + model_type] == model
-            else:
-                cond = cond & (df["model_" + model_type] == model)
+def slice_dataset():
+    pass
+
+
+def get_logfile_addr_for_check(check: dict, distance_type: str) -> str:
+    """get the path to the log file for the dashboard.
+
+    TODO: this logic should be defined on the actual Check objects
+    """
+    log_folder = sys.argv[1]
+    # TODO: this is true for statistic metrics, for the rest?
+    dashboard_name = check["type"]
+    plot_name = make_dir_friendly_name(
+        distance_type
+        if "reference" not in check
+        else distance_type + "_" + check["reference"]
+    )
+
+    dashboard_name = make_dir_friendly_name(dashboard_name)
+    plot_name = make_dir_friendly_name(plot_name)
+    return os.path.join(log_folder, dashboard_name, f"{plot_name}.csv")
+
+
+def plot_dashboard(check: dict, model_variant: dict, feature_filters: dict):
+    for dist_type in check["distance_types"]:
+        df = pd.read_csv(get_logfile_addr_for_check(check, dist_type))
+        list_conds = []
+        for feature, value in feature_filters.items():
+            list_conds.append(df[feature] == value)
+        for k, v in model_variant.items():
+            list_conds.append(df[k] == v)
+        df = df[np.logical_and.reduce(list_conds)]
+
+        if len(df) == 0:
+            st.warning("No data found for the specified filters.")
         else:
-            cond = [False] * len(df)
-    for model_name, value in other_models.items():
-        if "model_" + model_name in df.columns:
-            if cond is None:
-                cond = df["model_" + model_name] == value
-            else:
-                cond = cond & (df["model_" + model_name] == value)
-        else:
-            cond = [False] * len(df)
-    if cond is not None:
-        df = df[cond]
-    return df
+            pass
 
 
-def plot_line_charts(files, plot_name):
-    # Getting plot metadata from the first file
-    if len(files) > 1000:
-        files = random.choices(files, k=1000)
-    df = pd.read_csv(files[0])
+# -----------------------------------------------------------
+# Set up layout of the dashboard and the sidebar
+# -----------------------------------------------------------
 
-    for key in df.keys():
-        if key.startswith("x_"):
-            x_axis = key
-        if key.startswith("y_"):
-            y_axis = key
+st.set_page_config(
+    page_title="UpTrain Dashboard",
+    layout="wide",
+    page_icon="https://github.com/uptrain-ai/uptrain/raw/dashboard/uptrain/core/classes/logging/uptrain_logo_icon.png",
+)
+st.title("UpTrain Live Dashboard")
+st_style = """<style> footer {visibility: hidden;} </style>"""
+st.markdown(st_style, unsafe_allow_html=True)
 
+if not len(CONFIG["checks"]):
+    st.warning("No checks found in the logs configured.")
+    st.stop()
+
+
+# -----------------------------------------------------------
+# Create a sidebar for the user to specify what they wanna see
+# -----------------------------------------------------------
+
+with st.sidebar:
+    st.subheader("Select the dashboard to view")
+    selected_check = st.radio(
+        "Checks",
+        options=CONFIG["checks"],
+        format_func=lambda x: str(x["type"]),
+    )
+    st.markdown("---")
+    assert selected_check is not None
+
+    # Work with a specific slice of the data
+    feature_filters = {}
+    st.subheader("Pick a specific slices of the logs")
+    for i, feature in enumerate(selected_check["feature_args"]):
+        feature_name = feature["feature_name"]
+        selected_value = st.sidebar.selectbox(
+            feature_name, ["All", *feature["allowed_values"]]
+        )
+        if selected_value != "All":
+            feature_filters.update({feature_name: selected_value})
+
+    # Pick out model variants to plot for
+    model_args = selected_check["model_args"]
+
+    # select a model variant from the cartesian product of all model args
+    model_variant = {}
+    st.subheader("Select model variant")
+    for i, model in enumerate(model_args):
+        model_name = model["feature_name"]
+        selected_value = st.sidebar.selectbox(model_name, model["allowed_values"])
+        model_variant.update({model_name: selected_value})
+
+
+plot_dashboard(selected_check, model_variant, feature_filters)
+
+
+def plot_line_chart(df, y_axis, x_axis):
     col1, col2 = st.columns(2)
     with col1:
         x_log = st.checkbox("log x", help="x-axis in log-scale", key=plot_name + "x")
@@ -150,32 +151,17 @@ def plot_line_charts(files, plot_name):
         y_log = st.checkbox("log y", help="y-axis in log-scale", key=plot_name + "y")
 
     cols = st.columns(2)
-    for j in range(num_models_compare):
-        fig = return_plotly_fig(y_axis, x_axis, x_log, y_log)
-        for i, csv_file in enumerate(files):
-            # Reading the csv file
-            df = pd.read_csv(csv_file)
-
-            df = slice_data(df, features_to_slice, model_to_compare, other_models, j)
-
-            # Getting plot_id
-            plot_id = os.path.split(csv_file)[-1].split(".")[0]
-            fig = fig.add_trace(
-                go.Scatter(
-                    x=df[x_axis],
-                    y=df[y_axis],
-                    name=str(i) + "," + plot_id,
-                )
-            )
-
-        with cols[j % 2]:
-            if model_to_compare is not None:
-                model_name = model_to_compare["allowed_values"][j]
-                st.subheader(f"Model: {model_name}")
-            st.plotly_chart(fig, use_container_width=True)
+    fig = make_plotly_figure(y_axis, x_axis, x_log, y_log)
+    fig = fig.add_trace(
+        go.Scatter(
+            x=df[x_axis],
+            y=df[y_axis],
+        )
+    )
+    st.plotly_chart(fig, use_container_width=True)
 
 
-def plot_histograms(files, plot_name):
+def plot_histogram(files, plot_name):
     cols = st.columns(2)
     for j in range(num_models_compare):
         fig = go.Figure()
@@ -208,100 +194,6 @@ def plot_histogram(file):
     else:
         fig = go.Figure(data=[go.Histogram(x=data)])
     st.plotly_chart(fig)
-
-
-def plot_umap(file, j=0):
-    with open(file, encoding="utf-8") as f:
-        data = json.loads(f.read())
-    arr = np.array(data["umap"])
-    clusters = data["clusters"]
-    x = arr[:, 0]
-    y = arr[:, 1]
-    dictn = {"x": x, "y": y, "color": clusters}
-    hover_data = []
-    if "hover_texts" in data:
-        dictn.update({"hover": data["hover_texts"]})
-        if len(data["hover_texts"]):
-            hover_data = list(data["hover_texts"][0].keys())
-
-    if arr.shape[1] == 3:
-        dictn.update({"z": arr[:, 2]})
-
-    for key in data.keys():
-        if key not in ["umap", "clusters", "hover_texts"]:
-            dictn.update({key: data[key]})
-    df = pd.DataFrame(dictn)
-    df = slice_data(df, features_to_slice, model_to_compare, other_models, j)
-
-    if "hover" in list(df.columns):
-        hover_df = pd.DataFrame(list(df["hover"]))
-        for key in hover_data:
-            if key not in hover_df.columns:
-                df[key] = [""] * len(hover_df)
-            else:
-                df[key] = pd.Series(hover_df[key]).fillna("").tolist()
-    else:
-        hover_df = pd.DataFrame()
-
-    if arr.shape[1] == 2:
-        fig = px.scatter(df, x="x", y="y", color="color", hover_data=hover_data)
-    elif arr.shape[1] == 3:
-        z = list(df["z"])
-        fig = px.scatter_3d(
-            df, x="x", y="y", z="z", color="color", hover_data=hover_data
-        )
-    else:
-        raise ("Umap dimension not 2D or 3D.")
-    st.plotly_chart(fig, use_container_width=True)
-    # st.write(
-    #     f"Number of clusters: {len(set(clusters))}"
-    # )
-
-
-def get_view_arr_from_files(files):
-    view_arr = []
-    for file in files:
-        view_arr.append(int(os.path.split(file)[-1].split("_")[0]))
-    view_arr.sort()
-    return np.unique(view_arr)
-
-
-def plot_umaps(files, plot_name, sub_dir):
-    view_arr = get_view_arr_from_files(files)
-    if len(view_arr > 0):
-        selected_count = st.selectbox(
-            f"Cluster View Point", view_arr, key=plot_name + "count"
-        )
-    cols = st.columns(2)
-    for j in range(num_models_compare):
-        if model_to_compare is not None:
-            model_compare_name = model_to_compare["allowed_values"][j]
-            model_others_name = list(other_models.values())[0]
-            file_name = (
-                str(selected_count)
-                + "_"
-                + model_compare_name
-                + "_"
-                + model_others_name
-                + ".json"
-            )
-            file_name = sub_dir + "/" + file_name
-            with cols[j % 2]:
-                st.subheader(
-                    f"Model: {model_compare_name}, Signal: {model_others_name}, Count: {selected_count}"
-                )
-                if os.path.exists(file_name):
-                    plot_umap(file_name, j)
-                else:
-                    st.write("Not sufficient data.")
-        else:
-            for file in files:
-                count = os.path.split(file)[-1].split(".")[0]
-                if int(count) < 0:
-                    plot_umap(file, j)
-                else:
-                    if st.checkbox(f"For count {count}", key=plot_name + str(count)):
-                        plot_umap(file, j)
 
 
 def plot_bar(file):
@@ -427,67 +319,3 @@ def plot_dashboard(dashboard_name):
                 image_name = png_file.split("/")[-1].split(".")[0]
                 st.subheader(image_name)
                 st.image(png_file)
-
-
-@st.cache
-def get_data_shap(path_all_data, num_points):
-    file = open(metadata["path_shap_file"], "rb")
-    explainer = pickle.load(file)
-    file.close()
-    df = pd.read_csv(path_all_data)
-    if len(df) >= num_points:
-        df = df[0:num_points]
-    else:
-        st.text("Not sufficient data points for SHAP")
-        return []
-    data_ids = [eval(x) for x in df["id"]]
-    df = df.drop(columns=["id", "output", "gt"])
-    return explainer(df), data_ids
-
-
-st.sidebar.title("Select dashboards to view")
-dashboard_names = next(os.walk(log_folder))[1]
-for dashboard_name in dashboard_names:
-    if st.sidebar.checkbox(f"Dashboard: {dashboard_name}"):
-        plot_dashboard(dashboard_name)
-    st.sidebar.markdown("""---""")
-
-if metadata.get("path_shap_file", None):
-    if st.sidebar.checkbox(f"SHAP explainability"):
-        st.header(f"SHAP Explanability")
-
-        path_all_data = metadata["path_all_data"]
-
-        num_points = metadata["shap_num_points"]
-
-        import shap
-
-        shap.initjs()  # for visualization
-        st.set_option("deprecation.showPyplotGlobalUse", False)
-
-        shap_values, data_ids = get_data_shap(path_all_data, num_points)
-
-        st.subheader("Feature-wise importance")
-        st.text('Feature "dist" has the biggest impact on ride time predictions.')
-        cols = st.columns(2)
-        with cols[0]:
-            st.pyplot(shap.plots.bar(shap_values))
-
-        st.markdown("""---""")
-
-        st.subheader("Explainability for each data-point")
-        cols = st.columns(2)
-        with cols[0]:
-            data_point = st.selectbox("Select data-point for explainability", data_ids)
-
-        index = data_ids.index(data_point)
-        shap_val = shap_values[index]
-        pred = sum(shap_val.values) + shap_val.base_values
-        st.text(
-            f"The predicted value is {pred:.1f} compared to the mean value of {shap_val.base_values:.1f}."
-        )
-
-        cols = st.columns(2)
-        with cols[0]:
-            shap.plots.waterfall(shap_val)
-            st.pyplot()

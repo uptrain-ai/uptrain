@@ -4,13 +4,24 @@ import shutil
 import urllib3
 import re
 import json
-from typing import IO, TYPE_CHECKING
+from typing import IO, TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from uptrain.core.classes.framework import Framework
     from uptrain.core.classes.helpers.config_handler import Config
 
 from uptrain.core.lib.helper_funcs import make_dir_friendly_name
+
+
+def get_logs_addr_for_check(
+    log_folder: str, dashboard_name: str, distance_type: str, reference: str
+) -> str:
+    """get the path to the log file for the dashboard."""
+    dashboard_name = make_dir_friendly_name(dashboard_name)
+    plot_name = make_dir_friendly_name(distance_type + "_" + str(reference))
+
+    dir_name = os.path.join(log_folder, dashboard_name)
+    return os.path.join(dir_name, f"{plot_name}.csv")
 
 
 class CsvWriter:

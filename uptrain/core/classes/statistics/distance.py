@@ -109,7 +109,7 @@ class Distance(AbstractStatistic):
             idx_in_original_batch = select_idxs[idx]
             models = dict(
                 zip(
-                    ["model_" + x for x in self.model_names],
+                    self.model_names,
                     [
                         all_models[jdx][idx_in_original_batch]
                         for jdx in range(len(self.model_names))
@@ -118,7 +118,7 @@ class Distance(AbstractStatistic):
             )
             features = dict(
                 zip(
-                    ["feature_" + x for x in self.feature_names],
+                    self.feature_names,
                     [
                         all_features[jdx][idx_in_original_batch]
                         for jdx in range(len(self.feature_names))
