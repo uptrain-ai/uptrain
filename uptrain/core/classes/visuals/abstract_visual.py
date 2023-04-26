@@ -1,4 +1,4 @@
-from uptrain.core.classes.monitors import AbstractCheck
+from uptrain.core.classes.monitors import AbstractMonitor
 
-class AbstractVisual(AbstractCheck):
+class AbstractVisual(AbstractMonitor):
     visual_type = None
