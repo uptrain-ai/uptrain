@@ -55,7 +55,8 @@ class LogHandler:
         self.fw = framework
         self.path_all_data = framework.path_all_data
 
-        self.log_folder = make_dir_friendly_name(cfg.logging_args.log_folder)
+        _dir, _fname = os.path.split(cfg.logging_args.log_folder)
+        self.log_folder = os.path.join(_dir, make_dir_friendly_name(_fname))
         if os.path.exists(self.log_folder):
             print(f"Deleting the log folder at: {self.log_folder}")
             shutil.rmtree(self.log_folder)
