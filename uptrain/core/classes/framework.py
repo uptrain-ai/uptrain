@@ -14,6 +14,7 @@ from sklearn.preprocessing import normalize
 
 from uptrain.core.classes.helpers import DatasetHandler, ModelHandler, config_handler
 from uptrain.core.classes.logging import LogHandler
+from uptrain.core.classes.logging.new_log_handler import LogHandler as NewLogHandler
 from uptrain.core.classes.managers import CheckManager
 from uptrain.core.lib.helper_funcs import (
     read_json,
@@ -97,7 +98,12 @@ class Framework:
             self.version = 0
             self.if_retraining = cfg.retrain
             self.path_all_data = os.path.join(self.fold_name, "all_data.csv")
-            self.log_handler = LogHandler(framework=self, cfg=cfg)
+
+            # TODO: placeholder till we decide on which way to go
+            if cfg.logging_args.use_new_handler:
+                self.log_handler = NewLogHandler(framework=self, cfg=cfg)
+            else:
+                self.log_handler = LogHandler(framework=self, cfg=cfg)
 
             self.dataset_handler = DatasetHandler(framework=self, cfg=cfg)
             self.model_handler = ModelHandler()

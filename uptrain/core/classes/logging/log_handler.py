@@ -1,127 +1,147 @@
-import csv, _csv
 import os
 import shutil
 import urllib3
-import re
 import json
-from typing import IO, TYPE_CHECKING, Optional
-
-if TYPE_CHECKING:
-    from uptrain.core.classes.framework import Framework
-    from uptrain.core.classes.helpers.config_handler import Config
-
-from uptrain.core.lib.helper_funcs import make_dir_friendly_name
-
-
-def get_logs_addr_for_check(
-    log_folder: str, dashboard_name: str, distance_type: str, reference: str
-) -> str:
-    """get the path to the log file for the dashboard."""
-    dashboard_name = make_dir_friendly_name(dashboard_name)
-    plot_name = make_dir_friendly_name(distance_type + "_" + str(reference))
-    return os.path.join(log_folder, dashboard_name, f"{plot_name}.csv")
-
-
-class CsvWriter:
-    file_handle: IO[str]
-    writer: "_csv._writer"
-    headers: list[str]
-    initialized: bool
-
-    def __init__(self, fname: str) -> None:
-        self.file_handle = open(fname, "a")
-        self.writer = csv.writer(self.file_handle)
-        self.initialized = False
-        self.headers = []
-
-    def __del__(self):
-        self.file_handle.close()
-
-    def log(self, data: dict):
-        """create a csv file and write the header to it if it doesn't exist.
-        Post that, write the data to the file.
-        """
-        if not self.initialized:
-            self.headers = list(data.keys())
-            self.writer.writerow(self.headers)
-            self.initialized = True
-        self.writer.writerow([data[k] for k in self.headers])
-
 
 class LogHandler:
-    def __init__(self, framework: "Framework", cfg: "Config"):
+    def __init__(self, framework=None, cfg=None):
         self.fw = framework
+        log_folder = cfg.logging_args.log_folder
         self.path_all_data = framework.path_all_data
 
-        self.log_folder = cfg.logging_args.log_folder
-        if os.path.exists(self.log_folder):
-            print(f"Deleting the log folder at: {self.log_folder}")
-            shutil.rmtree(self.log_folder)
-        print(f"Creating the log folder at: {self.log_folder}")
-        os.makedirs(self.log_folder, exist_ok=False)
-
-        # serialize the config to a json file so the consumers can read it
-        cfg_file = os.path.join(self.log_folder, "config.json")
-        with open(cfg_file, "w") as f:
-            f.write(cfg.json())
+        if os.path.exists(log_folder):
+            print("Deleting the folder: ", log_folder)
+            shutil.rmtree(log_folder)
 
         self.st_writer = None
         if cfg.logging_args.st_logging:
-            # initialize the streamlit dashboard
-            from uptrain.core.classes.logging.st_setup import StreamlitRunner
+            from uptrain.core.classes.logging.log_streamlit import StreamlitLogs
 
-            port_str = cfg.logging_args.dashboard_port
-            self.st_runner = StreamlitRunner(
-                self.log_folder, port=int(port_str) if port_str else None
-            )
-            if cfg.run_background_streamlit:
-                self.st_runner.start()
-            else:
-                print(
-                    "To start the streamlit dashboard, run the following command: ",
-                    self.st_runner.launch_cmd,
-                )
+            self.st_log_folder = os.path.join(log_folder, "st_data")
+            os.makedirs(self.st_log_folder, exist_ok=True)
+            self.st_writer = StreamlitLogs(self.st_log_folder, port=cfg.logging_args.dashboard_port)
 
         # Get Webhook URL for alerting on slack
         self.webhook_url = cfg.logging_args.slack_webhook_url
 
-    def make_logger(self, dashboard_name: str, plot_name: str) -> CsvWriter:
-        """Initialize a CSV logger that the `check` object can write data to."""
-        dashboard_name = make_dir_friendly_name(dashboard_name)
-        plot_name = make_dir_friendly_name(plot_name)
+        # Saving config to get model metadata
+        self.cfg_metadata = {}
+        if len(cfg.checks) > 0:
+            check = cfg.checks[0]
+            self.add_st_metadata({'model_args': check.get('model_args', None), 
+                                  'feature_args': check.get('feature_args', None)})
+        else:
+            self.add_st_metadata({'model_args': None, 'feature_args': None})
 
-        dir_name = os.path.join(self.log_folder, dashboard_name)
+    def add_st_metadata(self, new_dict):
+        if self.st_writer is None:
+            return
+        self.cfg_metadata.update(new_dict)
+        metadata_file = os.path.join(self.st_log_folder, "metadata.json")
+        with open(metadata_file, "w") as f:
+            json.dump(self.cfg_metadata, f)
+
+    def add_dashboard_metadata(self, mt_dict, dashboard_name):
+        if self.st_writer is None:
+            return
+        dir_name = os.path.join(self.st_log_folder, dashboard_name)
         os.makedirs(dir_name, exist_ok=True)
-        fname = os.path.join(dir_name, f"{plot_name}.csv")
+        metadata_file = os.path.join(dir_name, "metadata.json")
+        with open(metadata_file, "w") as f:
+            json.dump(mt_dict, f)
 
-        return CsvWriter(fname)
+    def get_plot_save_name(self, plot_name, dashboard_name):
+        if self.st_writer:
+            dir_name = os.path.join(self.st_log_folder, dashboard_name)
+            os.makedirs(dir_name, exist_ok=True)
+            return os.path.join(dir_name, plot_name)
+        else:
+            return ""
+
+    def add_scalars(self, plot_name, dictn, count, dashboard_name, features={}, models={}, file_name=None, update_val=False):
+        if self.st_writer is None:
+            return
+        dashboard_name, plot_name = self.dir_friendly_name(
+            [dashboard_name, plot_name]
+        )
+        dictn.update(features)
+        dictn.update(models)
+        new_dictn = dict(
+            zip(
+                self.dir_friendly_name(list(dictn.keys())),
+                dictn.values(),
+            )
+        )
+        dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
+        plot_folder = os.path.join(dashboard_dir, "line_plots", plot_name)
+        os.makedirs(plot_folder, exist_ok=True)
+        new_dictn.update({"x_count": count})
+        if file_name is None:
+            file_name = plot_name
+        self.st_writer.add_scalars(new_dictn, plot_folder, file_name=file_name, update_val=update_val)
+
+    def add_histogram(self, plot_name, data, dashboard_name, features=None, models=None, file_name=None):
+        dashboard_name, plot_name = self.dir_friendly_name(
+            [dashboard_name, plot_name]
+        )
+        if self.st_writer:
+            dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
+            plot_folder = os.path.join(dashboard_dir, "histograms", plot_name)
+            os.makedirs(plot_folder, exist_ok=True)
+            if file_name is None:
+                file_name = plot_name
+            self.st_writer.add_histogram(data, plot_folder, features=features, models=models, file_name=file_name)
+
+    def add_bar_graphs(self, plot_name, data, dashboard_name, count=-1, hover_data={}):
+        if self.st_writer is None:
+            return
+        dashboard_name, plot_name = self.dir_friendly_name(
+            [dashboard_name, plot_name]
+        )
+        dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
+        plot_folder = os.path.join(dashboard_dir, "bar_graphs", plot_name)
+        os.makedirs(plot_folder, exist_ok=True)
+        self.st_writer.add_bar_graphs(data, plot_folder, count, hover_data=hover_data)
+
+    def dir_friendly_name(self, arr):
+        if isinstance(arr, str):
+            return self.dir_friendly_name([arr])[0]
+
+        new_arr = [self.convert_str(x) for x in arr]
+        return new_arr
+
+    def convert_str(self, txt):
+        txt = txt.replace("(", "_")
+        txt = txt.replace(")", "_")
+        txt = txt.replace(":", "_")
+        txt = txt.replace(" ", "_")
+        txt = txt.replace(",", "_")
+        txt = txt.replace(">", "_")
+        txt = txt.replace("<", "_")
+        txt = txt.replace("=", "_")
+        txt = txt.replace("-", "_")
+        return txt
 
     def add_alert(self, alert_name, alert, dashboard_name):
-        dashboard_name = make_dir_friendly_name(dashboard_name)
-        dashboard_dir = os.path.join(self.log_folder, dashboard_name)
-        plot_folder = os.path.join(dashboard_dir, "alerts")
-        os.makedirs(plot_folder, exist_ok=True)
-
-        file_name = os.path.join(plot_folder, str(alert_name) + ".json")
-        with open(file_name, "w") as f:
-            json.dump(alert, f)
+        if self.st_writer:
+            dashboard_name = self.dir_friendly_name(dashboard_name)
+            dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
+            plot_folder = os.path.join(dashboard_dir, "alerts")
+            os.makedirs(plot_folder, exist_ok=True)
+            self.st_writer.add_alert(alert_name, alert, plot_folder)
 
         if self.webhook_url:
-            message = (
-                f"Dashboard: {dashboard_name}, Alert name: {alert_name}, Alert: {alert}"
-            )
-            self.slack_notification({"text": message})
+            message = f"Dashboard: {dashboard_name}, Alert name: {alert_name}, Alert: {alert}"
+            self.slack_notification({'text': message})
 
     def slack_notification(self, message):
         try:
             http = urllib3.PoolManager()
-            response = http.request(
-                "POST",
-                self.webhook_url,
-                body=json.dumps(message),
-                headers={"Content-Type": "application/json"},
-                retries=False,
-            )
+            response = http.request('POST',
+                                    self.webhook_url,
+                                    body = json.dumps(message),
+                                    headers = {'Content-Type': 'application/json'},
+                                    retries = False)
         except Exception as e:
             print("Caught Exception")
             print(e)

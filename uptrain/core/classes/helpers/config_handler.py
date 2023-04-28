@@ -31,6 +31,7 @@ class LoggingArgs(BaseModel):
     log_folder: str = "uptrain_logs"
     log_data: bool = True
     st_logging: bool = False
+    run_background_streamlit: bool = True
     use_new_handler: bool = False
 
 

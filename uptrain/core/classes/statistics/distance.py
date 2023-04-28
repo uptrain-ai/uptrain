@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 import numpy as np
 
 from uptrain.core.classes.statistics import AbstractStatistic
@@ -9,11 +9,15 @@ from uptrain.core.lib.cache import make_cache_container
 
 
 if TYPE_CHECKING:
-    from uptrain.core.classes.logging.log_handler import LogHandler, CsvWriter
+    from uptrain.core.classes.logging.new_log_handler import (
+        LogHandler as NewLogHandler,
+        CsvWriter,
+    )
+    from uptrain.core.classes.logging.log_handler import LogHandler
 
 
 class Distance(AbstractStatistic):
-    log_handler: "LogHandler"
+    log_handler: Union["LogHandler", "NewLogHandler"]
     log_writers: list["CsvWriter"]
     dashboard_name = "distance"
     statistic_type = Statistic.DISTANCE
@@ -32,12 +36,15 @@ class Distance(AbstractStatistic):
         self.cache = make_cache_container(fw, attrs_to_store)
 
         # get handles to log writers for each distance type
-        self.log_writers = [
-            self.log_handler.make_logger(
-                self.dashboard_name, distance_type + "_" + str(self.reference)
-            )
-            for distance_type in self.distance_types
-        ]
+        if hasattr(self.log_handler, "make_logger"):
+            self.log_writers = [
+                self.log_handler.make_logger(
+                    self.dashboard_name, distance_type + "_" + str(self.reference)
+                )
+                for distance_type in self.distance_types
+            ]
+        else:
+            self.log_writers = []
 
     def base_check(self, inputs, outputs=None, gts=None, extra_args={}):
         all_models = [
@@ -125,16 +132,29 @@ class Distance(AbstractStatistic):
                     ],
                 )
             )
-            for k, distance_type in enumerate(self.distance_types):
-                self.log_writers[k].log(
-                    {
-                        "check": distances[distance_type][idx],
-                        self.aggregate_measurable.feature_name: aggregate_ids[idx],  # type: ignore
-                        self.count_measurable.feature_name: counts[idx],  # type: ignore
-                        **models,
-                        **features,
-                    }
-                )
+            if len(self.log_writers) > 0:
+                for k, distance_type in enumerate(self.distance_types):
+                    self.log_writers[k].log(
+                        {
+                            "check": distances[distance_type][idx],
+                            self.aggregate_measurable.feature_name: aggregate_ids[idx],  # type: ignore
+                            self.count_measurable.feature_name: counts[idx],  # type: ignore
+                            **models,
+                            **features,
+                        }
+                    )
+            else:
+                for distance_type in self.distance_types:
+                    plot_name = distance_type + "_" + str(self.reference)
+                    self.log_handler.add_scalars(
+                        self.dashboard_name + "_" + plot_name,
+                        {"y_" + distance_type: distances[distance_type][idx]},
+                        counts[idx],
+                        self.dashboard_name,
+                        features=features,
+                        models=models,
+                        file_name=str(aggregate_ids[idx]),
+                    )
 
         # save the reference embeddings for use in the next batch
         self.cache.upsert_ids_n_col_values(

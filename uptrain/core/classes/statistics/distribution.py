@@ -1,7 +1,7 @@
 """
 Not used currently, refactored version of distribution.py
 """
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 import numpy as np
 import random
 
@@ -13,11 +13,15 @@ from uptrain.constants import Statistic
 from uptrain.core.lib.cache import make_cache_container
 
 if TYPE_CHECKING:
-    from uptrain.core.classes.logging.log_handler import LogHandler, CsvWriter
+    from uptrain.core.classes.logging.new_log_handler import (
+        LogHandler as NewLogHandler,
+        CsvWriter,
+    )
+    from uptrain.core.classes.logging.log_handler import LogHandler
 
 
 class Distribution(AbstractStatistic):
-    log_handler: "LogHandler"
+    log_handler: Union["LogHandler", "NewLogHandler"]
     log_writers: list["CsvWriter"]  # one for each distance type
     dashboard_name = "distribution_stats"
     statistic_type = Statistic.DISTRIBUTION_STATS
@@ -39,11 +43,14 @@ class Distribution(AbstractStatistic):
         attrs_to_store = {"prev_count": np.ndarray, "first_checkpoint": int}
         self.cache = make_cache_container(fw, attrs_to_store)
 
-        self.dist_classes = [DistanceResolver().resolve(x) for x in self.distance_types]
-        self.log_writers = [
-            self.log_handler.make_logger(self.dashboard_name, distance_type)
-            for distance_type in self.distance_types
-        ]  # get handles to log writers for each distance type
+        self.dist_classes = [DistanceResolver().resolve(x) for x in self.distance_types]        
+        if hasattr(self.log_handler, "make_logger"):
+            self.log_writers = [
+                self.log_handler.make_logger(self.dashboard_name, distance_type)
+                for distance_type in self.distance_types
+            ]  # get handles to log writers for each distance type
+        else:
+            self.log_writers = []
 
     def base_check(self, inputs, outputs, gts=None, extra_args={}):
         all_models = [

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 import numpy as np
 
 from uptrain.core.lib.helper_funcs import make_2d_np_array
@@ -9,14 +9,18 @@ from uptrain.constants import Statistic
 from uptrain.core.lib.cache import make_cache_container
 
 if TYPE_CHECKING:
-    from uptrain.core.classes.logging.log_handler import LogHandler, CsvWriter
+    from uptrain.core.classes.logging.new_log_handler import (
+        LogHandler as NewLogHandler,
+        CsvWriter,
+    )
+    from uptrain.core.classes.logging.log_handler import LogHandler
 
 # from uptrain.core.classes.algorithms import Clustering
 # from uptrain.core.lib.algorithms import estimate_earth_moving_cost
 
 
 class Convergence(AbstractStatistic):
-    log_handler: "LogHandler"
+    log_handler: Union["LogHandler", "NewLogHandler"]
     log_writers: list["CsvWriter"]
     dashboard_name = "convergence_stats"
     statistic_type = Statistic.CONVERGENCE_STATS
@@ -39,12 +43,15 @@ class Convergence(AbstractStatistic):
         self.cache = make_cache_container(fw, props_to_store)
 
         self.dist_classes = [DistanceResolver().resolve(x) for x in self.distance_types]
-        self.log_writers = [
-            self.log_handler.make_logger(
-                self.dashboard_name, distance_type + "_" + str(self.reference)
-            )
-            for distance_type in self.distance_types
-        ]  # get handles to log writers for each distance type
+        if hasattr(self.log_handler, "make_logger"):
+            self.log_writers = [
+                self.log_handler.make_logger(
+                    self.dashboard_name, distance_type + "_" + str(self.reference)
+                )
+                for distance_type in self.distance_types
+            ]  # get handles to log writers for each distance type
+        else:
+            self.log_writers = []
 
     def base_check(self, inputs, outputs, gts=None, extra_args={}):
         all_models = [
@@ -168,16 +175,31 @@ class Convergence(AbstractStatistic):
                         )
                     )
 
-                    for k, distance_type in enumerate(self.distance_types):
-                        self.log_writers[k].log(
-                            {
-                                "check": distances[distance_type],
-                                self.aggregate_measurable.feature_name: aggregate_ids[idx],  # type: ignore
-                                self.count_measurable.feature_name: last_crossed_checkpoint,  # type: ignore
-                                **models,
-                                **features,
-                            }
-                        )
+                    if len(self.log_writers) > 0:
+                        for k, distance_type in enumerate(self.distance_types):
+                            self.log_writers[k].log(
+                                {
+                                    "check": distances[distance_type],
+                                    self.aggregate_measurable.feature_name: aggregate_ids[idx],  # type: ignore
+                                    self.count_measurable.feature_name: last_crossed_checkpoint,  # type: ignore
+                                    **models,
+                                    **features,
+                                }
+                            )
+                    else:
+                        for distance_key in list(distances.keys()):
+                            plot_name = distance_key + " " + str(self.reference)
+                            this_data = list(
+                                np.reshape(np.array(distances[distance_key]), -1)
+                            )
+                            self.log_handler.add_histogram(
+                                plot_name,
+                                this_data,
+                                self.dashboard_name,
+                                models=[models] * len(this_data),
+                                features=[features] * len(this_data),
+                                file_name=str(last_crossed_checkpoint),
+                            )
 
         if len(set_ids_to_cache) > 0:
             # save the current state in the cache
