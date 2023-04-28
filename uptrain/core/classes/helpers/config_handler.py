@@ -1,8 +1,10 @@
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel, validator
 import typing
 from datetime import datetime
-from uptrain.constants import AnnotationMethod
+
 import numpy as np
+
+from uptrain.constants import AnnotationMethod
 
 
 class AnnotationArgs(BaseModel):
@@ -29,6 +31,7 @@ class LoggingArgs(BaseModel):
     log_folder: str = "uptrain_logs"
     log_data: bool = True
     st_logging: bool = False
+    use_new_handler: bool = False
 
 
 class Config(BaseModel):

@@ -22,6 +22,9 @@ def get_free_port(port):
 
 
 class StreamlitRunner:
+    log_folder: str
+    launch_cmd: str
+
     def __init__(self, log_folder: str, port: Optional[int] = None):
         self.log_folder = log_folder
 
@@ -30,7 +33,8 @@ class StreamlitRunner:
             os.path.dirname(path_uptrain_init), "core/classes/logging/st_run.py"
         )
         port = get_free_port(int(8501 if port is None else port))
-        launch_cmd = f"streamlit run {path_st_run} --server.port {str(port)} -- {self.log_folder}"
+        self.launch_cmd = f"streamlit run {path_st_run} --server.port {str(port)} -- {self.log_folder}"
 
-        t = threading.Thread(target=lambda: os.system(launch_cmd), args=([]))
+    def start(self):
+        t = threading.Thread(target=lambda: os.system(self.launch_cmd), args=([]))
         t.start()

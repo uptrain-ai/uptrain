@@ -19,9 +19,7 @@ def get_logs_addr_for_check(
     """get the path to the log file for the dashboard."""
     dashboard_name = make_dir_friendly_name(dashboard_name)
     plot_name = make_dir_friendly_name(distance_type + "_" + str(reference))
-
-    dir_name = os.path.join(log_folder, dashboard_name)
-    return os.path.join(dir_name, f"{plot_name}.csv")
+    return os.path.join(log_folder, dashboard_name, f"{plot_name}.csv")
 
 
 class CsvWriter:
@@ -55,8 +53,7 @@ class LogHandler:
         self.fw = framework
         self.path_all_data = framework.path_all_data
 
-        _dir, _fname = os.path.split(cfg.logging_args.log_folder)
-        self.log_folder = os.path.join(_dir, make_dir_friendly_name(_fname))
+        self.log_folder = cfg.logging_args.log_folder
         if os.path.exists(self.log_folder):
             print(f"Deleting the log folder at: {self.log_folder}")
             shutil.rmtree(self.log_folder)
@@ -77,6 +74,13 @@ class LogHandler:
             self.st_runner = StreamlitRunner(
                 self.log_folder, port=int(port_str) if port_str else None
             )
+            if cfg.run_background_streamlit:
+                self.st_runner.start()
+            else:
+                print(
+                    "To start the streamlit dashboard, run the following command: ",
+                    self.st_runner.launch_cmd,
+                )
 
         # Get Webhook URL for alerting on slack
         self.webhook_url = cfg.logging_args.slack_webhook_url
