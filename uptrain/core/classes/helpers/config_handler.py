@@ -1,7 +1,7 @@
-from pydantic import BaseModel, validator
 import typing
 from datetime import datetime
 
+from pydantic import BaseModel
 import numpy as np
 
 from uptrain.constants import AnnotationMethod

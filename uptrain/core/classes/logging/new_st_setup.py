@@ -30,7 +30,7 @@ class StreamlitRunner:
 
         path_uptrain_init: str = importlib.util.find_spec("uptrain").origin  # type: ignore
         path_st_run = os.path.join(
-            os.path.dirname(path_uptrain_init), "core/classes/logging/st_run.py"
+            os.path.dirname(path_uptrain_init), "core/classes/logging/new_st_run.py"
         )
         port = get_free_port(int(8501 if port is None else port))
         self.launch_cmd = f"streamlit run {path_st_run} --server.port {str(port)} -- {self.log_folder}"

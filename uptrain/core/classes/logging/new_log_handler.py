@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from uptrain.core.classes.helpers.config_handler import Config
 
 from uptrain.core.lib.helper_funcs import make_dir_friendly_name
+from uptrain.core.classes.logging.new_st_setup import StreamlitRunner
 
 
 def get_logs_addr_for_check(
@@ -65,22 +66,18 @@ class LogHandler:
         with open(cfg_file, "w") as f:
             f.write(cfg.json())
 
-        self.st_writer = None
-        if cfg.logging_args.st_logging:
-            # initialize the streamlit dashboard
-            from uptrain.core.classes.logging.st_setup import StreamlitRunner
-
-            port_str = cfg.logging_args.dashboard_port
-            self.st_runner = StreamlitRunner(
-                self.log_folder, port=int(port_str) if port_str else None
+        # initialize the streamlit dashboard
+        port_str = cfg.logging_args.dashboard_port
+        self.st_runner = StreamlitRunner(
+            self.log_folder, port=int(port_str) if port_str else None
+        )
+        if cfg.logging_args.run_background_streamlit:
+            self.st_runner.start()
+        else:
+            print(
+                "To start the streamlit dashboard, run the following command: ",
+                self.st_runner.launch_cmd,
             )
-            if cfg.logging_args.run_background_streamlit:
-                self.st_runner.start()
-            else:
-                print(
-                    "To start the streamlit dashboard, run the following command: ",
-                    self.st_runner.launch_cmd,
-                )
 
         # Get Webhook URL for alerting on slack
         self.webhook_url = cfg.logging_args.slack_webhook_url
