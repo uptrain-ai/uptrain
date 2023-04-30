@@ -10,7 +10,7 @@ import numpy as np
 from uptrain.core.lib.helper_funcs import cluster_and_plot_data
 
 from uptrain.core.classes.visuals import AbstractVisual
-from uptrain.constants import Visual, Statistic
+from uptrain.constants import Visual, Statistic, MeasurableType
 from uptrain.core.classes.measurables import MeasurableResolver
 from uptrain.core.lib.helper_funcs import read_json
 
@@ -19,10 +19,10 @@ class DimensionalityReduction(AbstractVisual):
     def base_init(self, fw, check):
         self.visual_type = check["type"]
         if self.visual_type == Visual.UMAP:
-            self.dashboard_name = "umap"
+            self.dashboard_name = check.get("dashboard_name", "umap")
             self.umap_init(check)
         elif self.visual_type == Visual.TSNE:
-            self.dashboard_name = "tsne"
+            self.dashboard_name = check.get("dashboard_name", "tsne")
             self.tsne_init(check)
         else:
             raise Exception("Dimensionality reduction type undefined.")
@@ -34,7 +34,10 @@ class DimensionalityReduction(AbstractVisual):
             MeasurableResolver(x).resolve(fw) for x in check.get("hover_args", [])
         ]
         self.hover_names = [x.col_name() for x in self.hover_measurables]
-
+        if "id" not in self.hover_names:
+            id_args = {'type': MeasurableType.INPUT_FEATURE, 'feature_name': 'id'}
+            self.hover_measurables.append(MeasurableResolver(id_args).resolve(fw))
+            self.hover_names.append('id')
         self.count_checkpoints = check.get("count_checkpoints", ["all"])
         self.dim = check.get("dim", "2D")
         self.min_samples = check.get("min_samples", 5)
@@ -45,7 +48,7 @@ class DimensionalityReduction(AbstractVisual):
         self.vals = []
         self.labels = []
         self.hover_texts = []
-        self.do_clustering = check.get("do_clustering", False)
+        self.do_clustering = check.get("do_clustering", self.label_measurable is None)
         self.feature_dictn = {}
 
         self.initial_dataset = check.get("initial_dataset", None)
@@ -190,7 +193,7 @@ class DimensionalityReduction(AbstractVisual):
                     self.dashboard_name,
                     models=models,
                     features=self.feature_dictn,
-                    file_name=str(count) + "_" + "_".join(list(models.values())),
+                    file_name=self.dashboard_name + "_" + str(count) + "_" + "_".join(list(models.values())),
                 )
 
     def get_high_dim_data(self, count):

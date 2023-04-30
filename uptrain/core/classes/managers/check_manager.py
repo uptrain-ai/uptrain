@@ -154,8 +154,9 @@ class CheckManager:
                 monitor.check(inputs, outputs, gts=gts, extra_args=extra_args)
         for stats in self.statistics_to_check:
             stats.check(inputs, outputs, gts=gts, extra_args=extra_args)
-        for visuals in self.visuals_to_check:
-            visuals.check(inputs, outputs, gts=gts, extra_args=extra_args)
+        for visual in self.visuals_to_check:
+            if visual.need_ground_truth() == (gts[0] is not None):
+                visual.check(inputs, outputs, gts=gts, extra_args=extra_args)
 
     def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
         is_interesting = []

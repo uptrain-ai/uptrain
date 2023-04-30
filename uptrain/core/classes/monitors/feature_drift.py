@@ -5,8 +5,6 @@ import pandas as pd
 from uptrain.core.classes.monitors import AbstractMonitor
 from uptrain.constants import Monitor
 from uptrain.core.lib.helper_funcs import read_json
-# from uptrain.core.lib.algorithms import estimate_earth_moving_cost
-# from uptrain.core.classes.measurables import MeasurableResolver
 from uptrain.core.classes.algorithms import Clustering
 
 
@@ -23,20 +21,12 @@ class FeatureDrift(AbstractMonitor):
         self.step = check.get("step", 2000)
         self.prod_dist_counts_arr = []
         self.all_count = 0
-        self.plot_name = "Feature_" + self.measurable.col_name()
+        self.plot_name = "Feature " + self.measurable.col_name()
         self.feats = np.array([])
         self.psis = []
 
-        # clustering_args = {
-        #     "num_buckets": self.NUM_BUCKETS,
-        #     'is_embedding': self.is_embedding,
-        #     'plot_save_name': self.log_handler.get_plot_save_name("training_dataset_clusters.png", self.dashboard_name),
-        #     'cluster_plot_func': self.cluster_plot_func,
-        #     'find_low_density_regions': self.do_low_density_check
-        # }
-        # self.clustering_helper = Clustering(clustering_args)
-
         self.train_dist, self.train_bins = self.get_ref_data_stats()
+        
         # convert the array self.train_bins into tuples of (min, max) values
         self.bar_vals = []
         for i in range(len(self.train_bins)-1):
@@ -46,60 +36,53 @@ class FeatureDrift(AbstractMonitor):
             
 
     def check(self, inputs, outputs, gts=None, extra_args={}):
-        if len(self.children) > 0:
-            feats = self.measurable.compute_and_log(
-                inputs=inputs, outputs=outputs, gts=gts, extra=extra_args
+        """
+        Find the population stability index between the reference and
+        production distribtions by assigning them into 
+        reference buckets. 
+        """
+
+        feats = self.measurable.compute_and_log(
+            inputs=inputs, outputs=outputs, gts=gts, extra=extra_args
+        )
+        self.all_count += len(feats)
+        self.feats = np.append(self.feats, np.squeeze(np.array(feats)))
+
+        if len(self.feats) >= self.step:
+            prod_dist, _ = np.histogram(self.feats, bins=self.train_bins)
+            prod_dist = prod_dist/sum(prod_dist)
+
+            # Find the PSI between the two distributions
+            psi = self.get_psi(self.train_dist, prod_dist)
+            self.psis.append(psi)
+
+            self.log_handler.add_bar_graphs(
+                self.plot_name,
+                {
+                    "reference": dict(zip(self.bar_vals, list(self.train_dist))),
+                    "production": dict(zip(self.bar_vals, list(prod_dist))),
+                },
+                self.dashboard_name,
             )
-            if sum(list(feats.shape)[1:])/max(1,len(list(feats.shape)[1:])) <= 1:
-                self.children = [self.children[0]]
-            [x.check(inputs, outputs, gts=gts, extra_args=extra_args) for x in self.children]
-        else:
-            """
-            Find the population stability index between the reference and
-            production distribtions by assigning them into 
-            reference buckets. 
-            """
 
-            feats = self.measurable.compute_and_log(
-                inputs=inputs, outputs=outputs, gts=gts, extra=extra_args
+            self.log_handler.add_scalars(
+                'psi',
+                {'y_psi': psi},
+                self.all_count,
+                self.dashboard_name,
+                file_name=self.measurable.col_name(),
             )
-            self.all_count += len(feats)
-            self.feats = np.append(self.feats, np.squeeze(np.array(feats)))
+            feat_name = self.measurable.feature_name
 
-            if len(self.feats) >= self.step:
-                prod_dist, _ = np.histogram(self.feats, bins=self.train_bins)
-                prod_dist = prod_dist/sum(prod_dist)
-
-                # Find the PSI between the two distributions
-                psi = self.get_psi(self.train_dist, prod_dist)
-                self.psis.append(psi)
-
-                self.log_handler.add_bar_graphs(
-                    self.plot_name,
-                    {
-                        "reference": dict(zip(self.bar_vals, list(self.train_dist))),
-                        "production": dict(zip(self.bar_vals, list(prod_dist))),
-                    },
-                    self.dashboard_name,
-                )
-
-                self.log_handler.add_scalars(
-                    'psi',
-                    {'y_psi': psi},
-                    self.all_count,
-                    self.dashboard_name,
-                    file_name=self.measurable.col_name(),
-                )
-
-                # High PSI alerts the user to a feature drift
-                if psi > self.psi_threshold:
-                    alert = f"Feature Drift last detected at {self.all_count} for {self.measurable.feature_name} with PSI = {psi}"
-                    self.log_handler.add_alert(
-                            "Feature Drift Alert 🚨",
-                            alert,
-                            self.dashboard_name
-                        )
-                self.feats = np.array([])
+            # High PSI alerts the user to a feature drift
+            if psi > self.psi_threshold:
+                alert = f"Feature Drift last detected at {self.all_count} for {feat_name} with PSI = {psi}"
+                self.log_handler.add_alert(
+                        f"Feature Drift Alert for {feat_name} 🚨",
+                        alert,
+                        self.dashboard_name
+                    )
+            self.feats = np.array([])
         
     def get_ref_data_stats(self):
         """
