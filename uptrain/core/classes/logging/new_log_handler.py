@@ -1,10 +1,11 @@
+from __future__ import annotations
 import csv, _csv
 import os
 import shutil
 import urllib3
 import re
 import json
-from typing import IO, TYPE_CHECKING, Optional
+from typing import IO, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from uptrain.core.classes.framework import Framework

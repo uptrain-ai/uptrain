@@ -1,6 +1,8 @@
 """
 Not used currently, refactored version of distribution.py
 """
+
+from __future__ import annotations
 from typing import TYPE_CHECKING, Union
 import numpy as np
 import random
@@ -43,7 +45,7 @@ class Distribution(AbstractStatistic):
         attrs_to_store = {"prev_count": np.ndarray, "first_checkpoint": int}
         self.cache = make_cache_container(fw, attrs_to_store)
 
-        self.dist_classes = [DistanceResolver().resolve(x) for x in self.distance_types]        
+        self.dist_classes = [DistanceResolver().resolve(x) for x in self.distance_types]
         if hasattr(self.log_handler, "make_logger"):
             self.log_writers = [
                 self.log_handler.make_logger(self.dashboard_name, distance_type)

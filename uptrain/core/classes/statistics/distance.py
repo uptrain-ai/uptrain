@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import TYPE_CHECKING, Union
 import numpy as np
 
@@ -28,7 +29,7 @@ class Distance(AbstractStatistic):
         )
         self.count_measurable = MeasurableResolver(check["count_args"]).resolve(fw)
         self.reference = check["reference"]
-        self.distance_types = check["distance_types"]
+        self.distance_types: list = check["distance_types"]
         self.dist_classes = [DistanceResolver().resolve(x) for x in self.distance_types]
 
         # setup a cache to store interim state for aggregates
