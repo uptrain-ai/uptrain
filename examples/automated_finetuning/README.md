@@ -1,12 +1,12 @@
-Title: Accelerated Automated Finetuning of LLMs for Domain sSpecific Tasks
+# Accelerated Automated Finetuning of LLMs for Domain specific Tasks
 
-Introduction:
+## Introduction
 Deep learning has revolutionized the field of artificial intelligence, enabling breakthroughs in computer vision, natural language processing, and many other domains. One key factor that has contributed to the success of deep learning is the use of pretrained networks, which are neural networks that have been trained on large datasets and can be used as a starting point for building custom models. Among various techniques, finetuning is a popular approach that allows us to adapt a pretrained model to a specific task or dataset. In this blog, we will explore the concept of finetuning, its benefits, and best practices for finetuning a deep learning model.
 
-What is Finetuning?
+## What is Finetuning?
 Finetuning, also known as transfer learning, is a process of taking a pretrained neural network and adapting it to a new task or dataset. The idea is to leverage the knowledge learned from a large dataset during the pretraining phase and apply it to a smaller dataset or a different task. This can save a significant amount of time and computational resources compared to training a deep neural network from scratch on a new task or dataset.
 
-Benefits of Finetuning:
+## Benefits of Finetuning:
 
 - Faster Training: One of the main advantages of finetuning is that it can significantly speed up the training process. Since the pretrained network has already learned generic features from a large dataset, it can serve as a good initialization for the new task. This allows the network to converge faster during training, reducing the number of iterations needed to achieve good performance.
 
@@ -14,7 +14,7 @@ Benefits of Finetuning:
 
 - Robustness: Another benefit of finetuning is that it can improve the robustness of the model. Pretrained models have already been exposed to a diverse range of data during the pretraining phase, which can help the model generalize better to different variations in the new dataset. This can result in a more robust and adaptable model.
 
-Why Finetuning Matters for LLMs?
+## Why Finetuning Matters for LLMs?
 
 - Task-Specific Adaptation: LLMs are trained on massive amounts of text data from the internet, which makes them proficient at capturing general language patterns and representations. However, for specific tasks or domains, fine-tuning allows the model to adapt to the nuances and specificities of the target task or domain. Finetuning LLMs with task-specific data can greatly improve their performance and make them more effective for the specific task at hand.
 
@@ -28,7 +28,9 @@ Finetuning an LLM involves several steps, including task definition, data prepar
 
 Uptrain's automated finetuning framework builds on the theory that different layers in the neural network have different loss profiles, and hence, having different learning rates for different layers based on there loss profile can lead to a finetuned model at a much faster pace. We,at uptrain also take motivation from HTSR theory (mentioned in https://jmlr.org/papers/v22/20-410.html) to calculate a set of training parameters that helps the model converge at a much faster rate.
 
-#Picture 1 showing different loss profiles for different layers from AdaHessian Paper
+<h1 align="center">
+<img alt="Loss Landscape" width="80%" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/automated_finetuning/loss_landscape.png">
+</h1>
 
 In the following example, we take a sample dataset of spam detection and finetune BERT to classify a sample email as spam or not. 
 In order to finetune a pretrained BERT, you need to provide the dataloaders in the cofig dictionary provided by config along with layer_ids that you would like to get trained customly. Over here, we have mentioned it to be 230 as that is the custom layer that has been inserted in the original model for custom classification. On the contrary, you can also supply the layer's name or list of layer names and the framework will automatically take that into account too. If you want the model to run custom learning rate for different layers, you also need to pass the `is_augmented` argument as `True`. Once you log the model, the automated finetuning starts and it takes care of hyperparameter tuning to finetune your LLM at an increased pace. 
@@ -44,7 +46,9 @@ framework2.log(inputs={'model': [model]})
 
 Below, we show the clear difference in the rate of finetuning with an without using Uptrain - facilitated finetuning of LLM. 
 
-# Image of 2 loss --> uptrain loss being better than orig loss. 
+<h1 align="center">
+<img alt="UpTrain Finetuning Loss" width="40%" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/automated_finetuning/uptrain_vs_normal_ft.jpeg">
+</h1>
 
 ## Conclusion 
 Finetuning an LLM can make pretrained LLMs extremely useful for specific cases. However, finetuning, if not performed carefully, can take up a lot of resources with delayed results. Here at Uptrain, we are aiming to help you observe and improve the ML models in production and this is one such small step towards that. 

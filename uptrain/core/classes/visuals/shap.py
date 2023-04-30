@@ -18,11 +18,13 @@ class Shap(AbstractVisual):
 
         filename = 'explainer.pkl'
         self.fileloc = os.path.join(fw.log_handler.st_log_folder, filename)
+        feat_name_list = check.get("feat_name_list", fw.feat_name_list)
 
         fw.log_handler.add_st_metadata(
             {'path_all_data': fw.path_all_data,
-            'shap_num_points': check.get("shap_num_points", 1000),
-            'path_shap_file': self.fileloc})
+             'feat_name_list': feat_name_list,
+             'shap_num_points': check.get("shap_num_points", 1000),
+             'path_shap_file': self.fileloc})
 
     def base_check(self, inputs, outputs, gts=None, extra_args={}):
         if not self.explainer_created:

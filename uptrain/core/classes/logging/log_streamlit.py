@@ -14,7 +14,7 @@ class NumpyEncoder(json.JSONEncoder):
         elif isinstance(obj, np.integer):
             return int(obj)
         return json.JSONEncoder.default(self, obj)
-    
+
 
 def get_free_port(port):
     HOST = "localhost"
@@ -24,10 +24,10 @@ def get_free_port(port):
         # Try to connect to the given host and port
         if sock.connect_ex((HOST, port)):
             sock.close()
-            print(f'Dashboard available at port {port}.')
+            print(f"Dashboard available at port {port}.")
             return port
         else:
-            print(f'Port {port} is in use, trying port {port+1}.')
+            print(f"Port {port} is in use, trying port {port+1}.")
             port += 1
             sock.close()
 
@@ -47,12 +47,18 @@ class StreamlitLogs:
             cmd = "streamlit run " + remote_st_py_file + " -- " + self.log_folder
         else:
             port = get_free_port(int(port))
-            cmd = "streamlit run " + remote_st_py_file + f" --server.port {str(port)} " + " -- " + self.log_folder
+            cmd = (
+                "streamlit run "
+                + remote_st_py_file
+                + f" --server.port {str(port)} "
+                + " -- "
+                + self.log_folder
+            )
         launch_st = lambda: os.system(cmd)
         t = threading.Thread(target=launch_st, args=([]))
         t.start()
 
-    def add_scalars(self, dict, folder, file_name='', update_val=False):
+    def add_scalars(self, dict, folder, file_name="", update_val=False):
         # CSV file that includes the data
         file_name = os.path.join(folder, file_name + ".csv")
         if not os.path.isfile(file_name):
@@ -66,7 +72,7 @@ class StreamlitLogs:
             cond = None
             keys = list(dict.keys())
             for key in keys:
-                if key[0:2] == 'y_':
+                if key[0:2] == "y_":
                     continue
                 if cond is None:
                     cond = df[key] == dict[key]
@@ -76,9 +82,9 @@ class StreamlitLogs:
                 for key in keys:
                     df.loc[cond, key] = dict[key]
             else:
-                df = pd.concat([df, pd.DataFrame([dict])], ignore_index = True)
+                df = pd.concat([df, pd.DataFrame([dict])], ignore_index=True)
                 for key in keys:
-                    if key[0:2] == 'x_':
+                    if key[0:2] == "x_":
                         df = df.sort_values(by=[key])
             df.to_csv(file_name, index=False)
         else:
@@ -87,8 +93,7 @@ class StreamlitLogs:
                 writer_object.writerow(list(dict.values()))
                 f_object.close()
 
-
-    def add_histogram(self, data, folder, models=None, features=None, file_name=''):
+    def add_histogram(self, data, folder, models=None, features=None, file_name=""):
         if isinstance(data, dict):
             file_name = os.path.join(folder, file_name + ".json")
             if models is not None:
@@ -102,7 +107,7 @@ class StreamlitLogs:
             if not os.path.isfile(file_name):
                 with open(file_name, "w", newline="") as f_object:
                     writer = csv.writer(f_object)
-                    all_keys = ['y_points']
+                    all_keys = ["y_points"]
                     if models is not None:
                         all_keys.extend(list(models[0].keys()))
                     if features is not None:
@@ -121,7 +126,6 @@ class StreamlitLogs:
                     writer_object.writerow(this_point)
                 f_object.close()
 
-
     def add_alert(self, alert_name, alert, folder):
         file_name = os.path.join(folder, str(alert_name) + ".json")
         with open(file_name, "w") as f:
@@ -130,7 +134,7 @@ class StreamlitLogs:
     def add_bar_graphs(self, data, folder, count=-1, hover_data={}):
         file_name = os.path.join(folder, str(count) + ".json")
         if len(hover_data):
-            data.update({'hover_text': hover_data})
+            data.update({"hover_text": hover_data})
         with open(file_name, "w") as f:
             json.dump(data, f, cls=NumpyEncoder)
 

@@ -9,6 +9,20 @@ import json
 import plotly.express as px
 import random
 import pickle
+import re
+
+
+def atoi(text):
+    return int(text) if text.isdigit() else text
+
+
+def natural_keys(text):
+    '''
+    alist.sort(key=natural_keys) sorts in human order
+    http://nedbatchelder.com/blog/200712/human_sorting.html
+    (See Toothy's implementation in the comments)
+    '''
+    return [ atoi(c) for c in re.split(r'(\d+)', text) ]
 
 
 st.set_page_config(
@@ -259,6 +273,7 @@ def get_view_arr_from_files(files):
     return np.unique(view_arr)
 
 
+@st.cache
 def plot_umaps(files, plot_name, sub_dir):
     view_arr = get_view_arr_from_files(files)
     if len(view_arr > 0):
@@ -341,7 +356,10 @@ def plot_dashboard(dashboard_name):
 
         ######### Showing Alerts ###########
 
-        if sub_dir_split[-1] == "alerts":  
+        if sub_dir_split[-1] == "alerts": 
+            # First, sort files using human sorting. 
+            files.sort(key=natural_keys)
+            files.reverse()
             for file in files:
                 alert_name = os.path.split(file)[-1].split(".")[0]
                 f = open(file)
@@ -369,7 +387,7 @@ def plot_dashboard(dashboard_name):
                     else:
                         for file in files:
                             plot_umap(file)
-                    st.markdown("""---""") 
+                    st.markdown("""---""")
             elif plot_name == "t_SNE":  
                 if st.sidebar.checkbox(f"t-SNE plot"):
                     st.markdown(f"### t-SNE plot")
@@ -412,7 +430,7 @@ def plot_dashboard(dashboard_name):
 
 
 @st.cache
-def get_data_shap(path_all_data, num_points):
+def get_data_shap(path_all_data, num_points, feat_name_list):
     file = open(metadata["path_shap_file"], 'rb')
     explainer = pickle.load(file)
     file.close()
@@ -422,16 +440,87 @@ def get_data_shap(path_all_data, num_points):
     else:
         st.text("Not sufficient data points for SHAP")
         return []
-    data_ids = [eval(x) for x in df["id"]]
-    df = df.drop(columns=['id', 'output', 'gt'])
+    if type(df["id"][0]) == str:
+        df["id"] = df["id"].apply(lambda x: eval(x))
+    data_ids = [x for x in df["id"]]
+    df = df[feat_name_list]
     return explainer(df), data_ids
 
 
+def feat_slice_and_plot(df, df_dashboard, relevant_feat_list, limit_list):
+    cond = [True] * len(df)
+    for i, feat_name in enumerate(relevant_feat_list):
+        cond = (df[feat_name] >= limit_list[i][0]) & (
+            df[feat_name] <= limit_list[i][1]
+        ) & cond
+
+    if len(df_dashboard) > len(df):
+        # Append false to cond to make it of same length as df_dashboard
+        cond2 = list(cond) + [False] * (len(df_dashboard) - len(df))
+    else:
+        cond2 = cond[0:len(df_dashboard)]
+    
+    df = df[cond]
+    df_dashboard = df_dashboard[cond2]
+    x_arr = df_dashboard["id"]
+    y_arr = np.cumsum(np.array(df_dashboard[dashboard_name]))
+    y_arr = y_arr / np.arange(1, len(df_dashboard)+1)
+    fig = go.Figure()
+    fig = fig.add_trace(go.Scatter(x=x_arr, y=y_arr))
+
+    if relevant_feat_list:
+        scol1, scol2 = st.columns(2)
+        with scol1:
+            st.plotly_chart(fig, use_container_width=True)
+        
+
+def feat_slice(metadata):
+    feat_name_list = metadata["feat_name_list"]
+    path_all_data = metadata["path_all_data"]
+    path_dashboard_data = metadata["path_dashboard_data"]
+    df = pd.read_csv(path_all_data)
+    if os.path.exists(path_dashboard_data):
+        df_dashboard = pd.read_csv(path_dashboard_data)
+    else:
+        return
+    st.header(f"Feature slicing for {dashboard_name}")
+    relevant_feat_list = st.multiselect(
+            "Select features to slice", feat_name_list
+        )
+        
+    scol1, scol2 = st.columns(2)
+    limit_list = []
+    for i, feat in enumerate(relevant_feat_list):
+        max_val = max(df[feat])
+        min_val = min(df[feat])
+        if i % 2 == 0:
+            with scol1:
+                vals = st.slider(f"Select range for {feat}", 
+                                 min_val, max_val, 
+                                 (min_val, max_val))
+        else:
+            with scol2:
+                vals = st.slider(f"Select range for {feat}", 
+                                 min_val, max_val, 
+                                 (min_val, max_val))
+        limit_list.append(vals)
+    
+    feat_slice_and_plot(df, df_dashboard, relevant_feat_list, limit_list)
+
+    
 st.sidebar.title("Select dashboards to view")
 dashboard_names = next(os.walk(log_folder))[1]
 for dashboard_name in dashboard_names:
     if st.sidebar.checkbox(f"Dashboard: {dashboard_name}"):
         plot_dashboard(dashboard_name)
+
+        # Get Dashboard Metadata for feature slicing
+        local_metadata_file = os.path.join(log_folder, dashboard_name, "metadata.json")
+        if os.path.exists(local_metadata_file):
+            with open(local_metadata_file, encoding='utf-8') as f:
+                local_metadata = json.loads(f.read())
+            if local_metadata.get("feat_slicing", False):
+                feat_slice(local_metadata)
     st.sidebar.markdown("""---""")
 
 if metadata.get("path_shap_file", None):
@@ -439,17 +528,16 @@ if metadata.get("path_shap_file", None):
         st.header(f"SHAP Explanability")
         
         path_all_data = metadata["path_all_data"]
-
+        feat_name_list_shap = metadata["feat_name_list"]
         num_points = metadata["shap_num_points"]
 
         import shap
         shap.initjs() # for visualization
         st.set_option('deprecation.showPyplotGlobalUse', False)
 
-        shap_values, data_ids = get_data_shap(path_all_data, num_points)
+        shap_values, data_ids = get_data_shap(path_all_data, num_points, feat_name_list_shap)
 
         st.subheader("Feature-wise importance")
-        st.text("Feature \"dist\" has the biggest impact on ride time predictions.")
         cols = st.columns(2)
         with cols[0]:
             st.pyplot(shap.plots.bar(shap_values))

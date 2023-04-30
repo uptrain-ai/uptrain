@@ -41,6 +41,15 @@ class LogHandler:
         with open(metadata_file, "w") as f:
             json.dump(self.cfg_metadata, f)
 
+    def add_dashboard_metadata(self, mt_dict, dashboard_name):
+        if self.st_writer is None:
+            return
+        dir_name = os.path.join(self.st_log_folder, dashboard_name)
+        os.makedirs(dir_name, exist_ok=True)
+        metadata_file = os.path.join(dir_name, "metadata.json")
+        with open(metadata_file, "w") as f:
+            json.dump(mt_dict, f)
+
     def get_plot_save_name(self, plot_name, dashboard_name):
         if self.st_writer:
             dir_name = os.path.join(self.st_log_folder, dashboard_name)
