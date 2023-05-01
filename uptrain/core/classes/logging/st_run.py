@@ -430,7 +430,7 @@ def plot_dashboard(dashboard_name):
 
 
 @st.cache
-def get_data_shap(path_all_data, num_points=0, feat_name_list=None):
+def get_data_shap(path_all_data, num_points=None, feat_name_list=None):
     file = open(metadata["path_shap_file"], 'rb')
     explainer = pickle.load(file)
     file.close()
@@ -531,22 +531,14 @@ if metadata.get("path_shap_file", None):
         st.header(f"SHAP Explanability")
         
         path_all_data = metadata["path_all_data"]
-        if "feat_name_list_shap" in metadata:
-            feat_name_list_shap = metadata["feat_name_list"]
-        if "shap_num_points" in metadata:
-            num_points = metadata["shap_num_points"]
+        feat_name_list_shap = metadata.get("feat_name_list")
+        num_points = metadata.get("shap_num_points")
 
         import shap
         shap.initjs() # for visualization
         st.set_option('deprecation.showPyplotGlobalUse', False)
 
-        if "feat_name_list" in metadata:
-            if "shap_num_points" in metadata:
-                shap_values, data_ids = get_data_shap(path_all_data, num_points, feat_name_list_shap)
-        elif "shap_num_points" in metadata:
-            shap_values, data_ids = get_data_shap(path_all_data, num_points)
-        else:
-            shap_values, data_ids = get_data_shap(path_all_data)
+        shap_values, data_ids = get_data_shap(path_all_data, num_points, feat_name_list_shap)
         
         st.subheader("Feature-wise importance")
         cols = st.columns(2)
