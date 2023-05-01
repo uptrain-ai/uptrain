@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import uptrain
 
-
+# if __name__ == "__main__":
 def test_a_b_testing():
     """Test A/B testing using concept drift ADWIN algorithm.
 

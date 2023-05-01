@@ -5,6 +5,7 @@ import json
 import numpy as np
 import pandas as pd
 import socket
+import importlib.util
 
 
 class NumpyEncoder(json.JSONEncoder):
@@ -40,8 +41,13 @@ class StreamlitLogs:
         self.counts = {}
         self.log_folder = log_folder
 
-        remote_st_py_file = "https://raw.githubusercontent.com/uptrain-ai/uptrain/main/uptrain/core/classes/logging/st_run.py"
+        # remote_st_py_file = "https://raw.githubusercontent.com/uptrain-ai/uptrain/main/uptrain/core/classes/logging/st_run.py"
         # remote_st_py_file = "../../uptrain/core/classes/logging/st_run.py"
+
+        path_uptrain_init: str = importlib.util.find_spec("uptrain").origin  # type: ignore
+        remote_st_py_file = os.path.join(
+            os.path.dirname(path_uptrain_init), "core/classes/logging/st_run.py"
+        )
 
         if port is None:
             cmd = "streamlit run " + remote_st_py_file + " -- " + self.log_folder
