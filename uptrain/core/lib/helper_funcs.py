@@ -1,13 +1,16 @@
 import os
 import json
 import copy
-import numpy as np
 import csv
-import pandas as pd
+import time
+from typing import Optional
+from datetime import datetime, timedelta, timezone
 from collections import OrderedDict
-from sklearn.cluster import KMeans
 
-from uptrain.core.encoders.uptrain_encoder import UpTrainEncoder
+import numpy as np
+import pandas as pd
+from sklearn.cluster import KMeans
+from uptrain.core.encoders import UpTrainEncoder
 
 
 def cluster_and_plot_data(
@@ -248,3 +251,46 @@ def load_list_from_df(df, column):
         out_json = [json.dumps(x) for x in list(df[column])]
         out = [json.loads(x) for x in out_json]
     return out
+
+
+def make_dir_friendly_name(txt: str) -> str:
+    import re
+
+    return re.sub(r"[^a-zA-Z0-9_]", "_", txt)
+
+
+class Clock:
+    """Makes testing easier by anchoring to an older time."""
+
+    behind_by: timedelta
+
+    def __init__(self, init_at: Optional[datetime] = None):
+        if init_at is None:
+            self.behind_by = timedelta()
+        else:
+            self.behind_by = datetime.now(tz=timezone.utc) - init_at
+
+    def now(self) -> datetime:
+        """Return the current time, adjusted by the amount of time the clock is behind."""
+        return datetime.now(tz=timezone.utc) - self.behind_by
+
+    def sleep(self, seconds: float):
+        """If the clock is behind, catch up. Else, sleep for the given duration."""
+        seconds_behind = self.behind_by.total_seconds()
+        if seconds_behind > 0:
+            print(f"advancing the clock by {seconds} seconds")
+            self.behind_by = timedelta(seconds=max(seconds_behind - seconds, 0))
+        else:
+            print("sleeping for 60 seconds")
+            time.sleep(seconds)
+
+
+class Timer:
+    time: float
+
+    def __enter__(self):
+        self.time = time.perf_counter()
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.time = round(time.perf_counter() - self.time, 3)

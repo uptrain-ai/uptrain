@@ -38,6 +38,11 @@ class DictStateCache:
     def __init__(self, fw: Any, columns: dict[str, Type]) -> None:
         self.state_dicts = {col: {} for col in columns}
 
+    def __del__(self) -> None:
+        for container in self.state_dicts.values():
+            container.clear()
+        del self.state_dicts
+
     def upsert_ids_n_col_values(
         self, ids: np.ndarray, col_values: dict[str, np.ndarray]
     ) -> None:

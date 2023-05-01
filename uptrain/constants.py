@@ -68,6 +68,7 @@ class Statistic(str, Enum):
     DISTRIBUTION_STATS = "distribution_stats"
     CONVERGENCE_STATS = "convergence_stats"
     FINETUNE = "finetune"
+    NORM_EMBEDDING = "norm_embedding"
 
 
 class Visual(str, Enum):

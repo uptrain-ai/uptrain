@@ -1,3 +1,5 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING, Union
 import numpy as np
 
 from uptrain.core.lib.helper_funcs import make_2d_np_array
@@ -7,11 +9,20 @@ from uptrain.core.classes.measurables import MeasurableResolver
 from uptrain.constants import Statistic
 from uptrain.core.lib.cache import make_cache_container
 
+if TYPE_CHECKING:
+    from uptrain.core.classes.logging.new_log_handler import (
+        LogHandler as NewLogHandler,
+        CsvWriter,
+    )
+    from uptrain.core.classes.logging.log_handler import LogHandler
+
 # from uptrain.core.classes.algorithms import Clustering
 # from uptrain.core.lib.algorithms import estimate_earth_moving_cost
 
 
 class Convergence(AbstractStatistic):
+    log_handler: Union["LogHandler", "NewLogHandler"]
+    log_writers: list["CsvWriter"]
     dashboard_name = "convergence_stats"
     statistic_type = Statistic.CONVERGENCE_STATS
 
@@ -24,25 +35,6 @@ class Convergence(AbstractStatistic):
         self.distance_types = check["distance_types"]
         self.count_checkpoints = list(sorted(set([0] + check["count_checkpoints"])))
 
-        self.distances_dictn = dict(
-            zip(
-                self.count_checkpoints,
-                [
-                    dict(
-                        zip(
-                            self.distance_types, [[] for x in list(self.distance_types)]
-                        )
-                    )
-                    for y in self.count_checkpoints
-                ],
-            )
-        )
-        # ex: {0: {'cosine_distance': [d1, d2, ..]}, 200: {'cosine_distance': []}, 500: {'cosine_distance': []}, 1000: {'cosine_distance': []}, 5000: {'cosine_distance': []}, 20000: {'cosine_distance': []}}
-
-        self.dist_classes = [DistanceResolver().resolve(x) for x in self.distance_types]
-        self.total_count = 0
-        self.prev_calc_at = 0
-
         # setup a cache to store interim state for aggregates
         props_to_store = {
             "ref_embedding": np.ndarray,
@@ -50,6 +42,17 @@ class Convergence(AbstractStatistic):
             "first_checkpoint": int,
         }
         self.cache = make_cache_container(fw, props_to_store)
+
+        self.dist_classes = [DistanceResolver().resolve(x) for x in self.distance_types]
+        if hasattr(self.log_handler, "make_logger"):
+            self.log_writers = [
+                self.log_handler.make_logger(
+                    self.dashboard_name, distance_type + "_" + str(self.reference)
+                )
+                for distance_type in self.distance_types
+            ]  # get handles to log writers for each distance type
+        else:
+            self.log_writers = []
 
     def base_check(self, inputs, outputs, gts=None, extra_args={}):
         all_models = [
@@ -68,18 +71,6 @@ class Convergence(AbstractStatistic):
         )
         counts = self.count_measurable.compute_and_log(
             inputs, outputs, gts=gts, extra=extra_args
-        )
-
-        # TODO: dunno what this is for
-        self.total_count += len(extra_args["id"])
-        models = dict(
-            zip(
-                ["model_" + x for x in self.model_names],
-                [
-                    self.allowed_model_values[jdx][0]
-                    for jdx in range(len(self.model_names))
-                ],
-            )
         )
 
         # read previous state from the cache
@@ -153,21 +144,31 @@ class Convergence(AbstractStatistic):
                         ref_embs_cache[active_id] = curr_emb
 
                     # compute the statistics
-                    this_distances = dict(
+                    distances = dict(
                         zip(
                             self.distance_types,
                             [
                                 x.compute_distance(
                                     make_2d_np_array(curr_emb),
                                     make_2d_np_array(ref_emb),
-                                )
+                                )[0]
                                 for x in self.dist_classes
+                            ],
+                        )
+                    )
+
+                    models = dict(
+                        zip(
+                            self.model_names,
+                            [
+                                all_models[jdx][idx]
+                                for jdx in range(len(self.model_names))
                             ],
                         )
                     )
                     features = dict(
                         zip(
-                            ["feature_" + x for x in self.feature_names],
+                            self.feature_names,
                             [
                                 all_features[jdx][idx]
                                 for jdx in range(len(self.feature_names))
@@ -175,22 +176,31 @@ class Convergence(AbstractStatistic):
                         )
                     )
 
-                    for distance_key in list(this_distances.keys()):
-                        plot_name = distance_key + " " + str(self.reference)
-                        this_data = list(
-                            np.reshape(np.array(this_distances[distance_key]), -1)
-                        )
-                        self.distances_dictn[last_crossed_checkpoint][
-                            distance_key
-                        ].extend(this_data)
-                        self.log_handler.add_histogram(
-                            plot_name,
-                            this_data,
-                            self.dashboard_name,
-                            models=[models] * len(this_data),
-                            features=[features] * len(this_data),
-                            file_name=str(last_crossed_checkpoint),
-                        )
+                    if len(self.log_writers) > 0:
+                        for k, distance_type in enumerate(self.distance_types):
+                            self.log_writers[k].log(
+                                {
+                                    "check": distances[distance_type],
+                                    self.aggregate_measurable.feature_name: aggregate_ids[idx],  # type: ignore
+                                    self.count_measurable.feature_name: last_crossed_checkpoint,  # type: ignore
+                                    **models,
+                                    **features,
+                                }
+                            )
+                    else:
+                        for distance_key in list(distances.keys()):
+                            plot_name = distance_key + " " + str(self.reference)
+                            this_data = list(
+                                np.reshape(np.array(distances[distance_key]), -1)
+                            )
+                            self.log_handler.add_histogram(
+                                plot_name,
+                                this_data,
+                                self.dashboard_name,
+                                models=[models] * len(this_data),
+                                features=[features] * len(this_data),
+                                file_name=str(last_crossed_checkpoint),
+                            )
 
         if len(set_ids_to_cache) > 0:
             # save the current state in the cache
@@ -209,50 +219,3 @@ class Convergence(AbstractStatistic):
                     "first_checkpoint": np.asarray(list_first_checkpoints),
                 },
             )
-
-        # TODO: dunno what this is for
-        if (self.total_count - self.prev_calc_at) > 50000:
-            self.prev_calc_at = self.total_count
-            for count in list(self.distances_dictn.keys()):
-                if count > 0:
-                    for distance_type in self.distance_types:
-                        plot_name = distance_type + " " + str(self.reference)
-                        this_data = np.reshape(
-                            np.array(self.distances_dictn[count][distance_type]), -1
-                        )
-
-                        if len(this_data) > 5:
-                            self.log_handler.add_scalars(
-                                plot_name + "_mean",
-                                {"y_mean": np.mean(this_data)},
-                                count,
-                                self.dashboard_name,
-                                models=models,
-                                features={"tagGenre": "All"},
-                                file_name=str("count"),
-                                update_val=True,
-                            )
-
-        # next_count_idx = np.where(self.count_checkpoints == (count))[0][0] + 1
-        # if next_count_idx < len(self.count_checkpoints):
-        #     next_data = np.reshape(
-        #         np.array(self.distances_dictn[self.count_checkpoints[next_count_idx]][distance_type]), -1
-        #     )
-        #     if len(next_data) > 5:
-        #         clustering_helper = Clustering({"num_buckets": 2, "is_embedding": False})
-        #         this_data = np.expand_dims(np.array(this_data), axis=(1))
-        #         next_data = np.expand_dims(np.array(next_data), axis=(1,2))
-        #         this_count_clustering_res = clustering_helper.cluster_data(this_data)
-        #         next_count_clustering_res = clustering_helper.infer_cluster_assignment(next_data)
-        #         emd_cost = estimate_earth_moving_cost(np.reshape(next_count_clustering_res[1]/next_data.shape[0],-1), np.reshape(clustering_helper.dist[0],-1), clustering_helper.clusters[0])
-        #         self.log_handler.add_scalars(
-        #             plot_name + "_emd",
-        #             {'y_distance': emd_cost},
-        #             count,
-        #             # self.total_count,
-        #             self.dashboard_name,
-        #             models = models,
-        #             features = {"tagGenre": "All"},
-        #             file_name = str("count"),
-        #             update_val = True
-        #         )
