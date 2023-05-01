@@ -430,7 +430,7 @@ def plot_dashboard(dashboard_name):
 
 
 @st.cache
-def get_data_shap(path_all_data, num_points, feat_name_list):
+def get_data_shap(path_all_data, num_points, feat_name_list=None):
     file = open(metadata["path_shap_file"], 'rb')
     explainer = pickle.load(file)
     file.close()
@@ -443,9 +443,10 @@ def get_data_shap(path_all_data, num_points, feat_name_list):
     if type(df["id"][0]) == str:
         df["id"] = df["id"].apply(lambda x: eval(x))
     data_ids = [x for x in df["id"]]
-    df = df[feat_name_list]
+    if feat_name_list:
+        df = df[feat_name_list]
+    df = df.drop(columns=['id', 'output', 'gt'])
     return explainer(df), data_ids
-
 
 def feat_slice_and_plot(df, df_dashboard, relevant_feat_list, limit_list):
     cond = [True] * len(df)
@@ -528,15 +529,19 @@ if metadata.get("path_shap_file", None):
         st.header(f"SHAP Explanability")
         
         path_all_data = metadata["path_all_data"]
-        feat_name_list_shap = metadata["feat_name_list"]
+        if "feat_name_list_shap" in metadata:
+            feat_name_list_shap = metadata["feat_name_list"]
         num_points = metadata["shap_num_points"]
 
         import shap
         shap.initjs() # for visualization
         st.set_option('deprecation.showPyplotGlobalUse', False)
 
-        shap_values, data_ids = get_data_shap(path_all_data, num_points, feat_name_list_shap)
-
+        if "feat_name_list" in metadata:
+            shap_values, data_ids = get_data_shap(path_all_data, num_points, feat_name_list_shap)
+        else:
+            shap_values, data_ids = get_data_shap(path_all_data, num_points)
+        
         st.subheader("Feature-wise importance")
         cols = st.columns(2)
         with cols[0]:
