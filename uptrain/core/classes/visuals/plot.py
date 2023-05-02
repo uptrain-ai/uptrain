@@ -1,5 +1,6 @@
 from typing import Any, Dict
 
+from uptrain.core.classes.measurables import MeasurableResolver
 from uptrain.core.classes.visuals import AbstractVisual
 from uptrain.constants import PlotType, Visual
 
@@ -42,6 +43,11 @@ class Plot(AbstractVisual):
         self.plot = check["plot"]
         self.plot_name = check.get("plot_name", self.plot)
         self.dashboard_name = check.get("dashboard_name", "Plot")
+
+        self.model_measurables = [
+            MeasurableResolver(x).resolve(framework) for x in check.get("model_args", [])
+        ]
+        self.model_names = [x.col_name() for x in self.model_measurables]
 
         if self.plot == PlotType.BAR_CHART:
             self.x_feature_name = check.get("x_feature_name", None)
@@ -133,6 +139,10 @@ class Plot(AbstractVisual):
             self.x_feature_name in inputs.keys() or self.y_feature_name in inputs.keys()
         ):
             return
+        all_models = [
+            x.compute_and_log(inputs=inputs, outputs=outputs, gts=gts, extra=extra_args)
+            for x in self.model_measurables
+        ]
         
         length = (
             len(inputs[self.y_feature_name])
@@ -152,10 +162,20 @@ class Plot(AbstractVisual):
             y_features = inputs[self.y_feature_name]
         
         for i in range(length):
+            models = dict(
+                zip(
+                    self.model_names,
+                    [
+                        all_models[jdx][i]
+                        for jdx in range(len(self.model_names))
+                    ]
+                )
+            )
             self.framework.log_handler.add_scalars(
                 plot_name=self.plot_name,
                 dictn={"y_value": y_features[i]},
                 count=x_features[i],
                 dashboard_name=self.dashboard_name,
                 file_name=f"{self.plot_name}_{self.x_feature_name}_{self.y_feature_name}",
+                models=models,
             )
