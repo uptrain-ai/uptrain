@@ -445,9 +445,9 @@ def get_data_shap(path_all_data, num_points=None, feat_name_list=None):
     if type(df["id"][0]) == str:
         df["id"] = df["id"].apply(lambda x: eval(x))
     data_ids = [x for x in df["id"]]
+    df = df.drop(columns=['id', 'output', 'gt'])
     if feat_name_list:
         df = df[feat_name_list]
-    df = df.drop(columns=['id', 'output', 'gt'])
     return explainer(df), data_ids
 
 def feat_slice_and_plot(df, df_dashboard, relevant_feat_list, limit_list):
