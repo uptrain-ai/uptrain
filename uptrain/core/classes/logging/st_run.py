@@ -83,7 +83,6 @@ if feature_args:
         if value != 'All':
             features_to_slice.update({feature_name: value})
 
-
 def return_plotly_fig(y_axis, x_axis="Num predictions", x_log=False, y_log=False):
     fig = go.Figure()
     fig.update_xaxes(title_text=x_axis)
@@ -116,19 +115,19 @@ def slice_data(
     if model_to_compare is not None:
         model = model_to_compare['allowed_values'][j]
         model_type = model_to_compare['feature_name']
-        if 'model_' + model_type in df.columns:
+        if model_type in df.columns:
             if cond is None:
-                cond = (df['model_' + model_type] == model)
+                cond = (df[model_type] == model)
             else:
-                cond = cond & (df['model_' + model_type] == model)
+                cond = cond & (df[model_type] == model)
         else:
             cond = [False] * len(df)
     for model_name, value in other_models.items():
-        if 'model_' + model_name in df.columns:
+        if model_name in df.columns:
             if cond is None:
-                cond = (df['model_' + model_name] == value)
+                cond = (df[model_name] == value)
             else:
-                cond = cond & (df['model_' + model_name] == value)
+                cond = cond & (df[model_name] == value)
         else:
             cond = [False] * len(df)
     if cond is not None:
