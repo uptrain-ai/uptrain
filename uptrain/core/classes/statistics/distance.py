@@ -12,14 +12,14 @@ from uptrain.core.lib.cache import make_cache_container
 if TYPE_CHECKING:
     from uptrain.core.classes.logging.new_log_handler import (
         LogHandler as NewLogHandler,
-        CsvWriter,
+        LogWriter,
     )
     from uptrain.core.classes.logging.log_handler import LogHandler
 
 
 class Distance(AbstractStatistic):
     log_handler: Union["LogHandler", "NewLogHandler"]
-    log_writers: list["CsvWriter"]
+    log_writers: list["LogWriter"]
     dashboard_name = "distance"
     statistic_type = Statistic.DISTANCE
 

@@ -12,7 +12,7 @@ from uptrain.core.lib.cache import make_cache_container
 if TYPE_CHECKING:
     from uptrain.core.classes.logging.new_log_handler import (
         LogHandler as NewLogHandler,
-        CsvWriter,
+        LogWriter,
     )
     from uptrain.core.classes.logging.log_handler import LogHandler
 
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 class Convergence(AbstractStatistic):
     log_handler: Union["LogHandler", "NewLogHandler"]
-    log_writers: list["CsvWriter"]
+    log_writers: list["LogWriter"]
     dashboard_name = "convergence_stats"
     statistic_type = Statistic.CONVERGENCE_STATS
 
