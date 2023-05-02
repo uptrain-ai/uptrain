@@ -1,0 +1,178 @@
+import os
+import sys
+import json
+import random
+
+import streamlit as st
+import pandas as pd
+import plotly.graph_objects as go
+import numpy as np
+import plotly.express as px
+
+from uptrain.core.lib.helper_funcs import make_dir_friendly_name
+
+
+# -----------------------------------------------------------
+# Read parameters for this run
+# -----------------------------------------------------------
+
+
+def read_config(log_folder: str):
+    """read the uptrain configuration for this run"""
+    config_file = os.path.join(log_folder, "config.json")
+    with open(config_file, encoding="utf-8") as f:
+        return json.loads(f.read())
+
+
+CONFIG = read_config(sys.argv[1])
+
+
+# -----------------------------------------------------------
+# Plotting routines
+# -----------------------------------------------------------
+
+
+def get_plotname_n_file_for_check(check: dict, distance_type: str) -> tuple[str, str]:
+    """get the path to the log file for the dashboard.
+
+    TODO: this logic should be defined on the actual Check objects
+    """
+    log_folder = sys.argv[1]
+    # TODO: this is true for statistic metrics, what about the rest?
+    dashboard_name = make_dir_friendly_name(check["type"])
+    plot_name = make_dir_friendly_name(
+        distance_type
+        if "reference" not in check
+        else "_".join([distance_type, check["reference"]])
+    )
+
+    return (
+        f"{dashboard_name} - {plot_name}",
+        os.path.join(log_folder, dashboard_name, f"{plot_name}.csv"),
+    )
+
+
+def plot_check_distance(check: dict, model_variant: dict, feature_filters: dict):
+    x_log = st.checkbox(
+        "log x", help="See x-axes in log-scale", key=check["type"] + "log_x"
+    )
+    for dist_type in check["distance_types"]:
+        plot_title, fname = get_plotname_n_file_for_check(check, dist_type)
+        st.markdown(f"### Line chart for {plot_title}")
+
+        df = pd.read_csv(fname)
+        list_conds = []
+        for feature, value in feature_filters.items():
+            list_conds.append(df[feature] == value)
+        for k, v in model_variant.items():
+            list_conds.append(df[k] == v)
+        df = df[np.logical_and.reduce(list_conds)]
+
+        if len(df) == 0:
+            st.warning("No data found for the specified filters.")
+        else:
+            grouping_col = check["aggregate_args"]["feature_name"]
+            xaxis = check["count_args"]["feature_name"]
+            yaxis = "check"
+
+            if df[grouping_col].nunique() > 1000:
+                # pick 1000 random values
+                unique_values = df[grouping_col].unique()
+                random.seed(42)
+                random.shuffle(unique_values)
+                df = df[df[grouping_col].isin(unique_values[:1000])]
+
+            df[grouping_col] = df[grouping_col].astype(str)
+            fig = px.line(df, x=xaxis, y=yaxis, color=grouping_col, log_x=x_log)
+            st.plotly_chart(fig, use_container_width=True)
+
+
+def plot_check_convergence(check: dict, model_variant: dict, feature_filters: dict):
+    for dist_type in check["distance_types"]:
+        plot_title, fname = get_plotname_n_file_for_check(check, dist_type)
+        st.markdown(f"### Line chart for {plot_title}")
+
+        df = pd.read_csv(fname)
+        list_conds = []
+        for feature, value in feature_filters.items():
+            list_conds.append(df[feature] == value)
+        for k, v in model_variant.items():
+            list_conds.append(df[k] == v)
+        df = df[np.logical_and.reduce(list_conds)]
+
+        if len(df) == 0:
+            st.warning("No data found for the specified filters.")
+        else:
+            grouping_col = check["count_args"]["feature_name"]
+            value_col = "check"
+
+            df[grouping_col] = df[grouping_col].astype(str)
+            fig = px.histogram(df, x=value_col, color=grouping_col)
+            st.plotly_chart(fig, use_container_width=True)
+
+
+def plot_dashboard(check: dict, model_variant: dict, feature_filters: dict):
+    if check["type"] == "distance":
+        plot_check_distance(check, model_variant, feature_filters)
+    elif check["type"] == "convergence_stats":
+        plot_check_convergence(check, model_variant, feature_filters)
+    else:
+        st.warning(f"Checks of type: {check['type']} are not supported yet.")
+
+
+# -----------------------------------------------------------
+# Set up layout of the dashboard and the sidebar
+# -----------------------------------------------------------
+
+st.set_page_config(
+    page_title="UpTrain Dashboard",
+    layout="wide",
+    page_icon="https://github.com/uptrain-ai/uptrain/raw/dashboard/uptrain/core/classes/logging/uptrain_logo_icon.png",
+)
+st.title("UpTrain Live Dashboard")
+st_style = """<style> footer {visibility: hidden;} </style>"""
+st.markdown(st_style, unsafe_allow_html=True)
+
+if not len(CONFIG["checks"]):
+    st.warning("No checks found in the logs configured.")
+    st.stop()
+
+
+# -----------------------------------------------------------
+# Create a sidebar for the user to specify what they wanna see
+# -----------------------------------------------------------
+
+with st.sidebar:
+    st.subheader("Select the dashboard to view")
+    selected_check = st.radio(
+        "Checks",
+        options=CONFIG["checks"],
+        format_func=lambda x: str(x["type"]),
+    )
+    st.markdown("---")
+    assert selected_check is not None
+
+    # Work with a specific slice of the data
+    st.subheader("Pick a specific slice of the logged data")
+    feature_filters = {}
+    for i, feature in enumerate(selected_check["feature_args"]):
+        feature_name = feature["feature_name"]
+        selected_value = st.sidebar.selectbox(
+            feature_name, ["All", *feature["allowed_values"]]
+        )
+        if selected_value != "All":
+            feature_filters.update({feature_name: selected_value})
+
+    # Pick out model variants to plot for
+    model_args = selected_check["model_args"]
+
+    # select a model variant from the cartesian product of all model args
+    st.subheader("Select model variant")
+    model_variant = {}
+    for i, model in enumerate(model_args):
+        model_name = model["feature_name"]
+        selected_value = st.sidebar.selectbox(model_name, model["allowed_values"])
+        model_variant.update({model_name: selected_value})
+
+
+plot_dashboard(selected_check, model_variant, feature_filters)
