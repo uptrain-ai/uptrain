@@ -37,9 +37,11 @@ class DimensionalityReduction(AbstractVisual):
         else:
             raise Exception("Dimensionality reduction type undefined.")
         self.framework = fw
-        self.label_measurable = MeasurableResolver(
-            check.get("label_args", None)
-        ).resolve(fw)
+        self.label_measurables = [MeasurableResolver(x).resolve(fw) for x in check.get("label_args", [])]
+        label_names = [x.col_name() for x in self.label_measurables]
+        self.labels = {"clusters": []}
+        for label_name in label_names:
+            self.labels[label_name] = []
         self.hover_measurables = [
             MeasurableResolver(x).resolve(fw) for x in check.get("hover_args", [])
         ]
@@ -56,9 +58,7 @@ class DimensionalityReduction(AbstractVisual):
         self.prev_calc_at = 0
         self.update_freq = check.get("update_freq", 10000)
         self.vals = []
-        self.labels = []
         self.hover_texts = []
-        self.do_clustering = check.get("do_clustering", self.label_measurable is None)
         self.feature_dictn = {}
 
         # get handles to the log writer object
@@ -75,20 +75,11 @@ class DimensionalityReduction(AbstractVisual):
             self.vals.extend(
                 [self.measurable.extract_val_from_training_data(x) for x in data]
             )
-            if self.label_measurable is not None:
-                self.labels.extend(
-                    [
-                        self.label_measurable.extract_val_from_training_data(x)
-                        for x in data
-                    ]
-                )
+
+            for label_measurable in self.label_measurables:
+                label_data = label_measurable.extract_val_from_training_data(data)
+                self.labels[label_measurable.col_name()] = label_data
             if len(self.hover_measurables):
-                # raw_data = np.abs([x['bert_embs_downsampled'] for x in data])
-                # self.max_along_axis = np.max(raw_data, axis=0)
-                # norm_data = raw_data/self.max_along_axis
-
-                # _, _, _, points_density, _ = cluster_and_plot_data(norm_data,20)
-
                 offset = 0
                 for data_point in data:
                     this_hovers = [
@@ -148,11 +139,12 @@ class DimensionalityReduction(AbstractVisual):
                 inputs, outputs, gts=gts, extra=extra_args
             )
             self.vals.extend(vals)
-        if self.label_measurable is not None:
-            labels = self.label_measurable.compute_and_log(
+
+        for label_measurable in self.label_measurables:
+            label_data = label_measurable.compute_and_log(
                 inputs, outputs, gts=gts, extra=extra_args
             )
-            self.labels.extend(labels)
+            self.labels[label_measurable.col_name()].extend(label_data)
 
         if len(self.feature_measurables):
             all_features = [
@@ -194,16 +186,15 @@ class DimensionalityReduction(AbstractVisual):
         )
 
         for count in self.count_checkpoints:
-            emb_list, label_list, hover_texts = self.get_high_dim_data(count)
+            emb_list, label_dict, hover_texts = self.get_high_dim_data(count)
             emb_list = np.array(emb_list)
-            label_list = np.array(label_list)
 
             if emb_list.shape[0] > 10:
                 clusters = []
-                umap_list, clusters = self.get_embs_and_labels(
-                    emb_list, label_list=label_list
-                )
-                this_data = {"umap": umap_list, "clusters": clusters}
+                umap_list, clusters = self.get_embs_and_clusters(emb_list)
+                this_data = {"umap": umap_list}
+                label_dict["clusters"].extend(clusters)
+                this_data.update({"labels": label_dict})
                 if len(hover_texts) > 0:
                     this_data.update({"hover_texts": hover_texts})
 
@@ -290,7 +281,7 @@ class DimensionalityReduction(AbstractVisual):
         else:
             return self.vals, self.labels, self.hover_texts
 
-    def get_embs_and_labels(self, emb_list, label_list=None):
+    def get_embs_and_clusters(self, emb_list):
         if self.dim == "2D":
             n_components = 2
         else:
@@ -322,12 +313,8 @@ class DimensionalityReduction(AbstractVisual):
             ).fit_transform(emb_list)
 
         # Do DBSCAN clustering
-        if self.do_clustering:
-            clustering = DBSCAN(eps=self.eps, min_samples=self.min_samples).fit(
-                compressed_embeddings
-            )
-            labels = clustering.labels_
-        else:
-            labels = label_list
-        labels = np.squeeze(np.array(labels))
+        clustering = DBSCAN(eps=self.eps, min_samples=self.min_samples).fit(
+            compressed_embeddings
+        )
+        labels = np.squeeze(np.array(clustering.labels_))
         return compressed_embeddings, labels
