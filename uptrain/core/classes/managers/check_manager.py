@@ -11,6 +11,7 @@ from uptrain.core.classes.monitors import (
     ModelBias,
     DataIntegrity,
     EdgeCase,
+    OutputComparison
 )
 from uptrain.core.classes.statistics import (
     Distance,
@@ -91,6 +92,9 @@ class CheckManager:
                     )
                     integrity_managers.append(DataIntegrity(self.fw, check_copy))
             self.monitors_to_check.extend(integrity_managers)
+        elif check["type"] == Monitor.OUTPUT_COMPARISON:
+            comparison_monitor = OutputComparison(self.fw, check)
+            self.monitors_to_check.append(comparison_monitor)
         else:
             raise Exception("Monitor type not Supported")
 

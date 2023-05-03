@@ -224,13 +224,14 @@ class Framework:
             }
         )
 
-        if self.log_data:
-            # Log all the data-points into all_data warehouse
-            add_data_to_warehouse(deepcopy(data), self.path_all_data)
-
         # Check for any monitors
         self.check(data, extra_args)
         self.predicted_count += self.batch_size
+
+        if self.log_data:
+            data.update(extra_args)
+            # Log all the data-points into all_data warehouse
+            add_data_to_warehouse(deepcopy(data), self.path_all_data)
 
         # Smartly add data for retraining
         self.smartly_add_data(data, extra_args)
