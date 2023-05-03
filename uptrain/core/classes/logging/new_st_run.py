@@ -141,10 +141,11 @@ def plot_visual_umap(check: dict, model_variant: dict, feature_filters: dict):
         st.stop()
 
     arr = np.array(data["umap"])
-    clusters = data["clusters"]
+    labels_dict = data["labels"]
+    color_type = st.selectbox("Select coloring type", labels_dict.keys())
     x = arr[:, 0]
     y = arr[:, 1]
-    dictn = {"x": x, "y": y, "color": clusters}
+    dictn = {"x": x, "y": y, "color": np.array(labels_dict[color_type])}
     if arr.shape[1] == 3:
         dictn.update({"z": arr[:, 2]})
 
@@ -155,7 +156,7 @@ def plot_visual_umap(check: dict, model_variant: dict, feature_filters: dict):
             hover_data = list(data["hover_texts"][0].keys())
 
     for key in data.keys():
-        if key not in ["umap", "clusters", "hover_texts"]:
+        if key not in ["umap", "labels", "hover_texts"]:
             dictn.update({key: data[key]})
     df = pd.DataFrame(dictn)
 

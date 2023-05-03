@@ -41,7 +41,7 @@ setup(
     keywords="uptrain ai retraining ML observability",
     packages=find_packages(),
     install_requires=[
-        "numpy<1.24",
+        "numpy>=1.23.0",
         "pandas>=1.0.0",
         "plotly>=5.0.0",
         "pydantic>=1.9.0",

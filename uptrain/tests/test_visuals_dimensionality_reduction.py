@@ -128,10 +128,10 @@ def test_visuals_dimensionality_reduction_new_logging():
             "type": uptrain.MeasurableType.INPUT_FEATURE,
             "feature_name": "data",
         },
-        "label_args": {
+        "label_args": [{
             "type": uptrain.MeasurableType.INPUT_FEATURE,
             "feature_name": "labels",
-        },
+        }],
         "update_freq": 1,
         "perplexity": 10,
     }
