@@ -4,8 +4,9 @@ import copy
 import csv
 import time
 from typing import Optional
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, tzinfo
 from collections import OrderedDict
+import functools
 
 import numpy as np
 import pandas as pd
@@ -260,19 +261,30 @@ def make_dir_friendly_name(txt: str) -> str:
 
 
 class Clock:
-    """Makes testing easier by anchoring to an older time."""
+    """Makes testing easier by anchoring to an older time. This is helpful when
+    testing with older datasets. While if initialized with no arguments, the clock
+    starts at the current time.
+    """
 
     behind_by: timedelta
+    tzone: Optional[tzinfo]
 
     def __init__(self, init_at: Optional[datetime] = None):
         if init_at is None:
             self.behind_by = timedelta()
+            self.tzone = None
         else:
-            self.behind_by = datetime.now(tz=timezone.utc) - init_at
+            tz = init_at.tzinfo
+            if tz is None or tz.utcoffset(init_at) is None:
+                self.tzone = None
+                self.behind_by = datetime.now() - init_at
+            else:
+                self.tzone = tz
+                self.behind_by = datetime.now(tz=tz) - init_at
 
     def now(self) -> datetime:
         """Return the current time, adjusted by the amount of time the clock is behind."""
-        return datetime.now(tz=timezone.utc) - self.behind_by
+        return datetime.now(tz=self.tzone) - self.behind_by
 
     def sleep(self, seconds: float):
         """If the clock is behind, catch up. Else, sleep for the given duration."""
@@ -286,6 +298,8 @@ class Clock:
 
 
 class Timer:
+    """Context manager for timing code blocks"""
+
     time: float
 
     def __enter__(self):
@@ -294,3 +308,23 @@ class Timer:
 
     def __exit__(self, type, value, traceback):
         self.time = round(time.perf_counter() - self.time, 3)
+
+
+def dependency_required(dependency_name, package_name: str):
+    """Decorator for checks that need optional dependencies. If the dependency is not
+    present, initializing the class will raise an error.
+    """
+
+    def class_decorator(cls):
+        @functools.wraps(cls, updated=())
+        class WrappedClass(cls):
+            def __init__(self, *args, **kwargs):
+                if dependency_name is None:
+                    raise ImportError(
+                        f"{package_name} is required to use {cls.__name__}. Please install it using: pip install {package_name}"
+                    )
+                super().__init__(*args, **kwargs)
+
+        return WrappedClass
+
+    return class_decorator

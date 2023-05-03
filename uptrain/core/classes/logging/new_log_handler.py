@@ -2,19 +2,21 @@ from __future__ import annotations
 import csv, _csv
 import os
 import shutil
-import urllib3
-import re
 import json
-from typing import IO, TYPE_CHECKING
+from typing import IO, TYPE_CHECKING, Protocol
 
 if TYPE_CHECKING:
     from uptrain.core.classes.framework import Framework
     from uptrain.core.classes.helpers.config_handler import Config
 
 from uptrain.core.lib.helper_funcs import make_dir_friendly_name
+from uptrain.core.encoders import NumpyEncoder
 from uptrain.core.classes.logging.new_st_setup import StreamlitRunner
 
 
+# -----------------------------------------------------------
+# Implement LogWriters for different file formats
+# -----------------------------------------------------------
 def get_logs_addr_for_check(
     log_folder: str, dashboard_name: str, distance_type: str, reference: str
 ) -> str:
@@ -24,7 +26,13 @@ def get_logs_addr_for_check(
     return os.path.join(log_folder, dashboard_name, f"{plot_name}.csv")
 
 
-class CsvWriter:
+class LogWriter(Protocol):
+    def log(self, data: dict):
+        """Write data to a log file. Expects to get called multiple times."""
+        ...
+
+
+class CsvWriter(LogWriter):
     file_handle: IO[str]
     writer: "_csv._writer"
     headers: list[str]
@@ -40,14 +48,35 @@ class CsvWriter:
         self.file_handle.close()
 
     def log(self, data: dict):
-        """create a csv file and write the header to it if it doesn't exist.
+        """Create a csv file and write the header to it if it doesn't exist.
         Post that, write the data to the file.
         """
+        # TODO: is it possible multiple classes have a handle to the same CSV file? We can't be
+        # making a syscall to check if file already exists every time we log something.
         if not self.initialized:
             self.headers = list(data.keys())
             self.writer.writerow(self.headers)
             self.initialized = True
         self.writer.writerow([data[k] for k in self.headers])
+
+
+class JsonWriter(LogWriter):
+    fname: str
+    initialized: bool
+
+    def __init__(self, fname: str) -> None:
+        self.fname = fname
+
+    def log(self, data: dict):
+        """create a json file and write the data to it. Or append if it already exists."""
+        with open(self.fname, "a") as f:
+            json.dump(data, f, cls=NumpyEncoder)
+            f.write("\n")
+
+
+# -----------------------------------------------------------
+# LogHandler object
+# -----------------------------------------------------------
 
 
 class LogHandler:
@@ -83,16 +112,23 @@ class LogHandler:
         # Get Webhook URL for alerting on slack
         self.webhook_url = cfg.logging_args.slack_webhook_url
 
-    def make_logger(self, dashboard_name: str, plot_name: str) -> CsvWriter:
+    def make_logger(
+        self, dashboard_name: str, plot_name: str, fmt: str = "csv"
+    ) -> LogWriter:
         """Initialize a CSV logger that the `check` object can write data to."""
         dashboard_name = make_dir_friendly_name(dashboard_name)
         plot_name = make_dir_friendly_name(plot_name)
 
         dir_name = os.path.join(self.log_folder, dashboard_name)
         os.makedirs(dir_name, exist_ok=True)
-        fname = os.path.join(dir_name, f"{plot_name}.csv")
+        fname = os.path.join(dir_name, f"{plot_name}.{fmt}")
 
-        return CsvWriter(fname)
+        if fmt == "json":
+            return JsonWriter(fname)
+        elif fmt == "csv":
+            return CsvWriter(fname)
+        else:
+            raise ValueError(f"Unknown format for the log-file: {fmt}")
 
     def add_alert(self, alert_name, alert, dashboard_name):
         dashboard_name = make_dir_friendly_name(dashboard_name)
@@ -111,6 +147,8 @@ class LogHandler:
             self.slack_notification({"text": message})
 
     def slack_notification(self, message):
+        import urllib3
+
         try:
             http = urllib3.PoolManager()
             response = http.request(

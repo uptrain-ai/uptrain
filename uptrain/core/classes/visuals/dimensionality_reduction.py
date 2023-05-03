@@ -1,28 +1,38 @@
+from typing import Optional, Union, TYPE_CHECKING
+
 try:
     import umap
-
-    UMAP_PRESENT = True
 except:
-    UMAP_PRESENT = False
+    umap = None
+import numpy as np
 from sklearn.cluster import DBSCAN
 from sklearn.manifold import TSNE
-import numpy as np
-from uptrain.core.lib.helper_funcs import cluster_and_plot_data
 
+from uptrain.core.lib.helper_funcs import cluster_and_plot_data
 from uptrain.core.classes.visuals import AbstractVisual
 from uptrain.constants import Visual, Statistic, MeasurableType
 from uptrain.core.classes.measurables import MeasurableResolver
-from uptrain.core.lib.helper_funcs import read_json
+from uptrain.core.lib.helper_funcs import read_json, dependency_required
+
+if TYPE_CHECKING:
+    from uptrain.core.classes.logging.new_log_handler import (
+        LogHandler as NewLogHandler,
+        LogWriter,
+    )
+    from uptrain.core.classes.logging.log_handler import LogHandler
 
 
+@dependency_required(umap, "umap-learn")
 class DimensionalityReduction(AbstractVisual):
+    log_handler: Union["LogHandler", "NewLogHandler"]
+    log_writer: Optional["LogWriter"]
+
     def base_init(self, fw, check):
         self.visual_type = check["type"]
+        self.dashboard_name = check.get("dashboard_name", "visual")
         if self.visual_type == Visual.UMAP:
-            self.dashboard_name = check.get("dashboard_name", "umap")
             self.umap_init(check)
         elif self.visual_type == Visual.TSNE:
-            self.dashboard_name = check.get("dashboard_name", "tsne")
             self.tsne_init(check)
         else:
             raise Exception("Dimensionality reduction type undefined.")
@@ -35,9 +45,9 @@ class DimensionalityReduction(AbstractVisual):
         ]
         self.hover_names = [x.col_name() for x in self.hover_measurables]
         if "id" not in self.hover_names:
-            id_args = {'type': MeasurableType.INPUT_FEATURE, 'feature_name': 'id'}
+            id_args = {"type": MeasurableType.INPUT_FEATURE, "feature_name": "id"}
             self.hover_measurables.append(MeasurableResolver(id_args).resolve(fw))
-            self.hover_names.append('id')
+            self.hover_names.append("id")
         self.count_checkpoints = check.get("count_checkpoints", ["all"])
         self.dim = check.get("dim", "2D")
         self.min_samples = check.get("min_samples", 5)
@@ -50,6 +60,14 @@ class DimensionalityReduction(AbstractVisual):
         self.hover_texts = []
         self.do_clustering = check.get("do_clustering", self.label_measurable is None)
         self.feature_dictn = {}
+
+        # get handles to the log writer object
+        if hasattr(self.log_handler, "make_logger"):
+            self.log_writer = self.log_handler.make_logger(
+                self.dashboard_name, self.visual_type, fmt="json"
+            )
+        else:
+            self.log_writer = None
 
         self.initial_dataset = check.get("initial_dataset", None)
         if self.initial_dataset is not None:
@@ -174,6 +192,7 @@ class DimensionalityReduction(AbstractVisual):
                 ],
             )
         )
+
         for count in self.count_checkpoints:
             emb_list, label_list, hover_texts = self.get_high_dim_data(count)
             emb_list = np.array(emb_list)
@@ -187,14 +206,29 @@ class DimensionalityReduction(AbstractVisual):
                 this_data = {"umap": umap_list, "clusters": clusters}
                 if len(hover_texts) > 0:
                     this_data.update({"hover_texts": hover_texts})
-                self.log_handler.add_histogram(
-                    self.visual_type,
-                    this_data,
-                    self.dashboard_name,
-                    models=models,
-                    features=self.feature_dictn,
-                    file_name=self.dashboard_name + "_" + str(count) + "_" + "_".join(list(models.values())),
-                )
+
+                if self.log_writer is not None:
+                    self.log_writer.log(
+                        {
+                            "count": str(count),
+                            **this_data,
+                            **models,
+                            **self.feature_dictn,
+                        }
+                    )
+                else:
+                    self.log_handler.add_histogram(
+                        self.visual_type,
+                        this_data,
+                        self.dashboard_name,
+                        models=models,
+                        features=self.feature_dictn,
+                        file_name=self.dashboard_name
+                        + "_"
+                        + str(count)
+                        + "_"
+                        + "_".join(list(models.values())),
+                    )
 
     def get_high_dim_data(self, count):
         if self.measurable is None:

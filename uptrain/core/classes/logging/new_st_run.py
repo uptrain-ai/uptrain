@@ -32,7 +32,9 @@ CONFIG = read_config(sys.argv[1])
 # -----------------------------------------------------------
 
 
-def get_plotname_n_file_for_check(check: dict, distance_type: str) -> tuple[str, str]:
+def get_plotname_n_file_for_statistic(
+    check: dict, distance_type: str
+) -> tuple[str, str]:
     """get the path to the log file for the dashboard.
 
     TODO: this logic should be defined on the actual Check objects
@@ -57,7 +59,7 @@ def plot_check_distance(check: dict, model_variant: dict, feature_filters: dict)
         "log x", help="See x-axes in log-scale", key=check["type"] + "log_x"
     )
     for dist_type in check["distance_types"]:
-        plot_title, fname = get_plotname_n_file_for_check(check, dist_type)
+        plot_title, fname = get_plotname_n_file_for_statistic(check, dist_type)
         st.markdown(f"### Line chart for {plot_title}")
 
         df = pd.read_csv(fname)
@@ -89,7 +91,7 @@ def plot_check_distance(check: dict, model_variant: dict, feature_filters: dict)
 
 def plot_check_convergence(check: dict, model_variant: dict, feature_filters: dict):
     for dist_type in check["distance_types"]:
-        plot_title, fname = get_plotname_n_file_for_check(check, dist_type)
+        plot_title, fname = get_plotname_n_file_for_statistic(check, dist_type)
         st.markdown(f"### Line chart for {plot_title}")
 
         df = pd.read_csv(fname)
@@ -111,11 +113,81 @@ def plot_check_convergence(check: dict, model_variant: dict, feature_filters: di
             st.plotly_chart(fig, use_container_width=True)
 
 
+def plot_visual_umap(check: dict, model_variant: dict, feature_filters: dict):
+    dashboard_name = make_dir_friendly_name(check.get("dashboard_name", "visual"))
+    plot_name = make_dir_friendly_name(check["type"])
+    fname = os.path.join(sys.argv[1], dashboard_name, f"{plot_name}.json")
+
+    plot_title = f"{dashboard_name} - {plot_name}"
+    st.markdown(f"### {plot_title}")
+    with open(fname, encoding="utf-8") as f:
+        all_data = [json.loads(line) for line in f.readlines()]
+
+    data = None
+    for row in all_data:
+        valid_model = all(
+            row[model_arg] == model_variant[model_arg] for model_arg in model_variant
+        )
+        valid_features = all(
+            row[feature_arg] == feature_filters[feature_arg]
+            for feature_arg in feature_filters
+        )
+        if valid_model and valid_features:
+            data = row
+            break
+
+    if data is None:
+        st.warning("No data found for the specified filters.")
+        st.stop()
+
+    arr = np.array(data["umap"])
+    clusters = data["clusters"]
+    x = arr[:, 0]
+    y = arr[:, 1]
+    dictn = {"x": x, "y": y, "color": clusters}
+    if arr.shape[1] == 3:
+        dictn.update({"z": arr[:, 2]})
+
+    hover_data = []
+    if "hover_texts" in data:
+        dictn.update({"hover": data["hover_texts"]})
+        if len(data["hover_texts"]):
+            hover_data = list(data["hover_texts"][0].keys())
+
+    for key in data.keys():
+        if key not in ["umap", "clusters", "hover_texts"]:
+            dictn.update({key: data[key]})
+    df = pd.DataFrame(dictn)
+
+    if "hover" in list(df.columns):
+        hover_df = pd.DataFrame(list(df["hover"]))
+        for key in hover_data:
+            if key not in hover_df.columns:
+                df[key] = [""] * len(hover_df)
+            else:
+                df[key] = pd.Series(hover_df[key]).fillna("").tolist()
+    else:
+        hover_df = pd.DataFrame()
+
+    if arr.shape[1] == 2:
+        fig = px.scatter(df, x="x", y="y", color="color", hover_data=hover_data)
+    elif arr.shape[1] == 3:
+        z = list(df["z"])
+        fig = px.scatter_3d(
+            df, x="x", y="y", z="z", color="color", hover_data=hover_data
+        )
+    else:
+        raise Exception("Umap dimension not 2D or 3D")
+    st.plotly_chart(fig, use_container_width=True)
+
+
 def plot_dashboard(check: dict, model_variant: dict, feature_filters: dict):
     if check["type"] == "distance":
         plot_check_distance(check, model_variant, feature_filters)
     elif check["type"] == "convergence_stats":
         plot_check_convergence(check, model_variant, feature_filters)
+    elif check["type"] in ("UMAP", "t-SNE"):
+        plot_visual_umap(check, model_variant, feature_filters)
     else:
         st.warning(f"Checks of type: {check['type']} are not supported yet.")
 
@@ -153,26 +225,25 @@ with st.sidebar:
     assert selected_check is not None
 
     # Work with a specific slice of the data
-    st.subheader("Pick a specific slice of the logged data")
     feature_filters = {}
-    for i, feature in enumerate(selected_check["feature_args"]):
-        feature_name = feature["feature_name"]
-        selected_value = st.sidebar.selectbox(
-            feature_name, ["All", *feature["allowed_values"]]
-        )
-        if selected_value != "All":
-            feature_filters.update({feature_name: selected_value})
-
-    # Pick out model variants to plot for
-    model_args = selected_check["model_args"]
+    if "feature_args" in selected_check:
+        st.subheader("Pick a specific slice of the logged data")
+        for i, feature in enumerate(selected_check["feature_args"]):
+            feature_name = feature["feature_name"]
+            selected_value = st.sidebar.selectbox(
+                feature_name, ["All", *feature["allowed_values"]]
+            )
+            if selected_value != "All":
+                feature_filters.update({feature_name: selected_value})
 
     # select a model variant from the cartesian product of all model args
-    st.subheader("Select model variant")
     model_variant = {}
-    for i, model in enumerate(model_args):
-        model_name = model["feature_name"]
-        selected_value = st.sidebar.selectbox(model_name, model["allowed_values"])
-        model_variant.update({model_name: selected_value})
+    if "model_args" in selected_check:
+        st.subheader("Select model variant")
+        for i, model in enumerate(selected_check["model_args"]):
+            model_name = model["feature_name"]
+            selected_value = st.sidebar.selectbox(model_name, model["allowed_values"])
+            model_variant.update({model_name: selected_value})
 
 
 plot_dashboard(selected_check, model_variant, feature_filters)

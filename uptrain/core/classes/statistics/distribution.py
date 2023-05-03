@@ -17,14 +17,14 @@ from uptrain.core.lib.cache import make_cache_container
 if TYPE_CHECKING:
     from uptrain.core.classes.logging.new_log_handler import (
         LogHandler as NewLogHandler,
-        CsvWriter,
+        LogWriter,
     )
     from uptrain.core.classes.logging.log_handler import LogHandler
 
 
 class Distribution(AbstractStatistic):
     log_handler: Union["LogHandler", "NewLogHandler"]
-    log_writers: list["CsvWriter"]  # one for each distance type
+    log_writers: list["LogWriter"]  # one for each distance type
     dashboard_name = "distribution_stats"
     statistic_type = Statistic.DISTRIBUTION_STATS
     bucket_size = 400  # max num of embeddings sampled at each checkpoint

@@ -20,9 +20,7 @@ from uptrain.core.classes.statistics import (
 )
 from uptrain.core.classes.visuals import (
     DimensionalityReduction,
-    UMAP_PRESENT,
     Shap,
-    SHAP_PRESENT,
     Plot,
 )
 from uptrain.core.classes.finetuning import Finetune
@@ -124,24 +122,14 @@ class CheckManager:
 
     def add_visual(self, check):
         if check["type"] == Visual.UMAP:
-            if UMAP_PRESENT:
-                custom_monitor = DimensionalityReduction(self.fw, check)
-                self.visuals_to_check.append(custom_monitor)
-            else:
-                raise Exception(
-                    """UMAP is not installed. For UMAP visualization, please install umap by running `pip install umap-learn`."""
-                )
+            custom_monitor = DimensionalityReduction(self.fw, check)
+            self.visuals_to_check.append(custom_monitor)
         elif check["type"] == Visual.TSNE:
             custom_monitor = DimensionalityReduction(self.fw, check)
             self.visuals_to_check.append(custom_monitor)
         elif check["type"] == Visual.SHAP:
-            if SHAP_PRESENT:
-                custom_monitor = Shap(self.fw, check)
-                self.visuals_to_check.append(custom_monitor)
-            else:
-                raise Exception(
-                    """SHAP is not installed. For SHAP explainability, please install it by running `pip install shap matplotlib`."""
-                )
+            custom_monitor = Shap(self.fw, check)
+            self.visuals_to_check.append(custom_monitor)
         elif check["type"] == Visual.PLOT:
             custom_monitor = Plot(self.fw, check)
             self.visuals_to_check.append(custom_monitor)
