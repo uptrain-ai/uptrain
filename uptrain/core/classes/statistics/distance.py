@@ -96,7 +96,7 @@ class Distance(AbstractStatistic):
         for i, key in enumerate(aggregate_ids):
             value_from_cache = ref_embs_cache.get(key, vals[i])
             value_prev_seen_this_batch = ref_embs_prev.get(key, vals[i])
-            if self.reference == "running_diff":
+            if self.reference == "running":
                 list_ref_vals.append(value_prev_seen_this_batch)
                 ref_embs_prev[key] = vals[i]
             else:
@@ -133,6 +133,7 @@ class Distance(AbstractStatistic):
                     ],
                 )
             )
+
             if len(self.log_writers) > 0:
                 for k, distance_type in enumerate(self.distance_types):
                     self.log_writers[k].log(

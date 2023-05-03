@@ -140,7 +140,7 @@ class Convergence(AbstractStatistic):
                     # new checkpoint crossed and we have a reference embedding, so compute the statistics.
                     # Update the reference embedding if necessary.
                     assert ref_emb is not None
-                    if self.reference == "running_diff":
+                    if self.reference == "running":
                         ref_embs_cache[active_id] = curr_emb
 
                     # compute the statistics
