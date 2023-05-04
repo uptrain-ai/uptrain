@@ -28,6 +28,7 @@ class MeasurableType(str, Enum):
     SCALAR_FROM_EMBEDDING = "scalar_from_embedding"
     DISTANCE = "distance"
     REC_HIT_RATE = "hit_rate"
+    GRAMMAR_SCORE = "grammar_score"
 
 
 class ModelSignal(Enum):
