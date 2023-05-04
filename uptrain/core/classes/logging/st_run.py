@@ -222,10 +222,11 @@ def plot_umap(file, j=0):
     with open(file, encoding='utf-8') as f:
         data = json.loads(f.read())
     arr = np.array(data["umap"])
-    clusters = data["clusters"]
+    labels_dict = data["labels"]
+    color_type = st.selectbox("Select coloring type", labels_dict.keys(), key=file)
     x = arr[:, 0]
     y = arr[:, 1]
-    dictn = {'x': x, 'y': y, 'color': clusters}
+    dictn = {'x': x, 'y': y, 'color': np.array(labels_dict[color_type])}
     hover_data = []
     if "hover_texts" in data:
         dictn.update({'hover': data['hover_texts']})
@@ -236,7 +237,7 @@ def plot_umap(file, j=0):
         dictn.update({'z': arr[:, 2]})
 
     for key in data.keys():
-        if key not in ['umap', 'clusters', 'hover_texts']:
+        if key not in ['umap', 'labels', 'hover_texts']:
             dictn.update({key: data[key]})
     df = pd.DataFrame(dictn)
     df = slice_data(df, features_to_slice, model_to_compare, other_models, j)

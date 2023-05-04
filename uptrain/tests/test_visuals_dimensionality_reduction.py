@@ -38,10 +38,10 @@ def test_visuals_dimensionality_reduction():
             "type": uptrain.MeasurableType.INPUT_FEATURE,
             "feature_name": "data"
         },
-        "label_args": {
+        "label_args": [{
             "type": uptrain.MeasurableType.INPUT_FEATURE,
             "feature_name": "labels"
-        },
+        }],
         "min_dist": 0.01,
         "n_neighbors": 20,
         "metric": "euclidean",
@@ -55,10 +55,10 @@ def test_visuals_dimensionality_reduction():
             "type": uptrain.MeasurableType.INPUT_FEATURE,
             "feature_name": "data"
         },
-        "label_args": {
+        "label_args": [{
             "type": uptrain.MeasurableType.INPUT_FEATURE,
             "feature_name": "labels"
-        },
+        }],
         "update_freq": 1,
         "perplexity": 10
     }
@@ -111,10 +111,10 @@ def test_visuals_dimensionality_reduction_new_logging():
             "type": uptrain.MeasurableType.INPUT_FEATURE,
             "feature_name": "data",
         },
-        "label_args": {
+        "label_args": [{
             "type": uptrain.MeasurableType.INPUT_FEATURE,
             "feature_name": "labels",
-        },
+        }],
         "min_dist": 0.01,
         "n_neighbors": 20,
         "metric": "euclidean",
