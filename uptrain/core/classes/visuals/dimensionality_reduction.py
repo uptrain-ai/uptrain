@@ -77,7 +77,7 @@ class DimensionalityReduction(AbstractVisual):
             )
 
             for label_measurable in self.label_measurables:
-                label_data = label_measurable.extract_val_from_training_data(data)
+                label_data = [label_measurable.extract_val_from_training_data(x) for x in data]
                 self.labels[label_measurable.col_name()] = label_data
             if len(self.hover_measurables):
                 offset = 0
