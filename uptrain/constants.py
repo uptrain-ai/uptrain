@@ -75,3 +75,4 @@ class Visual(str, Enum):
     TSNE = "t-SNE"
     SHAP = "SHAP"
     PLOT = "PLOT"
+    LIME = "LIME"

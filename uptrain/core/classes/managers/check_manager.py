@@ -17,7 +17,7 @@ from uptrain.core.classes.statistics import (
     Convergence,
     Distribution,
 )
-from uptrain.core.classes.visuals import DimensionalityReduction, UMAP_PRESENT, Shap, SHAP_PRESENT, Plot
+from uptrain.core.classes.visuals import DimensionalityReduction, UMAP_PRESENT, Shap, SHAP_PRESENT, Plot, LIME_PRESENT, Lime
 from uptrain.core.classes.finetuning import Finetune
 
 
@@ -133,8 +133,17 @@ class CheckManager:
         elif check["type"] == Visual.PLOT:
             custom_monitor = Plot(self.fw, check)
             self.visuals_to_check.append(custom_monitor)
+        elif check["type"] == Visual.LIME:
+            if LIME_PRESENT:
+                custom_monitor = Lime(self.fw, check)
+                self.visuals_to_check.append(custom_monitor)        
+            else:
+                raise Exception(
+                    """LIME is not installed. For LIME explainability, please install it by running `pip install lime`."""
+                )
         else:
             raise Exception("Visual type not Supported")
+        
 
     def check(self, inputs, outputs, gts=None, extra_args={}):
         for monitor in self.monitors_to_check:
