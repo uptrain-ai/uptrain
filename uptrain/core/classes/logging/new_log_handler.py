@@ -65,18 +65,16 @@ class CsvWriter(LogWriter):
 
 
 class JsonWriter(LogWriter):
-    file_handle: IO[str]
+    fname: str
 
     def __init__(self, fname: str) -> None:
-        self.file_handle = open(fname, "a")
-
-    def __del__(self):
-        self.file_handle.close()
+        self.fname = fname
 
     def log(self, data: dict):
         """create a json file and write the data to it. Or append if it already exists."""
-        json.dump(data, self.file_handle, cls=NumpyEncoder)
-        self.file_handle.write("\n")
+        with open(self.fname, "a") as f:
+            json.dump(data, f, cls=NumpyEncoder)
+            f.write("\n")
 
 
 # -----------------------------------------------------------
