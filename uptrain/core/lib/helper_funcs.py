@@ -269,18 +269,14 @@ class Clock:
     behind_by: timedelta
     tzone: Optional[tzinfo]
 
-    def __init__(self, init_at: Optional[datetime] = None):
-        if init_at is None:
-            self.behind_by = timedelta()
+    def __init__(self, init_at: datetime):
+        tz = init_at.tzinfo
+        if tz is None or tz.utcoffset(init_at) is None:
             self.tzone = None
+            self.behind_by = datetime.now() - init_at
         else:
-            tz = init_at.tzinfo
-            if tz is None or tz.utcoffset(init_at) is None:
-                self.tzone = None
-                self.behind_by = datetime.now() - init_at
-            else:
-                self.tzone = tz
-                self.behind_by = datetime.now(tz=tz) - init_at
+            self.tzone = tz
+            self.behind_by = datetime.now(tz=tz) - init_at
 
     def now(self) -> datetime:
         """Return the current time, adjusted by the amount of time the clock is behind."""
