@@ -194,7 +194,7 @@ class DimensionalityReduction(AbstractVisual):
                 umap_list, clusters = self.get_embs_and_clusters(emb_list)
                 this_data = {"umap": umap_list}
                 label_dict["clusters"].extend(clusters)
-                this_data.update({"labels": label_dict})
+                this_data.update(label_dict)
                 if len(hover_texts) > 0:
                     this_data.update({"hover_texts": hover_texts})
 

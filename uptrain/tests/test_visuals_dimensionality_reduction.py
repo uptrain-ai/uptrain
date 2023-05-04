@@ -38,10 +38,10 @@ def test_visuals_dimensionality_reduction():
             "type": uptrain.MeasurableType.INPUT_FEATURE,
             "feature_name": "data"
         },
-        "label_args": {
+        "label_args": [{
             "type": uptrain.MeasurableType.INPUT_FEATURE,
             "feature_name": "labels"
-        },
+        }],
         "min_dist": 0.01,
         "n_neighbors": 20,
         "metric": "euclidean",
@@ -55,40 +55,24 @@ def test_visuals_dimensionality_reduction():
             "type": uptrain.MeasurableType.INPUT_FEATURE,
             "feature_name": "data"
         },
-        "label_args": {
+        "label_args": [{
             "type": uptrain.MeasurableType.INPUT_FEATURE,
             "feature_name": "labels"
-        },
+        }],
         "update_freq": 1,
         "perplexity": 10
     }
 
     cfg = {
         "checks": [
-            {
-                **umap_cfg,
-                "dim": "3D",
-                "dashboard_name": "umap_3d"
-            },
-            # {
-            #     **umap_cfg,
-            #     "dim": "2D",
-            #     "dashboard_name": "umap_2d"
-            # },
-            {
-                **tsne_cfg,
-                "dim": "3D",
-                "dashboard_name": "tsne_3d"
-            },
-            # {
-            #     **tsne_cfg,
-            #     "dim": "2D",
-            #     "dashboard_name": "tsne_2d"
-            # }
+            { **umap_cfg, "dim": "3D", "dashboard_name": "umap_3d" },
+            # {**umap_cfg, "dim": "2D", "dashboard_name": "umap_2d" },
+            { **tsne_cfg, "dim": "3D", "dashboard_name": "tsne_3d" },
+            # { **tsne_cfg, "dim": "2D", "dashboard_name": "tsne_2d" }
         ],
 
         "logging_args": {
-            "log_folder": "uptrain_logs_dimensionality_reduction",
+            "log_folder": "uptrain_logs_dimensionality_reduction_1",
             "st_logging": True
         }
     }
@@ -111,10 +95,10 @@ def test_visuals_dimensionality_reduction_new_logging():
             "type": uptrain.MeasurableType.INPUT_FEATURE,
             "feature_name": "data",
         },
-        "label_args": {
+        "label_args": [{
             "type": uptrain.MeasurableType.INPUT_FEATURE,
             "feature_name": "labels",
-        },
+        }],
         "min_dist": 0.01,
         "n_neighbors": 20,
         "metric": "euclidean",
@@ -142,9 +126,9 @@ def test_visuals_dimensionality_reduction_new_logging():
             {**tsne_cfg, "dim": "3D", "dashboard_name": "tsne_3d"},
         ],
         "logging_args": {
-            # "log_folder": "uptrain_logs_dimensionality_reduction",
+            # "log_folder": "uptrain_logs_dimensionality_reduction_2",
             # "st_logging": True,
-            "log_folder": "uptrain_logs_dimensionality_reduction",
+            "log_folder": "uptrain_logs_dimensionality_reduction_2",
             "use_new_handler": True,
             "run_background_streamlit": False,
         },
@@ -170,4 +154,3 @@ def test_visuals_dimensionality_reduction_new_logging():
 
     # Log the inputs
     _ = framework.log(inputs={"data": data, "labels": labels})
-
