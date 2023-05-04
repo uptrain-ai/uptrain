@@ -328,3 +328,22 @@ def dependency_required(dependency_name, package_name: str):
         return WrappedClass
 
     return class_decorator
+
+
+def fn_dependency_required(dependency_name, package_name: str):
+    """Decorator for functions that need optional dependencies. If the dependency is not
+    present, calling the function will raise an error.
+    """
+
+    def fn_decorator(fn):
+        @functools.wraps(fn)
+        def wrapped_fn(*args, **kwargs):
+            if dependency_name is None:
+                raise ImportError(
+                    f"{package_name} is required to use {fn.__name__}. Please install it using: pip install {package_name}"
+                )
+            return fn(*args, **kwargs)
+
+        return wrapped_fn
+
+    return fn_decorator
