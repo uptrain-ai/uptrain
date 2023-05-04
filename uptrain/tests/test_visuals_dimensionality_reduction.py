@@ -101,3 +101,73 @@ def test_visuals_dimensionality_reduction():
         "data": data,
         "labels": labels
     })
+
+
+def test_visuals_dimensionality_reduction_new_logging():
+    # Set the parameters for UMAP
+    umap_cfg = {
+        "type": uptrain.Visual.UMAP,
+        "measurable_args": {
+            "type": uptrain.MeasurableType.INPUT_FEATURE,
+            "feature_name": "data",
+        },
+        "label_args": {
+            "type": uptrain.MeasurableType.INPUT_FEATURE,
+            "feature_name": "labels",
+        },
+        "min_dist": 0.01,
+        "n_neighbors": 20,
+        "metric": "euclidean",
+        "update_freq": 1,
+    }
+
+    # Set the parameters for t-SNE
+    tsne_cfg = {
+        "type": uptrain.Visual.TSNE,
+        "measurable_args": {
+            "type": uptrain.MeasurableType.INPUT_FEATURE,
+            "feature_name": "data",
+        },
+        "label_args": [{
+            "type": uptrain.MeasurableType.INPUT_FEATURE,
+            "feature_name": "labels",
+        }],
+        "update_freq": 1,
+        "perplexity": 10,
+    }
+
+    cfg = {
+        "checks": [
+            {**umap_cfg, "dim": "3D", "dashboard_name": "umap_3d"},
+            {**tsne_cfg, "dim": "3D", "dashboard_name": "tsne_3d"},
+        ],
+        "logging_args": {
+            # "log_folder": "uptrain_logs_dimensionality_reduction",
+            # "st_logging": True,
+            "log_folder": "uptrain_logs_dimensionality_reduction",
+            "use_new_handler": True,
+            "run_background_streamlit": False,
+        },
+    }
+
+    random_state = np.random.RandomState(seed=1337)
+
+    # Set the size of the dataset, the number of types and generate the proportions of each type
+    type_count = 4
+    p = random_state.randn(type_count)
+    p /= np.sum(p)
+
+    # Randomly assign labels to the data points based on the proportions
+    n = 200
+    labels = random_state.choice(np.arange(type_count), size=n, p=p)
+
+    data = []
+    for label in labels:
+        data.append(random_state.normal(np.full(n, label), 1, n))
+
+    # Set up the framework using the configurations
+    framework = uptrain.Framework(cfg)
+
+    # Log the inputs
+    _ = framework.log(inputs={"data": data, "labels": labels})
+

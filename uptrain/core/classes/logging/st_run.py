@@ -9,6 +9,20 @@ import json
 import plotly.express as px
 import random
 import pickle
+import re
+
+
+def atoi(text):
+    return int(text) if text.isdigit() else text
+
+
+def natural_keys(text):
+    '''
+    alist.sort(key=natural_keys) sorts in human order
+    http://nedbatchelder.com/blog/200712/human_sorting.html
+    (See Toothy's implementation in the comments)
+    '''
+    return [ atoi(c) for c in re.split(r'(\d+)', text) ]
 
 
 st.set_page_config(
@@ -69,7 +83,6 @@ if feature_args:
         if value != 'All':
             features_to_slice.update({feature_name: value})
 
-
 def return_plotly_fig(y_axis, x_axis="Num predictions", x_log=False, y_log=False):
     fig = go.Figure()
     fig.update_xaxes(title_text=x_axis)
@@ -102,19 +115,19 @@ def slice_data(
     if model_to_compare is not None:
         model = model_to_compare['allowed_values'][j]
         model_type = model_to_compare['feature_name']
-        if 'model_' + model_type in df.columns:
+        if model_type in df.columns:
             if cond is None:
-                cond = (df['model_' + model_type] == model)
+                cond = (df[model_type] == model)
             else:
-                cond = cond & (df['model_' + model_type] == model)
+                cond = cond & (df[model_type] == model)
         else:
             cond = [False] * len(df)
     for model_name, value in other_models.items():
-        if 'model_' + model_name in df.columns:
+        if model_name in df.columns:
             if cond is None:
-                cond = (df['model_' + model_name] == value)
+                cond = (df[model_name] == value)
             else:
-                cond = cond & (df['model_' + model_name] == value)
+                cond = cond & (df[model_name] == value)
         else:
             cond = [False] * len(df)
     if cond is not None:
@@ -259,6 +272,7 @@ def get_view_arr_from_files(files):
     return np.unique(view_arr)
 
 
+@st.cache
 def plot_umaps(files, plot_name, sub_dir):
     view_arr = get_view_arr_from_files(files)
     if len(view_arr > 0):
@@ -341,7 +355,10 @@ def plot_dashboard(dashboard_name):
 
         ######### Showing Alerts ###########
 
-        if sub_dir_split[-1] == "alerts":  
+        if sub_dir_split[-1] == "alerts": 
+            # First, sort files using human sorting. 
+            files.sort(key=natural_keys)
+            files.reverse()
             for file in files:
                 alert_name = os.path.split(file)[-1].split(".")[0]
                 f = open(file)
@@ -369,7 +386,7 @@ def plot_dashboard(dashboard_name):
                     else:
                         for file in files:
                             plot_umap(file)
-                    st.markdown("""---""") 
+                    st.markdown("""---""")
             elif plot_name == "t_SNE":  
                 if st.sidebar.checkbox(f"t-SNE plot"):
                     st.markdown(f"### t-SNE plot")
@@ -411,21 +428,18 @@ def plot_dashboard(dashboard_name):
                 st.image(png_file)
 
 
-@st.cache
-def get_data_shap(path_all_data, num_points):
+def get_data_shap(path_all_data, feat_name_list=None):
     file = open(metadata["path_shap_file"], 'rb')
     explainer = pickle.load(file)
     file.close()
     df = pd.read_csv(path_all_data)
-    if len(df) >= num_points:
-        df = df[0:num_points]
-    else:
-        st.text("Not sufficient data points for SHAP")
-        return []
-    data_ids = [eval(x) for x in df["id"]]
+    if type(df["id"][0]) == str:
+        df["id"] = df["id"].apply(lambda x: eval(x))
+    data_ids = [x for x in df["id"]]
     df = df.drop(columns=['id', 'output', 'gt'])
-    return explainer(df), data_ids
-
+    if feat_name_list:
+        df = df[feat_name_list]
+    return explainer, df, data_ids
 
 def feat_slice_and_plot(df, df_dashboard, relevant_feat_list, limit_list):
     cond = [True] * len(df)
@@ -463,11 +477,11 @@ def feat_slice(metadata):
         df_dashboard = pd.read_csv(path_dashboard_data)
     else:
         return
+    st.header(f"Feature slicing for {dashboard_name}")
     relevant_feat_list = st.multiselect(
             "Select features to slice", feat_name_list
         )
-    if relevant_feat_list:
-        st.header(f"Feature slicing for {dashboard_name}")
+        
     scol1, scol2 = st.columns(2)
     limit_list = []
     for i, feat in enumerate(relevant_feat_list):
@@ -508,17 +522,17 @@ if metadata.get("path_shap_file", None):
         st.header(f"SHAP Explanability")
         
         path_all_data = metadata["path_all_data"]
-
-        num_points = metadata["shap_num_points"]
+        feat_name_list_shap = metadata.get("feat_name_list")
+        num_points = metadata.get("shap_num_points")
 
         import shap
         shap.initjs() # for visualization
         st.set_option('deprecation.showPyplotGlobalUse', False)
 
-        shap_values, data_ids = get_data_shap(path_all_data, num_points)
+        explainer, df, data_ids = get_data_shap(path_all_data, feat_name_list_shap)
+        shap_values = explainer(df[:num_points])
 
         st.subheader("Feature-wise importance")
-        st.text("Feature \"dist\" has the biggest impact on ride time predictions.")
         cols = st.columns(2)
         with cols[0]:
             st.pyplot(shap.plots.bar(shap_values))
@@ -531,7 +545,7 @@ if metadata.get("path_shap_file", None):
             data_point = st.selectbox("Select data-point for explainability", data_ids)
 
         index = data_ids.index(data_point)
-        shap_val = shap_values[index]
+        shap_val = explainer(df.iloc[[index]])[0]
         pred = sum(shap_val.values) + shap_val.base_values
         st.text(f"The predicted value is {pred:.1f} compared to the mean value of {shap_val.base_values:.1f}.")
             

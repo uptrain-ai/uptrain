@@ -46,7 +46,7 @@ class DistanceMeasurable(Measurable):
             )
         )
 
-        if self.reference == "running_diff":
+        if self.reference == "running":
             self.ref_val = base_val
         return dists
 

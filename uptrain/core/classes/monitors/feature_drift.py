@@ -21,7 +21,7 @@ class FeatureDrift(AbstractMonitor):
         self.step = check.get("step", 2000)
         self.prod_dist_counts_arr = []
         self.all_count = 0
-        self.plot_name = "Feature_" + self.measurable.col_name()
+        self.plot_name = "Feature " + self.measurable.col_name()
         self.feats = np.array([])
         self.psis = []
 
@@ -72,12 +72,13 @@ class FeatureDrift(AbstractMonitor):
                 self.dashboard_name,
                 file_name=self.measurable.col_name(),
             )
+            feat_name = self.measurable.feature_name
 
             # High PSI alerts the user to a feature drift
             if psi > self.psi_threshold:
-                alert = f"Feature Drift last detected at {self.all_count} for {self.measurable.feature_name} with PSI = {psi}"
+                alert = f"Feature Drift last detected at {self.all_count} for {feat_name} with PSI = {psi}"
                 self.log_handler.add_alert(
-                        "Feature Drift Alert 🚨",
+                        f"Feature Drift Alert for {feat_name} 🚨",
                         alert,
                         self.dashboard_name
                     )

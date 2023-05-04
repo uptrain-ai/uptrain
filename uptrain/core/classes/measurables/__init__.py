@@ -1,6 +1,7 @@
 from .abstract_measurable import AbstractMeasurable
 from .measurable import Measurable
 from .input_feature import InputFeatureMeasurable
+from .feature_concat import FeatureConcatMeasurable
 from .output_feature import OutputFeatureMeasurable
 from .feature import FeatureMeasurable
 from .condition import ConditionMeasurable

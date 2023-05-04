@@ -1,13 +1,17 @@
 import os
 import json
 import copy
-import numpy as np
 import csv
-import pandas as pd
+import time
+from typing import Optional
+from datetime import datetime, timedelta, tzinfo
 from collections import OrderedDict
-from sklearn.cluster import KMeans
+import functools
 
-from uptrain.core.encoders.uptrain_encoder import UpTrainEncoder
+import numpy as np
+import pandas as pd
+from sklearn.cluster import KMeans
+from uptrain.core.encoders import UpTrainEncoder
 
 
 def cluster_and_plot_data(
@@ -248,3 +252,98 @@ def load_list_from_df(df, column):
         out_json = [json.dumps(x) for x in list(df[column])]
         out = [json.loads(x) for x in out_json]
     return out
+
+
+def make_dir_friendly_name(txt: str) -> str:
+    import re
+
+    return re.sub(r"[^a-zA-Z0-9_]", "_", txt)
+
+
+class Clock:
+    """Makes testing easier by anchoring to an older time. This is helpful when
+    testing with older datasets. While if initialized with no arguments, the clock
+    starts at the current time.
+    """
+
+    behind_by: timedelta
+    tzone: Optional[tzinfo]
+
+    def __init__(self, init_at: Optional[datetime] = None):
+        if init_at is None:
+            self.behind_by = timedelta()
+            self.tzone = None
+        else:
+            tz = init_at.tzinfo
+            if tz is None or tz.utcoffset(init_at) is None:
+                self.tzone = None
+                self.behind_by = datetime.now() - init_at
+            else:
+                self.tzone = tz
+                self.behind_by = datetime.now(tz=tz) - init_at
+
+    def now(self) -> datetime:
+        """Return the current time, adjusted by the amount of time the clock is behind."""
+        return datetime.now(tz=self.tzone) - self.behind_by
+
+    def sleep(self, seconds: float):
+        """If the clock is behind, catch up. Else, sleep for the given duration."""
+        seconds_behind = self.behind_by.total_seconds()
+        if seconds_behind > 0:
+            print(f"advancing the clock by {seconds} seconds")
+            self.behind_by = timedelta(seconds=max(seconds_behind - seconds, 0))
+        else:
+            print("sleeping for 60 seconds")
+            time.sleep(seconds)
+
+
+class Timer:
+    """Context manager for timing code blocks"""
+
+    time: float
+
+    def __enter__(self):
+        self.time = time.perf_counter()
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.time = round(time.perf_counter() - self.time, 3)
+
+
+def dependency_required(dependency_name, package_name: str):
+    """Decorator for checks that need optional dependencies. If the dependency is not
+    present, initializing the class will raise an error.
+    """
+
+    def class_decorator(cls):
+        @functools.wraps(cls, updated=())
+        class WrappedClass(cls):
+            def __init__(self, *args, **kwargs):
+                if dependency_name is None:
+                    raise ImportError(
+                        f"{package_name} is required to use {cls.__name__}. Please install it using: pip install {package_name}"
+                    )
+                super().__init__(*args, **kwargs)
+
+        return WrappedClass
+
+    return class_decorator
+
+
+def fn_dependency_required(dependency_name, package_name: str):
+    """Decorator for functions that need optional dependencies. If the dependency is not
+    present, calling the function will raise an error.
+    """
+
+    def fn_decorator(fn):
+        @functools.wraps(fn)
+        def wrapped_fn(*args, **kwargs):
+            if dependency_name is None:
+                raise ImportError(
+                    f"{package_name} is required to use {fn.__name__}. Please install it using: pip install {package_name}"
+                )
+            return fn(*args, **kwargs)
+
+        return wrapped_fn
+
+    return fn_decorator

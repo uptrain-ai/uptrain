@@ -17,8 +17,13 @@ from uptrain.core.classes.statistics import (
     Distance,
     Convergence,
     Distribution,
+    NormEmbedding,
 )
-from uptrain.core.classes.visuals import DimensionalityReduction, UMAP_PRESENT, Shap, SHAP_PRESENT, Plot
+from uptrain.core.classes.visuals import (
+    DimensionalityReduction,
+    Shap,
+    Plot,
+)
 from uptrain.core.classes.finetuning import Finetune
 
 
@@ -46,7 +51,10 @@ class CheckManager:
         elif check["type"] == Monitor.CONCEPT_DRIFT:
             drift_manager = ConceptDrift(self.fw, check)
             self.monitors_to_check.append(drift_manager)
-        elif check["type"] == Monitor.DATA_DRIFT or check["type"] == Monitor.FEATURE_DRIFT:
+        elif (
+            check["type"] == Monitor.DATA_DRIFT
+            or check["type"] == Monitor.FEATURE_DRIFT
+        ):
             if check["type"] == Monitor.DATA_DRIFT:
                 drift_class = DataDrift
             else:
@@ -111,29 +119,21 @@ class CheckManager:
         elif check["type"] == Statistic.FINETUNE:
             finetune_monitor = Finetune(self.fw, check)
             self.statistics_to_check.append(finetune_monitor)
+        elif check["type"] == Statistic.NORM_EMBEDDING:
+            self.statistics_to_check.append(NormEmbedding(self.fw, check))
         else:
             raise Exception("Statistic type not Supported")
 
     def add_visual(self, check):
         if check["type"] == Visual.UMAP:
-            if UMAP_PRESENT:
-                custom_monitor = DimensionalityReduction(self.fw, check)
-                self.visuals_to_check.append(custom_monitor)
-            else:
-                raise Exception(
-                    """UMAP is not installed. For UMAP visualization, please install umap by running `pip install umap-learn`."""
-                )
+            custom_monitor = DimensionalityReduction(self.fw, check)
+            self.visuals_to_check.append(custom_monitor)
         elif check["type"] == Visual.TSNE:
             custom_monitor = DimensionalityReduction(self.fw, check)
             self.visuals_to_check.append(custom_monitor)
         elif check["type"] == Visual.SHAP:
-            if SHAP_PRESENT:
-                custom_monitor = Shap(self.fw, check)
-                self.visuals_to_check.append(custom_monitor)
-            else:
-                raise Exception(
-                    """SHAP is not installed. For SHAP explainability, please install it by running `pip install shap matplotlib`."""
-                )
+            custom_monitor = Shap(self.fw, check)
+            self.visuals_to_check.append(custom_monitor)
         elif check["type"] == Visual.PLOT:
             custom_monitor = Plot(self.fw, check)
             self.visuals_to_check.append(custom_monitor)
@@ -146,8 +146,9 @@ class CheckManager:
                 monitor.check(inputs, outputs, gts=gts, extra_args=extra_args)
         for stats in self.statistics_to_check:
             stats.check(inputs, outputs, gts=gts, extra_args=extra_args)
-        for visuals in self.visuals_to_check:
-            visuals.check(inputs, outputs, gts=gts, extra_args=extra_args)
+        for visual in self.visuals_to_check:
+            if visual.need_ground_truth() == (gts[0] is not None):
+                visual.check(inputs, outputs, gts=gts, extra_args=extra_args)
 
     def is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
         is_interesting = []

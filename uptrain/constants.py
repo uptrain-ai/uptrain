@@ -17,6 +17,7 @@ class BiasAlgo(str, Enum):
 
 class MeasurableType(str, Enum):
     INPUT_FEATURE = "input_feature"
+    FEATURE_CONCAT = "feature_concat"
     PREDICTION = "prediction"
     CUSTOM = "custom"
     ACCURACY = "accuracy"
@@ -68,6 +69,7 @@ class Statistic(str, Enum):
     DISTRIBUTION_STATS = "distribution_stats"
     CONVERGENCE_STATS = "convergence_stats"
     FINETUNE = "finetune"
+    NORM_EMBEDDING = "norm_embedding"
 
 
 class Visual(str, Enum):

@@ -44,10 +44,19 @@ class ConceptDrift(AbstractMonitor):
         return True
 
     def base_check(self, inputs, outputs, gts=None, extra_args={}):
+        all_models = [
+            x.compute_and_log(inputs, outputs, gts=gts, extra=extra_args)
+            for x in self.model_measurables
+        ]
+        all_features = [
+            x.compute_and_log(inputs, outputs, gts=gts, extra=extra_args)
+            for x in self.feature_measurables
+        ]
+
         batch_acc = self.measurable.compute_and_log(inputs, outputs, gts, extra_args)
         batch_acc = self._preprocess(batch_acc)
 
-        for acc in batch_acc:
+        for i, acc in enumerate(batch_acc):
             alert = None
             self.algo.update(acc)
 
@@ -58,11 +67,31 @@ class ConceptDrift(AbstractMonitor):
 
             self.avg_acc = (self.avg_acc * self.counter + acc) / (self.counter + 1)
             self.counter += 1
+            models = dict(
+                zip(
+                    self.model_names,
+                    [
+                        all_models[jdx][i]
+                        for jdx in range(len(self.model_names))
+                    ],
+                )
+            )
+            features = dict(
+                zip(
+                    self.feature_names,
+                    [
+                        all_features[jdx][i]
+                        for jdx in range(len(self.feature_names))
+                    ],
+                )
+            )
             self.log_handler.add_scalars(
                 self.plot_name,
                 {"y_avg_accuracy": self.avg_acc},
                 self.counter,
                 self.dashboard_name,
+                features=features,
+                models=models,
             )
 
             if isinstance(alert, str):

@@ -2,6 +2,8 @@ from uptrain.core.classes.measurables import (
     Measurable,
     InputFeatureMeasurable,
     OutputFeatureMeasurable,
+    FeatureMeasurable,
+    FeatureConcatMeasurable,
     ConditionMeasurable,
     CustomMeasurable,
     AccuracyMeasurable,
@@ -36,6 +38,8 @@ class MeasurableResolver:
         measurable_type = resolve_args["type"]
         if measurable_type == MeasurableType.INPUT_FEATURE:
             return InputFeatureMeasurable(framework, resolve_args["feature_name"])
+        elif measurable_type == MeasurableType.FEATURE_CONCAT:
+            return FeatureConcatMeasurable(framework, resolve_args["feat_name_list"])
         elif measurable_type == MeasurableType.PREDICTION:
             return OutputFeatureMeasurable(framework)
         elif measurable_type == MeasurableType.CUSTOM:
