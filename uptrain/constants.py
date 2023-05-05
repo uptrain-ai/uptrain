@@ -54,6 +54,7 @@ class Monitor(str, Enum):
     CONCEPT_DRIFT = "concept_drift"
     POPULARITY_BIAS = "popularity_bias"
     DATA_INTEGRITY = "data_integrity"
+    OUTPUT_COMPARISON = "output_comparison"
 
 
 class PlotType(str, Enum):
@@ -76,3 +77,11 @@ class Visual(str, Enum):
     TSNE = "t-SNE"
     SHAP = "SHAP"
     PLOT = "PLOT"
+
+
+class ComparisonModel(str, Enum):
+    FASTER_WHISPER = "faster_whisper"
+
+
+class ComparisonMetric(str, Enum):
+    ROGUE_L_F1 = "rogue-l-f"

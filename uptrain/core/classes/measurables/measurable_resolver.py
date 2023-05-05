@@ -1,5 +1,7 @@
 from uptrain.core.classes.measurables import (
     Measurable,
+    InputFeatureMeasurable,
+    OutputFeatureMeasurable,
     FeatureMeasurable,
     FeatureConcatMeasurable,
     ConditionMeasurable,
@@ -35,11 +37,11 @@ class MeasurableResolver:
         resolve_args = self._args
         measurable_type = resolve_args["type"]
         if measurable_type == MeasurableType.INPUT_FEATURE:
-            return FeatureMeasurable(framework, resolve_args["feature_name"], "inputs")
+            return InputFeatureMeasurable(framework, resolve_args["feature_name"])
         elif measurable_type == MeasurableType.FEATURE_CONCAT:
             return FeatureConcatMeasurable(framework, resolve_args["feat_name_list"])
         elif measurable_type == MeasurableType.PREDICTION:
-            return FeatureMeasurable(framework, resolve_args["feature_name"], "outputs")
+            return OutputFeatureMeasurable(framework)
         elif measurable_type == MeasurableType.CUSTOM:
             return CustomMeasurable(framework, resolve_args)
         elif measurable_type == MeasurableType.ACCURACY:
@@ -51,13 +53,13 @@ class MeasurableResolver:
         elif measurable_type == MeasurableType.CONDITION_ON_INPUT:
             return ConditionMeasurable(
                 framework,
-                FeatureMeasurable(framework, resolve_args["feature_name"], "inputs"),
+                InputFeatureMeasurable(framework, resolve_args["feature_name"]),
                 resolve_args["condition_args"],
             )
         elif measurable_type == MeasurableType.CONDITION_ON_PREDICTION:
             return ConditionMeasurable(
                 framework,
-                FeatureMeasurable(framework, resolve_args["feature_name"], "outputs"),
+                OutputFeatureMeasurable(framework),
                 resolve_args["condition_args"],
             )
         elif measurable_type == MeasurableType.SCALAR_FROM_EMBEDDING:

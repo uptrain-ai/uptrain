@@ -11,5 +11,7 @@ from uptrain.constants import (
     PlotType,
     Statistic,
     Visual,
+    ComparisonMetric,
+    ComparisonModel
 )
 from uptrain.core.encoders import UpTrainEncoder
