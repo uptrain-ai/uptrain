@@ -1,140 +1,110 @@
 import numpy as np
+import pytest
 import uptrain
 
 
-def test_visuals_dimensionality_reduction():
-    """Test Visuals Dimensionality Reduction.
-    
-    The test creates a dataset with 4 types of data points. Each type is
-    represented by a normal distribution with a mean of 0, 1, 2, 3. The data
-    points are randomly assigned to one of the 4 types. The test then creates
-    a UMAP and TSNE visualisation of the data points in 2D and 3D for both.
+@pytest.fixture(scope="module")
+def random_state():
+    return np.random.RandomState(seed=1337)
 
-    The test passes if the UMAP and TSNE visualisations are created and the
-    clusters are clearly visible in the 2D and 3D visualisations.
-    """
 
-    random_state = np.random.RandomState(seed=1337)
-
-    # Set the size of the dataset, the number of types and generate the proportions of each type
+@pytest.fixture(scope="module")
+def dataset(random_state):
+    """Returns a dataset with 4 types of data points."""
     n = 200
     type_count = 4
     p = random_state.randn(type_count)
     p /= np.sum(p)
-    
-    # Randomly assign labels to the data points based on the proportions
     labels = random_state.choice(np.arange(type_count), size=n, p=p)
     data = []
-
-    # Create a dataset based on the randomly assigned labels
-    # and random normal distributions
     for label in labels:
         data.append(random_state.normal(np.full(n, label), 1, n))
-    
-    # Set the parameters for UMAP
-    umap_cfg = {
+    return data, labels
+
+
+@pytest.fixture(scope="module")
+def umap_cfg():
+    """Returns the parameters for UMAP."""
+    return {
         "type": uptrain.Visual.UMAP,
         "measurable_args": {
             "type": uptrain.MeasurableType.INPUT_FEATURE,
-            "feature_name": "data"
+            "feature_name": "data",
         },
-        "label_args": [{
-            "type": uptrain.MeasurableType.INPUT_FEATURE,
-            "feature_name": "labels"
-        }],
+        "label_args": [
+            {
+                "type": uptrain.MeasurableType.INPUT_FEATURE,
+                "feature_name": "labels",
+            }
+        ],
         "min_dist": 0.01,
         "n_neighbors": 20,
         "metric": "euclidean",
-        "update_freq": 1
+        "update_freq": 1,
+        "clustering_algorithm": uptrain.ClusteringAlgorithm.HDBSCAN,
     }
 
-    # Set the parameters for t-SNE
-    tsne_cfg = {
+
+@pytest.fixture(scope="module")
+def tsne_cfg():
+    """Returns the parameters for t-SNE."""
+    return {
         "type": uptrain.Visual.TSNE,
         "measurable_args": {
             "type": uptrain.MeasurableType.INPUT_FEATURE,
-            "feature_name": "data"
+            "feature_name": "data",
         },
-        "label_args": [{
-            "type": uptrain.MeasurableType.INPUT_FEATURE,
-            "feature_name": "labels"
-        }],
+        "label_args": [
+            {
+                "type": uptrain.MeasurableType.INPUT_FEATURE,
+                "feature_name": "labels",
+            }
+        ],
         "update_freq": 1,
-        "perplexity": 10
+        "perplexity": 10,
+        "clustering_algorithm": uptrain.ClusteringAlgorithm.DBSCAN,
+        "clustering_args": {
+            "eps": 0.5,
+            "min_samples": 5,
+            "metric": "euclidean",
+            "algorithm": "auto",
+            "leaf_size": 30,
+            "p": None,
+            "n_jobs": None,
+        },
     }
+
+
+def test_visuals_dimensionality_reduction(dataset, umap_cfg, tsne_cfg):
+    """Test Visuals Dimensionality Reduction.
+    
+    The test creates a UMAP and t-SNE visualisation of the data points in 2D
+    and 3D. The test passes if the clusters are clearly visible in the visualisations.
+    """
+    data, labels = dataset
 
     cfg = {
         "checks": [
-            {
-                **umap_cfg,
-                "dim": "3D",
-                "dashboard_name": "umap_3d"
-            },
-            # {
-            #     **umap_cfg,
-            #     "dim": "2D",
-            #     "dashboard_name": "umap_2d"
-            # },
-            {
-                **tsne_cfg,
-                "dim": "3D",
-                "dashboard_name": "tsne_3d"
-            },
-            # {
-            #     **tsne_cfg,
-            #     "dim": "2D",
-            #     "dashboard_name": "tsne_2d"
-            # }
+            {**umap_cfg, "dim": "3D", "dashboard_name": "umap_3d"},
+            {**tsne_cfg, "dim": "3D", "dashboard_name": "tsne_3d"},
+            # {**umap_cfg, "dim": "2D", "dashboard_name": "umap_2d"},
+            # {**tsne_cfg, "dim": "2D", "dashboard_name": "tsne_2d"},
         ],
-
         "logging_args": {
             "log_folder": "uptrain_logs_dimensionality_reduction_1",
-            "st_logging": True
-        }
+            "st_logging": True,
+        },
     }
 
     # Set up the framework using the configurations
     framework = uptrain.Framework(cfg)
 
     # Log the inputs
-    framework.log(inputs = {
-        "data": data,
-        "labels": labels
-    })
+    framework.log(inputs={"data": data, "labels": labels})
 
 
-def test_visuals_dimensionality_reduction_new_logging():
-    # Set the parameters for UMAP
-    umap_cfg = {
-        "type": uptrain.Visual.UMAP,
-        "measurable_args": {
-            "type": uptrain.MeasurableType.INPUT_FEATURE,
-            "feature_name": "data",
-        },
-        "label_args": [{
-            "type": uptrain.MeasurableType.INPUT_FEATURE,
-            "feature_name": "labels",
-        }],
-        "min_dist": 0.01,
-        "n_neighbors": 20,
-        "metric": "euclidean",
-        "update_freq": 1,
-    }
-
-    # Set the parameters for t-SNE
-    tsne_cfg = {
-        "type": uptrain.Visual.TSNE,
-        "measurable_args": {
-            "type": uptrain.MeasurableType.INPUT_FEATURE,
-            "feature_name": "data",
-        },
-        "label_args": [{
-            "type": uptrain.MeasurableType.INPUT_FEATURE,
-            "feature_name": "labels",
-        }],
-        "update_freq": 1,
-        "perplexity": 10,
-    }
+def test_visuals_dimensionality_reduction_new_logging(dataset, umap_cfg, tsne_cfg):
+    data, labels = dataset
 
     cfg = {
         "checks": [
@@ -142,32 +112,14 @@ def test_visuals_dimensionality_reduction_new_logging():
             {**tsne_cfg, "dim": "3D", "dashboard_name": "tsne_3d"},
         ],
         "logging_args": {
-            # "log_folder": "uptrain_logs_dimensionality_reduction",
-            # "st_logging": True,
             "log_folder": "uptrain_logs_dimensionality_reduction_2",
             "use_new_handler": True,
-            "run_background_streamlit": False,
+            "run_background_streamlit": False
         },
     }
-
-    random_state = np.random.RandomState(seed=1337)
-
-    # Set the size of the dataset, the number of types and generate the proportions of each type
-    type_count = 4
-    p = random_state.randn(type_count)
-    p /= np.sum(p)
-
-    # Randomly assign labels to the data points based on the proportions
-    n = 200
-    labels = random_state.choice(np.arange(type_count), size=n, p=p)
-
-    data = []
-    for label in labels:
-        data.append(random_state.normal(np.full(n, label), 1, n))
 
     # Set up the framework using the configurations
     framework = uptrain.Framework(cfg)
 
     # Log the inputs
     _ = framework.log(inputs={"data": data, "labels": labels})
-
