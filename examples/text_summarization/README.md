@@ -148,10 +148,10 @@ config = {
             'type': uptrain.MeasurableType.INPUT_FEATURE,
             'feature_name': 'bert_embs'
         },
-        "label_args": {
+        "label_args": [{
             'type': uptrain.MeasurableType.INPUT_FEATURE,
             'feature_name': 'dataset_label'
-        },
+        }],
         'min_dist': 0.01,
         'n_neighbors': 20,
         'metric': 'euclidean',
@@ -166,10 +166,10 @@ config = {
             'type': uptrain.MeasurableType.INPUT_FEATURE,
             'feature_name': 'bert_embs'
         },
-        "label_args": {
+        "label_args": [{
             'type': uptrain.MeasurableType.INPUT_FEATURE,
             'feature_name': 'dataset_label'
-        },
+        }],
         'dim': '2D',
         # Frequency to Calculate t-SNE 
         'update_freq': 100,
