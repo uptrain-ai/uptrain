@@ -12,8 +12,8 @@ except:
 from sklearn.manifold import TSNE
 
 from uptrain.core.lib.helper_funcs import cluster_and_plot_data
-from uptrain.core.classes.visuals import AbstractVisual
-from uptrain.constants import Visual, Statistic, MeasurableType
+from uptrain.core.classes.visuals import AbstractVisual, ClusteringResolver
+from uptrain.constants import Visual, Statistic, MeasurableType, ClusteringAlgorithm
 from uptrain.core.classes.measurables import MeasurableResolver
 from uptrain.core.lib.helper_funcs import read_json, dependency_required
 
@@ -41,6 +41,9 @@ class DimensionalityReduction(AbstractVisual):
         else:
             raise Exception("Dimensionality reduction type undefined.")
         self.framework = fw
+        self.clustering_algorithm = ClusteringResolver(
+            check.get("clustering_algorithm", ClusteringAlgorithm.HDBSCAN)
+        ).resolve(check.get("clustering_args", {}))
         self.label_measurables = [MeasurableResolver(x).resolve(fw) for x in check.get("label_args", [])]
         label_names = [x.col_name() for x in self.label_measurables]
         self.labels = {"clusters": []}
@@ -321,13 +324,6 @@ class DimensionalityReduction(AbstractVisual):
                 n_jobs=self.n_jobs,
             ).fit_transform(emb_list)
 
-        # Do HDBSCAN clustering
-        clustering = hdbscan.HDBSCAN(min_cluster_size=self.min_cluster_size, 
-                                        min_samples=self.min_samples, 
-                                        cluster_selection_epsilon=self.cluster_selection_epsilon,
-                                        metric=self.metric_clustering,
-                                     ).fit(
-            compressed_embeddings
-        )
+        clustering = self.clustering_algorithm.fit(compressed_embeddings)
         labels = np.squeeze(np.array(clustering.labels_))
         return compressed_embeddings, labels

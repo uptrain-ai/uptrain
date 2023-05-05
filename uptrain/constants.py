@@ -79,6 +79,11 @@ class Visual(str, Enum):
     PLOT = "PLOT"
 
 
+class ClusteringAlgorithm(str, Enum):
+    DBSCAN = "DBSCAN"
+    HDBSCAN = "HDBSCAN"
+
+
 class ComparisonModel(str, Enum):
     FASTER_WHISPER = "faster_whisper"
 
