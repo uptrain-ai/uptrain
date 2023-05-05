@@ -1,9 +1,13 @@
 from abc import ABC
-from hdbscan import HDBSCAN
+try:
+    import hdbscan
+except:
+    hdbscan = None
 from sklearn.cluster import DBSCAN
 from typing import Any, Dict, Union
 
 from uptrain.constants import ClusteringAlgorithm
+from uptrain.core.lib.helper_funcs import dependency_required
 
 
 class Clustering(ABC):
@@ -35,12 +39,13 @@ class DBSCANClustering(Clustering):
         return DBSCAN(**args)
 
 
+@dependency_required(hdbscan, "hdbscan")
 class HDBSCANClustering(Clustering):
     def __init__(self) -> None:
         super().__init__()
     
     # https://hdbscan.readthedocs.io/en/latest/basic_hdbscan.html
-    def resolve(self, args: Dict[str, Any]) -> HDBSCAN:
+    def resolve(self, args: Dict[str, Any]) -> hdbscan.HDBSCAN:
         if not isinstance(args, dict):
             raise ValueError("args must be a dictionary.")
         
@@ -53,7 +58,7 @@ class HDBSCANClustering(Clustering):
         if invalid_keys:
             raise ValueError(f"Invalid key(s) {invalid_keys} in args.")
         
-        return HDBSCAN(**args)
+        return hdbscan.HDBSCAN(**args)
 
 
 class ClusteringResolver:
@@ -63,7 +68,7 @@ class ClusteringResolver:
         super().__init__()
         self.algorithm = algorithm
 
-    def resolve(self, args: Dict[str, Any]) -> Union[DBSCAN, HDBSCAN]:
+    def resolve(self, args: Dict[str, Any]) -> Union[DBSCAN, hdbscan.HDBSCAN]:
         if self.algorithm == ClusteringAlgorithm.DBSCAN:
             return DBSCANClustering().resolve(args)
         elif self.algorithm == ClusteringAlgorithm.HDBSCAN:

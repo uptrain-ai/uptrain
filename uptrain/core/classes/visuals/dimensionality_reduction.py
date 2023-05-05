@@ -5,10 +5,6 @@ try:
 except:
     umap = None
 import numpy as np
-try: 
-    import hdbscan
-except:
-    hdbscan = None
 from sklearn.manifold import TSNE
 
 from uptrain.core.lib.helper_funcs import cluster_and_plot_data
@@ -26,7 +22,6 @@ if TYPE_CHECKING:
 
 
 @dependency_required(umap, "umap-learn")
-@dependency_required(hdbscan, "hdbscan")
 class DimensionalityReduction(AbstractVisual):
     log_handler: Union["LogHandler", "NewLogHandler"]
     log_writer: Optional["LogWriter"]
@@ -59,12 +54,6 @@ class DimensionalityReduction(AbstractVisual):
             self.hover_names.append("id")
         self.count_checkpoints = check.get("count_checkpoints", ["all"])
         self.dim = check.get("dim", "2D")
-
-        # Clustering parameters
-        self.min_cluster_size = check.get("min_cluster_size", 5)
-        self.min_samples = check.get("min_samples", None)
-        self.cluster_selection_epsilon = check.get("cluster_selection_epsilon", 0.0)
-        self.metric_clustering = check.get("metric_clustering", "euclidean")
 
         self.total_count = 0
         self.prev_calc_at = 0
