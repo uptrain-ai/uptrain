@@ -33,6 +33,8 @@ class DataIntegrity(AbstractMonitor):
             has_issue = signal_value == None
         elif self.integrity_type == "less_than":
             has_issue = signal_value > self.threshold
+        elif self.integrity_type == "equal_to":
+            has_issue = signal_value == self.threshold
         elif self.integrity_type == "greater_than":
             has_issue = signal_value < self.threshold
         elif self.integrity_type == "minus_one":

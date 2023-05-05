@@ -54,6 +54,17 @@ def get_plotname_n_file_for_statistic(
     )
 
 
+def apply_model_n_feature_filters(
+    df: pd.DataFrame, model_variant: dict, feature_filters: dict
+) -> pd.DataFrame:
+    list_conds = []
+    for feature, value in feature_filters.items():
+        list_conds.append(df[feature] == value)
+    for k, v in model_variant.items():
+        list_conds.append(df[k] == v)
+    return df[np.logical_and.reduce(list_conds)]
+
+
 def plot_check_distance(check: dict, model_variant: dict, feature_filters: dict):
     x_log = st.checkbox(
         "log x", help="See x-axes in log-scale", key=check["type"] + "log_x"
@@ -63,54 +74,51 @@ def plot_check_distance(check: dict, model_variant: dict, feature_filters: dict)
         st.markdown(f"### Line chart for {plot_title}")
 
         df = pd.read_csv(fname)
-        list_conds = []
-        for feature, value in feature_filters.items():
-            list_conds.append(df[feature] == value)
-        for k, v in model_variant.items():
-            list_conds.append(df[k] == v)
-        df = df[np.logical_and.reduce(list_conds)]
+        if len(df) == 0:
+            st.warning("No data found for the specified check.")
+            return
 
+        df = apply_model_n_feature_filters(df, model_variant, feature_filters)
         if len(df) == 0:
             st.warning("No data found for the specified filters.")
-        else:
-            grouping_col = check["aggregate_args"]["feature_name"]
-            xaxis = check["count_args"]["feature_name"]
-            yaxis = "check"
+            return
 
-            if df[grouping_col].nunique() > 1000:
-                # pick 1000 random values
-                unique_values = df[grouping_col].unique()
-                random.seed(42)
-                random.shuffle(unique_values)
-                df = df[df[grouping_col].isin(unique_values[:1000])]
+        grouping_col = check["aggregate_args"]["feature_name"]
+        xaxis = check["count_args"]["feature_name"]
+        yaxis = "check"
 
-            df[grouping_col] = df[grouping_col].astype(str)
-            fig = px.line(df, x=xaxis, y=yaxis, color=grouping_col, log_x=x_log)
-            st.plotly_chart(fig, use_container_width=True)
+        if df[grouping_col].nunique() > 1000:
+            # pick 1000 random values
+            unique_values = df[grouping_col].unique()
+            random.seed(42)
+            random.shuffle(unique_values)
+            df = df[df[grouping_col].isin(unique_values[:1000])]
+
+        df[grouping_col] = df[grouping_col].astype(str)
+        fig = px.line(df, x=xaxis, y=yaxis, color=grouping_col, log_x=x_log)
+        st.plotly_chart(fig, use_container_width=True)
 
 
 def plot_check_convergence(check: dict, model_variant: dict, feature_filters: dict):
     for dist_type in check["distance_types"]:
         plot_title, fname = get_plotname_n_file_for_statistic(check, dist_type)
-        st.markdown(f"### Line chart for {plot_title}")
+        st.markdown(f"### Histogram for {plot_title}")
 
         df = pd.read_csv(fname)
-        list_conds = []
-        for feature, value in feature_filters.items():
-            list_conds.append(df[feature] == value)
-        for k, v in model_variant.items():
-            list_conds.append(df[k] == v)
-        df = df[np.logical_and.reduce(list_conds)]
+        if len(df) == 0:
+            st.warning("No data found for the specified check.")
+            return
 
+        df = apply_model_n_feature_filters(df, model_variant, feature_filters)
         if len(df) == 0:
             st.warning("No data found for the specified filters.")
-        else:
-            grouping_col = check["count_args"]["feature_name"]
-            value_col = "check"
+            return
 
-            df[grouping_col] = df[grouping_col].astype(str)
-            fig = px.histogram(df, x=value_col, color=grouping_col)
-            st.plotly_chart(fig, use_container_width=True)
+        grouping_col = check["count_args"]["feature_name"]
+        value_col = "check"
+        df[grouping_col] = df[grouping_col].astype(str)
+        fig = px.histogram(df, x=value_col, color=grouping_col)
+        st.plotly_chart(fig, use_container_width=True)
 
 
 def plot_visual_umap(check: dict, model_variant: dict, feature_filters: dict):
