@@ -88,7 +88,7 @@ def test_visuals_dimensionality_reduction():
         ],
 
         "logging_args": {
-            "log_folder": "uptrain_logs_dimensionality_reduction",
+            "log_folder": "uptrain_logs_dimensionality_reduction_1",
             "st_logging": True
         }
     }
@@ -144,7 +144,7 @@ def test_visuals_dimensionality_reduction_new_logging():
         "logging_args": {
             # "log_folder": "uptrain_logs_dimensionality_reduction",
             # "st_logging": True,
-            "log_folder": "uptrain_logs_dimensionality_reduction",
+            "log_folder": "uptrain_logs_dimensionality_reduction_2",
             "use_new_handler": True,
             "run_background_streamlit": False,
         },
