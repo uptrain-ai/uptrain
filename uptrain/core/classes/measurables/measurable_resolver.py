@@ -12,8 +12,11 @@ from uptrain.core.classes.measurables import (
     ScalarFromEmbeddingMeasurable,
     DistanceMeasurable,
     RecHitRateMeasurable,
+)
+from uptrain.ee.classes.measurables import (
     GrammerScoreMeasurable,
 )
+
 from uptrain.constants import MeasurableType
 
 
