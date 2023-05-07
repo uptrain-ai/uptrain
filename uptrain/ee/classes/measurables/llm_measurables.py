@@ -7,25 +7,35 @@ try:
     import openai
 except:
     openai = None
-openai.api_key = os.environ.get('OPENAI_API_KEY')
 
 
 def extractNumber(text):
     return int(re.findall(r'\d+', text)[0])
+
 
 @dependency_required(openai, "openai")
 class GrammerScoreMeasurable(Measurable):
     def __init__(self, framework, feature_name) -> None:
         super().__init__(framework)
         self.feature_name = feature_name
+        openai_key = framework.config_obj.license_args.openai_key
+        if openai_key:
+            openai.api_key = openai_key
+        else:
+            raise Exception("OpenAI key not found in config")
 
     def _compute(self, inputs=None, outputs=None, gts=None, extra=None):
-        vals = inputs[self.feature_name]
+        if self.feature_name:
+            vals = inputs[self.feature_name]
+        else:
+            vals = outputs
         vals = [self.getGrammaticalCorrectnessScore(x) for x in vals]
         return vals
 
     def col_name(self) -> str:
-        name = 'grammer_feature_' + '_'.join(self.feature_name)
+        name = 'grammar_feature'
+        if self.feature_name:
+            name = name + '_' + self.feature_name
         return name
     
     # TODO: Decommission and find a generic way

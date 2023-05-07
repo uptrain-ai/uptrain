@@ -81,6 +81,6 @@ class MeasurableResolver:
             return RecHitRateMeasurable(framework)
         elif measurable_type == MeasurableType.GRAMMAR_SCORE:
             return GrammerScoreMeasurable(framework,
-                                          resolve_args["feature_name"])
+                                          resolve_args.get("feature_name", None))
         else:
             raise Exception("Resolver not defined")
