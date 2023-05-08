@@ -36,10 +36,15 @@ class LoggingArgs(BaseModel):
     use_new_handler: bool = False
 
 
+class LicenseArgs(BaseModel):
+    openai_key: str = None
+
+
 class Config(BaseModel):
     training_args: TrainingArgs = TrainingArgs()
     evaluation_args: EvaluationArgs = EvaluationArgs()
     logging_args: LoggingArgs = LoggingArgs()
+    license_args: LicenseArgs = LicenseArgs()
     data_identifier: str = "id"
     checks: typing.List[typing.Dict] = []
     retrain: bool = True
