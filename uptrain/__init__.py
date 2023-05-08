@@ -4,6 +4,7 @@ from uptrain.core.classes.monitors import CustomMonitor
 from uptrain.constants import (
     AnnotationMethod,
     BiasAlgo,
+    ClusteringAlgorithm,
     DataDriftAlgo,
     MeasurableType,
     ModelSignal,
