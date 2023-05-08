@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from uptrain.core.classes.monitors import AbstractMonitor
-from uptrain.core.classes.measurables import MeasurableResolver
+from uptrain.ee.classes.measurables import GrammerScoreMeasurable
 from uptrain.constants import Monitor
 from uptrain.core.lib.helper_funcs import read_json
 
@@ -13,6 +13,7 @@ class DataIntegrity(AbstractMonitor):
 
     def base_init(self, fw, check):
         self.integrity_type = check["integrity_type"]
+        # Threshold value for data integrity check
         self.threshold = check.get("threshold", None)
         # Threshold for when to alert on percentage of outliers (default 2%)
         self.outliers_alert_thres = check.get("outliers_alert_thres", 2)
@@ -30,15 +31,15 @@ class DataIntegrity(AbstractMonitor):
         signal_value = np.squeeze(np.array(signal_value))
 
         if self.integrity_type == "non_null":
-            has_issue = signal_value == None
+            self.has_issue = signal_value == None
         elif self.integrity_type == "less_than":
-            has_issue = signal_value > self.threshold
+            self.has_issue = signal_value > self.threshold
         elif self.integrity_type == "equal_to":
-            has_issue = signal_value == self.threshold
+            self.has_issue = signal_value == self.threshold
         elif self.integrity_type == "greater_than":
-            has_issue = signal_value < self.threshold
+            self.has_issue = signal_value < self.threshold
         elif self.integrity_type == "minus_one":
-            has_issue = signal_value == -1
+            self.has_issue = signal_value == -1
         elif self.integrity_type == "z_score":
             if self.threshold is None:
                 self.threshold = 3
@@ -49,9 +50,9 @@ class DataIntegrity(AbstractMonitor):
             # Calculating Z-scores w.r.t. the current dataset
             else:
                 z_score = zscore(signal_value)
-            has_issue = np.abs(z_score) > self.threshold
-            outliers = signal_value[has_issue]
-            valid_signal = signal_value[~has_issue]
+            self.has_issue = np.abs(z_score) > self.threshold
+            outliers = signal_value[self.has_issue]
+            valid_signal = signal_value[~self.has_issue]
             
             feat_name = self.measurable.col_name()
             plot_name = f"z_score_feature_{feat_name}"
@@ -75,12 +76,14 @@ class DataIntegrity(AbstractMonitor):
                     alert = f"{len(outliers)} of {len(z_score)} samples have Z-Score > {self.threshold} ({perc}%)",
                     dashboard_name = self.dashboard_name
                 )
+        elif self.integrity_type == "grammar_check":
+            self.has_issue = signal_value < self.threshold
         else:
             raise NotImplementedError(
                 "Data integrity check {} not implemented".format(self.integrity_type)
             )            
         self.count += len(signal_value)
-        self.num_issues += np.sum(np.array(has_issue))
+        self.num_issues += np.sum(np.array(self.has_issue))
 
         self.log_handler.add_scalars(
             self.integrity_type + "_outliers_ratio",
@@ -92,6 +95,13 @@ class DataIntegrity(AbstractMonitor):
 
     def need_ground_truth(self):
         return False
+    
+    def base_is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
+        reasons = ["None"] * len(extra_args["id"])
+        for idx in range(len(extra_args["id"])):
+            if self.has_issue[idx]:
+                reasons.append("Data Integrity Issue, Type: {}".format(self.integrity_type))
+        return self.has_issue, reasons
 
     def get_ref_data_stats(self):
         """
