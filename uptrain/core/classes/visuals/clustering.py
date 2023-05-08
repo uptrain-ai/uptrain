@@ -1,4 +1,5 @@
 from abc import ABC
+
 try:
     import hdbscan
 except:
@@ -21,21 +22,27 @@ class Clustering(ABC):
 class DBSCANClustering(Clustering):
     def __init__(self) -> None:
         super().__init__()
-    
+
     # https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html
     def resolve(self, args: Dict[str, Any]) -> DBSCAN:
         if not isinstance(args, dict):
             raise ValueError("args must be a dictionary.")
-        
+
         valid_keys = {
-            "eps", "min_samples", "metric", "metric_params", "algorithm",
-            "leaf_size", "p", "n_jobs"
+            "eps",
+            "min_samples",
+            "metric",
+            "metric_params",
+            "algorithm",
+            "leaf_size",
+            "p",
+            "n_jobs",
         }
         invalid_keys = set(args.keys()) - valid_keys
-        
+
         if invalid_keys:
             raise ValueError(f"Invalid key(s) {invalid_keys} in args.")
-        
+
         return DBSCAN(**args)
 
 
@@ -43,21 +50,29 @@ class DBSCANClustering(Clustering):
 class HDBSCANClustering(Clustering):
     def __init__(self) -> None:
         super().__init__()
-    
+
     # https://hdbscan.readthedocs.io/en/latest/basic_hdbscan.html
-    def resolve(self, args: Dict[str, Any]) -> hdbscan.HDBSCAN:
+    def resolve(self, args: Dict[str, Any]) -> "hdbscan.HDBSCAN":
         if not isinstance(args, dict):
             raise ValueError("args must be a dictionary.")
-        
+
         valid_keys = {
-            "algorithm", "alpha", "approx_min_span_tree", "gen_min_span_tree",
-            "leaf_size", "memory", "metric", "min_cluster_size", "min_samples", "p"
+            "algorithm",
+            "alpha",
+            "approx_min_span_tree",
+            "gen_min_span_tree",
+            "leaf_size",
+            "memory",
+            "metric",
+            "min_cluster_size",
+            "min_samples",
+            "p",
         }
         invalid_keys = set(args.keys()) - valid_keys
 
         if invalid_keys:
             raise ValueError(f"Invalid key(s) {invalid_keys} in args.")
-        
+
         return hdbscan.HDBSCAN(**args)
 
 
@@ -68,7 +83,7 @@ class ClusteringResolver:
         super().__init__()
         self.algorithm = algorithm
 
-    def resolve(self, args: Dict[str, Any]) -> Union[DBSCAN, hdbscan.HDBSCAN]:
+    def resolve(self, args: Dict[str, Any]) -> Union[DBSCAN, "hdbscan.HDBSCAN"]:
         if self.algorithm == ClusteringAlgorithm.DBSCAN:
             return DBSCANClustering().resolve(args)
         elif self.algorithm == ClusteringAlgorithm.HDBSCAN:
