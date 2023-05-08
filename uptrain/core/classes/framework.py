@@ -24,6 +24,7 @@ from uptrain.core.lib.helper_funcs import (
     get_df_indices_from_ids,
     get_feature_names_list,
     load_list_from_df,
+    clear_directory,
 )
 
 
@@ -82,9 +83,10 @@ class Framework:
             self.orig_training_file = training_args.orig_training_file
             self.fold_name = cfg.retraining_folder
             if os.path.exists(self.fold_name):
-                print("Deleting the folder: ", self.fold_name)
-                shutil.rmtree(self.fold_name)
-            os.mkdir(self.fold_name)
+                print("Deleting contents of the folder: ", self.fold_name)
+                clear_directory(self.fold_name)
+            else:
+                os.mkdir(self.fold_name)
 
             self.log_data = cfg.logging_args.log_data
             self.use_cache = cfg.use_cache

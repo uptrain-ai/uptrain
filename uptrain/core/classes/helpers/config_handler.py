@@ -28,7 +28,7 @@ class EvaluationArgs(BaseModel):
 
 class LoggingArgs(BaseModel):
     slack_webhook_url: str = None
-    dashboard_port: str = None
+    dashboard_port: int = None
     log_folder: str = "uptrain_logs"
     log_data: bool = True
     st_logging: bool = False

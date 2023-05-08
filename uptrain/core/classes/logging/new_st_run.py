@@ -11,6 +11,19 @@ import plotly.express as px
 
 from uptrain.core.lib.helper_funcs import make_dir_friendly_name
 
+# -----------------------------------------------------------
+# Set up layout of the dashboard and the sidebar
+# -----------------------------------------------------------
+
+st.set_page_config(
+    page_title="UpTrain Dashboard",
+    layout="wide",
+    page_icon="https://github.com/uptrain-ai/uptrain/raw/dashboard/uptrain/core/classes/logging/uptrain_logo_icon.png",
+)
+st.title("UpTrain Live Dashboard")
+st_style = """<style> footer {visibility: hidden;} </style>"""
+st.markdown(st_style, unsafe_allow_html=True)
+
 
 # -----------------------------------------------------------
 # Read parameters for this run
@@ -24,8 +37,37 @@ def read_config(log_folder: str):
         return json.loads(f.read())
 
 
-CONFIG = read_config(sys.argv[1])
+INPUT_LOG_FOLDER = sys.argv[1]
+LOG_FOLDER = INPUT_LOG_FOLDER  # for partitioned datasets, this could be a subdirectory of INPUT_LOG_FOLDER
 
+if "config.json" in os.listdir(INPUT_LOG_FOLDER):
+    CONFIG = read_config(INPUT_LOG_FOLDER)
+else:
+    print(
+        f"Could not find an Uptrain config at {INPUT_LOG_FOLDER}. Looking into sub-dirs."
+    )
+    all_sub_dirs = [
+        os.path.join(INPUT_LOG_FOLDER, d) for d in os.listdir(INPUT_LOG_FOLDER)
+    ]
+    valid_sub_dirs = [
+        d for d in all_sub_dirs if os.path.isdir(d) and "config.json" in os.listdir(d)
+    ]
+    if not len(valid_sub_dirs):
+        st.warning("No uptrain config found. Please check the log folder.")
+        st.stop()
+    else:
+        with st.sidebar:
+            st.subheader("Select the dataset partition to analyze")
+            LOG_FOLDER = st.selectbox(
+                "Partition", valid_sub_dirs, format_func=lambda x: x.split("/")[-1]
+            )
+        assert LOG_FOLDER is not None
+        CONFIG = read_config(LOG_FOLDER)
+
+# verify there are checks in the config
+if not len(CONFIG["checks"]):
+    st.warning("No checks found in the logs configured.")
+    st.stop()
 
 # -----------------------------------------------------------
 # Plotting routines
@@ -37,10 +79,8 @@ def get_plotname_n_file_for_statistic(
 ) -> tuple[str, str]:
     """get the path to the log file for the dashboard.
 
-    TODO: this logic should be defined on the actual Check objects
+    TODO: this logic should be defined on the actual Check objects. This only works for Statistics. 
     """
-    log_folder = sys.argv[1]
-    # TODO: this is true for statistic metrics, what about the rest?
     dashboard_name = make_dir_friendly_name(check["type"])
     plot_name = make_dir_friendly_name(
         distance_type
@@ -50,7 +90,7 @@ def get_plotname_n_file_for_statistic(
 
     return (
         f"{dashboard_name} - {plot_name}",
-        os.path.join(log_folder, dashboard_name, f"{plot_name}.csv"),
+        os.path.join(LOG_FOLDER, dashboard_name, f"{plot_name}.csv"),
     )
 
 
@@ -199,24 +239,6 @@ def plot_dashboard(check: dict, model_variant: dict, feature_filters: dict):
         plot_visual_umap(check, model_variant, feature_filters)
     else:
         st.warning(f"Checks of type: {check['type']} are not supported yet.")
-
-
-# -----------------------------------------------------------
-# Set up layout of the dashboard and the sidebar
-# -----------------------------------------------------------
-
-st.set_page_config(
-    page_title="UpTrain Dashboard",
-    layout="wide",
-    page_icon="https://github.com/uptrain-ai/uptrain/raw/dashboard/uptrain/core/classes/logging/uptrain_logo_icon.png",
-)
-st.title("UpTrain Live Dashboard")
-st_style = """<style> footer {visibility: hidden;} </style>"""
-st.markdown(st_style, unsafe_allow_html=True)
-
-if not len(CONFIG["checks"]):
-    st.warning("No checks found in the logs configured.")
-    st.stop()
 
 
 # -----------------------------------------------------------

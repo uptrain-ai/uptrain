@@ -3,6 +3,8 @@ import shutil
 import urllib3
 import json
 
+from uptrain.core.lib.helper_funcs import clear_directory
+
 
 class LogHandler:
     def __init__(self, framework=None, cfg=None):
@@ -11,8 +13,8 @@ class LogHandler:
         self.path_all_data = framework.path_all_data
 
         if os.path.exists(log_folder):
-            print("Deleting the folder: ", log_folder)
-            shutil.rmtree(log_folder)
+            print("Deleting contents of the folder: ", log_folder)
+            clear_directory(log_folder)
 
         self.st_writer = None
         if cfg.logging_args.st_logging:
