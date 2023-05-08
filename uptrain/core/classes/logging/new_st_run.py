@@ -79,7 +79,7 @@ def get_plotname_n_file_for_statistic(
 ) -> tuple[str, str]:
     """get the path to the log file for the dashboard.
 
-    TODO: this logic should be defined on the actual Check objects. This only works for Statistics. 
+    TODO: this logic should be defined on the actual Check objects. This only works for Statistics.
     """
     dashboard_name = make_dir_friendly_name(check["type"])
     plot_name = make_dir_friendly_name(
@@ -113,10 +113,11 @@ def plot_check_distance(check: dict, model_variant: dict, feature_filters: dict)
         plot_title, fname = get_plotname_n_file_for_statistic(check, dist_type)
         st.markdown(f"### Line chart for {plot_title}")
 
-        df = pd.read_csv(fname)
-        if len(df) == 0:
+        if os.path.getsize(fname) == 0:
             st.warning("No data found for the specified check.")
             return
+        else:
+            df = pd.read_csv(fname)
 
         df = apply_model_n_feature_filters(df, model_variant, feature_filters)
         if len(df) == 0:
@@ -144,10 +145,11 @@ def plot_check_convergence(check: dict, model_variant: dict, feature_filters: di
         plot_title, fname = get_plotname_n_file_for_statistic(check, dist_type)
         st.markdown(f"### Histogram for {plot_title}")
 
-        df = pd.read_csv(fname)
-        if len(df) == 0:
+        if os.path.getsize(fname) == 0:
             st.warning("No data found for the specified check.")
             return
+        else:
+            df = pd.read_csv(fname)
 
         df = apply_model_n_feature_filters(df, model_variant, feature_filters)
         if len(df) == 0:
