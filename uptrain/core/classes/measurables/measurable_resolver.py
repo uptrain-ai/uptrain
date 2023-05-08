@@ -13,6 +13,10 @@ from uptrain.core.classes.measurables import (
     DistanceMeasurable,
     RecHitRateMeasurable,
 )
+from uptrain.ee.classes.measurables import (
+    GrammerScoreMeasurable,
+)
+
 from uptrain.constants import MeasurableType
 
 
@@ -75,5 +79,8 @@ class MeasurableResolver:
             )
         elif measurable_type == MeasurableType.REC_HIT_RATE:
             return RecHitRateMeasurable(framework)
+        elif measurable_type == MeasurableType.GRAMMAR_SCORE:
+            return GrammerScoreMeasurable(framework,
+                                          resolve_args.get("feature_name", None))
         else:
             raise Exception("Resolver not defined")

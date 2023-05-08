@@ -13,8 +13,8 @@ class OutputFeatureMeasurable(Measurable):
         return outputs
 
     def col_name(self) -> str:
-        return str(self.feature_name)
+        return str("prediction")
 
     # TODO: Decommission and find a generic way
     def extract_val_from_training_data(self, x):
-        return x[self.feature_name]
+        return x
