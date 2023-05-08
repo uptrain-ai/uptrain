@@ -59,10 +59,15 @@ else:
         with st.sidebar:
             st.subheader("Select the dataset partition to analyze")
             LOG_FOLDER = st.selectbox(
-                "Partition", valid_sub_dirs, format_func=lambda x: x.split("/")[-1]
+                "Partition",
+                [""] + valid_sub_dirs,
+                format_func=lambda x: x.split("/")[-1],
             )
-        assert LOG_FOLDER is not None
-        CONFIG = read_config(LOG_FOLDER)
+        if LOG_FOLDER == "":
+            st.stop()
+        else:
+            assert LOG_FOLDER is not None
+            CONFIG = read_config(LOG_FOLDER)
 
 # verify there are checks in the config
 if not len(CONFIG["checks"]):
