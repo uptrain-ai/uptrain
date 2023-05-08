@@ -7,7 +7,7 @@ import uptrain
 from gensim.models import Word2Vec
 
 
-def test_rec_bias():
+def test_recommender_bias():
     data_file = "sigir_data.json"
     remote_url = "https://oodles-dev-training-data.s3.amazonaws.com/sigir_data.json"
     if not os.path.exists(data_file):
@@ -132,3 +132,4 @@ def test_rec_bias():
         y_test_batch = y_test[i*inference_batch_size:(i+1)*inference_batch_size]
         gts = [y[0]['product_sku'] for y in y_test_batch]
         framework.log(identifiers=ids, gts=gts)
+        

@@ -48,7 +48,16 @@ setup(
         "river<=0.14",
         "scikit_learn>=1.0.0",
         "streamlit>=1.0.0",
-        "json-fix>=0.5.0"
+        "json-fix>=0.5.0",
     ],
-    tests_require=["pytest>=7.0", "torch", "imgaug", "gensim", "xgboost"]
+    tests_require=[
+        "pytest>=7.0",
+        "torch",
+        "imgaug",
+        "gensim",
+        "xgboost",
+        "lightgbm",
+        "hdbscan",
+        "umap-learn",
+    ],
 )
