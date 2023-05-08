@@ -260,6 +260,20 @@ def make_dir_friendly_name(txt: str) -> str:
     return re.sub(r"[^a-zA-Z0-9_]", "_", txt)
 
 
+def clear_directory(dir_path: str):
+    """Clears the directory at dir_path but without deleting the directory itself. `shutil.rmtree` will
+    have difficulties with mounted volumes or network drives.
+    """
+    import shutil
+
+    for filename in os.listdir(dir_path):
+        file_path = os.path.join(dir_path, filename)
+        if os.path.isfile(file_path) or os.path.islink(file_path):
+            os.unlink(file_path)
+        elif os.path.isdir(file_path):
+            shutil.rmtree(file_path)
+
+
 class Clock:
     """Makes testing easier by anchoring to an older time. This is helpful when
     testing with older datasets. While if initialized with no arguments, the clock

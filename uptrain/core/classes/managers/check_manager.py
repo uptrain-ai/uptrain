@@ -11,7 +11,7 @@ from uptrain.core.classes.monitors import (
     ModelBias,
     DataIntegrity,
     EdgeCase,
-    OutputComparison
+    OutputComparison,
 )
 from uptrain.core.classes.statistics import (
     Distance,
@@ -34,11 +34,11 @@ class CheckManager:
         self.visuals_to_check = []
         self.fw = framework
         for check in checks:
-            if check["type"] in Monitor:
+            if check["type"] in list(Monitor):
                 self.add_monitor(check)
-            if check["type"] in Statistic:
+            if check["type"] in list(Statistic):
                 self.add_statistic(check)
-            if check["type"] in Visual:
+            if check["type"] in list(Visual):
                 self.add_visual(check)
 
     def add_monitor(self, check):

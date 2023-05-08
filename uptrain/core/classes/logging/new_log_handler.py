@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from uptrain.core.classes.framework import Framework
     from uptrain.core.classes.helpers.config_handler import Config
 
-from uptrain.core.lib.helper_funcs import make_dir_friendly_name
+from uptrain.core.lib.helper_funcs import make_dir_friendly_name, clear_directory
 from uptrain.core.encoders import NumpyEncoder
 from uptrain.core.classes.logging.new_st_setup import StreamlitRunner
 
@@ -91,10 +91,11 @@ class LogHandler:
 
         self.log_folder = cfg.logging_args.log_folder
         if os.path.exists(self.log_folder):
-            print(f"Deleting the log folder at: {self.log_folder}")
-            shutil.rmtree(self.log_folder)
-        print(f"Creating the log folder at: {self.log_folder}")
-        os.makedirs(self.log_folder, exist_ok=False)
+            print(f"Deleting contents of the log folder at: {self.log_folder}")
+            clear_directory(self.log_folder)
+        else:
+            print(f"Creating the log folder at: {self.log_folder}")
+            os.makedirs(self.log_folder, exist_ok=True)
         self.list_writers = dict()
 
         # serialize the config to a json file so the consumers can read it
@@ -103,10 +104,7 @@ class LogHandler:
             f.write(cfg.json())
 
         # initialize the streamlit dashboard
-        port_str = cfg.logging_args.dashboard_port
-        self.st_runner = StreamlitRunner(
-            self.log_folder, port=int(port_str) if port_str else None
-        )
+        self.st_runner = StreamlitRunner(self.log_folder, cfg.logging_args.dashboard_port)
         if cfg.logging_args.run_background_streamlit:
             self.st_runner.start()
         else:
