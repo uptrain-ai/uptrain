@@ -159,7 +159,7 @@ Nous travaillons constamment pour améliorer UpTrain. Vous voulez une nouvelle f
 
 # Licence 💻
 
-Ce référentiel est publié sous licence Apache 2.0. Nous nous concentrons actuellement sur le développement d'offres non professionnelles qui devraient couvrir la plupart des cas d'utilisation en ajoutant plus de fonctionnalités et en s'étendant à plus de modèles. Nous travaillons également à l'ajout d'une offre hébergée - [Contactez-nous](mailto:sourabh@insane.ai) Si tu es intéressé.
+Ce référentiel est publié sous licence Apache 2.0. Nous nous concentrons actuellement sur le développement d'offres non professionnelles qui devraient couvrir la plupart des cas d'utilisation en ajoutant plus de fonctionnalités et en s'étendant à plus de modèles. Nous travaillons également à l'ajout d'une offre hébergée - [Contactez-nous](mailto:tech@uptrain.ai) Si tu es intéressé.
 
 # Restez à jour ☎️
 

@@ -159,7 +159,7 @@ Wir arbeiten ständig daran, UpTrain besser zu machen. Möchten Sie eine neue Fu
 
 # Lizenz 💻
 
-Dieses Repo wird unter der Apache 2.0-Lizenz veröffentlicht. Wir konzentrieren uns derzeit auf die Entwicklung von Nicht-Unternehmensangeboten, die die meisten Anwendungsfälle abdecken sollten, indem wir mehr Funktionen hinzufügen und auf mehr Modelle ausdehnen. Wir arbeiten auch daran, ein gehostetes Angebot hinzuzufügen - [kontaktiere uns](mailto:sourabh@insane.ai) wenn Sie interessiert sind.
+Dieses Repo wird unter der Apache 2.0-Lizenz veröffentlicht. Wir konzentrieren uns derzeit auf die Entwicklung von Nicht-Unternehmensangeboten, die die meisten Anwendungsfälle abdecken sollten, indem wir mehr Funktionen hinzufügen und auf mehr Modelle ausdehnen. Wir arbeiten auch daran, ein gehostetes Angebot hinzuzufügen - [kontaktiere uns](mailto:tech@uptrain.ai) wenn Sie interessiert sind.
 
 # Stay Updated ☎️
 

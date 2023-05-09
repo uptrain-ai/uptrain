@@ -158,7 +158,7 @@ Trabajamos constantemente para mejorar UpTrain. ¿Quieres una nueva función o n
 
 # Licencia 💻
 
-Este repositorio se publica bajo licencia Apache 2.0. Actualmente estamos enfocados en desarrollar ofertas no empresariales que deberían cubrir la mayoría de los casos de uso al agregar más funciones y ampliar a más modelos. También estamos trabajando para agregar una oferta alojada: [Contáctenos](mailto:sourabh@insane.ai) si estás interesado.
+Este repositorio se publica bajo licencia Apache 2.0. Actualmente estamos enfocados en desarrollar ofertas no empresariales que deberían cubrir la mayoría de los casos de uso al agregar más funciones y ampliar a más modelos. También estamos trabajando para agregar una oferta alojada: [Contáctenos](mailto:tech@uptrain.ai) si estás interesado.
 
 # Mantente actualizado ☎️
 

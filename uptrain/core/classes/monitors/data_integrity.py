@@ -97,11 +97,14 @@ class DataIntegrity(AbstractMonitor):
         return False
     
     def base_is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
-        reasons = ["None"] * len(extra_args["id"])
-        for idx in range(len(extra_args["id"])):
-            if self.has_issue[idx]:
-                reasons.append("Data Integrity Issue, Type: {}".format(self.integrity_type))
-        return self.has_issue, reasons
+        if self.integrity_type == "grammar_check":
+            reasons = ["None"] * len(extra_args["id"])
+            for idx in range(len(extra_args["id"])):
+                if self.has_issue[idx]:
+                    reasons.append("Data Integrity Issue, Type: {}".format(self.integrity_type))
+            return self.has_issue, reasons
+        else:
+            return np.array([False] * len(extra_args["id"])), np.array(['None'] * len(extra_args["id"]))
 
     def get_ref_data_stats(self):
         """
