@@ -29,6 +29,7 @@ class MeasurableType(str, Enum):
     DISTANCE = "distance"
     REC_HIT_RATE = "hit_rate"
     GRAMMAR_SCORE = "grammar_score"
+    DIMENSIONALITY_REDUCTION = "dimensionality_reduction"
 
 
 class ModelSignal(Enum):
@@ -56,6 +57,7 @@ class Monitor(str, Enum):
     POPULARITY_BIAS = "popularity_bias"
     DATA_INTEGRITY = "data_integrity"
     OUTPUT_COMPARISON = "output_comparison"
+    LLM_EVALUATION = "llm_evaluation"
 
 
 class PlotType(str, Enum):

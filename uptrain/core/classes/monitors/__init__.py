@@ -9,3 +9,4 @@ from .edge_case import EdgeCase
 from .model_bias import ModelBias
 from .data_integrity import DataIntegrity
 from .output_comparison import OutputComparison
+from .llm_evaluation import LLMEvaluation

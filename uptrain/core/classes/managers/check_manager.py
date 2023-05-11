@@ -12,6 +12,7 @@ from uptrain.core.classes.monitors import (
     DataIntegrity,
     EdgeCase,
     OutputComparison,
+    LLMEvaluation,
 )
 from uptrain.core.classes.statistics import (
     Distance,
@@ -103,6 +104,9 @@ class CheckManager:
         elif check["type"] == Monitor.OUTPUT_COMPARISON:
             comparison_monitor = OutputComparison(self.fw, check)
             self.monitors_to_check.append(comparison_monitor)
+        elif check["type"] == Monitor.LLM_EVALUATION:
+            llm_monitor = LLMEvaluation(self.fw, check)
+            self.monitors_to_check.append(llm_monitor)
         else:
             raise Exception("Monitor type not Supported")
 

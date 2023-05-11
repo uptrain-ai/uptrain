@@ -10,6 +10,7 @@ from .accuracy import AccuracyMeasurable, MAEMeasurable, MAPEMeasurable
 from .scalar_from_embedding import ScalarFromEmbeddingMeasurable
 from .distance import DistanceMeasurable
 from .recommendation_hit_rate import RecHitRateMeasurable
+from .dimensionality_reduction import DimensionalityReductionMeasurable
 
 
 from .measurable_resolver import MeasurableResolver

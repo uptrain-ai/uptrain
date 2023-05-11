@@ -12,6 +12,7 @@ from uptrain.core.classes.measurables import (
     ScalarFromEmbeddingMeasurable,
     DistanceMeasurable,
     RecHitRateMeasurable,
+    DimensionalityReductionMeasurable,
 )
 from uptrain.ee.classes.measurables import (
     GrammerScoreMeasurable,
@@ -77,6 +78,8 @@ class MeasurableResolver:
                 resolve_args["reference"],
                 resolve_args["distance_types"],
             )
+        elif measurable_type == MeasurableType.DIMENSIONALITY_REDUCTION:
+            return DimensionalityReductionMeasurable(framework, resolve_args)
         elif measurable_type == MeasurableType.REC_HIT_RATE:
             return RecHitRateMeasurable(framework)
         elif measurable_type == MeasurableType.GRAMMAR_SCORE:
