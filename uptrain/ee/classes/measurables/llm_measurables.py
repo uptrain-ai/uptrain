@@ -106,11 +106,11 @@ class SentenceSimilarityMeasurable(Measurable):
             messages=[
                 {
                     "role": "system",
-                    "content": "You are a sentence comparator who only gives only a dissimilarity score and no explanation.",
+                    "content": "You are a sentence comparator who only gives only a dissimilarity score on a scale of 0 to 100 between two sentences and no explanation. Score 0 implies very similar and score 100 implies very different.",
                 },
                 {
                     "role": "user",
-                    "content": f"Score following two sentences on dissimilarity on a scale of 0 to 100: \n\n Sentence 1: {sent1} \n Sentence 2: {sent2}",
+                    "content": f"Sentence 1: {sent1} \n Sentence 2: {sent2}",
                 },
             ],
             temperature=0,

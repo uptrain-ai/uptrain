@@ -187,7 +187,6 @@ class LLMEvaluation(AbstractMonitor):
 
         hover_dict = {
             "id": extra_args["id"],
-            "text": text,
             "summary": summaries,
             "gt": gts,
         }
@@ -198,6 +197,9 @@ class LLMEvaluation(AbstractMonitor):
         ]
 
         this_data.update({"hover_texts": hover_dict})
+
+        extra_args.update({"model_outputs": summaries})
+        extra_args.update(dists)
 
         if self.log_writer is not None:
             self.log_writer.log(
@@ -211,6 +213,7 @@ class LLMEvaluation(AbstractMonitor):
                 this_data,
                 self.dashboard_name,
             )
+        import pdb; pdb.set_trace()
 
     def need_ground_truth(self):
         return True
