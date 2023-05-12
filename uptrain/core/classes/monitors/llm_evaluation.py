@@ -213,7 +213,6 @@ class LLMEvaluation(AbstractMonitor):
                 this_data,
                 self.dashboard_name,
             )
-        import pdb; pdb.set_trace()
 
     def need_ground_truth(self):
         return True

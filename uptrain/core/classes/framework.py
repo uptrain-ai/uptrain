@@ -371,6 +371,7 @@ class Framework:
             }
         )
         self.check(data, extra_args=self.extra_args)
+        data.update(self.extra_args)
         self.smartly_add_data(data, extra_args=self.extra_args)
 
     # TODO: @Vipul - Do we need this?
