@@ -30,6 +30,7 @@ class MeasurableType(str, Enum):
     REC_HIT_RATE = "hit_rate"
     GRAMMAR_SCORE = "grammar_score"
     DIMENSIONALITY_REDUCTION = "dimensionality_reduction"
+    SENTENCE_SIMILARITY = "sentence_similarity"
 
 
 class ModelSignal(Enum):

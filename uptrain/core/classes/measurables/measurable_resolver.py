@@ -16,6 +16,7 @@ from uptrain.core.classes.measurables import (
 )
 from uptrain.ee.classes.measurables import (
     GrammerScoreMeasurable,
+    SentenceSimilarityMeasurable,
 )
 
 from uptrain.constants import MeasurableType
@@ -85,5 +86,9 @@ class MeasurableResolver:
         elif measurable_type == MeasurableType.GRAMMAR_SCORE:
             return GrammerScoreMeasurable(framework,
                                           resolve_args.get("feature_name", None))
+        elif measurable_type == MeasurableType.SENTENCE_SIMILARITY:
+            return SentenceSimilarityMeasurable(framework,
+                                          resolve_args["feature1"], 
+                                          resolve_args["feature2"])
         else:
             raise Exception("Resolver not defined")

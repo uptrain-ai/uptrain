@@ -1,7 +1,7 @@
 # Install the following packages:
 # pip install uptrain torch transformers nltk datasets py7zr
 try:
-    import transformers 
+    import transformers
     from transformers import AutoTokenizer, AutoModel, AutoModelForSeq2SeqLM
 except:
     transformers = None
@@ -18,6 +18,7 @@ from uptrain.constants import Visual
 from uptrain.core.lib.helper_funcs import read_json, dependency_required
 
 from typing import Optional, Union, TYPE_CHECKING
+
 if TYPE_CHECKING:
     from uptrain.core.classes.logging.new_log_handler import (
         LogHandler as NewLogHandler,
@@ -86,20 +87,38 @@ class LLMEvaluation(AbstractMonitor):
     def base_init(self, fw, check):
         self.dashboard_name = "visual"
         self.monitor_type = Monitor.LLM_EVALUATION
-        self.embedding_model = check.get('embedding_model', 'sentence-transformers/paraphrase-MiniLM-L6-v2')
-        self.distance_types: list = check.get("distance_types", ['cosine_distance'])
+        self.embedding_model = check.get(
+            "embedding_model", "sentence-transformers/paraphrase-MiniLM-L6-v2"
+        )
+        self.distance_types: list = check.get("distance_types", ["cosine_distance"])
         self.dist_classes = [DistanceResolver().resolve(x) for x in self.distance_types]
-        self.device = check.get("device","cpu")
+        self.device = check.get("device", "cpu")
         llm_model_args = check["llm_model_args"]
         self.num_tokens = llm_model_args.get("num_tokens", 30)
         model = check.get("model", "yasminesarraj/flan-t5-small-samsum")
         self.tokenizer = AutoTokenizer.from_pretrained(model)
         self.model = AutoModelForSeq2SeqLM.from_pretrained(model).to(self.device)
+        self.openai_key = fw.config_obj.license_args.openai_key
 
-        dim_reduction_dict = {"type": MeasurableType.DIMENSIONALITY_REDUCTION,
-                                    "visual_type": Visual.UMAP,
-                                    "feature_name": "emb_data",}
-        self.dim_reduction_measurable_pred = MeasurableResolver(dim_reduction_dict).resolve(fw)
+        dim_reduction_dict = {
+            "type": MeasurableType.DIMENSIONALITY_REDUCTION,
+            "visual_type": Visual.UMAP,
+            "feature_name": "emb_data",
+        }
+        self.dim_reduction_measurable_pred = MeasurableResolver(
+            dim_reduction_dict
+        ).resolve(fw)
+
+        sentence_similarity_measurable_dict = {
+            "type": MeasurableType.SENTENCE_SIMILARITY,
+            "feature1": "sent1",
+            "feature2": "sent2",
+        }
+        self.sentence_similarity_measurable = MeasurableResolver(
+            sentence_similarity_measurable_dict
+        ).resolve(fw)
+        self.has_issue = None
+        self.reasons = None
 
         # get handles to the log writer object
         if hasattr(self.log_handler, "make_logger"):
@@ -110,13 +129,19 @@ class LLMEvaluation(AbstractMonitor):
             self.log_writer = None
 
     def base_check(self, inputs, outputs=None, gts=None, extra_args={}):
+        # Note: Currently it is assumed that testing happens in one batch only
         text = self.measurable.compute_and_log(
             inputs, outputs, gts=gts, extra=extra_args
         )
-        summaries = get_summaries(text, self.tokenizer, self.model, self.device, self.num_tokens)
+        summaries = get_summaries(
+            text, self.tokenizer, self.model, self.device, self.num_tokens
+        )
         emb_pred = convert_sentence_to_emb(summaries, self.embedding_model, self.device)
         emb_gt = convert_sentence_to_emb(gts, self.embedding_model, self.device)
-        compressed_emb_pred = self.dim_reduction_measurable_pred.compute_and_log({"emb_data": emb_pred}, outputs=None)
+        compressed_emb_pred = self.dim_reduction_measurable_pred.compute_and_log(
+            {"emb_data": emb_pred}, outputs=None
+        )
+        this_data = {"umap": compressed_emb_pred}
 
         dists = dict(
             zip(
@@ -125,12 +150,52 @@ class LLMEvaluation(AbstractMonitor):
             )
         )
 
-        this_data = {"umap": compressed_emb_pred}
+        if self.openai_key is not None:
+            openai_dists = self.sentence_similarity_measurable.compute_and_log(
+                {"sent1": summaries, "sent2": gts}, outputs=None
+            )
+            dists.update({"openai_score": np.array(openai_dists)})
+
         this_data.update({"labels": dists})
-        hover_dict = {"id": extra_args["id"], "text": text, "summary": summaries, "gt": gts}
-        
-        # Write a one-line code to unzip hover_dict into a list of dictionaries
-        hover_dict = [dict(zip(hover_dict.keys(), t)) for t in zip(*hover_dict.values())]
+
+        self.has_issue = np.array([False] * len(extra_args["id"]))
+        self.reasons = np.array([""] * len(extra_args["id"]), dtype="U100")
+        for dist_type in dists.keys():
+            print(
+                "Average {} is {} on your model.".format(
+                    dist_type, np.mean(dists[dist_type])
+                )
+            )
+            if dist_type == "openai_score":
+                threshold = 80
+            elif dist_type == "cosine_distance":
+                threshold = 0.6
+            elif dist_type == "l2_distance":
+                threshold = 1
+            else:
+                print("Threshold not defined for {}.".format(dist_type))
+                continue
+
+            # If any of the dist_types are above threshold, then update self.has_issue
+            # to True and add dist_type to self.reasons.
+            self.has_issue = np.logical_or(self.has_issue, dists[dist_type] > threshold)
+
+            # Add dist_type to self.reasons if dist_type is above threshold.
+            self.reasons[self.has_issue] = np.char.add(
+                self.reasons[self.has_issue], dist_type + " "
+            )
+
+        hover_dict = {
+            "id": extra_args["id"],
+            "text": text,
+            "summary": summaries,
+            "gt": gts,
+        }
+
+        # Unzip hover_dict into a list of dictionaries
+        hover_dict = [
+            dict(zip(hover_dict.keys(), t)) for t in zip(*hover_dict.values())
+        ]
 
         this_data.update({"hover_texts": hover_dict})
 
@@ -145,8 +210,10 @@ class LLMEvaluation(AbstractMonitor):
                 "UMAP",
                 this_data,
                 self.dashboard_name,
-             )
-        
+            )
 
     def need_ground_truth(self):
         return True
+
+    def base_is_data_interesting(self, inputs, outputs, gts=None, extra_args={}):
+        return self.has_issue, self.reasons
