@@ -60,6 +60,7 @@
 <kbd>[<img title="French" alt="French language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/fr.svg" width="22">](/i18n/README.fr.md)</kbd>
 <kbd>[<img title="Japanese" alt="Japanese language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/jp.svg" width="22">](/i18n/README.ja.md)</kbd>
 <kbd>[<img title="Russian" alt="Russian language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/ru.svg" width="22">](/i18n/README.ru.md)</kbd>
+<kbd>[<img title="Urdu" alt="Urdu language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/pk.svg" width="22">](/i18n/README.ur.md)</kbd>
 
 
 **[UpTrain](https://uptrain.ai)** 是一种开源、数据安全的工具，供 ML 从业者通过监控其性能、检查（数据）分布变化以及收集边缘案例以对其进行再培训来观察和改进其 ML 模型。它与您现有的生产管道无缝集成，只需几分钟即可开始使用 ⚡。

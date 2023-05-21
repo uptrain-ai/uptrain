@@ -59,7 +59,7 @@
 <kbd>[<img title="French" alt="French language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/fr.svg" width="22">](/i18n/README.fr.md)</kbd>
 <kbd>[<img title="Japanese" alt="Japanese language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/jp.svg" width="22">](/i18n/README.ja.md)</kbd>
 <kbd>[<img title="Russian" alt="Russian language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/ru.svg" width="22">](/i18n/README.ru.md)</kbd>
-
+<kbd>[<img title="Urdu" alt="Urdu language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/pk.svg" width="22">](/i18n/README.ur.md)</kbd>
 
 **[UpTrain](https://uptrain.ai)** は、ML 実践者がパフォーマンスを監視し、(データ) 分布シフトをチェックし、エッジ ケースを収集して再トレーニングすることで、ML モデルを観察および改良するためのオープンソースでデータ保護されたツールです。既存の本番パイプラインとシームレスに統合され、数分で開始できます⚡。
 

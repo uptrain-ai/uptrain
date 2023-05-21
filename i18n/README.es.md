@@ -58,6 +58,7 @@
 <kbd>[<img title="French" alt="French language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/fr.svg" width="22">](/i18n/README.fr.md)</kbd>
 <kbd>[<img title="Japanese" alt="Japanese language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/jp.svg" width="22">](/i18n/README.ja.md)</kbd>
 <kbd>[<img title="Russian" alt="Russian language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/ru.svg" width="22">](/i18n/README.ru.md)</kbd>
+<kbd>[<img title="Urdu" alt="Urdu language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/pk.svg" width="22">](/i18n/README.ur.md)</kbd>
 
 
 **[UpTrain](https://uptrain.ai)** es una herramienta segura de datos de código abierto para que los profesionales de ML observen y perfeccionen sus modelos de ML al monitorear su rendimiento, verificar los cambios de distribución (de datos) y recopilar casos extremos para volver a capacitarlos. Se integra a la perfección con sus canales de producción existentes y solo toma unos minutos para comenzar ⚡.
