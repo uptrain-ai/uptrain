@@ -59,6 +59,8 @@
 <kbd>[<img title="French" alt="French language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/fr.svg" width="22">](/i18n/README.fr.md)</kbd>
 <kbd>[<img title="Japanese" alt="Japanese language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/jp.svg" width="22">](/i18n/README.ja.md)</kbd>
 <kbd>[<img title="Russian" alt="Russian language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/ru.svg" width="22">](/i18n/README.ru.md)</kbd>
+<kbd>[<img title="Urdu" alt="Urdu language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/pk.svg" width="22">](/i18n/README.ur.md)</kbd>
+
 
 
 **[UpTrain](https://uptrain.ai)** ایم ایل پریکٹیشنرز کے لیے ایک اوپن سورس، ڈیٹا سے محفوظ ٹول ہے تاکہ وہ اپنے ایم ایل ماڈلز کو ان کی کارکردگی کی نگرانی، جانچ (ڈیٹا) کی تقسیم کی شفٹوں کی جانچ کر کے، اور ایج کیسز جمع کر کے ان کو دوبارہ تربیت دے کر ان کا معائنہ کر سکیں۔ یہ آپ کی موجودہ پروڈکشن پائپ لائنوں کے ساتھ بغیر کسی رکاوٹ کے ضم ہوجاتا ہے اور شروع کرنے میں صرف چند منٹ لگتے ।
@@ -143,7 +145,7 @@ jupyter lab
 <img alt="perf_gif" width="40%" src="https://uptrain-demo.s3.us-west-1.amazonaws.com/finetuning_llms/edge_cases.gif">
 </h1>
 
-# UpTrain क्यों 🤔?
+# UpTrain  کیا  🤔?
 
 اہم کاروباری فیصلے کرنے کے لیے مشین لرننگ (ML) ماڈل بڑے پیمانے پر استعمال ہوتے ہیں۔ اس کے باوجود، کوئی ML ماڈل 100% درست نہیں ہے، اور اس کے علاوہ، ان کی درستگی وقت کے ساتھ ساتھ خراب ہوتی جاتی 😣.۔ مثال کے طور پر، صارفین کی خریداری کی عادات میں تبدیلی کی وجہ سے وقت کے ساتھ ساتھ فروخت کی پیشن گوئی غلط ہو جاتی ہے۔ مزید برآں، ایم ایل ماڈلز کی بلیک باکس نوعیت کی وجہ سے، ان کے مسائل کی نشاندہی کرنا اور ان کو حل کرنا مشکل
  ہے۔
