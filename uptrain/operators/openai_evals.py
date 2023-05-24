@@ -1,7 +1,7 @@
 from __future__ import annotations
-import json
 import os
 import sys
+import time
 import typing as t
 import uuid
 
@@ -9,13 +9,43 @@ import evals
 import evals.base
 import evals.record
 from evals.registry import Registry
+from loguru import logger
 from pydantic import BaseModel
 import pyarrow as pa
+
+from uptrain.utilities import to_py_types
+from .base import check_req_columns_present, TYPE_OP_OUTPUT
 
 
 # -----------------------------------------------------------
 # General purpose OpenAI eval operator
 # -----------------------------------------------------------
+
+
+class UptrainEvalRecorder(evals.record.RecorderBase):
+    """Subclass the default OpenAI eval recorder so we don't need to write
+    to temporary files.
+    """
+
+    list_events: list[dict]
+    run_data: dict
+
+    def __init__(self, run_spec: "evals.base.RunSpec"):
+        super().__init__(run_spec)
+        self.list_events = []
+        self.run_data = to_py_types(run_spec)
+
+    def _flush_events_internal(self, events_to_write: t.Sequence["evals.record.Event"]):
+        try:
+            self.list_events.extend([to_py_types(event) for event in events_to_write])
+        except TypeError as e:
+            logger.error(f"Failed to serialize events: {events_to_write}")
+            raise e
+        self._last_flush_time = time.time()
+        self._flushes_done += 1
+
+    def record_final_report(self, final_report: t.Any):
+        self.run_data["final_report"] = to_py_types(final_report)
 
 
 class SchemaOpenaiEval(BaseModel):
@@ -27,7 +57,7 @@ class OpenaiEval(BaseModel):
     bundle_path: str
     completion_name: str
     eval_name: str
-    data_schema: OpenaiSchema = OpenaiSchema()
+    data_schema: SchemaOpenaiEval = SchemaOpenaiEval()
 
     def make_executor(self) -> OpenaiEvalExecutor:
         return OpenaiEvalExecutor(self)
@@ -40,14 +70,11 @@ class OpenaiEvalExecutor:
         self.op = op
 
     def _validate_data(self, data: pa.Table) -> None:
-        for col in self.op.data_schema.dict().values():
-            assert col in data.column_names, f"Column {col} not found."
+        check_req_columns_present(data, self.op.data_schema)
 
-    def run(self, data: pa.Table) -> list[dict]:
-        """
-        FIXME: we want consistent output across all kinds of operators in Uptrain. This should
-        return a pyarrow table too.
-        """
+    def run(self, data: pa.Table) -> TYPE_OP_OUTPUT:
+        self._validate_data(data)
+
         registry = Registry()
         registry_path = os.path.join(self.op.bundle_path, "custom_registry")
         registry.add_registry_paths([registry_path])
@@ -92,11 +119,7 @@ class OpenaiEvalExecutor:
             run_config=run_config,
             created_by="uptrain",
         )
-
-        record_path = (
-            f"/tmp/{run_spec.run_id}_{self.op.completion_name}_{eval_name}.jsonl"
-        )
-        recorder = evals.record.LocalRecorder(record_path, run_spec=run_spec)
+        recorder = UptrainEvalRecorder(run_spec=run_spec)
 
         eval_class = registry.get_class(eval_spec)
         extra_eval_params = {}
@@ -107,14 +130,15 @@ class OpenaiEvalExecutor:
             registry=registry,
             **extra_eval_params,
         )
-        result = eval.run(recorder)
-        recorder.record_final_report(result)
-        recorder.flush_events()  # NOTE: critical to flush events to the log file
-        with open(record_path, "r") as f:
-            records = [json.loads(line) for line in f.readlines()]
+        final_report = eval.run(recorder)
+        recorder.record_final_report(final_report)
+        recorder.flush_events()  # NOTE: critical to flush events before exit
 
         os.remove(path_samples_file)
-        return records
+        return {
+            "aux_output": recorder.run_data,
+            "output": pa.Table.from_pylist(recorder.list_events),
+        }
 
 
 # -----------------------------------------------------------
@@ -143,10 +167,7 @@ class QnaEvalExecutor:
         self.op = op
 
     def _validate_data(self, data: pa.Table) -> None:
-        for attr, col in self.op.data_schema.dict().items():
-            assert (
-                col in data.column_names
-            ), f"Column: {col} for attribute: {attr} not found in input data."
+        check_req_columns_present(data, self.op.data_schema)
 
-    def run(self, data: pa.Table) -> list[dict]:
-        pass
+    def run(self, data: pa.Table) -> TYPE_OP_OUTPUT:
+        self._validate_data(data)
