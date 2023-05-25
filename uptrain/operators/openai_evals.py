@@ -8,7 +8,7 @@ import uuid
 import evals
 import evals.base
 import evals.record
-from evals.registry import Registry
+import evals.registry
 from loguru import logger
 from pydantic import BaseModel
 import pyarrow as pa
@@ -75,7 +75,7 @@ class OpenaiEvalExecutor:
     def run(self, data: pa.Table) -> TYPE_OP_OUTPUT:
         self._validate_data(data)
 
-        registry = Registry()
+        registry = evals.registry.Registry()
         registry_path = os.path.join(self.op.bundle_path, "custom_registry")
         registry.add_registry_paths([registry_path])
 
