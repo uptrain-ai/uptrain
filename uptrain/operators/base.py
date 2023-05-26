@@ -33,7 +33,7 @@ class TYPE_OP_OUTPUT(te.TypedDict):
 class Operator(t.Protocol):
     """Base class for all operators."""
 
-    schema_data: "BaseModel"  # both input and output columns are defined here
+    schema_data: "BaseModel"  # both input and output columns are specified here
 
     def make_executor(self) -> "OperatorExecutor":
         """Create a Ray actor for this operator."""

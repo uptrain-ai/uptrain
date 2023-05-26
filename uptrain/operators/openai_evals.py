@@ -10,7 +10,7 @@ import evals.base
 import evals.record
 import evals.registry
 from loguru import logger
-from pydantic import BaseModel
+from pydantic import BaseModel, root_validator
 import polars as pl
 
 from .base import *
@@ -18,7 +18,8 @@ from uptrain.utilities import to_py_types
 
 
 # -----------------------------------------------------------
-# General purpose OpenAI eval operator
+# General purpose OpenAI eval operator. It can take any eval
+# specified in the opanai-evals format and run it.
 # -----------------------------------------------------------
 
 
@@ -41,8 +42,7 @@ class UptrainEvalRecorder(evals.record.RecorderBase):
 
 
 class SchemaOpenaiEval(BaseModel):
-    col_str_input: str = "input"
-    col_str_output: str = "output"
+    ...
 
 
 class OpenaiEval(BaseModel):
@@ -64,9 +64,7 @@ class OpenaiEvalExecutor:
     def _validate_data(self, data: pl.DataFrame) -> None:
         check_req_columns_present(data, self.op.schema_data)
 
-    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
-        self._validate_data(data)
-
+    def run(self, data: t.Optional[pl.DataFrame] = None) -> TYPE_OP_OUTPUT:
         registry = evals.registry.Registry()
         registry_path = os.path.join(self.op.bundle_path, "custom_registry")
         registry.add_registry_paths([registry_path])
@@ -77,11 +75,16 @@ class OpenaiEvalExecutor:
             eval_spec is not None
         ), f"Eval {eval_name} not found. Available: {list(sorted(registry._evals.keys()))}"
 
-        # NOTE: create a temporary file with the samples
-        path_samples_file = f"/tmp/{uuid.uuid4()}.jsonl"
-        with open(path_samples_file, "w") as samples_file:
-            samples_file.write(data.to_pandas().to_json(orient="records", lines=True))
-        eval_spec.args["samples_jsonl"] = path_samples_file
+        eval_name = eval_spec.key
+        assert eval_name is not None
+
+        # NOTE: create a temporary file with the samples if we are overriding the dataset
+        path_samples_file = None
+        if data is not None:
+            path_samples_file = f"/tmp/{uuid.uuid4()}.jsonl"
+            with open(path_samples_file, "w") as samples_file:
+                samples_file.write(data.write_ndjson())
+            eval_spec.args["samples_jsonl"] = path_samples_file
 
         # NOTE: add `custom_fns` to the python path"
         if self.op.bundle_path not in sys.path:
@@ -100,9 +103,6 @@ class OpenaiEvalExecutor:
             "command": "",
             "initial_settings": {"visible": True},
         }
-
-        eval_name = eval_spec.key
-        assert eval_name is not None
         run_spec = evals.base.RunSpec(
             completion_fns=completion_fns,
             eval_name=eval_name,
@@ -123,10 +123,11 @@ class OpenaiEvalExecutor:
             **extra_eval_params,
         )
         final_report = eval.run(recorder)
-        os.remove(path_samples_file)
 
+        if path_samples_file is not None:
+            os.remove(path_samples_file)
         return {
-            "output": None,
+            "output": None,  # events are of multiple kinds. Undecided how to handle them in a consistent schema yet
             "extra": {
                 "events": recorder.get_list_events(),
                 "run_data": recorder.get_run_data(),
@@ -136,56 +137,28 @@ class OpenaiEvalExecutor:
 
 
 # -----------------------------------------------------------
-# QnA-specific OpenAI eval operator
-# -----------------------------------------------------------
-
-
-class SchemaQnaEval(BaseModel):
-    col_context: str = "context"
-    col_question: str = "question"
-    col_answer: str = "answer"
-
-
-class QnaEval(BaseModel):
-    prompt_template: str
-    schema_data: SchemaQnaEval = SchemaQnaEval()
-
-    def make_executor(self) -> QnaEvalExecutor:
-        return QnaEvalExecutor(self)
-
-
-class QnaEvalExecutor:
-    op: QnaEval
-
-    def __init__(self, op: QnaEval):
-        self.op = op
-
-    def _validate_data(self, data: pa.Table) -> None:
-        check_req_columns_present(data, self.op.data_schema)
-
-    def run(self, data: pa.Table) -> TYPE_OP_OUTPUT:
-        self._validate_data(data)
-
-
-# -----------------------------------------------------------
 # Prompt eval operator
 # -----------------------------------------------------------
 
 
+class SchemaPromptEval(BaseModel):
+    ...
+
+
 class PromptEval(BaseModel):
     prompt_template: str
-    prompt_variables: list  # TODO: We can probably infer these from prompt template?
-    gt_variables: list
-    model: str
-    data_schema: SchemaOpenaiEval = SchemaOpenaiEval()
+    prompt_variables: list[str]
+    gt_variables: list[str]
+    model_name: str
+    schema_data: SchemaPromptEval = SchemaPromptEval()
+
+    @root_validator
+    def check_schema(cls, values):
+        if len(values["prompt_variables"]) < 1:
+            raise ValueError("Must specify at least 1 prompt variable")
 
     def make_executor(self) -> PromptEvalExecutor:
         return PromptEvalExecutor(self)
-
-    def _validate_schema(self) -> None:
-        # TODO: Add more checks
-        if len(self.prompt_variables) < 1:
-            raise Exception("")
 
 
 class PromptEvalExecutor:
@@ -194,27 +167,33 @@ class PromptEvalExecutor:
     def __init__(self, op: PromptEval):
         self.op = op
 
-    def _validate_data(self, data: pa.Table) -> None:
-        # TODO: This doesn't work as we need to give schema as input instead of list
-        check_req_columns_present(data, self.op.prompt_variables + self.op.gt_variables)
+    def _validate_data(self, data: pl.DataFrame) -> None:
+        for col in self.op.prompt_variables:
+            assert (
+                col in data.columns
+            ), f"Column for the prompt variable: {col} not found in input data."
+        for col in self.op.gt_variables:
+            assert (
+                col in data.columns
+            ), f"Column for the ground truth variable: {col} not found in input data."
 
-    def _construct_prompts(self, data: pa.Table) -> list:
-        prompts = []
-        dictn = data.to_pandas().to_dict(orient="records")
-        for row in dictn:
-            prompts.append({"input": self.op.prompt_template.format(**row)})
-        return pa.Table.from_pylist(prompts)
+    def _construct_prompts(self, data: pl.DataFrame) -> pl.DataFrame:
+        prompts = [
+            self.op.prompt_template.format(
+                **{k: row[k] for k in self.op.prompt_variables}
+            )
+            for row in data.rows(named=True)
+        ]
+        return pl.from_dict({"input": prompts})
 
-    def run(self, data: pa.Table) -> TYPE_OP_OUTPUT:
-        # self._validate_data(data)
+    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
+        self._validate_data(data)
         prompts = self._construct_prompts(data)
 
         eval_op = OpenaiEval(
             bundle_path="uptrain/uptrain_evals",
-            completion_name=self.op.model,
+            completion_name=self.op.model_name,
             eval_name="model_run_all",
         )
         results = eval_op.make_executor().run(prompts)
-        import pdb
-
-        pdb.set_trace()
+        return {"output": None, "extra": {}}
