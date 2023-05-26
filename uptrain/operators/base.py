@@ -9,16 +9,24 @@ import typing as t
 import typing_extensions as te
 
 from pydantic import BaseModel
-import pyarrow as pa
+import polars as pl
+
+__all__ = [
+    "TYPE_OP_INPUT",
+    "TYPE_OP_OUTPUT",
+    "check_req_columns_present",
+]
 
 # -----------------------------------------------------------
 # base classes for operators
 # -----------------------------------------------------------
 
+TYPE_OP_INPUT = t.Union[pl.DataFrame, pl.Series]
+
 
 class TYPE_OP_OUTPUT(te.TypedDict):
-    output: t.Union[None, pa.Table, pa.Array]
-    auxiliary: te.NotRequired[dict]
+    output: t.Union[None, pl.DataFrame, pl.Series]
+    extra: te.NotRequired[dict]
 
 
 @t.runtime_checkable
@@ -38,16 +46,20 @@ class OperatorExecutor(t.Protocol):
 
     op: Operator
 
-    def _validate_data(self, data: pa.Table) -> None:
+    def _validate_data(self, data: pl.DataFrame) -> None:
         """Validate that the input data is compatible with this operator."""
         raise NotImplementedError
 
-    def run(self, data: pa.Table, **kwargs) -> TYPE_OP_OUTPUT:
+    def run(self, data: pl.DataFrame, **kwargs) -> TYPE_OP_OUTPUT:
         raise NotImplementedError
 
 
-def check_req_columns_present(data: pa.Table, schema: BaseModel) -> None:
+def check_req_columns_present(
+    data: pl.DataFrame, schema: BaseModel, exclude: t.Optional[list[str]] = None
+) -> None:
     for attr, col in schema.dict().items():
+        if exclude is not None and attr in exclude:
+            continue
         assert (
-            col in data.column_names
+            col in data.columns
         ), f"Column: {col} for attribute: {attr} not found in input data."

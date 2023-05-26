@@ -11,10 +11,10 @@ import evals.record
 import evals.registry
 from loguru import logger
 from pydantic import BaseModel
-import pyarrow as pa
+import polars as pl
 
+from .base import *
 from uptrain.utilities import to_py_types
-from .base import check_req_columns_present, TYPE_OP_OUTPUT
 
 
 # -----------------------------------------------------------
@@ -27,31 +27,22 @@ class UptrainEvalRecorder(evals.record.RecorderBase):
     to temporary files.
     """
 
-    list_events: list[dict]
-    run_data: dict
+    _run_data: dict
 
     def __init__(self, run_spec: "evals.base.RunSpec"):
         super().__init__(run_spec)
-        self.list_events = []
-        self.run_data = to_py_types(run_spec)
+        self._run_data = to_py_types(run_spec)
 
-    def _flush_events_internal(self, events_to_write: t.Sequence["evals.record.Event"]):
-        try:
-            self.list_events.extend([to_py_types(event) for event in events_to_write])
-        except TypeError as e:
-            logger.error(f"Failed to serialize events: {events_to_write}")
-            raise e
-        self._last_flush_time = time.time()
-        self._flushes_done += 1
+    def get_list_events(self) -> list[dict]:
+        return [to_py_types(event) for event in self._events]
 
-    def record_final_report(self, final_report: t.Any):
-        self.run_data["final_report"] = to_py_types(final_report)
+    def get_run_data(self) -> dict:
+        return self._run_data
 
 
 class SchemaOpenaiEval(BaseModel):
     col_str_input: str = "input"
     col_str_output: str = "output"
-    col_result: str = "output"
 
 
 class OpenaiEval(BaseModel):
@@ -70,10 +61,10 @@ class OpenaiEvalExecutor:
     def __init__(self, op: OpenaiEval):
         self.op = op
 
-    def _validate_data(self, data: pa.Table) -> None:
-        check_req_columns_present(data, self.op.data_schema)
+    def _validate_data(self, data: pl.DataFrame) -> None:
+        check_req_columns_present(data, self.op.schema_data)
 
-    def run(self, data: pa.Table) -> TYPE_OP_OUTPUT:
+    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
         self._validate_data(data)
 
         registry = evals.registry.Registry()
@@ -132,13 +123,15 @@ class OpenaiEvalExecutor:
             **extra_eval_params,
         )
         final_report = eval.run(recorder)
-        recorder.record_final_report(final_report)
-        recorder.flush_events()  # NOTE: critical to flush events before exit
-
         os.remove(path_samples_file)
+
         return {
-            "auxiliary": recorder.run_data,
-            "output": pa.Table.from_pylist(recorder.list_events),
+            "output": None,
+            "extra": {
+                "events": recorder.get_list_events(),
+                "run_data": recorder.get_run_data(),
+                "final_report": to_py_types(final_report),
+            },
         }
 
 

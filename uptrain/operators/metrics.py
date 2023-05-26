@@ -6,18 +6,16 @@ from __future__ import annotations
 import typing as t
 
 from loguru import logger
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel
 import numpy as np
-import pyarrow as pa
+import polars as pl
 
 from .base import TYPE_OP_OUTPUT
-from uptrain.utilities import table_arrow_to_np_arrays, np_arrays_to_arrow_table
 
 
 class SchemaAccuracy(BaseModel):
     col_prediction: str = "prediction"
     col_ground_truth: str = "ground_truth"
-    col_result: str = "metric"
 
 
 class Accuracy(BaseModel):
@@ -34,15 +32,12 @@ class AccuracyExecutor:
     def __init__(self, op: Accuracy):
         self.op = op
 
-    def run(self, batch: pa.Table) -> TYPE_OP_OUTPUT:
-        [preds, gts] = table_arrow_to_np_arrays(
-            batch,
-            [self.op.schema_data.col_prediction, self.op.schema_data.col_ground_truth],
-        )
+    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
+        preds = data.get_column(self.op.schema_data.col_prediction)
+        gts = data.get_column(self.op.schema_data.col_ground_truth)
+
         if self.op.kind == "EQUAL":
             acc = np.equal(preds, gts)
         else:
             acc = np.abs(preds - gts)
-        return {
-            "output": np_arrays_to_arrow_table([acc], [self.op.schema_data.col_result])
-        }
+        return {"output": pl.Series(values=acc)}

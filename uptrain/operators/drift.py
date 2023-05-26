@@ -7,16 +7,15 @@ import typing as t
 
 from loguru import logger
 from pydantic import BaseModel, root_validator
-import numpy as np
-import pyarrow as pa
+import polars as pl
 
 try:
     import river
 except ImportError:
     river = None
 
-from .base import TYPE_OP_OUTPUT
-from uptrain.utilities import table_arrow_to_np_arrays, dependency_required
+from .base import *
+from uptrain.utilities import dependency_required
 
 
 class ParamsDDM(BaseModel):
@@ -81,11 +80,10 @@ class ConceptDriftExecutor:
         self.avg_accuracy = 0.0
         self.alert_info = None
 
-    def run(self, data: pa.Table) -> TYPE_OP_OUTPUT:
-        metric_array = table_arrow_to_np_arrays(
-            data, [self.op.schema_data.col_measure]
-        )[0]
-        for val in metric_array:
+    def run(self, data: TYPE_OP_INPUT) -> TYPE_OP_OUTPUT:
+        if isinstance(data, pl.DataFrame):
+            data = data.get_column(self.op.schema_data.col_measure)
+        for val in data:
             self.algo.update(val)
             if self.algo.drift_detected and self.alert_info is None:
                 msg = f"Drift detected using {self.op.algorithm}!"
@@ -98,7 +96,7 @@ class ConceptDriftExecutor:
         avg_accuracy = self.cuml_accuracy / self.counter if self.counter > 0 else 0.0
         return {
             "output": None,
-            "auxiliary": {
+            "extra": {
                 "counter": self.counter,
                 "avg_accuracy": avg_accuracy,
                 "alert_info": self.alert_info,

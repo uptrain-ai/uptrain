@@ -7,21 +7,17 @@ import re
 import typing as t
 
 from loguru import logger
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel
 import numpy as np
-import pyarrow as pa
+import polars as pl
 
 try:
     import openai
 except ImportError:
     openai = None
 
-from .base import TYPE_OP_OUTPUT
-from uptrain.utilities import (
-    array_np_to_arrow,
-    table_arrow_to_np_arrays,
-    dependency_required,
-)
+from .base import *
+from uptrain.utilities import dependency_required
 
 
 class SchemaGrammarScore(BaseModel):
@@ -67,7 +63,8 @@ class GrammarScoreExecutor:
             logger.exception("Failed to get score for text: {text}", text=text)
             return -1
 
-    def run(self, data: pa.Table) -> TYPE_OP_OUTPUT:
-        [text_strings] = table_arrow_to_np_arrays(data, [self.op.schema_data.col_text])
-        scores = np.asarray([self._get_score(t) for t in text_strings])
-        return {"output": array_np_to_arrow(scores)}
+    def run(self, data: TYPE_OP_INPUT) -> TYPE_OP_OUTPUT:
+        if isinstance(data, pl.DataFrame):
+            data = data.get_column(self.op.schema_data.col_text)
+        output = [self._get_score(t) for t in data]
+        return {"output": pl.Series(values=output)}
