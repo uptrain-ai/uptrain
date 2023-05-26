@@ -9,6 +9,7 @@ import functools
 
 import pydantic
 import numpy as np
+import numpy.typing as npt
 import pyarrow as pa
 
 # -----------------------------------------------------------
@@ -67,7 +68,7 @@ def jsonload(fp: t.Any, **kwargs) -> t.Any:
 # -----------------------------------------------------------
 
 
-def array_np_to_arrow(arr: np.ndarray) -> pa.Array:
+def array_np_to_arrow(arr: npt.NDArray) -> pa.Array:
     assert arr.ndim in (1, 2), "Only 1D and 2D arrays are supported."
     if arr.ndim == 1:
         return pa.array(arr)
@@ -78,15 +79,15 @@ def array_np_to_arrow(arr: np.ndarray) -> pa.Array:
         )
 
 
-def array_arrow_to_np(arr: pa.Array) -> np.ndarray:
+def array_arrow_to_np(arr: pa.Array) -> npt.NDArray:
     if isinstance(arr, pa.ChunkedArray):
         arr = arr.combine_chunks()
 
     if not pa.types.is_list(arr.type):
-        return arr.to_numpy()  # assume a 1D array
+        return arr.to_numpy(zero_copy_only=False)  # assume a 1D array
     else:
         dim1 = len(arr)  # assume a 2D array
-        return np.asarray(arr.values.to_numpy()).reshape(dim1, -1)
+        return np.asarray(arr.values.to_numpy(zero_copy_only=False)).reshape(dim1, -1)
 
 
 def arrow_batch_to_table(batch_or_tbl: t.Union[pa.Table, pa.RecordBatch]) -> pa.Table:
@@ -96,11 +97,13 @@ def arrow_batch_to_table(batch_or_tbl: t.Union[pa.Table, pa.RecordBatch]) -> pa.
         return batch_or_tbl
 
 
-def table_arrow_to_np_arrays(tbl: pa.Table, cols: list[str]) -> list[np.ndarray]:
-    return [array_arrow_to_np(tbl[c]) for c in cols]
+def table_arrow_to_np_arrays(
+    tbl: pa.Table, cols: list[t.Union[str, int]]
+) -> list[np.ndarray]:
+    return [array_arrow_to_np(tbl.column(c)) for c in cols]
 
 
-def np_arrays_to_arrow_table(arrays: list[np.ndarray], cols: list[str]) -> pa.Table:
+def np_arrays_to_arrow_table(arrays: list[npt.NDArray], cols: list[str]) -> pa.Table:
     return pa.Table.from_pydict(
         {c: array_np_to_arrow(arr) for c, arr in zip(cols, arrays)}
     )
@@ -137,7 +140,7 @@ class Clock:
     """
 
     behind_by: timedelta
-    tzone: Optional[tzinfo]
+    tzone: t.Optional[tzinfo]
 
     def __init__(self, init_at: datetime):
         tz = init_at.tzinfo
@@ -157,10 +160,10 @@ class Clock:
         seconds_behind = self.behind_by.total_seconds()
         if seconds_behind > 0:
             print(f"advancing the clock by {seconds} seconds")
-            self.behind_by = timedelta(seconds=max(seconds_behind - seconds, 0))
         else:
-            print("sleeping for 60 seconds")
+            print(f"sleeping for {seconds} seconds")
             time.sleep(seconds)
+        self.behind_by = timedelta(seconds=max(seconds_behind - seconds, 0))
 
 
 class Timer:
@@ -181,7 +184,7 @@ class Timer:
 # -----------------------------------------------------------
 
 
-def dependency_required(dependency_name, package_name: str):
+def dependency_required(dependency_obj, package_name: str):
     """Decorator for checks that need optional dependencies. If the dependency is not
     present, initializing the class will raise an error.
     """
@@ -190,7 +193,7 @@ def dependency_required(dependency_name, package_name: str):
         @functools.wraps(cls, updated=())
         class WrappedClass(cls):
             def __init__(self, *args, **kwargs):
-                if dependency_name is None:
+                if dependency_obj is None:
                     raise ImportError(
                         f"{package_name} is required to use {cls.__name__}. Please install it using: pip install {package_name}"
                     )
@@ -201,7 +204,7 @@ def dependency_required(dependency_name, package_name: str):
     return class_decorator
 
 
-def fn_dependency_required(dependency_name, package_name: str):
+def fn_dependency_required(dependency_obj, package_name: str):
     """Decorator for functions that need optional dependencies. If the dependency is not
     present, calling the function will raise an error.
     """
@@ -209,7 +212,7 @@ def fn_dependency_required(dependency_name, package_name: str):
     def fn_decorator(fn):
         @functools.wraps(fn)
         def wrapped_fn(*args, **kwargs):
-            if dependency_name is None:
+            if dependency_obj is None:
                 raise ImportError(
                     f"{package_name} is required to use {fn.__name__}. Please install it using: pip install {package_name}"
                 )

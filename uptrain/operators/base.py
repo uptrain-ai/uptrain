@@ -17,16 +17,15 @@ import pyarrow as pa
 
 
 class TYPE_OP_OUTPUT(te.TypedDict):
-    output: pa.Table
-    state: te.NotRequired[te.Any]
-    aux_output: te.NotRequired[dict]
+    output: t.Union[None, pa.Table, pa.Array]
+    auxiliary: te.NotRequired[dict]
 
 
 @t.runtime_checkable
 class Operator(t.Protocol):
     """Base class for all operators."""
 
-    data_schema: "BaseModel"
+    schema_data: "BaseModel"  # both input and output columns are defined here
 
     def make_executor(self) -> "OperatorExecutor":
         """Create a Ray actor for this operator."""

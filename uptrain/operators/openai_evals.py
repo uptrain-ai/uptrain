@@ -49,15 +49,16 @@ class UptrainEvalRecorder(evals.record.RecorderBase):
 
 
 class SchemaOpenaiEval(BaseModel):
-    col_input: str = "input"
-    col_output: str = "output"
+    col_str_input: str = "input"
+    col_str_output: str = "output"
+    col_result: str = "output"
 
 
 class OpenaiEval(BaseModel):
     bundle_path: str
     completion_name: str
     eval_name: str
-    data_schema: SchemaOpenaiEval = SchemaOpenaiEval()
+    schema_data: SchemaOpenaiEval = SchemaOpenaiEval()
 
     def make_executor(self) -> OpenaiEvalExecutor:
         return OpenaiEvalExecutor(self)
@@ -136,7 +137,7 @@ class OpenaiEvalExecutor:
 
         os.remove(path_samples_file)
         return {
-            "aux_output": recorder.run_data,
+            "auxiliary": recorder.run_data,
             "output": pa.Table.from_pylist(recorder.list_events),
         }
 
@@ -154,7 +155,7 @@ class SchemaQnaEval(BaseModel):
 
 class QnaEval(BaseModel):
     prompt_template: str
-    data_schema: SchemaQnaEval = SchemaQnaEval()
+    schema_data: SchemaQnaEval = SchemaQnaEval()
 
     def make_executor(self) -> QnaEvalExecutor:
         return QnaEvalExecutor(self)

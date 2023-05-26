@@ -13,7 +13,6 @@ import numpy as np
 import pyarrow as pa
 import pyarrow.compute as pc
 from pydantic import BaseModel
-import ray
 
 from .ops_base import (
     Operator,
