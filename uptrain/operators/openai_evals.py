@@ -172,3 +172,56 @@ class QnaEvalExecutor:
 
     def run(self, data: pa.Table) -> TYPE_OP_OUTPUT:
         self._validate_data(data)
+
+
+# -----------------------------------------------------------
+# Prompt eval operator
+# -----------------------------------------------------------
+
+
+class PromptEval(BaseModel):
+    prompt_template: str
+    prompt_variables: list  # TODO: We can probably infer these from prompt template?
+    gt_variables: list
+    model: str
+    data_schema: SchemaOpenaiEval = SchemaOpenaiEval()
+
+    def make_executor(self) -> PromptEvalExecutor:
+        return PromptEvalExecutor(self)
+
+    def _validate_schema(self) -> None:
+        # TODO: Add more checks
+        if len(self.prompt_variables) < 1:
+            raise Exception("")
+
+
+class PromptEvalExecutor:
+    op: PromptEval
+
+    def __init__(self, op: PromptEval):
+        self.op = op
+
+    def _validate_data(self, data: pa.Table) -> None:
+        # TODO: This doesn't work as we need to give schema as input instead of list
+        check_req_columns_present(data, self.op.prompt_variables + self.op.gt_variables)
+
+    def _construct_prompts(self, data: pa.Table) -> list:
+        prompts = []
+        dictn = data.to_pandas().to_dict(orient="records")
+        for row in dictn:
+            prompts.append({"input": self.op.prompt_template.format(**row)})
+        return pa.Table.from_pylist(prompts)
+
+    def run(self, data: pa.Table) -> TYPE_OP_OUTPUT:
+        # self._validate_data(data)
+        prompts = self._construct_prompts(data)
+
+        eval_op = OpenaiEval(
+            bundle_path="uptrain/uptrain_evals",
+            completion_name=self.op.model,
+            eval_name="model_run_all",
+        )
+        results = eval_op.make_executor().run(prompts)
+        import pdb
+
+        pdb.set_trace()
