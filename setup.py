@@ -41,6 +41,7 @@ setup(
     keywords="uptrain ai retraining ML observability",
     packages=find_packages(),
     install_requires=[
+        "tqdm>=4.0",
         "polars>=0.17",
         "deltalake>=0.9",
         "numpy>=1.23.0",

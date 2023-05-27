@@ -8,8 +8,8 @@ import typing as t
 
 from loguru import logger
 from pydantic import BaseModel
-import numpy as np
 import polars as pl
+import tqdm
 
 try:
     import openai
@@ -45,7 +45,7 @@ class GrammarScoreExecutor:
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are a grammatical correctnes evaluator who only gives only a number and no explanation.",
+                        "content": "You are a grammatical correctness evaluator who produces only a number and no explanation.",
                     },
                     {
                         "role": "user",
@@ -66,5 +66,5 @@ class GrammarScoreExecutor:
     def run(self, data: TYPE_OP_INPUT) -> TYPE_OP_OUTPUT:
         if isinstance(data, pl.DataFrame):
             data = data.get_column(self.op.schema_data.col_text)
-        output = [self._get_score(t) for t in data]
+        output = [self._get_score(t) for t in tqdm.tqdm(data)]
         return {"output": pl.Series(values=output)}

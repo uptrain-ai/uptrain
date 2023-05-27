@@ -19,7 +19,7 @@ class SchemaAccuracy(BaseModel):
 
 
 class Accuracy(BaseModel):
-    kind: t.Literal["EQUAL", "ABS_ERROR"]
+    kind: t.Literal["NOT_EQUAL", "ABS_ERROR"]
     schema_data: SchemaAccuracy = SchemaAccuracy()
 
     def make_executor(self):
@@ -36,8 +36,8 @@ class AccuracyExecutor:
         preds = data.get_column(self.op.schema_data.col_prediction)
         gts = data.get_column(self.op.schema_data.col_ground_truth)
 
-        if self.op.kind == "EQUAL":
-            acc = np.equal(preds, gts)
+        if self.op.kind == "NOT_EQUAL":
+            acc = np.not_equal(preds, gts)
         else:
             acc = np.abs(preds - gts)
         return {"output": pl.Series(values=acc)}

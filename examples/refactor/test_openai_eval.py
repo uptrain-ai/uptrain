@@ -1,3 +1,7 @@
+"""
+You must have the `dummy_server_openai_eval` running in the background to run this example.
+"""
+
 from uptrain.io.readers import JsonReader
 from uptrain.operators.openai_evals import OpenaiEval
 
