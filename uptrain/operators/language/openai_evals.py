@@ -13,7 +13,7 @@ from loguru import logger
 from pydantic import BaseModel, root_validator
 import polars as pl
 
-from .base import *
+from uptrain.operators.base import *
 from uptrain.utilities import to_py_types
 
 

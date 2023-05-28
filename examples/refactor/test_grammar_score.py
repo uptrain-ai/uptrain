@@ -3,7 +3,7 @@ To run this example, you must have the `OPENAI_API_KEY` environment variable set
 """
 
 from uptrain.io.readers import JsonReader
-from uptrain.operators.grammar import GrammarScore
+from uptrain.operators.language import GrammarScore
 
 # -----------------------------------------------------------
 # Set up the dataset first
