@@ -35,8 +35,8 @@ class Operator(t.Protocol):
 
     schema_data: "BaseModel"  # both input and output columns are specified here
 
-    def make_executor(self) -> "OperatorExecutor":
-        """Create a Ray actor for this operator."""
+    def make_executor(self, settings: t.Any) -> "OperatorExecutor":
+        """Create am executor for this operator."""
         raise NotImplementedError
 
 
@@ -45,6 +45,7 @@ class OperatorExecutor(t.Protocol):
     """Base class for all operator executors."""
 
     op: Operator
+    _settings: t.Any
 
     def _validate_data(self, data: pl.DataFrame) -> None:
         """Validate that the input data is compatible with this operator."""
