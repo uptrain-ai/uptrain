@@ -2,6 +2,7 @@
 To run this example, you must have the `OPENAI_API_KEY` environment variable set.
 """
 
+from uptrain.framework.config import Config
 from uptrain.io.readers import JsonReader
 from uptrain.operators.language import GrammarScore
 
@@ -70,12 +71,12 @@ with open("/tmp/samples.jsonl", "w") as f:
         f.write("\n")
 
 # -----------------------------------------------------------
-# Uptrain evaluation part
+# Uptrain evaluation part - combine operators yourself
 # -----------------------------------------------------------
 
-reader = JsonReader(fpath="/tmp/samples.jsonl")
-score_op = GrammarScore(schema_data={"col_text": "answer"})
+# reader = JsonReader(fpath="/tmp/samples.jsonl")
+# score_op = GrammarScore(schema_data={"col_text": "answer"})
 
-input_dataset = reader.make_executor().run()
-results = score_op.make_executor().run(input_dataset)
-print(results)
+# input_dataset = reader.make_executor().run()
+# results = score_op.make_executor().run(input_dataset)
+# print(results)

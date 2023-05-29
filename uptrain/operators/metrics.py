@@ -11,6 +11,7 @@ import numpy as np
 import polars as pl
 
 from .base import TYPE_OP_OUTPUT
+from uptrain.framework.config import Settings
 
 
 class SchemaAccuracy(BaseModel):
@@ -22,7 +23,7 @@ class Accuracy(BaseModel):
     kind: t.Literal["NOT_EQUAL", "ABS_ERROR"]
     schema_data: SchemaAccuracy = SchemaAccuracy()
 
-    def make_executor(self):
+    def make_executor(self, settings: t.Optional[Settings] = None):
         return AccuracyExecutor(self)
 
 

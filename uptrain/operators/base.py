@@ -8,12 +8,16 @@ from __future__ import annotations
 import typing as t
 import typing_extensions as te
 
+if t.TYPE_CHECKING:
+    from uptrain.framework.config import Settings
+
 from pydantic import BaseModel
 import polars as pl
 
 __all__ = [
     "TYPE_OP_INPUT",
     "TYPE_OP_OUTPUT",
+    "Operator",
     "check_req_columns_present",
 ]
 
@@ -29,23 +33,23 @@ class TYPE_OP_OUTPUT(te.TypedDict):
     extra: te.NotRequired[dict]
 
 
-@t.runtime_checkable
 class Operator(t.Protocol):
     """Base class for all operators."""
 
-    schema_data: "BaseModel"  # both input and output columns are specified here
+    # both input and output columns are specified here
+    schema_data: t.Optional["BaseModel"]
 
-    def make_executor(self, settings: t.Any) -> "OperatorExecutor":
+    def make_executor(
+        self, settings: t.Optional["Settings"] = None
+    ) -> "OperatorExecutor":
         """Create am executor for this operator."""
         raise NotImplementedError
 
 
-@t.runtime_checkable
 class OperatorExecutor(t.Protocol):
     """Base class for all operator executors."""
 
     op: Operator
-    _settings: t.Any
 
     def _validate_data(self, data: pl.DataFrame) -> None:
         """Validate that the input data is compatible with this operator."""

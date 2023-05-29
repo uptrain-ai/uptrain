@@ -10,6 +10,7 @@ from loguru import logger
 from pydantic import BaseModel
 import polars as pl
 
+from uptrain.framework.config import *
 from uptrain.operators.base import *
 from uptrain.operators.language.llm import LLMMulticlient, Payload
 
@@ -18,20 +19,21 @@ class SchemaGrammarScore(BaseModel):
     col_text: str = "text"
 
 
+@register_op
 class GrammarScore(BaseModel):
     schema_data: SchemaGrammarScore = SchemaGrammarScore()
 
-    def make_executor(self):
-        return GrammarScoreExecutor(self)
+    def make_executor(self, settings: t.Optional[Settings] = None):
+        return GrammarScoreExecutor(self, settings)
 
 
 class GrammarScoreExecutor:
     op: GrammarScore
     api_client: LLMMulticlient
 
-    def __init__(self, op: GrammarScore):
+    def __init__(self, op: GrammarScore, settings: t.Optional[Settings] = None):
         self.op = op
-        self.api_client = LLMMulticlient(concurrency=4)
+        self.api_client = LLMMulticlient(concurrency=4, settings=settings)
 
     def _make_payload(self, id: t.Any, text: str) -> Payload:
         return Payload(

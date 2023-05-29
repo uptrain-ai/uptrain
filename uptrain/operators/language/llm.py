@@ -20,6 +20,7 @@ import tenacity
 import tqdm
 from pydantic import BaseModel, Field
 
+from uptrain.framework.config import Settings
 from uptrain.operators.base import *
 from uptrain.utilities import dependency_required
 
@@ -67,12 +68,17 @@ def process_payload(payload: Payload) -> Payload:
 
 @dependency_required(openai, "openai")
 class LLMMulticlient:
-    def __init__(self, concurrency=5, max_retries=2):
+    def __init__(
+        self, concurrency=5, max_retries=2, settings: t.Optional[Settings] = None
+    ):
         self._max_retries = max_retries
         self._concurrency = concurrency
 
         self._num_active_requests = 0
         self._lock = threading.Lock()
+
+        if settings is not None:
+            openai.api_key = settings.openai_api_key
 
     def worker_available(self):
         """TODO: Add request/min and tokens/min checks to this."""

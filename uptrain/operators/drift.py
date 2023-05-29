@@ -15,6 +15,7 @@ except ImportError:
     river = None
 
 from .base import *
+from uptrain.framework.config import Settings
 from uptrain.utilities import dependency_required
 
 
@@ -55,7 +56,7 @@ class ConceptDrift(BaseModel):
             )
         return values
 
-    def make_executor(self):
+    def make_executor(self, settings: t.Optional[Settings] = None):
         return ConceptDriftExecutor(self)
 
 

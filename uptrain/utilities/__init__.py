@@ -19,15 +19,17 @@ import pyarrow as pa
 
 
 def to_py_types(obj: t.Any) -> t.Any:
-    # for nested dataclasses/pydantic models
+    # for nested dataclasses/pydantic models/operators
     if isinstance(obj, dict):
         return {k: to_py_types(v) for k, v in obj.items()}
     elif isinstance(obj, list):
         return [to_py_types(v) for v in obj]
     elif dataclasses.is_dataclass(obj):
         return to_py_types(dataclasses.asdict(obj))
+    elif isinstance(obj, pydantic.BaseModel) and getattr(obj, "_is_operator", False):
+        return {"operator": obj.__class__.__name__, "params": obj.dict()}
     elif isinstance(obj, pydantic.BaseModel):
-        return json.loads(obj.json())
+        return obj.dict()
 
     # for numpy types
     if isinstance(obj, np.integer):

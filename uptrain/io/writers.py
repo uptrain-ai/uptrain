@@ -5,15 +5,21 @@ from pydantic import BaseModel
 import polars as pl
 import deltalake as dl
 
+from uptrain.framework.config import *
+
 
 # -----------------------------------------------------------
 # Write to a Delta Table
 # -----------------------------------------------------------
 
 
+@register_op
 class DeltaWriter(BaseModel):
     fpath: str
     columns: t.Optional[list[str]] = None
+
+    def make_executor(self, settings: t.Optional[Settings] = None):
+        return DeltaWriterExecutor(self)
 
 
 class DeltaWriterExecutor:

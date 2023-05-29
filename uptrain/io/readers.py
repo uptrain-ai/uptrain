@@ -5,24 +5,29 @@ from pydantic import BaseModel
 import polars as pl
 import deltalake as dl
 
+from uptrain.framework.config import *
+
 # -----------------------------------------------------------
 # Read from text file formats - csv and json
 # -----------------------------------------------------------
 
 
+@register_op
 class CsvReader(BaseModel):
     fpath: str
     batch_size: t.Optional[int] = None
+    schema_data: t.Optional[BaseModel] = None
 
-    def make_executor(self):
+    def make_executor(self, settings: t.Optional[Settings] = None):
         return TextReaderExecutor(self)
 
 
+@register_op
 class JsonReader(BaseModel):
     fpath: str
     batch_size: t.Optional[int] = None
 
-    def make_executor(self):
+    def make_executor(self, settings: t.Optional[Settings] = None):
         return TextReaderExecutor(self)
 
 
@@ -54,11 +59,12 @@ class TextReaderExecutor:
 # -----------------------------------------------------------
 
 
+@register_op
 class DeltaReader(BaseModel):
     fpath: str
     batch_split: bool = False  # whether we want to read one record batch at a time
 
-    def make_executor(self):
+    def make_executor(self, settings: t.Optional[Settings] = None):
         return DeltaReaderExecutor(self)
 
 

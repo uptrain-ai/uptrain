@@ -1,8 +1,17 @@
 import typing as t
 from functools import partial
 
-from pydantic import BaseModel, BaseSettings, Field
+from pydantic import BaseSettings, Field
+
 from uptrain.operators.base import Operator
+from uptrain.utilities import jsonload, jsondump
+
+__all__ = [
+    "register_op",
+    "register_op_external",
+    "Config",
+    "Settings",
+]
 
 # -----------------------------------------------------------
 # Create a registry for operators defined through the Uptrain
@@ -16,11 +25,8 @@ class OperatorRegistry:
 
     @classmethod
     def register_operator(cls, name: str, operator_klass: t.Any):
-        if not issubclass(operator_klass, Operator):
-            raise ValueError(
-                f"{operator_klass.__name__} doesn't follow the Operator protocol."
-            )
         cls._registry[name] = operator_klass
+        operator_klass._is_operator = True  # helps with deserialization
 
     @classmethod
     def get_operator(cls, name: str):
@@ -30,49 +36,81 @@ class OperatorRegistry:
         return operator_klass
 
 
-def _register_operator(
-    cls: t.Type[Operator], namespace: t.Optional[str]
-) -> t.Type[Operator]:
-    key = cls.__name__
+T = t.TypeVar("T")
+
+
+def _register_operator(cls: T, namespace: t.Optional[str] = None) -> T:
+    key = cls.__name__  # type: ignore
     if namespace is not None:
         key = f"{namespace}:{key}"
     OperatorRegistry.register_operator(key, cls)
     return cls
 
 
-def register_operator(namespace: t.Optional[str] = None):
-    """Decorator to register an operator with Uptrain's registry.
+def register_op(cls: T) -> T:
+    """Decorator to register an operator with Uptrain's registry. Meant for internal use only."""
+    return _register_operator(cls, namespace="uptrain")
 
-    Args:
-        namespace (t.Optional[str], optional): Namespace to register the operator under. Defaults to None.
-    """
+
+def register_op_external(namespace: str):
+    """Decorator to register custom operators with Uptrain's registry."""
     return partial(_register_operator, namespace=namespace)
 
 
-class Pipeline(BaseModel):
-    elements: list[t.Union[Operator, list[Operator]]]
-
-    def check_elements(cls, values):
-        elements = values["elements"]
-        if len(elements) == 0:
-            raise ValueError("Expected at least one element in the pipeline")
-        for i, elem in enumerate(elements):
-            if i != len(elements) - 1:
-                if not isinstance(elem, Operator):
-                    raise ValueError(
-                        f"Expected elements of the pipeline besides the end to be of type `Operator`"
-                    )
-        return values
-
-
 class Settings(BaseSettings):
-    # general
-    logs_folder: str
+    # uptrain stores logs in this folder
+    logs_folder: str = "/tmp/uptrain_logs"
 
     # external api auth
     openai_api_key: str = Field(..., env="OPENAI_API_KEY")
+
+    def check_and_get(self, key: str) -> str:
+        """Check if a value is present in the settings and return it."""
+        value = getattr(self, key)
+        if value is None:
+            raise ValueError(f"Expected value for {key} to be present in the settings.")
+        return value
 
 
 class Config:
     checks: list[list[t.Union[Operator, tuple[Operator]]]]
     settings: Settings
+
+    def __init__(self, checks: list[t.Any], settings: Settings):
+        self.checks = checks
+        self.settings = settings
+
+    @classmethod
+    def _deserialize_check(cls, step: dict) -> Operator:
+        operator_klass = OperatorRegistry.get_operator(step["operator"])
+        return operator_klass(**step["params"])  # type: ignore
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "Config":
+        checks = []
+        for check in data.get("checks", []):
+            steps = []
+            num_steps = len(check)
+            for i, step in check:
+                if i == num_steps - 1:
+                    if isinstance(step, (list, tuple)):
+                        steps.append(
+                            [cls._deserialize_check(sub_step) for sub_step in step]
+                        )
+                    else:
+                        steps.append(cls._deserialize_check(step))
+                else:
+                    assert isinstance(
+                        step, dict
+                    ), "Only the last step of a check can be multiple operators"
+                    steps.append(cls._deserialize_check(step))
+
+        settings = Settings(**data["settings"])
+        return cls(checks=checks, settings=settings)
+
+    @classmethod
+    def deserialize(cls, fpath: str) -> "Config":
+        return cls.from_dict(jsonload(fpath))
+
+    def serialize(self, fpath: str) -> None:
+        jsondump({"checks": self.checks, "settings": self.settings}, fpath)
