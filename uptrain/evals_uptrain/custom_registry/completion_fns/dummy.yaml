@@ -1,0 +1,2 @@
+dummy:
+  class: evals.completion_fns.dummy:DummyCompletionFn
