@@ -29,5 +29,5 @@ reader = JsonReader(
 )
 samples = reader.make_executor().run()
 results = manager.run(samples)
-import pdb; pdb.set_trace()
 
+results.write_csv("llm_results.csv")

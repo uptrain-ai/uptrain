@@ -90,25 +90,30 @@ class ExperimentManager:
             return all_prompt_templates
 
     def run(self, samples):
-        final_res = {}
+        final_results = pl.DataFrame()
         for exp in self.experiments:
             results = exp.make_executor().run(samples)
             results = pl.from_dict({
-                'prompt': [x['prompt'] for x in results['extra']['final_report']],
+                'prompt': [str(x['prompt'][0]) for x in results['extra']['final_report']],
                 'sampled': [x['sampled'][0] for x in results['extra']['final_report']]
             })
+
+            # GRAMMAR SCORE
             score_op = GrammarScore(schema_data={"col_text": "sampled"})
             grammar_results = score_op.make_executor().run(results)
-
-            import pdb; pdb.set_trace()
+            # Add gramar scores to the results
+            results = results.with_columns(pl.lit(list(grammar_results.values())[0]).alias("grammar_score"))
+        
+            # MODEL GRADING SCORE
             score_op1 = ModelGradingScore(schema_data={"col_prompt": "prompt", "col_answer": "sampled", "col_ideal": "sampled"})
             model_grading_results = score_op1.make_executor().run(results)
-            final_res.update({
-                exp.prompt_template: {
-                    'model_outputs': results.to_dict(),
-                    'grammar': grammar_results.to_dict()
-                }
-            })
-            import pdb; pdb.set_trace()
+            # Add model grading scores to the results
+            results = results.with_columns(pl.lit(list(model_grading_results.values())[0]).alias("model_grading_score"))
 
-        return results
+            # Add results to final_results
+            if final_results.is_empty():
+                final_results = results
+            else:
+                final_results.extend(results)            
+
+        return final_results
