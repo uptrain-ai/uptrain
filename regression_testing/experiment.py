@@ -98,6 +98,9 @@ class ExperimentManager:
                 'sampled': [x['sampled'][0] for x in results['extra']['final_report']]
             })
 
+            # Add model to the results
+            results = results.with_columns(pl.lit(exp.model).alias("model"))
+    
             # GRAMMAR SCORE
             score_op = GrammarScore(schema_data={"col_text": "sampled"})
             grammar_results = score_op.make_executor().run(results)
