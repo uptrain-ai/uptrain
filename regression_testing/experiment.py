@@ -98,6 +98,10 @@ class ExperimentManager:
                 'sampled': [x['sampled'][0] for x in results['extra']['final_report']]
             })
 
+            # Add concept and feature to the results
+            for attr in samples.columns:
+                results = results.with_columns(pl.lit(samples.get_column(attr)))
+
             # Add model to the results
             results = results.with_columns(pl.lit(exp.model).alias("model"))
     
@@ -112,6 +116,9 @@ class ExperimentManager:
             model_grading_results = score_op1.make_executor().run(results)
             # Add model grading scores to the results
             results = results.with_columns(pl.lit(list(model_grading_results.values())[0]).alias("model_grading_score"))
+
+            # Remove prompt columns
+            results = results.drop("prompt")
 
             # Add results to final_results
             if final_results.is_empty():
