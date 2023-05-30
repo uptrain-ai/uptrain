@@ -81,10 +81,10 @@ class ConceptDriftExecutor:
         self.avg_accuracy = 0.0
         self.alert_info = None
 
-    def run(self, data: TYPE_OP_INPUT) -> TYPE_OP_OUTPUT:
-        if isinstance(data, pl.DataFrame):
-            data = data.get_column(self.op.schema_data.col_measure)
-        for val in data:
+    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
+        ser = data.get_column(self.op.schema_data.col_measure)
+
+        for val in ser:
             self.algo.update(val)
             if self.algo.drift_detected and self.alert_info is None:
                 msg = f"Drift detected using {self.op.algorithm}!"

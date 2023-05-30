@@ -7,7 +7,7 @@ import re
 import typing as t
 
 from loguru import logger
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import polars as pl
 
 from uptrain.framework.config import *
@@ -21,7 +21,7 @@ class SchemaGrammarScore(BaseModel):
 
 @register_op
 class GrammarScore(BaseModel):
-    schema_data: SchemaGrammarScore = SchemaGrammarScore()
+    schema_data: SchemaGrammarScore = Field(default_factory=SchemaGrammarScore)
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return GrammarScoreExecutor(self, settings)
@@ -56,11 +56,10 @@ class GrammarScoreExecutor:
             metadata={"index": id},
         )
 
-    def run(self, data: TYPE_OP_INPUT) -> TYPE_OP_OUTPUT:
-        if isinstance(data, pl.DataFrame):
-            data = data.get_column(self.op.schema_data.col_text)
+    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
+        text_ser = data.get_column(self.op.schema_data.col_text)
         input_payloads = [
-            self._make_payload(idx, text) for idx, text in enumerate(data)
+            self._make_payload(idx, text) for idx, text in enumerate(text_ser)
         ]
         output_payloads = self.api_client.fetch_responses(input_payloads)
 
@@ -79,6 +78,8 @@ class GrammarScoreExecutor:
                 resp_text = res.response["choices"][0]["message"]["content"]
                 number = int(re.findall(r"\d+", resp_text)[0])
                 results.append((idx, number))
-        results = [val for idx, val in sorted(results, key=lambda x: x[0])]
 
-        return {"output": pl.Series(values=results)}
+        result_scores = pl.Series(
+            [val for _, val in sorted(results, key=lambda x: x[0])]
+        )
+        return {"output": add_output_cols_to_data(data, [result_scores])}

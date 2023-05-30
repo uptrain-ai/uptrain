@@ -10,7 +10,7 @@ from pydantic import BaseModel
 import numpy as np
 import polars as pl
 
-from .base import TYPE_OP_OUTPUT
+from .base import *
 from uptrain.framework.config import Settings
 
 
@@ -41,4 +41,6 @@ class AccuracyExecutor:
             acc = np.not_equal(preds, gts)
         else:
             acc = np.abs(preds - gts)
-        return {"output": pl.Series(values=acc)}
+
+        acc = pl.Series(acc)
+        return {"output": add_output_cols_to_data(data, [acc])}

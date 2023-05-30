@@ -2,7 +2,7 @@
 To run this example, you must have the `OPENAI_API_KEY` environment variable set.
 """
 
-from uptrain.framework.config import Config
+from uptrain.framework.config import Check, Config, Settings
 from uptrain.io.readers import JsonReader
 from uptrain.operators.language import GrammarScore
 
@@ -80,3 +80,26 @@ with open("/tmp/samples.jsonl", "w") as f:
 # input_dataset = reader.make_executor().run()
 # results = score_op.make_executor().run(input_dataset)
 # print(results)
+
+
+# -----------------------------------------------------------
+# Uptrain evaluation part - writing and executing a config
+# -----------------------------------------------------------
+
+# Define the config
+check = Check(
+    compute=[
+        {
+            "output_cols": ["score"],
+            "operator": GrammarScore(schema_data={"col_text": "answer"}),
+        }
+    ],
+    source=JsonReader(fpath="/tmp/samples.jsonl"),
+)
+
+cfg = Config(checks=[check], settings=Settings())
+
+# Execute the config
+for check in cfg.checks:
+    results = check.make_executor(cfg.settings).run()
+    print(results)

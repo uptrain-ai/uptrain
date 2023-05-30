@@ -26,8 +26,8 @@ def to_py_types(obj: t.Any) -> t.Any:
         return [to_py_types(v) for v in obj]
     elif dataclasses.is_dataclass(obj):
         return to_py_types(dataclasses.asdict(obj))
-    elif isinstance(obj, pydantic.BaseModel) and getattr(obj, "_is_operator", False):
-        return {"operator": obj.__class__.__name__, "params": obj.dict()}
+    elif isinstance(obj, pydantic.BaseModel) and hasattr(obj, "_uptrain_op_name"):
+        return {"op_name": getattr(obj, "_uptrain_op_name"), "params": obj.dict()}
     elif isinstance(obj, pydantic.BaseModel):
         return obj.dict()
 
