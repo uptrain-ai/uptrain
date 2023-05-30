@@ -6,7 +6,7 @@ reader = JsonReader(
 
 samples = reader.make_executor().run()
 
-from uptrain.operators.openai_evals import PromptEval
+from uptrain.operators.language.openai_evals import PromptEval
 
 eval_op = PromptEval(
     prompt_template="Imagine you are a school teacher who will explain the given concept in 10 words only. Explain {concept}: ",
