@@ -334,6 +334,21 @@ def display_model_comparison():
     st.header("User View")
     st.dataframe(df_user)
 
+    st.text("Note: The values shown by the below comparison(s) are mean values")
+
+    compare_model_scores = st.checkbox("Compare Overall Model Scores")
+    if compare_model_scores:
+        st.dataframe(pd.pivot_table(df, index=["model"], values="score", columns=["metric"], aggfunc=np.mean))
+
+    compare_model_features_scores = st.checkbox("Compare Model Scores for Features")
+    if compare_model_features_scores:
+        st.dataframe(pd.pivot_table(df, index=["feature", "model"], values="score", columns=["metric"], aggfunc=np.mean))
+
+    compare_model_concepts_scores = st.checkbox("Compare Model Scores for Concepts")
+    if compare_model_concepts_scores:
+        st.dataframe(pd.pivot_table(df, index=["concept", "model"], values="score", columns=["metric"], aggfunc=np.mean))
+display_model_comparison()
+
 def plot_dashboard(check: dict, model_variant: dict, feature_filters: dict):
     if check["type"] == "distance":
         plot_check_distance(check, model_variant, feature_filters)
