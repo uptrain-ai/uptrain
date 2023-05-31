@@ -10,7 +10,7 @@ user_inputs = {
     },
     'dataset_args': {
         'file_name': "/Users/sourabhagrawal/Desktop/codes/llm/uptrain_experiments/uptrain/concepts.jsonl",
-        'input_variables': ['concept'],
+        'input_variables': ['concept', 'feature'],
         'target_variables': ['ideal']
     },
     'evaluation_args': [
