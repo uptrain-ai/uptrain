@@ -265,6 +265,9 @@ def display_model_comparison():
     feature_filter = filter_template("feature", True)
     metric_filter = filter_template("metric")
 
+    # Option to hide output
+    st.text("Output Visibility")
+    hide_output = st.checkbox("Hide Output", value=False)
 
     # Apply filters
     df_selection = df.query(
@@ -306,13 +309,14 @@ def display_model_comparison():
 
     # Output is unique for unique (input_idx, model pairs)
     # Add Output
-    for i in range(len(unique_input_idx)):
-        for j in range(len(model_filter)):
-            row = df_selection.query(f"input_idx == @unique_input_idx[{i}] & model == @model_filter[{j}]")
-            if row.size:
-                df_user.at[i, f"output - {j}"] = list(row["output"])[0]
-            else:
-                df_user.at[i, f"output - {j}"] = None
+    if not hide_output:
+        for i in range(len(unique_input_idx)):
+            for j in range(len(model_filter)):
+                row = df_selection.query(f"input_idx == @unique_input_idx[{i}] & model == @model_filter[{j}]")
+                if row.size:
+                    df_user.at[i, f"output - {j}"] = list(row["output"])[0]
+                else:
+                    df_user.at[i, f"output - {j}"] = None
 
     # Add Metrics as Columns
     for i in range(len(unique_input_idx)):
