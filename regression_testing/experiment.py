@@ -95,7 +95,7 @@ class ExperimentManager:
             results = exp.make_executor().run(samples)
             results = pl.from_dict({
                 'prompt': [str(x['prompt'][0]) for x in results['extra']['final_report']],
-                'sampled': [x['sampled'][0] for x in results['extra']['final_report']]
+                'output': [x['sampled'][0] for x in results['extra']['final_report']]
             })
 
             # Add concept and feature to the results
