@@ -10,6 +10,7 @@ import numpy as np
 import plotly.express as px
 
 from uptrain.core.lib.helper_funcs import make_dir_friendly_name
+from uptrain.io.readers import CsvReader
 
 # -----------------------------------------------------------
 # Set up layout of the dashboard and the sidebar
@@ -236,6 +237,98 @@ def plot_visual_umap(check: dict, model_variant: dict, feature_filters: dict):
         raise Exception("Umap dimension not 2D or 3D")
     st.plotly_chart(fig, use_container_width=True)
 
+def display_model_comparison():
+
+    # Read the results from the csv
+    reader = CsvReader(
+        fpath='/home/insatanic/_MyFolders/uptrain/experiments-uptrain/llm_results.csv'
+    )
+
+    # Create dataframe
+    df = reader.make_executor().run().to_pandas()
+
+    # ---- FILTERING ----
+    def filter_template(attribute, default_all=False):
+        container = st.container()
+        all = st.checkbox(f"Select all {attribute}", value=default_all)
+        
+        if all:
+            selected_options = container.multiselect("Select one or more options:",
+                df[attribute].unique(),df[attribute].unique())
+        else:
+            selected_options =  container.multiselect("Select one or more options:",
+                df[attribute].unique())
+        return selected_options
+
+    # Create filters
+    model_filter = filter_template("model")
+    feature_filter = filter_template("feature", True)
+    metric_filter = filter_template("metric")
+
+
+    # Apply filters
+    df_selection = df.query(
+        "model == @model_filter & feature == @feature_filter & metric == @metric_filter"
+    )
+
+    # ---- INTERNAL STORAGE ----
+    # st.header("Internal Storage")
+    # st.dataframe(df_selection)
+
+    # ---- USER VIEW ---- 
+
+    # Get the unique input_idx
+    unique_input_idx = sorted(df["input_idx"].unique())
+
+    # Create a dataframe for the user view
+    df_user = pd.DataFrame({"input_idx": unique_input_idx})
+
+    # Add Input Variables
+    for i in range(len(unique_input_idx)):
+        row = df.query(f"input_idx == @unique_input_idx[{i}]")
+        df_user.at[i, "concept"] = list(row["concept"])[0]
+        df_user.at[i, "persona"] = list(row["persona"])[0]
+        feature = list(row["feature"])[0]
+        if feature_filter and feature in feature_filter:
+            df_user.at[i, "feature"] = feature
+
+    # Apply feature filter
+    try:
+        if df_user["feature"] is not None:
+            df_user = df_user[df_user["feature"].isin(feature_filter)]
+    except KeyError:
+        raise KeyError("No feature is Chosen")
+
+    # Add the models as columns to the dataframe
+    for i in range(len(model_filter)):
+        model = model_filter[i]
+        df_user[f"model - {i}"] = model
+
+    # Output is unique for unique (input_idx, model pairs)
+    # Add Output
+    for i in range(len(unique_input_idx)):
+        for j in range(len(model_filter)):
+            row = df_selection.query(f"input_idx == @unique_input_idx[{i}] & model == @model_filter[{j}]")
+            if row.size:
+                df_user.at[i, f"output - {j}"] = list(row["output"])[0]
+            else:
+                df_user.at[i, f"output - {j}"] = None
+
+    # Add Metrics as Columns
+    for i in range(len(unique_input_idx)):
+        input_idx = unique_input_idx[i]
+        for j in range(len(metric_filter)):
+            metric = metric_filter[j]
+            for k in range(len(model_filter)):
+                model = model_filter[k]
+                row = df_selection.query(f"input_idx == @input_idx & model == @model & metric == @metric")
+                if row.size:
+                    df_user.at[i, f"{metric} - {k}"] = list(row["score"])[0]
+                else:
+                    df_user.at[i, f"{metric} - {k}"] = None
+
+    st.header("User View")
+    st.dataframe(df_user)
 
 def plot_dashboard(check: dict, model_variant: dict, feature_filters: dict):
     if check["type"] == "distance":
@@ -244,6 +337,8 @@ def plot_dashboard(check: dict, model_variant: dict, feature_filters: dict):
         plot_check_convergence(check, model_variant, feature_filters)
     elif check["type"] in ("UMAP", "t-SNE"):
         plot_visual_umap(check, model_variant, feature_filters)
+    elif check["type"] == "model_comparison":
+        display_model_comparison()
     else:
         st.warning(f"Checks of type: {check['type']} are not supported yet.")
 
