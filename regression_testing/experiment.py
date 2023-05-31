@@ -110,13 +110,13 @@ class ExperimentManager:
             score_op = GrammarScore(schema_data={"col_text": "output"})
             grammar_results = score_op.make_executor().run(results)
             # Add gramar scores to the results
-            results = results.with_columns(pl.lit(list(grammar_results.values())[0]).alias("grammar_score"))
+            results = results.with_columns(pl.lit("grammar").alias("metric"), pl.lit(list(grammar_results.values())[0]).alias("score"))
         
             # MODEL GRADING SCORE
             score_op1 = ModelGradingScore(schema_data={"col_prompt": "prompt", "col_answer": "output", "col_ideal": "output"})
             model_grading_results = score_op1.make_executor().run(results)
             # Add model grading scores to the results
-            results = results.with_columns(pl.lit(list(model_grading_results.values())[0]).alias("model_grading_score"))
+            results = results.extend(results.with_columns(pl.lit("model_grading").alias("metric"), pl.lit(list(model_grading_results.values())[0]).alias("score")))
 
             # Remove prompt columns
             results = results.drop("prompt")
