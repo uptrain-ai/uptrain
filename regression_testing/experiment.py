@@ -133,5 +133,19 @@ class ExperimentManager:
             .apply(lambda idx: self.personas[idx])
             .alias("persona")
         )
+        final_results = final_results.drop("row_nr")
+
+        # Add input_idx as unique tuples of (concept, feature, persona)
+        inputs = list(zip(final_results["concept"], final_results["feature"], final_results["persona"]))
+        input_id_map = {}
+        i = 0
+        for input in inputs:
+            if input not in input_id_map:
+                input_id_map[input] = i
+                i += 1
+        inputs = [input_id_map[input] for input in inputs]
+
+        # Add input_idx to final_results
+        final_results = final_results.with_columns(pl.lit(inputs).alias("input_idx"))
 
         return final_results
