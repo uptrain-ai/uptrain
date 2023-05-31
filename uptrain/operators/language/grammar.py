@@ -27,13 +27,13 @@ class GrammarScore(BaseModel):
         return GrammarScoreExecutor(self, settings)
 
 
-class GrammarScoreExecutor:
+class GrammarScoreExecutor(OperatorExecutor):
     op: GrammarScore
     api_client: LLMMulticlient
 
     def __init__(self, op: GrammarScore, settings: t.Optional[Settings] = None):
         self.op = op
-        self.api_client = LLMMulticlient(concurrency=4, settings=settings)
+        self.api_client = LLMMulticlient(settings=settings)
 
     def _make_payload(self, id: t.Any, text: str) -> Payload:
         return Payload(

@@ -6,6 +6,7 @@ import polars as pl
 import deltalake as dl
 
 from uptrain.framework.config import *
+from uptrain.operators.base import OperatorExecutor
 
 # -----------------------------------------------------------
 # Read from text file formats - csv and json
@@ -26,12 +27,13 @@ class CsvReader(BaseModel):
 class JsonReader(BaseModel):
     fpath: str
     batch_size: t.Optional[int] = None
+    schema_data: t.Optional[BaseModel] = None
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return TextReaderExecutor(self)
 
 
-class TextReaderExecutor:
+class TextReaderExecutor(OperatorExecutor):
     op: t.Union[CsvReader, JsonReader]
     dataset: pl.DataFrame
     rows_read: int
@@ -63,6 +65,7 @@ class TextReaderExecutor:
 class DeltaReader(BaseModel):
     fpath: str
     batch_split: bool = False  # whether we want to read one record batch at a time
+    schema_data: t.Optional[BaseModel] = None
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return DeltaReaderExecutor(self)

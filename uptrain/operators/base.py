@@ -42,27 +42,29 @@ class TYPE_OP_OUTPUT(te.TypedDict):
 class Operator(t.Protocol):
     """Base class for all operators."""
 
-    # all required input columns must be specified here
-    schema_data: t.Optional["BaseModel"]
+    # all required input columns must be specified in this attribute
+    @property
+    def schema_data(self) -> t.Optional["BaseModel"]:
+        ...
 
     def make_executor(
         self, settings: t.Optional["Settings"] = None
     ) -> "OperatorExecutor":
         """Create an executor for this operator."""
-        raise NotImplementedError
+        ...
+
+    def dict(self) -> dict:
+        """Serialize this operator to a dict."""
+        ...
 
 
 class OperatorExecutor(t.Protocol):
-    """Base class for all operator executors."""
+    """Base protocol class for all operator executors."""
 
     op: Operator
 
-    def _validate_data(self, data: pl.DataFrame) -> None:
-        """Validate that the input data is compatible with this operator."""
-        raise NotImplementedError
-
-    def run(self, data: TYPE_OP_INPUT = None, **kwargs) -> TYPE_OP_OUTPUT:
-        raise NotImplementedError
+    def run(self, data: TYPE_OP_INPUT = None) -> TYPE_OP_OUTPUT:
+        ...
 
 
 def get_output_col_name_at(index: int) -> str:

@@ -41,8 +41,8 @@ setup(
     keywords="uptrain ai retraining ML observability",
     packages=find_packages(),
     install_requires=[
-        "tenacity",
         "tqdm>=4.0",
+        "aiolimiter>=1.1",
         "polars>=0.17",
         "deltalake>=0.9",
         "numpy>=1.23.0",

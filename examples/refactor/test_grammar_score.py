@@ -2,7 +2,7 @@
 To run this example, you must have the `OPENAI_API_KEY` environment variable set.
 """
 
-from uptrain.framework.config import Check, Config, Settings
+from uptrain.framework.config import Config, Settings, SimpleCheck
 from uptrain.io.readers import JsonReader
 from uptrain.operators.language import GrammarScore
 
@@ -87,7 +87,7 @@ with open("/tmp/samples.jsonl", "w") as f:
 # -----------------------------------------------------------
 
 # Define the config
-check = Check(
+check = SimpleCheck(
     compute=[
         {
             "output_cols": ["score"],

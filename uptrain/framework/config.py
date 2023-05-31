@@ -1,8 +1,9 @@
+from __future__ import annotations
 import typing as t
 from functools import partial
 
 import polars as pl
-from pydantic import BaseModel, BaseSettings, Field
+from pydantic import BaseSettings, Field
 
 from uptrain.operators.base import *
 from uptrain.utilities import jsonload, jsondump, to_py_types
@@ -10,8 +11,10 @@ from uptrain.utilities import jsonload, jsondump, to_py_types
 __all__ = [
     "register_op",
     "register_op_external",
-    "Config",
+    "deserialize_operator",
+    "SimpleCheck",
     "Settings",
+    "Config",
 ]
 
 # -----------------------------------------------------------
@@ -59,12 +62,18 @@ def register_op_external(namespace: str):
     return partial(_register_operator, namespace=namespace)
 
 
-def _deserialize_operator(data: dict) -> Operator:
+def deserialize_operator(data: dict) -> Operator:
     """Deserialize an operator from a dict."""
     op_name = data["op_name"]
     op = OperatorRegistry.get_operator(op_name)
-    params = data["params"]
-    return op(**params)  # type: ignore
+
+    if hasattr(op, "from_dict"):
+        # likely a check object
+        return op.from_dict(data)  # type: ignore
+    else:
+        # likely a pydantic model
+        params = data["params"]
+        return op(**params)  # type: ignore
 
 
 # -----------------------------------------------------------
@@ -72,63 +81,48 @@ def _deserialize_operator(data: dict) -> Operator:
 # -----------------------------------------------------------
 
 
-class TypeComputeOp(t.TypedDict):
+class ComputeOp(t.TypedDict):
     output_cols: list[str]
     operator: Operator
 
 
-class TypeComputeOpExec(t.TypedDict):
+class ComputeOpExec(t.TypedDict):
     output_cols: list[str]
     operator: OperatorExecutor
 
 
-class Check:
+@register_op
+class SimpleCheck:
+    """A simple check that runs the given list of operators in sequence. Can be used directly
+    when you don't need much customization.
+    """
+
     # specify the sequence of operators to run, and name(s) for the output columns from each
-    compute: list[TypeComputeOp]
+    compute: list[ComputeOp]
     # specify the source of the data, if absent, data must be passed at runtime manually
-    source: t.Optional[Operator] = None
-    # specify the sinks to write the data to
-    sinks: list[Operator]
-    # specify the alerts to generate
-    alerts: list[Operator]
+    source: t.Optional[Operator]
+    # specify the sink to write the data to
+    sink: t.Optional[Operator]
+    # specify the alert to generate
+    alert: t.Optional[Operator]
 
     def __init__(
         self,
-        compute: list[TypeComputeOp],
+        compute: list[ComputeOp],
         source: t.Optional[Operator] = None,
-        sinks: t.Optional[list[Operator]] = None,
-        alerts: t.Optional[list[Operator]] = None,
+        sink: t.Optional[Operator] = None,
+        alert: t.Optional[Operator] = None,
     ):
         self.compute = compute
         self.source = source
-        self.sinks = sinks or []
-        self.alerts = alerts or []
+        self.sink = sink
+        self.alert = alert
 
-    def make_executor(self, settings: "Settings") -> "CheckExecutor":
+    def make_executor(self, settings: "Settings") -> "SimpleCheckExecutor":
         """Make an executor for this check."""
-        return CheckExecutor(check=self, settings=settings)
+        return SimpleCheckExecutor(check=self, settings=settings)
 
-    @classmethod
-    def from_dict(cls, data: dict) -> "Check":
-        """Deserialize a check from a dict."""
-        compute = []
-        for elem in data["compute"]:
-            compute.append(
-                {
-                    "output_cols": elem["output_cols"],
-                    "operator": _deserialize_operator(elem["operator"]),
-                }
-            )
-        if data.get("source"):
-            source = _deserialize_operator(data["source"])
-        else:
-            source = None
-        sinks = [_deserialize_operator(sink) for sink in data.get("sinks", [])]
-        alerts = [_deserialize_operator(alert) for alert in data.get("alerts", [])]
-
-        return cls(compute=compute, source=source, sinks=sinks, alerts=alerts)
-
-    def to_dict(self) -> dict:
+    def dict(self) -> dict:
         """Serialize this check to a dict."""
         return {
             "compute": [
@@ -139,27 +133,49 @@ class Check:
                 for op in self.compute
             ],
             "source": to_py_types(self.source),
-            "sinks": [to_py_types(sink) for sink in self.sinks],
-            "alerts": [to_py_types(alert) for alert in self.alerts],
+            "sink": to_py_types(self.sink),
+            "alert": to_py_types(self.alert),
         }
 
+    @classmethod
+    def from_dict(cls, data: dict) -> "SimpleCheck":
+        """Deserialize a check from a dict."""
+        compute = []
+        for elem in data["compute"]:
+            compute.append(
+                {
+                    "output_cols": elem["output_cols"],
+                    "operator": deserialize_operator(elem["operator"]),
+                }
+            )
 
-class CheckExecutor:
+        get_attr = (
+            lambda name: deserialize_operator(data[name]) if name in data else None
+        )
+        return cls(
+            compute=compute,
+            source=get_attr("source"),
+            sink=get_attr("sink"),
+            alert=get_attr("alert"),
+        )
+
+
+class SimpleCheckExecutor:
     """Executor for a check."""
 
-    check: Check
+    op: SimpleCheck
     exec_source: t.Optional[OperatorExecutor]
-    exec_compute: list[TypeComputeOpExec]
-    exec_sinks: list[OperatorExecutor]
-    exec_alerts: list[OperatorExecutor]
+    exec_compute: list[ComputeOpExec]
+    exec_sink: t.Optional[OperatorExecutor]
+    exec_alert: t.Optional[OperatorExecutor]
 
-    def __init__(self, check: Check, settings: "Settings"):
-        self.check = check
+    def __init__(self, check: SimpleCheck, settings: "Settings"):
+        self.op = check
         self.exec_source = (
             check.source.make_executor(settings) if check.source else None
         )
-        self.exec_sinks = [sink.make_executor(settings) for sink in check.sinks]
-        self.exec_alerts = [alert.make_executor(settings) for alert in check.alerts]
+        self.exec_sink = check.sink.make_executor(settings) if check.sink else None
+        self.exec_alert = check.alert.make_executor(settings) if check.alert else None
         self.exec_compute = [
             {
                 "output_cols": op["output_cols"],
@@ -190,13 +206,13 @@ class CheckExecutor:
             }
             data = res["output"].rename(rename_mapping)
 
-        # run the sinks
-        for sink in self.exec_sinks:
-            sink.run(data)
+        # run the sink
+        if self.exec_sink is not None:
+            self.exec_sink.run(data)
 
-        # run the alerts
-        for alert in self.exec_alerts:
-            alert.run(data)
+        # run the alert
+        if self.exec_alert is not None:
+            self.exec_alert.run(data)
 
         return data
 
@@ -206,7 +222,7 @@ class Settings(BaseSettings):
     logs_folder: str = "/tmp/uptrain_logs"
 
     # external api auth
-    openai_api_key: str = Field("", env="OPENAI_API_KEY")
+    openai_api_key: str = Field(None, env="OPENAI_API_KEY")
 
     def check_and_get(self, key: str) -> str:
         """Check if a value is present in the settings and return it."""
@@ -217,7 +233,7 @@ class Settings(BaseSettings):
 
 
 class Config:
-    checks: list[Check]
+    checks: list[Operator]
     settings: Settings
 
     def __init__(self, checks: list[t.Any], settings: Settings):
@@ -228,14 +244,14 @@ class Config:
     def from_dict(cls, data: dict) -> "Config":
         check_objects = []
         for check in data.get("checks", []):
-            check_objects.append(Check.from_dict(check))
+            check_objects.append(deserialize_operator(check))
 
         settings = Settings(**data["settings"])
         return cls(checks=check_objects, settings=settings)
 
-    def to_dict(self) -> dict:
+    def dict(self) -> dict:
         return {
-            "checks": [check.to_dict() for check in self.checks],
+            "checks": [check.dict() for check in self.checks],
             "settings": self.settings.dict(),
         }
 
@@ -244,4 +260,4 @@ class Config:
         return cls.from_dict(jsonload(fpath))
 
     def serialize(self, fpath: str) -> None:
-        jsondump(self.to_dict(), fpath)
+        jsondump(self.dict(), fpath)

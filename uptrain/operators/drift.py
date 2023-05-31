@@ -14,7 +14,7 @@ try:
 except ImportError:
     river = None
 
-from .base import *
+from uptrain.operators.base import *
 from uptrain.framework.config import Settings
 from uptrain.utilities import dependency_required
 
@@ -61,7 +61,7 @@ class ConceptDrift(BaseModel):
 
 
 @dependency_required(river, "river")
-class ConceptDriftExecutor:
+class ConceptDriftExecutor(OperatorExecutor):
     op: ConceptDrift
     algo: t.Any
     counter: int

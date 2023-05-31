@@ -10,7 +10,7 @@ from pydantic import BaseModel
 import numpy as np
 import polars as pl
 
-from .base import *
+from uptrain.operators.base import *
 from uptrain.framework.config import Settings
 
 
@@ -27,7 +27,7 @@ class Accuracy(BaseModel):
         return AccuracyExecutor(self)
 
 
-class AccuracyExecutor:
+class AccuracyExecutor(OperatorExecutor):
     op: Accuracy
 
     def __init__(self, op: Accuracy):
