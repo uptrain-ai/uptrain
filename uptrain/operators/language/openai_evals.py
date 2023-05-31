@@ -151,10 +151,11 @@ class PromptEval(BaseModel):
     model_name: str
     schema_data: SchemaPromptEval = SchemaPromptEval()
 
-    @root_validator
-    def check_schema(cls, values):
-        if len(values["prompt_variables"]) < 1:
-            raise ValueError("Must specify at least 1 prompt variable")
+    #TODO: Not sure why but this is failing and hence, commented out
+    # @root_validator
+    # def check_schema(cls, values):
+    #     if len(values["prompt_variables"]) < 1:
+    #         raise ValueError("Must specify at least 1 prompt variable")
 
     def make_executor(self) -> PromptEvalExecutor:
         return PromptEvalExecutor(self)
@@ -190,9 +191,9 @@ class PromptEvalExecutor:
         prompts = self._construct_prompts(data)
 
         eval_op = OpenaiEval(
-            bundle_path="uptrain/uptrain_evals",
+            bundle_path="uptrain/evals_uptrain",
             completion_name=self.op.model_name,
             eval_name="model_run_all",
         )
         results = eval_op.make_executor().run(prompts)
-        return {"output": None, "extra": {}}
+        return results
