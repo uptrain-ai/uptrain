@@ -106,13 +106,13 @@ class ExperimentManager:
             results = results.with_columns(pl.lit(exp.model).alias("model"))
     
             # GRAMMAR SCORE
-            score_op = GrammarScore(schema_data={"col_text": "sampled"})
+            score_op = GrammarScore(schema_data={"col_text": "output"})
             grammar_results = score_op.make_executor().run(results)
             # Add gramar scores to the results
             results = results.with_columns(pl.lit(list(grammar_results.values())[0]).alias("grammar_score"))
         
             # MODEL GRADING SCORE
-            score_op1 = ModelGradingScore(schema_data={"col_prompt": "prompt", "col_answer": "sampled", "col_ideal": "sampled"})
+            score_op1 = ModelGradingScore(schema_data={"col_prompt": "prompt", "col_answer": "output", "col_ideal": "output"})
             model_grading_results = score_op1.make_executor().run(results)
             # Add model grading scores to the results
             results = results.with_columns(pl.lit(list(model_grading_results.values())[0]).alias("model_grading_score"))
