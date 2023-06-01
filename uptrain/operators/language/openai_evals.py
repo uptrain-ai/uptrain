@@ -14,6 +14,7 @@ import polars as pl
 
 if t.TYPE_CHECKING:
     from uptrain.framework.config import Settings
+from uptrain.constants import UPTRAIN_BASE_DIR
 from uptrain.operators.base import *
 from uptrain.utilities import to_py_types
 
@@ -198,7 +199,7 @@ class PromptEvalExecutor:
         prompts = self._construct_prompts(data)
 
         eval_op = OpenaiEval(
-            bundle_path="uptrain/evals_uptrain",
+            bundle_path=os.path.join(UPTRAIN_BASE_DIR, "evals_uptrain"),
             completion_name=self.op.model_name,
             eval_name="model_run_all",
         )
