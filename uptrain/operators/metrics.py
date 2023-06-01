@@ -11,7 +11,9 @@ import numpy as np
 import polars as pl
 
 from uptrain.operators.base import *
-from uptrain.framework.config import Settings
+
+if t.TYPE_CHECKING:
+    from uptrain.framework.config import *
 
 
 class SchemaAccuracy(BaseModel):
@@ -19,6 +21,7 @@ class SchemaAccuracy(BaseModel):
     col_ground_truth: str = "ground_truth"
 
 
+@register_op
 class Accuracy(BaseModel):
     kind: t.Literal["NOT_EQUAL", "ABS_ERROR"]
     schema_data: SchemaAccuracy = SchemaAccuracy()

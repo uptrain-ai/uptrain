@@ -22,9 +22,10 @@ import tqdm
 from tqdm.asyncio import tqdm_asyncio
 from pydantic import BaseModel, Field
 
-from uptrain.framework.config import Settings
 from uptrain.operators.base import *
 from uptrain.utilities import dependency_required
+if t.TYPE_CHECKING:
+    from uptrain.framework.config import Settings
 
 
 # -----------------------------------------------------------
@@ -123,9 +124,14 @@ class LLMMulticlient:
 
     def fetch_responses(self, input_payloads: list[Payload]) -> list[Payload]:
         # return self.sync_fetch_responses(input_payloads)
-        if "ipykernel" in sys.modules:
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = None
+
+        if loop and loop.is_running():
             logger.warning(
-                "asyncio doesn't work in jupyter notebooks. Using multithreading to make concurrent api calls instead."
+                "Detected Jupyter environment. Using multithreading to make concurrent api calls instead of asyncio."
             )
             return self.sync_fetch_responses(input_payloads)
         else:
@@ -166,7 +172,7 @@ class LLMMulticlient:
     async def async_fetch_responses(
         self, input_payloads: list[Payload]
     ) -> list[Payload]:
-        # 20 requests every 10 seconds
+        # TODO: make rate limiting customizable
         limiter = aiolimiter.AsyncLimiter(20, time_period=5)
         async_outputs = [
             async_process_payload(data, limiter, self._max_retries)

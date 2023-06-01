@@ -9,9 +9,11 @@ import evals.base
 import evals.record
 import evals.registry
 from loguru import logger
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel
 import polars as pl
 
+if t.TYPE_CHECKING:
+    from uptrain.framework.config import Settings
 from uptrain.operators.base import *
 from uptrain.utilities import to_py_types
 
@@ -33,35 +35,34 @@ class UptrainEvalRecorder(evals.record.RecorderBase):
         super().__init__(run_spec)
         self._run_data = to_py_types(run_spec)
 
-    def get_list_events(self) -> list[dict]:
-        return [to_py_types(event) for event in self._events]
+    def get_list_events(self, _type: t.Optional[str] = None) -> list[dict]:
+        events = [to_py_types(event) for event in self._events]
+        if _type is None:
+            return events
+        else:
+            return [evt for evt in events if evt["type"] == _type]
 
     def get_run_data(self) -> dict:
         return self._run_data
 
 
-class SchemaOpenaiEval(BaseModel):
-    ...
-
-
+@register_op
 class OpenaiEval(BaseModel):
     bundle_path: str
     completion_name: str
     eval_name: str
-    schema_data: SchemaOpenaiEval = SchemaOpenaiEval()
 
-    def make_executor(self) -> OpenaiEvalExecutor:
-        return OpenaiEvalExecutor(self)
+    def make_executor(
+        self, settings: t.Optional[Settings] = None
+    ) -> OpenaiEvalExecutor:
+        return OpenaiEvalExecutor(self, settings)
 
 
-class OpenaiEvalExecutor:
+class OpenaiEvalExecutor(OperatorExecutor):
     op: OpenaiEval
 
-    def __init__(self, op: OpenaiEval):
+    def __init__(self, op: OpenaiEval, settings: t.Optional[Settings] = None):
         self.op = op
-
-    def _validate_data(self, data: pl.DataFrame) -> None:
-        check_req_columns_present(data, self.op.schema_data)
 
     def run(self, data: t.Optional[pl.DataFrame] = None) -> TYPE_OP_OUTPUT:
         registry = evals.registry.Registry()
@@ -125,10 +126,12 @@ class OpenaiEvalExecutor:
 
         if path_samples_file is not None:
             os.remove(path_samples_file)
+
+        output_data = pl.from_dicts(recorder.get_list_events("match"))
         return {
-            "output": None,  # events are of multiple kinds. Undecided how to handle them in a consistent schema yet
+            "output": output_data,  # events are of multiple kinds. Undecided how to handle them in a consistent schema yet
             "extra": {
-                "events": recorder.get_list_events(),
+                "all_events": recorder.get_list_events(),
                 "run_data": recorder.get_run_data(),
                 "final_report": to_py_types(final_report),
             },
@@ -151,7 +154,7 @@ class PromptEval(BaseModel):
     model_name: str
     schema_data: SchemaPromptEval = SchemaPromptEval()
 
-    #TODO: Not sure why but this is failing and hence, commented out
+    # TODO: Not sure why but this is failing and hence, commented out
     # @root_validator
     # def check_schema(cls, values):
     #     if len(values["prompt_variables"]) < 1:

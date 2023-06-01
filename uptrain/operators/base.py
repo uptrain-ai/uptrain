@@ -5,6 +5,7 @@ outputs are stored as Arrow batches.
 """
 
 from __future__ import annotations
+from functools import partial
 import typing as t
 import typing_extensions as te
 
@@ -22,13 +23,16 @@ __all__ = [
     "TYPE_OP_OUTPUT",
     "Operator",
     "OperatorExecutor",
+    "register_op",
+    "register_op_external",
+    "deserialize_operator",
     "get_output_col_name_at",
     "check_req_columns_present",
     "add_output_cols_to_data",
 ]
 
 # -----------------------------------------------------------
-# base classes for operators
+# Base classes for operators
 # -----------------------------------------------------------
 
 TYPE_OP_INPUT = t.Optional[pl.DataFrame]
@@ -42,15 +46,16 @@ class TYPE_OP_OUTPUT(te.TypedDict):
 class Operator(t.Protocol):
     """Base class for all operators."""
 
-    # all required input columns must be specified in this attribute
-    @property
-    def schema_data(self) -> t.Optional["BaseModel"]:
-        ...
+    # optional attribute (not allowe in python protocols)
+    # specifies all the input columns required by the operator
+    # schema_data: t.Optional["BaseModel"]
 
     def make_executor(
         self, settings: t.Optional["Settings"] = None
     ) -> "OperatorExecutor":
-        """Create an executor for this operator."""
+        """Create an executor for this operator, which acutally takes the input data and
+        runs the operator.
+        """
         ...
 
     def dict(self) -> dict:
@@ -65,6 +70,69 @@ class OperatorExecutor(t.Protocol):
 
     def run(self, data: TYPE_OP_INPUT = None) -> TYPE_OP_OUTPUT:
         ...
+
+
+# -----------------------------------------------------------
+# Create a registry for operators defined through the Uptrain
+# library. This lets us load the corresponding operator from
+# the serialized config.
+# -----------------------------------------------------------
+
+
+class OperatorRegistry:
+    _registry: dict[str, t.Type[Operator]] = {}
+
+    @classmethod
+    def register_operator(cls, name: str, operator_klass: t.Any):
+        cls._registry[name] = operator_klass
+        # mark the class as an operator, helpful for (de)serialization later
+        operator_klass._uptrain_op_name = name
+
+    @classmethod
+    def get_operator(cls, name: str):
+        operator_klass = cls._registry.get(name)
+        if operator_klass is None:
+            raise ValueError(f"No operator registered with name {name}")
+        return operator_klass
+
+
+T = t.TypeVar("T")
+
+
+def _register_operator(cls: T, namespace: str) -> T:
+    assert isinstance(cls, type), "Can only register classes as Uptrain operators"
+    key = f"{namespace}:{cls.__name__}"
+    OperatorRegistry.register_operator(key, cls)
+    return cls
+
+
+def register_op(cls: T) -> T:
+    """Decorator to register an operator with Uptrain's registry. Meant for internal use only."""
+    return _register_operator(cls, namespace="uptrain")
+
+
+def register_op_external(namespace: str):
+    """Decorator to register custom operators with Uptrain's registry."""
+    return partial(_register_operator, namespace=namespace)
+
+
+def deserialize_operator(data: dict) -> Operator:
+    """Deserialize an operator from a dict."""
+    op_name = data["op_name"]
+    op = OperatorRegistry.get_operator(op_name)
+
+    if hasattr(op, "from_dict"):
+        # likely a check object
+        return op.from_dict(data)  # type: ignore
+    else:
+        # likely a pydantic model
+        params = data["params"]
+        return op(**params)  # type: ignore
+
+
+# -----------------------------------------------------------
+# Utility routines for operators
+# -----------------------------------------------------------
 
 
 def get_output_col_name_at(index: int) -> str:

@@ -1,4 +1,5 @@
 from __future__ import annotations
+import os
 import typing as t
 from functools import partial
 
@@ -6,75 +7,13 @@ import polars as pl
 from pydantic import BaseSettings, Field
 
 from uptrain.operators.base import *
-from uptrain.utilities import jsonload, jsondump, to_py_types
+from uptrain.utilities import jsonload, jsondump, to_py_types, clear_directory
 
 __all__ = [
-    "register_op",
-    "register_op_external",
-    "deserialize_operator",
     "SimpleCheck",
     "Settings",
     "Config",
 ]
-
-# -----------------------------------------------------------
-# Create a registry for operators defined through the Uptrain
-# library. This lets us load the corresponding operator from
-# the serialized config.
-# -----------------------------------------------------------
-
-
-class OperatorRegistry:
-    _registry: dict[str, t.Type[Operator]] = {}
-
-    @classmethod
-    def register_operator(cls, name: str, operator_klass: t.Any):
-        cls._registry[name] = operator_klass
-        # mark the class as an operator, helpful for (de)serialization later
-        operator_klass._uptrain_op_name = name
-
-    @classmethod
-    def get_operator(cls, name: str):
-        operator_klass = cls._registry.get(name)
-        if operator_klass is None:
-            raise ValueError(f"No operator registered with name {name}")
-        return operator_klass
-
-
-T = t.TypeVar("T")
-
-
-def _register_operator(cls: T, namespace: t.Optional[str] = None) -> T:
-    key = cls.__name__  # type: ignore
-    if namespace is not None:
-        key = f"{namespace}:{key}"
-    OperatorRegistry.register_operator(key, cls)
-    return cls
-
-
-def register_op(cls: T) -> T:
-    """Decorator to register an operator with Uptrain's registry. Meant for internal use only."""
-    return _register_operator(cls, namespace="uptrain")
-
-
-def register_op_external(namespace: str):
-    """Decorator to register custom operators with Uptrain's registry."""
-    return partial(_register_operator, namespace=namespace)
-
-
-def deserialize_operator(data: dict) -> Operator:
-    """Deserialize an operator from a dict."""
-    op_name = data["op_name"]
-    op = OperatorRegistry.get_operator(op_name)
-
-    if hasattr(op, "from_dict"):
-        # likely a check object
-        return op.from_dict(data)  # type: ignore
-    else:
-        # likely a pydantic model
-        params = data["params"]
-        return op(**params)  # type: ignore
-
 
 # -----------------------------------------------------------
 # User facing framework objects
@@ -97,6 +36,8 @@ class SimpleCheck:
     when you don't need much customization.
     """
 
+    # name of the check
+    name: str
     # specify the sequence of operators to run, and name(s) for the output columns from each
     compute: list[ComputeOp]
     # specify the source of the data, if absent, data must be passed at runtime manually
@@ -105,18 +46,24 @@ class SimpleCheck:
     sink: t.Optional[Operator]
     # specify the alert to generate
     alert: t.Optional[Operator]
+    # specify the plot to generate
+    plot: t.Optional[Operator]
 
     def __init__(
         self,
-        compute: list[ComputeOp],
+        name: str,
+        compute: t.Union[ComputeOp, list[ComputeOp]],
         source: t.Optional[Operator] = None,
         sink: t.Optional[Operator] = None,
         alert: t.Optional[Operator] = None,
+        plot: t.Optional[Operator] = None,
     ):
-        self.compute = compute
+        self.name = name
+        self.compute = compute if isinstance(compute, list) else [compute]
         self.source = source
-        self.sink = sink
         self.alert = alert
+        self.sink = sink
+        self.plot = plot
 
     def make_executor(self, settings: "Settings") -> "SimpleCheckExecutor":
         """Make an executor for this check."""
@@ -124,7 +71,8 @@ class SimpleCheck:
 
     def dict(self) -> dict:
         """Serialize this check to a dict."""
-        return {
+        params = {
+            "name": self.name,
             "compute": [
                 {
                     "output_cols": op["output_cols"],
@@ -135,11 +83,16 @@ class SimpleCheck:
             "source": to_py_types(self.source),
             "sink": to_py_types(self.sink),
             "alert": to_py_types(self.alert),
+            "plot": to_py_types(self.plot),
         }
+        op_name = getattr(self.__class__, "_uptrain_op_name")
+        return {"op_name": op_name, "params": params}
 
     @classmethod
     def from_dict(cls, data: dict) -> "SimpleCheck":
         """Deserialize a check from a dict."""
+        data = data["params"]
+
         compute = []
         for elem in data["compute"]:
             compute.append(
@@ -149,14 +102,20 @@ class SimpleCheck:
                 }
             )
 
-        get_attr = (
-            lambda name: deserialize_operator(data[name]) if name in data else None
-        )
+        def get_value(key):
+            val = data.get(key, None)
+            if val is not None:
+                return deserialize_operator(val)
+            else:
+                return None
+
         return cls(
+            name=data["name"],
             compute=compute,
-            source=get_attr("source"),
-            sink=get_attr("sink"),
-            alert=get_attr("alert"),
+            source=get_value("source"),
+            sink=get_value("sink"),
+            alert=get_value("alert"),
+            plot=get_value("plot"),
         )
 
 
@@ -183,6 +142,7 @@ class SimpleCheckExecutor:
             }
             for op in check.compute
         ]
+        # no need to make an executor for the plot, since it's not run at runtime
 
     def run(self, data: t.Optional[pl.DataFrame] = None) -> t.Optional[pl.DataFrame]:
         """Run this check on the given data."""
@@ -191,7 +151,8 @@ class SimpleCheckExecutor:
             assert (
                 self.exec_source is not None
             ), "No source provided for this check, so data must be provided manually."
-            data = self.exec_source.run()  # type: ignore
+            res = self.exec_source.run()  # type: ignore
+            data = res["output"]
         assert data is not None
 
         # run the compute operations in sequence, passing the output of one to the next
@@ -237,8 +198,24 @@ class Config:
     settings: Settings
 
     def __init__(self, checks: list[t.Any], settings: Settings):
+        # add a default sink to checks without any specified sink
+        for check in checks:
+            if isinstance(check, SimpleCheck) and check.sink is None:
+                from uptrain.io.writers import DeltaWriter
+
+                check.sink = DeltaWriter(
+                    fpath=os.path.join(settings.logs_folder, check.name)
+                )
         self.checks = checks
         self.settings = settings
+
+    def setup(self):
+        """Create the logs directory, or clear it if it already exists."""
+        if os.path.exists(self.settings.logs_folder):
+            clear_directory(self.settings.logs_folder)
+        else:
+            os.makedirs(self.settings.logs_folder)
+        self.serialize()
 
     @classmethod
     def from_dict(cls, data: dict) -> "Config":
@@ -257,7 +234,12 @@ class Config:
 
     @classmethod
     def deserialize(cls, fpath: str) -> "Config":
-        return cls.from_dict(jsonload(fpath))
+        with open(fpath, "r") as f:
+            return cls.from_dict(jsonload(f))
 
-    def serialize(self, fpath: str) -> None:
-        jsondump(self.dict(), fpath)
+    def serialize(self, fpath: t.Optional[str] = None):
+        if fpath is None:
+            fpath = os.path.join(self.settings.logs_folder, "config.json")
+
+        with open(fpath, "w") as f:
+            jsondump(self.dict(), f)

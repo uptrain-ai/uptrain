@@ -3,8 +3,8 @@ To run this example, you must have the `OPENAI_API_KEY` environment variable set
 """
 
 from uptrain.framework.config import Config, Settings, SimpleCheck
-from uptrain.io.readers import JsonReader
-from uptrain.operators.language import GrammarScore
+from uptrain.io import JsonReader
+from uptrain.operators import GrammarScore, PlotlyChart
 
 # -----------------------------------------------------------
 # Set up the dataset first
@@ -63,43 +63,80 @@ sample_data = [
     },
 ]
 
-with open("/tmp/samples.jsonl", "w") as f:
-    import json
 
-    for row in sample_data:
-        f.write(json.dumps(row))
-        f.write("\n")
+def write_data():
+    with open("/tmp/samples.jsonl", "w") as f:
+        import json
 
-# -----------------------------------------------------------
-# Uptrain evaluation part - combine operators yourself
-# -----------------------------------------------------------
-
-# reader = JsonReader(fpath="/tmp/samples.jsonl")
-# score_op = GrammarScore(schema_data={"col_text": "answer"})
-
-# input_dataset = reader.make_executor().run()
-# results = score_op.make_executor().run(input_dataset)
-# print(results)
+        for row in sample_data:
+            f.write(json.dumps(row))
+            f.write("\n")
 
 
 # -----------------------------------------------------------
-# Uptrain evaluation part - writing and executing a config
+# Use Uptrain by combining operators yourself
 # -----------------------------------------------------------
 
-# Define the config
-check = SimpleCheck(
-    compute=[
-        {
-            "output_cols": ["score"],
-            "operator": GrammarScore(schema_data={"col_text": "answer"}),
-        }
-    ],
-    source=JsonReader(fpath="/tmp/samples.jsonl"),
-)
 
-cfg = Config(checks=[check], settings=Settings())
+def run_grammar_score():
+    reader = JsonReader(fpath="/tmp/samples.jsonl")
+    score_op = GrammarScore(schema_data={"col_text": "answer"})
 
-# Execute the config
-for check in cfg.checks:
-    results = check.make_executor(cfg.settings).run()
+    input_dataset = reader.make_executor().run()
+    data = input_dataset["output"]
+    assert data is not None
+    results = score_op.make_executor().run(data)
     print(results)
+
+
+# -----------------------------------------------------------
+# Use Uptrain by writing and executing a config
+# -----------------------------------------------------------
+
+LOGS_DIR = "/tmp/uptrain_logs"
+
+
+def run_as_config():
+    # Define the config
+    check = SimpleCheck(
+        name="grammar_score",
+        compute=[
+            {
+                "output_cols": ["score"],
+                "operator": GrammarScore(schema_data={"col_text": "answer"}),
+            }
+        ],
+        source=JsonReader(fpath="/tmp/samples.jsonl"),
+        plot=PlotlyChart(kind="table", title="Grammar Score Data"),
+    )
+    cfg = Config(checks=[check], settings=Settings(logs_folder=LOGS_DIR))
+
+    # Execute the config
+    cfg.setup()
+    for check in cfg.checks:
+        results = check.make_executor(cfg.settings).run()
+
+
+# -----------------------------------------------------------
+# Starting a streamlit server to visualize the results
+# -----------------------------------------------------------
+
+
+def start_streamlit():
+    from uptrain.dashboard import StreamlitRunner
+
+    runner = StreamlitRunner(LOGS_DIR)
+    runner.start()
+
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--start-streamlit", default=False, action="store_true")
+    args = parser.parse_args()
+
+    write_data()
+    run_as_config()
+    if args.start_streamlit:
+        start_streamlit()

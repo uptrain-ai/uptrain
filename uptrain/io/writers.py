@@ -5,7 +5,9 @@ from pydantic import BaseModel
 import polars as pl
 import deltalake as dl
 
-from uptrain.framework.config import *
+from uptrain.operators.base import *
+if t.TYPE_CHECKING:
+    from uptrain.framework.config import *
 
 
 # -----------------------------------------------------------
@@ -22,7 +24,7 @@ class DeltaWriter(BaseModel):
         return DeltaWriterExecutor(self)
 
 
-class DeltaWriterExecutor:
+class DeltaWriterExecutor(OperatorExecutor):
     op: DeltaWriter
     columns: t.Optional[list[str]] = None
 

@@ -15,8 +15,12 @@ except ImportError:
     river = None
 
 from uptrain.operators.base import *
-from uptrain.framework.config import Settings
 from uptrain.utilities import dependency_required
+
+if t.TYPE_CHECKING:
+    from uptrain.framework.config import *
+
+__all__ = ["ConceptDrift"]
 
 
 class ParamsDDM(BaseModel):
@@ -37,6 +41,7 @@ class SchemaDrift(BaseModel):
     col_measure: str = "metric"
 
 
+@register_op
 class ConceptDrift(BaseModel):
     algorithm: t.Literal["DDM", "ADWIN"]
     params: t.Union[ParamsDDM, ParamsADWIN]

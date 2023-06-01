@@ -2,8 +2,10 @@
 You must have the `dummy_server_openai_eval` running in the background to run this example.
 """
 
-from uptrain.io.readers import JsonReader
-from uptrain.operators.openai_evals import OpenaiEval
+import shutil
+from uptrain.framework.config import Config, Settings, SimpleCheck
+from uptrain.io import JsonReader
+from uptrain.operators import OpenaiEval, PlotlyChart
 
 # -----------------------------------------------------------
 # Set up the requirements to run an openai eval
@@ -148,23 +150,79 @@ def init_bundle():
 # initialize the custom eval bundle
 bundle_path = init_bundle()
 
-# Data needs to be passed at runtime if it isn't one provided in the openai-eval repo
-reader = JsonReader(fpath=f"{bundle_path}/extract_celeb_samples.jsonl")
-samples = reader.make_executor().run()
-assert samples is not None
 
-eval_op = OpenaiEval(
-    bundle_path=bundle_path,
-    completion_name="gpt-3.5-turbo",
-    eval_name="extract_celebs",
-)
+def manual_run():
+    # Data needs to be passed at runtime if it isn't the one provided in the openai-eval repo
+    reader = JsonReader(fpath=f"{bundle_path}/extract_celeb_samples.jsonl")
+    samples = reader.make_executor().run()
+    assert samples is not None
 
-results = eval_op.make_executor().run(samples)
-print(results)
+    eval_op = OpenaiEval(
+        bundle_path=bundle_path,
+        completion_name="gpt-3.5-turbo",
+        eval_name="extract_celebs",
+    )
+
+    results = eval_op.make_executor().run(samples["output"])
+    print(results)
+
 
 # -----------------------------------------------------------
-# clear up the temp directory created for the custom eval
+# Use Uptrain by writing and executing a config
 # -----------------------------------------------------------
-import shutil
 
-shutil.rmtree(bundle_path)
+LOGS_DIR = "/tmp/uptrain_logs"
+
+
+def run_as_config():
+    # Define the config
+    check = SimpleCheck(
+        name="openai_eval",
+        compute=[
+            {
+                "output_cols": [],
+                "operator": OpenaiEval(
+                    bundle_path=bundle_path,
+                    completion_name="gpt-3.5-turbo",
+                    eval_name="extract_celebs",
+                ),
+            }
+        ],
+        source=JsonReader(fpath=f"{bundle_path}/extract_celeb_samples.jsonl"),
+        plot=PlotlyChart(kind="table", title="OpenAI Eval Results"),
+    )
+    cfg = Config(checks=[check], settings=Settings(logs_folder=LOGS_DIR))
+
+    # Execute the config
+    cfg.setup()
+    for check in cfg.checks:
+        results = check.make_executor(cfg.settings).run()
+
+
+# -----------------------------------------------------------
+# Starting a streamlit server to visualize the results
+# -----------------------------------------------------------
+
+
+def start_streamlit():
+    from uptrain.dashboard import StreamlitRunner
+
+    runner = StreamlitRunner(LOGS_DIR)
+    runner.start()
+
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--start-streamlit", default=False, action="store_true")
+    args = parser.parse_args()
+
+    # manual_run()
+    run_as_config()
+
+    # clean up
+    shutil.rmtree(bundle_path)
+
+    if args.start_streamlit:
+        start_streamlit()
