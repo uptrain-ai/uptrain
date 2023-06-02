@@ -1,8 +1,3 @@
-class Embeddings:
-    dummy = 1
-    def __init__(self, schema_data) -> None:
-        dummy = 2
-
 class Distribution:
     dummy = 1
     def __init__(self, schema_data, operation) -> None:
@@ -12,16 +7,6 @@ class CustomCheck:
     dummy = 1
 
 class TextLength:
-    dummy = 1
-    def __init__(self, schema_data) -> None:
-        dummy = 2
-
-class Rogue:
-    dummy = 1
-    def __init__(self, schema_data) -> None:
-        dummy = 2
-
-class CosineSimilarity:
     dummy = 1
     def __init__(self, schema_data) -> None:
         dummy = 2
