@@ -23,6 +23,7 @@ class LLMExperiment(BaseModel):
     cfg: dict
     dataset: str
     results: str
+    id: int
 
     def make_executor(self):
         return LLMExperimentExecutor(exp=self)
@@ -54,13 +55,16 @@ class LLMExperimentExecutor:
         results = eval_op.make_executor().run(samples)
 
         responses = [x['sampled'][0] for x in results['extra']['final_report']]
+        prompts = [x['prompt'][0]['content'] for x in results['extra']['final_report']]
+
         samples = samples.with_columns(pl.Series(name='response', values=responses))
+        samples = samples.with_columns(pl.Series(name='prompt', values=prompts))
+        samples = samples.with_columns(pl.Series(name='experiment_id', values=[self.exp.id] * len(responses)))
         JsonWriter(fpath=self.exp.results).make_executor().run(samples)
 
         return results
 
     def run_eval(self) -> None:
-        import pdb; pdb.set_trace()
         self.cfg.setup()
         for check in self.cfg.checks:
             results = check.make_executor(self.cfg.settings).run()
@@ -127,6 +131,7 @@ class ExperimentManager:
                     cfg=experiment_cfg,
                     dataset=experiment_path + "/input.jsonl",
                     results=experiment_path + "/output.jsonl",
+                    id = idx
                 ))
                 offset += 1
 
@@ -160,13 +165,17 @@ class ExperimentManager:
             return all_prompt_templates, all_identifiers
 
     def run(self):
-        final_res = {}
+        final_res = []
+
         for exp in self.experiments:
             exp_executor = exp.make_executor()
             results = exp_executor.run()
-            exp_executor.run_eval()
-            import pdb; pdb.set_trace()
 
+            samples = JsonReader(fpath=exp.results).make_executor().run()['output']
+            final_res.append(samples)
+        
+        final_samples = pl.concat(final_res)
+        JsonWriter(fpath=self.args['evaluation_args']['log_folder'] + "/output.jsonl").make_executor().run(final_samples)
 
             # if 'openai_model_grading' in self.eval_metrics:
             #     grading_op1 = OpenaiEval(

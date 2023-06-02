@@ -127,7 +127,11 @@ class OpenaiEvalExecutor(OperatorExecutor):
         if path_samples_file is not None:
             os.remove(path_samples_file)
 
-        output_data = pl.from_dicts(recorder.get_list_events("match"))
+        try:
+            output_data = pl.from_dicts(recorder.get_list_events("match"))
+        except:
+            output_data = pl.DataFrame()
+
         return {
             "output": output_data,  # events are of multiple kinds. Undecided how to handle them in a consistent schema yet
             "extra": {

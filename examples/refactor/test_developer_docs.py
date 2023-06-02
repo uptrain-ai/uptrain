@@ -1,7 +1,11 @@
+import openai
+import copy
+
 from uptrain.framework.config import Config, Settings, SimpleCheck
 from uptrain.io import JsonReader, DeltaWriter, JsonWriter
-from uptrain.operators import PlotlyChart, Embedding, RougeScore, Distribution, CosineSimilarity, DocsLinkVersion, UMAP, TextLength, TextComparison
+from uptrain.operators import PlotlyChart, Embedding, RougeScore, Distribution, CosineSimilarity, DocsLinkVersion, UMAP, TextLength, TextComparison, ModelGradeScore
 from regression_testing.experiment import ExperimentManager
+
 
 prompt_template = """
     You are a {persona} that can only quote text from documents. You will be given a section of technical documentation titled {document_title}, found at {document_link}. 
@@ -79,7 +83,7 @@ def get_config():
         compute=[
             {
                 "output_cols": ['document_embeddings_cosine_distribution'],
-                "operator": Distribution(schema_data={"col_embs": "context_embeddings", "col_groupby": "question_idx"}, kind="cosine_similarity"),
+                "operator": Distribution(schema_data={"col_embs": "context_embeddings", "col_groupby": ["question_idx", "experiment_id"]}, kind="cosine_similarity"),
             }
         ],
         source=JsonReader(fpath="{experiment_path}/interim_data/embeddings.jsonl"),
@@ -92,12 +96,12 @@ def get_config():
         compute=[
             {
                 "output_cols": ['document_text_rogue_f1'],
-                "operator": Distribution(schema_data={"col_embs": "document_text", "col_groupby": "question_idx"}, kind="rouge"),
+                "operator": Distribution(schema_data={"col_embs": "document_text", "col_groupby": ["question_idx", "experiment_id"]}, kind="rouge"),
             }
         ],
         source=JsonReader(fpath="{experiment_path}/interim_data/embeddings.jsonl"),
         plot=PlotlyChart(kind="histogram", title="Text Overlap between document embeddings", 
-                        props=dict(x="document_text_rogue_f1", nbins=20)),
+                        props=dict(x="document_text_rogue_f1", nbins=20, color='experiment_id')),
     ))
 
     checks.append(SimpleCheck(
@@ -121,7 +125,7 @@ def get_config():
             }
         ],
         source=JsonReader(fpath="{experiment_path}/output.jsonl"),
-        plot=PlotlyChart(kind="histogram", title="Bar Plot of Context Length", props=dict(x='document_context_length', nbins=20)),
+        plot=PlotlyChart(kind="histogram", title="Bar Plot of Context Length", props=dict(x='document_context_length', nbins=20, color='experiment_id')),
     ))
 
     checks.append(SimpleCheck(
@@ -132,7 +136,8 @@ def get_config():
                 "operator": RougeScore(schema_data={"col_generated": "response", "col_source": "document_text"})
             }
         ],
-        source=JsonReader(fpath="{experiment_path}/output.jsonl"),
+        source=JsonReader(fpath="{experiment_path}/interim_data/embeddings.jsonl"),
+        sink=JsonWriter(fpath="{experiment_path}/interim_data/a.jsonl"),
         plot=PlotlyChart(kind="table", title="Hallucination score"),
     ))
 
@@ -144,7 +149,8 @@ def get_config():
                 "operator": CosineSimilarity(schema_data={"col_vector_1": "question_embeddings", "col_vector_2": "response_embeddings"})
             }
         ],
-        source=JsonReader(fpath="{experiment_path}/interim_data/embeddings.jsonl"),
+        source=JsonReader(fpath="{experiment_path}/interim_data/a.jsonl"),
+        sink=JsonWriter(fpath="{experiment_path}/interim_data/b.jsonl"),
         plot=PlotlyChart(kind="table", title="Similarity score between question and response"),
     ))
 
@@ -153,11 +159,11 @@ def get_config():
         compute=[
             {
                 "output_cols": ['extracted_text_embeddings_cosine_distribution'],
-                "operator": Distribution(schema_data={"col_embs": "response_embeddings", "col_groupby": "question_idx"}, kind="cosine_similarity"),
+                "operator": Distribution(schema_data={"col_embs": "response_embeddings", "col_groupby": ["question_idx", "experiment_id"]}, kind="cosine_similarity"),
             }
         ],
         source=JsonReader(fpath="{experiment_path}/interim_data/embeddings.jsonl"),
-        plot=PlotlyChart(kind="histogram", title="Cosine Similarity between extracted text embeddings", props=dict(x="extracted_text_embeddings_cosine_distribution", nbins=20)),
+        plot=PlotlyChart(kind="histogram", title="Cosine Similarity between extracted text embeddings", props=dict(x="extracted_text_embeddings_cosine_distribution", nbins=20, color='experiment_id')),
     ))
 
     checks.append(SimpleCheck(
@@ -168,7 +174,8 @@ def get_config():
                 "operator": TextComparison(schema_data={"col_text": "response"}, reference_text='<EMPTY MESSAGE>')
             }
         ],
-        source=JsonReader(fpath="{experiment_path}/output.jsonl"),
+        source=JsonReader(fpath="{experiment_path}/interim_data/b.jsonl"),
+        sink=JsonWriter(fpath="{experiment_path}/interim_data/c.jsonl"),
         plot=PlotlyChart(kind="table", title="Empty response occurence"),
     ))
 
@@ -182,6 +189,19 @@ def get_config():
         ],
         source=JsonReader(fpath="{experiment_path}/interim_data/embeddings.jsonl"),
         plot=PlotlyChart(kind="scatter", title="UMAP for question embeddings", props=dict(x='umap_0', y='umap_1', symbol='symbol', color='cluster')),
+    ))
+
+
+    checks.append(SimpleCheck(
+        name="openai_grade",
+        compute=[
+            {
+                "output_cols": ['chatgpt_model_grade_score'],
+                "operator": ModelGradeScore(schema_data={"col_input": "prompt", "col_completion": "response"})
+            }
+        ],
+        source=JsonReader(fpath="{experiment_path}/interim_data/c.jsonl"),
+        plot=PlotlyChart(kind="table", title="ChatGPT graded score"),
     ))
 
     # checks.append(SimpleCheck(
@@ -223,16 +243,36 @@ def start_streamlit():
     runner.start()
 
 
+openai.api_key = openai_api_key
+
 if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--start-streamlit", default=False, action="store_true")
+    parser.add_argument("--start-streamlit", default=True, action="store_true")
     args = parser.parse_args()
+
+    # start_streamlit()
+    # import pdb; pdb.set_trace()
 
     user_inputs['evaluation_args'] = get_config()
     manager = ExperimentManager(user_inputs)
     manager.run()
 
+    cfg = get_config()
+    experiment_path = LOGS_DIR
+    all_checks = copy.deepcopy(cfg['checks'])
+    for check in all_checks:
+        if check.source is not None:
+            check.source.fpath = check.source.fpath.format(experiment_path=experiment_path)
+        if check.sink is not None:
+            check.sink.fpath = check.sink.fpath.format(experiment_path=experiment_path)
+    cfg = Config(checks=all_checks, settings=Settings(logs_folder=LOGS_DIR, openai_api_key=openai_api_key))
+    cfg.setup()
+    for check in cfg.checks:
+        results = check.make_executor(cfg.settings).run()
+
     if args.start_streamlit:
         start_streamlit()
+
+    import pdb; pdb.set_trace()
