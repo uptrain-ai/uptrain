@@ -19,8 +19,9 @@ from rouge_score import rouge_scorer
 # pip install rouge_score
 
 class SchemaRougeScore(BaseModel):
-    col_text_generated: str = "text_retreived"
+    col_text_generated: str = "text_generated"
     col_text_source: str = "text_source"
+    col_score_type : str = "score_type"
 
 class RougeScore(BaseModel):
     schema_data: SchemaRougeScore = SchemaRougeScore()
@@ -40,11 +41,21 @@ class RougeScoreExecutor:
         if isinstance(data, pl.DataFrame):
             text_generated = data.get_column(self.op.schema_data.col_text_generated)
             text_source = data.get_column(self.op.schema_data.col_text_source)
+            score_type = data.get_column(self.op.schema_data.col_score_type)
 
         results = []
         for i in range(len(text_generated)):
             scorer = rouge_scorer.RougeScorer(['rougeL'])
             scores = scorer.score(text_source[i], text_generated[i])
-            results.append(int(scores['rougeL'][0]* 100))
+
+            if score_type[i] == "recall":
+                results.append(int(scores['rougeL'][1]* 100))
+            elif score_type[i] == "fmeasure":
+                results.append(int(scores['rougeL'][2]* 100))
+            else:
+                # precision by default
+                results.append(int(scores['rougeL'][0]* 100))
 
         return {"output": pl.Series(values=results)}
+    
+

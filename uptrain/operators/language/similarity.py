@@ -33,11 +33,9 @@ class CosineSimilarity(BaseModel):
 
 class CosineSimilarityExecutor:
     op: CosineSimilarity
-    api_client: LLMMulticlient
-
+    
     def __init__(self, op: CosineSimilarity):
         self.op = op
-        self.api_client = LLMMulticlient(concurrency=4)
     
     def run(self, data: TYPE_OP_INPUT) -> TYPE_OP_OUTPUT:
         if isinstance(data, pl.DataFrame):
