@@ -15,7 +15,7 @@ if t.TYPE_CHECKING:
     from uptrain.framework.config import *
 from uptrain.operators.base import *
 
-__all__ = ["DocsLinkVersion"]
+__all__ = ["DocsLinkVersion", "TextLength", "TextComparison"]
 
 
 class SchemaDocumentLinks(BaseModel):
@@ -55,6 +55,52 @@ class DocsVersionExecutor(OperatorExecutor):
             ]
         )
         return {"output": df}
+
+# Text Length
+class SchemaTextLength(BaseModel):
+    col_text: str
+
+class TextLength(BaseModel):
+    schema_data: SchemaTextLength = Field(default_factory=SchemaTextLength)
+
+    def make_executor(self, settings: t.Optional[Settings] = None):
+        return TextLengthExecutor(self)
+    
+@register_op
+class TextLengthExecutor(OperatorExecutor):
+    op: TextLength
+
+    def __init__(self, op: TextLength):
+        self.op = op
+
+    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
+        text = data.get_column(self.op.schema_data.col_text)
+        results = [len(i) for i in  text]
+        return {"output": add_output_cols_to_data(data, [pl.Series(values=results)])}
+
+
+# Text Comparison
+class SchemaTextComparison(BaseModel):
+    col_text: str
+
+class TextComparison(BaseModel):
+    schema_data: SchemaTextComparison = Field(default_factory=SchemaTextComparison)
+    reference_text: str
+
+    def make_executor(self, settings: t.Optional[Settings] = None):
+        return TextComparisonExecutor(self)
+    
+@register_op
+class TextComparisonExecutor(OperatorExecutor):
+    op: TextComparison
+
+    def __init__(self, op: TextComparison):
+        self.op = op
+
+    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
+        text = data.get_column(self.op.schema_data.col_text1)
+        results = [int(x == self.op.reference_text) for x in text]
+        return {"output": add_output_cols_to_data(data, [pl.Series(values=results)])}
 
 
 # -----------------------------------------------------------

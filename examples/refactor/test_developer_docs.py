@@ -1,6 +1,6 @@
 from uptrain.framework.config import Config, Settings, SimpleCheck
-from uptrain.io import JsonReader, DeltaWriter
-from uptrain.operators import GrammarScore, PlotlyChart
+from uptrain.io import JsonReader, DeltaWriter, JsonWriter
+from uptrain.operators import PlotlyChart, Embedding, RougeScore, Distribution, CosineSimilarity, DocsLinkVersion, UMAP, TextLength, TextComparison
 from regression_testing.experiment import ExperimentManager
 
 prompt_template = """
@@ -49,7 +49,6 @@ def check_if_empty_response():
 
 LOGS_DIR = "examples/refactor/uptrain_logs"
 
-from uptrain.operators import Embeddings, Distribution, CustomCheck, TextLength, Rogue, CosineSimilarity, UMAP
 def get_config():
     # Define the config
     checks = []
@@ -60,19 +59,19 @@ def get_config():
         compute=[
             {
                 "output_cols": ["question_embeddings"],
-                "operator": Embeddings(schema_data={"col_text": "question"}),
+                "operator": Embedding(schema_data={"col_text": "question"}),
             },
             {
                 "output_cols": ["context_embeddings"],
-                "operator": Embeddings(schema_data={"col_text": "document_text"}),
+                "operator": Embedding(schema_data={"col_text": "document_text"}),
             },
             {
                 "output_cols": ["response_embeddings"],
-                "operator": Embeddings(schema_data={"col_text": "response"}),
+                "operator": Embedding(schema_data={"col_text": "response"}),
             },
         ],
         source=JsonReader(fpath="{experiment_path}/output.jsonl"),
-        sink=DeltaWriter(fpath="{experiment_path}/interim_data/embeddings")
+        sink=JsonWriter(fpath="{experiment_path}/interim_data/embeddings")
     ))
 
     checks.append(SimpleCheck(
@@ -80,7 +79,7 @@ def get_config():
         compute=[
             {
                 "output_cols": [],
-                "operator": Distribution(schema_data={"col_text": "context_embeddings", "aggregate_col": "question_idx"}, operation="cosine_similarity"),
+                "operator": Distribution(schema_data={"col_embs": "context_embeddings", "col_groupby": "question_idx"}, kind="cosine_similarity"),
             }
         ],
         source=JsonReader(fpath="{experiment_path}/interim_data/embeddings"),
@@ -92,7 +91,7 @@ def get_config():
         compute=[
             {
                 "output_cols": [],
-                "operator": Distribution(schema_data={"col_text": "context_embeddings", "aggregate_col": "question_idx"}, operation="rogue"),
+                "operator": Distribution(schema_data={"col_embs": "context_embeddings", "col_groupby": "question_idx"}, kind="rogue"),
             }
         ],
         source=JsonReader(fpath="{experiment_path}/interim_data/embeddings"),
@@ -104,7 +103,7 @@ def get_config():
         compute=[
             {
                 "output_cols": ["document_link_version"],
-                "operator": extract_version()
+                "operator": DocsLinkVersion(schema_data={'col_text': 'document_link'})
             }
         ],
         source=JsonReader(fpath="{experiment_path}/output.jsonl"),
@@ -128,7 +127,7 @@ def get_config():
         compute=[
             {
                 "output_cols": ["overlap_score"],
-                "operator": Rogue(schema_data={"col_1": "document_text", "col_2": "response"})
+                "operator": RougeScore(schema_data={"col_generated": "response", "col_source": "document_text"})
             }
         ],
         source=JsonReader(fpath="{experiment_path}/output.jsonl"),
@@ -140,7 +139,7 @@ def get_config():
         compute=[
             {
                 "output_cols": ["similarity_score_between_question_and_extracted_text"],
-                "operator": CosineSimilarity(schema_data={"col_1": "question_embeddings", "col_2": "response_embeddings"})
+                "operator": CosineSimilarity(schema_data={"col_vector_1": "question_embeddings", "col_vector_2": "response_embeddings"})
             }
         ],
         source=JsonReader(fpath="{experiment_path}/interim_data/embeddings"),
@@ -152,7 +151,7 @@ def get_config():
         compute=[
             {
                 "output_cols": [],
-                "operator": Distribution(schema_data={"col_text": "response_embeddings", "aggregate_col": "question_idx"}, operation="cosine_similarity"),
+                "operator": Distribution(schema_data={"col_embs": "response_embeddings", "col_groupby": "question_idx"}, kind="cosine_similarity"),
             }
         ],
         source=JsonReader(fpath="{experiment_path}/interim_data/embeddings"),
@@ -164,7 +163,7 @@ def get_config():
         compute=[
             {
                 "output_cols": ["is_empty_response"],
-                "operator": check_if_empty_response()
+                "operator": TextComparison(schema_data={"col_text": "response"}, reference_text='<EMPTY MESSAGE>')
             }
         ],
         source=JsonReader(fpath="{experiment_path}/output.jsonl"),
@@ -176,24 +175,24 @@ def get_config():
         compute=[
             {
                 "output_cols": [],
-                "operator": UMAP(schema_data={"col_text": "question_embeddings"})
+                "operator": UMAP(schema_data={"col_embs": "question_embeddings"})
             }
         ],
         source=JsonReader(fpath="{experiment_path}/interim_data/embeddings"),
         plot=PlotlyChart(kind="scatter", title="UMAP for question embeddings"),
     ))
 
-    checks.append(SimpleCheck(
-        name="model_grading_correctness_score",
-        compute=[
-            {
-                "output_cols": [],
-                "operator": ""
-            }
-        ],
-        source=JsonReader(fpath="{experiment_path}/output.jsonl"),
-        plot=PlotlyChart(kind="table", title="Model Grading Correctness Score"),
-    ))
+    # checks.append(SimpleCheck(
+    #     name="model_grading_correctness_score",
+    #     compute=[
+    #         {
+    #             "output_cols": [],
+    #             "operator": ""
+    #         }
+    #     ],
+    #     source=JsonReader(fpath="{experiment_path}/output.jsonl"),
+    #     plot=PlotlyChart(kind="table", title="Model Grading Correctness Score"),
+    # ))
 
     # import os
     # import shutil

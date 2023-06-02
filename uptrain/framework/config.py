@@ -214,7 +214,9 @@ class Config:
     def setup(self):
         """Create the logs directory, or clear it if it already exists."""
         if os.path.exists(self.settings.logs_folder):
-            clear_directory(self.settings.logs_folder)
+            #TODO: Do we need to clear this? It was deleting input and output files for the experiment?
+            dummy = 1
+            # clear_directory(self.settings.logs_folder)
         else:
             os.makedirs(self.settings.logs_folder)
         self.serialize()
