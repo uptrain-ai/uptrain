@@ -104,7 +104,7 @@ def run_as_config():
             {
                 "output_cols": ["score"],
                 "operator": GrammarScore(schema_data={"col_text": "answer"}),
-            }
+            },
         ],
         source=JsonReader(fpath="/tmp/samples.jsonl"),
         plot=PlotlyChart(kind="table", title="Grammar Score Data"),

@@ -1,10 +1,9 @@
 from __future__ import annotations
 import os
 import typing as t
-from functools import partial
 
 import polars as pl
-from pydantic import BaseModel, BaseSettings, Field
+from pydantic import BaseSettings, Field
 
 from uptrain.operators.base import *
 from uptrain.utilities import jsonload, jsondump, to_py_types, clear_directory
