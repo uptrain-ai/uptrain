@@ -2,10 +2,11 @@ from pydantic import BaseModel
 import copy
 from functools import partial
 import pyarrow as pa
-from uptrain.operators.language import GrammarScore, ModelGradingScore
+from uptrain.operators.language import GrammarScore, ModelGradingScore, CosineSimilarity
 import polars as pl
 
 from uptrain.operators.language.openai_evals import PromptEval
+from uptrain.operators.language.rouge import RougeScore
 
 
 # -----------------------------------------------------------
@@ -105,21 +106,38 @@ class ExperimentManager:
 
             # Add model to the results
             results = results.with_columns(pl.lit(exp.model).alias("model"))
-    
+            original_results = results.clone()
+
             # GRAMMAR SCORE
             score_op = GrammarScore(schema_data={"col_text": "output"})
             grammar_results = score_op.make_executor().run(results)
-            # Add gramar scores to the results
-            results = results.with_columns(pl.lit("grammar").alias("metric"), pl.lit(list(grammar_results.values())[0]).alias("score"))
         
             # MODEL GRADING SCORE
             score_op1 = ModelGradingScore(schema_data={"col_prompt": "prompt", "col_answer": "output", "col_ideal": "output"})
             model_grading_results = score_op1.make_executor().run(results)
+        
+            # COSINE SIMILARITY
+            score_op2 = CosineSimilarity(schema_data={"col_model_input": "prompt", "col_model_output": "output"})
+            cosine_similarity_results = score_op2.make_executor().run(results)
+
+            # ROUGE CHECK
+            score_op3 = RougeScore(schema_data={"col_text_generated": "output", "col_text_source": "prompt"})
+            rouge_results = score_op3.make_executor().run(results)
+
+            # Add gramar scores to the results
+            results = results.with_columns(pl.lit("grammar").alias("metric"), pl.lit(list(grammar_results.values())[0]).alias("score"))
+        
             # Add model grading scores to the results
-            results = results.extend(results.with_columns(pl.lit("model_grading").alias("metric"), pl.lit(list(model_grading_results.values())[0]).alias("score")))
+            results = results.extend(original_results.with_columns(pl.lit("model_grading").alias("metric"), pl.lit(list(model_grading_results.values())[0]).alias("score")))
+                    
+            # Add cosine similarity scores to the results
+            results = results.extend(original_results.with_columns(pl.lit("cosine_similarity").alias("metric"), pl.lit(list(cosine_similarity_results.values())[0]).alias("score")))
+    
+            # Add rouge scores to the results
+            results = results.extend(original_results.with_columns(pl.lit("rouge").alias("metric"), pl.lit(list(rouge_results.values())[0]).alias("score")))
 
             # Remove prompt columns
-            results = results.drop("prompt")
+            # results = results.drop("prompt")
 
             # Add results to final_results
             if final_results.is_empty():

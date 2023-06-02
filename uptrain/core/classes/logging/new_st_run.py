@@ -38,42 +38,42 @@ def read_config(log_folder: str):
         return json.loads(f.read())
 
 
-INPUT_LOG_FOLDER = sys.argv[1]
-LOG_FOLDER = INPUT_LOG_FOLDER  # for partitioned datasets, this could be a subdirectory of INPUT_LOG_FOLDER
+# INPUT_LOG_FOLDER = sys.argv[1]
+# LOG_FOLDER = INPUT_LOG_FOLDER  # for partitioned datasets, this could be a subdirectory of INPUT_LOG_FOLDER
 
-if "config.json" in os.listdir(INPUT_LOG_FOLDER):
-    CONFIG = read_config(INPUT_LOG_FOLDER)
-else:
-    print(
-        f"Could not find an Uptrain config at {INPUT_LOG_FOLDER}. Looking into sub-dirs."
-    )
-    all_sub_dirs = [
-        os.path.join(INPUT_LOG_FOLDER, d) for d in os.listdir(INPUT_LOG_FOLDER)
-    ]
-    valid_sub_dirs = [
-        d for d in all_sub_dirs if os.path.isdir(d) and "config.json" in os.listdir(d)
-    ]
-    if not len(valid_sub_dirs):
-        st.warning("No uptrain config found. Please check the log folder.")
-        st.stop()
-    else:
-        with st.sidebar:
-            st.subheader("Select the dataset partition to analyze")
-            LOG_FOLDER = st.selectbox(
-                "Partition",
-                [""] + valid_sub_dirs,
-                format_func=lambda x: x.split("/")[-1],
-            )
-        if LOG_FOLDER == "":
-            st.stop()
-        else:
-            assert LOG_FOLDER is not None
-            CONFIG = read_config(LOG_FOLDER)
+# if "config.json" in os.listdir(INPUT_LOG_FOLDER):
+#     CONFIG = read_config(INPUT_LOG_FOLDER)
+# else:
+#     print(
+#         f"Could not find an Uptrain config at {INPUT_LOG_FOLDER}. Looking into sub-dirs."
+#     )
+#     all_sub_dirs = [
+#         os.path.join(INPUT_LOG_FOLDER, d) for d in os.listdir(INPUT_LOG_FOLDER)
+#     ]
+#     valid_sub_dirs = [
+#         d for d in all_sub_dirs if os.path.isdir(d) and "config.json" in os.listdir(d)
+#     ]
+#     if not len(valid_sub_dirs):
+#         st.warning("No uptrain config found. Please check the log folder.")
+#         st.stop()
+#     else:
+#         with st.sidebar:
+#             st.subheader("Select the dataset partition to analyze")
+#             LOG_FOLDER = st.selectbox(
+#                 "Partition",
+#                 [""] + valid_sub_dirs,
+#                 format_func=lambda x: x.split("/")[-1],
+#             )
+#         if LOG_FOLDER == "":
+#             st.stop()
+#         else:
+#             assert LOG_FOLDER is not None
+#             CONFIG = read_config(LOG_FOLDER)
 
-# verify there are checks in the config
-if not len(CONFIG["checks"]):
-    st.warning("No checks found in the logs configured.")
-    st.stop()
+# # verify there are checks in the config
+# if not len(CONFIG["checks"]):
+#     st.warning("No checks found in the logs configured.")
+#     st.stop()
 
 # -----------------------------------------------------------
 # Plotting routines
@@ -241,7 +241,7 @@ def display_model_comparison():
 
     # Read the results from the csv
     reader = CsvReader(
-        fpath='/home/insatanic/_MyFolders/uptrain/experiments-uptrain/llm_results.csv'
+        fpath='/home/insatanic/_MyFolders/uptrain/uptrain-exp/llm_results.csv'
     )
 
     # Create dataframe
@@ -366,36 +366,36 @@ def plot_dashboard(check: dict, model_variant: dict, feature_filters: dict):
 # Create a sidebar for the user to specify what they wanna see
 # -----------------------------------------------------------
 
-with st.sidebar:
-    st.subheader("Select the dashboard to view")
-    selected_check = st.radio(
-        "Checks",
-        options=CONFIG["checks"],
-        format_func=lambda x: str(x["type"]),
-    )
-    st.markdown("---")
-    assert selected_check is not None
+# with st.sidebar:
+#     st.subheader("Select the dashboard to view")
+#     selected_check = st.radio(
+#         "Checks",
+#         options=CONFIG["checks"],
+#         format_func=lambda x: str(x["type"]),
+#     )
+#     st.markdown("---")
+#     assert selected_check is not None
 
-    # Work with a specific slice of the data
-    feature_filters = {}
-    if "feature_args" in selected_check:
-        st.subheader("Pick a specific slice of the logged data")
-        for i, feature in enumerate(selected_check["feature_args"]):
-            feature_name = feature["feature_name"]
-            selected_value = st.sidebar.selectbox(
-                feature_name, ["All", *feature["allowed_values"]]
-            )
-            if selected_value != "All":
-                feature_filters.update({feature_name: selected_value})
+#     # Work with a specific slice of the data
+#     feature_filters = {}
+#     if "feature_args" in selected_check:
+#         st.subheader("Pick a specific slice of the logged data")
+#         for i, feature in enumerate(selected_check["feature_args"]):
+#             feature_name = feature["feature_name"]
+#             selected_value = st.sidebar.selectbox(
+#                 feature_name, ["All", *feature["allowed_values"]]
+#             )
+#             if selected_value != "All":
+#                 feature_filters.update({feature_name: selected_value})
 
-    # select a model variant from the cartesian product of all model args
-    model_variant = {}
-    if "model_args" in selected_check:
-        st.subheader("Select model variant")
-        for i, model in enumerate(selected_check["model_args"]):
-            model_name = model["feature_name"]
-            selected_value = st.sidebar.selectbox(model_name, model["allowed_values"])
-            model_variant.update({model_name: selected_value})
+#     # select a model variant from the cartesian product of all model args
+#     model_variant = {}
+#     if "model_args" in selected_check:
+#         st.subheader("Select model variant")
+#         for i, model in enumerate(selected_check["model_args"]):
+#             model_name = model["feature_name"]
+#             selected_value = st.sidebar.selectbox(model_name, model["allowed_values"])
+#             model_variant.update({model_name: selected_value})
 
 
-plot_dashboard(selected_check, model_variant, feature_filters)
+# plot_dashboard(selected_check, model_variant, feature_filters)
