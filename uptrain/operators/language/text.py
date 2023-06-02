@@ -22,6 +22,7 @@ class SchemaDocumentLinks(BaseModel):
     col_text: str
 
 
+@register_op
 class DocsLinkVersion(BaseModel):
     domain_name: t.Optional[
         str
@@ -60,13 +61,13 @@ class DocsVersionExecutor(OperatorExecutor):
 class SchemaTextLength(BaseModel):
     col_text: str
 
+@register_op
 class TextLength(BaseModel):
     schema_data: SchemaTextLength = Field(default_factory=SchemaTextLength)
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return TextLengthExecutor(self)
     
-@register_op
 class TextLengthExecutor(OperatorExecutor):
     op: TextLength
 
@@ -83,6 +84,7 @@ class TextLengthExecutor(OperatorExecutor):
 class SchemaTextComparison(BaseModel):
     col_text: str
 
+@register_op
 class TextComparison(BaseModel):
     schema_data: SchemaTextComparison = Field(default_factory=SchemaTextComparison)
     reference_text: str
@@ -90,7 +92,6 @@ class TextComparison(BaseModel):
     def make_executor(self, settings: t.Optional[Settings] = None):
         return TextComparisonExecutor(self)
     
-@register_op
 class TextComparisonExecutor(OperatorExecutor):
     op: TextComparison
 

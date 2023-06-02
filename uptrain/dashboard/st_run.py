@@ -60,23 +60,23 @@ if plot_op is None:
     st.stop()
 
 # Read the data
-assert check.sink is not None
-if isinstance(check.sink, DeltaWriter):
-    source = DeltaReader(fpath=check.sink.fpath)
-    source_exec = source.make_executor(CONFIG.settings)
-else:
-    raise NotImplementedError(
-        f"Only DeltaWriter is supported for now. Found {type(check.sink)}."
-    )
 
 
-@st.cache_data
-def load_data():
+# @st.cache_data
+def load_data(check):
+    assert check.sink is not None
+    if isinstance(check.sink, DeltaWriter):
+        source = DeltaReader(fpath=check.sink.fpath)
+        source_exec = source.make_executor(CONFIG.settings)
+    else:
+        raise NotImplementedError(
+            f"Only DeltaWriter is supported for now. Found {type(check.sink)}."
+        )
     output = source_exec.run()
     return output["output"]
 
 
-data = load_data()
+data = load_data(check)
 if data is None:
     st.error("No data found per the specified config.")
     st.stop()

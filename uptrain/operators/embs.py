@@ -69,8 +69,10 @@ class DistExecutor(OperatorExecutor):
 
 class SchemaUmap(BaseModel):
     col_embs: str
+    col_embs2: str
 
 
+@register_op
 class UMAP(BaseModel):
     schema_data: SchemaUmap
 
@@ -87,11 +89,20 @@ class UmapExecutor(OperatorExecutor):
 
     def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
         embs = np.asarray(data[self.op.schema_data.col_embs].to_list())
-        umap_output = umap.UMAP().fit_transform(embs)
+        embs2 = np.asarray(data[self.op.schema_data.col_embs2].to_list())
 
-        umap_col_name = get_output_col_name_at(0)
-        df = data.with_columns([pl.Series(umap_col_name, umap_output)])
-        return {"output": df}
+        embs_list = list(embs)
+        embs_list.extend(list(embs2))
+        combined_embs = np.array(embs_list)
+        symbols = ['star'] * len(embs) + ['circle'] * len(embs2)
+        clusters = ['default'] * len(combined_embs)
+        umap_output = umap.UMAP().fit_transform(combined_embs)
+        return {"output": pl.DataFrame({
+            'umap_0': pl.Series(values=umap_output[:,0]),
+            'umap_1': pl.Series(values=umap_output[:,1]),
+            'symbol': pl.Series(values=symbols),
+            'cluster': pl.Series(values=clusters)
+        })}
 
 
 # -----------------------------------------------------------

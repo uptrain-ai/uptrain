@@ -20,6 +20,7 @@ from sentence_transformers import SentenceTransformer
 class SchemaEmbedding(BaseModel):
     col_text: str = "text"
 
+@register_op
 class Embedding(BaseModel):
     schema_data: SchemaEmbedding = Field(default_factory=SchemaEmbedding)
     # model: str = 'hkunlp/instructor-xl'
@@ -28,7 +29,6 @@ class Embedding(BaseModel):
     def make_executor(self, settings: t.Optional[Settings] = None):
         return EmbeddingExecutor(self, settings)
     
-@register_op
 class EmbeddingExecutor(OperatorExecutor):
     op: Embedding
 

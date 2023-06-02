@@ -22,13 +22,13 @@ class SchemaSimilarity(BaseModel):
     col_vector_2: str
 
 
+@register_op
 class CosineSimilarity(BaseModel):
     schema_data: SchemaSimilarity = Field(default_factory=SchemaSimilarity)
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return CosineSimilarityExecutor(self, settings) 
    
-@register_op
 class CosineSimilarityExecutor(OperatorExecutor):
     op: CosineSimilarity
     

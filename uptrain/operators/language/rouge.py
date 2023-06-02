@@ -22,6 +22,7 @@ class SchemaRougeScore(BaseModel):
     col_generated: str = "text_generated"
     col_source: str = "text_source"
 
+@register_op
 class RougeScore(BaseModel):
     schema_data: SchemaRougeScore = Field(default_factory=SchemaRougeScore)
     score_type : str = "precision"
@@ -29,7 +30,6 @@ class RougeScore(BaseModel):
     def make_executor(self, settings: t.Optional[Settings] = None):
         return RougeScoreExecutor(self, settings)
 
-@register_op
 class RougeScoreExecutor(OperatorExecutor):
     op: RougeScore
 

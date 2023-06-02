@@ -78,25 +78,26 @@ def get_config():
         name="distribution_of_document_embeddings",
         compute=[
             {
-                "output_cols": [],
+                "output_cols": ['document_embeddings_cosine_distribution'],
                 "operator": Distribution(schema_data={"col_embs": "context_embeddings", "col_groupby": "question_idx"}, kind="cosine_similarity"),
             }
         ],
         source=JsonReader(fpath="{experiment_path}/interim_data/embeddings.jsonl"),
         plot=PlotlyChart(kind="histogram", title="Distribution of document embeddings",
-            props=dict(x="cosine_similarity", nbins=20))
+            props=dict(x="document_embeddings_cosine_distribution", nbins=20))
     ))
 
     checks.append(SimpleCheck(
-        name="text_overlap_between_document_embeddings",
+        name="text_overlap_between_documents",
         compute=[
             {
-                "output_cols": [],
+                "output_cols": ['document_text_rogue_f1'],
                 "operator": Distribution(schema_data={"col_embs": "document_text", "col_groupby": "question_idx"}, kind="rouge"),
             }
         ],
         source=JsonReader(fpath="{experiment_path}/interim_data/embeddings.jsonl"),
-        plot=PlotlyChart(kind="histogram", title="Text Overlap between document embeddings", props=dict(x="rouge_l_f1", nbins=20)),
+        plot=PlotlyChart(kind="histogram", title="Text Overlap between document embeddings", 
+                        props=dict(x="document_text_rogue_f1", nbins=20)),
     ))
 
     checks.append(SimpleCheck(
@@ -120,14 +121,14 @@ def get_config():
             }
         ],
         source=JsonReader(fpath="{experiment_path}/output.jsonl"),
-        plot=PlotlyChart(kind="bar", title="Bar Plot of Context Length", props=dict(x='document_context_length')),
+        plot=PlotlyChart(kind="histogram", title="Bar Plot of Context Length", props=dict(x='document_context_length', nbins=20)),
     ))
 
     checks.append(SimpleCheck(
         name="hallucination_check",
         compute=[
             {
-                "output_cols": ["overlap_score"],
+                "output_cols": ["response_document_overlap_score"],
                 "operator": RougeScore(schema_data={"col_generated": "response", "col_source": "document_text"})
             }
         ],
@@ -144,19 +145,19 @@ def get_config():
             }
         ],
         source=JsonReader(fpath="{experiment_path}/interim_data/embeddings.jsonl"),
-        plot=PlotlyChart(kind="table", title="Hallucination score"),
+        plot=PlotlyChart(kind="table", title="Similarity score between question and response"),
     ))
 
     checks.append(SimpleCheck(
         name="distribution_of_extracted_text_embeddings",
         compute=[
             {
-                "output_cols": [],
+                "output_cols": ['extracted_text_embeddings_cosine_distribution'],
                 "operator": Distribution(schema_data={"col_embs": "response_embeddings", "col_groupby": "question_idx"}, kind="cosine_similarity"),
             }
         ],
         source=JsonReader(fpath="{experiment_path}/interim_data/embeddings.jsonl"),
-        plot=PlotlyChart(kind="histogram", title="Cosine Similarity between extracted text embeddings", props=dict(x="cosine_similarity", nbins=20)),
+        plot=PlotlyChart(kind="histogram", title="Cosine Similarity between extracted text embeddings", props=dict(x="extracted_text_embeddings_cosine_distribution", nbins=20)),
     ))
 
     checks.append(SimpleCheck(
@@ -176,11 +177,11 @@ def get_config():
         compute=[
             {
                 "output_cols": [],
-                "operator": UMAP(schema_data={"col_embs": "question_embeddings"})
+                "operator": UMAP(schema_data={"col_embs": "question_embeddings", "col_embs2": "response_embeddings"})
             }
         ],
         source=JsonReader(fpath="{experiment_path}/interim_data/embeddings.jsonl"),
-        plot=PlotlyChart(kind="scatter", title="UMAP for question embeddings"),
+        plot=PlotlyChart(kind="scatter", title="UMAP for question embeddings", props=dict(x='umap_0', y='umap_1', symbol='symbol', color='cluster')),
     ))
 
     # checks.append(SimpleCheck(
