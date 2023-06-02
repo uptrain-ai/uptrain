@@ -4,7 +4,7 @@ import typing as t
 from functools import partial
 
 import polars as pl
-from pydantic import BaseSettings, Field
+from pydantic import BaseModel, BaseSettings, Field
 
 from uptrain.operators.base import *
 from uptrain.utilities import jsonload, jsondump, to_py_types, clear_directory
@@ -146,14 +146,14 @@ class SimpleCheckExecutor:
 
     def run(self, data: t.Optional[pl.DataFrame] = None) -> t.Optional[pl.DataFrame]:
         """Run this check on the given data."""
-        # run the source else use the provided data
-        if data is None:
-            assert (
-                self.exec_source is not None
-            ), "No source provided for this check, so data must be provided manually."
+        # run the source if specified else use the provided data
+        if self.exec_source is not None:
             res = self.exec_source.run()  # type: ignore
             data = res["output"]
-        assert data is not None
+        else:
+            assert (
+                data is not None
+            ), "No source provided for this check, so data must be provided manually."
 
         # run the compute operations in sequence, passing the output of one to the next
         for compute_op in self.exec_compute:

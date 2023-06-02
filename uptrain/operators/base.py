@@ -23,6 +23,7 @@ __all__ = [
     "TYPE_OP_OUTPUT",
     "Operator",
     "OperatorExecutor",
+    "PlaceholderOp",
     "register_op",
     "register_op_external",
     "deserialize_operator",
@@ -95,6 +96,10 @@ class OperatorRegistry:
             raise ValueError(f"No operator registered with name {name}")
         return operator_klass
 
+    @classmethod
+    def has_operator(cls, name: str):
+        return name in cls._registry
+
 
 T = t.TypeVar("T")
 
@@ -119,7 +124,10 @@ def register_op_external(namespace: str):
 def deserialize_operator(data: dict) -> Operator:
     """Deserialize an operator from a dict."""
     op_name = data["op_name"]
-    op = OperatorRegistry.get_operator(op_name)
+    if OperatorRegistry.has_operator(op_name):
+        op = OperatorRegistry.get_operator(op_name)
+    else:
+        return PlaceholderOp(op_name=op_name, params=data["params"])
 
     if hasattr(op, "from_dict"):
         # likely a check object
@@ -160,3 +168,30 @@ def check_req_columns_present(
         assert (
             col in data.columns
         ), f"Column: {col} for attribute: {attr} not found in input data."
+
+
+@register_op
+class PlaceholderOp(BaseModel):
+    """A placeholder operator that does nothing. Used when deserializing an operator,
+    that hasn't been registered."""
+
+    op_name: str
+    params: dict[str, t.Any]
+
+    def make_executor(
+        self, settings: t.Optional["Settings"] = None
+    ) -> "PlaceholderOpExecutor":
+        """Make an executor for this operator."""
+        return PlaceholderOpExecutor(self)
+
+
+class PlaceholderOpExecutor(OperatorExecutor):
+    op: PlaceholderOp
+
+    def __init__(self, op: PlaceholderOp) -> None:
+        self.op = op
+
+    def run(self, data: t.Optional[pl.DataFrame] = None) -> t.Optional[pl.DataFrame]:
+        raise NotImplementedError(
+            "This is only a placeholder since the operator: {self.op_name} is not registered with Uptrain. Import the module where it is defined and try again."
+        )
