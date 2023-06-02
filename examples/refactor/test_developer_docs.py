@@ -71,7 +71,7 @@ def get_config():
             },
         ],
         source=JsonReader(fpath="{experiment_path}/output.jsonl"),
-        sink=JsonWriter(fpath="{experiment_path}/interim_data/embeddings")
+        sink=JsonWriter(fpath="{experiment_path}/interim_data/embeddings.jsonl")
     ))
 
     checks.append(SimpleCheck(
@@ -82,8 +82,9 @@ def get_config():
                 "operator": Distribution(schema_data={"col_embs": "context_embeddings", "col_groupby": "question_idx"}, kind="cosine_similarity"),
             }
         ],
-        source=JsonReader(fpath="{experiment_path}/interim_data/embeddings"),
-        plot=PlotlyChart(kind="histogram", title="Distribution of document embeddings"),
+        source=JsonReader(fpath="{experiment_path}/interim_data/embeddings.jsonl"),
+        plot=PlotlyChart(kind="histogram", title="Distribution of document embeddings",
+            props=dict(x="cosine_similarity", nbins=20))
     ))
 
     checks.append(SimpleCheck(
@@ -91,11 +92,11 @@ def get_config():
         compute=[
             {
                 "output_cols": [],
-                "operator": Distribution(schema_data={"col_embs": "context_embeddings", "col_groupby": "question_idx"}, kind="rogue"),
+                "operator": Distribution(schema_data={"col_embs": "document_text", "col_groupby": "question_idx"}, kind="rouge"),
             }
         ],
-        source=JsonReader(fpath="{experiment_path}/interim_data/embeddings"),
-        plot=PlotlyChart(kind="histogram", title="Text Overlap between document embeddings"),
+        source=JsonReader(fpath="{experiment_path}/interim_data/embeddings.jsonl"),
+        plot=PlotlyChart(kind="histogram", title="Text Overlap between document embeddings", props=dict(x="rouge_l_f1", nbins=20)),
     ))
 
     checks.append(SimpleCheck(
@@ -107,7 +108,7 @@ def get_config():
             }
         ],
         source=JsonReader(fpath="{experiment_path}/output.jsonl"),
-        plot=PlotlyChart(kind="bar", title="Bar Plot of Link version"),
+        plot=PlotlyChart(kind="bar", title="Bar Plot of Link version", props=dict(x='document_link_version')),
     ))
 
     checks.append(SimpleCheck(
@@ -119,7 +120,7 @@ def get_config():
             }
         ],
         source=JsonReader(fpath="{experiment_path}/output.jsonl"),
-        plot=PlotlyChart(kind="bar", title="Bar Plot of Context Length"),
+        plot=PlotlyChart(kind="bar", title="Bar Plot of Context Length", props=dict(x='document_context_length')),
     ))
 
     checks.append(SimpleCheck(
@@ -142,7 +143,7 @@ def get_config():
                 "operator": CosineSimilarity(schema_data={"col_vector_1": "question_embeddings", "col_vector_2": "response_embeddings"})
             }
         ],
-        source=JsonReader(fpath="{experiment_path}/interim_data/embeddings"),
+        source=JsonReader(fpath="{experiment_path}/interim_data/embeddings.jsonl"),
         plot=PlotlyChart(kind="table", title="Hallucination score"),
     ))
 
@@ -154,8 +155,8 @@ def get_config():
                 "operator": Distribution(schema_data={"col_embs": "response_embeddings", "col_groupby": "question_idx"}, kind="cosine_similarity"),
             }
         ],
-        source=JsonReader(fpath="{experiment_path}/interim_data/embeddings"),
-        plot=PlotlyChart(kind="histogram", title="Cosine Similarity between extracted text embeddings"),
+        source=JsonReader(fpath="{experiment_path}/interim_data/embeddings.jsonl"),
+        plot=PlotlyChart(kind="histogram", title="Cosine Similarity between extracted text embeddings", props=dict(x="cosine_similarity", nbins=20)),
     ))
 
     checks.append(SimpleCheck(
@@ -178,7 +179,7 @@ def get_config():
                 "operator": UMAP(schema_data={"col_embs": "question_embeddings"})
             }
         ],
-        source=JsonReader(fpath="{experiment_path}/interim_data/embeddings"),
+        source=JsonReader(fpath="{experiment_path}/interim_data/embeddings.jsonl"),
         plot=PlotlyChart(kind="scatter", title="UMAP for question embeddings"),
     ))
 

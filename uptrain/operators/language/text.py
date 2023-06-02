@@ -98,7 +98,7 @@ class TextComparisonExecutor(OperatorExecutor):
         self.op = op
 
     def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
-        text = data.get_column(self.op.schema_data.col_text1)
+        text = data.get_column(self.op.schema_data.col_text)
         results = [int(x == self.op.reference_text) for x in text]
         return {"output": add_output_cols_to_data(data, [pl.Series(values=results)])}
 
