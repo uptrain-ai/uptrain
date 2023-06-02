@@ -27,7 +27,7 @@ __all__ = ["Distribution", "UMAP"]
 
 class SchemaDistribution(BaseModel):
     col_embs: str
-    col_groupby: str
+    col_groupby: list[str]
 
 
 @register_op
@@ -64,6 +64,7 @@ class DistExecutor(OperatorExecutor):
                 .alias(output_agg_col_name)
             ]
         )
+        dist_df = dist_df.explode(output_agg_col_name)
         return {"output": dist_df}
 
 
@@ -94,15 +95,19 @@ class UmapExecutor(OperatorExecutor):
         embs_list = list(embs)
         embs_list.extend(list(embs2))
         combined_embs = np.array(embs_list)
-        symbols = ['star'] * len(embs) + ['circle'] * len(embs2)
-        clusters = ['default'] * len(combined_embs)
+        symbols = ["star"] * len(embs) + ["circle"] * len(embs2)
+        clusters = ["default"] * len(combined_embs)
         umap_output = umap.UMAP().fit_transform(combined_embs)
-        return {"output": pl.DataFrame({
-            'umap_0': pl.Series(values=umap_output[:,0]),
-            'umap_1': pl.Series(values=umap_output[:,1]),
-            'symbol': pl.Series(values=symbols),
-            'cluster': pl.Series(values=clusters)
-        })}
+        return {
+            "output": pl.DataFrame(
+                {
+                    "umap_0": pl.Series(values=umap_output[:, 0]),
+                    "umap_1": pl.Series(values=umap_output[:, 1]),
+                    "symbol": pl.Series(values=symbols),
+                    "cluster": pl.Series(values=clusters),
+                }
+            )
+        }
 
 
 # -----------------------------------------------------------
@@ -141,6 +146,6 @@ def get_rouge_score(col_vectors: pl.Series, num_pairs_per_group: int = 10):
         v1 = array_vectors[i1]
         v2 = array_vectors[i2]
 
-        scorer = rouge_scorer.RougeScorer(['rougeL'])
-        values.append(int(scorer.score(v1, v2)['rougeL'][2]* 100))
+        scorer = rouge_scorer.RougeScorer(["rougeL"])
+        values.append(int(scorer.score(v1, v2)["rougeL"][2] * 100))
     return values
