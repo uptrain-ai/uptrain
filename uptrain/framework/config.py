@@ -200,10 +200,13 @@ class Config:
         # add a default sink to checks without any specified sink
         for check in checks:
             if isinstance(check, SimpleCheck) and check.sink is None:
+                import uuid
                 from uptrain.io.writers import DeltaWriter
 
                 check.sink = DeltaWriter(
-                    fpath=os.path.join(settings.logs_folder, check.name)
+                    fpath=os.path.join(
+                        settings.logs_folder, check.name, "-" + str(uuid.uuid4())[:8]
+                    )
                 )
         self.checks = checks
         self.settings = settings

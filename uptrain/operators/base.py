@@ -19,7 +19,6 @@ if t.TYPE_CHECKING:
 
 
 __all__ = [
-    "TYPE_OP_INPUT",
     "TYPE_OP_OUTPUT",
     "Operator",
     "OperatorExecutor",
@@ -35,8 +34,6 @@ __all__ = [
 # -----------------------------------------------------------
 # Base classes for operators
 # -----------------------------------------------------------
-
-TYPE_OP_INPUT = t.Optional[pl.DataFrame]
 
 
 class TYPE_OP_OUTPUT(te.TypedDict):
@@ -69,7 +66,7 @@ class OperatorExecutor(t.Protocol):
 
     op: Operator
 
-    def run(self, data: TYPE_OP_INPUT = None) -> TYPE_OP_OUTPUT:
+    def run(self, data: t.Optional[pl.DataFrame] = None) -> TYPE_OP_OUTPUT:
         ...
 
 
