@@ -51,14 +51,14 @@ class SimpleCheck:
     def __init__(
         self,
         name: str,
-        compute: t.Union[ComputeOp, list[ComputeOp]],
+        compute: list[ComputeOp],
         source: t.Optional[Operator] = None,
         sink: t.Optional[Operator] = None,
         alert: t.Optional[Operator] = None,
         plot: t.Optional[Operator] = None,
     ):
         self.name = name
-        self.compute = compute if isinstance(compute, list) else [compute]
+        self.compute = compute
         self.source = source
         self.alert = alert
         self.sink = sink

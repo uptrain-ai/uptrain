@@ -15,6 +15,8 @@ if t.TYPE_CHECKING:
 from uptrain.operators.base import *
 from uptrain.operators.language.llm import LLMMulticlient, Payload
 
+__all__ = ["GrammarScore"]
+
 
 class SchemaGrammarScore(BaseModel):
     col_text: str = "text"

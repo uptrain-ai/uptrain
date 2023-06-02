@@ -7,6 +7,7 @@ import deltalake as dl
 from pathlib import Path
 
 from uptrain.operators.base import *
+
 if t.TYPE_CHECKING:
     from uptrain.framework.config import *
 
@@ -62,6 +63,6 @@ class JsonWriterExecutor(OperatorExecutor):
             self.columns = list(data.columns)
         assert set(self.columns) == set(data.columns)
 
-        #TODO: There should be a better way to create folders than below
-        Path(self.op.fpath.split('.')[0]).mkdir(parents=True, exist_ok=True)
+        # TODO: There should be a better way to create folders than below
+        Path(self.op.fpath.split(".")[0]).mkdir(parents=True, exist_ok=True)
         data.write_ndjson(file=self.op.fpath)

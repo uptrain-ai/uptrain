@@ -10,10 +10,12 @@ from pydantic import BaseModel
 import numpy as np
 import polars as pl
 
-from uptrain.operators.base import *
-
 if t.TYPE_CHECKING:
     from uptrain.framework.config import *
+from uptrain.operators.base import *
+
+
+__all__ = ["Accuracy"]
 
 
 class SchemaAccuracy(BaseModel):
