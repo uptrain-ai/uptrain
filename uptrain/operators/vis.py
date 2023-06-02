@@ -14,6 +14,9 @@ if t.TYPE_CHECKING:
     from uptrain.framework.config import *
 
 
+__all__ = ["PlotlyChart"]
+
+
 @register_op
 class PlotlyChart(BaseModel):
     kind: t.Literal["line", "scatter", "bar", "histogram", "table"]

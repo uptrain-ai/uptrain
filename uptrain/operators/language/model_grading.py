@@ -18,7 +18,6 @@ class SchemaModelGradingScore(BaseModel):
     col_prompt: str = "prompt"
     col_answer: str = "answer"
     col_ideal: str = "ideal"
-    
 
 
 class ModelGradingScore(BaseModel):
@@ -36,7 +35,9 @@ class ModelGradingScoreExecutor:
         self.op = op
         self.api_client = LLMMulticlient(concurrency=4)
 
-    def _make_payload(self, id: t.Any, question: str, ideal: str, answer: str) -> Payload:
+    def _make_payload(
+        self, id: t.Any, question: str, ideal: str, answer: str
+    ) -> Payload:
         return Payload(
             endpoint="chat.completions",
             data={
@@ -49,9 +50,7 @@ class ModelGradingScoreExecutor:
                     {
                         "role": "user",
                         "content": "For the given question: {question}, assume that {ideal} is the desired answer. Now, rate the given response: {answer} on how accurately it answers the given question. Give 1 if response is extremely inaccurate and 100 if the response is extremely accurate.".format(
-                            question=question,
-                            ideal=ideal,
-                            answer=answer
+                            question=question, ideal=ideal, answer=answer
                         ),
                     },
                 ],
@@ -59,13 +58,14 @@ class ModelGradingScoreExecutor:
             metadata={"index": id},
         )
 
-    def run(self, data: TYPE_OP_INPUT) -> TYPE_OP_OUTPUT:
+    def run(self, data: t.Optional[pl.DataFrame]) -> TYPE_OP_OUTPUT:
         if isinstance(data, pl.DataFrame):
             question = data.get_column(self.op.schema_data.col_prompt)
             ideal = data.get_column(self.op.schema_data.col_ideal)
             answer = data.get_column(self.op.schema_data.col_answer)
         input_payloads = [
-            self._make_payload(idx, question[idx], ideal[idx], answer[idx]) for idx in range(len(data))
+            self._make_payload(idx, question[idx], ideal[idx], answer[idx])
+            for idx in range(len(data))
         ]
         output_payloads = self.api_client.fetch_responses(input_payloads)
 
