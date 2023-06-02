@@ -80,6 +80,34 @@ class TextLengthExecutor(OperatorExecutor):
         results = [len(i) for i in  text]
 
         return {"output": add_output_cols_to_data(data, [pl.Series(values=results)])}
+    
+    
+# Text Comparison
+class SchemaTextComparison(BaseModel):
+    col_text1: str
+    col_text2: str
+
+class TextComparison(BaseModel):
+    schema_data: SchemaTextComparison = Field(default_factory=SchemaTextComparison)
+
+    def make_executor(self, settings: t.Optional[Settings] = None):
+        return TextComparisonExecutor(self, settings)
+    
+@register_op
+class TextComparisonExecutor(OperatorExecutor):
+    op: TextComparison
+
+    def __init__(self, op: TextComparison):
+        self.op = op
+
+    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
+        text1 = data.get_column(self.op.schema_data.col_text1)
+        text2 = data.get_column(self.op.schema_data.col_text2)
+
+        results = [int(i == j) for i, j in zip(text1, text2)]
+
+        return {"output": add_output_cols_to_data(data, [pl.Series(values=results)])}
+
 
 # -----------------------------------------------------------
 # Utility routines
