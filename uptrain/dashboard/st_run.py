@@ -5,7 +5,7 @@ import streamlit as st
 import polars as pl
 import plotly.express as px
 
-from uptrain.io import DeltaReader, DeltaWriter
+from uptrain.io import DeltaReader, DeltaWriter, JsonReader, JsonWriter
 import uptrain.operators
 from uptrain.framework.config import Config, SimpleCheck
 
@@ -68,9 +68,12 @@ def load_data(check):
     if isinstance(check.sink, DeltaWriter):
         source = DeltaReader(fpath=check.sink.fpath)
         source_exec = source.make_executor(CONFIG.settings)
+    elif isinstance(check.sink, JsonWriter):
+        source = JsonReader(fpath=check.sink.fpath)
+        source_exec = source.make_executor(CONFIG.settings)
     else:
         raise NotImplementedError(
-            f"Only DeltaWriter is supported for now. Found {type(check.sink)}."
+            f"{type(check.sink)} is not supported for now."
         )
     output = source_exec.run()
     return output["output"]
