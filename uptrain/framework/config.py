@@ -2,6 +2,7 @@ from __future__ import annotations
 import os
 import typing as t
 
+import networkx as nx
 import polars as pl
 from pydantic import BaseSettings, Field
 
@@ -27,6 +28,74 @@ class ComputeOp(t.TypedDict):
 class ComputeOpExec(t.TypedDict):
     output_cols: list[str]
     operator: OperatorExecutor
+
+
+class Check:
+    """An Uptrain Check is a DAG of operators, used to define the data pipeline to execute."""
+
+    name: str
+    graph: nx.DiGraph
+
+    def __init__(self, name: str):
+        self.name = name
+        self.graph = nx.DiGraph()
+
+    def add_step(self, name: str, node: Operator, deps: list[str]) -> None:
+        """Add a node to the DAG, along with its dependencies."""
+        if name in self.graph.nodes:
+            raise ValueError(
+                f"An operator with name: {name} has already been added to the Check."
+            )
+
+        for dep in deps:
+            if dep not in self.graph.nodes:
+                raise ValueError(f"Dependency: {dep} does not exist in the Check.")
+            self.graph.add_edge(dep, name)
+        self.graph.add_node(name, data=node)
+
+        if not nx.algorithms.dag.is_directed_acyclic_graph(self.graph):
+            self.graph.remove_node(name)
+            raise ValueError("Adding a node for operator: {name} creates a cycle.")
+
+    def run(self) -> None:
+        sorted_nodes = list(nx.algorithms.dag.topological_sort(self.graph))
+        for node_name in sorted_nodes:
+            node_data = self.graph.nodes[node_name]["data"]
+            node_data.run()
+
+    def _get_node_parents(self, name: str) -> list[str]:
+        return list(self.graph.predecessors(name))
+
+    def _get_node_descendants(self, name: str) -> list[str]:
+        return list(nx.algorithms.dag.descendants(self.graph, name))
+
+    def __repr__(self) -> str:
+        sorted_nodes = list(nx.algorithms.dag.topological_sort(self.graph))
+        lines = []
+        for node_name in sorted_nodes:
+            lines.append(f"{node_name} <- {self._get_node_parents(node_name)}")
+        return f"Check: {self.name}" + "\n".join(lines)
+
+    def dict(self) -> dict:
+        """Serialize this check to a dict."""
+        nodes = {
+            name: to_py_types(self.graph.nodes[name]["data"])
+            for name in self.graph.nodes
+        }
+        edges = list(self.graph.edges)
+        return {"name": self.name, "nodes": nodes, "edges": edges}
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "Check":
+        """Deserialize a check from a dict."""
+        check = cls(name=data["name"])
+        for name, node in data["nodes"].items():
+            check.graph.add_node(name, data=deserialize_operator(node))
+        for edge in data["edges"]:
+            assert edge[0] in check.graph.nodes, f"Operator node: {edge[0]} not found"
+            assert edge[1] in check.graph.nodes, f"Operator node: {edge[1]} not found"
+            check.graph.add_edge(edge[0], edge[1])
+        return check
 
 
 @register_op
@@ -214,7 +283,7 @@ class Config:
     def setup(self):
         """Create the logs directory, or clear it if it already exists."""
         if os.path.exists(self.settings.logs_folder):
-            #TODO: Do we need to clear this? It was deleting input and output files for the experiment?
+            # TODO: Do we need to clear this? It was deleting input and output files for the experiment?
             dummy = 1
             # clear_directory(self.settings.logs_folder)
         else:

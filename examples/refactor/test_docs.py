@@ -29,15 +29,15 @@ def get_config():
             compute=[
                 {
                     "output_cols": ["question_embeddings"],
-                    "operator": Embedding(schema_data={"col_text": "question"}),
+                    "operator": Embedding(schema={"col_text": "question"}),
                 },
                 {
                     "output_cols": ["context_embeddings"],
-                    "operator": Embedding(schema_data={"col_text": "document_text"}),
+                    "operator": Embedding(schema={"col_text": "document_text"}),
                 },
                 {
                     "output_cols": ["response_embeddings"],
-                    "operator": Embedding(schema_data={"col_text": "response"}),
+                    "operator": Embedding(schema={"col_text": "response"}),
                 },
             ],
             source=JsonReader(fpath=DATASET_PATH),
@@ -52,7 +52,7 @@ def get_config():
                 {
                     "output_cols": ["document_embeddings_cosine_distribution"],
                     "operator": Distribution(
-                        schema_data={
+                        schema={
                             "col_embs": "context_embeddings",
                             "col_groupby": ["question_idx", "experiment_id"],
                         },
@@ -76,7 +76,7 @@ def get_config():
                 {
                     "output_cols": ["document_text_rogue_f1"],
                     "operator": Distribution(
-                        schema_data={
+                        schema={
                             "col_embs": "document_text",
                             "col_groupby": ["question_idx", "experiment_id"],
                         },
@@ -99,9 +99,7 @@ def get_config():
             compute=[
                 {
                     "output_cols": ["document_link_version"],
-                    "operator": DocsLinkVersion(
-                        schema_data={"col_text": "document_link"}
-                    ),
+                    "operator": DocsLinkVersion(schema={"col_text": "document_link"}),
                 }
             ],
             source=JsonReader(fpath=DATASET_W_EMB_PATH),
@@ -119,7 +117,7 @@ def get_config():
             compute=[
                 {
                     "output_cols": ["document_context_length"],
-                    "operator": TextLength(schema_data={"col_text": "document_text"}),
+                    "operator": TextLength(schema={"col_text": "document_text"}),
                 }
             ],
             source=JsonReader(fpath=DATASET_W_EMB_PATH),
@@ -138,7 +136,7 @@ def get_config():
                 {
                     "output_cols": ["response_document_overlap_score"],
                     "operator": RougeScore(
-                        schema_data={
+                        schema={
                             "col_generated": "response",
                             "col_source": "document_text",
                         }
@@ -159,7 +157,7 @@ def get_config():
                         "similarity_score_between_question_and_extracted_text"
                     ],
                     "operator": CosineSimilarity(
-                        schema_data={
+                        schema={
                             "col_vector_1": "question_embeddings",
                             "col_vector_2": "response_embeddings",
                         }
@@ -180,7 +178,7 @@ def get_config():
                 {
                     "output_cols": ["extracted_text_embeddings_cosine_distribution"],
                     "operator": Distribution(
-                        schema_data={
+                        schema={
                             "col_embs": "response_embeddings",
                             "col_groupby": ["question_idx", "experiment_id"],
                         },
@@ -204,7 +202,7 @@ def get_config():
                 {
                     "output_cols": ["is_empty_response"],
                     "operator": TextComparison(
-                        schema_data={"col_text": "response"},
+                        schema={"col_text": "response"},
                         reference_text="<EMPTY MESSAGE>",
                     ),
                 }
@@ -221,7 +219,7 @@ def get_config():
                 {
                     "output_cols": [],
                     "operator": UMAP(
-                        schema_data={
+                        schema={
                             "col_embs": "question_embeddings",
                             "col_embs2": "response_embeddings",
                         }

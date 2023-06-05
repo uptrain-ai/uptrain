@@ -156,7 +156,7 @@ class PromptEval(BaseModel):
     prompt_variables: list[str]
     gt_variables: list[str]
     model_name: str
-    schema_data: SchemaPromptEval = SchemaPromptEval()
+    schema: SchemaPromptEval = SchemaPromptEval()
 
     # TODO: Not sure why but this is failing and hence, commented out
     # @root_validator

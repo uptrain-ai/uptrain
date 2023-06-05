@@ -26,14 +26,15 @@ __all__ = ["Distribution", "UMAP"]
 
 
 class SchemaDistribution(BaseModel):
-    col_embs: str
-    col_groupby: list[str]
+    in_col_embs: str
+    in_col_groupby: list[str]
+    out_col_dist_samples: str = get_output_col_name_at(0)
 
 
 @register_op
 class Distribution(BaseModel):
     kind: t.Literal["cosine_similarity", "rouge"]
-    schema_data: SchemaDistribution
+    schema: SchemaDistribution
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return DistExecutor(self)
@@ -54,28 +55,29 @@ class DistExecutor(OperatorExecutor):
         else:
             raise NotImplementedError("Only cosine similarity is supported for now.")
 
-        output_agg_col_name = get_output_col_name_at(0)
-        dist_df = data.groupby(
-            self.op.schema_data.col_groupby, maintain_order=True
-        ).agg(
-            [
-                pl.col(self.op.schema_data.col_embs)
-                .apply(agg_func)
-                .alias(output_agg_col_name)
-            ]
+        output_agg_col_name = self.op.schema.out_col_dist_samples
+        dist_df = (
+            data.groupby(self.op.schema.in_col_groupby, maintain_order=True)
+            .agg(
+                [
+                    pl.col(self.op.schema.in_col_embs)
+                    .apply(agg_func)
+                    .alias(output_agg_col_name)
+                ]
+            )
+            .explode(output_agg_col_name)
         )
-        dist_df = dist_df.explode(output_agg_col_name)
         return {"output": dist_df}
 
 
 class SchemaUmap(BaseModel):
-    col_embs: str
-    col_embs2: str
+    in_col_embs: str
+    in_col_embs2: str
 
 
 @register_op
 class UMAP(BaseModel):
-    schema_data: SchemaUmap
+    schema: SchemaUmap
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return UmapExecutor(self)
@@ -89,8 +91,8 @@ class UmapExecutor(OperatorExecutor):
         self.op = op
 
     def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
-        embs = np.asarray(data[self.op.schema_data.col_embs].to_list())
-        embs2 = np.asarray(data[self.op.schema_data.col_embs2].to_list())
+        embs = np.asarray(data[self.op.schema.in_col_embs].to_list())
+        embs2 = np.asarray(data[self.op.schema.in_col_embs2].to_list())
 
         embs_list = list(embs)
         embs_list.extend(list(embs2))
