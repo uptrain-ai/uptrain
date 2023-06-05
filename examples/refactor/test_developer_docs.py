@@ -3,9 +3,6 @@ import copy
 
 from uptrain.framework.config import Config, Settings, SimpleCheck
 from uptrain.io import JsonReader, DeltaWriter, JsonWriter
-<<<<<<< HEAD
-from uptrain.operators import PlotlyChart, Embedding, RougeScore, Distribution, CosineSimilarity, DocsLinkVersion, UMAP, TextLength, TextComparison, ModelGradeScore
-=======
 from uptrain.operators import (
     PlotlyChart,
     Embedding,
@@ -16,8 +13,8 @@ from uptrain.operators import (
     UMAP,
     TextLength,
     TextComparison,
+    ModelGradeScore
 )
->>>>>>> ananis/refactor
 from regression_testing.experiment import ExperimentManager
 
 
