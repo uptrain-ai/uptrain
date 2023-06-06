@@ -85,15 +85,15 @@ def get_config():
             compute=[
                 {
                     "output_cols": ["question_embeddings"],
-                    "operator": Embedding(schema={"col_text": "question"}),
+                    "operator": Embedding(dataschema={"col_text": "question"}),
                 },
                 {
                     "output_cols": ["context_embeddings"],
-                    "operator": Embedding(schema={"col_text": "document_text"}),
+                    "operator": Embedding(dataschema={"col_text": "document_text"}),
                 },
                 {
                     "output_cols": ["response_embeddings"],
-                    "operator": Embedding(schema={"col_text": "response"}),
+                    "operator": Embedding(dataschema={"col_text": "response"}),
                 },
             ],
             source=JsonReader(fpath="{experiment_path}/output.jsonl"),
@@ -108,7 +108,7 @@ def get_config():
                 {
                     "output_cols": ["document_embeddings_cosine_distribution"],
                     "operator": Distribution(
-                        schema={
+                        dataschema={
                             "col_embs": "context_embeddings",
                             "col_groupby": ["question_idx", "experiment_id"],
                         },
@@ -132,7 +132,7 @@ def get_config():
                 {
                     "output_cols": ["document_text_rogue_f1"],
                     "operator": Distribution(
-                        schema={
+                        dataschema={
                             "col_embs": "document_text",
                             "col_groupby": ["question_idx", "experiment_id"],
                         },
@@ -155,7 +155,9 @@ def get_config():
             compute=[
                 {
                     "output_cols": ["document_link_version"],
-                    "operator": DocsLinkVersion(schema={"col_text": "document_link"}),
+                    "operator": DocsLinkVersion(
+                        dataschema={"col_text": "document_link"}
+                    ),
                 }
             ],
             source=JsonReader(fpath="{experiment_path}/output.jsonl"),
@@ -173,7 +175,7 @@ def get_config():
             compute=[
                 {
                     "output_cols": ["document_context_length"],
-                    "operator": TextLength(schema={"col_text": "document_text"}),
+                    "operator": TextLength(dataschema={"col_text": "document_text"}),
                 }
             ],
             source=JsonReader(fpath="{experiment_path}/output.jsonl"),
@@ -192,7 +194,7 @@ def get_config():
                 {
                     "output_cols": ["response_document_overlap_score"],
                     "operator": RougeScore(
-                        schema={
+                        dataschema={
                             "col_generated": "response",
                             "col_source": "document_text",
                         }
@@ -213,7 +215,7 @@ def get_config():
                         "similarity_score_between_question_and_extracted_text"
                     ],
                     "operator": CosineSimilarity(
-                        schema={
+                        dataschema={
                             "col_vector_1": "question_embeddings",
                             "col_vector_2": "response_embeddings",
                         }
@@ -234,7 +236,7 @@ def get_config():
                 {
                     "output_cols": ["extracted_text_embeddings_cosine_distribution"],
                     "operator": Distribution(
-                        schema={
+                        dataschema={
                             "col_embs": "response_embeddings",
                             "col_groupby": ["question_idx", "experiment_id"],
                         },
@@ -258,7 +260,7 @@ def get_config():
                 {
                     "output_cols": ["is_empty_response"],
                     "operator": TextComparison(
-                        schema={"col_text": "response"},
+                        dataschema={"col_text": "response"},
                         reference_text="<EMPTY MESSAGE>",
                     ),
                 }
@@ -275,7 +277,7 @@ def get_config():
                 {
                     "output_cols": [],
                     "operator": UMAP(
-                        schema={
+                        dataschema={
                             "col_embs": "question_embeddings",
                             "col_embs2": "response_embeddings",
                         }
@@ -291,18 +293,21 @@ def get_config():
         )
     )
 
-
-    checks.append(SimpleCheck(
-        name="openai_grade",
-        compute=[
-            {
-                "output_cols": ['chatgpt_model_grade_score'],
-                "operator": ModelGradeScore(schema_data={"col_input": "prompt", "col_completion": "response"})
-            }
-        ],
-        source=JsonReader(fpath="{experiment_path}/interim_data/c.jsonl"),
-        plot=PlotlyChart(kind="table", title="ChatGPT graded score"),
-    ))
+    checks.append(
+        SimpleCheck(
+            name="openai_grade",
+            compute=[
+                {
+                    "output_cols": ["chatgpt_model_grade_score"],
+                    "operator": ModelGradeScore(
+                        dataschema={"col_input": "prompt", "col_completion": "response"}
+                    ),
+                }
+            ],
+            source=JsonReader(fpath="{experiment_path}/interim_data/c.jsonl"),
+            plot=PlotlyChart(kind="table", title="ChatGPT graded score"),
+        )
+    )
 
     # checks.append(SimpleCheck(
     #     name="model_grading_correctness_score",
@@ -358,13 +363,18 @@ if __name__ == "__main__":
 
     cfg = get_config()
     experiment_path = LOGS_DIR
-    all_checks = copy.deepcopy(cfg['checks'])
+    all_checks = copy.deepcopy(cfg["checks"])
     for check in all_checks:
         if check.source is not None:
-            check.source.fpath = check.source.fpath.format(experiment_path=experiment_path)
+            check.source.fpath = check.source.fpath.format(
+                experiment_path=experiment_path
+            )
         if check.sink is not None:
             check.sink.fpath = check.sink.fpath.format(experiment_path=experiment_path)
-    cfg = Config(checks=all_checks, settings=Settings(logs_folder=LOGS_DIR, openai_api_key=openai_api_key))
+    cfg = Config(
+        checks=all_checks,
+        settings=Settings(logs_folder=LOGS_DIR, openai_api_key=openai_api_key),
+    )
     cfg.setup()
     for check in cfg.checks:
         results = check.make_executor(cfg.settings).run()
@@ -372,4 +382,6 @@ if __name__ == "__main__":
     if args.start_streamlit:
         start_streamlit()
 
-    import pdb; pdb.set_trace()
+    import pdb
+
+    pdb.set_trace()

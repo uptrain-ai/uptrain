@@ -26,7 +26,6 @@ __all__ = [
     "register_op",
     "deserialize_operator",
     "get_output_col_name_at",
-    "check_input_columns_present",
 ]
 
 # -----------------------------------------------------------
@@ -43,7 +42,7 @@ class Operator(t.Protocol):
     """Base class for all operators."""
 
     # optional attribute (not allowed in python protocols) - specifies input columns required by the operator + output columns produced by it
-    # schema: t.Optional["BaseModel"]
+    # dataschema: t.Optional["BaseModel"]
 
     def make_executor(
         self, settings: t.Optional["Settings"] = None
@@ -110,17 +109,6 @@ def deserialize_operator(data: dict) -> Operator:
 
 def get_output_col_name_at(index: int) -> str:
     return f"_col_{index}"
-
-
-def check_input_columns_present(
-    data: pl.DataFrame, schema: BaseModel, exclude: t.Optional[list[str]] = None
-) -> None:
-    for attr, col in schema.dict().items():
-        if exclude is not None and attr in exclude:
-            continue
-        assert (
-            col in data.columns
-        ), f"Column: {col} for attribute: {attr} not found in input data."
 
 
 @register_op

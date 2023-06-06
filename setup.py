@@ -40,6 +40,7 @@ setup(
     ],
     keywords="uptrain ai retraining ML observability",
     packages=find_packages(),
+    package_data={"": ["*.pyi"]},
     install_requires=[
         "tqdm>=4.0",
         "aiolimiter>=1.1",

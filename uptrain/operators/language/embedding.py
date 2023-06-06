@@ -26,8 +26,7 @@ class SchemaEmbedding(BaseModel):
 
 @register_op
 class Embedding(BaseModel):
-    schema: SchemaEmbedding = Field(default_factory=SchemaEmbedding)
-    # model: str = 'hkunlp/instructor-xl'
+    dataschema: SchemaEmbedding = Field(default_factory=SchemaEmbedding)
     model: str = "MiniLM-L6-v2"
 
     def make_executor(self, settings: t.Optional[Settings] = None):
@@ -47,7 +46,7 @@ class EmbeddingExecutor(OperatorExecutor):
             raise Exception("Embeddings model not supported")
 
     def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
-        text = data.get_column(self.op.schema.in_col_text)
+        text = data.get_column(self.op.dataschema.in_col_text)
         if self.op.model == "hkunlp/instructor-xl":
             inputs = [
                 ["Represent the developer documentation sentence: ", x] for x in text
@@ -58,6 +57,6 @@ class EmbeddingExecutor(OperatorExecutor):
 
         return {
             "output": data.with_columns(
-                [pl.Series(self.op.schema.out_col, results)]
+                [pl.Series(self.op.dataschema.out_col, results)]
             )
         }

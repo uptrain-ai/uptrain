@@ -1,7 +1,4 @@
-from .grammar import GrammarScore
-from .openai_evals import OpenaiEval, PromptEval
-from .model_grading import ModelGradingScore
-from .embedding import Embedding
-from .rouge import RougeScore
-from .text import DocsLinkVersion, TextLength, TextComparison
-from .model_grade import ModelGradeScore
+import lazy_loader as lazy
+
+# this assumes there is a `.pyi` file adjacent to this module
+__getattr__, __dir__, __all__ = lazy.attach_stub(__name__, __file__)
