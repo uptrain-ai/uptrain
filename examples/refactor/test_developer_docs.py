@@ -75,7 +75,8 @@ def get_config():
             },
         ],
         source=JsonReader(fpath="{experiment_path}/output.jsonl"),
-        sink=JsonWriter(fpath="{experiment_path}/interim_data/embeddings.jsonl")
+        sink=JsonWriter(fpath="{experiment_path}/interim_data/embeddings.jsonl"),
+        plot=PlotlyChart(kind="table", title="Embeddings")
     ))
 
     checks.append(SimpleCheck(
@@ -176,7 +177,19 @@ def get_config():
         ],
         source=JsonReader(fpath="{experiment_path}/interim_data/b.jsonl"),
         sink=JsonWriter(fpath="{experiment_path}/interim_data/c.jsonl"),
-        plot=PlotlyChart(kind="table", title="Empty response occurence"),
+        plot=PlotlyChart(
+        kind="table", 
+        title="Empty response occurence",
+        pivot_args=[
+            {
+                "title": "Compare overall model scores",
+                "index": ["persona"],
+                "values": ["response_document_overlap_score", "similarity_score_between_question_and_extracted_text", "is_empty_response"],
+                "columns": ["model"],
+                "aggfunc": "mean"                
+            },
+        ]
+        ),
     ))
 
     checks.append(SimpleCheck(
@@ -274,5 +287,3 @@ if __name__ == "__main__":
 
     if args.start_streamlit:
         start_streamlit()
-
-    import pdb; pdb.set_trace()
