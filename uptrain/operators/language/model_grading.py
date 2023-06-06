@@ -21,7 +21,7 @@ class SchemaModelGradingScore(BaseModel):
 
 
 class ModelGradingScore(BaseModel):
-    schema: SchemaModelGradingScore = SchemaModelGradingScore()
+    dataschema: SchemaModelGradingScore = SchemaModelGradingScore()
 
     def make_executor(self):
         return ModelGradingScoreExecutor(self)
@@ -60,9 +60,9 @@ class ModelGradingScoreExecutor:
 
     def run(self, data: t.Optional[pl.DataFrame]) -> TYPE_OP_OUTPUT:
         if isinstance(data, pl.DataFrame):
-            question = data.get_column(self.op.schema.col_prompt)
-            ideal = data.get_column(self.op.schema.col_ideal)
-            answer = data.get_column(self.op.schema.col_answer)
+            question = data.get_column(self.op.dataschema.col_prompt)
+            ideal = data.get_column(self.op.dataschema.col_ideal)
+            answer = data.get_column(self.op.dataschema.col_answer)
         input_payloads = [
             self._make_payload(idx, question[idx], ideal[idx], answer[idx])
             for idx in range(len(data))

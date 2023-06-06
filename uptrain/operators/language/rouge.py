@@ -28,7 +28,7 @@ class SchemaRougeScore(BaseModel):
 
 @register_op
 class RougeScore(BaseModel):
-    schema: SchemaRougeScore = Field(default_factory=SchemaRougeScore)
+    dataschema: SchemaRougeScore = Field(default_factory=SchemaRougeScore)
     score_type: str = "precision"
 
     def make_executor(self, settings: t.Optional[Settings] = None):
@@ -42,8 +42,8 @@ class RougeScoreExecutor(OperatorExecutor):
         self.op = op
 
     def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
-        text_generated = data.get_column(self.op.schema.in_col_generated)
-        text_source = data.get_column(self.op.schema.in_col_source)
+        text_generated = data.get_column(self.op.dataschema.in_col_generated)
+        text_source = data.get_column(self.op.dataschema.in_col_source)
 
         results = []
         scores = []
@@ -61,6 +61,6 @@ class RougeScoreExecutor(OperatorExecutor):
             raise Exception(f"{self.op.score_type} not implemented")
         return {
             "output": data.with_columns(
-                [pl.Series(self.op.schema.out_col, results)]
+                [pl.Series(self.op.dataschema.out_col, results)]
             )
         }
