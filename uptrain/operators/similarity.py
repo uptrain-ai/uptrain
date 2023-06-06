@@ -26,7 +26,7 @@ class SchemaSimilarity(BaseModel):
 
 @register_op
 class CosineSimilarity(BaseModel):
-    schema: SchemaSimilarity = Field(default_factory=SchemaSimilarity)
+    dataschema: SchemaSimilarity = Field(default_factory=SchemaSimilarity)
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return CosineSimilarityExecutor(self, settings)
@@ -39,8 +39,8 @@ class CosineSimilarityExecutor(OperatorExecutor):
         self.op = op
 
     def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
-        vector_1 = data.get_column(self.op.schema.in_col_vector_1)
-        vector_2 = data.get_column(self.op.schema.in_col_vector_2)
+        vector_1 = data.get_column(self.op.dataschema.in_col_vector_1)
+        vector_2 = data.get_column(self.op.dataschema.in_col_vector_2)
 
         results = []
         for i in range(len(vector_1)):
@@ -51,6 +51,6 @@ class CosineSimilarityExecutor(OperatorExecutor):
 
         return {
             "output": data.with_columns(
-                [pl.Series(self.op.schema.out_col, results)]
+                [pl.Series(self.op.dataschema.out_col, results)]
             )
         }

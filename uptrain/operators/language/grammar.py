@@ -25,7 +25,7 @@ class SchemaGrammarScore(BaseModel):
 
 @register_op
 class GrammarScore(BaseModel):
-    schema: SchemaGrammarScore = Field(default_factory=SchemaGrammarScore)
+    dataschema: SchemaGrammarScore = Field(default_factory=SchemaGrammarScore)
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return GrammarScoreExecutor(self, settings)
@@ -61,7 +61,7 @@ class GrammarScoreExecutor(OperatorExecutor):
         )
 
     def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
-        text_ser = data.get_column(self.op.schema.in_col_text)
+        text_ser = data.get_column(self.op.dataschema.in_col_text)
         input_payloads = [
             self._make_payload(idx, text) for idx, text in enumerate(text_ser)
         ]
@@ -88,6 +88,6 @@ class GrammarScoreExecutor(OperatorExecutor):
         )
         return {
             "output": data.with_columns(
-                [pl.Series(self.op.schema.out_col, result_scores)]
+                [pl.Series(self.op.dataschema.out_col, result_scores)]
             )
         }
