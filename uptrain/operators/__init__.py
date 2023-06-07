@@ -1,7 +1,4 @@
-from .base import *
-from .language import *
-from .metrics import *
-from .drift import *
-from .vis import *
-from .similarity import CosineSimilarity
-from .embs import *
+import lazy_loader as lazy
+
+# this assumes there is a `.pyi` file adjacent to this module
+__getattr__, __dir__, __all__ = lazy.attach_stub(__name__, __file__)

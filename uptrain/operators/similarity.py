@@ -17,27 +17,30 @@ if t.TYPE_CHECKING:
 
 # pip install InstructorEmbedding torch sentence_transformers
 
+
 class SchemaSimilarity(BaseModel):
-    col_vector_1: str
-    col_vector_2: str
+    in_col_vector_1: str
+    in_col_vector_2: str
+    out_col: str = get_output_col_name_at(0)
 
 
 @register_op
 class CosineSimilarity(BaseModel):
-    schema_data: SchemaSimilarity = Field(default_factory=SchemaSimilarity)
+    dataschema: SchemaSimilarity = Field(default_factory=SchemaSimilarity)
 
     def make_executor(self, settings: t.Optional[Settings] = None):
-        return CosineSimilarityExecutor(self, settings) 
-   
+        return CosineSimilarityExecutor(self, settings)
+
+
 class CosineSimilarityExecutor(OperatorExecutor):
     op: CosineSimilarity
-    
+
     def __init__(self, op: CosineSimilarity, settings: t.Optional[Settings] = None):
         self.op = op
-    
+
     def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
-        vector_1 = data.get_column(self.op.schema_data.col_vector_1)
-        vector_2 = data.get_column(self.op.schema_data.col_vector_2)
+        vector_1 = data.get_column(self.op.dataschema.in_col_vector_1)
+        vector_2 = data.get_column(self.op.dataschema.in_col_vector_2)
 
         results = []
         for i in range(len(vector_1)):
@@ -46,4 +49,8 @@ class CosineSimilarityExecutor(OperatorExecutor):
             similarity_score = np.dot(v1, v2) / np.linalg.norm(v1) * np.linalg.norm(v2)
             results.append(similarity_score)
 
-        return {"output": add_output_cols_to_data(data, [pl.Series(values=results)])}
+        return {
+            "output": data.with_columns(
+                [pl.Series(self.op.dataschema.out_col, results)]
+            )
+        }

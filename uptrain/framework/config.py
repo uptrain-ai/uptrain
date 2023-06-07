@@ -2,6 +2,7 @@ from __future__ import annotations
 import os
 import typing as t
 
+import networkx as nx
 import polars as pl
 from pydantic import BaseSettings, Field
 
@@ -9,6 +10,7 @@ from uptrain.operators.base import *
 from uptrain.utilities import jsonload, jsondump, to_py_types, clear_directory
 
 __all__ = [
+    "Check",
     "SimpleCheck",
     "Settings",
     "Config",
@@ -19,14 +21,72 @@ __all__ = [
 # -----------------------------------------------------------
 
 
-class ComputeOp(t.TypedDict):
-    output_cols: list[str]
-    operator: Operator
+class Check:
+    """An Uptrain Check is a DAG of operators, used to define the data pipeline to execute."""
 
+    name: str
+    graph: nx.DiGraph
 
-class ComputeOpExec(t.TypedDict):
-    output_cols: list[str]
-    operator: OperatorExecutor
+    def __init__(self, name: str):
+        self.name = name
+        self.graph = nx.DiGraph()
+
+    def add_step(self, name: str, node: Operator, deps: list[str]) -> None:
+        """Add a node to the DAG, along with its dependencies."""
+        if name in self.graph.nodes:
+            raise ValueError(
+                f"An operator with name: {name} has already been added to the Check."
+            )
+
+        for dep in deps:
+            if dep not in self.graph.nodes:
+                raise ValueError(f"Dependency: {dep} does not exist in the Check.")
+            self.graph.add_edge(dep, name)
+        self.graph.add_node(name, data=node)
+
+        if not nx.algorithms.dag.is_directed_acyclic_graph(self.graph):
+            self.graph.remove_node(name)
+            raise ValueError("Adding a node for operator: {name} creates a cycle.")
+
+    def run(self) -> None:
+        sorted_nodes = list(nx.algorithms.dag.topological_sort(self.graph))
+        for node_name in sorted_nodes:
+            node_data = self.graph.nodes[node_name]["data"]
+            node_data.run()
+
+    def _get_node_parents(self, name: str) -> list[str]:
+        return list(self.graph.predecessors(name))
+
+    def _get_node_descendants(self, name: str) -> list[str]:
+        return list(nx.algorithms.dag.descendants(self.graph, name))
+
+    def __repr__(self) -> str:
+        sorted_nodes = list(nx.algorithms.dag.topological_sort(self.graph))
+        lines = []
+        for node_name in sorted_nodes:
+            lines.append(f"{node_name} <- {self._get_node_parents(node_name)}")
+        return f"Check: {self.name}" + "\n".join(lines)
+
+    def dict(self) -> dict:
+        """Serialize this check to a dict."""
+        nodes = {
+            name: to_py_types(self.graph.nodes[name]["data"])
+            for name in self.graph.nodes
+        }
+        edges = list(self.graph.edges)
+        return {"name": self.name, "nodes": nodes, "edges": edges}
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "Check":
+        """Deserialize a check from a dict."""
+        check = cls(name=data["name"])
+        for name, node in data["nodes"].items():
+            check.graph.add_node(name, data=deserialize_operator(node))
+        for edge in data["edges"]:
+            assert edge[0] in check.graph.nodes, f"Operator node: {edge[0]} not found"
+            assert edge[1] in check.graph.nodes, f"Operator node: {edge[1]} not found"
+            check.graph.add_edge(edge[0], edge[1])
+        return check
 
 
 @register_op
@@ -37,8 +97,8 @@ class SimpleCheck:
 
     # name of the check
     name: str
-    # specify the sequence of operators to run, and name(s) for the output columns from each
-    compute: list[ComputeOp]
+    # specify the sequence of operators to run
+    compute: list[Operator]
     # specify the source of the data, if absent, data must be passed at runtime manually
     source: t.Optional[Operator]
     # specify the sink to write the data to
@@ -51,7 +111,7 @@ class SimpleCheck:
     def __init__(
         self,
         name: str,
-        compute: list[ComputeOp],
+        compute: list[Operator],
         source: t.Optional[Operator] = None,
         sink: t.Optional[Operator] = None,
         alert: t.Optional[Operator] = None,
@@ -72,13 +132,7 @@ class SimpleCheck:
         """Serialize this check to a dict."""
         params = {
             "name": self.name,
-            "compute": [
-                {
-                    "output_cols": op["output_cols"],
-                    "operator": to_py_types(op["operator"]),
-                }
-                for op in self.compute
-            ],
+            "compute": [to_py_types(op) for op in self.compute],
             "source": to_py_types(self.source),
             "sink": to_py_types(self.sink),
             "alert": to_py_types(self.alert),
@@ -91,15 +145,7 @@ class SimpleCheck:
     def from_dict(cls, data: dict) -> "SimpleCheck":
         """Deserialize a check from a dict."""
         data = data["params"]
-
-        compute = []
-        for elem in data["compute"]:
-            compute.append(
-                {
-                    "output_cols": elem["output_cols"],
-                    "operator": deserialize_operator(elem["operator"]),
-                }
-            )
+        compute = [deserialize_operator(op) for op in data["compute"]]
 
         def get_value(key):
             val = data.get(key, None)
@@ -123,7 +169,7 @@ class SimpleCheckExecutor:
 
     op: SimpleCheck
     exec_source: t.Optional[OperatorExecutor]
-    exec_compute: list[ComputeOpExec]
+    exec_compute: list[OperatorExecutor]
     exec_sink: t.Optional[OperatorExecutor]
     exec_alert: t.Optional[OperatorExecutor]
 
@@ -134,14 +180,8 @@ class SimpleCheckExecutor:
         )
         self.exec_sink = check.sink.make_executor(settings) if check.sink else None
         self.exec_alert = check.alert.make_executor(settings) if check.alert else None
-        self.exec_compute = [
-            {
-                "output_cols": op["output_cols"],
-                "operator": op["operator"].make_executor(settings),
-            }
-            for op in check.compute
-        ]
-        # no need to make an executor for the plot, since it's not run at runtime
+        self.exec_compute = [op.make_executor(settings) for op in check.compute]
+        # no need to make an executor for the plot, since it's run later
 
     def run(self, data: t.Optional[pl.DataFrame] = None) -> t.Optional[pl.DataFrame]:
         """Run this check on the given data."""
@@ -156,15 +196,9 @@ class SimpleCheckExecutor:
 
         # run the compute operations in sequence, passing the output of one to the next
         for compute_op in self.exec_compute:
-            op = compute_op["operator"]
-            col_names = compute_op["output_cols"]
-
-            res = op.run(data)
-            assert isinstance(res["output"], pl.DataFrame)
-            rename_mapping = {
-                get_output_col_name_at(i): name for i, name in enumerate(col_names)
-            }
-            data = res["output"].rename(rename_mapping)
+            result = compute_op.run(data)
+            assert isinstance(result["output"], pl.DataFrame)
+            data = result["output"]
 
         # run the sink
         if self.exec_sink is not None:
@@ -213,13 +247,12 @@ class Config:
 
     def setup(self):
         """Create the logs directory, or clear it if it already exists."""
-        if os.path.exists(self.settings.logs_folder):
-            #TODO: Do we need to clear this? It was deleting input and output files for the experiment?
-            dummy = 1
-            # clear_directory(self.settings.logs_folder)
+        logs_dir = self.settings.logs_folder
+        if not os.path.exists(logs_dir):
+            os.makedirs(logs_dir)
         else:
-            os.makedirs(self.settings.logs_folder)
-        self.serialize()
+            clear_directory(logs_dir)
+        self.serialize(os.path.join(logs_dir, "config.json"))
 
     @classmethod
     def from_dict(cls, data: dict) -> "Config":
