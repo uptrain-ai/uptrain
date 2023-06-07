@@ -9,6 +9,7 @@ from uptrain.io import DeltaReader, DeltaWriter, JsonReader, JsonWriter
 import uptrain.operators
 from uptrain.framework.config import Config, SimpleCheck
 
+import pandas as pd
 
 # -----------------------------------------------------------
 # Set up layout of the dashboard and the sidebar
@@ -87,7 +88,9 @@ if data is None:
 # Apply filters
 # credits - https://github.com/tylerjrichards/st-filter-dataframe/blob/main/streamlit_app.py
 # Also, refer - https://pola-rs.github.io/polars/py-polars/html/reference/datatypes.html
-with st.sidebar:
+
+# TODO: Rewrite function, buggy code here
+def apply_filters(data) -> None:
     for col_name in plot_op.filter_on:
         dtype = data.schema[col_name]
 
@@ -119,12 +122,22 @@ with st.sidebar:
             # TODO: won't this fail for non-str types?
             select = st.text_input(label=f"Substring or regex in {col_name}")
             data = data.filter(pl.col(col_name).str.contains(select))
+    return data
+        
+def show_pivot_tables(data):
+    for pivot in plot_op.pivot_args:
+        if st.checkbox(pivot["title"]):
+            st.dataframe(pd.pivot_table(data, index=pivot["index"], values=pivot["values"], columns=pivot["columns"], aggfunc=pivot["aggfunc"]))
 
+def show_table(data):
+    data = apply_filters(data).to_pandas()
+    st.dataframe(data)
+    show_pivot_tables(data)
 
 # Plot the data
 st.header(plot_op.title)
 if plot_op.kind == "table":
-    st.dataframe(data.to_pandas())
+    show_table(data)
 else:
     plot_exec = plot_op.make_executor(CONFIG.settings)
     output = plot_exec.run(data)["extra"]["chart"]
