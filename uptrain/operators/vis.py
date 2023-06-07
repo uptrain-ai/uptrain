@@ -23,6 +23,7 @@ class PlotlyChart(BaseModel):
     props: dict = Field(default_factory=dict)
     title: str = ""
     filter_on: list[str] = Field(default_factory=list)
+    pivot_args: list[dict] = Field(default_factory=list)
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return PlotlyExecutor(self)
