@@ -207,7 +207,8 @@ def get_config():
                     }
                 ),
             ],
-            source=JsonReader(fpath="{experiment_path}/output.jsonl"),
+            source=JsonReader(fpath="{experiment_path}/interim_data/embeddings.jsonl"),
+            sink=JsonWriter(fpath="{experiment_path}/interim_data/a.jsonl"),
             plot=PlotlyChart(kind="table", title="Hallucination score"),
         )
     )
@@ -224,7 +225,8 @@ def get_config():
                     }
                 ),
             ],
-            source=JsonReader(fpath="{experiment_path}/interim_data/embeddings.jsonl"),
+            source=JsonReader(fpath="{experiment_path}/interim_data/a.jsonl"),
+            sink=JsonWriter(fpath="{experiment_path}/interim_data/b.jsonl"),        
             plot=PlotlyChart(
                 kind="table", title="Similarity score between question and response"
             ),
@@ -265,7 +267,8 @@ def get_config():
                     reference_text="<EMPTY MESSAGE>",
                 ),
             ],
-            source=JsonReader(fpath="{experiment_path}/output.jsonl"),
+            source=JsonReader(fpath="{experiment_path}/interim_data/b.jsonl"),
+            sink=JsonWriter(fpath="{experiment_path}/interim_data/c.jsonl"),
             plot=PlotlyChart(
                 kind="table", 
                 title="Empty response occurence",
@@ -347,7 +350,6 @@ def start_streamlit():
     runner = StreamlitRunner(LOGS_DIR)
     runner.start()
 
-openai_api_key = ""
 openai.api_key = openai_api_key
 
 if __name__ == "__main__":
