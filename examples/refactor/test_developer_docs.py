@@ -1,5 +1,6 @@
 import openai
 import copy
+import argparse
 
 from uptrain.framework.config import Config, Settings, SimpleCheck
 from uptrain.io import JsonReader, DeltaWriter, JsonWriter
@@ -54,7 +55,7 @@ user_inputs = {
         ],
     },
     "dataset_args": {
-        "file_name": "/home/insatanic/_MyFolders/uptrain/dev-docs-uptrain/uptrain/streamlit_new_small.jsonl",
+        "file_path": "",
         "input_variables": [
             "question",
             "document_title",
@@ -353,11 +354,12 @@ def start_streamlit():
 openai.api_key = openai_api_key
 
 if __name__ == "__main__":
-    import argparse
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--start-streamlit", default=True, action="store_true")
+    parser.add_argument('--file-name', type=str, help='The name of the file to load the dataset from.', required=True)
     args = parser.parse_args()
+    
+    user_inputs["dataset_args"]["file_name"] = args.file_name
 
     cfg = get_config()
     experiment_path = LOGS_DIR
