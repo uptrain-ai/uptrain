@@ -355,8 +355,8 @@ openai.api_key = openai_api_key
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--start-streamlit", default=True, action="store_true")
-    parser.add_argument('--file-name', type=str, help='The name of the file to load the dataset from.', required=True)
+    parser.add_argument("--start-streamlit", help="Boolean to start streamlit, True by default.", default=True, action="store_true")
+    parser.add_argument("--file-name", type=str, help="The name of the file to load the dataset from.", required=True)
     args = parser.parse_args()
     
     user_inputs["dataset_args"]["file_name"] = args.file_name
