@@ -8,10 +8,9 @@ from pydantic import BaseModel, Field
 import polars as pl
 import plotly.express as px
 
-from uptrain.operators.base import *
-
 if t.TYPE_CHECKING:
     from uptrain.framework.config import *
+from uptrain.operators.base import *
 
 
 __all__ = ["PlotlyChart"]

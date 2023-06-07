@@ -14,14 +14,11 @@ from uptrain.operators.base import *
 from uptrain.operators.language.llm import LLMMulticlient, Payload
 
 
-class SchemaModelGradingScore(BaseModel):
+class ModelGradingScore(BaseModel):
     col_prompt: str = "prompt"
     col_answer: str = "answer"
     col_ideal: str = "ideal"
-
-
-class ModelGradingScore(BaseModel):
-    dataschema: SchemaModelGradingScore = SchemaModelGradingScore()
+    col_out: str = get_output_col_name_at(0)
 
     def make_executor(self):
         return ModelGradingScoreExecutor(self)
@@ -33,7 +30,7 @@ class ModelGradingScoreExecutor:
 
     def __init__(self, op: ModelGradingScore):
         self.op = op
-        self.api_client = LLMMulticlient(concurrency=4)
+        self.api_client = LLMMulticlient()
 
     def _make_payload(
         self, id: t.Any, question: str, ideal: str, answer: str
@@ -60,9 +57,12 @@ class ModelGradingScoreExecutor:
 
     def run(self, data: t.Optional[pl.DataFrame]) -> TYPE_OP_OUTPUT:
         if isinstance(data, pl.DataFrame):
-            question = data.get_column(self.op.dataschema.col_prompt)
-            ideal = data.get_column(self.op.dataschema.col_ideal)
-            answer = data.get_column(self.op.dataschema.col_answer)
+            question = data.get_column(self.op.col_prompt)
+            ideal = data.get_column(self.op.col_ideal)
+            answer = data.get_column(self.op.col_answer)
+        else:
+            raise TypeError(f"Expected DataFrame, got {type(data)}")
+
         input_payloads = [
             self._make_payload(idx, question[idx], ideal[idx], answer[idx])
             for idx in range(len(data))
@@ -84,6 +84,6 @@ class ModelGradingScoreExecutor:
                 resp_text = res.response["choices"][0]["message"]["content"]
                 number = int(re.findall(r"\d+", resp_text)[0])
                 results.append((idx, number))
-        results = [val for idx, val in sorted(results, key=lambda x: x[0])]
 
-        return {"output": pl.Series(values=results)}
+        results = [val for idx, val in sorted(results, key=lambda x: x[0])]
+        return {"output": data.with_columns([pl.Series(self.op.col_out, results)])}

@@ -35,15 +35,11 @@ class ParamsADWIN(BaseModel):
     grace_period: int = 5
 
 
-class SchemaDrift(BaseModel):
-    in_col_measure: str = "metric"
-
-
 @register_op
 class ConceptDrift(BaseModel):
     algorithm: t.Literal["DDM", "ADWIN"]
     params: t.Union[ParamsDDM, ParamsADWIN]
-    dataschema: SchemaDrift = SchemaDrift()
+    col_in_measure: str = "metric"
 
     @root_validator
     def check_params(cls, values):
@@ -85,7 +81,7 @@ class ConceptDriftExecutor(OperatorExecutor):
         self.alert_info = None
 
     def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
-        ser = data.get_column(self.op.dataschema.in_col_measure)
+        ser = data.get_column(self.op.col_in_measure)
 
         for val in ser:
             self.algo.update(val)

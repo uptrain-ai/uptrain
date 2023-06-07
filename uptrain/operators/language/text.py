@@ -18,15 +18,11 @@ from uptrain.operators.base import *
 __all__ = ["DocsLinkVersion", "TextLength", "TextComparison"]
 
 
-class SchemaDocumentLinks(BaseModel):
-    in_col_text: str
-    out_col: str = get_output_col_name_at(0)
-
-
 @register_op
 class DocsLinkVersion(BaseModel):
     domain_name: t.Optional[str] = None  # filter down to links from this domain
-    dataschema: SchemaDocumentLinks
+    col_in_text: str
+    col_out: str = get_output_col_name_at(0)
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return DocsVersionExecutor(self)
@@ -47,24 +43,18 @@ class DocsVersionExecutor(OperatorExecutor):
             return None
 
         df = data.with_columns(
-            [
-                pl.col(self.op.dataschema.in_col_text)
-                .apply(fetch_version)
-                .alias(self.op.dataschema.out_col)
-            ]
+            [pl.col(self.op.col_in_text).apply(fetch_version).alias(self.op.col_out)]
         )
         return {"output": df}
 
 
 # Text Length
-class SchemaTextLength(BaseModel):
-    in_col_text: str
-    out_col: str = get_output_col_name_at(0)
 
 
 @register_op
 class TextLength(BaseModel):
-    dataschema: SchemaTextLength = Field(default_factory=SchemaTextLength)
+    col_in_text: str
+    col_out: str = get_output_col_name_at(0)
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return TextLengthExecutor(self)
@@ -77,25 +67,17 @@ class TextLengthExecutor(OperatorExecutor):
         self.op = op
 
     def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
-        text = data.get_column(self.op.dataschema.in_col_text)
+        text = data.get_column(self.op.col_in_text)
         results = [len(i) for i in text]
-        return {
-            "output": data.with_columns(
-                [pl.Series(self.op.dataschema.out_col, results)]
-            )
-        }
+        return {"output": data.with_columns([pl.Series(self.op.col_out, results)])}
 
 
 # Text Comparison
-class SchemaTextComparison(BaseModel):
-    in_col_text: str
-    out_col: str = get_output_col_name_at(0)
-
-
 @register_op
 class TextComparison(BaseModel):
-    dataschema: SchemaTextComparison = Field(default_factory=SchemaTextComparison)
     reference_text: str
+    col_in_text: str
+    col_out: str = get_output_col_name_at(0)
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return TextComparisonExecutor(self)
@@ -108,13 +90,9 @@ class TextComparisonExecutor(OperatorExecutor):
         self.op = op
 
     def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
-        text = data.get_column(self.op.dataschema.in_col_text)
+        text = data.get_column(self.op.col_in_text)
         results = [int(x == self.op.reference_text) for x in text]
-        return {
-            "output": data.with_columns(
-                [pl.Series(self.op.dataschema.out_col, results)]
-            )
-        }
+        return {"output": data.with_columns([pl.Series(self.op.col_out, results)])}
 
 
 # -----------------------------------------------------------

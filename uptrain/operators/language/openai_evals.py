@@ -147,16 +147,11 @@ class OpenaiEvalExecutor(OperatorExecutor):
 # -----------------------------------------------------------
 
 
-class SchemaPromptEval(BaseModel):
-    ...
-
-
 class PromptEval(BaseModel):
     prompt_template: str
     prompt_variables: list[str]
     gt_variables: list[str]
     model_name: str
-    dataschema: SchemaPromptEval = SchemaPromptEval()
 
     # TODO: Not sure why but this is failing and hence, commented out
     # @root_validator

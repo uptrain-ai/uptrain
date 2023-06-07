@@ -15,16 +15,12 @@ if t.TYPE_CHECKING:
 from uptrain.operators.base import *
 
 
-class SchemaAccuracy(BaseModel):
-    in_col_prediction: str = "prediction"
-    in_col_ground_truth: str = "ground_truth"
-    out_col: str = get_output_col_name_at(0)
-
-
 @register_op
 class Accuracy(BaseModel):
     kind: t.Literal["NOT_EQUAL", "ABS_ERROR"]
-    dataschema: SchemaAccuracy = SchemaAccuracy()
+    col_in_prediction: str = "prediction"
+    col_in_ground_truth: str = "ground_truth"
+    col_out: str = get_output_col_name_at(0)
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return AccuracyExecutor(self)
@@ -37,14 +33,12 @@ class AccuracyExecutor(OperatorExecutor):
         self.op = op
 
     def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
-        preds = data.get_column(self.op.dataschema.in_col_prediction)
-        gts = data.get_column(self.op.dataschema.in_col_ground_truth)
+        preds = data.get_column(self.op.col_in_prediction)
+        gts = data.get_column(self.op.col_in_ground_truth)
 
         if self.op.kind == "NOT_EQUAL":
             acc = np.not_equal(preds, gts)
         else:
             acc = np.abs(preds - gts)
 
-        return {
-            "output": data.with_columns([pl.Series(self.op.dataschema.out_col, acc)])
-        }
+        return {"output": data.with_columns([pl.Series(self.op.col_out, acc)])}
