@@ -257,7 +257,7 @@ def get_config():
                         "index": ["persona"],
                         "values": [
                             "response_document_overlap_score",
-                            "similarity_score_between_question_and_extracted_text"
+                            "similarity_score_between_question_and_extracted_text",
                             "is_empty_response"
                             ],
                         "columns": ["model"],
@@ -302,20 +302,7 @@ def get_config():
         )
     )
 
-    # checks.append(SimpleCheck(
-    #     name="model_grading_correctness_score",
-    #     compute=[
-    #         {
-    #             "output_cols": [],
-    #             "operator": ""
-    #         }
-    #     ],
-    #     source=JsonReader(fpath="{experiment_path}/output.jsonl"),
-    #     plot=PlotlyChart(kind="table", title="Model Grading Correctness Score"),
-    # ))
-
     cfg = {"checks": checks, "log_folder": LOGS_DIR}
-    # cfg = Config(checks=checks, settings=Settings(logs_folder=LOGS_DIR))
     return cfg
 
 
