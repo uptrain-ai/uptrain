@@ -1,5 +1,7 @@
 from __future__ import annotations
 import typing as t
+import os
+import shutil
 
 from pydantic import BaseModel
 import polars as pl
@@ -7,6 +9,7 @@ import deltalake as dl
 from pathlib import Path
 
 from uptrain.operators.base import *
+from uptrain.io.readers import *
 
 if t.TYPE_CHECKING:
     from uptrain.framework.config import *
@@ -25,6 +28,8 @@ class DeltaWriter(BaseModel):
     def make_executor(self, settings: t.Optional[Settings] = None):
         return DeltaWriterExecutor(self)
 
+    def to_reader(self):
+        return DeltaReader(fpath=self.fpath)
 
 class DeltaWriterExecutor(OperatorExecutor):
     op: DeltaWriter
@@ -35,10 +40,12 @@ class DeltaWriterExecutor(OperatorExecutor):
         self.columns = list(self.op.columns) if self.op.columns is not None else None
 
     def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
+        if os.path.exists(self.op.fpath):
+            shutil.rmtree(self.op.fpath)
         if self.columns is None:
             self.columns = list(data.columns)
         assert set(self.columns) == set(data.columns)
-        dl.write_deltalake(self.op.fpath, data.to_arrow())
+        data.write_delta(self.op.fpath, mode="append")
         return {"output": None}
 
 
@@ -50,6 +57,8 @@ class JsonWriter(BaseModel):
     def make_executor(self, settings: t.Optional[Settings] = None):
         return JsonWriterExecutor(self)
 
+    def to_reader(self):
+        return JsonReader(fpath=self.fpath)
 
 class JsonWriterExecutor(OperatorExecutor):
     op: JsonWriter
@@ -60,6 +69,8 @@ class JsonWriterExecutor(OperatorExecutor):
         self.columns = list(self.op.columns) if self.op.columns is not None else None
 
     def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
+        if os.path.exists(self.op.fpath):
+            os.remove(self.op.fpath)
         if self.columns is None:
             self.columns = list(data.columns)
         assert set(self.columns) == set(data.columns)
