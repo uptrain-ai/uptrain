@@ -3,6 +3,8 @@ import os
 import sys
 import typing as t
 import uuid
+import itertools
+import numpy as np
 
 import evals
 import evals.base
@@ -127,18 +129,17 @@ class OpenaiEvalExecutor(OperatorExecutor):
         if path_samples_file is not None:
             os.remove(path_samples_file)
 
-        try:
-            output_data = pl.from_dicts(recorder.get_list_events("match"))
-        except:
-            output_data = pl.DataFrame()
-
+        unique_types = list(np.unique(np.array([x['type'] for x in recorder.get_list_events()])))
+        type_data = dict(zip(unique_types, [pl.from_dicts(x['data'] for x in recorder.get_list_events(type)) for type in unique_types]))
+        extra = {
+            "all_events": recorder.get_list_events(),
+            "run_data": recorder.get_run_data(),
+            "final_report": to_py_types(final_report),
+        }
+        extra.update(type_data)
         return {
-            "output": output_data,  # events are of multiple kinds. Undecided how to handle them in a consistent schema yet
-            "extra": {
-                "all_events": recorder.get_list_events(),
-                "run_data": recorder.get_run_data(),
-                "final_report": to_py_types(final_report),
-            },
+            "output": pl.DataFrame(recorder.get_list_events()),  # events are of multiple kinds. Undecided how to handle them in a consistent schema yet
+            "extra": extra
         }
 
 
@@ -152,6 +153,9 @@ class PromptEval(BaseModel):
     prompt_variables: list[str]
     gt_variables: list[str]
     model_name: str
+    col_out_prompt: str = "prompt"
+    col_out_response: str = "response"
+    
 
     # TODO: Not sure why but this is failing and hence, commented out
     # @root_validator
@@ -159,15 +163,16 @@ class PromptEval(BaseModel):
     #     if len(values["prompt_variables"]) < 1:
     #         raise ValueError("Must specify at least 1 prompt variable")
 
-    def make_executor(self) -> PromptEvalExecutor:
-        return PromptEvalExecutor(self)
+    def make_executor(self, settings: t.Optional[Settings] = None) -> PromptEvalExecutor:
+        return PromptEvalExecutor(self, settings)
 
 
 class PromptEvalExecutor:
     op: PromptEval
 
-    def __init__(self, op: PromptEval):
+    def __init__(self, op: PromptEval, settings: t.Optional[Settings] = None):
         self.op = op
+        self.settings = settings
 
     def _validate_data(self, data: pl.DataFrame) -> None:
         for col in self.op.prompt_variables:
@@ -193,9 +198,9 @@ class PromptEvalExecutor:
         prompts = self._construct_prompts(data)
 
         eval_op = OpenaiEval(
-            bundle_path="uptrain/evals_uptrain",
+            bundle_path=os.path.join("uptrain", "evals_uptrain"),
             completion_name=self.op.model_name,
             eval_name="model_run_all",
         )
-        results = eval_op.make_executor().run(prompts)
-        return results
+        results = eval_op.make_executor(self.settings).run(prompts)['extra']['sampling']
+        return {"output": data.with_columns([pl.Series(self.op.col_out_prompt, results['prompt']), pl.Series(self.op.col_out_response, list(itertools.chain(*results['sampled'])))])}
