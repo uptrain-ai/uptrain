@@ -2,12 +2,14 @@ from uptrain.framework.config import Config, Settings, SimpleCheck
 from uptrain.io import JsonReader, DeltaWriter, JsonWriter
 from uptrain.operators import (
     PlotlyChart,
-    Embedding,
-    RougeScore,
     Distribution,
     CosineSimilarity,
-    DocsLinkVersion,
     UMAP,
+)
+from uptrain.operators.language import (
+    Embedding,
+    RougeScore,
+    DocsLinkVersion,
     TextLength,
     TextComparison,
 )
@@ -27,18 +29,9 @@ def get_config():
         SimpleCheck(
             name="embeddings",
             compute=[
-                {
-                    "output_cols": ["question_embeddings"],
-                    "operator": Embedding(schema_data={"col_text": "question"}),
-                },
-                {
-                    "output_cols": ["context_embeddings"],
-                    "operator": Embedding(schema_data={"col_text": "document_text"}),
-                },
-                {
-                    "output_cols": ["response_embeddings"],
-                    "operator": Embedding(schema_data={"col_text": "response"}),
-                },
+                Embedding(col_in_text="question", col_out="question_embeddings"),
+                Embedding(col_in_text="document_text", col_out="context_embeddings"),
+                Embedding(col_in_text="response", col_out="response_embeddings"),
             ],
             source=JsonReader(fpath=DATASET_PATH),
             sink=JsonWriter(fpath=DATASET_W_EMB_PATH),
@@ -49,16 +42,12 @@ def get_config():
         SimpleCheck(
             name="distribution_of_document_embeddings",
             compute=[
-                {
-                    "output_cols": ["document_embeddings_cosine_distribution"],
-                    "operator": Distribution(
-                        schema_data={
-                            "col_embs": "context_embeddings",
-                            "col_groupby": ["question_idx", "experiment_id"],
-                        },
-                        kind="cosine_similarity",
-                    ),
-                }
+                Distribution(
+                    kind="cosine_similarity",
+                    col_in_embs="context_embeddings",
+                    col_in_groupby=["question_idx", "experiment_id"],
+                    col_out="document_embeddings_cosine_distribution",
+                )
             ],
             source=JsonReader(fpath=DATASET_W_EMB_PATH),
             plot=PlotlyChart(
@@ -73,16 +62,12 @@ def get_config():
         SimpleCheck(
             name="text_overlap_between_documents",
             compute=[
-                {
-                    "output_cols": ["document_text_rogue_f1"],
-                    "operator": Distribution(
-                        schema_data={
-                            "col_embs": "document_text",
-                            "col_groupby": ["question_idx", "experiment_id"],
-                        },
-                        kind="rouge",
-                    ),
-                }
+                Distribution(
+                    kind="rouge",
+                    col_in_embs="document_text",
+                    col_in_groupby=["question_idx", "experiment_id"],
+                    col_out="document_text_rogue_f1",
+                )
             ],
             source=JsonReader(fpath=DATASET_W_EMB_PATH),
             plot=PlotlyChart(
@@ -97,12 +82,10 @@ def get_config():
         SimpleCheck(
             name="document_link_version",
             compute=[
-                {
-                    "output_cols": ["document_link_version"],
-                    "operator": DocsLinkVersion(
-                        schema_data={"col_text": "document_link"}
-                    ),
-                }
+                DocsLinkVersion(
+                    col_in_text="document_link",
+                    col_out="document_link_version",
+                )
             ],
             source=JsonReader(fpath=DATASET_W_EMB_PATH),
             plot=PlotlyChart(
@@ -117,10 +100,10 @@ def get_config():
         SimpleCheck(
             name="document_context_length",
             compute=[
-                {
-                    "output_cols": ["document_context_length"],
-                    "operator": TextLength(schema_data={"col_text": "document_text"}),
-                }
+                TextLength(
+                    col_in_text="document_text",
+                    col_out="document_context_length",
+                )
             ],
             source=JsonReader(fpath=DATASET_W_EMB_PATH),
             plot=PlotlyChart(
@@ -135,15 +118,11 @@ def get_config():
         SimpleCheck(
             name="hallucination_check",
             compute=[
-                {
-                    "output_cols": ["response_document_overlap_score"],
-                    "operator": RougeScore(
-                        schema_data={
-                            "col_generated": "response",
-                            "col_source": "document_text",
-                        }
-                    ),
-                }
+                RougeScore(
+                    col_in_generated="response",
+                    col_in_source="document_text",
+                    col_out="response_document_overlap_score",
+                )
             ],
             source=JsonReader(fpath=DATASET_W_EMB_PATH),
             plot=PlotlyChart(kind="table", title="Hallucination score"),
@@ -154,17 +133,11 @@ def get_config():
         SimpleCheck(
             name="semantic_similarity_between_question_and_extracted_text",
             compute=[
-                {
-                    "output_cols": [
-                        "similarity_score_between_question_and_extracted_text"
-                    ],
-                    "operator": CosineSimilarity(
-                        schema_data={
-                            "col_vector_1": "question_embeddings",
-                            "col_vector_2": "response_embeddings",
-                        }
-                    ),
-                }
+                CosineSimilarity(
+                    col_in_vector_1="question_embeddings",
+                    col_in_vector_2="response_embeddings",
+                    col_out="similarity_score_between_question_and_extracted_text",
+                ),
             ],
             source=JsonReader(fpath=DATASET_W_EMB_PATH),
             plot=PlotlyChart(
@@ -177,16 +150,12 @@ def get_config():
         SimpleCheck(
             name="distribution_of_extracted_text_embeddings",
             compute=[
-                {
-                    "output_cols": ["extracted_text_embeddings_cosine_distribution"],
-                    "operator": Distribution(
-                        schema_data={
-                            "col_embs": "response_embeddings",
-                            "col_groupby": ["question_idx", "experiment_id"],
-                        },
-                        kind="cosine_similarity",
-                    ),
-                }
+                Distribution(
+                    kind="cosine_similarity",
+                    col_in_embs="response_embeddings",
+                    col_in_groupby=["question_idx", "experiment_id"],
+                    col_out="extracted_text_embeddings_cosine_distribution",
+                )
             ],
             source=JsonReader(fpath=DATASET_W_EMB_PATH),
             plot=PlotlyChart(
@@ -201,13 +170,11 @@ def get_config():
         SimpleCheck(
             name="empty_response",
             compute=[
-                {
-                    "output_cols": ["is_empty_response"],
-                    "operator": TextComparison(
-                        schema_data={"col_text": "response"},
-                        reference_text="<EMPTY MESSAGE>",
-                    ),
-                }
+                TextComparison(
+                    reference_text="<EMPTY MESSAGE>",
+                    col_in_text="response",
+                    col_out="is_empty_response",
+                )
             ],
             source=JsonReader(fpath=DATASET_W_EMB_PATH),
             plot=PlotlyChart(kind="table", title="Empty response occurence"),
@@ -218,15 +185,10 @@ def get_config():
         SimpleCheck(
             name="question_umap",
             compute=[
-                {
-                    "output_cols": [],
-                    "operator": UMAP(
-                        schema_data={
-                            "col_embs": "question_embeddings",
-                            "col_embs2": "response_embeddings",
-                        }
-                    ),
-                }
+                UMAP(
+                    col_in_embs="question_embeddings",
+                    col_in_embs2="response_embeddings",
+                )
             ],
             source=JsonReader(fpath=DATASET_W_EMB_PATH),
             plot=PlotlyChart(

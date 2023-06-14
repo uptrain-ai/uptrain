@@ -13,6 +13,6 @@ from uptrain.constants import (
     Statistic,
     Visual,
     ComparisonMetric,
-    ComparisonModel
+    ComparisonModel,
 )
 from uptrain.core.encoders import UpTrainEncoder

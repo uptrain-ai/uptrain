@@ -22,18 +22,12 @@ from uptrain.utilities import dependency_required
 from rouge_score import rouge_scorer
 
 
-__all__ = ["Distribution", "UMAP"]
-
-
-class SchemaDistribution(BaseModel):
-    col_embs: str
-    col_groupby: list[str]
-
-
 @register_op
 class Distribution(BaseModel):
     kind: t.Literal["cosine_similarity", "rouge"]
-    schema_data: SchemaDistribution
+    col_in_embs: str
+    col_in_groupby: list[str]
+    col_out: str = get_output_col_name_at(0)
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return DistExecutor(self)
@@ -54,28 +48,18 @@ class DistExecutor(OperatorExecutor):
         else:
             raise NotImplementedError("Only cosine similarity is supported for now.")
 
-        output_agg_col_name = get_output_col_name_at(0)
-        dist_df = data.groupby(
-            self.op.schema_data.col_groupby, maintain_order=True
-        ).agg(
-            [
-                pl.col(self.op.schema_data.col_embs)
-                .apply(agg_func)
-                .alias(output_agg_col_name)
-            ]
+        dist_df = (
+            data.groupby(self.op.col_in_groupby, maintain_order=True)
+            .agg([pl.col(self.op.col_in_embs).apply(agg_func).alias(self.op.col_out)])
+            .explode(self.op.col_out)
         )
-        dist_df = dist_df.explode(output_agg_col_name)
         return {"output": dist_df}
-
-
-class SchemaUmap(BaseModel):
-    col_embs: str
-    col_embs2: str
 
 
 @register_op
 class UMAP(BaseModel):
-    schema_data: SchemaUmap
+    col_in_embs: str
+    col_in_embs2: str
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return UmapExecutor(self)
@@ -89,8 +73,8 @@ class UmapExecutor(OperatorExecutor):
         self.op = op
 
     def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
-        embs = np.asarray(data[self.op.schema_data.col_embs].to_list())
-        embs2 = np.asarray(data[self.op.schema_data.col_embs2].to_list())
+        embs = np.asarray(data[self.op.col_in_embs].to_list())
+        embs2 = np.asarray(data[self.op.col_in_embs2].to_list())
 
         embs_list = list(embs)
         embs_list.extend(list(embs2))

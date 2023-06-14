@@ -7,6 +7,7 @@ import deltalake as dl
 from pathlib import Path
 
 from uptrain.operators.base import *
+
 if t.TYPE_CHECKING:
     from uptrain.framework.config import *
 
@@ -33,11 +34,12 @@ class DeltaWriterExecutor(OperatorExecutor):
         self.op = op
         self.columns = list(self.op.columns) if self.op.columns is not None else None
 
-    def run(self, data: pl.DataFrame):
+    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
         if self.columns is None:
             self.columns = list(data.columns)
         assert set(self.columns) == set(data.columns)
         dl.write_deltalake(self.op.fpath, data.to_arrow())
+        return {"output": None}
 
 
 @register_op
@@ -57,11 +59,12 @@ class JsonWriterExecutor(OperatorExecutor):
         self.op = op
         self.columns = list(self.op.columns) if self.op.columns is not None else None
 
-    def run(self, data: pl.DataFrame):
+    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
         if self.columns is None:
             self.columns = list(data.columns)
         assert set(self.columns) == set(data.columns)
 
-        #TODO: There should be a better way to create folders than below
-        Path(self.op.fpath.split('.')[0]).mkdir(parents=True, exist_ok=True)
+        # TODO: There should be a better way to create folders than below
+        Path(self.op.fpath.split(".")[0]).mkdir(parents=True, exist_ok=True)
         data.write_ndjson(file=self.op.fpath)
+        return {"output": None}

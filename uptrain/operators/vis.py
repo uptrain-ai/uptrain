@@ -8,10 +8,9 @@ from pydantic import BaseModel, Field
 import polars as pl
 import plotly.express as px
 
-from uptrain.operators.base import *
-
 if t.TYPE_CHECKING:
     from uptrain.framework.config import *
+from uptrain.operators.base import *
 
 
 __all__ = ["PlotlyChart"]
@@ -23,6 +22,7 @@ class PlotlyChart(BaseModel):
     props: dict = Field(default_factory=dict)
     title: str = ""
     filter_on: list[str] = Field(default_factory=list)
+    pivot_args: list[dict] = Field(default_factory=list)
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return PlotlyExecutor(self)

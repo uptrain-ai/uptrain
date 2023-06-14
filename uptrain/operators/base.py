@@ -5,7 +5,8 @@ outputs are stored as Arrow batches.
 """
 
 from __future__ import annotations
-from functools import partial
+import importlib
+import inspect
 import typing as t
 import typing_extensions as te
 
@@ -24,11 +25,8 @@ __all__ = [
     "OperatorExecutor",
     "PlaceholderOp",
     "register_op",
-    "register_op_external",
     "deserialize_operator",
     "get_output_col_name_at",
-    "check_req_columns_present",
-    "add_output_cols_to_data",
 ]
 
 # -----------------------------------------------------------
@@ -42,11 +40,13 @@ class TYPE_OP_OUTPUT(te.TypedDict):
 
 
 class Operator(t.Protocol):
-    """Base class for all operators."""
+    """All operator implementations must implement this protocol.
 
-    # optional attribute (not allowe in python protocols)
-    # specifies all the input columns required by the operator
-    # schema_data: t.Optional["BaseModel"]
+    An operator is defined as a pydantic model with the parameters necessary to run it. For ex,
+    - params necessary to run an algorithm
+    - input columns required by the operator
+    - output columns produced by the operator
+    """
 
     def make_executor(
         self, settings: t.Optional["Settings"] = None
@@ -62,68 +62,39 @@ class Operator(t.Protocol):
 
 
 class OperatorExecutor(t.Protocol):
-    """Base protocol class for all operator executors."""
+    """Protocol to be implemented by all operator executors."""
 
     op: Operator
 
-    def run(self, data: t.Optional[pl.DataFrame] = None) -> TYPE_OP_OUTPUT:
+    def run(self, data: t.Optional[pl.DataFrame] = None, **kwargs) -> TYPE_OP_OUTPUT:
+        """Runs the operator on the given data. An oeprator can receive multiple inputs but
+        all of them must be a polars DataFrame.
+        """
         ...
-
-
-# -----------------------------------------------------------
-# Create a registry for operators defined through the Uptrain
-# library. This lets us load the corresponding operator from
-# the serialized config.
-# -----------------------------------------------------------
-
-
-class OperatorRegistry:
-    _registry: dict[str, t.Type[Operator]] = {}
-
-    @classmethod
-    def register_operator(cls, name: str, operator_klass: t.Any):
-        cls._registry[name] = operator_klass
-        # mark the class as an operator, helpful for (de)serialization later
-        operator_klass._uptrain_op_name = name
-
-    @classmethod
-    def get_operator(cls, name: str):
-        operator_klass = cls._registry.get(name)
-        if operator_klass is None:
-            raise ValueError(f"No operator registered with name {name}")
-        return operator_klass
-
-    @classmethod
-    def has_operator(cls, name: str):
-        return name in cls._registry
 
 
 T = t.TypeVar("T")
 
 
-def _register_operator(cls: T, namespace: str) -> T:
-    assert isinstance(cls, type), "Can only register classes as Uptrain operators"
-    key = f"{namespace}:{cls.__name__}"
-    OperatorRegistry.register_operator(key, cls)
+def register_op(cls: T) -> T:
+    """Decorator that marks the class as an Uptrain operator. Useful for (de)serialization."""
+    assert isinstance(cls, type), "Only classes can be registered as Uptrain operators"
+    op_name = f"{cls.__module__}:{cls.__name__}"
+    cls._uptrain_op_name = op_name  # type: ignore
     return cls
 
 
-def register_op(cls: T) -> T:
-    """Decorator to register an operator with Uptrain's registry. Meant for internal use only."""
-    return _register_operator(cls, namespace="uptrain")
-
-
-def register_op_external(namespace: str):
-    """Decorator to register custom operators with Uptrain's registry."""
-    return partial(_register_operator, namespace=namespace)
-
-
 def deserialize_operator(data: dict) -> Operator:
-    """Deserialize an operator from a dict."""
+    """Deserialize an operator from the serialized dict."""
     op_name = data["op_name"]
-    if OperatorRegistry.has_operator(op_name):
-        op = OperatorRegistry.get_operator(op_name)
-    else:
+    mod_name, cls_name = op_name.split(":")
+    try:
+        mod = importlib.import_module(mod_name)
+        op = getattr(mod, cls_name)
+    except (ModuleNotFoundError, AttributeError) as exc:
+        logger.error(
+            f"Error when trying to fetch the operator: \n{exc}\n Creating a placeholder op for {op_name}."
+        )
         return PlaceholderOp(op_name=op_name, params=data["params"])
 
     if hasattr(op, "from_dict"):
@@ -142,29 +113,6 @@ def deserialize_operator(data: dict) -> Operator:
 
 def get_output_col_name_at(index: int) -> str:
     return f"_col_{index}"
-
-
-def add_output_cols_to_data(
-    data: pl.DataFrame, list_columns: list[pl.Series]
-) -> pl.DataFrame:
-    to_add = {}
-    for i, col in enumerate(list_columns):
-        col_name = get_output_col_name_at(i)
-        if col_name in data.columns:
-            logger.warning(f"Overwriting column {col_name} in the input data.")
-        to_add[col_name] = col
-    return data.with_columns(**to_add)
-
-
-def check_req_columns_present(
-    data: pl.DataFrame, schema: BaseModel, exclude: t.Optional[list[str]] = None
-) -> None:
-    for attr, col in schema.dict().items():
-        if exclude is not None and attr in exclude:
-            continue
-        assert (
-            col in data.columns
-        ), f"Column: {col} for attribute: {attr} not found in input data."
 
 
 @register_op

@@ -20,8 +20,6 @@ from uptrain.utilities import dependency_required
 if t.TYPE_CHECKING:
     from uptrain.framework.config import *
 
-__all__ = ["ConceptDrift"]
-
 
 class ParamsDDM(BaseModel):
     warm_start: int = 500
@@ -37,15 +35,11 @@ class ParamsADWIN(BaseModel):
     grace_period: int = 5
 
 
-class SchemaDrift(BaseModel):
-    col_measure: str = "metric"
-
-
 @register_op
 class ConceptDrift(BaseModel):
     algorithm: t.Literal["DDM", "ADWIN"]
     params: t.Union[ParamsDDM, ParamsADWIN]
-    schema_data: SchemaDrift = SchemaDrift()
+    col_in_measure: str = "metric"
 
     @root_validator
     def check_params(cls, values):
@@ -87,7 +81,7 @@ class ConceptDriftExecutor(OperatorExecutor):
         self.alert_info = None
 
     def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
-        ser = data.get_column(self.op.schema_data.col_measure)
+        ser = data.get_column(self.op.col_in_measure)
 
         for val in ser:
             self.algo.update(val)

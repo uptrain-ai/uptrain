@@ -80,7 +80,7 @@ def write_data():
 
 def run_grammar_score():
     reader = JsonReader(fpath="/tmp/samples.jsonl")
-    score_op = GrammarScore(schema_data={"col_text": "answer"})
+    score_op = GrammarScore(dataschema={"col_text": "answer"})
 
     input_dataset = reader.make_executor().run()
     data = input_dataset["output"]
@@ -103,7 +103,7 @@ def run_as_config():
         compute=[
             {
                 "output_cols": ["score"],
-                "operator": GrammarScore(schema_data={"col_text": "answer"}),
+                "operator": GrammarScore(dataschema={"col_text": "answer"}),
             },
         ],
         source=JsonReader(fpath="/tmp/samples.jsonl"),
