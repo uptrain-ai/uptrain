@@ -121,10 +121,10 @@ if data is None:
 #             data = data.filter(pl.col(col_name).str.contains(select))
 #     return data
         
-def show_pivot_tables(data):
-    for pivot in plot_op.pivot_args:
-        if st.checkbox(pivot["title"]):
-            st.dataframe(pd.pivot_table(data, index=pivot["index"], values=pivot["values"], columns=pivot["columns"], aggfunc=pivot["aggfunc"]))
+# def show_pivot_tables(data):
+#     for pivot in plot_op.pivot_args:
+#         if st.checkbox(pivot["title"]):
+#             st.dataframe(pd.pivot_table(data, index=pivot["index"], values=pivot["values"], columns=pivot["columns"], aggfunc=pivot["aggfunc"]))
 
 def filter_template(df, attribute, default_all=False):
     container = st.container()
@@ -138,14 +138,15 @@ def filter_template(df, attribute, default_all=False):
     return selected_options
 
 def show_table(data):
+    # Hide Columns
     hide_columns = st.multiselect(
         "Choose columns to hide", data.columns, default=[]
     )
 
+    # Filter Columns
     filter_columns = st.multiselect(
         "Choose columns to filter", data.columns, default=[]
     )
-
     filters = {}
     for column in filter_columns:
         filters[column] = filter_template(data, column)
@@ -154,7 +155,26 @@ def show_table(data):
 
     data = data.drop(hide_columns).to_pandas()
     st.dataframe(data)
-    show_pivot_tables(data)
+
+    # Pivot Table
+    st.write("Pivot Table")
+    pivot = {
+        "index" : [],
+        "values" : [],
+        "columns" : [],
+        "aggfunc" : "mean"
+    }
+    pivot["index"] = st.multiselect(
+        "Choose Index", data.columns, default=[]
+    )
+    pivot["values"] = st.multiselect(
+        "Choose values", data.columns, default=[]
+    )
+    pivot["columns"] = st.multiselect(
+        "Choose columns", data.columns, default=[]
+    )
+    if pivot["index"] and pivot["values"] and pivot["columns"]:
+        st.dataframe(pd.pivot_table(data, index=pivot["index"], values=pivot["values"], columns=pivot["columns"], aggfunc=pivot["aggfunc"]))
 
 # Plot the data
 st.header(plot_op.title)
