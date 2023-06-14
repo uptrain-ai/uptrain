@@ -6,6 +6,7 @@ outputs are stored as Arrow batches.
 
 from __future__ import annotations
 import importlib
+import inspect
 import typing as t
 import typing_extensions as te
 
@@ -39,10 +40,13 @@ class TYPE_OP_OUTPUT(te.TypedDict):
 
 
 class Operator(t.Protocol):
-    """Base class for all operators."""
+    """All operator implementations must implement this protocol.
 
-    # optional attribute (not allowed in python protocols) - specifies input columns required by the operator + output columns produced by it
-    # dataschema: t.Optional["BaseModel"]
+    An operator is defined as a pydantic model with the parameters necessary to run it. For ex,
+    - params necessary to run an algorithm
+    - input columns required by the operator
+    - output columns produced by the operator
+    """
 
     def make_executor(
         self, settings: t.Optional["Settings"] = None
@@ -58,7 +62,7 @@ class Operator(t.Protocol):
 
 
 class OperatorExecutor(t.Protocol):
-    """Base protocol class for all operator executors."""
+    """Protocol to be implemented by all operator executors."""
 
     op: Operator
 

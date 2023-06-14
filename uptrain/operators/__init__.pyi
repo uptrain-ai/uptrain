@@ -10,6 +10,10 @@ __all__ = [
     # embs
     "Distribution",
     "UMAP",
+    # table
+    "Identity",
+    "ColumnExpand",
+    "Concatenation",
     # metrics
     "Accuracy",
     # similarity
@@ -29,6 +33,7 @@ from .base import (
 )
 from .drift import ConceptDrift
 from .embs import Distribution, UMAP
+from .table import Identity, ColumnExpand, Concatenation
 from .metrics import Accuracy
 from .similarity import CosineSimilarity
 from .vis import PlotlyChart

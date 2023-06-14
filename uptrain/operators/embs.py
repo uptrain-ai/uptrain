@@ -22,16 +22,12 @@ from uptrain.utilities import dependency_required
 from rouge_score import rouge_scorer
 
 
-class SchemaDistribution(BaseModel):
-    in_col_embs: str
-    in_col_groupby: list[str]
-    out_col: str = get_output_col_name_at(0)
-
-
 @register_op
 class Distribution(BaseModel):
     kind: t.Literal["cosine_similarity", "rouge"]
-    dataschema: SchemaDistribution
+    col_in_embs: str
+    col_in_groupby: list[str]
+    col_out: str = get_output_col_name_at(0)
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return DistExecutor(self)
@@ -53,27 +49,17 @@ class DistExecutor(OperatorExecutor):
             raise NotImplementedError("Only cosine similarity is supported for now.")
 
         dist_df = (
-            data.groupby(self.op.dataschema.in_col_groupby, maintain_order=True)
-            .agg(
-                [
-                    pl.col(self.op.dataschema.in_col_embs)
-                    .apply(agg_func)
-                    .alias(self.op.dataschema.out_col)
-                ]
-            )
-            .explode(self.op.dataschema.out_col)
+            data.groupby(self.op.col_in_groupby, maintain_order=True)
+            .agg([pl.col(self.op.col_in_embs).apply(agg_func).alias(self.op.col_out)])
+            .explode(self.op.col_out)
         )
         return {"output": dist_df}
 
 
-class SchemaUmap(BaseModel):
-    in_col_embs: str
-    in_col_embs2: str
-
-
 @register_op
 class UMAP(BaseModel):
-    dataschema: SchemaUmap
+    col_in_embs: str
+    col_in_embs2: str
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return UmapExecutor(self)
@@ -87,8 +73,8 @@ class UmapExecutor(OperatorExecutor):
         self.op = op
 
     def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
-        embs = np.asarray(data[self.op.dataschema.in_col_embs].to_list())
-        embs2 = np.asarray(data[self.op.dataschema.in_col_embs2].to_list())
+        embs = np.asarray(data[self.op.col_in_embs].to_list())
+        embs2 = np.asarray(data[self.op.col_in_embs2].to_list())
 
         embs_list = list(embs)
         embs_list.extend(list(embs2))

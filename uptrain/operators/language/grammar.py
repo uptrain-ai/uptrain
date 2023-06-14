@@ -18,14 +18,10 @@ from uptrain.operators.language.llm import LLMMulticlient, Payload
 __all__ = ["GrammarScore"]
 
 
-class SchemaGrammarScore(BaseModel):
-    in_col_text: str = "text"
-    out_col: str = get_output_col_name_at(0)
-
-
 @register_op
 class GrammarScore(BaseModel):
-    dataschema: SchemaGrammarScore = Field(default_factory=SchemaGrammarScore)
+    col_in_text: str = "text"
+    col_out: str = get_output_col_name_at(0)
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return GrammarScoreExecutor(self, settings)
@@ -61,7 +57,7 @@ class GrammarScoreExecutor(OperatorExecutor):
         )
 
     def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
-        text_ser = data.get_column(self.op.dataschema.in_col_text)
+        text_ser = data.get_column(self.op.col_in_text)
         input_payloads = [
             self._make_payload(idx, text) for idx, text in enumerate(text_ser)
         ]
@@ -87,7 +83,5 @@ class GrammarScoreExecutor(OperatorExecutor):
             [val for _, val in sorted(results, key=lambda x: x[0])]
         )
         return {
-            "output": data.with_columns(
-                [pl.Series(self.op.dataschema.out_col, result_scores)]
-            )
+            "output": data.with_columns([pl.Series(self.op.col_out, result_scores)])
         }

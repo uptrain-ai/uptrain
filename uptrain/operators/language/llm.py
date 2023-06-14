@@ -9,7 +9,6 @@ from concurrent.futures import (
     as_completed,
     wait as wait_for_futures,
 )
-import sys
 import typing as t
 
 try:
@@ -24,6 +23,7 @@ from pydantic import BaseModel, Field
 
 from uptrain.operators.base import *
 from uptrain.utilities import dependency_required
+
 if t.TYPE_CHECKING:
     from uptrain.framework.config import Settings
 
