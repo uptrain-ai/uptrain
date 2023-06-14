@@ -138,7 +138,7 @@ class OpenaiEvalExecutor(OperatorExecutor):
         }
         extra.update(type_data)
         return {
-            "output": None,  # events are of multiple kinds. Undecided how to handle them in a consistent schema yet
+            "output": pl.DataFrame(recorder.get_list_events()),  # events are of multiple kinds. Undecided how to handle them in a consistent schema yet
             "extra": extra
         }
 
