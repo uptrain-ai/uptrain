@@ -130,6 +130,11 @@ def show_pivot_tables(data):
             st.dataframe(pd.pivot_table(data, index=pivot["index"], values=pivot["values"], columns=pivot["columns"], aggfunc=pivot["aggfunc"]))
 
 def show_table(data):
+    hide_columns = st.multiselect(
+        "Choose columns to hide", data.columns, default=[]
+    )
+    data = data.drop(hide_columns)
+    
     data = apply_filters(data).to_pandas()
     st.dataframe(data)
     show_pivot_tables(data)
