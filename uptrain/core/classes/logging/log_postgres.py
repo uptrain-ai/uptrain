@@ -12,7 +12,7 @@ from uptrain.core.lib.helper_funcs import dependency_required
 class PostgresLogs:
     def __init__(self, db_name):
         self.conn = psycopg2.connect(
-            database=db_name, user=os.environ['USERNAME'], password=os.environ['PASSWORD'])
+            database=db_name, user=os.environ['POSTGRES_USERNAME'], password=os.environ['POSTGRES_PASSWORD'])
         self.conn.autocommit = True
         self.cursor = self.conn.cursor()
         self.tables_created = {}

@@ -43,8 +43,8 @@ class PostgreSQLReader:
         self.sql_query = args.sql_query
         self.conn = psycopg2.connect(
             database=args.database,
-            user=os.environ['USERNAME'],
-            password=os.environ['PASSWORD'])
+            user=os.environ['POSTGRES_USERNAME'],
+            password=os.environ['POSTGRES_PASSWORD'])
         self.sql_variables = args.sql_variables_dictn
 
     def run(self, time_diff):

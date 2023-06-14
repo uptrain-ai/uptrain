@@ -5,8 +5,8 @@ import datetime
 import os
 
 
-os.environ['USERNAME'] = '...'
-os.environ['PASSWORD'] = '...'
+os.environ['POSTGRES_USERNAME'] = '...'
+os.environ['POSTGRES_PASSWORD'] = '...'
 
 # Make sure you have the following databases created
 query_db = '...' # "test"
@@ -20,8 +20,8 @@ if do_setup:
     try:
         conn = psycopg2.connect(
             database=query_db,
-            user=os.environ['USERNAME'],
-            password=os.environ['USERNAME'])
+            user=os.environ['POSTGRES_USERNAME'],
+            password=os.environ['POSTGRES_PASSWORD'])
         cur = conn.cursor()
         cur.execute("CREATE TABLE input (input_id int PRIMARY KEY, name VARCHAR (50))")
         cur.execute("ALTER TABLE input ADD COLUMN created_at TIMESTAMP DEFAULT NOW()")
