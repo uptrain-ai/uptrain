@@ -19,13 +19,10 @@ __all__ = ["HasStar"]
 
 
 # Check if SQL has star
-class SchemaHasStar(BaseModel):
-    col_sql: str
-
-
 @register_op
 class HasStar(BaseModel):
-    schema_data: SchemaHasStar = Field(default_factory=SchemaHasStar)
+    col_in_text: str = "text"
+    col_out: str = get_output_col_name_at(0)
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return HasStarExecutor(self)
@@ -38,6 +35,6 @@ class HasStarExecutor(OperatorExecutor):
         self.op = op
 
     def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
-        sqls = data.get_column(self.op.schema_data.col_sql)
+        sqls = data.get_column(self.op.col_in_text)
         results = ["*" in sql for sql in sqls]
-        return {"output": add_output_cols_to_data(data, [pl.Series(values=results)])}
+        return {"output": data.with_columns([pl.Series(self.op.col_out, results)])}

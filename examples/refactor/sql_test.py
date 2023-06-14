@@ -46,10 +46,8 @@ def get_config():
     checks.append(SimpleCheck(
         name="has_star",
         compute=[
-            {
-                "output_cols": ["has_star"],
-                "operator": HasStar(schema_data={"col_sql": "response"}),
-            }
+            HasStar(col_in_text="response",
+                    col_out="has_star"),
         ],
         source=JsonReader(fpath="{experiment_path}/output.jsonl"),
         # sink=JsonWriter(fpath="{experiment_path}/interim_data/has_star.jsonl"),
@@ -71,7 +69,6 @@ def start_streamlit():
     runner = StreamlitRunner(LOGS_DIR)
     runner.start()
 
-openai.api_key = openai_api_key
 
 if __name__ == "__main__":
     import argparse
@@ -95,7 +92,7 @@ if __name__ == "__main__":
             check.source.fpath = check.source.fpath.format(experiment_path=experiment_path)
         if check.sink is not None:
             check.sink.fpath = check.sink.fpath.format(experiment_path=experiment_path)
-    cfg = Config(checks=all_checks, settings=Settings(logs_folder=LOGS_DIR, openai_api_key=openai_api_key))
+    cfg = Config(checks=all_checks, settings=Settings(logs_folder=LOGS_DIR))
     cfg.setup()
     for check in cfg.checks:
         results = check.make_executor(cfg.settings).run()
