@@ -21,6 +21,7 @@ class ModelGradeScore(BaseModel):
     col_in_input: str = "prompt"
     col_in_completion: str = "response"
     col_out: str = get_output_col_name_at(0)
+    eval_name: str
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return ModelGradeExecutor(self, settings)
@@ -28,9 +29,11 @@ class ModelGradeScore(BaseModel):
 
 class ModelGradeExecutor(OperatorExecutor):
     op: ModelGradeScore
+    settings: Settings
 
     def __init__(self, op: ModelGradeScore, settings: t.Optional[Settings] = None):
         self.op = op
+        self.settings = settings
 
     def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
         text_input = data.get_column(self.op.col_in_input)
@@ -40,13 +43,7 @@ class ModelGradeExecutor(OperatorExecutor):
         grading_op = OpenaiEval(
             bundle_path="",
             completion_name="gpt-3.5-turbo",
-            eval_name="coqa-closedqa-correct",
+            eval_name=self.op.eval_name,
         )
-        res = grading_op.make_executor().run(samples)
-
-        scores = []
-        for event in res["extra"]["all_events"]:
-            if "data" in event:
-                if "score" in event["data"]:
-                    scores.append(event["data"]["score"])
-        return {"output": data.with_columns([pl.Series(self.op.col_out, scores)])}
+        res = grading_op.make_executor(settings=self.settings).run(samples)['extra']['metrics']
+        return {"output": data.with_columns([pl.Series(self.op.col_out, res['score'])])}

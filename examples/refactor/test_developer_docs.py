@@ -55,7 +55,7 @@ user_inputs = {
         ],
     },
     "dataset_args": {
-        "file_path": "",
+        "file_name": "",
         "input_variables": [
             "question",
             "document_title",
@@ -88,22 +88,16 @@ def get_config():
             name="embeddings",
             compute=[
                 Embedding(
-                    dataschema={
-                        "in_col_text": "question",
-                        "out_col": "question_embeddings",
-                    }
+                    col_in_text="question",
+                    col_out="question_embeddings"
                 ),
                 Embedding(
-                    dataschema={
-                        "in_col_text": "document_text",
-                        "out_col": "context_embeddings",
-                    }
+                    col_in_text="document_text",
+                    col_out="context_embeddings"
                 ),
                 Embedding(
-                    dataschema={
-                        "in_col_text": "response",
-                        "out_col": "response_embeddings",
-                    }
+                    col_in_text="response",
+                    col_out="response_embeddings"
                 ),
             ],
             source=JsonReader(fpath="{experiment_path}/output.jsonl"),
@@ -117,12 +111,10 @@ def get_config():
             name="distribution_of_document_embeddings",
             compute=[
                 Distribution(
-                    dataschema={
-                        "in_col_embs": "context_embeddings",
-                        "in_col_groupby": ["question_idx", "experiment_id"],
-                        "out_col": "document_embeddings_cosine_distribution",
-                    },
                     kind="cosine_similarity",
+                    col_in_embs="context_embeddings",
+                    col_in_groupby=["question_idx", "experiment_id"],
+                    col_out="document_embeddings_cosine_distribution",
                 )
             ],
             source=JsonReader(fpath="{experiment_path}/interim_data/embeddings.jsonl"),
@@ -139,12 +131,10 @@ def get_config():
             name="text_overlap_between_documents",
             compute=[
                 Distribution(
-                    dataschema={
-                        "in_col_embs": "document_text",
-                        "in_col_groupby": ["question_idx", "experiment_id"],
-                        "out_col": "document_text_rogue_f1",
-                    },
                     kind="rouge",
+                    col_in_embs="document_text",
+                    col_in_groupby=["question_idx", "experiment_id"],
+                    col_out="document_text_rogue_f1",
                 )
             ],
             source=JsonReader(fpath="{experiment_path}/interim_data/embeddings.jsonl"),
@@ -161,10 +151,8 @@ def get_config():
             name="document_link_version",
             compute=[
                 DocsLinkVersion(
-                    dataschema={
-                        "in_col_text": "document_link",
-                        "out_col": "document_link_version",
-                    }
+                    col_in_text="document_link",
+                    col_out="document_link_version",
                 )
             ],
             source=JsonReader(fpath="{experiment_path}/output.jsonl"),
@@ -181,10 +169,8 @@ def get_config():
             name="document_context_length",
             compute=[
                 TextLength(
-                    dataschema={
-                        "in_col_text": "document_text",
-                        "out_col": "document_context_length",
-                    }
+                    col_in_text="document_text",
+                    col_out="document_context_length",
                 )
             ],
             source=JsonReader(fpath="{experiment_path}/output.jsonl"),
@@ -201,12 +187,10 @@ def get_config():
             name="hallucination_check",
             compute=[
                 RougeScore(
-                    dataschema={
-                        "in_col_generated": "response",
-                        "in_col_source": "document_text",
-                        "out_col": "response_document_overlap_score",
-                    }
-                ),
+                    col_in_generated="response",
+                    col_in_source="document_text",
+                    col_out="response_document_overlap_score",
+                )
             ],
             source=JsonReader(fpath="{experiment_path}/interim_data/embeddings.jsonl"),
             sink=JsonWriter(fpath="{experiment_path}/interim_data/a.jsonl"),
@@ -219,11 +203,9 @@ def get_config():
             name="semantic_similarity_between_question_and_extracted_text",
             compute=[
                 CosineSimilarity(
-                    dataschema={
-                        "in_col_vector_1": "question_embeddings",
-                        "in_col_vector_2": "response_embeddings",
-                        "out_col": "similarity_score_between_question_and_extracted_text",
-                    }
+                    col_in_vector_1="question_embeddings",
+                    col_in_vector_2="response_embeddings",
+                    col_out="similarity_score_between_question_and_extracted_text",
                 ),
             ],
             source=JsonReader(fpath="{experiment_path}/interim_data/a.jsonl"),
@@ -239,12 +221,10 @@ def get_config():
             name="distribution_of_extracted_text_embeddings",
             compute=[
                 Distribution(
-                    dataschema={
-                        "in_col_embs": "response_embeddings",
-                        "in_col_groupby": ["question_idx", "experiment_id"],
-                        "out_col": "extracted_text_embeddings_cosine_distribution",
-                    },
                     kind="cosine_similarity",
+                    col_in_embs="response_embeddings",
+                    col_in_groupby=["question_idx", "experiment_id"],
+                    col_out="extracted_text_embeddings_cosine_distribution",
                 )
             ],
             source=JsonReader(fpath="{experiment_path}/interim_data/embeddings.jsonl"),
@@ -261,12 +241,10 @@ def get_config():
             name="empty_response",
             compute=[
                 TextComparison(
-                    dataschema={
-                        "in_col_text": "response",
-                        "out_col": "is_empty_response",
-                    },
                     reference_text="<EMPTY MESSAGE>",
-                ),
+                    col_in_text="response",
+                    col_out="is_empty_response",
+                )
             ],
             source=JsonReader(fpath="{experiment_path}/interim_data/b.jsonl"),
             sink=JsonWriter(fpath="{experiment_path}/interim_data/c.jsonl"),
@@ -277,7 +255,11 @@ def get_config():
                     {
                         "title": "Compare overall model scores",
                         "index": ["persona"],
-                        "values": ["is_empty_response"],
+                        "values": [
+                            "response_document_overlap_score",
+                            "similarity_score_between_question_and_extracted_text",
+                            "is_empty_response"
+                            ],
                         "columns": ["model"],
                         "aggfunc": "mean"                
                     },
@@ -291,11 +273,9 @@ def get_config():
             name="question_umap",
             compute=[
                 UMAP(
-                    dataschema={
-                        "in_col_embs": "question_embeddings",
-                        "in_col_embs2": "response_embeddings",
-                    }
-                ),
+                    col_in_embs="question_embeddings",
+                    col_in_embs2="response_embeddings",
+                )
             ],
             source=JsonReader(fpath="{experiment_path}/interim_data/embeddings.jsonl"),
             plot=PlotlyChart(
@@ -311,11 +291,10 @@ def get_config():
             name="openai_grade",
             compute=[
                 ModelGradeScore(
-                    dataschema={
-                        "in_col_input": "prompt",
-                        "in_col_completion": "response",
-                        "out_col": "chatgpt_model_grade_score",
-                    }
+                    score_type="correct",
+                    col_in_input="prompt",
+                    col_in_completion="response",
+                    col_out="chatgpt_model_grade_score",
                 ),
             ],
             source=JsonReader(fpath="{experiment_path}/interim_data/c.jsonl"),
@@ -323,20 +302,7 @@ def get_config():
         )
     )
 
-    # checks.append(SimpleCheck(
-    #     name="model_grading_correctness_score",
-    #     compute=[
-    #         {
-    #             "output_cols": [],
-    #             "operator": ""
-    #         }
-    #     ],
-    #     source=JsonReader(fpath="{experiment_path}/output.jsonl"),
-    #     plot=PlotlyChart(kind="table", title="Model Grading Correctness Score"),
-    # ))
-
     cfg = {"checks": checks, "log_folder": LOGS_DIR}
-    # cfg = Config(checks=checks, settings=Settings(logs_folder=LOGS_DIR))
     return cfg
 
 
@@ -351,7 +317,6 @@ def start_streamlit():
     runner = StreamlitRunner(LOGS_DIR)
     runner.start()
 
-openai.api_key = openai_api_key
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -373,8 +338,9 @@ if __name__ == "__main__":
                 check.sink.fpath = check.sink.fpath.format(experiment_path=experiment_path)
     cfg = Config(
         checks=all_checks,
-        settings=Settings(logs_folder=LOGS_DIR, openai_api_key=openai_api_key),
+        settings=Settings(logs_folder=LOGS_DIR),
     )
+    openai.api_key = cfg.settings.openai_api_key
     cfg.setup()
 
     user_inputs["evaluation_args"] = {"checks": all_checks, "log_folder": experiment_path}
