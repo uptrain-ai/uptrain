@@ -16,6 +16,13 @@ from uptrain.operators.base import *
 
 @register_op
 class CsvReader(BaseModel):
+    """Reads data from a csv file.
+
+    Args:
+        fpath: Path to the csv file.
+        batch_size: Number of rows to read at a time. Defaults to None, which reads the entire file.
+    """
+
     fpath: str
     batch_size: t.Optional[int] = None
 
@@ -25,6 +32,13 @@ class CsvReader(BaseModel):
 
 @register_op
 class JsonReader(BaseModel):
+    """Reads data from a json file.
+
+    Args:
+        fpath: Path to the json file.
+        batch_size: Number of rows to read at a time. Defaults to None, which reads the entire file.
+    """
+
     fpath: str
     batch_size: t.Optional[int] = None
 
@@ -69,8 +83,15 @@ class TextReaderExecutor(OperatorExecutor):
 
 @register_op
 class DeltaReader(BaseModel):
+    """Reads data from a Delta Lake table.
+
+    Args:
+        fpath: File path to the Delta Lake table.
+        batch_split: Whether to read the table in batches. Defaults to False.
+    """
+
     fpath: str
-    batch_split: bool = False  # whether we want to read one record batch at a time
+    batch_split: bool = False
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return DeltaReaderExecutor(self)
