@@ -88,54 +88,71 @@ if data is None:
 # Apply filters
 # credits - https://github.com/tylerjrichards/st-filter-dataframe/blob/main/streamlit_app.py
 # Also, refer - https://pola-rs.github.io/polars/py-polars/html/reference/datatypes.html
-
-# TODO: Rewrite function, buggy code here
-def apply_filters(data) -> None:
-    for col_name in plot_op.filter_on:
-        dtype = data.schema[col_name]
-
-        if dtype == pl.Categorical or data[col_name].n_unique() < 10:
-            options = data[col_name].unique().to_list()
-            select = st.multiselect(
-                label=f"Filter on {col_name}", options=options, default=options[0]
-            )
-            data = data.filter(pl.col(col_name).is_in(select))
-        elif dtype in pl.NUMERIC_DTYPES:
-            min_val = float(data[col_name].min())
-            max_val = float(data[col_name].max())
-            step = (max_val - min_val) / 100
-            select = st.slider(
-                label=f"Filter on {col_name}",
-                min_value=min_val,
-                max_value=max_val,
-                value=(min_val, max_val),
-            )
-            data = data.filter(pl.col(col_name).is_between(select[0], select[1]))
-        elif dtype == pl.Date or dtype in pl.DATETIME_DTYPES:
-            select = st.date_input(
-                label=f"Filter on {col_name}",
-                value=(data[col_name].min(), data[col_name].max()),
-            )
-            if len(select) == 2:
-                data = data.filter(pl.col(col_name).is_between(select[0], select[1]))
-        else:
-            # TODO: won't this fail for non-str types?
-            select = st.text_input(label=f"Substring or regex in {col_name}")
-            data = data.filter(pl.col(col_name).str.contains(select))
-    return data
+# def apply_filters(data) -> None:
+#     for col_name in plot_op.filter_on:
+#         dtype = data.schema[col_name]
+#         if dtype == pl.Categorical or data[col_name].n_unique() < 10:
+#             options = data[col_name].unique().to_list()
+#             select = st.multiselect(
+#                 label=f"Filter on {col_name}", options=options, default=options[0]
+#             )
+#             data = data.filter(pl.col(col_name).is_in(select))
+#         elif dtype in pl.NUMERIC_DTYPES:
+#             min_val = float(data[col_name].min())
+#             max_val = float(data[col_name].max())
+#             step = (max_val - min_val) / 100
+#             select = st.slider(
+#                 label=f"Filter on {col_name}",
+#                 min_value=min_val,
+#                 max_value=max_val,
+#                 value=(min_val, max_val),
+#             )
+#             data = data.filter(pl.col(col_name).is_between(select[0], select[1]))
+#         elif dtype == pl.Date or dtype in pl.DATETIME_DTYPES:
+#             select = st.date_input(
+#                 label=f"Filter on {col_name}",
+#                 value=(data[col_name].min(), data[col_name].max()),
+#             )
+#             if len(select) == 2:
+#                 data = data.filter(pl.col(col_name).is_between(select[0], select[1]))
+#         else:
+#             # TODO: won't this fail for non-str types?
+#             select = st.text_input(label=f"Substring or regex in {col_name}")
+#             data = data.filter(pl.col(col_name).str.contains(select))
+#     return data
         
 def show_pivot_tables(data):
     for pivot in plot_op.pivot_args:
         if st.checkbox(pivot["title"]):
             st.dataframe(pd.pivot_table(data, index=pivot["index"], values=pivot["values"], columns=pivot["columns"], aggfunc=pivot["aggfunc"]))
 
+def filter_template(df, attribute, default_all=False):
+    container = st.container()
+    all = st.checkbox(f"Select all {attribute}", value=default_all)
+    values = list(df[attribute].unique().sort())
+
+    if all:
+        selected_options = container.multiselect("Select one or more options:", values, values)
+    else:
+        selected_options =  container.multiselect("Select one or more options:", values)
+    return selected_options
+
 def show_table(data):
     hide_columns = st.multiselect(
         "Choose columns to hide", data.columns, default=[]
     )
-    data = data.drop(hide_columns)
-    
-    data = apply_filters(data).to_pandas()
+
+    filter_columns = st.multiselect(
+        "Choose columns to filter", data.columns, default=[]
+    )
+
+    filters = {}
+    for column in filter_columns:
+        filters[column] = filter_template(data, column)
+    for column, values in filters.items():
+        data = data.filter(pl.col(column).is_in(values))
+
+    data = data.drop(hide_columns).to_pandas()
     st.dataframe(data)
     show_pivot_tables(data)
 
