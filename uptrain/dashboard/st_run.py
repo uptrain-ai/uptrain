@@ -103,6 +103,7 @@ def show_table(data):
     )
 
     # Filter Columns
+    # TODO: Add support for datatypes other than categorical
     filter_columns = st.multiselect(
         "Choose columns to filter", data.columns, default=[]
     )
