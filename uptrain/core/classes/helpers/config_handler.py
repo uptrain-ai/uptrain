@@ -32,6 +32,8 @@ class LoggingArgs(BaseModel):
     log_folder: str = "uptrain_logs"
     log_data: bool = True
     st_logging: bool = False
+    postgres_logging: bool = False
+    database: str = None
     run_background_streamlit: bool = True
     use_new_handler: bool = False
 
@@ -47,6 +49,7 @@ class ReaderArgs(BaseModel):
     type: str = None
     sql_query: str = None
     sql_variables_dictn: typing.Optional[dict] = None
+    database: str = None
 
 class Config(BaseModel):
     training_args: TrainingArgs = TrainingArgs()
