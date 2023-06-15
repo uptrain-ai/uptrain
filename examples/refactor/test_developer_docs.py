@@ -2,14 +2,9 @@ import openai
 import copy
 import argparse
 
-from uptrain.framework.config import Config, Settings, SimpleCheck
+from uptrain.framework.checks import CheckSet, Settings, SimpleCheck
 from uptrain.io import JsonReader, DeltaWriter, JsonWriter
-from uptrain.operators import (
-    PlotlyChart,
-    Distribution,
-    CosineSimilarity,
-    UMAP
-)
+from uptrain.operators import PlotlyChart, Distribution, CosineSimilarity, UMAP
 
 from uptrain.operators.language import (
     Embedding,
@@ -17,7 +12,7 @@ from uptrain.operators.language import (
     DocsLinkVersion,
     TextLength,
     TextComparison,
-    ModelGradeScore
+    ModelGradeScore,
 )
 from regression_testing.experiment import ExperimentManager
 
@@ -87,22 +82,13 @@ def get_config():
         SimpleCheck(
             name="embeddings",
             compute=[
-                Embedding(
-                    col_in_text="question",
-                    col_out="question_embeddings"
-                ),
-                Embedding(
-                    col_in_text="document_text",
-                    col_out="context_embeddings"
-                ),
-                Embedding(
-                    col_in_text="response",
-                    col_out="response_embeddings"
-                ),
+                Embedding(col_in_text="question", col_out="question_embeddings"),
+                Embedding(col_in_text="document_text", col_out="context_embeddings"),
+                Embedding(col_in_text="response", col_out="response_embeddings"),
             ],
             source=JsonReader(fpath="{experiment_path}/output.jsonl"),
             sink=JsonWriter(fpath="{experiment_path}/interim_data/embeddings.jsonl"),
-            plot=PlotlyChart(kind="table", title="Embeddings")
+            plot=PlotlyChart(kind="table", title="Embeddings"),
         )
     )
 
@@ -209,7 +195,7 @@ def get_config():
                 ),
             ],
             source=JsonReader(fpath="{experiment_path}/interim_data/a.jsonl"),
-            sink=JsonWriter(fpath="{experiment_path}/interim_data/b.jsonl"),        
+            sink=JsonWriter(fpath="{experiment_path}/interim_data/b.jsonl"),
             plot=PlotlyChart(
                 kind="table", title="Similarity score between question and response"
             ),
@@ -249,7 +235,7 @@ def get_config():
             source=JsonReader(fpath="{experiment_path}/interim_data/b.jsonl"),
             sink=JsonWriter(fpath="{experiment_path}/interim_data/c.jsonl"),
             plot=PlotlyChart(
-                kind="table", 
+                kind="table",
                 title="Empty response occurence",
             ),
         )
@@ -307,10 +293,20 @@ def start_streamlit():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--start-streamlit", help="Boolean to start streamlit, True by default.", default=True, action="store_true")
-    parser.add_argument("--file-name", type=str, help="The name of the file to load the dataset from.", required=True)
+    parser.add_argument(
+        "--start-streamlit",
+        help="Boolean to start streamlit, True by default.",
+        default=True,
+        action="store_true",
+    )
+    parser.add_argument(
+        "--file-name",
+        type=str,
+        help="The name of the file to load the dataset from.",
+        required=True,
+    )
     args = parser.parse_args()
-    
+
     user_inputs["dataset_args"]["file_name"] = args.file_name
 
     cfg = get_config()
@@ -322,18 +318,21 @@ if __name__ == "__main__":
                 experiment_path=experiment_path
             )
         if check.sink is not None:
-                check.sink.fpath = check.sink.fpath.format(experiment_path=experiment_path)
-    cfg = Config(
+            check.sink.fpath = check.sink.fpath.format(experiment_path=experiment_path)
+    cfg = CheckSet(
         checks=all_checks,
         settings=Settings(logs_folder=LOGS_DIR),
     )
     openai.api_key = cfg.settings.openai_api_key
     cfg.setup()
 
-    user_inputs["evaluation_args"] = {"checks": all_checks, "log_folder": experiment_path}
+    user_inputs["evaluation_args"] = {
+        "checks": all_checks,
+        "log_folder": experiment_path,
+    }
     manager = ExperimentManager(user_inputs)
     manager.run()
-    
+
     for check in cfg.checks:
         results = check.make_executor(cfg.settings).run()
 

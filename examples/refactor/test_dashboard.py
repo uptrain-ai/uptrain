@@ -5,7 +5,7 @@ except ImportError:
 from pydantic import BaseModel
 
 import plotly.data
-from uptrain.framework.config import Config, Settings, SimpleCheck
+from uptrain.framework import CheckSet, Settings, SimpleCheck
 from uptrain.io import JsonReader
 from uptrain.operators import PlotlyChart, register_op
 
@@ -25,7 +25,7 @@ class Noop(BaseModel):
 
     kind: str = "noop"
 
-    def make_executor(self, settings = None):
+    def make_executor(self, settings=None):
         return NoopExecutor(self)
 
 
@@ -41,23 +41,25 @@ class NoopExecutor:
 
 def run_as_config():
     # Define the config
-    check = SimpleCheck(
-        name="experiment_data",
-        compute=[{"output_cols": [], "operator": Noop()}],
+    cfg = CheckSet(
         source=JsonReader(fpath="/tmp/samples.jsonl"),
-        plot=PlotlyChart(
-            kind="histogram",
-            title="Distribution of scores in experiment 1",
-            props=dict(x="experiment_1", nbins=10),
-            filter_on=["gender", "group"],
-        ),
+        checks=[
+            SimpleCheck(
+                name="experiment_data",
+                compute=[Noop()],
+                plot=PlotlyChart.Histogram(
+                    title="Distribution of scores in experiment 1",
+                    props=dict(x="experiment_1", nbins=10),
+                    filter_on=["gender", "group"],
+                ),
+            )
+        ],
+        settings=Settings(logs_folder=LOGS_DIR),
     )
-    cfg = Config(checks=[check], settings=Settings(logs_folder=LOGS_DIR))
 
     # Execute the config
     cfg.setup()
-    for check in cfg.checks:
-        results = check.make_executor(cfg.settings).run()
+    cfg.run()
 
 
 def start_streamlit():

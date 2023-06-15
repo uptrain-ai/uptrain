@@ -3,7 +3,7 @@ You must have the `dummy_server_openai_eval` running in the background to run th
 """
 
 import shutil
-from uptrain.framework.config import Config, Settings, SimpleCheck
+from uptrain.framework.checks import CheckSet, Settings, SimpleCheck
 from uptrain.io import JsonReader
 from uptrain.operators import OpenaiEval, PlotlyChart
 
@@ -191,7 +191,7 @@ def run_as_config():
         source=JsonReader(fpath=f"{bundle_path}/extract_celeb_samples.jsonl"),
         plot=PlotlyChart(kind="table", title="OpenAI Eval Results"),
     )
-    cfg = Config(checks=[check], settings=Settings(logs_folder=LOGS_DIR))
+    cfg = CheckSet(checks=[check], settings=Settings(logs_folder=LOGS_DIR))
 
     # Execute the config
     cfg.setup()

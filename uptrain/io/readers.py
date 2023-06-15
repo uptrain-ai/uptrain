@@ -6,7 +6,7 @@ import polars as pl
 import deltalake as dl
 
 if t.TYPE_CHECKING:
-    from uptrain.framework.config import *
+    from uptrain.framework import Settings
 from uptrain.operators.base import *
 
 # -----------------------------------------------------------
@@ -16,6 +16,13 @@ from uptrain.operators.base import *
 
 @register_op
 class CsvReader(BaseModel):
+    """Reads data from a csv file.
+
+    Args:
+        fpath: Path to the csv file.
+        batch_size: Number of rows to read at a time. Defaults to None, which reads the entire file.
+    """
+
     fpath: str
     batch_size: t.Optional[int] = None
 
@@ -25,6 +32,13 @@ class CsvReader(BaseModel):
 
 @register_op
 class JsonReader(BaseModel):
+    """Reads data from a json file.
+
+    Args:
+        fpath: Path to the json file.
+        batch_size: Number of rows to read at a time. Defaults to None, which reads the entire file.
+    """
+
     fpath: str
     batch_size: t.Optional[int] = None
 
@@ -69,8 +83,15 @@ class TextReaderExecutor(OperatorExecutor):
 
 @register_op
 class DeltaReader(BaseModel):
+    """Reads data from a Delta Lake table.
+
+    Args:
+        fpath: File path to the Delta Lake table.
+        batch_split: Whether to read the table in batches. Defaults to False.
+    """
+
     fpath: str
-    batch_split: bool = False  # whether we want to read one record batch at a time
+    batch_split: bool = False
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return DeltaReaderExecutor(self)
@@ -103,3 +124,25 @@ class DeltaReaderExecutor(OperatorExecutor):
         if data is not None:
             assert isinstance(data, pl.DataFrame)
         return {"output": data}
+
+
+# -----------------------------------------------------------
+# Read from Uptrain's object storage
+# -----------------------------------------------------------
+
+
+class UptrainReader(BaseModel):
+    dataset_id: str
+
+    def make_executor(self, settings: t.Optional[Settings] = None):
+        return UptrainReaderExecutor(self)
+
+
+def UptrainReaderExecutor(OperatorExecutor):
+    op: UptrainReader
+
+    def __init__(self, op: UptrainReader):
+        self.op = op
+
+    def run(self) -> TYPE_OP_OUTPUT:
+        raise NotImplementedError("UptrainReaderExecutor is not implemented yet in the library.")

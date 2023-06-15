@@ -11,7 +11,7 @@ from pydantic import BaseModel
 import polars as pl
 
 if t.TYPE_CHECKING:
-    from uptrain.framework.config import *
+    from uptrain.framework import Settings
 from uptrain.operators.base import *
 
 # pip install InstructorEmbedding torch sentence_transformers

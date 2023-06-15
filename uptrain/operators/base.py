@@ -16,7 +16,7 @@ import polars as pl
 
 
 if t.TYPE_CHECKING:
-    from uptrain.framework.config import Settings
+    from uptrain.framework import Settings
 
 
 __all__ = [
@@ -97,12 +97,12 @@ def deserialize_operator(data: dict) -> Operator:
         )
         return PlaceholderOp(op_name=op_name, params=data["params"])
 
+    params = data["params"]
     if hasattr(op, "from_dict"):
-        # likely a check object
-        return op.from_dict(data)  # type: ignore
+        # not a pydantic model, class local to uptrain
+        return op.from_dict(params)  # type: ignore
     else:
         # likely a pydantic model
-        params = data["params"]
         return op(**params)  # type: ignore
 
 

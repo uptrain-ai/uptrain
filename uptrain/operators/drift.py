@@ -18,7 +18,7 @@ from uptrain.operators.base import *
 from uptrain.utilities import dependency_required
 
 if t.TYPE_CHECKING:
-    from uptrain.framework.config import *
+    from uptrain.framework import Settings
 
 
 class ParamsDDM(BaseModel):

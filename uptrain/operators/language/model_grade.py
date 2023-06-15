@@ -13,7 +13,7 @@ from pydantic import BaseModel, Field
 import polars as pl
 
 if t.TYPE_CHECKING:
-    from uptrain.framework.config import *
+    from uptrain.framework import Settings
 from uptrain.operators.base import *
 from uptrain.operators.language.openai_evals import OpenaiEval
 
@@ -118,5 +118,7 @@ class ModelGradeExecutor(OperatorExecutor):
             completion_name="gpt-3.5-turbo",
             eval_name="uptrain_custom_grading_eval",
         )
-        res = grading_op.make_executor(settings=self.settings).run(samples)['extra']['metrics']
-        return {"output": data.with_columns([pl.Series(self.op.col_out, res['score'])])}
+        res = grading_op.make_executor(settings=self.settings).run(samples)["extra"][
+            "metrics"
+        ]
+        return {"output": data.with_columns([pl.Series(self.op.col_out, res["score"])])}

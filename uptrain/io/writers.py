@@ -11,7 +11,7 @@ from pathlib import Path
 from uptrain.operators.base import *
 
 if t.TYPE_CHECKING:
-    from uptrain.framework.config import *
+    from uptrain.framework import Settings
 
 
 # -----------------------------------------------------------
@@ -29,7 +29,9 @@ class DeltaWriter(BaseModel):
 
     def to_reader(self):
         from uptrain.io.readers import DeltaReader
+
         return DeltaReader(fpath=self.fpath)
+
 
 class DeltaWriterExecutor(OperatorExecutor):
     op: DeltaWriter
@@ -57,7 +59,9 @@ class JsonWriter(BaseModel):
 
     def to_reader(self):
         from uptrain.io.readers import JsonReader
+
         return JsonReader(fpath=self.fpath)
+
 
 class JsonWriterExecutor(OperatorExecutor):
     op: JsonWriter
@@ -69,12 +73,12 @@ class JsonWriterExecutor(OperatorExecutor):
 
     def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
         if os.path.exists(self.op.fpath):
-            raise Exception(f"{self.op.fpath} already exists! JsonWriter currently doesn't support appending new rows to an existing file")
+            raise Exception(
+                f"{self.op.fpath} already exists! JsonWriter currently doesn't support appending new rows to an existing file"
+            )
         if self.columns is None:
             self.columns = list(data.columns)
         assert set(self.columns) == set(data.columns)
 
-        # TODO: There should be a better way to create folders than below
-        Path(self.op.fpath.split(".")[0]).mkdir(parents=True, exist_ok=True)
         data.write_ndjson(file=self.op.fpath)
         return {"output": None}

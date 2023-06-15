@@ -25,7 +25,7 @@ from uptrain.operators.base import *
 from uptrain.utilities import dependency_required
 
 if t.TYPE_CHECKING:
-    from uptrain.framework.config import Settings
+    from uptrain.framework import Settings
 
 
 # -----------------------------------------------------------

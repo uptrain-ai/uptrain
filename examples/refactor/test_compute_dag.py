@@ -5,7 +5,7 @@ import typing as t
 from pydantic import BaseModel
 import polars as pl
 
-from uptrain.framework.config import Settings, OperatorDAG
+from uptrain.framework import Settings, OperatorDAG
 from uptrain.operators.base import *
 
 
