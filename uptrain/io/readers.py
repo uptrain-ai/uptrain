@@ -6,7 +6,7 @@ import polars as pl
 import deltalake as dl
 
 if t.TYPE_CHECKING:
-    from uptrain.framework.config import *
+    from uptrain.framework import Settings
 from uptrain.operators.base import *
 
 # -----------------------------------------------------------
@@ -124,3 +124,25 @@ class DeltaReaderExecutor(OperatorExecutor):
         if data is not None:
             assert isinstance(data, pl.DataFrame)
         return {"output": data}
+
+
+# -----------------------------------------------------------
+# Read from Uptrain's object storage
+# -----------------------------------------------------------
+
+
+class UptrainReader(BaseModel):
+    dataset_id: str
+
+    def make_executor(self, settings: t.Optional[Settings] = None):
+        return UptrainReaderExecutor(self)
+
+
+def UptrainReaderExecutor(OperatorExecutor):
+    op: UptrainReader
+
+    def __init__(self, op: UptrainReader):
+        self.op = op
+
+    def run(self) -> TYPE_OP_OUTPUT:
+        raise NotImplementedError("UptrainReaderExecutor is not implemented yet in the library.")

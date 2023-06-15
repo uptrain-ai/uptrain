@@ -54,6 +54,7 @@ setup(
         "scikit_learn>=1.0.0",
         "streamlit>=1.0.0",
         "json-fix>=0.5.0",
+        "httpx>=0.24.1",
     ],
     tests_require=[
         "pytest>=7.0",

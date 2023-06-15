@@ -9,7 +9,7 @@ import polars as pl
 import plotly.express as px
 
 if t.TYPE_CHECKING:
-    from uptrain.framework.config import *
+    from uptrain.framework import Settings
 from uptrain.operators.base import *
 
 
@@ -25,6 +25,26 @@ class PlotlyChart(BaseModel):
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return PlotlyExecutor(self)
+
+    @classmethod
+    def Line(cls, **kwargs) -> PlotlyChart:
+        return cls(kind="line", **kwargs)
+
+    @classmethod
+    def Scatter(cls, **kwargs) -> PlotlyChart:
+        return cls(kind="scatter", **kwargs)
+
+    @classmethod
+    def Bar(cls, **kwargs) -> PlotlyChart:
+        return cls(kind="bar", **kwargs)
+
+    @classmethod
+    def Histogram(cls, **kwargs) -> PlotlyChart:
+        return cls(kind="histogram", **kwargs)
+
+    @classmethod
+    def Table(cls, **kwargs) -> PlotlyChart:
+        return cls(kind="table", **kwargs)
 
 
 class PlotlyExecutor(OperatorExecutor):

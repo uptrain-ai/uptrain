@@ -2,7 +2,7 @@
 To run this example, you must have the `OPENAI_API_KEY` environment variable set.
 """
 
-from uptrain.framework.config import Config, Settings, SimpleCheck
+from uptrain.framework.checks import CheckSet, Settings, SimpleCheck
 from uptrain.io import JsonReader
 from uptrain.operators import GrammarScore, PlotlyChart
 
@@ -109,7 +109,7 @@ def run_as_config():
         source=JsonReader(fpath="/tmp/samples.jsonl"),
         plot=PlotlyChart(kind="table", title="Grammar Score Data"),
     )
-    cfg = Config(checks=[check], settings=Settings(logs_folder=LOGS_DIR))
+    cfg = CheckSet(checks=[check], settings=Settings(logs_folder=LOGS_DIR))
 
     # Execute the config
     cfg.setup()

@@ -1,11 +1,12 @@
-from uptrain.framework.config import Config, Settings, SimpleCheck
-from uptrain.io import JsonReader, DeltaWriter, JsonWriter
+import os
+from uptrain.framework import CheckSet, Settings, SimpleCheck
 from uptrain.operators import (
     PlotlyChart,
     Distribution,
     CosineSimilarity,
     UMAP,
 )
+from uptrain.io import JsonReader, JsonWriter
 from uptrain.operators.language import (
     Embedding,
     RougeScore,
@@ -16,27 +17,27 @@ from uptrain.operators.language import (
 
 # Define the config
 LOGS_DIR = "/tmp/uptrain_logs"
-DATASET_PATH = "/home/ananis/repos/datasets/combined_output.jsonl"
-DATASET_W_EMB_PATH = "/home/ananis/repos/datasets/output_w_embs.jsonl"
 
 
-def get_config():
+def produce_dataset_w_embs(source_path, sink_path):
+    # Compute all the embeddings - question, document, response
+
+    data = JsonReader(fpath=source_path).make_executor().run()["output"]
+    ops = [
+        Embedding(col_in_text="question", col_out="question_embeddings"),
+        Embedding(col_in_text="document_text", col_out="context_embeddings"),
+        Embedding(col_in_text="response", col_out="response_embeddings"),
+    ]
+    for op in ops:
+        data = op.make_executor().run(data)["output"]
+
+    os.remove(sink_path)
+    JsonWriter(fpath=sink_path).make_executor().run(data)
+
+
+def get_checkset(source_path):
     # Define the config
     checks = []
-
-    # Compute all the embeddings - question, document, response
-    checks.append(
-        SimpleCheck(
-            name="embeddings",
-            compute=[
-                Embedding(col_in_text="question", col_out="question_embeddings"),
-                Embedding(col_in_text="document_text", col_out="context_embeddings"),
-                Embedding(col_in_text="response", col_out="response_embeddings"),
-            ],
-            source=JsonReader(fpath=DATASET_PATH),
-            sink=JsonWriter(fpath=DATASET_W_EMB_PATH),
-        )
-    )
 
     checks.append(
         SimpleCheck(
@@ -49,9 +50,7 @@ def get_config():
                     col_out="document_embeddings_cosine_distribution",
                 )
             ],
-            source=JsonReader(fpath=DATASET_W_EMB_PATH),
-            plot=PlotlyChart(
-                kind="histogram",
+            plot=PlotlyChart.Histogram(
                 title="Distribution of document embeddings",
                 props=dict(x="document_embeddings_cosine_distribution", nbins=20),
             ),
@@ -69,9 +68,7 @@ def get_config():
                     col_out="document_text_rogue_f1",
                 )
             ],
-            source=JsonReader(fpath=DATASET_W_EMB_PATH),
-            plot=PlotlyChart(
-                kind="histogram",
+            plot=PlotlyChart.Histogram(
                 title="Text Overlap between document embeddings",
                 props=dict(x="document_text_rogue_f1", nbins=20),
             ),
@@ -87,9 +84,7 @@ def get_config():
                     col_out="document_link_version",
                 )
             ],
-            source=JsonReader(fpath=DATASET_W_EMB_PATH),
-            plot=PlotlyChart(
-                kind="bar",
+            plot=PlotlyChart.Bar(
                 title="Bar Plot of Link version",
                 props=dict(x="document_link_version"),
             ),
@@ -105,9 +100,7 @@ def get_config():
                     col_out="document_context_length",
                 )
             ],
-            source=JsonReader(fpath=DATASET_W_EMB_PATH),
-            plot=PlotlyChart(
-                kind="histogram",
+            plot=PlotlyChart.Histogram(
                 title="Histogram of Context Length",
                 props=dict(x="document_context_length", nbins=20),
             ),
@@ -124,8 +117,7 @@ def get_config():
                     col_out="response_document_overlap_score",
                 )
             ],
-            source=JsonReader(fpath=DATASET_W_EMB_PATH),
-            plot=PlotlyChart(kind="table", title="Hallucination score"),
+            plot=PlotlyChart.Table(title="Hallucination score"),
         )
     )
 
@@ -139,9 +131,8 @@ def get_config():
                     col_out="similarity_score_between_question_and_extracted_text",
                 ),
             ],
-            source=JsonReader(fpath=DATASET_W_EMB_PATH),
-            plot=PlotlyChart(
-                kind="table", title="Similarity score between question and response"
+            plot=PlotlyChart.Table(
+                title="Similarity score between question and response"
             ),
         )
     )
@@ -157,9 +148,7 @@ def get_config():
                     col_out="extracted_text_embeddings_cosine_distribution",
                 )
             ],
-            source=JsonReader(fpath=DATASET_W_EMB_PATH),
-            plot=PlotlyChart(
-                kind="histogram",
+            plot=PlotlyChart.Histogram(
                 title="Cosine Similarity between extracted text embeddings",
                 props=dict(x="extracted_text_embeddings_cosine_distribution", nbins=20),
             ),
@@ -176,8 +165,7 @@ def get_config():
                     col_out="is_empty_response",
                 )
             ],
-            source=JsonReader(fpath=DATASET_W_EMB_PATH),
-            plot=PlotlyChart(kind="table", title="Empty response occurence"),
+            plot=PlotlyChart.Table(title="Empty response occurence"),
         )
     )
 
@@ -190,16 +178,18 @@ def get_config():
                     col_in_embs2="response_embeddings",
                 )
             ],
-            source=JsonReader(fpath=DATASET_W_EMB_PATH),
-            plot=PlotlyChart(
-                kind="scatter",
+            plot=PlotlyChart.Scatter(
                 title="UMAP for question embeddings",
                 props=dict(x="umap_0", y="umap_1", symbol="symbol", color="cluster"),
             ),
         )
     )
 
-    return Config(checks=checks, settings=Settings(logs_folder=LOGS_DIR))
+    return CheckSet(
+        source=JsonReader(fpath=source_path),
+        checks=checks,
+        settings=Settings(logs_folder=LOGS_DIR),
+    )
 
 
 # -----------------------------------------------------------
@@ -221,10 +211,13 @@ if __name__ == "__main__":
     parser.add_argument("--start-streamlit", default=False, action="store_true")
     args = parser.parse_args()
 
-    cfg = get_config()
+    DATASET_PATH = "/home/ananis/repos/datasets/combined_output.jsonl"
+    DATASET_W_EMB_PATH = "/tmp/output_w_embs.jsonl"
+
+    produce_dataset_w_embs(DATASET_PATH, DATASET_W_EMB_PATH)
+    cfg = get_checkset(DATASET_W_EMB_PATH)
     cfg.setup()
-    for check in cfg.checks:
-        results = check.make_executor(cfg.settings).run()
+    cfg.run()
 
     if args.start_streamlit:
         start_streamlit()

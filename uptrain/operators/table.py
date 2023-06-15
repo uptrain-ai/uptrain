@@ -11,13 +11,12 @@ from pydantic import BaseModel
 import polars as pl
 
 if t.TYPE_CHECKING:
-    from uptrain.framework.config import *
+    from uptrain.framework import Settings
 from uptrain.operators.base import *
 
 
 @register_op
 class Identity(BaseModel):
-
     def make_executor(self, settings: t.Optional[Settings] = None):
         return IdentityExecutor(self, settings)
 
@@ -50,7 +49,11 @@ class ColumnExpandExecutor(OperatorExecutor):
     def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
         arr = []
         for idx in range(len(self.op.col_out_names)):
-            arr.append(pl.Series(self.op.col_out_names[idx], [self.op.col_vals[idx]] * len(data)))
+            arr.append(
+                pl.Series(
+                    self.op.col_out_names[idx], [self.op.col_vals[idx]] * len(data)
+                )
+            )
         return {"output": data.with_columns(arr)}
 
 
@@ -71,5 +74,5 @@ class ConcatenationExecutor(OperatorExecutor):
     def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
         arr = []
         for reader in self.op.readers:
-            arr.append(reader.make_executor().run()['output'])
+            arr.append(reader.make_executor().run()["output"])
         return {"output": pl.concat(arr)}

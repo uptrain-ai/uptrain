@@ -16,7 +16,7 @@ except ImportError:
     umap = None
 
 if t.TYPE_CHECKING:
-    from uptrain.framework.config import *
+    from uptrain.framework import Settings
 from uptrain.operators.base import *
 from uptrain.utilities import dependency_required
 from rouge_score import rouge_scorer

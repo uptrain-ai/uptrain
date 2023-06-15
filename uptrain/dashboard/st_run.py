@@ -7,7 +7,7 @@ import plotly.express as px
 
 from uptrain.io import DeltaReader, DeltaWriter, JsonReader, JsonWriter
 import uptrain.operators
-from uptrain.framework.config import Config, SimpleCheck
+from uptrain.framework.checks import CheckSet, SimpleCheck
 
 import pandas as pd
 
@@ -34,7 +34,7 @@ st.markdown(st_style, unsafe_allow_html=True)
 def read_config(logs_folder: str):
     """read the uptrain configuration for this run"""
     config_path = os.path.join(logs_folder, "config.json")
-    return Config.deserialize(config_path)
+    return CheckSet.deserialize(config_path)
 
 
 # -----------------------------------------------------------
@@ -65,17 +65,15 @@ if plot_op is None:
 
 # @st.cache_data
 def load_data(check):
-    assert check.sink is not None
-    if isinstance(check.sink, DeltaWriter):
-        source = DeltaReader(fpath=check.sink.fpath)
+    sink = CONFIG.get_sink_for_check(check)
+    if isinstance(sink, DeltaWriter):
+        source = DeltaReader(fpath=sink.fpath)
         source_exec = source.make_executor(CONFIG.settings)
-    elif isinstance(check.sink, JsonWriter):
-        source = JsonReader(fpath=check.sink.fpath)
+    elif isinstance(sink, JsonWriter):
+        source = JsonReader(fpath=sink.fpath)
         source_exec = source.make_executor(CONFIG.settings)
     else:
-        raise NotImplementedError(
-            f"{type(check.sink)} is not supported for now."
-        )
+        raise NotImplementedError(f"{type(sink)} is not supported for now.")
     output = source_exec.run()
     return output["output"]
 
@@ -85,22 +83,24 @@ if data is None:
     st.error("No data found per the specified config.")
     st.stop()
 
+
 def filter_template(df, attribute, default_all=False):
     container = st.container()
     all = st.checkbox(f"Select all {attribute}", value=default_all)
     values = list(df[attribute].unique().sort())
 
     if all:
-        selected_options = container.multiselect("Select one or more options:", values, values)
+        selected_options = container.multiselect(
+            "Select one or more options:", values, values
+        )
     else:
-        selected_options =  container.multiselect("Select one or more options:", values)
+        selected_options = container.multiselect("Select one or more options:", values)
     return selected_options
+
 
 def show_table(data):
     # Hide Columns
-    hide_columns = st.multiselect(
-        "Choose columns to hide", data.columns, default=[]
-    )
+    hide_columns = st.multiselect("Choose columns to hide", data.columns, default=[])
 
     # Filter Columns
     # TODO: Add support for datatypes other than categorical
@@ -118,23 +118,21 @@ def show_table(data):
 
     # Pivot Table
     st.write("Pivot Table")
-    pivot = {
-        "index" : [],
-        "values" : [],
-        "columns" : [],
-        "aggfunc" : "mean"
-    }
-    pivot["index"] = st.multiselect(
-        "Choose Index", data.columns, default=[]
-    )
-    pivot["values"] = st.multiselect(
-        "Choose values", data.columns, default=[]
-    )
-    pivot["columns"] = st.multiselect(
-        "Choose columns", data.columns, default=[]
-    )
+    pivot = {"index": [], "values": [], "columns": [], "aggfunc": "mean"}
+    pivot["index"] = st.multiselect("Choose Index", data.columns, default=[])
+    pivot["values"] = st.multiselect("Choose values", data.columns, default=[])
+    pivot["columns"] = st.multiselect("Choose columns", data.columns, default=[])
     if pivot["index"] and pivot["values"] and pivot["columns"]:
-        st.dataframe(pd.pivot_table(data, index=pivot["index"], values=pivot["values"], columns=pivot["columns"], aggfunc=pivot["aggfunc"]))
+        st.dataframe(
+            pd.pivot_table(
+                data,
+                index=pivot["index"],
+                values=pivot["values"],
+                columns=pivot["columns"],
+                aggfunc=pivot["aggfunc"],
+            )
+        )
+
 
 # Plot the data
 st.header(plot_op.title)

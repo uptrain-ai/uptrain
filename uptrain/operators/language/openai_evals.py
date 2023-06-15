@@ -15,7 +15,7 @@ from pydantic import BaseModel
 import polars as pl
 
 if t.TYPE_CHECKING:
-    from uptrain.framework.config import Settings
+    from uptrain.framework import Settings
 from uptrain.operators.base import *
 from uptrain.utilities import to_py_types
 
@@ -129,8 +129,18 @@ class OpenaiEvalExecutor(OperatorExecutor):
         if path_samples_file is not None:
             os.remove(path_samples_file)
 
-        unique_types = list(np.unique(np.array([x['type'] for x in recorder.get_list_events()])))
-        type_data = dict(zip(unique_types, [pl.from_dicts(x['data'] for x in recorder.get_list_events(type)) for type in unique_types]))
+        unique_types = list(
+            np.unique(np.array([x["type"] for x in recorder.get_list_events()]))
+        )
+        type_data = dict(
+            zip(
+                unique_types,
+                [
+                    pl.from_dicts(x["data"] for x in recorder.get_list_events(type))
+                    for type in unique_types
+                ],
+            )
+        )
         extra = {
             "all_events": recorder.get_list_events(),
             "run_data": recorder.get_run_data(),
@@ -138,8 +148,10 @@ class OpenaiEvalExecutor(OperatorExecutor):
         }
         extra.update(type_data)
         return {
-            "output": pl.DataFrame(recorder.get_list_events()),  # events are of multiple kinds. Undecided how to handle them in a consistent schema yet
-            "extra": extra
+            "output": pl.DataFrame(
+                recorder.get_list_events()
+            ),  # events are of multiple kinds. Undecided how to handle them in a consistent schema yet
+            "extra": extra,
         }
 
 
@@ -155,7 +167,6 @@ class PromptEval(BaseModel):
     model_name: str
     col_out_prompt: str = "prompt"
     col_out_response: str = "response"
-    
 
     # TODO: Not sure why but this is failing and hence, commented out
     # @root_validator
@@ -163,7 +174,9 @@ class PromptEval(BaseModel):
     #     if len(values["prompt_variables"]) < 1:
     #         raise ValueError("Must specify at least 1 prompt variable")
 
-    def make_executor(self, settings: t.Optional[Settings] = None) -> PromptEvalExecutor:
+    def make_executor(
+        self, settings: t.Optional[Settings] = None
+    ) -> PromptEvalExecutor:
         return PromptEvalExecutor(self, settings)
 
 
@@ -202,5 +215,15 @@ class PromptEvalExecutor:
             completion_name=self.op.model_name,
             eval_name="model_run_all",
         )
-        results = eval_op.make_executor(self.settings).run(prompts)['extra']['sampling']
-        return {"output": data.with_columns([pl.Series(self.op.col_out_prompt, results['prompt']), pl.Series(self.op.col_out_response, list(itertools.chain(*results['sampled'])))])}
+        results = eval_op.make_executor(self.settings).run(prompts)["extra"]["sampling"]
+        return {
+            "output": data.with_columns(
+                [
+                    pl.Series(self.op.col_out_prompt, results["prompt"]),
+                    pl.Series(
+                        self.op.col_out_response,
+                        list(itertools.chain(*results["sampled"])),
+                    ),
+                ]
+            )
+        }

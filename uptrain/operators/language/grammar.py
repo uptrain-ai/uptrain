@@ -11,7 +11,7 @@ from pydantic import BaseModel, Field
 import polars as pl
 
 if t.TYPE_CHECKING:
-    from uptrain.framework.config import *
+    from uptrain.framework import Settings
 from uptrain.operators.base import *
 from uptrain.operators.language.llm import LLMMulticlient, Payload
 
