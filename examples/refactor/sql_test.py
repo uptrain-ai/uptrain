@@ -5,7 +5,7 @@ from uptrain.framework.config import Config, Settings, SimpleCheck
 from uptrain.io import JsonReader, JsonWriter
 from uptrain.operators import PlotlyChart
 from regression_testing.experiment import ExperimentManager
-from uptrain.operators.language.sql import HasStar, ParseSQL
+from uptrain.operators.language.sql import HasStar, ParseSQL, ValidateTables
 
 prompt_template = """
     You are a {persona} whose job is to only output SQL command for a given question in {dialect} SQL dialect. Do not output anything other than the SQL command.
@@ -61,14 +61,17 @@ def get_config():
                 ParseSQL(
                     col_in_sql="response",
                     col_out_tables="response_tables"
-                )
+                ),
+                ValidateTables(col_in_response_tables="response_tables",
+                               col_in_schema_tables="schema_tables",
+                               col_out_tables_valid="tables_valid")
             ],
             source=JsonReader(fpath="{experiment_path}/interim_data/has_star.jsonl"),
             sink=JsonWriter(fpath="{experiment_path}/interim_data/parse_sql.jsonl"),
             plot=PlotlyChart(
-                kind="bar",
-                title="Bar Plot of tables",
-                props=dict(x="response_tables"),
+                kind="histogram",
+                title="Distribution of valid tables",
+                props=dict(x="tables_valid"),
             ),
         )
     )

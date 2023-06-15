@@ -19,7 +19,7 @@ if t.TYPE_CHECKING:
     from uptrain.framework.config import *
 from uptrain.operators.base import *
 
-__all__ = ["HasStar", "GetSchemaDefinition", "ParseSQL"]
+__all__ = ["HasStar", "GetSchemaDefinition", "ParseSQL", "ValidateTables"]
 
 
 # TODO: define a Table object and dump that into the dataframe
@@ -99,6 +99,39 @@ class ParseSQLExecutor(OperatorExecutor):
             tables.append(json.dumps([table.name for table in parse_one(sql).find_all(exp.Table)]))
 
         return {"output": data.with_columns([pl.Series(self.op.col_out_tables, tables)])}
+
+
+# Ensures that table names from response are valid tables
+@register_op
+class ValidateTables(BaseModel):
+    col_in_response_tables: str = "response_tables"
+    col_in_schema_tables: str = "schema_tables"
+    col_out_tables_valid: str = "tables_valid"
+
+    def make_executor(self, settings: t.Optional[Settings] = None):
+        return ValidateTablesExecutor(self, settings)
+
+
+class ValidateTablesExecutor(OperatorExecutor):
+    op: ValidateTables
+
+    def __init__(self, op: ValidateTables, settings: t.Optional[Settings] = None):
+        self.op = op
+
+    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
+        response_tables = data.get_column(self.op.col_in_response_tables)
+        schema_tables = data.get_column(self.op.col_in_schema_tables)
+        results = []
+        for response_table, schema_table in zip(response_tables, schema_tables):
+            is_valid_table = True
+            # deserialize json
+            s = set(json.loads(schema_table))
+            for table in json.loads(response_table):
+                is_valid_table = is_valid_table and table in s
+
+            results.append(is_valid_table)
+        return {"output": data.with_columns([pl.Series(self.op.col_out_tables_valid, results)])}
+
 
 # Check if SQL has star
 @register_op
