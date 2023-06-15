@@ -4,6 +4,9 @@ Implement checks to test if a piece of text has been taken from a source.
 
 from __future__ import annotations
 import typing as t
+import yaml
+import os
+from uptrain.constants import UPTRAIN_BASE_DIR
 
 from loguru import logger
 from pydantic import BaseModel, Field
@@ -16,12 +19,49 @@ from uptrain.operators.language.openai_evals import OpenaiEval
 
 
 @register_op
-class ModelGradeScore(BaseModel):
+class OpenAIGradeScore(BaseModel):
     score_type: str = "correct"
     col_in_input: str = "prompt"
     col_in_completion: str = "response"
     col_out: str = get_output_col_name_at(0)
     eval_name: str
+
+    def make_executor(self, settings: t.Optional[Settings] = None):
+        return OpenAIGradeExecutor(self, settings)
+
+
+class OpenAIGradeExecutor(OperatorExecutor):
+    op: OpenAIGradeScore
+    settings: Settings
+
+    def __init__(self, op: OpenAIGradeScore, settings: t.Optional[Settings] = None):
+        self.op = op
+        self.settings = settings
+
+    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
+        text_input = data.get_column(self.op.col_in_input)
+        text_completion = data.get_column(self.op.col_in_completion)
+
+        samples = pl.from_dict({"input": text_input, "completion": text_completion})
+        grading_op = OpenaiEval(
+            bundle_path="",
+            completion_name="gpt-3.5-turbo",
+            eval_name=self.op.eval_name,
+        )
+        res = grading_op.make_executor(settings=self.settings).run(samples)['extra']['metrics']
+        return {"output": data.with_columns([pl.Series(self.op.col_out, res['score'])])}
+
+
+@register_op
+class ModelGradeScore(BaseModel):
+    col_in_input: str
+    col_in_completion: str
+    col_out: str = get_output_col_name_at(0)
+    grading_prompt_template: str
+    eval_type: str = "cot_classify"
+    choice_strings: str
+    choice_scores: dict
+    grading_prompt_mapping: dict
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return ModelGradeExecutor(self, settings)
@@ -39,11 +79,44 @@ class ModelGradeExecutor(OperatorExecutor):
         text_input = data.get_column(self.op.col_in_input)
         text_completion = data.get_column(self.op.col_in_completion)
 
-        samples = pl.from_dict({"input": text_input, "completion": text_completion})
+        grade_spec_dictn = {
+            "uptrain_custom": {
+                "prompt": self.op.grading_prompt_template,
+                "eval_type": self.op.eval_type,
+                "choice_strings": self.op.choice_strings,
+                "choice_scores": self.op.choice_scores,
+                "input_outputs": {
+                    self.op.grading_prompt_mapping[self.op.col_in_input]: self.op.grading_prompt_mapping[self.op.col_in_completion]
+                }
+            }
+        }
+
+        eval_dictn = {
+            "uptrain_custom_grading_eval": {
+                "id": "uptrain_custom_grading_eval.v0"
+            },
+            "uptrain_custom_grading_eval.v0": {
+                "class": "evals.elsuite.modelgraded.classify:ModelBasedClassify",
+                "args": {
+                    "modelgraded_spec": "uptrain_custom"
+                }
+            }
+        }
+
+        with open(os.path.join(UPTRAIN_BASE_DIR, "evals_uptrain", "custom_registry", "modelgraded", "tmp_custom") + ".yml", 'w') as f:
+            yaml.dump(grade_spec_dictn, f)
+
+        with open(os.path.join(UPTRAIN_BASE_DIR, "evals_uptrain", "custom_registry", "evals", "tmp_custom") + ".yml", 'w') as f:
+            yaml.dump(eval_dictn, f)
+
+        samples = pl.from_dict({
+            self.op.grading_prompt_mapping[self.op.col_in_input]: text_input,
+            self.op.grading_prompt_mapping[self.op.col_in_completion]: text_completion
+        })
         grading_op = OpenaiEval(
-            bundle_path="",
+            bundle_path=os.path.join(UPTRAIN_BASE_DIR, "evals_uptrain"),
             completion_name="gpt-3.5-turbo",
-            eval_name=self.op.eval_name,
+            eval_name="uptrain_custom_grading_eval",
         )
         res = grading_op.make_executor(settings=self.settings).run(samples)['extra']['metrics']
         return {"output": data.with_columns([pl.Series(self.op.col_out, res['score'])])}

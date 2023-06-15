@@ -14,6 +14,7 @@ from loguru import logger
 from pydantic import BaseModel
 import polars as pl
 
+from uptrain.constants import UPTRAIN_BASE_DIR
 if t.TYPE_CHECKING:
     from uptrain.framework.config import Settings
 from uptrain.operators.base import *
@@ -198,7 +199,7 @@ class PromptEvalExecutor:
         prompts = self._construct_prompts(data)
 
         eval_op = OpenaiEval(
-            bundle_path=os.path.join("uptrain", "evals_uptrain"),
+            bundle_path=os.path.join(os.path.join(UPTRAIN_BASE_DIR, "evals_uptrain")),
             completion_name=self.op.model_name,
             eval_name="model_run_all",
         )
