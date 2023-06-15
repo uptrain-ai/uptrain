@@ -59,7 +59,7 @@ class ModelGradeScore(BaseModel):
     col_out: str = get_output_col_name_at(0)
     grading_prompt_template: str
     eval_type: str = "cot_classify"
-    choice_strings: str
+    choice_strings: list
     choice_scores: dict
     grading_prompt_mapping: dict
 
