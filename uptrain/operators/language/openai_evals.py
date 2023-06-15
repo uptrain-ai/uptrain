@@ -19,6 +19,7 @@ if t.TYPE_CHECKING:
 from uptrain.operators.base import *
 from uptrain.utilities import to_py_types
 
+UPTRAIN_BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
 
 # -----------------------------------------------------------
 # General purpose OpenAI eval operator. It can take any eval
@@ -211,7 +212,7 @@ class PromptEvalExecutor:
         prompts = self._construct_prompts(data)
 
         eval_op = OpenaiEval(
-            bundle_path=os.path.join("uptrain", "evals_uptrain"),
+            bundle_path=os.path.join(os.path.join(UPTRAIN_BASE_DIR, "evals_uptrain")),
             completion_name=self.op.model_name,
             eval_name="model_run_all",
         )
