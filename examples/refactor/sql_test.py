@@ -8,7 +8,7 @@ from regression_testing.experiment import ExperimentManager
 from uptrain.operators.language.sql import HasStar
 
 prompt_template = """
-    You are a {persona} whose job is to only output SQL command for a given question. Do not output anything other than the SQL command.
+    You are a {persona} whose job is to only output SQL command for a given question in {dialect} SQL dialect. Do not output anything other than the SQL command.
     
     Here is the schema for my database:
     {schema}
@@ -29,7 +29,7 @@ user_inputs = {
     },
     'dataset_args': {
         'file_name': "/Users/bhanu/src/uptrain_experiments/llm/SQL.jsonl",
-        'input_variables': ['question', 'schema'],
+        'input_variables': ['question', 'schema', 'dialect'],
     },
     'evaluation_args': None
 }
