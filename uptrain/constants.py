@@ -1,6 +1,6 @@
-import os
 from enum import Enum
 from uptrain.core.lib.model_signal_funcs import *
+
 
 class AnnotationMethod(Enum):
     MASTER_FILE = 1
