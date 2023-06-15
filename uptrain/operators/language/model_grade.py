@@ -6,7 +6,6 @@ from __future__ import annotations
 import typing as t
 import yaml
 import os
-from uptrain.constants import UPTRAIN_BASE_DIR
 
 from loguru import logger
 from pydantic import BaseModel, Field
@@ -17,6 +16,7 @@ if t.TYPE_CHECKING:
 from uptrain.operators.base import *
 from uptrain.operators.language.openai_evals import OpenaiEval
 
+UPTRAIN_BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
 
 @register_op
 class OpenAIGradeScore(BaseModel):

@@ -2,8 +2,6 @@ import os
 from enum import Enum
 from uptrain.core.lib.model_signal_funcs import *
 
-UPTRAIN_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
 class AnnotationMethod(Enum):
     MASTER_FILE = 1
 

@@ -14,12 +14,12 @@ from loguru import logger
 from pydantic import BaseModel
 import polars as pl
 
-from uptrain.constants import UPTRAIN_BASE_DIR
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
 from uptrain.operators.base import *
 from uptrain.utilities import to_py_types
 
+UPTRAIN_BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
 
 # -----------------------------------------------------------
 # General purpose OpenAI eval operator. It can take any eval
