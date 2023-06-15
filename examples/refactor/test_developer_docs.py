@@ -251,19 +251,6 @@ def get_config():
             plot=PlotlyChart(
                 kind="table", 
                 title="Empty response occurence",
-                pivot_args=[
-                    {
-                        "title": "Compare overall model scores",
-                        "index": ["persona"],
-                        "values": [
-                            "response_document_overlap_score",
-                            "similarity_score_between_question_and_extracted_text",
-                            "is_empty_response"
-                            ],
-                        "columns": ["model"],
-                        "aggfunc": "mean"                
-                    },
-                ]
             ),
         )
     )
