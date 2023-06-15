@@ -2,10 +2,10 @@ import openai
 import copy
 
 from uptrain.framework.config import Config, Settings, SimpleCheck
-from uptrain.io import JsonReader
+from uptrain.io import JsonReader, JsonWriter
 from uptrain.operators import PlotlyChart
 from regression_testing.experiment import ExperimentManager
-from uptrain.operators.language.sql import HasStar
+from uptrain.operators.language.sql import HasStar, ParseSQL
 
 prompt_template = """
     You are a {persona} whose job is to only output SQL command for a given question in {dialect} SQL dialect. Do not output anything other than the SQL command.
@@ -50,9 +50,28 @@ def get_config():
                     col_out="has_star"),
         ],
         source=JsonReader(fpath="{experiment_path}/output.jsonl"),
-        # sink=JsonWriter(fpath="{experiment_path}/interim_data/has_star.jsonl"),
+        sink=JsonWriter(fpath="{experiment_path}/interim_data/has_star.jsonl"),
         plot=PlotlyChart(kind="histogram", title="Distribution of has star", props=dict(x="has_star"))
     ))
+
+    checks.append(
+        SimpleCheck(
+            name="Check table names",
+            compute=[
+                ParseSQL(
+                    col_in_sql="response",
+                    col_out_tables="response_tables"
+                )
+            ],
+            source=JsonReader(fpath="{experiment_path}/interim_data/has_star.jsonl"),
+            sink=JsonWriter(fpath="{experiment_path}/interim_data/parse_sql.jsonl"),
+            plot=PlotlyChart(
+                kind="bar",
+                title="Bar Plot of tables",
+                props=dict(x="response_tables"),
+            ),
+        )
+    )
 
     cfg = {'checks': checks, 'log_folder': LOGS_DIR}
     # cfg = Config(checks=checks, settings=Settings(logs_folder=LOGS_DIR))
