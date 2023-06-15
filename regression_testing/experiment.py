@@ -9,6 +9,7 @@ import numpy as np
 from uptrain.operators.language.openai_evals import PromptEval, OpenaiEval
 from uptrain.framework.config import Config, Settings, SimpleCheck
 from uptrain.io import JsonReader, JsonWriter
+from uptrain.operators.language.sql import GetSchemaDefinition
 
 
 # -----------------------------------------------------------
@@ -115,7 +116,19 @@ class ExperimentManager:
                     input_dataset = input_dataset.with_columns(pl.Series(name=key, values=[all_identifiers[idx][key]] * dataset_len))
                 experiment_path = args['evaluation_args']['log_folder'] + "/experiment_" + str(offset)
 
-                JsonWriter(fpath=experiment_path + "/input.jsonl").make_executor().run(input_dataset)
+                # JsonWriter(fpath=experiment_path + "/input.jsonl").make_executor().run(input_dataset)
+                JsonWriter(fpath=experiment_path + "/input_without_schema.jsonl").make_executor().run(input_dataset)
+
+                # TODO figure out a better way to do this.
+                with_schema_dataset_check = SimpleCheck(
+                    name="get_schema_check",
+                    compute=[
+                        GetSchemaDefinition(),
+                    ],
+                    source=JsonReader(fpath=experiment_path + "/input_without_schema.jsonl"),
+                    sink=JsonWriter(fpath=experiment_path + "/input.jsonl"),
+                )
+                with_schema_dataset_check.make_executor(Settings(logs_folder=experiment_path)).run()
                 
                 all_checks = copy.deepcopy(args['evaluation_args']['checks'])
                 for check in all_checks:
