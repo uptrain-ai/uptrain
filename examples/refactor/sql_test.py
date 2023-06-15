@@ -10,8 +10,8 @@ from uptrain.operators.language.sql import HasStar
 prompt_template = """
     You are a {persona} whose job is to only output SQL command for a given question in {dialect} SQL dialect. Do not output anything other than the SQL command.
     
-    Here is the schema for my database:
-    {schema}
+    Here is the create table commands for my database:
+    {schema_def}
     
     {question}
     
@@ -29,7 +29,7 @@ user_inputs = {
     },
     'dataset_args': {
         'file_name': "/Users/bhanu/src/uptrain_experiments/llm/SQL.jsonl",
-        'input_variables': ['question', 'schema', 'dialect'],
+        'input_variables': ['question', 'schema_def', 'dialect'],
     },
     'evaluation_args': None
 }
