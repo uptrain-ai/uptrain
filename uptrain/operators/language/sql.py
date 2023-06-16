@@ -13,7 +13,10 @@ from urllib.parse import urlparse
 from loguru import logger
 from pydantic import BaseModel, Field
 import polars as pl
-from sqlglot import parse_one, exp
+from sqlglot import parse_one, exp, parse
+
+from uptrain.utilities.sql_utils import merge_dictionaries, extract_tables_and_columns, \
+    extract_tables_and_columns_from_create
 
 if t.TYPE_CHECKING:
     from uptrain.framework.config import *
@@ -50,7 +53,7 @@ class GetSchemaDefinitionExecutor(OperatorExecutor):
         resources_path = "/Users/bhanu/src/uptrain_experiments/llm/spider/database"
         # List to store all CREATE TABLE statements
         create_table_statements = []
-        tables = set()
+        tables_and_columns = {}
 
         with open(os.path.join(resources_path, f'{schema_name}/schema.sql'), 'r') as file:
             content = file.read()
@@ -63,10 +66,11 @@ class GetSchemaDefinitionExecutor(OperatorExecutor):
                 if statement.strip().startswith('CREATE TABLE'):
                     # Add the statement to the list
                     statement = statement.strip()
-                    tables.update([table.name for table in parse_one(statement).find_all(exp.Table)])
+                    table, columns = extract_tables_and_columns_from_create(parse(statement)[0])
+                    tables_and_columns[table] = columns
                     create_table_statements.append(statement)
 
-        return "\n\n".join(create_table_statements), json.dumps(list(tables))
+        return "\n\n".join(create_table_statements), json.dumps(tables_and_columns)
 
     def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
         schema_names = data.get_column(self.op.col_in_schema)
@@ -96,7 +100,7 @@ class ParseSQLExecutor(OperatorExecutor):
         sqls = data.get_column(self.op.col_in_sql)
         tables = []
         for sql in sqls:
-            tables.append(json.dumps([table.name for table in parse_one(sql).find_all(exp.Table)]))
+            tables.append(json.dumps(extract_tables_and_columns(parse(sql)[0])))
 
         return {"output": data.with_columns([pl.Series(self.op.col_out_tables, tables)])}
 
@@ -107,6 +111,7 @@ class ValidateTables(BaseModel):
     col_in_response_tables: str = "response_tables"
     col_in_schema_tables: str = "schema_tables"
     col_out_tables_valid: str = "tables_valid"
+    col_out_cols_valid: str = "cols_valid"
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return ValidateTablesExecutor(self, settings)
@@ -122,15 +127,20 @@ class ValidateTablesExecutor(OperatorExecutor):
         response_tables = data.get_column(self.op.col_in_response_tables)
         schema_tables = data.get_column(self.op.col_in_schema_tables)
         results = []
+        results_column = []
         for response_table, schema_table in zip(response_tables, schema_tables):
             is_valid_table = True
+            is_valid_column = True
             # deserialize json
-            s = set(json.loads(schema_table))
-            for table in json.loads(response_table):
+            s = json.loads(schema_table)
+            r = json.loads(response_table)
+            for table, columns in r.items():
                 is_valid_table = is_valid_table and table in s
+                is_valid_column = is_valid_column and is_valid_table and set(columns).issubset(set(s[table]))
 
             results.append(is_valid_table)
-        return {"output": data.with_columns([pl.Series(self.op.col_out_tables_valid, results)])}
+            results_column.append(is_valid_column)
+        return {"output": data.with_columns([pl.Series(self.op.col_out_tables_valid, results), pl.Series(self.op.col_out_cols_valid, results_column)])}
 
 
 # Check if SQL has star
