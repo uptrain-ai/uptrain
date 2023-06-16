@@ -18,6 +18,7 @@ from uptrain.operators.language.openai_evals import OpenaiEval
 
 UPTRAIN_BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
 
+
 @register_op
 class OpenAIGradeScore(BaseModel):
     score_type: str = "correct"
@@ -48,8 +49,10 @@ class OpenAIGradeExecutor(OperatorExecutor):
             completion_name="gpt-3.5-turbo",
             eval_name=self.op.eval_name,
         )
-        res = grading_op.make_executor(settings=self.settings).run(samples)['extra']['metrics']
-        return {"output": data.with_columns([pl.Series(self.op.col_out, res['score'])])}
+        res = grading_op.make_executor(settings=self.settings).run(samples)["extra"][
+            "metrics"
+        ]
+        return {"output": data.with_columns([pl.Series(self.op.col_out, res["score"])])}
 
 
 @register_op
@@ -86,35 +89,45 @@ class ModelGradeExecutor(OperatorExecutor):
                 "choice_strings": self.op.choice_strings,
                 "choice_scores": self.op.choice_scores,
                 "input_outputs": {
-                    self.op.grading_prompt_mapping[self.op.col_in_input]: self.op.grading_prompt_mapping[self.op.col_in_completion]
-                }
+                    self.op.grading_prompt_mapping[
+                        self.op.col_in_input
+                    ]: self.op.grading_prompt_mapping[self.op.col_in_completion]
+                },
             }
         }
 
         eval_dictn = {
-            "uptrain_custom_grading_eval": {
-                "id": "uptrain_custom_grading_eval.v0"
-            },
+            "uptrain_custom_grading_eval": {"id": "uptrain_custom_grading_eval.v0"},
             "uptrain_custom_grading_eval.v0": {
                 "class": "evals.elsuite.modelgraded.classify:ModelBasedClassify",
-                "args": {
-                    "modelgraded_spec": "uptrain_custom"
-                }
-            }
+                "args": {"modelgraded_spec": "uptrain_custom"},
+            },
         }
 
-        with open(os.path.join(UPTRAIN_BASE_DIR, "evals_uptrain", "custom_registry", "modelgraded", "tmp_custom") + ".yml", 'w') as f:
+        BASE_DIR = os.path.join(
+            UPTRAIN_BASE_DIR, "operators", "language", "openai_eval_custom"
+        )
+        with open(
+            os.path.join(BASE_DIR, "custom_registry", "modelgraded", "tmp_custom.yml"),
+            "w",
+        ) as f:
             yaml.dump(grade_spec_dictn, f)
 
-        with open(os.path.join(UPTRAIN_BASE_DIR, "evals_uptrain", "custom_registry", "evals", "tmp_custom") + ".yml", 'w') as f:
+        with open(
+            os.path.join(BASE_DIR, "custom_registry", "evals", "tmp_custom.yml"), "w"
+        ) as f:
             yaml.dump(eval_dictn, f)
 
-        samples = pl.from_dict({
-            self.op.grading_prompt_mapping[self.op.col_in_input]: text_input,
-            self.op.grading_prompt_mapping[self.op.col_in_completion]: text_completion
-        })
+        samples = pl.from_dict(
+            {
+                self.op.grading_prompt_mapping[self.op.col_in_input]: text_input,
+                self.op.grading_prompt_mapping[
+                    self.op.col_in_completion
+                ]: text_completion,
+            }
+        )
         grading_op = OpenaiEval(
-            bundle_path=os.path.join(UPTRAIN_BASE_DIR, "evals_uptrain"),
+            bundle_path=BASE_DIR,
             completion_name="gpt-3.5-turbo",
             eval_name="uptrain_custom_grading_eval",
         )

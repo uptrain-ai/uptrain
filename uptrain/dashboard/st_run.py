@@ -3,7 +3,7 @@ import sys
 
 import streamlit as st
 
-from .st_helpers import (
+from uptrain.dashboard.st_helpers import (
     st_make_check_selector,
     read_config,
     load_data_for_check,

@@ -209,12 +209,16 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--start-streamlit", default=False, action="store_true")
+    parser.add_argument(
+        "--dataset-path",
+        default="/home/ananis/repos/datasets/combined_output.jsonl",
+        type=str,
+    )
     args = parser.parse_args()
 
-    DATASET_PATH = "/home/ananis/repos/datasets/combined_output.jsonl"
     DATASET_W_EMB_PATH = "/tmp/output_w_embs.jsonl"
+    produce_dataset_w_embs(args.dataset_path, DATASET_W_EMB_PATH)
 
-    produce_dataset_w_embs(DATASET_PATH, DATASET_W_EMB_PATH)
     cfg = get_checkset(DATASET_W_EMB_PATH)
     cfg.setup()
     cfg.run()

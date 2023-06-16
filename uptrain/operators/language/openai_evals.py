@@ -212,7 +212,9 @@ class PromptEvalExecutor:
         prompts = self._construct_prompts(data)
 
         eval_op = OpenaiEval(
-            bundle_path=os.path.join(os.path.join(UPTRAIN_BASE_DIR, "evals_uptrain")),
+            bundle_path=os.path.join(
+                UPTRAIN_BASE_DIR, "operators", "language", "openai_eval_custom"
+            ),
             completion_name=self.op.model_name,
             eval_name="model_run_all",
         )
