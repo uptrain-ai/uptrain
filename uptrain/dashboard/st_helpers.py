@@ -46,7 +46,7 @@ def st_make_check_selector(checkset: "CheckSet"):
     return check
 
 
-def load_data_for_check(checkset: "CheckSet", check):
+def load_data_for_check_local(checkset: "CheckSet", check):
     sink = checkset.get_sink_for_check(check)
     if isinstance(sink, DeltaWriter):
         source = sink.to_reader()

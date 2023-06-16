@@ -6,17 +6,21 @@ import streamlit as st
 from uptrain.dashboard.st_helpers import (
     st_make_check_selector,
     read_config,
-    load_data_for_check,
+    load_data_for_check_local,
     st_setup_layout,
     st_show_table,
 )
 
+# -----------------------------------------------------------
+# Utility functions
+# -----------------------------------------------------------
+
+read_config = st.cache_data(read_config)
 
 # -----------------------------------------------------------
 # Run code
 # -----------------------------------------------------------
 
-read_config = st.cache_data(read_config)
 
 # Set up layout of the dashboard and the sidebar
 st_setup_layout()
@@ -35,7 +39,7 @@ if plot_op is None:
     st.stop()
 
 # load data
-data = load_data_for_check(CONFIG, check)
+data = load_data_for_check_local(CONFIG, check)
 if data is None:
     st.error("No data found per the specified config.")
     st.stop()
