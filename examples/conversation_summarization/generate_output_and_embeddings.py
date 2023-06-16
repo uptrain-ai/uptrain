@@ -8,10 +8,11 @@ import torch.nn.functional as F
 import numpy as np
 import json
 import os
-import uptrain
+import uptrain.v0 as v0
 import subprocess
 from transformers import pipeline
 from datasets import load_dataset
+
 
 # Mean Pooling - Take attention mask into account for correct averaging
 def mean_pooling(model_output, attention_mask):
@@ -119,17 +120,17 @@ def generate_data(dataset_name, d_type, batch_size=25):
     all_summaries = reduce(concat, all_summaries)
     file_name = os.path.join(data_dir, f"out_{d_type}_{dataset_name}_summaries.json")
     with open(file_name, "w") as f:
-        json.dump(all_summaries, f, cls=uptrain.UpTrainEncoder)
+        json.dump(all_summaries, f, cls=v0.UpTrainEncoder)
 
     all_enc_embs = reduce(concat, all_enc_embs)
     file_name = os.path.join(data_dir, f"out_{d_type}_{dataset_name}_enc_embs.json")
     with open(file_name, "w") as f:
-        json.dump(all_enc_embs, f, cls=uptrain.UpTrainEncoder)
+        json.dump(all_enc_embs, f, cls=v0.UpTrainEncoder)
 
     all_bert_embs = reduce(concat, all_bert_embs)
     file_name = os.path.join(data_dir, f"out_{d_type}_{dataset_name}_bert_embs.json")
     with open(file_name, "w") as f:
-        json.dump(all_bert_embs, f, cls=uptrain.UpTrainEncoder)
+        json.dump(all_bert_embs, f, cls=v0.UpTrainEncoder)
 
 
 # Generate the dataset for three cases:
