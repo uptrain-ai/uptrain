@@ -6,17 +6,13 @@ from __future__ import annotations
 
 import json
 import os
-import re
 import typing as t
-from urllib.parse import urlparse
 
-from loguru import logger
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 import polars as pl
-from sqlglot import parse_one, exp, parse
+from sqlglot import parse
 
-from uptrain.utilities.sql_utils import merge_dictionaries, extract_tables_and_columns, \
-    extract_tables_and_columns_from_create
+from uptrain.utilities.sql_utils import extract_tables_and_columns, extract_tables_and_columns_from_create
 
 if t.TYPE_CHECKING:
     from uptrain.framework.config import *
