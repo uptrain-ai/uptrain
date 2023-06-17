@@ -1,7 +1,5 @@
-
 import os
 os.environ['OPENAI_API_KEY'] = "..."
-
 
 from uptrain.framework import CheckSet, Settings, SimpleCheck
 from uptrain.operators import (
