@@ -2,7 +2,7 @@ import numpy as np
 
 from typing import List, Union
 
-from uptrain.core.classes.distances import AbstractDistance
+from uptrain.v0.core.classes.distances import AbstractDistance
 
 
 class CosineDistance(AbstractDistance):

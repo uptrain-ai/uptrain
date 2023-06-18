@@ -2,8 +2,8 @@ import numpy as np
 
 from typing import Any, Dict
 
-from uptrain.core.classes.measurables import Measurable
-from uptrain.core.classes.signals import SignalManager
+from uptrain.v0.core.classes.measurables import Measurable
+from uptrain.v0.core.classes.signals import SignalManager
 
 
 class CustomMeasurable(Measurable):

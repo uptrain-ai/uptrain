@@ -3,7 +3,7 @@ import shutil
 import urllib3
 import json
 
-from uptrain.core.lib.helper_funcs import clear_directory
+from uptrain.v0.core.lib.helper_funcs import clear_directory
 
 
 class LogHandler:
@@ -18,7 +18,7 @@ class LogHandler:
 
         self.st_writer = None
         if cfg.logging_args.st_logging:
-            from uptrain.core.classes.logging.log_streamlit import StreamlitLogs
+            from uptrain.v0.core.classes.logging.log_streamlit import StreamlitLogs
 
             self.st_log_folder = os.path.join(log_folder, "st_data")
             os.makedirs(self.st_log_folder, exist_ok=True)

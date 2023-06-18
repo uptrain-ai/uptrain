@@ -1,6 +1,6 @@
 from typing import Any
 
-from uptrain.core.classes.measurables import Measurable
+from uptrain.v0.core.classes.measurables import Measurable
 
 
 class OutputFeatureMeasurable(Measurable):

@@ -13,11 +13,11 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import normalize
 
-from uptrain.core.classes.helpers import DatasetHandler, ModelHandler, config_handler
-from uptrain.core.classes.logging import LogHandler
-from uptrain.core.classes.logging.new_log_handler import LogHandler as NewLogHandler
-from uptrain.core.classes.managers import CheckManager
-from uptrain.core.lib.helper_funcs import (
+from uptrain.v0.core.classes.helpers import DatasetHandler, ModelHandler, config_handler
+from uptrain.v0.core.classes.logging import LogHandler
+from uptrain.v0.core.classes.logging.new_log_handler import LogHandler as NewLogHandler
+from uptrain.v0.core.classes.managers import CheckManager
+from uptrain.v0.core.lib.helper_funcs import (
     read_json,
     extract_data_points_from_batch,
     add_data_to_warehouse,

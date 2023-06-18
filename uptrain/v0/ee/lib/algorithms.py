@@ -1,5 +1,5 @@
 import numpy as np
-from uptrain.core.lib.helper_funcs import fn_dependency_required
+from uptrain.v0.core.lib.helper_funcs import fn_dependency_required
 
 try:
     import faster_whisper

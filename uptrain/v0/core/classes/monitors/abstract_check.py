@@ -2,7 +2,7 @@ import copy
 from abc import ABC
 import os
 
-from uptrain.core.classes.measurables import MeasurableResolver
+from uptrain.v0.core.classes.measurables import MeasurableResolver
 
 class AbstractCheck(ABC):
 

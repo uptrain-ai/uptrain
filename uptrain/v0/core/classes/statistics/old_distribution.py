@@ -2,14 +2,14 @@ from typing import TYPE_CHECKING
 import numpy as np
 import random
 
-from uptrain.core.lib.helper_funcs import extract_data_points_from_batch
-from uptrain.core.classes.distances import DistanceResolver
-from uptrain.core.classes.statistics import AbstractStatistic
-from uptrain.core.classes.measurables import MeasurableResolver
+from uptrain.v0.core.lib.helper_funcs import extract_data_points_from_batch
+from uptrain.v0.core.classes.distances import DistanceResolver
+from uptrain.v0.core.classes.statistics import AbstractStatistic
+from uptrain.v0.core.classes.measurables import MeasurableResolver
 from uptrain.v0.constants import Statistic
 
 if TYPE_CHECKING:
-    from uptrain.core.classes.logging.log_handler import LogHandler, CsvWriter
+    from uptrain.v0.core.classes.logging.log_handler import LogHandler, CsvWriter
 
 
 class Distribution(AbstractStatistic):

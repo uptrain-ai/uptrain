@@ -46,7 +46,7 @@ class StreamlitLogs:
 
         path_uptrain_init: str = importlib.util.find_spec("uptrain").origin  # type: ignore
         remote_st_py_file = os.path.join(
-            os.path.dirname(path_uptrain_init), "core/classes/logging/st_run.py"
+            os.path.dirname(path_uptrain_init), "v0/core/classes/logging/st_run.py"
         )
 
         if port is None:

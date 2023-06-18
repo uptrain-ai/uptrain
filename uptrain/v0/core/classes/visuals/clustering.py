@@ -8,7 +8,7 @@ from sklearn.cluster import DBSCAN
 from typing import Any, Dict, Union
 
 from uptrain.v0.constants import ClusteringAlgorithm
-from uptrain.core.lib.helper_funcs import dependency_required
+from uptrain.v0.core.lib.helper_funcs import dependency_required
 
 
 class Clustering(ABC):

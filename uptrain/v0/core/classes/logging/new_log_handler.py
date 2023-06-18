@@ -6,12 +6,12 @@ import json
 from typing import IO, TYPE_CHECKING, Protocol
 
 if TYPE_CHECKING:
-    from uptrain.core.classes.framework import Framework
-    from uptrain.core.classes.helpers.config_handler import Config
+    from uptrain.v0.core.classes.framework import Framework
+    from uptrain.v0.core.classes.helpers.config_handler import Config
 
-from uptrain.core.lib.helper_funcs import make_dir_friendly_name, clear_directory
-from uptrain.core.encoders import NumpyEncoder
-from uptrain.core.classes.logging.new_st_setup import StreamlitRunner
+from uptrain.v0.core.lib.helper_funcs import make_dir_friendly_name, clear_directory
+from uptrain.v0.core.encoders import NumpyEncoder
+from uptrain.v0.core.classes.logging.new_st_setup import StreamlitRunner
 
 
 # -----------------------------------------------------------

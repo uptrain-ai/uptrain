@@ -1,6 +1,6 @@
 import numpy as np
 
-from uptrain.core.classes.monitors import AbstractCheck
+from uptrain.v0.core.classes.monitors import AbstractCheck
 
 class AbstractMonitor(AbstractCheck):
     monitor_type = None

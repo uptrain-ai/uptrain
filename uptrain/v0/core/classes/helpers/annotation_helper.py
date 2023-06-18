@@ -1,4 +1,4 @@
-from uptrain.core.lib.helper_funcs import read_json
+from uptrain.v0.core.lib.helper_funcs import read_json
 
 
 class AnnotationHelper:

@@ -1,6 +1,6 @@
 from typing import Any, Dict
 
-from uptrain.core.classes.measurables import Measurable, FeatureMeasurable
+from uptrain.v0.core.classes.measurables import Measurable, FeatureMeasurable
 
 
 class ConditionMeasurable(Measurable):

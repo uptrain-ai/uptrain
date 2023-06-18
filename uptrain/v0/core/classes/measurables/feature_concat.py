@@ -1,7 +1,7 @@
 from typing import Any
 import numpy as np
 
-from uptrain.core.classes.measurables import Measurable
+from uptrain.v0.core.classes.measurables import Measurable
 
 
 class FeatureConcatMeasurable(Measurable):
