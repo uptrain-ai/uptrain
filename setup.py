@@ -56,6 +56,7 @@ setup(
         "streamlit>=1.23",
         # llm related
         "openai>=0.27",
+        "evals",
         # access to remote execution
         "httpx>=0.24.1",
     ],
