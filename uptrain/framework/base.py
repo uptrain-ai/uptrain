@@ -27,14 +27,15 @@ class Settings(BaseSettings):
     # uptrain stores logs in this folder
     logs_folder: str = "/tmp/uptrain_logs"
 
-    # external api auth
+    # external api related
     openai_api_key: str = Field(None, env="OPENAI_API_KEY")
+    opeani_rpm_limit: int = 100
 
     # uptrain managed service related
     uptrain_access_token: str = Field(None, env="UPTRAIN_ACCESS_TOKEN")
     uptrain_server_url: str = Field(None, env="UPTRAIN_SERVER_URL")
 
-    def check_and_get(self, key: str) -> str:
+    def check_and_get(self, key: str) -> t.Any:
         """Check if a value is present in the settings and return it."""
         value = getattr(self, key)
         if value is None:
