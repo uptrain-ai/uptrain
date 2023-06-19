@@ -3,21 +3,18 @@ Implement checks to test if a piece of text has been taken from a source.
 """
 
 from __future__ import annotations
-import re
 import typing as t
 
 from loguru import logger
 from pydantic import BaseModel
 import polars as pl
 
-
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
 from uptrain.operators.base import *
+from uptrain.utilities import lazy_load_dep
 
-from rouge_score import rouge_scorer
-
-# pip install rouge_score
+rouge_scorer = lazy_load_dep("rouge_score.rouge_scorer", "rouge_score")
 
 
 @register_op

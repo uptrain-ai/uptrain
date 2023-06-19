@@ -14,8 +14,6 @@ if t.TYPE_CHECKING:
     from uptrain.framework import Settings
 from uptrain.operators.base import *
 
-# pip install InstructorEmbedding torch sentence_transformers
-
 
 @register_op
 class CosineSimilarity(BaseModel):

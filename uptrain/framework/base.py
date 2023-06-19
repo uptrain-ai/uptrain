@@ -30,6 +30,10 @@ class Settings(BaseSettings):
     # external api auth
     openai_api_key: str = Field(None, env="OPENAI_API_KEY")
 
+    # uptrain managed service related
+    uptrain_access_token: str = Field(None, env="UPTRAIN_ACCESS_TOKEN")
+    uptrain_server_url: str = Field(None, env="UPTRAIN_SERVER_URL")
+
     def check_and_get(self, key: str) -> str:
         """Check if a value is present in the settings and return it."""
         value = getattr(self, key)

@@ -11,21 +11,18 @@ from concurrent.futures import (
 )
 import typing as t
 
-try:
-    import openai
-except ImportError:
-    openai = None
 import aiolimiter
 from loguru import logger
 import tqdm
 from tqdm.asyncio import tqdm_asyncio
 from pydantic import BaseModel, Field
 
-from uptrain.operators.base import *
-from uptrain.utilities import dependency_required
-
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
+from uptrain.operators.base import *
+from uptrain.utilities import lazy_load_dep
+
+openai = lazy_load_dep("openai", "openai")
 
 
 # -----------------------------------------------------------
@@ -108,7 +105,6 @@ async def async_process_payload(
         return payload
 
 
-@dependency_required(openai, "openai")
 class LLMMulticlient:
     """
     Use multiple threads to send requests to the OpenAI API concurrently.
@@ -131,9 +127,12 @@ class LLMMulticlient:
 
         if loop and loop.is_running():
             logger.warning(
-                "Detected Jupyter environment. Using multithreading to make concurrent api calls instead of asyncio."
+                "Detected Jupyter environment. Schedule requests in a separate thread."
             )
-            return self.sync_fetch_responses(input_payloads)
+            with ThreadPoolExecutor() as executor:
+                return executor.submit(
+                    asyncio.run, self.async_fetch_responses(input_payloads)
+                ).result()
         else:
             return asyncio.run(self.async_fetch_responses(input_payloads))
 

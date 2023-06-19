@@ -14,10 +14,8 @@ from uptrain.operators.language import (
 
 
 # Create the check-set object that lists the checks to run
-def get_checkset(source_path, logs_dir):
-    # Define the config
+def get_list_checks():
     checks = []
-
     checks.append(
         SimpleCheck(
             name="distribution_of_document_embeddings",
@@ -95,29 +93,37 @@ def get_checkset(source_path, logs_dir):
             ),
         )
     )
-
-    return CheckSet(
-        source=JsonReader(fpath=source_path),
-        checks=checks,
-        settings=Settings(logs_folder=logs_dir),
-    )
+    return checks
 
 
 if __name__ == "__main__":
     import os
     from uptrain.framework.remote import APIClient
 
-    server_url = "http://localhost:4300/"
+    # Change the following to point point to your uptrain server
+    uptrain_server_url = "http://localhost:4300/"
+    uptrain_api_key = "test-key"
     dataset_path = os.path.join(
         os.path.dirname(os.path.abspath(__file__)),
         "../datasets/qna_on_docs_samples.jsonl",
     )
     logs_dir = "/tmp/placeholder_logs"
 
-    client = APIClient(server_url=server_url)
-    # NOTE: both these arguments are only relevant when testing the eval locally. At the uptrain server, they are ignored.
-    check_set = get_checkset(dataset_path, logs_dir)
+    settings = Settings(
+        logs_folder=logs_dir,
+        uptrain_server_url=uptrain_server_url,
+        uptrain_api_key=uptrain_api_key,
+    )
 
+    # NOTE: local file-system arguments like dataset paths and logs_folder are only relevant when testing
+    # the eval locally. At the uptrain server, they are ignored.
+    check_set = CheckSet(
+        source=JsonReader(fpath=dataset_path),
+        checks=get_list_checks(),
+        settings=settings,
+    )
+
+    client = APIClient(settings=settings)
     # adding the dataset to the server
     resp = client.datasets.add("qna_docs_samples", dataset_path)
     print("Response from adding the dataset: ", resp)
