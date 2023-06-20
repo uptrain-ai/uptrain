@@ -4,6 +4,7 @@ Implement oeprators over text data.
 
 from __future__ import annotations
 
+import itertools
 import json
 import os
 import typing as t
@@ -13,7 +14,8 @@ from sqlglot.errors import ParseError
 from pydantic import BaseModel
 import polars as pl
 
-from uptrain.utilities.sql_utils import extract_tables_and_columns, extract_tables_and_columns_from_create
+from uptrain.utilities.sql_utils import extract_tables_and_columns, extract_tables_and_columns_from_create, \
+    PLACEHOLDER_TABLE
 
 if t.TYPE_CHECKING:
     from uptrain.framework.config import *
@@ -28,12 +30,14 @@ class Table(BaseModel):
     table_name: str
     columns: list
 
+
 # operators to read schema definition from Spider sql dataset
 @register_op
 class GetSchemaDefinition(BaseModel):
     col_in_schema: str = "schema"
     col_out: str = "schema_def"
     col_out_tables: str = "schema_tables"
+    col_out_db_path: str = "db_path"
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return GetSchemaDefinitionExecutor(self, settings)
@@ -45,12 +49,13 @@ class GetSchemaDefinitionExecutor(OperatorExecutor):
     def __init__(self, op: GetSchemaDefinition, settings: t.Optional[Settings] = None):
         self.op = op
 
-    def __read_schema_definition(self, schema_name) -> (str, str):
+    def __read_schema_definition(self, schema_name) -> (str, str, str):
         # TODO figure out a better way to set this
         resources_path = "/Users/bhanu/src/uptrain_experiments/llm/spider/database"
         # List to store all CREATE TABLE statements
         create_table_statements = []
         tables_and_columns = {}
+        db_path = os.path.join(resources_path, f'{schema_name}/{schema_name}.sqlite')
 
         with open(os.path.join(resources_path, f'{schema_name}/schema.sql'), 'r') as file:
             content = file.read()
@@ -69,14 +74,18 @@ class GetSchemaDefinitionExecutor(OperatorExecutor):
                     tables_and_columns[table] = columns
                     create_table_statements.append(statement)
 
-        return "\n\n".join(create_table_statements), json.dumps(tables_and_columns)
+        return "\n\n".join(create_table_statements), json.dumps(tables_and_columns), db_path
 
     def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
         schema_names = data.get_column(self.op.col_in_schema)
         results = [self.__read_schema_definition(schema_name) for schema_name in schema_names]
         schemas = [result[0] for result in results]
         tables = [result[1] for result in results]
-        return {"output": data.with_columns([pl.Series(self.op.col_out, schemas), pl.Series(self.op.col_out_tables, tables)])}
+        db_paths = [result[2] for result in results]
+        return {"output": data.with_columns(
+            [pl.Series(self.op.col_out, schemas),
+             pl.Series(self.op.col_out_tables, tables),
+             pl.Series(self.op.col_out_db_path, db_paths)])}
 
 
 # parses output SQL and fetch tables, columns etc
@@ -143,14 +152,19 @@ class ValidateTablesExecutor(OperatorExecutor):
             # deserialize json
             s = json.loads(schema_table)
             r = json.loads(response_table)
+            columns_list = [columns for table, columns in s.items()]
+            all_columns = set(itertools.chain(*columns_list))
             for table, columns in r.items():
-                is_valid_table = is_valid_table and table in s
-                # TODO: handle undefined tables
-                is_valid_column = is_valid_column and is_valid_table and set(columns).issubset(set(s[table]))
+                is_valid_table &= table == PLACEHOLDER_TABLE or table in s
+                # TODO: handle aliases and do lineage check
+                is_valid_column = is_valid_column and is_valid_table and \
+                                   ((table != PLACEHOLDER_TABLE and set(columns).issubset(set(s[table]))) or
+                                    (table == PLACEHOLDER_TABLE and set(columns).issubset(all_columns)))
 
             results.append(is_valid_table)
             results_column.append(is_valid_column)
-        return {"output": data.with_columns([pl.Series(self.op.col_out_tables_valid, results), pl.Series(self.op.col_out_cols_valid, results_column)])}
+        return {"output": data.with_columns(
+            [pl.Series(self.op.col_out_tables_valid, results), pl.Series(self.op.col_out_cols_valid, results_column)])}
 
 
 # Check if SQL has star

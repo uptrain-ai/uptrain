@@ -29,7 +29,7 @@ user_inputs = {
         }],
     },
     'dataset_args': {
-        'file_name': "/Users/bhanu/src/uptrain_experiments/llm/SQL.jsonl",
+        'file_name': "/Users/bhanu/src/uptrain_experiments/llm/SQL_small.jsonl",
         'input_variables': ['question', 'schema_def', 'dialect'],
     },
     'evaluation_args': None

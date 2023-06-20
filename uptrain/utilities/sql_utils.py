@@ -4,6 +4,7 @@ from typing import Dict, Any, Set
 from sqlglot import Expression
 from sqlglot.expressions import Table, Column, ColumnDef, Create, Schema
 
+PLACEHOLDER_TABLE = "PLACEHOLDER_TABLE"
 
 def merge_dictionaries(dict1: Dict[Any, Set], dict2: Dict[Any, Set]):
     for key, value in dict2.items():
@@ -24,7 +25,7 @@ def extract_tables_and_columns(expression: Expression):
     for key, e in expression.iter_expressions():
         merge_dictionaries(tables, extract_tables_and_columns(e))
     if isinstance(expression, Column):
-        table = expression.table or 'UNKNOWN_TABLE'
+        table = expression.table or PLACEHOLDER_TABLE
         if table not in tables:
             tables[table] = set([])
         tables[table].add(expression.this.this)
