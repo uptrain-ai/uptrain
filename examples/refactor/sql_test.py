@@ -5,6 +5,7 @@ from uptrain.framework.config import Config, Settings, SimpleCheck
 from uptrain.io import JsonReader, JsonWriter
 from uptrain.operators import PlotlyChart
 from regression_testing.experiment import ExperimentManager
+from uptrain.operators.language import TextLength
 from uptrain.operators.language.sql import HasStar, ParseSQL, ValidateTables
 
 prompt_template = """
@@ -91,6 +92,20 @@ def get_config():
                 title="Distribution of valid tables",
                 props=dict(x="tables_valid"),
             ),
+        )
+    )
+
+    # TODO: plot without compute?
+    checks.append(
+        SimpleCheck(
+            name="Show outputs",
+            compute=[TextLength(
+                col_in_text="response",
+                col_out="sql_length",
+            )],
+            source=JsonReader(fpath="{experiment_path}/interim_data/validate_entities.jsonl"),
+            sink=JsonWriter(fpath="{experiment_path}/interim_data/show_outputs.jsonl"),
+            plot=PlotlyChart(kind="table", title="Show outputs"),
         )
     )
 
