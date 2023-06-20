@@ -49,9 +49,11 @@ class OpenAIGradeExecutor(OperatorExecutor):
             completion_name="gpt-3.5-turbo",
             eval_name=self.op.eval_name,
         )
+
         res = grading_op.make_executor(settings=self.settings).run(samples)["extra"][
             "metrics"
         ]
+        print(res)
         return {"output": data.with_columns([pl.Series(self.op.col_out, res["score"])])}
 
 
@@ -104,10 +106,10 @@ class ModelGradeExecutor(OperatorExecutor):
             },
         }
 
-        BASE_DIR = os.path.join(
-            UPTRAIN_BASE_DIR, "openai_eval_custom"
+        BASE_DIR = os.path.join(UPTRAIN_BASE_DIR, "openai_eval_custom")
+        os.makedirs(
+            os.path.join(BASE_DIR, "custom_registry", "modelgraded"), exist_ok=True
         )
-        os.makedirs(os.path.join(BASE_DIR, "custom_registry", "modelgraded"), exist_ok=True)
         with open(
             os.path.join(BASE_DIR, "custom_registry", "modelgraded", "tmp_custom.yaml"),
             "w",
