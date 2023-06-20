@@ -58,6 +58,9 @@ class OpenaiEval(BaseModel):
     def make_executor(
         self, settings: t.Optional[Settings] = None
     ) -> OpenaiEvalExecutor:
+        import openai
+
+        openai.api_key = settings.check_and_get("openai_api_key")
         return OpenaiEvalExecutor(self, settings)
 
 
@@ -137,7 +140,13 @@ class OpenaiEvalExecutor(OperatorExecutor):
             zip(
                 unique_types,
                 [
-                    pl.from_dicts(x["data"] for x in sorted(recorder.get_list_events(type), key=lambda x: int(x['sample_id'].split('.')[-1])))
+                    pl.from_dicts(
+                        x["data"]
+                        for x in sorted(
+                            recorder.get_list_events(type),
+                            key=lambda x: int(x["sample_id"].split(".")[-1]),
+                        )
+                    )
                     for type in unique_types
                 ],
             )
@@ -212,9 +221,7 @@ class PromptEvalExecutor:
         prompts = self._construct_prompts(data)
 
         eval_op = OpenaiEval(
-            bundle_path=os.path.join(
-                UPTRAIN_BASE_DIR, "openai_eval_custom"
-            ),
+            bundle_path=os.path.join(UPTRAIN_BASE_DIR, "openai_eval_custom"),
             completion_name=self.op.model_name,
             eval_name="model_run_all",
         )
