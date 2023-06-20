@@ -16,7 +16,7 @@ if t.TYPE_CHECKING:
 from uptrain.operators.base import *
 from uptrain.operators.language.openai_evals import OpenaiEval
 
-UPTRAIN_BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, os.pardir)
+UPTRAIN_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 @register_op
@@ -105,16 +105,18 @@ class ModelGradeExecutor(OperatorExecutor):
         }
 
         BASE_DIR = os.path.join(
-            UPTRAIN_BASE_DIR, "operators", "language", "openai_eval_custom"
+            UPTRAIN_BASE_DIR, "openai_eval_custom"
         )
+        os.makedirs(os.path.join(BASE_DIR, "custom_registry", "modelgraded"), exist_ok=True)
         with open(
-            os.path.join(BASE_DIR, "custom_registry", "modelgraded", "tmp_custom.yml"),
+            os.path.join(BASE_DIR, "custom_registry", "modelgraded", "tmp_custom.yaml"),
             "w",
         ) as f:
             yaml.dump(grade_spec_dictn, f)
 
+        os.makedirs(os.path.join(BASE_DIR, "custom_registry", "evals"), exist_ok=True)
         with open(
-            os.path.join(BASE_DIR, "custom_registry", "evals", "tmp_custom.yml"), "w"
+            os.path.join(BASE_DIR, "custom_registry", "evals", "tmp_custom.yaml"), "w"
         ) as f:
             yaml.dump(eval_dictn, f)
 
