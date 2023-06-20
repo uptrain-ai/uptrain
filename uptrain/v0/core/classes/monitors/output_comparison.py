@@ -79,7 +79,7 @@ class OutputComparison(AbstractMonitor):
 class ComparisonModelResolver:
     def resolve(self, model):
         if model == ComparisonModel.FASTER_WHISPER:
-            from uptrain.ee.lib.algorithms import faster_whisper_speech_to_text
+            from uptrain.v0.ee.lib.algorithms import faster_whisper_speech_to_text
 
             return faster_whisper_speech_to_text
         else:
@@ -89,7 +89,7 @@ class ComparisonModelResolver:
 class ComparisonMetricResolver:
     def resolve(self, metric):
         if metric == ComparisonMetric.ROGUE_L_F1:
-            from uptrain.ee.lib.algorithms import rogue_l_similarity
+            from uptrain.v0.ee.lib.algorithms import rogue_l_similarity
 
             return rogue_l_similarity
         else:

@@ -27,7 +27,7 @@ class LogHandler:
                 self.st_log_folder, port=cfg.logging_args.dashboard_port
             )
         elif cfg.logging_args.postgres_logging:
-            from uptrain.core.classes.logging.log_postgres import PostgresLogs
+            from uptrain.v0.core.classes.logging.log_postgres import PostgresLogs
 
             self.postgres_database = cfg.logging_args.database
             self.postgres_writer = PostgresLogs(
