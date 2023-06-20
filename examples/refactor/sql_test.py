@@ -6,7 +6,7 @@ from uptrain.io import JsonReader, JsonWriter
 from uptrain.operators import PlotlyChart
 from regression_testing.experiment import ExperimentManager
 from uptrain.operators.language import TextLength
-from uptrain.operators.language.sql import HasStar, ParseSQL, ValidateTables
+from uptrain.operators.language.sql import HasStar, ParseSQL, ValidateTables, ExecuteSQL
 
 prompt_template = """
     You are a {persona} whose job is to only output SQL command for a given question in {dialect} SQL dialect. Do not output anything other than the SQL command.
@@ -95,6 +95,25 @@ def get_config():
         )
     )
 
+    checks.append(
+        SimpleCheck(
+            name="Execution Accuracy",
+            compute=[
+                ExecuteSQL(col_in_response_sql="response",
+                           col_in_gt_sql="gt_query",
+                           col_in_db_path="db_path",
+                           col_out_execution_accuracy="execution_accuracy")
+            ],
+            source=JsonReader(fpath="{experiment_path}/interim_data/validate_entities.jsonl"),
+            sink=JsonWriter(fpath="{experiment_path}/interim_data/exec_accuracy.jsonl"),
+            plot=PlotlyChart(
+                kind="histogram",
+                title="Distribution of Execution accuracy",
+                props=dict(x="execution_accuracy"),
+            ),
+        )
+    )
+
     # TODO: plot without compute?
     checks.append(
         SimpleCheck(
@@ -103,7 +122,7 @@ def get_config():
                 col_in_text="response",
                 col_out="sql_length",
             )],
-            source=JsonReader(fpath="{experiment_path}/interim_data/validate_entities.jsonl"),
+            source=JsonReader(fpath="{experiment_path}/interim_data/exec_accuracy.jsonl"),
             sink=JsonWriter(fpath="{experiment_path}/interim_data/show_outputs.jsonl"),
             plot=PlotlyChart(kind="table", title="Show outputs"),
         )

@@ -15,13 +15,13 @@ from pydantic import BaseModel
 import polars as pl
 
 from uptrain.utilities.sql_utils import extract_tables_and_columns, extract_tables_and_columns_from_create, \
-    PLACEHOLDER_TABLE
+    PLACEHOLDER_TABLE, execute_sql
 
 if t.TYPE_CHECKING:
     from uptrain.framework.config import *
 from uptrain.operators.base import *
 
-__all__ = ["HasStar", "GetSchemaDefinition", "ParseSQL", "ValidateTables"]
+__all__ = ["HasStar", "GetSchemaDefinition", "ParseSQL", "ValidateTables", "ExecuteSQL"]
 
 
 # TODO: define a Table object and dump that into the dataframe
@@ -166,6 +166,32 @@ class ValidateTablesExecutor(OperatorExecutor):
         return {"output": data.with_columns(
             [pl.Series(self.op.col_out_tables_valid, results), pl.Series(self.op.col_out_cols_valid, results_column)])}
 
+
+@register_op
+class ExecuteSQL(BaseModel):
+    col_in_response_sql: str = "response_sql"
+    col_in_gt_sql: str = "gt_query"
+    col_in_db_path: str = "db_path"
+    col_out_execution_accuracy: str = "execution_accuracy"
+
+    def make_executor(self, settings: t.Optional[Settings] = None):
+        return ExecuteSQLExecutor(self, settings)
+
+
+class ExecuteSQLExecutor(OperatorExecutor):
+    op: ExecuteSQL
+
+    def __init__(self, op: ExecuteSQL, settings: t.Optional[Settings] = None):
+        self.op = op
+
+    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
+        response_sqls = data.get_column(self.op.col_in_response_sql)
+        gt_sqls = data.get_column(self.op.col_in_gt_sql)
+        db_paths = data.get_column(self.op.col_in_db_path)
+        results = []
+        for response_sql, gt_sql, db_path in zip(response_sqls, gt_sqls, db_paths):
+            results.append(execute_sql(response_sql, gt_sql, db_path))
+        return {"output": data.with_columns([pl.Series(self.op.col_out_execution_accuracy, results)])}
 
 # Check if SQL has star
 @register_op
