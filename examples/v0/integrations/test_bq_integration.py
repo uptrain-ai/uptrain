@@ -1,6 +1,6 @@
 # pip install 'google-cloud-bigquery[pandas]'
 
-import uptrain
+import uptrain.v0 as uptrain
 import datetime
 import os
 

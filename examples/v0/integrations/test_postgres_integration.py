@@ -1,6 +1,6 @@
 # pip install psycopg2
 
-import uptrain
+import uptrain.v0 as uptrain
 import datetime
 import os
 

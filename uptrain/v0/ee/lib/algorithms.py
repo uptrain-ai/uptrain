@@ -11,7 +11,7 @@ try:
 except:
     rouge = None
 
-@fn_dependency_required(faster_whisper, "faster_whisper")
+@fn_dependency_required(faster_whisper, "faster-whisper")
 def faster_whisper_speech_to_text(audio_files):
     model_size = "large-v2"
     model = faster_whisper.WhisperModel(model_size, device="cpu", compute_type="int8")
