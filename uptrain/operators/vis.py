@@ -6,11 +6,13 @@ import typing as t
 from loguru import logger
 from pydantic import BaseModel, Field
 import polars as pl
-import plotly.express as px
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
 from uptrain.operators.base import *
+from uptrain.utilities import lazy_load_dep
+
+px = lazy_load_dep("plotly.express", "plotly")
 
 
 __all__ = ["PlotlyChart"]

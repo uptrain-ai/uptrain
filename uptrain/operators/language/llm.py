@@ -11,21 +11,21 @@ from concurrent.futures import (
 )
 import typing as t
 
-try:
-    import openai
-except ImportError:
-    openai = None
 import aiolimiter
 from loguru import logger
 import tqdm
 from tqdm.asyncio import tqdm_asyncio
 from pydantic import BaseModel, Field
 
-from uptrain.operators.base import *
-from uptrain.utilities import dependency_required
-
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
+from uptrain.operators.base import *
+from uptrain.utilities import lazy_load_dep
+
+openai = lazy_load_dep("openai", "openai")
+if t.TYPE_CHECKING:
+    import openai
+    import openai.error
 
 
 # -----------------------------------------------------------
@@ -80,7 +80,7 @@ async def async_process_payload(
             try:
                 if payload.endpoint == "chat.completions":
                     payload.response = await openai.ChatCompletion.acreate(
-                        **payload.data
+                        **payload.data, request_timeout=5
                     )
                     break
                 else:
@@ -108,19 +108,17 @@ async def async_process_payload(
         return payload
 
 
-@dependency_required(openai, "openai")
 class LLMMulticlient:
     """
     Use multiple threads to send requests to the OpenAI API concurrently.
     """
 
     def __init__(self, settings: t.Optional[Settings] = None):
-        self._max_retries = 2
-        self._concurrency = 5
-
+        self._max_tries = 2
+        self._rpm_limit = 20
         if settings is not None:
-            api_key = settings.check_and_get("openai_api_key")
-            openai.api_key = api_key
+            openai.api_key = settings.check_and_get("openai_api_key")  # type: ignore
+            self._rpm_limit = settings.check_and_get("openai_rpm_limit")
 
     def fetch_responses(self, input_payloads: list[Payload]) -> list[Payload]:
         # return self.sync_fetch_responses(input_payloads)
@@ -131,51 +129,21 @@ class LLMMulticlient:
 
         if loop and loop.is_running():
             logger.warning(
-                "Detected Jupyter environment. Using multithreading to make concurrent api calls instead of asyncio."
+                "Detected Jupyter environment, scheduling requests in a separate thread."
             )
-            return self.sync_fetch_responses(input_payloads)
+            with ThreadPoolExecutor() as executor:
+                return executor.submit(
+                    asyncio.run, self.async_fetch_responses(input_payloads)
+                ).result()
         else:
             return asyncio.run(self.async_fetch_responses(input_payloads))
-
-    def sync_fetch_responses(self, input_payloads: list[Payload]) -> list[Payload]:
-        completed_futures = []
-        num_active_requests = 0
-        with ThreadPoolExecutor(max_workers=self._concurrency) as executor:
-            futures = set()
-            for data in tqdm.tqdm(input_payloads, desc="Request submitted to LLM"):
-                if not num_active_requests < self._concurrency:
-                    completed, futures = wait_for_futures(
-                        futures, return_when="FIRST_COMPLETED"
-                    )
-                    completed_futures.extend(completed)
-
-                futures.add(
-                    executor.submit(sync_process_payload, data, self._max_retries)
-                )
-                num_active_requests += 1
-
-            for future in as_completed(futures):
-                completed_futures.append(future)
-
-            output_payloads = []
-            for future in completed_futures:
-                try:
-                    res = future.result()
-                except Exception as exc:
-                    logger.error(f"Error when sending request to openai API: {exc}")
-                    res = None
-                output_payloads.append(res)
-                num_active_requests -= 1
-
-        return output_payloads
 
     async def async_fetch_responses(
         self, input_payloads: list[Payload]
     ) -> list[Payload]:
-        # TODO: make rate limiting customizable
-        limiter = aiolimiter.AsyncLimiter(20, time_period=5)
+        limiter = aiolimiter.AsyncLimiter(self._rpm_limit, time_period=1)
         async_outputs = [
-            async_process_payload(data, limiter, self._max_retries)
+            async_process_payload(data, limiter, self._max_tries)
             for data in input_payloads
         ]
         output_payloads = await tqdm_asyncio.gather(*async_outputs)

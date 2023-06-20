@@ -12,6 +12,7 @@ from loguru import logger
 import httpx
 
 from uptrain.framework.checks import CheckSet
+from uptrain.framework.base import Settings
 
 
 @dataclass
@@ -72,11 +73,28 @@ class APIClient:
     datasets: DatasetsAPI
     checksets: ChecksetsAPI
 
-    def __init__(self, server_url: str = "http://localhost:4300") -> None:
+    def __init__(self, settings: Settings) -> None:
+        server_url = settings.check_and_get("uptrain_server_url")
+        api_key = settings.check_and_get("uptrain_access_token")
+
         self.base_url = server_url.rstrip("/") + "/api/public"
-        self.client = httpx.Client()
+        self.client = httpx.Client(headers={"uptrain-access-token": api_key})
         self.datasets = DatasetsAPI(base_url=self.base_url, client=self.client)
         self.checksets = ChecksetsAPI(base_url=self.base_url, client=self.client)
+
+    def check_auth(self):
+        """Ping the server to check if the client is authenticated."""
+        url = f"{self.base_url}/auth"
+        try:
+            response = self.client.get(url)
+            if not response.is_success:
+                raise RuntimeError(
+                    f"Failed to authenticate with the Uptrain server: {response.json()}"
+                )
+        except httpx.ConnectError as e:
+            raise RuntimeError(
+                f"Failed to connect to the Uptrain server at {self.base_url}"
+            ) from e
 
     def add_run(self, dataset: str, checkset: str) -> dict:
         """Schedules an evaluation on the server. Specify the dataset and checkset to use.

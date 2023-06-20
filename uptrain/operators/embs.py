@@ -10,16 +10,13 @@ from pydantic import BaseModel
 import numpy as np
 import polars as pl
 
-try:
-    import umap
-except ImportError:
-    umap = None
-
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
 from uptrain.operators.base import *
-from uptrain.utilities import dependency_required
-from rouge_score import rouge_scorer
+from uptrain.utilities import lazy_load_dep
+
+umap = lazy_load_dep("umap", "umap-learn")
+rouge_scorer = lazy_load_dep("rouge_score.rouge_scorer", "rouge_score")
 
 
 @register_op
@@ -65,7 +62,6 @@ class UMAP(BaseModel):
         return UmapExecutor(self)
 
 
-@dependency_required(umap, "umap")
 class UmapExecutor(OperatorExecutor):
     op: UMAP
 
