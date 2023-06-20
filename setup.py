@@ -46,11 +46,12 @@ setup(
         "tqdm>=4.0",
         "pydantic>=1.9.0",
         "aiolimiter>=1.1",
+        "loguru",
         # datasets and transforms
         "polars>=0.17",
         "deltalake>=0.9",
         "numpy>=1.23.0",
-        "pyarrow>=11.0.0",
+        "pyarrow>=10.0.0",
         # visualization
         "plotly>=5.0.0",
         "streamlit>=1.23",
