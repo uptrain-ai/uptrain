@@ -60,22 +60,18 @@ setup(
         "evals",
         # access to remote execution
         "httpx>=0.24.1",
-        # TODO: required by v0, resolve soon
-        "river",
-        "scikit_learn>=1.0.0",
-        "json-fix>=0.5.0",
     ],
     extras_require={
         "v0": [
             "pandas>=1.0.0",
-            "river<=0.14",
+            "river",
             "scikit_learn>=1.0.0",
             "umap-learn",
             "json-fix>=0.5.0",
             "xgboost",
         ],
         "full": [
-            "river<=0.14",
+            "river",
             "scikit_learn>=1.0.0",
             "umap-learn",
         ],
