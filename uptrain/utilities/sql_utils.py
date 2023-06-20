@@ -18,19 +18,38 @@ def merge_dictionaries(dict1: Dict[Any, Set], dict2: Dict[Any, Set]):
     return dict1
 
 
-def extract_tables_and_columns(expression: Expression):
-    tables = defaultdict(set)
-    if isinstance(expression, Table) and expression.this.this not in tables:
-        tables[expression.this.this] = set([])
+def extract_tables_and_columns(expression: Expression, alias_mapping=None):
+    if alias_mapping is None:
+        alias_mapping = {}
 
-    # iterate through all args keys
+    tables = defaultdict(set)
+
+    # Handle tables and table aliases
+    if isinstance(expression, Table):
+        table_key = f"{expression.db}.{expression.name}" if expression.db else expression.name
+        if table_key not in tables:
+            tables[table_key] = set([])
+        if expression.alias:
+            alias_mapping[expression.alias] = table_key
+
     for key, e in expression.iter_expressions():
-        merge_dictionaries(tables, extract_tables_and_columns(e))
+        merge_dictionaries(tables, extract_tables_and_columns(e, alias_mapping))
+
+    # Handle columns and their associated tables or table aliases
     if isinstance(expression, Column):
-        table = expression.table or PLACEHOLDER_TABLE
+        table = f"{expression.db}.{expression.table}" if expression.db else expression.table
+        if table and table in alias_mapping:
+            table = alias_mapping[table]
+        table = table or PLACEHOLDER_TABLE
         if table not in tables:
             tables[table] = set([])
-        tables[table].add(expression.this.this)
+        tables[table].add(expression.name)
+
+    # Merge aliases
+    for table in tables:
+        if table in alias_mapping:
+            true_table = alias_mapping[table]
+            tables[true_table] = tables[true_table].union(tables[table])
     return tables
 
 
