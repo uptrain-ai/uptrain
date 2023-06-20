@@ -47,6 +47,7 @@ setup(
         "pydantic>=1.9.0",
         "aiolimiter>=1.1",
         "loguru",
+        "lazy_loader",
         # datasets and transforms
         "polars>=0.17",
         "deltalake>=0.9",
