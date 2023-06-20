@@ -1,8 +1,8 @@
 from typing import Any, List, Union
 
-from uptrain.core.classes.distances import DistanceResolver
-from uptrain.core.classes.measurables import Measurable
-from uptrain.core.classes.measurables import InputFeatureMeasurable
+from uptrain.v0.core.classes.distances import DistanceResolver
+from uptrain.v0.core.classes.measurables import Measurable
+from uptrain.v0.core.classes.measurables import InputFeatureMeasurable
 
 
 class DistanceMeasurable(Measurable):

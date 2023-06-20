@@ -1,6 +1,6 @@
 from typing import Any, Dict
 
-from uptrain.core.classes.visuals import AbstractVisual
+from uptrain.v0.core.classes.visuals import AbstractVisual
 from uptrain.v0.constants import PlotType, Visual
 
 

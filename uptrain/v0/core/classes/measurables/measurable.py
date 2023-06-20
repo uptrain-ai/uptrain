@@ -2,11 +2,11 @@ import numpy as np
 
 from typing import Any
 
-from uptrain.core.lib.helper_funcs import (
+from uptrain.v0.core.lib.helper_funcs import (
     extract_data_points_from_batch,
     combine_data_points_for_batch,
 )
-from uptrain.core.classes.measurables import AbstractMeasurable
+from uptrain.v0.core.classes.measurables import AbstractMeasurable
 
 
 class Measurable(AbstractMeasurable):

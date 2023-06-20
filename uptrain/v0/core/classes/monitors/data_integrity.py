@@ -29,10 +29,10 @@ class DataIntegrity(AbstractMonitor):
         signal_value = self.measurable.compute_and_log(
             inputs, outputs, gts=gts, extra=extra_args
         )
-        signal_value = np.squeeze(np.array(signal_value))
+        signal_value = np.reshape(np.array(signal_value), -1)
 
         if self.integrity_type == "non_null":
-            self.has_issue = signal_value == None
+            self.has_issue = [x == None for x in signal_value]
         elif self.integrity_type == "less_than":
             self.has_issue = signal_value > self.threshold
         elif self.integrity_type == "equal_to":

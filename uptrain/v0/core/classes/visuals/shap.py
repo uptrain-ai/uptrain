@@ -6,9 +6,9 @@ try:
 except:
     shap = None
 
-from uptrain.core.classes.visuals import AbstractVisual
+from uptrain.v0.core.classes.visuals import AbstractVisual
 from uptrain.v0.constants import Visual
-from uptrain.core.lib.helper_funcs import dependency_required
+from uptrain.v0.core.lib.helper_funcs import dependency_required
 
 
 @dependency_required(shap, "shap")

@@ -64,14 +64,14 @@ setup(
     extras_require={
         "v0": [
             "pandas>=1.0.0",
-            "river<=0.14",
+            "river",
             "scikit_learn>=1.0.0",
             "umap-learn",
             "json-fix>=0.5.0",
             "xgboost",
         ],
         "full": [
-            "river<=0.14",
+            "river",
             "scikit_learn>=1.0.0",
             "umap-learn",
         ],

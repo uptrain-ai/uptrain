@@ -65,7 +65,7 @@ def make_cache_container(fw: Any, columns: dict[str, Type]) -> StateCache:
     """Create a state cache container for the given columns."""
     if fw.config_obj.running_ee:
         try:
-            from uptrain.ee.lib.cache import DuckDBStateCache
+            from uptrain.v0.ee.lib.cache import DuckDBStateCache
         except ImportError as exc:
             print(
                 "Error importing the uptrain-ee subpackage, Uptrain enterprise Edition not installed."

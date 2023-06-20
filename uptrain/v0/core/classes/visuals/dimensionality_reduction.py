@@ -7,18 +7,18 @@ except:
 import numpy as np
 from sklearn.manifold import TSNE
 
-from uptrain.core.lib.helper_funcs import cluster_and_plot_data
-from uptrain.core.classes.visuals import AbstractVisual, ClusteringResolver
+from uptrain.v0.core.lib.helper_funcs import cluster_and_plot_data
+from uptrain.v0.core.classes.visuals import AbstractVisual, ClusteringResolver
 from uptrain.v0.constants import Visual, Statistic, MeasurableType, ClusteringAlgorithm
-from uptrain.core.classes.measurables import MeasurableResolver
-from uptrain.core.lib.helper_funcs import read_json, dependency_required
+from uptrain.v0.core.classes.measurables import MeasurableResolver
+from uptrain.v0.core.lib.helper_funcs import read_json, dependency_required
 
 if TYPE_CHECKING:
-    from uptrain.core.classes.logging.new_log_handler import (
+    from uptrain.v0.core.classes.logging.new_log_handler import (
         LogHandler as NewLogHandler,
         LogWriter,
     )
-    from uptrain.core.classes.logging.log_handler import LogHandler
+    from uptrain.v0.core.classes.logging.log_handler import LogHandler
 
 
 @dependency_required(umap, "umap-learn")

@@ -2,7 +2,7 @@ import numpy as np
 
 from typing import Any, List, Tuple, Union
 
-from uptrain.core.lib.helper_funcs import cluster_and_plot_data
+from uptrain.v0.core.lib.helper_funcs import cluster_and_plot_data
 
 
 class Clustering:

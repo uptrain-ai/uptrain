@@ -11,7 +11,7 @@ except:
     TORCH_PRESENT = False
 
 
-from uptrain.core.classes.monitors import AbstractCheck
+from uptrain.v0.core.classes.monitors import AbstractCheck
 
 
 class Finetune(AbstractCheck):

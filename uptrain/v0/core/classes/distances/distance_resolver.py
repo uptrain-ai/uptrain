@@ -1,4 +1,4 @@
-from uptrain.core.classes.distances import (
+from uptrain.v0.core.classes.distances import (
     CosineDistance,
     L2Distance,
     NormRatio,

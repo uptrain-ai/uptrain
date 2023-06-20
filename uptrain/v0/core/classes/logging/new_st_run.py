@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 import numpy as np
 import plotly.express as px
 
-from uptrain.core.lib.helper_funcs import make_dir_friendly_name
+from uptrain.v0.core.lib.helper_funcs import make_dir_friendly_name
 
 # -----------------------------------------------------------
 # Set up layout of the dashboard and the sidebar

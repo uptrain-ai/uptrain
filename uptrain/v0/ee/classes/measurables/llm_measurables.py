@@ -1,6 +1,6 @@
 import re
-from uptrain.core.lib.helper_funcs import read_json, dependency_required
-from uptrain.core.classes.measurables import Measurable
+from uptrain.v0.core.lib.helper_funcs import read_json, dependency_required
+from uptrain.v0.core.classes.measurables import Measurable
 
 try:
     import openai

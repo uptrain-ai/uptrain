@@ -11,7 +11,7 @@ import functools
 import numpy as np
 import pandas as pd
 from sklearn.cluster import KMeans
-from uptrain.core.encoders import UpTrainEncoder
+from uptrain.v0.core.encoders import UpTrainEncoder
 
 
 def cluster_and_plot_data(

@@ -2,19 +2,19 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Union
 import numpy as np
 
-from uptrain.core.classes.statistics import AbstractStatistic
-from uptrain.core.classes.distances import DistanceResolver
-from uptrain.core.classes.measurables import MeasurableResolver
+from uptrain.v0.core.classes.statistics import AbstractStatistic
+from uptrain.v0.core.classes.distances import DistanceResolver
+from uptrain.v0.core.classes.measurables import MeasurableResolver
 from uptrain.v0.constants import Statistic
-from uptrain.core.lib.cache import make_cache_container
+from uptrain.v0.core.lib.cache import make_cache_container
 
 
 if TYPE_CHECKING:
-    from uptrain.core.classes.logging.new_log_handler import (
+    from uptrain.v0.core.classes.logging.new_log_handler import (
         LogHandler as NewLogHandler,
         LogWriter,
     )
-    from uptrain.core.classes.logging.log_handler import LogHandler
+    from uptrain.v0.core.classes.logging.log_handler import LogHandler
 
 
 class Distance(AbstractStatistic):
