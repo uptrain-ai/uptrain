@@ -12,7 +12,6 @@ import sqlglot
 from sqlglot.errors import ParseError
 from pydantic import BaseModel
 import polars as pl
-from sqlglot import parse
 
 from uptrain.utilities.sql_utils import extract_tables_and_columns, extract_tables_and_columns_from_create
 
@@ -64,7 +63,9 @@ class GetSchemaDefinitionExecutor(OperatorExecutor):
                 if statement.strip().startswith('CREATE TABLE'):
                     # Add the statement to the list
                     statement = statement.strip()
-                    table, columns = extract_tables_and_columns_from_create(parse(statement)[0])
+                    # TODO: handle input databse dialect instead of assuming it.
+                    parsed = sqlglot.parse(statement, read=sqlglot.Dialects.SQLITE)
+                    table, columns = extract_tables_and_columns_from_create(parsed[0])
                     tables_and_columns[table] = columns
                     create_table_statements.append(statement)
 
@@ -144,6 +145,7 @@ class ValidateTablesExecutor(OperatorExecutor):
             r = json.loads(response_table)
             for table, columns in r.items():
                 is_valid_table = is_valid_table and table in s
+                # TODO: handle undefined tables
                 is_valid_column = is_valid_column and is_valid_table and set(columns).issubset(set(s[table]))
 
             results.append(is_valid_table)
