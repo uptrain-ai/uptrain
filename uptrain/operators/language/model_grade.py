@@ -53,7 +53,6 @@ class OpenAIGradeExecutor(OperatorExecutor):
         res = grading_op.make_executor(settings=self.settings).run(samples)["extra"][
             "metrics"
         ]
-        print(res)
         return {"output": data.with_columns([pl.Series(self.op.col_out, res["score"])])}
 
 
