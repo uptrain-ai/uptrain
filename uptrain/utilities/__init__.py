@@ -7,7 +7,6 @@ import json
 import typing as t
 import os
 import time
-import functools
 
 from lazy_loader import load as _lazy_load
 from loguru import logger
