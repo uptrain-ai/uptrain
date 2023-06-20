@@ -48,6 +48,7 @@ setup(
         "aiolimiter>=1.1",
         "loguru",
         "lazy_loader",
+        "networkx",
         # datasets and transforms
         "polars>=0.17",
         "deltalake>=0.9",
@@ -75,6 +76,7 @@ setup(
             "river",
             "scikit_learn>=1.0.0",
             "umap-learn",
+            "rouge-score",
         ],
     },  # Optional
     tests_require=["pytest>=7.0"],
