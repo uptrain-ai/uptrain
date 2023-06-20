@@ -8,6 +8,8 @@ import json
 import os
 import typing as t
 
+import sqlglot
+from sqlglot.errors import ParseError
 from pydantic import BaseModel
 import polars as pl
 from sqlglot import parse
@@ -81,6 +83,7 @@ class GetSchemaDefinitionExecutor(OperatorExecutor):
 class ParseSQL(BaseModel):
     col_in_sql: str = "sql"
     col_out_tables: str = "sql_tables"
+    col_out_is_valid_sql: str = "is_valid_sql"
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return ParseSQLExecutor(self, settings)
@@ -95,10 +98,19 @@ class ParseSQLExecutor(OperatorExecutor):
     def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
         sqls = data.get_column(self.op.col_in_sql)
         tables = []
+        is_valid = []
         for sql in sqls:
-            tables.append(json.dumps(extract_tables_and_columns(parse(sql)[0])))
+            try:
+                # TODO: parse using expected dialect
+                parsed = sqlglot.parse(sql)
+                tables.append(json.dumps(extract_tables_and_columns(parsed[0])))
+                is_valid.append(True)
+            except ParseError:
+                tables.append(json.dumps({}))
+                is_valid.append(False)
 
-        return {"output": data.with_columns([pl.Series(self.op.col_out_tables, tables)])}
+        return {"output": data.with_columns([pl.Series(self.op.col_out_tables, tables),
+                                             pl.Series(self.op.col_out_is_valid_sql, is_valid)])}
 
 
 # Ensures that table names from response are valid tables

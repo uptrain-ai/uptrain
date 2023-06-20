@@ -56,18 +56,36 @@ def get_config():
 
     checks.append(
         SimpleCheck(
-            name="Check table names",
+            name="Validate SQL",
             compute=[
                 ParseSQL(
                     col_in_sql="response",
-                    col_out_tables="response_tables"
-                ),
-                ValidateTables(col_in_response_tables="response_tables",
-                               col_in_schema_tables="schema_tables",
-                               col_out_tables_valid="tables_valid")
+                    col_out_tables="response_tables",
+                    col_out_is_valid_sql="is_sql_valid"
+                )
             ],
             source=JsonReader(fpath="{experiment_path}/interim_data/has_star.jsonl"),
             sink=JsonWriter(fpath="{experiment_path}/interim_data/parse_sql.jsonl"),
+            plot=PlotlyChart(
+                kind="histogram",
+                title="Distribution: is sql valid",
+                props=dict(x="is_sql_valid"),
+            ),
+        )
+    )
+    # TODO: fix, add column valid stuff. May be add an invalid column'
+    # TODO: add an example where this check fails
+    checks.append(
+        SimpleCheck(
+            name="Check table and columns",
+            compute=[
+                ValidateTables(col_in_response_tables="response_tables",
+                               col_in_schema_tables="schema_tables",
+                               col_out_tables_valid="tables_valid",
+                               col_out_cols_valid="cols_valid")
+            ],
+            source=JsonReader(fpath="{experiment_path}/interim_data/parse_sql.jsonl"),
+            sink=JsonWriter(fpath="{experiment_path}/interim_data/validate_entities.jsonl"),
             plot=PlotlyChart(
                 kind="histogram",
                 title="Distribution of valid tables",
