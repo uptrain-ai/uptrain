@@ -50,7 +50,7 @@ setup(
         "pandas>=1.0.0",
         "plotly>=5.0.0",
         "pydantic>=1.9.0",
-        "river<=0.14",
+        "river",
         "scikit_learn>=1.0.0",
         "streamlit>=1.0.0",
         "json-fix>=0.5.0",
