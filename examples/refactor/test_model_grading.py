@@ -1,18 +1,37 @@
 import os
 os.environ['OPENAI_API_KEY'] = "..."
+source_path = "..."
+LOGS_DIR = "uptrain_logs"
+
 
 from uptrain.framework import CheckSet, Settings, SimpleCheck
 from uptrain.operators import (
     PlotlyChart,
+    ColumnExpand
 )
-from uptrain.io import JsonReader
+from uptrain.io import JsonReader, JsonWriter
 from uptrain.operators.language import (
     OpenAIGradeScore,
     ModelGradeScore
 )
 
-source_path = "..."
-LOGS_DIR = "uptrain_logs"
+source_path_with_context = source_path.split('.')[0] + "_input.jsonl"
+if os.path.exists(source_path_with_context):
+    os.remove(source_path_with_context)
+
+# Add context to input dataset
+data = JsonReader(fpath=source_path).make_executor().run()['output']
+node = SimpleCheck(
+        name="expand_columns",
+        compute=[
+            ColumnExpand(
+                col_out_names=['model', 'pipeline'],
+                col_vals=['gpt-4', 'context_retrieval'],
+            ),
+        ],
+    )
+
+JsonWriter(fpath=source_path_with_context).make_executor().run(node.make_executor(Settings()).run(data))
 
 
 def resolve_prompts(template, resolver_args):
@@ -89,14 +108,12 @@ def get_checkset():
                     grading_prompt_template=grading_prompts[idx],
                     eval_type="cot_classify",
                     choice_strings=[
-                        "(A) The submitted quote is a subset of the document and is fully consistent with it.",
-                        "(B) The submitted quote is a superset of the document, but is consistent with the document.",
-                        "(C) The submitted quote is a superset of the document and is not consistent with the document."
+                        "A", "B", "C"
                     ],
                     choice_scores={
-                        "(A) The submitted quote is a subset of the document and is fully consistent with it.": 1.0,
-                        "(B) The submitted quote is a superset of the document, but is consistent with the document.": 0.5,
-                        "(C) The submitted quote is a superset of the document and is not consistent with the document.": 0.0
+                        "A": 1.0,
+                        "B": 0.5,
+                        "C": 0.0
                     },
                     grading_prompt_mapping={
                         "document_text": "document",
@@ -110,7 +127,7 @@ def get_checkset():
 
 
     checkset = CheckSet(
-        source=JsonReader(fpath=source_path),
+        source=JsonReader(fpath=source_path_with_context),
         checks=custom_grade_checks,
         settings=Settings(logs_folder=LOGS_DIR),
     )

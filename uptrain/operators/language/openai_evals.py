@@ -19,7 +19,7 @@ if t.TYPE_CHECKING:
 from uptrain.operators.base import *
 from uptrain.utilities import to_py_types
 
-UPTRAIN_BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
+UPTRAIN_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # -----------------------------------------------------------
 # General purpose OpenAI eval operator. It can take any eval
@@ -137,7 +137,7 @@ class OpenaiEvalExecutor(OperatorExecutor):
             zip(
                 unique_types,
                 [
-                    pl.from_dicts(x["data"] for x in recorder.get_list_events(type))
+                    pl.from_dicts(x["data"] for x in sorted(recorder.get_list_events(type), key=lambda x: int(x['sample_id'].split('.')[-1])))
                     for type in unique_types
                 ],
             )
@@ -213,7 +213,7 @@ class PromptEvalExecutor:
 
         eval_op = OpenaiEval(
             bundle_path=os.path.join(
-                UPTRAIN_BASE_DIR, "operators", "language", "openai_eval_custom"
+                UPTRAIN_BASE_DIR, "openai_eval_custom"
             ),
             completion_name=self.op.model_name,
             eval_name="model_run_all",

@@ -34,3 +34,5 @@ evaluation_logs*
 
 # Allow json files for docs
 !/docs/*.json
+
+tmp_custom.yaml
