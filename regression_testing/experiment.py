@@ -55,8 +55,8 @@ class LLMExperimentExecutor:
 
         results = eval_op.make_executor().run(samples)
 
-        responses = [x['sampled'][0] for x in results['extra']['final_report']]
-        prompts = [x['prompt'][0]['content'] for x in results['extra']['final_report']]
+        responses = [x['sampled'] for x in results['extra']['final_report_indexed'].get_column('output_data')]
+        prompts = [x['prompt'][0]['content'] for x in results['extra']['final_report_indexed'].get_column('data')]
 
         samples = samples.with_columns(pl.Series(name='response', values=responses))
         samples = samples.with_columns(pl.Series(name='prompt', values=prompts))
@@ -144,7 +144,7 @@ class ExperimentManager:
                     cfg=experiment_cfg,
                     dataset=experiment_path + "/input.jsonl",
                     results=experiment_path + "/output.jsonl",
-                    id = idx
+                    id=idx
                 ))
                 offset += 1
 

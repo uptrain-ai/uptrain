@@ -130,6 +130,9 @@ class OpenaiEvalExecutor(OperatorExecutor):
 
         try:
             output_data = pl.from_dicts(recorder.get_list_events("match"))
+            prompt_data = pl.from_dicts(recorder.get_list_events("sampling"))
+            selected_output_data = output_data.select([output_data["sample_id"], output_data["data"].alias("output_data")])
+            joined_data = prompt_data.join(selected_output_data, on="sample_id", how="inner").sort("sample_id")
         except:
             output_data = pl.DataFrame()
 
@@ -139,6 +142,7 @@ class OpenaiEvalExecutor(OperatorExecutor):
                 "all_events": recorder.get_list_events(),
                 "run_data": recorder.get_run_data(),
                 "final_report": to_py_types(final_report),
+                "final_report_indexed": to_py_types(joined_data),
             },
         }
 
