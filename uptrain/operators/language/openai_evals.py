@@ -70,7 +70,7 @@ class OpenaiEvalExecutor(OperatorExecutor):
     def __init__(self, op: OpenaiEval, settings: t.Optional[Settings] = None):
         self.op = op
 
-    def run(self, data: t.Optional[pl.DataFrame] = None) -> TYPE_OP_OUTPUT:
+    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
         registry = evals.registry.Registry()
         registry_path = os.path.join(self.op.bundle_path, "custom_registry")
         registry.add_registry_paths([registry_path])
@@ -85,17 +85,13 @@ class OpenaiEvalExecutor(OperatorExecutor):
         assert eval_name is not None
 
         # NOTE: create a temporary file with the samples if we are overriding the dataset
-        path_samples_file = None
-        if data is not None:
-            path_samples_file = f"/tmp/{uuid.uuid4()}.jsonl"
-            with open(path_samples_file, "w") as samples_file:
-                samples_file.write(data.write_ndjson())
-            eval_spec.args["samples_jsonl"] = path_samples_file
+        path_samples_file = f"/tmp/{uuid.uuid4()}.jsonl"
+        data.write_ndjson(path_samples_file)
+        eval_spec.args["samples_jsonl"] = path_samples_file
 
         # NOTE: add `custom_fns` to the python path"
         if self.op.bundle_path not in sys.path:
             sys.path.append(self.op.bundle_path)
-
         completion_fns = [self.op.completion_name]
         completion_fn_instances = [
             registry.make_completion_fn(url) for url in completion_fns
@@ -133,36 +129,24 @@ class OpenaiEvalExecutor(OperatorExecutor):
         if path_samples_file is not None:
             os.remove(path_samples_file)
 
-        unique_types = list(
-            np.unique(np.array([x["type"] for x in recorder.get_list_events()]))
-        )
-        type_data = dict(
-            zip(
-                unique_types,
-                [
-                    pl.from_dicts(
-                        x["data"]
-                        for x in sorted(
-                            recorder.get_list_events(type),
-                            key=lambda x: int(x["sample_id"].split(".")[-1]),
-                        )
-                    )
-                    for type in unique_types
-                ],
-            )
-        )
         extra = {
             "all_events": recorder.get_list_events(),
             "run_data": recorder.get_run_data(),
             "final_report": to_py_types(final_report),
         }
-        extra.update(type_data)
-        return {
-            "output": pl.DataFrame(
-                recorder.get_list_events()
-            ),  # events are of multiple kinds. Undecided how to handle them in a consistent schema yet
-            "extra": extra,
-        }
+        unique_types = set(x["type"] for x in recorder.get_list_events())
+        for typ in unique_types:
+            extra[typ] = pl.from_dicts(
+                [
+                    x["data"]
+                    for x in sorted(
+                        recorder.get_list_events(typ),
+                        key=lambda x: int(x["sample_id"].split(".")[-1]),
+                    )
+                ]
+            )
+
+        return {"output": None, "extra": extra}
 
 
 # -----------------------------------------------------------

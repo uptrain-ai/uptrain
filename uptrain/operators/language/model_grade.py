@@ -40,20 +40,25 @@ class OpenAIGradeExecutor(OperatorExecutor):
         self.settings = settings
 
     def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
-        text_input = data.get_column(self.op.col_in_input)
-        text_completion = data.get_column(self.op.col_in_completion)
-
-        samples = pl.from_dict({"input": text_input, "completion": text_completion})
+        samples = data.select(
+            [
+                pl.col(self.op.col_in_input).alias("input"),
+                pl.col(self.op.col_in_completion).alias("completion"),
+            ]
+        )
         grading_op = OpenaiEval(
             bundle_path="",
             completion_name="gpt-3.5-turbo",
             eval_name=self.op.eval_name,
         )
 
-        res = grading_op.make_executor(settings=self.settings).run(samples)["extra"][
-            "metrics"
-        ]
-        return {"output": data.with_columns([pl.Series(self.op.col_out, res["score"])])}
+        oaieval_res = grading_op.make_executor(settings=self.settings).run(samples)
+        assert "extra" in oaieval_res
+        return {
+            "output": data.with_columns(
+                [pl.Series(self.op.col_out, oaieval_res["extra"]["metrics"]["score"])]
+            )
+        }
 
 
 @register_op
@@ -134,7 +139,10 @@ class ModelGradeExecutor(OperatorExecutor):
             completion_name="gpt-3.5-turbo",
             eval_name="uptrain_custom_grading_eval",
         )
-        res = grading_op.make_executor(settings=self.settings).run(samples)["extra"][
-            "metrics"
-        ]
-        return {"output": data.with_columns([pl.Series(self.op.col_out, res["score"])])}
+        oaieval_res = grading_op.make_executor(settings=self.settings).run(samples)
+        assert "extra" in oaieval_res
+        return {
+            "output": data.with_columns(
+                [pl.Series(self.op.col_out, oaieval_res["extra"]["metrics"]["score"])]
+            )
+        }

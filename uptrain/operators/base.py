@@ -6,7 +6,6 @@ outputs are stored as Arrow batches.
 
 from __future__ import annotations
 import importlib
-import inspect
 import typing as t
 import typing_extensions as te
 
@@ -20,7 +19,8 @@ if t.TYPE_CHECKING:
 
 
 __all__ = [
-    "TYPE_OP_OUTPUT",
+    "TYPE_TABLE_OP_OUTPUT",
+    "TYPE_SCALAR_OP_OUTPUT",
     "Operator",
     "OperatorExecutor",
     "PlaceholderOp",
@@ -34,41 +34,92 @@ __all__ = [
 # -----------------------------------------------------------
 
 
-class TYPE_OP_OUTPUT(te.TypedDict):
-    output: t.Optional[pl.DataFrame]
+class TYPE_TABLE_OP_OUTPUT(te.TypedDict):
+    output: pl.DataFrame | None
+    extra: te.NotRequired[dict]
+
+
+class TYPE_SCALAR_OP_OUTPUT(te.TypedDict):
+    output: pl.Series | None
     extra: te.NotRequired[dict]
 
 
 class Operator(t.Protocol):
     """All operator implementations must implement this protocol.
 
-    An operator is defined as a pydantic model with the parameters necessary to run it. For ex,
+    An operator is usually defined as a pydantic model with the parameters necessary to
+    run it. For ex,
     - params necessary to run an algorithm
-    - input columns required by the operator
-    - output columns produced by the operator
+    - columns required in the input dataset
+    - columns that will be generated as output, etc.
+
+    For attributes that are specific to each execution (settings, current state), declare
+    them as private attributes, so pydantic doesn't try to serialize them.
     """
 
-    def make_executor(
-        self, settings: t.Optional["Settings"] = None
-    ) -> "OperatorExecutor":
-        """Create an executor for this operator, which acutally takes the input data and
-        runs the operator.
+    kind: t.ClassVar[t.Literal["select", "aggregate", "table"]]
+
+    def dict(self) -> dict:
+        """Serialize this operator to a json dictionary. The objective is to be able to
+        recreate the operator from this dict.
+
+        NOTE: If your operator is a pydantic model, pydantic handles this. Though for fields
+        with custom non-python types, you need to override and implement this yourself.
         """
         ...
 
-    def dict(self) -> dict:
-        """Serialize this operator to a dict."""
+    def setup(self, settings: "Settings" | None = None) -> None:
+        """Setup the operator. This must be called before the operator is run."""
         ...
 
 
-class OperatorExecutor(t.Protocol):
-    """Protocol to be implemented by all operator executors."""
+class SelectOp(Operator, t.Protocol):
+    kind = "select"
 
-    op: Operator
+    def run(self, data: pl.DataFrame) -> TYPE_SCALAR_OP_OUTPUT:
+        """Runs the operator on the given data.
 
-    def run(self, data: t.Optional[pl.DataFrame] = None, **kwargs) -> TYPE_OP_OUTPUT:
-        """Runs the operator on the given data. An oeprator can receive multiple inputs but
-        all of them must be a polars DataFrame.
+        Args:
+            A Select operator takes a single dataframe as input, and compute a function over
+            one/multiple columns of it.
+
+        Returns:
+            A dictionary with the `output` key as a polars Series. Any extra information can
+            be put in the `extra` key.
+        """
+        ...
+
+
+class AggregateOp(Operator, t.Protocol):
+    kind = "aggregate"
+
+    def run(self, data: list[pl.DataFrame]) -> TYPE_SCALAR_OP_OUTPUT:
+        """Runs the operator on the given data.
+
+        Args:
+            An Aggregation operator takes a list of dataframes as input, one for each group,
+            aggregates over each to compute a single value, and returns a series of the same
+            length as the input.
+
+        Returns:
+            A dictionary with the `output` key as a polars Series. Any extra information can
+            be put in the `extra` key.
+        """
+        ...
+
+
+class TableOp(Operator, t.Protocol):
+    kind = "table"
+
+    def run(self, *args: pl.DataFrame | None) -> TYPE_TABLE_OP_OUTPUT:
+        """Runs the operator on the given data.
+
+        Args:
+            A Table operator takes one/multiple dataframes as input.
+
+        Returns:
+            A dictionary with the `output` key as a single dataframe. Any extra information
+            can be put in the `extra` key.
         """
         ...
 
@@ -79,6 +130,7 @@ T = t.TypeVar("T")
 def register_op(cls: T) -> T:
     """Decorator that marks the class as an Uptrain operator. Useful for (de)serialization."""
     assert isinstance(cls, type), "Only classes can be registered as Uptrain operators"
+    assert hasattr(cls, "kind"), "An Operator class must define the `kind` attribute"
     op_name = f"{cls.__module__}:{cls.__name__}"
     cls._uptrain_op_name = op_name  # type: ignore
     return cls
@@ -99,7 +151,7 @@ def deserialize_operator(data: dict) -> Operator:
 
     params = data["params"]
     if hasattr(op, "from_dict"):
-        # not a pydantic model, class local to uptrain
+        # not a pydantic model, so a class implemented by uptrain
         return op.from_dict(params)  # type: ignore
     else:
         # likely a pydantic model
