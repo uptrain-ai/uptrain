@@ -76,6 +76,7 @@ class Statistic(str, Enum):
 class Visual(str, Enum):
     UMAP = "UMAP"
     TSNE = "t-SNE"
+    PCA = "PCA"
     SHAP = "SHAP"
     PLOT = "PLOT"
 

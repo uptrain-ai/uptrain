@@ -242,7 +242,7 @@ def plot_dashboard(check: dict, model_variant: dict, feature_filters: dict):
         plot_check_distance(check, model_variant, feature_filters)
     elif check["type"] == "convergence_stats":
         plot_check_convergence(check, model_variant, feature_filters)
-    elif check["type"] in ("UMAP", "t-SNE"):
+    elif check["type"] in ("UMAP", "t-SNE", "PCA"):
         plot_visual_umap(check, model_variant, feature_filters)
     else:
         st.warning(f"Checks of type: {check['type']} are not supported yet.")

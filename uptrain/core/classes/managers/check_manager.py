@@ -131,6 +131,9 @@ class CheckManager:
         elif check["type"] == Visual.TSNE:
             custom_monitor = DimensionalityReduction(self.fw, check)
             self.visuals_to_check.append(custom_monitor)
+        elif check["type"] == Visual.PCA:
+            custom_monitor = DimensionalityReduction(self.fw, check)
+            self.visuals_to_check.append(custom_monitor)
         elif check["type"] == Visual.SHAP:
             custom_monitor = Shap(self.fw, check)
             self.visuals_to_check.append(custom_monitor)
