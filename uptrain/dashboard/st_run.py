@@ -33,8 +33,8 @@ CONFIG = read_config(LOGS_DIR)
 check = st_make_check_selector(CONFIG)
 
 # Check the plot operator for the check
-plot_op = check.plot
-if plot_op is None:
+plot_ops = check.plot
+if len(plot_ops) == 0:
     st.warning("No plot operator specified for the check")
     st.stop()
 
@@ -45,10 +45,12 @@ if data is None:
     st.stop()
 
 # Plot the data
-st.header(plot_op.title)
-if plot_op.kind == "table":
-    st_show_table(data)
-else:
-    plot_exec = plot_op.make_executor(CONFIG.settings)
-    output = plot_exec.run(data)["extra"]["chart"]
-    st.plotly_chart(output)
+for plot_op in plot_ops:
+    st.header(plot_op.title)
+    if plot_op.kind == "table":
+        st_show_table(data)
+    else:
+        plot_op.setup(CONFIG.settings)
+        output = plot_op.run(data)["extra"]["chart"]
+        st.plotly_chart(output)
+    st.divider()

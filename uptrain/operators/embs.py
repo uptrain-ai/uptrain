@@ -6,9 +6,9 @@ from __future__ import annotations
 import typing as t
 
 from loguru import logger
-from pydantic import BaseModel
 import numpy as np
 import polars as pl
+from pydantic import root_validator
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
@@ -20,72 +20,76 @@ rouge_scorer = lazy_load_dep("rouge_score.rouge_scorer", "rouge_score")
 
 
 @register_op
-class Distribution(BaseModel):
+class Distribution(TableOp):
     kind: t.Literal["cosine_similarity", "rouge"]
-    col_in_embs: str
+    col_in_embs: list[str]
     col_in_groupby: list[str]
-    col_out: str = get_output_col_name_at(0)
+    col_out: list[str] | None = None
+    _agg_func: t.Callable | None = None
 
-    def make_executor(self, settings: t.Optional[Settings] = None):
-        return DistExecutor(self)
+    @root_validator(pre=True)
+    def check_cols(cls, values):
+        if values["col_out"] is not None:
+            assert len(values["col_out"]) == len(
+                values["col_in_embs"]
+            ), "Distribution Op needs as many output columns as input embedding columns"
+        return values
 
-
-class DistExecutor(OperatorExecutor):
-    op: Distribution
-
-    def __init__(self, op: Distribution):
-        self.op = op
-
-    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
-        agg_func: t.Callable
-        if self.op.kind == "cosine_similarity":
-            agg_func = get_cosine_sim_dist
-        elif self.op.kind == "rouge":
-            agg_func = get_rouge_score
+    def setup(self, settings: t.Optional[Settings] = None):
+        if self.kind == "cosine_similarity":
+            self._agg_func = get_cosine_sim_dist
+        elif self.kind == "rouge":
+            self._agg_func = get_rouge_score
         else:
-            raise NotImplementedError("Only cosine similarity is supported for now.")
+            raise NotImplementedError(
+                f"Similarity metric: {self.kind} not supported for now."
+            )
+
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
+        if self.col_out is None:
+            agg_cols = [get_output_col_name_at(i) for i in range(len(self.col_in_embs))]
+        else:
+            agg_cols = self.col_out
 
         dist_df = (
-            data.groupby(self.op.col_in_groupby, maintain_order=True)
-            .agg([pl.col(self.op.col_in_embs).apply(agg_func).alias(self.op.col_out)])
-            .explode(self.op.col_out)
+            data.groupby(self.col_in_groupby, maintain_order=True)
+            .agg(
+                [
+                    pl.col(_col_in).apply(self._agg_func).alias(_col_out)
+                    for _col_in, _col_out in zip(self.col_in_embs, agg_cols)
+                ]
+            )
+            .explode(agg_cols)
         )
         return {"output": dist_df}
 
 
 @register_op
-class UMAP(BaseModel):
+class UMAP(TableOp):
     col_in_embs: str
     col_in_embs2: str
 
-    def make_executor(self, settings: t.Optional[Settings] = None):
-        return UmapExecutor(self)
+    def setup(self, _: t.Optional[Settings] = None):
+        pass
 
-
-class UmapExecutor(OperatorExecutor):
-    op: UMAP
-
-    def __init__(self, op: UMAP):
-        self.op = op
-
-    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
-        embs = np.asarray(data[self.op.col_in_embs].to_list())
-        embs2 = np.asarray(data[self.op.col_in_embs2].to_list())
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
+        embs = np.asarray(data[self.col_in_embs].to_list())
+        embs2 = np.asarray(data[self.col_in_embs2].to_list())
 
         embs_list = list(embs)
         embs_list.extend(list(embs2))
         combined_embs = np.array(embs_list)
         symbols = ["star"] * len(embs) + ["circle"] * len(embs2)
         clusters = ["default"] * len(combined_embs)
-        umap_output = umap.UMAP().fit_transform(combined_embs)
+        umap_output = umap.UMAP().fit_transform(combined_embs)  # type: ignore
         return {
             "output": pl.DataFrame(
-                {
-                    "umap_0": pl.Series(values=umap_output[:, 0]),
-                    "umap_1": pl.Series(values=umap_output[:, 1]),
-                    "symbol": pl.Series(values=symbols),
-                    "cluster": pl.Series(values=clusters),
-                }
+                [
+                    pl.Series(values=umap_output[:, 0]).alias("umap_0"),
+                    pl.Series(values=umap_output[:, 1]).alias("umap_1"),
+                    pl.Series(values=symbols).alias("symbol"),
+                    pl.Series(values=clusters).alias("cluster"),
+                ]
             )
         }
 
@@ -126,6 +130,6 @@ def get_rouge_score(col_vectors: pl.Series, num_pairs_per_group: int = 10):
         v1 = array_vectors[i1]
         v2 = array_vectors[i2]
 
-        scorer = rouge_scorer.RougeScorer(["rougeL"])
+        scorer = rouge_scorer.RougeScorer(["rougeL"])  # type: ignore
         values.append(int(scorer.score(v1, v2)["rougeL"][2] * 100))
     return values

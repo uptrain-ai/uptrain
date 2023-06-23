@@ -1,8 +1,9 @@
 __all__ = [
     # base
     "Operator",
-    "OperatorExecutor",
-    "TYPE_OP_OUTPUT",
+    "ColumnOp",
+    "TableOp",
+    "SelectOp",
     "register_op",
     "get_output_col_name_at",
     # drift
@@ -11,9 +12,7 @@ __all__ = [
     "Distribution",
     "UMAP",
     # table
-    "Identity",
     "ColumnExpand",
-    "Concatenation",
     # metrics
     "Accuracy",
     # similarity
@@ -26,14 +25,15 @@ __all__ = [
 
 from .base import (
     Operator,
-    OperatorExecutor,
-    TYPE_OP_OUTPUT,
+    ColumnOp,
+    TableOp,
+    SelectOp,
     register_op,
     get_output_col_name_at,
 )
 from .drift import ConceptDrift
 from .embs import Distribution, UMAP
-from .table import Identity, ColumnExpand, Concatenation
+from .table import ColumnExpand
 from .metrics import Accuracy
 from .similarity import CosineSimilarity
 from .vis import PlotlyChart

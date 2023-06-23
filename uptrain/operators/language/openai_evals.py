@@ -11,7 +11,6 @@ import evals.base
 import evals.record
 import evals.registry
 from loguru import logger
-from pydantic import BaseModel
 import polars as pl
 
 if t.TYPE_CHECKING:
@@ -50,32 +49,22 @@ class UptrainEvalRecorder(evals.record.RecorderBase):
 
 
 @register_op
-class OpenaiEval(BaseModel):
+class OpenaiEval(ColumnOp):
     bundle_path: str
     completion_name: str
     eval_name: str
 
-    def make_executor(
-        self, settings: t.Optional[Settings] = None
-    ) -> OpenaiEvalExecutor:
+    def setup(self, settings: Settings):
         import openai
 
         openai.api_key = settings.check_and_get("openai_api_key")
-        return OpenaiEvalExecutor(self, settings)
 
-
-class OpenaiEvalExecutor(OperatorExecutor):
-    op: OpenaiEval
-
-    def __init__(self, op: OpenaiEval, settings: t.Optional[Settings] = None):
-        self.op = op
-
-    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         registry = evals.registry.Registry()
-        registry_path = os.path.join(self.op.bundle_path, "custom_registry")
+        registry_path = os.path.join(self.bundle_path, "custom_registry")
         registry.add_registry_paths([registry_path])
 
-        eval_name = self.op.eval_name
+        eval_name = self.eval_name
         eval_spec = registry.get_eval(eval_name)
         assert (
             eval_spec is not None
@@ -87,12 +76,12 @@ class OpenaiEvalExecutor(OperatorExecutor):
         # NOTE: create a temporary file with the samples if we are overriding the dataset
         path_samples_file = f"/tmp/{uuid.uuid4()}.jsonl"
         data.write_ndjson(path_samples_file)
-        eval_spec.args["samples_jsonl"] = path_samples_file
+        eval_spec.args["samples_jsonl"] = path_samples_file  # type: ignore
 
         # NOTE: add `custom_fns` to the python path"
-        if self.op.bundle_path not in sys.path:
-            sys.path.append(self.op.bundle_path)
-        completion_fns = [self.op.completion_name]
+        if self.bundle_path not in sys.path:
+            sys.path.append(self.bundle_path)
+        completion_fns = [self.completion_name]
         completion_fn_instances = [
             registry.make_completion_fn(url) for url in completion_fns
         ]
@@ -154,70 +143,57 @@ class OpenaiEvalExecutor(OperatorExecutor):
 # -----------------------------------------------------------
 
 
-class PromptEval(BaseModel):
+class PromptEval(TableOp):
     prompt_template: str
     prompt_variables: list[str]
     gt_variables: list[str]
     model_name: str
     col_out_prompt: str = "prompt"
     col_out_response: str = "response"
+    _settings: Settings
 
-    # TODO: Not sure why but this is failing and hence, commented out
-    # @root_validator
-    # def check_schema(cls, values):
-    #     if len(values["prompt_variables"]) < 1:
-    #         raise ValueError("Must specify at least 1 prompt variable")
-
-    def make_executor(
-        self, settings: t.Optional[Settings] = None
-    ) -> PromptEvalExecutor:
-        return PromptEvalExecutor(self, settings)
-
-
-class PromptEvalExecutor:
-    op: PromptEval
-
-    def __init__(self, op: PromptEval, settings: t.Optional[Settings] = None):
-        self.op = op
-        self.settings = settings
+    def setup(self, settings: Settings):
+        self._settings = settings
 
     def _validate_data(self, data: pl.DataFrame) -> None:
-        for col in self.op.prompt_variables:
+        for col in self.prompt_variables:
             assert (
                 col in data.columns
             ), f"Column for the prompt variable: {col} not found in input data."
-        for col in self.op.gt_variables:
+        for col in self.gt_variables:
             assert (
                 col in data.columns
             ), f"Column for the ground truth variable: {col} not found in input data."
 
     def _construct_prompts(self, data: pl.DataFrame) -> pl.DataFrame:
         prompts = [
-            self.op.prompt_template.format(
-                **{k: row[k] for k in self.op.prompt_variables}
-            )
+            self.prompt_template.format(**{k: row[k] for k in self.prompt_variables})
             for row in data.rows(named=True)
         ]
         return pl.from_dict({"input": prompts})
 
-    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         self._validate_data(data)
         prompts = self._construct_prompts(data)
 
         eval_op = OpenaiEval(
             bundle_path=os.path.join(UPTRAIN_BASE_DIR, "openai_eval_custom"),
-            completion_name=self.op.model_name,
+            completion_name=self.model_name,
             eval_name="model_run_all",
         )
-        results = eval_op.make_executor(self.settings).run(prompts)["extra"]["sampling"]
+
+        eval_op.setup(self._settings)
+        oaieval_res = eval_op.run(prompts)
+        assert "extra" in oaieval_res and "sampling" in oaieval_res["extra"]
+        results = oaieval_res["extra"]["sampling"]
+
         return {
             "output": data.with_columns(
                 [
-                    pl.Series(self.op.col_out_prompt, results["prompt"]),
+                    pl.Series(results["prompt"]).alias(self.col_out_prompt),
                     pl.Series(
-                        self.op.col_out_response,
                         list(itertools.chain(*results["sampled"])),
-                    ),
+                    ).alias(self.col_out_response),
                 ]
             )
         }

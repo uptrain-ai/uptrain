@@ -10,7 +10,7 @@ import typing as t
 import typing_extensions as te
 
 from loguru import logger
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, root_validator
 import polars as pl
 
 
@@ -19,10 +19,12 @@ if t.TYPE_CHECKING:
 
 
 __all__ = [
-    "TYPE_TABLE_OP_OUTPUT",
-    "TYPE_SCALAR_OP_OUTPUT",
+    "TYPE_TABLE_OUTPUT",
+    "TYPE_COLUMN_OUTPUT",
     "Operator",
-    "OperatorExecutor",
+    "OpBaseModel",
+    "ColumnOp",
+    "TableOp",
     "PlaceholderOp",
     "register_op",
     "deserialize_operator",
@@ -34,12 +36,12 @@ __all__ = [
 # -----------------------------------------------------------
 
 
-class TYPE_TABLE_OP_OUTPUT(te.TypedDict):
+class TYPE_TABLE_OUTPUT(te.TypedDict):
     output: pl.DataFrame | None
     extra: te.NotRequired[dict]
 
 
-class TYPE_SCALAR_OP_OUTPUT(te.TypedDict):
+class TYPE_COLUMN_OUTPUT(te.TypedDict):
     output: pl.Series | None
     extra: te.NotRequired[dict]
 
@@ -47,17 +49,15 @@ class TYPE_SCALAR_OP_OUTPUT(te.TypedDict):
 class Operator(t.Protocol):
     """All operator implementations must implement this protocol.
 
-    An operator is usually defined as a pydantic model with the parameters necessary to
-    run it. For ex,
+    An operator is usually defined as a pydantic model with the parameters
+    necessary to run it. For ex,
     - params necessary to run an algorithm
     - columns required in the input dataset
     - columns that will be generated as output, etc.
 
-    For attributes that are specific to each execution (settings, current state), declare
-    them as private attributes, so pydantic doesn't try to serialize them.
+    NOTE: An operator must also define a `run` method with the signature below.
+    I can't make mypy happy with it yet though.
     """
-
-    kind: t.ClassVar[t.Literal["select", "aggregate", "table"]]
 
     def dict(self) -> dict:
         """Serialize this operator to a json dictionary. The objective is to be able to
@@ -72,56 +72,79 @@ class Operator(t.Protocol):
         """Setup the operator. This must be called before the operator is run."""
         ...
 
+    # def run(self, *args: pl.DataFrame | None) -> t.Any:
+    #     """Runs the operator."""
+    #     ...
 
-class SelectOp(Operator, t.Protocol):
-    kind = "select"
 
-    def run(self, data: pl.DataFrame) -> TYPE_SCALAR_OP_OUTPUT:
+class OpBaseModel(BaseModel):
+    """Base class you can use if constructing an operator using a pydantic
+    model, to get around some of the sharp edges.
+
+    Attributes:
+        _state (dict): A dict you can use to store state values between multiple
+            calls to the `run` method.
+    """
+
+    _state: dict = Field(default_factory=dict)
+
+    class Config:
+        smart_union = True
+        underscore_attrs_are_private = True
+
+
+class ColumnOp(OpBaseModel):
+    def setup(self, settings: "Settings" | None = None) -> None:
+        raise NotImplementedError
+
+    def run(self, data: pl.DataFrame | None = None) -> TYPE_COLUMN_OUTPUT:
         """Runs the operator on the given data.
 
         Args:
-            A Select operator takes a single dataframe as input, and compute a function over
-            one/multiple columns of it.
+            data (pl.DataFrame): A polars dataframe. It computes a function over one/multiple
+                columns of it.
 
         Returns:
-            A dictionary with the `output` key as a polars Series. Any extra information can
-            be put in the `extra` key.
+            A dictionary with the `output` key set to the computed Series/None. Any extra
+                information can be put in the `extra` key.
         """
-        ...
+        raise NotImplementedError
 
 
-class AggregateOp(Operator, t.Protocol):
-    kind = "aggregate"
+# class AggregateOp(OpBaseModel):
+#     def setup(self, _: "Settings" | None = None) -> None:
+#         raise NotImplementedError
 
-    def run(self, data: list[pl.DataFrame]) -> TYPE_SCALAR_OP_OUTPUT:
+#     def run(self, data: list[pl.DataFrame]) -> TYPE_COLUMN_OUTPUT:
+#         """Runs the aggregation op on the given list of sub-dataframe.
+
+#         Args:
+#             data (pl.DataFrame): A polars dataframe, one for each group key values. It
+#                 aggregates over each group to compute a single value, and returns a series of
+#                 the same length as the input.
+
+#         Returns:
+#             A dictionary with the `output` key set to the computed Series/None. Any extra
+#                 information can be put in the `extra` key.
+#         """
+#         raise NotImplementedError
+
+
+class TableOp(OpBaseModel):
+    def setup(self, _: "Settings" | None = None) -> None:
+        raise NotImplementedError
+
+    def run(self, *args: pl.DataFrame | None) -> TYPE_TABLE_OUTPUT:
         """Runs the operator on the given data.
 
         Args:
-            An Aggregation operator takes a list of dataframes as input, one for each group,
-            aggregates over each to compute a single value, and returns a series of the same
-            length as the input.
+            *args (pl.DataFrame): Zero or more dataframes as inputs.
 
         Returns:
-            A dictionary with the `output` key as a polars Series. Any extra information can
-            be put in the `extra` key.
+            A dictionary with the `output` key set to the computed dataframe/None. Any extra
+                information can be put in the `extra` key.
         """
-        ...
-
-
-class TableOp(Operator, t.Protocol):
-    kind = "table"
-
-    def run(self, *args: pl.DataFrame | None) -> TYPE_TABLE_OP_OUTPUT:
-        """Runs the operator on the given data.
-
-        Args:
-            A Table operator takes one/multiple dataframes as input.
-
-        Returns:
-            A dictionary with the `output` key as a single dataframe. Any extra information
-            can be put in the `extra` key.
-        """
-        ...
+        raise NotImplementedError
 
 
 T = t.TypeVar("T")
@@ -130,7 +153,6 @@ T = t.TypeVar("T")
 def register_op(cls: T) -> T:
     """Decorator that marks the class as an Uptrain operator. Useful for (de)serialization."""
     assert isinstance(cls, type), "Only classes can be registered as Uptrain operators"
-    assert hasattr(cls, "kind"), "An Operator class must define the `kind` attribute"
     op_name = f"{cls.__module__}:{cls.__name__}"
     cls._uptrain_op_name = op_name  # type: ignore
     return cls
@@ -168,27 +190,74 @@ def get_output_col_name_at(index: int) -> str:
 
 
 @register_op
-class PlaceholderOp(BaseModel):
+class PlaceholderOp(OpBaseModel):
     """A placeholder operator that does nothing. Used when deserializing an operator,
     that hasn't been registered."""
 
     op_name: str
     params: dict[str, t.Any]
 
-    def make_executor(
-        self, settings: t.Optional["Settings"] = None
-    ) -> "PlaceholderOpExecutor":
-        """Make an executor for this operator."""
-        return PlaceholderOpExecutor(self)
+    def setup(self, settings: "Settings" | None = None) -> None:
+        raise NotImplementedError
 
-
-class PlaceholderOpExecutor(OperatorExecutor):
-    op: PlaceholderOp
-
-    def __init__(self, op: PlaceholderOp) -> None:
-        self.op = op
-
-    def run(self, data: t.Optional[pl.DataFrame] = None) -> t.Optional[pl.DataFrame]:
+    def run(self, *args: pl.DataFrame | None) -> None:
         raise NotImplementedError(
             "This is only a placeholder since the operator: {self.op_name} is not registered with Uptrain. Import the module where it is defined and try again."
         )
+
+
+@register_op
+class SelectOp(TableOp):
+    """Use this to combine the output from multiple `ColumnOp` operators."""
+
+    columns: dict[str, ColumnOp]
+
+    @root_validator
+    def check_columns(cls, values: dict) -> dict:
+        columns = values["columns"]
+        for col_name, col_op in columns.items():
+            if not isinstance(col_op, ColumnOp):
+                raise ValueError(
+                    f"Expected a ColumnOp for column: {col_name}, but got: {col_op}"
+                )
+        return values
+
+    def setup(self, settings: Settings | None) -> None:
+        for _, col_op in self.columns.items():
+            col_op.setup(settings)
+
+    def run(self, data: pl.DataFrame | None) -> TYPE_TABLE_OUTPUT:
+        new_cols = []
+        for col_name, col_op in self.columns.items():
+            out_op = col_op.run(data)["output"]
+            if out_op is not None:
+                new_cols.append(out_op.alias(col_name))
+
+        if data is None:
+            return {"output": pl.DataFrame(data=[new_cols])}
+        else:
+            return {"output": data.with_columns(new_cols)}
+
+
+# class GroupbyOp(TableOp):
+#     """Groups the input dataframe by a set of columns, and computes aggregate operators
+#     over the grouped data.
+#     """
+
+#     cols_groupby: list[str]
+#     cols_agg: dict[str, AggregateOp]
+
+#     def setup(self, settings: Settings | None) -> None:
+#         for _, agg_op in self.cols_agg.items():
+#             agg_op.setup(settings)
+
+#     def run(self, data: pl.DataFrame | None) -> TYPE_TABLE_OUTPUT:
+#         if data is None:
+#             return {"output": None}
+
+#         list_groups = list(data.groupby(self.cols_groupby))
+#         new_cols = []
+#         for col_name, agg_op in self.cols_agg.items():
+#             out_op = agg_op.run(list_groups)["output"]
+#             if out_op is not None:
+#                 new_cols.append(out_op.alias(col_name))

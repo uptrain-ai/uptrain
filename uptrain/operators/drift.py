@@ -5,9 +5,8 @@ Implement checks to detect drift in the data.
 from __future__ import annotations
 import typing as t
 
-from lazy_loader import load
 from loguru import logger
-from pydantic import BaseModel, root_validator
+from pydantic import root_validator
 import polars as pl
 
 if t.TYPE_CHECKING:
@@ -15,16 +14,16 @@ if t.TYPE_CHECKING:
 from uptrain.operators.base import *
 from uptrain.utilities import lazy_load_dep
 
-river = lazy_load_dep("river", "river")
+drift = lazy_load_dep("river.drift", "river")
 
 
-class ParamsDDM(BaseModel):
+class ParamsDDM(OpBaseModel):
     warm_start: int = 500
     warn_threshold: float = 2.0
     alarm_threshold: float = 3.0
 
 
-class ParamsADWIN(BaseModel):
+class ParamsADWIN(OpBaseModel):
     delta: float = 0.002
     clock: int = 32
     max_buckets: int = 5
@@ -33,10 +32,14 @@ class ParamsADWIN(BaseModel):
 
 
 @register_op
-class ConceptDrift(BaseModel):
+class ConceptDrift(ColumnOp):
     algorithm: t.Literal["DDM", "ADWIN"]
     params: t.Union[ParamsDDM, ParamsADWIN]
     col_in_measure: str = "metric"
+    _algo_obj: t.Any
+    _counter: int
+    _cuml_accuracy: float
+    _alert_info: t.Optional[dict]
 
     @root_validator
     def check_params(cls, values):
@@ -52,49 +55,34 @@ class ConceptDrift(BaseModel):
             )
         return values
 
-    def make_executor(self, settings: t.Optional[Settings] = None):
-        return ConceptDriftExecutor(self)
+    def setup(self, _: t.Optional[Settings] = None):
+        if self.algorithm == "DDM":
+            self._algo_obj = drift.DDM(**self.params.dict())  # type: ignore
+        elif self.algorithm == "ADWIN":
+            self._algo_obj = drift.ADWIN(**self.params.dict())  # type: ignore
+        self._counter = 0
+        self._avg_accuracy = 0.0
+        self._alert_info = None
 
-
-class ConceptDriftExecutor(OperatorExecutor):
-    op: ConceptDrift
-    algo: t.Any
-    counter: int
-    cuml_accuracy: float
-    alert_info: t.Optional[dict]
-
-    def __init__(self, op: ConceptDrift):
-        import river.drift.binary
-        import river.drift
-
-        self.op = op
-        if op.algorithm == "DDM":
-            self.algo = river.drift.binary.DDM(**op.params.dict())
-        elif op.algorithm == "ADWIN":
-            self.algo = river.drift.ADWIN(**op.params.dict())
-        self.counter = 0
-        self.avg_accuracy = 0.0
-        self.alert_info = None
-
-    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
-        ser = data.get_column(self.op.col_in_measure)
+    def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
+        ser = data.get_column(self.col_in_measure)
 
         for val in ser:
-            self.algo.update(val)
-            if self.algo.drift_detected and self.alert_info is None:
-                msg = f"Drift detected using {self.op.algorithm}!"
-                self.alert_info = {"counter": self.counter, "msg": msg}
+            self._algo_obj.update(val)
+            if self._algo_obj.drift_detected and self._alert_info is None:
+                msg = f"Drift detected using {self.algorithm}!"
+                self._alert_info = {"counter": self._counter, "msg": msg}
                 logger.info(msg)
 
-            self.counter += 1
-            self.cuml_accuracy += val
+            self._counter += 1
+            self._cuml_accuracy += val
 
-        avg_accuracy = self.cuml_accuracy / self.counter if self.counter > 0 else 0.0
+        avg_accuracy = self._cuml_accuracy / self._counter if self._counter > 0 else 0.0
         return {
             "output": None,
             "extra": {
-                "counter": self.counter,
+                "counter": self._counter,
                 "avg_accuracy": avg_accuracy,
-                "alert_info": self.alert_info,
+                "alert_info": self._alert_info,
             },
         }

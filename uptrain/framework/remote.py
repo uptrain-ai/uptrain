@@ -126,7 +126,7 @@ class APIClient:
         return response.json()
 
     def list_all_active_runs(self):
-        """List all runs on the server.
+        """List all the runs on the server.
 
         - filter by scheduled/completed/in-process?
         - filter by timestamp?

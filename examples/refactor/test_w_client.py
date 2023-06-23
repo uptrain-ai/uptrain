@@ -7,7 +7,13 @@ given some context obtained from doing an embedding search on a corpus of docume
 
 from uptrain.framework import CheckSet, Settings, SimpleCheck
 from uptrain.io import JsonReader
-from uptrain.operators import UMAP, CosineSimilarity, Distribution, PlotlyChart
+from uptrain.operators import (
+    UMAP,
+    CosineSimilarity,
+    Distribution,
+    PlotlyChart,
+    SelectOp,
+)
 from uptrain.operators.language import (
     RougeScore,
 )
@@ -15,85 +21,61 @@ from uptrain.operators.language import (
 
 # Create the check-set object that lists the checks to run
 def get_list_checks():
-    checks = []
-    checks.append(
-        SimpleCheck(
-            name="distribution_of_document_embeddings",
-            compute=[
-                Distribution(
-                    kind="cosine_similarity",
-                    col_in_embs="context_embeddings",
-                    col_in_groupby=["question_idx", "experiment_id"],
-                    col_out="document_embeddings_cosine_distribution",
-                )
-            ],
-            plot=PlotlyChart.Histogram(
-                title="Distribution of document embeddings",
-                props=dict(x="document_embeddings_cosine_distribution", nbins=20),
-            ),
-        )
+    check_1 = SimpleCheck(
+        name="scores",
+        sequence=[
+            SelectOp(
+                columns={
+                    "hallucination-score": RougeScore(
+                        col_in_generated="response", col_in_source="document_text"
+                    ),
+                    "similarity-question/extracted_text": CosineSimilarity(
+                        col_in_vector_1="question_embeddings",
+                        col_in_vector_2="response_embeddings",
+                    ),
+                }
+            )
+        ],
+        plot=[PlotlyChart.Table(title="All scores")],
     )
-    checks.append(
-        SimpleCheck(
-            name="hallucination_check",
-            compute=[
-                RougeScore(
-                    col_in_generated="response",
-                    col_in_source="document_text",
-                    col_out="response_document_overlap_score",
-                )
-            ],
-            plot=PlotlyChart.Table(title="Hallucination score"),
-        )
-    )
-    checks.append(
-        SimpleCheck(
-            name="semantic_similarity_between_question_and_extracted_text",
-            compute=[
-                CosineSimilarity(
-                    col_in_vector_1="question_embeddings",
-                    col_in_vector_2="response_embeddings",
-                    col_out="similarity_score_between_question_and_extracted_text",
-                ),
-            ],
-            plot=PlotlyChart.Table(
-                title="Similarity score between question and response"
-            ),
-        )
-    )
-    checks.append(
-        SimpleCheck(
-            name="distribution_of_extracted_text_embeddings",
-            compute=[
-                Distribution(
-                    kind="cosine_similarity",
-                    col_in_embs="response_embeddings",
-                    col_in_groupby=["question_idx", "experiment_id"],
-                    col_out="extracted_text_embeddings_cosine_distribution",
-                )
-            ],
-            plot=PlotlyChart.Histogram(
-                title="Cosine Similarity between extracted text embeddings",
-                props=dict(x="extracted_text_embeddings_cosine_distribution", nbins=20),
-            ),
-        )
-    )
-    checks.append(
-        SimpleCheck(
-            name="question_umap",
-            compute=[
-                UMAP(
-                    col_in_embs="question_embeddings",
-                    col_in_embs2="response_embeddings",
-                )
-            ],
-            plot=PlotlyChart.Scatter(
+    check_2 = SimpleCheck(
+        name="question_umap",
+        sequence=[
+            UMAP(
+                col_in_embs="question_embeddings",
+                col_in_embs2="response_embeddings",
+            )
+        ],
+        plot=[
+            PlotlyChart.Scatter(
                 title="UMAP for question embeddings",
                 props=dict(x="umap_0", y="umap_1", symbol="symbol", color="cluster"),
-            ),
-        )
+            )
+        ],
     )
-    return checks
+    check_3 = SimpleCheck(
+        name="distribution-embeddings",
+        sequence=[
+            Distribution(
+                kind="cosine_similarity",
+                col_in_embs=["context_embeddings", "response_embeddings"],
+                col_in_groupby=["question_idx", "experiment_id"],
+                col_out=["similarity-context", "similarity-response"],
+            )
+        ],
+        plot=[
+            PlotlyChart.Histogram(
+                title="Embeddings similarity - Context",
+                props=dict(x="similarity-context", nbins=20),
+            ),
+            PlotlyChart.Histogram(
+                title="Embeddings similarity - Responses",
+                props=dict(x="similarity-response", nbins=20),
+            ),
+        ],
+    )
+
+    return [check_1, check_2, check_3]
 
 
 if __name__ == "__main__":

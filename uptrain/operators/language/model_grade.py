@@ -8,8 +8,8 @@ import yaml
 import os
 
 from loguru import logger
-from pydantic import BaseModel, Field
 import polars as pl
+from uptrain.framework import Settings
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
@@ -20,84 +20,71 @@ UPTRAIN_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 @register_op
-class OpenAIGradeScore(BaseModel):
+class OpenAIGradeScore(ColumnOp):
     score_type: str = "correct"
     col_in_input: str = "prompt"
     col_in_completion: str = "response"
-    col_out: str = get_output_col_name_at(0)
     eval_name: str
+    _settings: Settings
 
-    def make_executor(self, settings: t.Optional[Settings] = None):
-        return OpenAIGradeExecutor(self, settings)
+    def setup(self, settings: Settings) -> None:
+        self._settings = settings
 
-
-class OpenAIGradeExecutor(OperatorExecutor):
-    op: OpenAIGradeScore
-    settings: Settings
-
-    def __init__(self, op: OpenAIGradeScore, settings: t.Optional[Settings] = None):
-        self.op = op
-        self.settings = settings
-
-    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
+    def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
         samples = data.select(
             [
-                pl.col(self.op.col_in_input).alias("input"),
-                pl.col(self.op.col_in_completion).alias("completion"),
+                pl.col(self.col_in_input).alias("input"),
+                pl.col(self.col_in_completion).alias("completion"),
             ]
         )
         grading_op = OpenaiEval(
             bundle_path="",
             completion_name="gpt-3.5-turbo",
-            eval_name=self.op.eval_name,
+            eval_name=self.eval_name,
         )
 
-        oaieval_res = grading_op.make_executor(settings=self.settings).run(samples)
-        assert "extra" in oaieval_res
+        grading_op.setup(settings=self._settings)
+        oaieval_res = grading_op.run(samples)
+        assert (
+            "extra" in oaieval_res
+            and "metrics" in oaieval_res["extra"]
+            and "score" in oaieval_res["extra"]["metrics"]
+        )
         return {
-            "output": data.with_columns(
-                [pl.Series(self.op.col_out, oaieval_res["extra"]["metrics"]["score"])]
+            "output": pl.Series(oaieval_res["extra"]["metrics"]["score"]).alias(
+                get_output_col_name_at(0)
             )
         }
 
 
 @register_op
-class ModelGradeScore(BaseModel):
+class ModelGradeScore(ColumnOp):
     col_in_input: str
     col_in_completion: str
-    col_out: str = get_output_col_name_at(0)
     grading_prompt_template: str
     eval_type: str = "cot_classify"
-    choice_strings: list
+    choice_strings: list[str]
     choice_scores: dict
     grading_prompt_mapping: dict
+    _settings: Settings
 
-    def make_executor(self, settings: t.Optional[Settings] = None):
-        return ModelGradeExecutor(self, settings)
+    def setup(self, settings: Settings) -> None:
+        self._settings = settings
 
-
-class ModelGradeExecutor(OperatorExecutor):
-    op: ModelGradeScore
-    settings: Settings
-
-    def __init__(self, op: ModelGradeScore, settings: t.Optional[Settings] = None):
-        self.op = op
-        self.settings = settings
-
-    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
-        text_input = data.get_column(self.op.col_in_input)
-        text_completion = data.get_column(self.op.col_in_completion)
+    def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
+        text_input = data.get_column(self.col_in_input)
+        text_completion = data.get_column(self.col_in_completion)
 
         grade_spec_dictn = {
             "uptrain_custom": {
-                "prompt": self.op.grading_prompt_template,
-                "eval_type": self.op.eval_type,
-                "choice_strings": self.op.choice_strings,
-                "choice_scores": self.op.choice_scores,
+                "prompt": self.grading_prompt_template,
+                "eval_type": self.eval_type,
+                "choice_strings": self.choice_strings,
+                "choice_scores": self.choice_scores,
                 "input_outputs": {
-                    self.op.grading_prompt_mapping[
-                        self.op.col_in_input
-                    ]: self.op.grading_prompt_mapping[self.op.col_in_completion]
+                    self.grading_prompt_mapping[
+                        self.col_in_input
+                    ]: self.grading_prompt_mapping[self.col_in_completion]
                 },
             }
         }
@@ -128,10 +115,8 @@ class ModelGradeExecutor(OperatorExecutor):
 
         samples = pl.from_dict(
             {
-                self.op.grading_prompt_mapping[self.op.col_in_input]: text_input,
-                self.op.grading_prompt_mapping[
-                    self.op.col_in_completion
-                ]: text_completion,
+                self.grading_prompt_mapping[self.col_in_input]: text_input,
+                self.grading_prompt_mapping[self.col_in_completion]: text_completion,
             }
         )
         grading_op = OpenaiEval(
@@ -139,10 +124,15 @@ class ModelGradeExecutor(OperatorExecutor):
             completion_name="gpt-3.5-turbo",
             eval_name="uptrain_custom_grading_eval",
         )
-        oaieval_res = grading_op.make_executor(settings=self.settings).run(samples)
-        assert "extra" in oaieval_res
+        grading_op.setup(settings=self._settings)
+        oaieval_res = grading_op.run(samples)
+        assert (
+            "extra" in oaieval_res
+            and "metrics" in oaieval_res["extra"]
+            and "score" in oaieval_res["extra"]["metrics"]
+        )
         return {
-            "output": data.with_columns(
-                [pl.Series(self.op.col_out, oaieval_res["extra"]["metrics"]["score"])]
+            "output": pl.Series(oaieval_res["extra"]["metrics"]["score"]).alias(
+                get_output_col_name_at(0)
             )
         }

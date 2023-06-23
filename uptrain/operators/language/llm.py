@@ -4,16 +4,11 @@ Implement checks to test language quality.
 
 from __future__ import annotations
 import asyncio
-from concurrent.futures import (
-    ThreadPoolExecutor,
-    as_completed,
-    wait as wait_for_futures,
-)
+from concurrent.futures import ThreadPoolExecutor
 import typing as t
 
 import aiolimiter
 from loguru import logger
-import tqdm
 from tqdm.asyncio import tqdm_asyncio
 from pydantic import BaseModel, Field
 

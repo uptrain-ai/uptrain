@@ -6,7 +6,6 @@ from __future__ import annotations
 import typing as t
 
 from loguru import logger
-from pydantic import BaseModel
 import polars as pl
 
 if t.TYPE_CHECKING:
@@ -19,39 +18,31 @@ sentence_transformers = lazy_load_dep("sentence_transformers", "sentence-transfo
 
 
 @register_op
-class Embedding(BaseModel):
+class Embedding(ColumnOp):
     model: str = "MiniLM-L6-v2"
     col_in_text: str = "text"
-    col_out: str = get_output_col_name_at(0)
+    _model_obj: t.Any
 
-    def make_executor(self, settings: t.Optional[Settings] = None):
-        return EmbeddingExecutor(self, settings)
-
-
-class EmbeddingExecutor(OperatorExecutor):
-    op: Embedding
-
-    def __init__(self, op: Embedding, settings: t.Optional[Settings] = None):
-        self.op = op
-        if self.op.model == "hkunlp/instructor-xl":
-            self.model = InstructorEmbedding.INSTRUCTOR(self.op.model)
-        elif self.op.model == "MiniLM-L6-v2":
-            self.model = sentence_transformers.SentenceTransformer(
+    def setup(self, _: t.Optional[Settings] = None):
+        if self.model == "hkunlp/instructor-xl":
+            self._model_obj = InstructorEmbedding.INSTRUCTOR(self.op.model)  # type: ignore
+        elif self.model == "MiniLM-L6-v2":
+            self._model_obj = sentence_transformers.SentenceTransformer(
                 "sentence-transformers/all-MiniLM-L6-v2"
-            )
+            )  # type: ignore
         else:
-            raise Exception("Embeddings model not supported")
+            raise Exception(f"Embeddings model: {self.model} is not supported yet.")
 
-    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
-        text = data.get_column(self.op.col_in_text)
-        if self.op.model == "hkunlp/instructor-xl":
+    def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
+        text = data.get_column(self.col_in_text)
+        if self.model == "hkunlp/instructor-xl":
             inputs = [
                 ["Represent the developer documentation sentence: ", x] for x in text
             ]
-        elif self.op.model == "MiniLM-L6-v2":
+        elif self.model == "MiniLM-L6-v2":
             inputs = list(text)
         else:
             raise Exception("Embeddings model not supported")
-        results = self.model.encode(inputs)
+        results = self._model_obj.encode(inputs)
 
-        return {"output": data.with_columns([pl.Series(self.op.col_out, results)])}
+        return {"output": pl.Series(results).alias(get_output_col_name_at(0))}
