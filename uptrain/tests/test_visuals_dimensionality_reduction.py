@@ -136,6 +136,7 @@ def test_visuals_dimensionality_reduction(dataset, umap_cfg, tsne_cfg, pca_cfg):
             {**pca_cfg, "dim": "3D", "dashboard_name": "pca_3d"},
             # {**umap_cfg, "dim": "2D", "dashboard_name": "umap_2d"},
             # {**tsne_cfg, "dim": "2D", "dashboard_name": "tsne_2d"},
+            # {**pca_cfg, "dim": "2D", "dashboard_name": "pca_2d"},
         ],
         "logging_args": {
             "log_folder": "uptrain_logs_dimensionality_reduction_1",
