@@ -13,9 +13,9 @@ from loguru import logger
 from pydantic import BaseModel, Field, root_validator
 import polars as pl
 
-
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
+from uptrain.utilities import to_py_types
 
 
 __all__ = [
@@ -64,7 +64,8 @@ class Operator(t.Protocol):
         recreate the operator from this dict.
 
         NOTE: If your operator is a pydantic model, pydantic handles this. Though for fields
-        with custom non-python types, you need to override and implement this yourself.
+        with custom non-python types, you MUST override and implement both a `dict` and a
+        `from_dict` method.
         """
         ...
 
@@ -111,25 +112,6 @@ class ColumnOp(OpBaseModel):
         raise NotImplementedError
 
 
-# class AggregateOp(OpBaseModel):
-#     def setup(self, _: "Settings" | None = None) -> None:
-#         raise NotImplementedError
-
-#     def run(self, data: list[pl.DataFrame]) -> TYPE_COLUMN_OUTPUT:
-#         """Runs the aggregation op on the given list of sub-dataframe.
-
-#         Args:
-#             data (pl.DataFrame): A polars dataframe, one for each group key values. It
-#                 aggregates over each group to compute a single value, and returns a series of
-#                 the same length as the input.
-
-#         Returns:
-#             A dictionary with the `output` key set to the computed Series/None. Any extra
-#                 information can be put in the `extra` key.
-#         """
-#         raise NotImplementedError
-
-
 class TableOp(OpBaseModel):
     def setup(self, _: "Settings" | None = None) -> None:
         raise NotImplementedError
@@ -153,6 +135,9 @@ T = t.TypeVar("T")
 def register_op(cls: T) -> T:
     """Decorator that marks the class as an Uptrain operator. Useful for (de)serialization."""
     assert isinstance(cls, type), "Only classes can be registered as Uptrain operators"
+    assert hasattr(cls, "setup") and hasattr(
+        cls, "run"
+    ), "All Uptrain operators must define a `setup` and a `run` method."
     op_name = f"{cls.__module__}:{cls.__name__}"
     cls._uptrain_op_name = op_name  # type: ignore
     return cls
@@ -222,6 +207,21 @@ class SelectOp(TableOp):
                 )
         return values
 
+    def dict(self) -> dict:
+        return {
+            "columns": {
+                col_name: to_py_types(col_op)
+                for col_name, col_op in self.columns.items()
+            }
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "SelectOp":
+        columns = data["columns"]
+        for col_name, col_op in columns.items():
+            columns[col_name] = deserialize_operator(col_op)
+        return cls(columns=columns)
+
     def setup(self, settings: Settings | None) -> None:
         for _, col_op in self.columns.items():
             col_op.setup(settings)
@@ -238,6 +238,28 @@ class SelectOp(TableOp):
         else:
             return {"output": data.with_columns(new_cols)}
 
+
+# -----------------------------------------------------------
+# TODO: Aggregate Ops. Not sure if needed.
+# -----------------------------------------------------------
+
+# class AggregateOp(OpBaseModel):
+#     def setup(self, _: "Settings" | None = None) -> None:
+#         raise NotImplementedError
+
+#     def run(self, data: list[pl.DataFrame]) -> TYPE_COLUMN_OUTPUT:
+#         """Runs the aggregation op on the given list of sub-dataframe.
+
+#         Args:
+#             data (pl.DataFrame): A polars dataframe, one for each group key values. It
+#                 aggregates over each group to compute a single value, and returns a series of
+#                 the same length as the input.
+
+#         Returns:
+#             A dictionary with the `output` key set to the computed Series/None. Any extra
+#                 information can be put in the `extra` key.
+#         """
+#         raise NotImplementedError
 
 # class GroupbyOp(TableOp):
 #     """Groups the input dataframe by a set of columns, and computes aggregate operators

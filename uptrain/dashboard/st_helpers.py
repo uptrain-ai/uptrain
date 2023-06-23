@@ -6,7 +6,6 @@ import polars as pl
 import pandas as pd
 import plotly.express as px
 
-from uptrain.io import DeltaWriter, JsonWriter
 from uptrain.framework.checks import CheckSet, SimpleCheck
 
 
@@ -47,6 +46,8 @@ def st_make_check_selector(checkset: "CheckSet"):
 
 
 def load_data_for_check_local(checkset: "CheckSet", check):
+    from uptrain.io import DeltaWriter, JsonWriter
+
     sink = checkset._get_sink_for_check(check)
     if isinstance(sink, (DeltaWriter, JsonWriter)):
         source = sink.to_reader()
