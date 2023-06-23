@@ -13,8 +13,6 @@ from uptrain.core.classes.visuals import AbstractVisual, ClusteringResolver
 from uptrain.constants import Visual, Statistic, MeasurableType, ClusteringAlgorithm
 from uptrain.core.classes.measurables import MeasurableResolver
 from uptrain.core.lib.helper_funcs import read_json, dependency_required
-import ipdb
-
 
 if TYPE_CHECKING:
     from uptrain.core.classes.logging.new_log_handler import (
