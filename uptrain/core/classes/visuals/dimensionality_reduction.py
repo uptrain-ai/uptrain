@@ -156,6 +156,7 @@ class DimensionalityReduction(AbstractVisual):
             elif self.dim == "3D":
                 n_components = 3
 
+            # Initialising pca model with reference dataset
             self.pca_model = PCA(
                 n_components=n_components,
                 whiten=self.whiten,
@@ -349,6 +350,7 @@ class DimensionalityReduction(AbstractVisual):
             ).fit_transform(emb_list)
         elif self.visual_type == Visual.PCA:
             if self.pca_model is None:
+                # Initialising pca model if it is not initialised with reference dataset.
                 self.pca_model = PCA(
                     n_components=n_components,
                     whiten=self.whiten,
