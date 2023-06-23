@@ -55,15 +55,6 @@ class DimensionalityReduction(AbstractVisual):
         self.total_count = 0
         self.prev_calc_at = 0
         self.update_freq = check.get("update_freq", 10000)
-
-        # get handles to the log writer object
-        if hasattr(self.log_handler, "make_logger"):
-            self.log_writer = self.log_handler.make_logger(
-                self.dashboard_name, self.visual_type, fmt="json"
-            )
-        else:
-            self.log_writer = None
-
         self.vals = []
         self.hover_texts = []
         self.feature_dictn = {}
@@ -119,6 +110,14 @@ class DimensionalityReduction(AbstractVisual):
             self.pca_init(check)
         else:
             raise Exception("Dimensionality reduction type undefined.")
+
+        # get handles to the log writer object
+        if hasattr(self.log_handler, "make_logger"):
+            self.log_writer = self.log_handler.make_logger(
+                self.dashboard_name, self.visual_type, fmt="json"
+            )
+        else:
+            self.log_writer = None
 
     def umap_init(self, check):
         self.min_dist = check.get("min_dist", 0.01)
