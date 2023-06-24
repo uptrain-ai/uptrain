@@ -1,5 +1,33 @@
 """
-Implement checks to detect drift in the data. 
+This module implements the ConceptDrift operator and its associated executor for detecting concept drift
+using the DDM (Drift Detection Method) or ADWIN (Adaptive Windowing) algorithm.
+
+The module provides the following classes:
+
+- ParamsDDM: Parameters for the DDM algorithm.
+- ParamsADWIN: Parameters for the ADWIN algorithm.
+- ConceptDrift: Operator for detecting concept drift.
+- ConceptDriftExecutor: Executor for the ConceptDrift operator.
+
+Examples:
+    # Example 1: Creating a ConceptDrift operator
+    params_ddm = ParamsDDM(warm_start=500, warning_threshold=2.0, drift_threshold=3.0)
+    concept_drift_ddm = ConceptDrift(algorithm="DDM", params=params_ddm, col_in_measure="metric")
+
+    # Example 2: Creating a ConceptDriftExecutor and running it on input data
+    executor = concept_drift_ddm.make_executor()
+    input_data = pl.DataFrame(...)  # Input data in the form of a polars DataFrame
+    output = executor.run(input_data)
+
+    # Example 3: Creating a ConceptDrift operator with ADWIN algorithm
+    params_adwin = ParamsADWIN(delta=0.002, clock=32, max_buckets=5, min_window_length=5, grace_period=5)
+    concept_drift_adwin = ConceptDrift(algorithm="ADWIN", params=params_adwin, col_in_measure="metric")
+
+    # Example 4: Checking the detected concept drift information
+    if executor.alert_info is not None:
+        print("Concept drift detected!")
+        print("Counter:", executor.alert_info["counter"])
+        print("Message:", executor.alert_info["msg"])
 """
 
 from __future__ import annotations
@@ -18,12 +46,32 @@ drift = lazy_load_dep("river.drift", "river")
 
 
 class ParamsDDM(OpBaseModel):
+    """
+    Parameters for the DDM (Drift Detection Method) algorithm.
+
+    Attributes:
+        warm_start (int): The number of instances required before any drift detection.
+        warning_threshold (float): The warning threshold value for the drift detection.
+        drift_threshold (float): The alarm threshold value for the drift detection.
+    
+    """
     warm_start: int = 500
     warn_threshold: float = 2.0
     alarm_threshold: float = 3.0
 
 
 class ParamsADWIN(OpBaseModel):
+    """
+    Parameters for the ADWIN (Adaptive Windowing) algorithm.
+
+    Attributes:
+        delta (float): The delta value for the drift detection.
+        clock (int): The clock value for the drift detection.
+        max_buckets (int): The maximum number of buckets to keep for the drift detection.
+        min_window_length (int): The minimum length of the window for the drift detection.
+        grace_period (int): The grace period value for the drift detection.
+
+    """
     delta: float = 0.002
     clock: int = 32
     max_buckets: int = 5
@@ -33,6 +81,18 @@ class ParamsADWIN(OpBaseModel):
 
 @register_op
 class ConceptDrift(ColumnOp):
+    """
+    Operator for detecting concept drift using the DDM (Drift Detection Method) or ADWIN (Adaptive Windowing) algorithm.
+
+    Attributes:
+        algorithm (Literal["DDM", "ADWIN"]): The algorithm to use for concept drift detection.
+        params (Union[ParamsDDM, ParamsADWIN]): The parameters for the selected algorithm.
+        col_in_measure (str): The name of the column in the input data representing the metric to measure concept drift.
+
+    Raises:
+        ValueError: If the specified algorithm does not match the type of the parameters.
+
+    """
     algorithm: t.Literal["DDM", "ADWIN"]
     params: t.Union[ParamsDDM, ParamsADWIN]
     col_in_measure: str = "metric"
@@ -43,6 +103,20 @@ class ConceptDrift(ColumnOp):
 
     @root_validator
     def check_params(cls, values):
+        """
+        Root validator for checking the parameters of the ConceptDrift operator.
+
+        Args:
+            cls: The class.
+            values: The input values.
+
+        Raises:
+            ValueError: If the specified algorithm does not match the type of the parameters.
+
+        Returns:
+            dict: The validated values.
+
+        """
         algo = values["algorithm"]
         params = values["params"]
         if algo == "DDM" and not isinstance(params, ParamsDDM):
@@ -65,6 +139,30 @@ class ConceptDrift(ColumnOp):
         self._alert_info = None
 
     def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
+        """
+        Run the concept drift detection on the input data.
+
+        Args:
+            data (pl.DataFrame): The input data.
+
+        Returns:
+            dict: A dictionary containing the output of the concept drift detection.
+
+            The dictionary has the following structure:
+            {
+                "output": None,
+                "extra": {
+                    "counter": int,  # The number of instances processed.
+                    "avg_accuracy": float,  # The average accuracy of the drift detection.
+                    "alert_info": dict or None,  # Information about the detected concept drift or None if no drift detected.
+                        {
+                            "counter": int,  # The counter value when the drift was detected.
+                            "msg": str  # The message indicating the detection of concept drift.
+                        }
+                }
+            }
+
+        """
         ser = data.get_column(self.col_in_measure)
 
         for val in ser:
