@@ -9,25 +9,17 @@ The module provides the following classes:
 - ConceptDrift: Operator for detecting concept drift.
 - ConceptDriftExecutor: Executor for the ConceptDrift operator.
 
-Examples:
-    # Example 1: Creating a ConceptDrift operator
-    params_ddm = ParamsDDM(warm_start=500, warning_threshold=2.0, drift_threshold=3.0)
-    concept_drift_ddm = ConceptDrift(algorithm="DDM", params=params_ddm, col_in_measure="metric")
+Example:
+    # Creating a ConceptDrift operator and running it on input data
+    input_data = pl.DataFrame(...)
+    params_ddm = ParamsDDM(warm_start=500, warn_threshold=2.0, alarm_threshold=3.0)
+    concept_drift_ddm = ConceptDrift(algorithm="DDM", params=params_ddm, col_in_measure="label").setup().run(input_data)
 
-    # Example 2: Creating a ConceptDriftExecutor and running it on input data
-    executor = concept_drift_ddm.make_executor()
-    input_data = pl.DataFrame(...)  # Input data in the form of a polars DataFrame
-    output = executor.run(input_data)
-
-    # Example 3: Creating a ConceptDrift operator with ADWIN algorithm
-    params_adwin = ParamsADWIN(delta=0.002, clock=32, max_buckets=5, min_window_length=5, grace_period=5)
-    concept_drift_adwin = ConceptDrift(algorithm="ADWIN", params=params_adwin, col_in_measure="metric")
-
-    # Example 4: Checking the detected concept drift information
-    if executor.alert_info is not None:
+    # Checking the detected concept drift information
+    if concept_drift_ddm._alert_info is not None:
         print("Concept drift detected!")
-        print("Counter:", executor.alert_info["counter"])
-        print("Message:", executor.alert_info["msg"])
+        print("Counter:", concept_drift_ddm._alert_info["counter"])
+        print("Message:", concept_drift_ddm._alert_info["msg"])
 """
 
 from __future__ import annotations
@@ -56,8 +48,8 @@ class ParamsDDM(OpBaseModel):
     
     """
     warm_start: int = 500
-    warn_threshold: float = 2.0
-    alarm_threshold: float = 3.0
+    warning_threshold: float = 2.0
+    drift_threshold: float = 3.0
 
 
 class ParamsADWIN(OpBaseModel):
@@ -88,6 +80,11 @@ class ConceptDrift(ColumnOp):
         algorithm (Literal["DDM", "ADWIN"]): The algorithm to use for concept drift detection.
         params (Union[ParamsDDM, ParamsADWIN]): The parameters for the selected algorithm.
         col_in_measure (str): The name of the column in the input data representing the metric to measure concept drift.
+        _algo_obj (Any): The internal object representing the selected algorithm.
+        _counter (int): Internal counter for tracking the number of processed instances.
+        _cuml_accuracy (float): Cumulative accuracy for tracking concept drift.
+        _alert_info (Optional[dict]): Information about detected concept drift alerts.
+        _avg_accuracy (float): Average accuracy for tracking concept drift.
 
     Raises:
         ValueError: If the specified algorithm does not match the type of the parameters.
@@ -99,6 +96,7 @@ class ConceptDrift(ColumnOp):
     _algo_obj: t.Any
     _counter: int
     _cuml_accuracy: float
+    _avg_accuracy: float
     _alert_info: t.Optional[dict]
 
     @root_validator
@@ -130,13 +128,25 @@ class ConceptDrift(ColumnOp):
         return values
 
     def setup(self, _: t.Optional[Settings] = None):
+        """
+        Setup method for the ConceptDrift operator.
+
+        Args:
+            _: Optional settings parameter (not used).
+
+        Returns:
+            self: The ConceptDrift operator instance.
+
+        """
         if self.algorithm == "DDM":
             self._algo_obj = drift.DDM(**self.params.dict())  # type: ignore
         elif self.algorithm == "ADWIN":
             self._algo_obj = drift.ADWIN(**self.params.dict())  # type: ignore
         self._counter = 0
         self._avg_accuracy = 0.0
+        self._cuml_accuracy = 0.0
         self._alert_info = None
+        return self
 
     def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
         """
@@ -175,12 +185,12 @@ class ConceptDrift(ColumnOp):
             self._counter += 1
             self._cuml_accuracy += val
 
-        avg_accuracy = self._cuml_accuracy / self._counter if self._counter > 0 else 0.0
+        self._avg_accuracy = self._cuml_accuracy / self._counter if self._counter > 0 else 0.0
         return {
             "output": None,
             "extra": {
                 "counter": self._counter,
-                "avg_accuracy": avg_accuracy,
+                "avg_accuracy": self._avg_accuracy,
                 "alert_info": self._alert_info,
             },
         }
