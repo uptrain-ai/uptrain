@@ -10,16 +10,25 @@ The module provides the following classes:
 - ConceptDriftExecutor: Executor for the ConceptDrift operator.
 
 Example:
-    # Creating a ConceptDrift operator and running it on input data
-    input_data = pl.DataFrame(...)
+    # Create an instance of the ParamsDDM class with the parameters
     params_ddm = ParamsDDM(warm_start=500, warn_threshold=2.0, alarm_threshold=3.0)
-    concept_drift_ddm = ConceptDrift(algorithm="DDM", params=params_ddm, col_in_measure="label").setup().run(input_data)
 
-    # Checking the detected concept drift information
-    if concept_drift_ddm._alert_info is not None:
+    # Create an instance of the ConceptDrift operator
+    op = ConceptDrift(algorithm="DDM", params=params_ddm, col_in_measure="metric")
+
+    # Set up the operator
+    op.setup()
+
+    # Run the operator on the input data
+    input_data = pl.DataFrame(...)
+    op.run(input_data)
+
+    # Check the detected concept drift information
+    if op._alert_info is not None:
         print("Concept drift detected!")
-        print("Counter:", concept_drift_ddm._alert_info["counter"])
-        print("Message:", concept_drift_ddm._alert_info["msg"])
+        print("Counter:", op._alert_info["counter"])
+        print("Message:", op._alert_info["msg"])
+
 """
 
 from __future__ import annotations
@@ -47,6 +56,7 @@ class ParamsDDM(OpBaseModel):
         drift_threshold (float): The alarm threshold value for the drift detection.
     
     """
+
     warm_start: int = 500
     warning_threshold: float = 2.0
     drift_threshold: float = 3.0
@@ -64,6 +74,7 @@ class ParamsADWIN(OpBaseModel):
         grace_period (int): The grace period value for the drift detection.
 
     """
+    
     delta: float = 0.002
     clock: int = 32
     max_buckets: int = 5
@@ -90,6 +101,7 @@ class ConceptDrift(ColumnOp):
         ValueError: If the specified algorithm does not match the type of the parameters.
 
     """
+
     algorithm: t.Literal["DDM", "ADWIN"]
     params: t.Union[ParamsDDM, ParamsADWIN]
     col_in_measure: str = "metric"
@@ -156,7 +168,7 @@ class ConceptDrift(ColumnOp):
             data (pl.DataFrame): The input data.
 
         Returns:
-            dict: A dictionary containing the output of the concept drift detection.
+            TYPE_COLUMN_OUTPUT: The output of the operator.
 
             The dictionary has the following structure:
             {
