@@ -44,6 +44,7 @@ class Distribution(TableOp):
             raise NotImplementedError(
                 f"Similarity metric: {self.kind} not supported for now."
             )
+        return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         if self.col_out is None:
@@ -70,7 +71,7 @@ class UMAP(TableOp):
     col_in_embs2: str
 
     def setup(self, _: t.Optional[Settings] = None):
-        pass
+        return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         embs = np.asarray(data[self.col_in_embs].to_list())

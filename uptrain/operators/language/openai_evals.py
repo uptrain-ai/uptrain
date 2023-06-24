@@ -58,6 +58,7 @@ class OpenaiEval(ColumnOp):
         import openai
 
         openai.api_key = settings.check_and_get("openai_api_key")
+        return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         registry = evals.registry.Registry()
@@ -154,6 +155,7 @@ class PromptEval(TableOp):
 
     def setup(self, settings: Settings):
         self._settings = settings
+        return self
 
     def _validate_data(self, data: pl.DataFrame) -> None:
         for col in self.prompt_variables:

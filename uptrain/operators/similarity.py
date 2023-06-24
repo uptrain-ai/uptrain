@@ -20,7 +20,7 @@ class CosineSimilarity(ColumnOp):
     col_in_vector_2: str
 
     def setup(self, _: t.Optional[Settings] = None):
-        pass
+        return self
 
     def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
         vector_1 = data.get_column(self.col_in_vector_1)

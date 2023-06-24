@@ -26,7 +26,7 @@ class PlotlyChart(OpBaseModel):
     filter_on: list[str] = Field(default_factory=list)
 
     def setup(self, settings: t.Optional[Settings] = None):
-        pass
+        return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         if self.kind == "table":

@@ -21,6 +21,7 @@ class ColumnExpand(TableOp):
 
     def setup(self, _: t.Optional[Settings] = None):
         assert len(self.col_out_names) == len(self.col_vals)
+        return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         out = data.with_columns(

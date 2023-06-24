@@ -225,6 +225,7 @@ class SelectOp(TableOp):
     def setup(self, settings: Settings | None) -> None:
         for _, col_op in self.columns.items():
             col_op.setup(settings)
+        return self
 
     def run(self, data: pl.DataFrame | None) -> TYPE_TABLE_OUTPUT:
         new_cols = []

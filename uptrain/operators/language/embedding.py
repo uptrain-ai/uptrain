@@ -32,6 +32,7 @@ class Embedding(ColumnOp):
             )  # type: ignore
         else:
             raise Exception(f"Embeddings model: {self.model} is not supported yet.")
+        return self
 
     def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
         text = data.get_column(self.col_in_text)

@@ -29,6 +29,7 @@ class OpenAIGradeScore(ColumnOp):
 
     def setup(self, settings: Settings) -> None:
         self._settings = settings
+        return self
 
     def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
         samples = data.select(
@@ -70,6 +71,7 @@ class ModelGradeScore(ColumnOp):
 
     def setup(self, settings: Settings) -> None:
         self._settings = settings
+        return self
 
     def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
         text_input = data.get_column(self.col_in_input)

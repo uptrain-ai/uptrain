@@ -22,7 +22,7 @@ class DocsLinkVersion(ColumnOp):
     col_in_text: str
 
     def setup(self, settings: Settings | None = None):
-        pass
+        return self
 
     def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
         def fetch_version(text):
@@ -44,7 +44,7 @@ class TextLength(ColumnOp):
     col_in_text: str
 
     def setup(self, settings: Settings | None = None):
-        pass
+        return self
 
     def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
         return {
@@ -61,7 +61,7 @@ class TextComparison(ColumnOp):
     col_in_text: str
 
     def setup(self, settings: Settings | None = None):
-        pass
+        return self
 
     def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
         return {

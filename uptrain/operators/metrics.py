@@ -21,7 +21,7 @@ class Accuracy(ColumnOp):
     col_in_ground_truth: str = "ground_truth"
 
     def setup(self, _: t.Optional[Settings] = None):
-        pass
+        return self
 
     def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
         preds = data.get_column(self.col_in_prediction)
