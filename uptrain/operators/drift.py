@@ -111,6 +111,10 @@ class ConceptDrift(ColumnOp):
 
     @root_validator
     def check_params(cls, values):
+        """
+        Check if the parameters are valid for the specified algorithm.
+        
+        """
         algo = values["algorithm"]
         params = values["params"]
         if algo == "DDM" and not isinstance(params, ParamsDDM):
@@ -125,13 +129,7 @@ class ConceptDrift(ColumnOp):
 
     def setup(self, _: t.Optional[Settings] = None):
         """
-        Setup method for the ConceptDrift operator.
-
-        Args:
-            _: Optional settings parameter (not used).
-
-        Returns:
-            self: The ConceptDrift operator instance.
+        Set up and return the ConceptDrift operator.
 
         """
         if self.algorithm == "DDM":
