@@ -1,7 +1,7 @@
 import importlib.util
 import os
 import threading
-from typing import Optional
+import typing as t
 
 from loguru import logger
 
@@ -10,9 +10,8 @@ class StreamlitRunner:
     log_folder: str
     launch_cmd: str
 
-    def __init__(self, log_folder: str, port: Optional[int] = None):
+    def __init__(self, log_folder: str, port: t.Optional[int] = None):
         self.log_folder = log_folder
-
         if "config.json" not in os.listdir(self.log_folder):
             logger.warning("No Uptrain config found in the specified log folder.")
 

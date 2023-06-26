@@ -154,6 +154,22 @@ if __name__ == "__main__":
     # start_streamlit()
     # import pdb; pdb.set_trace()
 
+    # JsonWriter(fpath=experiment_path + "/input.jsonl").make_executor().run(input_dataset)
+    JsonWriter(fpath=experiment_path + "/input_without_schema.jsonl").make_executor().run(input_dataset)
+
+    # TODO figure out a better way to do this.
+    with_schema_dataset_check = SimpleCheck(
+        name="get_schema_check",
+        compute=[
+            GetSchemaDefinition(),
+        ],
+        source=JsonReader(fpath=experiment_path + "/input_without_schema.jsonl"),
+        sink=JsonWriter(fpath=experiment_path + "/input.jsonl"),
+    )
+    with_schema_dataset_check.make_executor(Settings(logs_folder=experiment_path)).run()
+
+    all_checks = copy.deepcopy(args['evaluation_args']['checks'])
+
     user_inputs['evaluation_args'] = get_config()
     manager = ExperimentManager(user_inputs)
     manager.run()

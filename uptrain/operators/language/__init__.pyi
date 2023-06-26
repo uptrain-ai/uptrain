@@ -8,6 +8,7 @@ __all__ = [
     "DocsLinkVersion",
     "TextLength",
     "TextComparison",
+    "OpenAIGradeScore",
     "ModelGradeScore",
 ]
 
@@ -17,4 +18,4 @@ from .model_grading import ModelGradingScore
 from .embedding import Embedding
 from .rouge import RougeScore
 from .text import DocsLinkVersion, TextLength, TextComparison
-from .model_grade import ModelGradeScore
+from .model_grade import ModelGradeScore, OpenAIGradeScore

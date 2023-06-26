@@ -42,27 +42,42 @@ setup(
     packages=find_packages(),
     package_data={"": ["*.pyi"]},
     install_requires=[
+        # utilities
         "tqdm>=4.0",
+        "pydantic>=1.9.0",
         "aiolimiter>=1.1",
+        "loguru",
+        "lazy_loader",
+        "networkx",
+        # datasets and transforms
         "polars>=0.17",
         "deltalake>=0.9",
         "numpy>=1.23.0",
-        "pandas>=1.0.0",
+        "pyarrow>=10.0.0",
+        # visualization
         "plotly>=5.0.0",
-        "pydantic>=1.9.0",
-        "river<=0.14",
-        "scikit_learn>=1.0.0",
-        "streamlit>=1.0.0",
-        "json-fix>=0.5.0",
+        "streamlit>=1.23",
+        # llm related
+        "openai>=0.27",
+        "evals",
+        # access to remote execution
+        "httpx>=0.24.1",
     ],
-    tests_require=[
-        "pytest>=7.0",
-        "torch",
-        "imgaug",
-        "gensim",
-        "xgboost",
-        "lightgbm",
-        "hdbscan",
-        "umap-learn",
-    ],
+    extras_require={
+        "v0": [
+            "pandas>=1.0.0",
+            "river",
+            "scikit_learn>=1.0.0",
+            "umap-learn",
+            "json-fix>=0.5.0",
+            "xgboost",
+        ],
+        "full": [
+            "river",
+            "scikit_learn>=1.0.0",
+            "umap-learn",
+            "rouge-score",
+        ],
+    },  # Optional
+    tests_require=["pytest>=7.0"],
 )

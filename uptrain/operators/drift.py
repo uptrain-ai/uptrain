@@ -5,20 +5,17 @@ Implement checks to detect drift in the data.
 from __future__ import annotations
 import typing as t
 
+from lazy_loader import load
 from loguru import logger
 from pydantic import BaseModel, root_validator
 import polars as pl
 
-try:
-    import river
-except ImportError:
-    river = None
-
-from uptrain.operators.base import *
-from uptrain.utilities import dependency_required
-
 if t.TYPE_CHECKING:
-    from uptrain.framework.config import *
+    from uptrain.framework import Settings
+from uptrain.operators.base import *
+from uptrain.utilities import lazy_load_dep
+
+river = lazy_load_dep("river", "river")
 
 
 class ParamsDDM(BaseModel):
@@ -59,7 +56,6 @@ class ConceptDrift(BaseModel):
         return ConceptDriftExecutor(self)
 
 
-@dependency_required(river, "river")
 class ConceptDriftExecutor(OperatorExecutor):
     op: ConceptDrift
     algo: t.Any

@@ -3,6 +3,8 @@ import os
 import sys
 import typing as t
 import uuid
+import itertools
+import numpy as np
 
 import evals
 import evals.base
@@ -13,11 +15,11 @@ from pydantic import BaseModel
 import polars as pl
 
 if t.TYPE_CHECKING:
-    from uptrain.framework.config import Settings
-from uptrain.constants import UPTRAIN_BASE_DIR
+    from uptrain.framework import Settings
 from uptrain.operators.base import *
 from uptrain.utilities import to_py_types
 
+UPTRAIN_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # -----------------------------------------------------------
 # General purpose OpenAI eval operator. It can take any eval
@@ -56,6 +58,9 @@ class OpenaiEval(BaseModel):
     def make_executor(
         self, settings: t.Optional[Settings] = None
     ) -> OpenaiEvalExecutor:
+        import openai
+
+        openai.api_key = settings.check_and_get("openai_api_key")
         return OpenaiEvalExecutor(self, settings)
 
 
@@ -128,22 +133,35 @@ class OpenaiEvalExecutor(OperatorExecutor):
         if path_samples_file is not None:
             os.remove(path_samples_file)
 
-        try:
-            output_data = pl.from_dicts(recorder.get_list_events("match"))
-            prompt_data = pl.from_dicts(recorder.get_list_events("sampling"))
-            selected_output_data = output_data.select([output_data["sample_id"], output_data["data"].alias("output_data")])
-            joined_data = prompt_data.join(selected_output_data, on="sample_id", how="inner").sort("sample_id")
-        except:
-            output_data = pl.DataFrame()
-
+        unique_types = list(
+            np.unique(np.array([x["type"] for x in recorder.get_list_events()]))
+        )
+        type_data = dict(
+            zip(
+                unique_types,
+                [
+                    pl.from_dicts(
+                        x["data"]
+                        for x in sorted(
+                            recorder.get_list_events(type),
+                            key=lambda x: int(x["sample_id"].split(".")[-1]),
+                        )
+                    )
+                    for type in unique_types
+                ],
+            )
+        )
+        extra = {
+            "all_events": recorder.get_list_events(),
+            "run_data": recorder.get_run_data(),
+            "final_report": to_py_types(final_report),
+        }
+        extra.update(type_data)
         return {
-            "output": output_data,  # events are of multiple kinds. Undecided how to handle them in a consistent schema yet
-            "extra": {
-                "all_events": recorder.get_list_events(),
-                "run_data": recorder.get_run_data(),
-                "final_report": to_py_types(final_report),
-                "final_report_indexed": to_py_types(joined_data),
-            },
+            "output": pl.DataFrame(
+                recorder.get_list_events()
+            ),  # events are of multiple kinds. Undecided how to handle them in a consistent schema yet
+            "extra": extra,
         }
 
 
@@ -157,6 +175,8 @@ class PromptEval(BaseModel):
     prompt_variables: list[str]
     gt_variables: list[str]
     model_name: str
+    col_out_prompt: str = "prompt"
+    col_out_response: str = "response"
 
     # TODO: Not sure why but this is failing and hence, commented out
     # @root_validator
@@ -164,15 +184,18 @@ class PromptEval(BaseModel):
     #     if len(values["prompt_variables"]) < 1:
     #         raise ValueError("Must specify at least 1 prompt variable")
 
-    def make_executor(self) -> PromptEvalExecutor:
-        return PromptEvalExecutor(self)
+    def make_executor(
+        self, settings: t.Optional[Settings] = None
+    ) -> PromptEvalExecutor:
+        return PromptEvalExecutor(self, settings)
 
 
 class PromptEvalExecutor:
     op: PromptEval
 
-    def __init__(self, op: PromptEval):
+    def __init__(self, op: PromptEval, settings: t.Optional[Settings] = None):
         self.op = op
+        self.settings = settings
 
     def _validate_data(self, data: pl.DataFrame) -> None:
         for col in self.op.prompt_variables:
@@ -198,9 +221,19 @@ class PromptEvalExecutor:
         prompts = self._construct_prompts(data)
 
         eval_op = OpenaiEval(
-            bundle_path=os.path.join(UPTRAIN_BASE_DIR, "evals_uptrain"),
+            bundle_path=os.path.join(UPTRAIN_BASE_DIR, "openai_eval_custom"),
             completion_name=self.op.model_name,
             eval_name="model_run_all",
         )
-        results = eval_op.make_executor().run(prompts)
-        return results
+        results = eval_op.make_executor(self.settings).run(prompts)["extra"]["sampling"]
+        return {
+            "output": data.with_columns(
+                [
+                    pl.Series(self.op.col_out_prompt, results["prompt"]),
+                    pl.Series(
+                        self.op.col_out_response,
+                        list(itertools.chain(*results["sampled"])),
+                    ),
+                ]
+            )
+        }

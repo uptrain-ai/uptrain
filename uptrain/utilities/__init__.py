@@ -1,12 +1,15 @@
 from __future__ import annotations
 from datetime import datetime, timedelta, tzinfo
 import dataclasses
+import importlib
+import importlib.util
 import json
 import typing as t
 import os
 import time
-import functools
 
+from lazy_loader import load as _lazy_load
+from loguru import logger
 import pydantic
 import numpy as np
 import numpy.typing as npt
@@ -186,40 +189,17 @@ class Timer:
 # -----------------------------------------------------------
 
 
-def dependency_required(dependency_obj, package_name: str):
-    """Decorator for checks that need optional dependencies. If the dependency is not
-    present, initializing the class will raise an error.
+def lazy_load_dep(import_name: str, package_name: str):
+    """Helper function to lazily load optional dependencies. If the dependency is not
+    present, the function will raise an error _when used_.
+
+    NOTE: This wrapper adds a warning message at import time.
     """
+    spec = importlib.util.find_spec(import_name)
+    if spec is None:
+        logger.warning(
+            f"Optional feature dependent on missing pacakge: {import_name} was initialized.\n"
+            f"Use `pip install {package_name}` to install the package if running locally."
+        )
 
-    def class_decorator(cls):
-        @functools.wraps(cls, updated=())
-        class WrappedClass(cls):
-            def __init__(self, *args, **kwargs):
-                if dependency_obj is None:
-                    raise ImportError(
-                        f"{package_name} is required to use {cls.__name__}. Please install it using: pip install {package_name}"
-                    )
-                super().__init__(*args, **kwargs)
-
-        return WrappedClass
-
-    return class_decorator
-
-
-def fn_dependency_required(dependency_obj, package_name: str):
-    """Decorator for functions that need optional dependencies. If the dependency is not
-    present, calling the function will raise an error.
-    """
-
-    def fn_decorator(fn):
-        @functools.wraps(fn)
-        def wrapped_fn(*args, **kwargs):
-            if dependency_obj is None:
-                raise ImportError(
-                    f"{package_name} is required to use {fn.__name__}. Please install it using: pip install {package_name}"
-                )
-            return fn(*args, **kwargs)
-
-        return wrapped_fn
-
-    return fn_decorator
+    return _lazy_load(import_name)

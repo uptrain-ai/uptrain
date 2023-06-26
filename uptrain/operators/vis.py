@@ -6,11 +6,13 @@ import typing as t
 from loguru import logger
 from pydantic import BaseModel, Field
 import polars as pl
-import plotly.express as px
 
 if t.TYPE_CHECKING:
-    from uptrain.framework.config import *
+    from uptrain.framework import Settings
 from uptrain.operators.base import *
+from uptrain.utilities import lazy_load_dep
+
+px = lazy_load_dep("plotly.express", "plotly")
 
 
 __all__ = ["PlotlyChart"]
@@ -22,10 +24,29 @@ class PlotlyChart(BaseModel):
     props: dict = Field(default_factory=dict)
     title: str = ""
     filter_on: list[str] = Field(default_factory=list)
-    pivot_args: list[dict] = Field(default_factory=list)
 
     def make_executor(self, settings: t.Optional[Settings] = None):
         return PlotlyExecutor(self)
+
+    @classmethod
+    def Line(cls, **kwargs) -> PlotlyChart:
+        return cls(kind="line", **kwargs)
+
+    @classmethod
+    def Scatter(cls, **kwargs) -> PlotlyChart:
+        return cls(kind="scatter", **kwargs)
+
+    @classmethod
+    def Bar(cls, **kwargs) -> PlotlyChart:
+        return cls(kind="bar", **kwargs)
+
+    @classmethod
+    def Histogram(cls, **kwargs) -> PlotlyChart:
+        return cls(kind="histogram", **kwargs)
+
+    @classmethod
+    def Table(cls, **kwargs) -> PlotlyChart:
+        return cls(kind="table", **kwargs)
 
 
 class PlotlyExecutor(OperatorExecutor):

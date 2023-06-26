@@ -1,6 +1,0 @@
-model_run_all:
-  id: model_run.test.v1
-model_run.test.v1:
-  args:
-    samples_jsonl: ""
-  class: uptrain.evals_uptrain.elsuite.model_run:ModelRun
