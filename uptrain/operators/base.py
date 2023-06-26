@@ -55,8 +55,9 @@ class Operator(t.Protocol):
     - columns required in the input dataset
     - columns that will be generated as output, etc.
 
-    NOTE: An operator must also define a `run` method with the signature below.
-    I can't make mypy happy with it yet though.
+    NOTE: An operator must also define `setup` and `run` methods like shown below.
+    I can't make mypy happy with it yet though, so we just check for it inside the
+    `register_op` decorator.
     """
 
     def dict(self) -> dict:
@@ -69,7 +70,7 @@ class Operator(t.Protocol):
         """
         ...
 
-    def setup(self, settings: "Settings" | None = None) -> None:
+    def setup(self, settings: "Settings" | None = None) -> "Operator":
         """Setup the operator. This must be called before the operator is run."""
         ...
 
