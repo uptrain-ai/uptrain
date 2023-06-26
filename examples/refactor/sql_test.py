@@ -1,193 +1,109 @@
-import openai
-import copy
+from sql_config import *
+from manager import ExperimentManager, ExperimentArgs, EvalArgs, PromptResolver
+from uptrain.io import JsonReader
+from uptrain.framework.base import Settings
 
-from uptrain.framework.config import Config, Settings, SimpleCheck
-from uptrain.io import JsonReader, JsonWriter
-from uptrain.operators import PlotlyChart
-from regression_testing.experiment import ExperimentManager
-from uptrain.operators.language import TextLength
-from uptrain.operators.language.sql import HasStar, ParseSQL, ValidateTables, ExecuteSQL
+from uptrain.operators.language import (
+    ModelGradeScore
+)
 
-prompt_template = """
-    You are a {persona} whose job is to only output SQL command for a given question in {dialect} SQL dialect. Do not output anything other than the SQL command.
-    
-    Here is the create table commands for my database:
-    {schema_def}
-    
-    {question}
-    
-    SQL:
-"""
+input_dataset = '/Users/sourabhagrawal/Desktop/codes/llm/uptrain_experiments/uptrain/examples/refactor/SQL_small_input.jsonl'
+input_dataset = '/Users/bhanu/src/uptrain_experiments/llm/sql_new_small_input.jsonl'
+experiment_manager = ExperimentManager(
+    prompt_template=prompt_template,
+    model="gpt-3.5-turbo",
+    checks=[
+        select_all_check,
+        sql_validity_check,
+        # schema_validity_check,
+        execution_accuracy_check
+    ],
+    prompt_resolver_dictn={'persona': 'bot'},
+    dataset=JsonReader(fpath=input_dataset),
+    dataset_variables=['question', 'schema_def', 'dialect']
+)
 
-user_inputs = {
-    'experiment_args': {
-        "prompt_templates": [prompt_template],
-        "model_names": ["gpt-3.5-turbo"],
-        "comparison_args": [{
-            "comparison_variables": 'persona',
-            'comparison_options': ['SQL expert', 'Data Engineer']
-        }],
-    },
-    'dataset_args': {
-        'file_name': "/Users/bhanu/src/uptrain_experiments/llm/SQL_small.jsonl",
-        'input_variables': ['question', 'schema_def', 'dialect'],
-    },
-    'evaluation_args': None
+
+executor = experiment_manager.make_executor(settings=Settings(logs_folder="sql_uptrain_logs"))
+
+# # # Run base experiment
+executor.run_base()
+
+# # Run for different personas
+executor.run_experiments(ExperimentArgs(prompt_resolvers=[{'persona': 'bot'}, {'persona': 'Data Engineer'}]))
+import pdb; pdb.set_trace()
+
+# # # Run for different models
+# executor.run_experiments(ExperimentArgs(models=['cohere', 'gpt-3.5-turbo']))
+import pdb; pdb.set_trace()
+
+# # Run for a new eval
+executor.run_new_evals(EvalArgs(checks=[empty_response_check]))
+
+# Add new eval for future experiments
+executor.add_new_evals([empty_response_check])
+
+# Run for different personas + personality traits
+executor.run_experiments(ExperimentArgs(
+    prompt_template=personality_prompt_template,
+    prompt_resolvers=[
+        {'persona': 'analytical_validator', 'personality': 'You are an analytical and meticulous LLM with an emphasis on logical consistency and factual accuracy. Your purpose is to critically evaluate answers and ensure they align with the information presented in the document.'}, 
+        {'persona': 'contextual_inquirer', 'personality': "You are a curious and context-oriented LLM, seeking to understand the underlying context and nuances of the document. You scrutinize answers to ensure they demonstrate a clear understanding of the document's context and maintain coherence with the presented information."},
+        {'persona': 'evidential_fact-checker', 'personality': 'You are an evidence-driven LLM that places high importance on supporting facts and references. You diligently verify claims and check for evidence within the document to ensure answers rely on reliable information and align with the documented evidence.'},
+        {'persona': 'semantic_consistency_monitor', 'personality': 'You are a semantic-focused LLM with an eye for semantic coherence. Your role is to examine the semantic meaning and connections between the document and the answer, verifying that the answer accurately reflects the intended message and information conveyed in the document.'},
+    ]
+))
+
+
+# Either run across multiple models
+# Or Run across multiple prompts
+-  Prompt 
+
+
+
+bot_personalities = {
+    'analytical_validator': 'You are an analytical and meticulous LLM with an emphasis on logical consistency and factual accuracy. Your purpose is to critically evaluate answers and ensure they align with the information presented in the document.',
+    'contextual_inquirer': "You are a curious and context-oriented LLM, seeking to understand the underlying context and nuances of the document. You scrutinize answers to ensure they demonstrate a clear understanding of the document's context and maintain coherence with the presented information.",
+    'evidential_fact-checker': "You are an evidence-driven LLM that places high importance on supporting facts and references. You diligently verify claims and check for evidence within the document to ensure answers rely on reliable information and align with the documented evidence.",
+    'semantic_consistency_monitor': "You are a semantic-focused LLM with an eye for semantic coherence. Your role is to examine the semantic meaning and connections between the document and the answer, verifying that the answer accurately reflects the intended message and information conveyed in the document.",
+    'contradiction_detector': "You are a contradiction-aware LLM, adept at identifying inconsistencies and contradictions. Your purpose is to meticulously analyze answers, cross-referencing statements with the document to identify any conflicting information and ensure consistency throughout."
 }
 
+grading_prompts = PromptResolver(
+    template=grading_prompt_template,
+    resolver_args=[{"personality_description": x} for x in list(bot_personalities.values())]
+).make_executor().run()
 
-LOGS_DIR = "/Users/bhanu/src/uptrain/examples/refactor/uptrain_logs"
-
-
-def get_config():
-    # Define the config
-    checks = []
-
-    # Compute all the embeddings - question, document, response
-    checks.append(SimpleCheck(
-        name="has_star",
+custom_grade_checks = []
+for idx in range(len(grading_prompts)):
+    custom_grade_checks.append(SimpleCheck(
+        name="custom_model_grade_" + list(bot_personalities.keys())[idx],
         compute=[
-            HasStar(col_in_text="response",
-                    col_out="has_star"),
+            ModelGradeScore(
+                col_in_input="document_text",
+                col_in_completion="response",
+                col_out=list(bot_personalities.keys())[idx] + "_custom_model_grade_score",
+                grading_prompt_template=grading_prompts[idx],
+                eval_type="cot_classify",
+                choice_strings=[
+                    "(A) The submitted quote is a subset of the document and is fully consistent with it.",
+                    "(B) The submitted quote is a superset of the document, but is consistent with the document.",
+                    "(C) The submitted quote is a superset of the document and is not consistent with the document."
+                ],
+                choice_scores={
+                    "(A) The submitted quote is a subset of the document and is fully consistent with it.": 1.0,
+                    "(B) The submitted quote is a superset of the document, but is consistent with the document.": 0.5,
+                    "(C) The submitted quote is a superset of the document and is not consistent with the document.": 0.0
+                },
+                grading_prompt_mapping={
+                    "document_text": "document",
+                    "response": "chunked_summary"
+                }
+            ),
         ],
-        source=JsonReader(fpath="{experiment_path}/output.jsonl"),
-        sink=JsonWriter(fpath="{experiment_path}/interim_data/has_star.jsonl"),
-        plot=PlotlyChart(kind="histogram", title="Distribution of has star", props=dict(x="has_star"))
+        plot=PlotlyChart(kind="table", title="Custom Model graded score " + list(bot_personalities.keys())[idx],
+        ),
     ))
-
-    checks.append(
-        SimpleCheck(
-            name="Validate SQL",
-            compute=[
-                ParseSQL(
-                    col_in_sql="response",
-                    col_out_tables="response_tables",
-                    col_out_is_valid_sql="is_sql_valid"
-                )
-            ],
-            source=JsonReader(fpath="{experiment_path}/interim_data/has_star.jsonl"),
-            sink=JsonWriter(fpath="{experiment_path}/interim_data/parse_sql.jsonl"),
-            plot=PlotlyChart(
-                kind="histogram",
-                title="Distribution: is sql valid",
-                props=dict(x="is_sql_valid"),
-            ),
-        )
-    )
-    # TODO: fix, add column valid stuff. May be add an invalid column'
-    # TODO: add an example where this check fails
-    checks.append(
-        SimpleCheck(
-            name="Check table and columns",
-            compute=[
-                ValidateTables(col_in_response_tables="response_tables",
-                               col_in_schema_tables="schema_tables",
-                               col_out_tables_valid="tables_valid",
-                               col_out_cols_valid="cols_valid")
-            ],
-            source=JsonReader(fpath="{experiment_path}/interim_data/parse_sql.jsonl"),
-            sink=JsonWriter(fpath="{experiment_path}/interim_data/validate_entities.jsonl"),
-            plot=PlotlyChart(
-                kind="histogram",
-                title="Distribution of valid tables",
-                props=dict(x="tables_valid"),
-            ),
-        )
-    )
-
-    checks.append(
-        SimpleCheck(
-            name="Execution Accuracy",
-            compute=[
-                ExecuteSQL(col_in_response_sql="response",
-                           col_in_gt_sql="gt_query",
-                           col_in_db_path="db_path",
-                           col_out_execution_accuracy="execution_accuracy")
-            ],
-            source=JsonReader(fpath="{experiment_path}/interim_data/validate_entities.jsonl"),
-            sink=JsonWriter(fpath="{experiment_path}/interim_data/exec_accuracy.jsonl"),
-            plot=PlotlyChart(
-                kind="histogram",
-                title="Distribution of Execution accuracy",
-                props=dict(x="execution_accuracy"),
-            ),
-        )
-    )
-
-    # TODO: plot without compute?
-    checks.append(
-        SimpleCheck(
-            name="Show outputs",
-            compute=[TextLength(
-                col_in_text="response",
-                col_out="sql_length",
-            )],
-            source=JsonReader(fpath="{experiment_path}/interim_data/exec_accuracy.jsonl"),
-            sink=JsonWriter(fpath="{experiment_path}/interim_data/show_outputs.jsonl"),
-            plot=PlotlyChart(kind="table", title="Show outputs"),
-        )
-    )
-
-    cfg = {'checks': checks, 'log_folder': LOGS_DIR}
-    # cfg = Config(checks=checks, settings=Settings(logs_folder=LOGS_DIR))
-    return cfg
-
-# -----------------------------------------------------------
-# Starting a streamlit server to visualize the results
-# -----------------------------------------------------------
+executor.run_new_evals(EvalArgs(checks=custom_grade_checks))
 
 
-def start_streamlit():
-    from uptrain.dashboard import StreamlitRunner
-
-    runner = StreamlitRunner(LOGS_DIR)
-    runner.start()
-
-
-if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--start-streamlit", default=True, action="store_true")
-    args = parser.parse_args()
-
-    # start_streamlit()
-    # import pdb; pdb.set_trace()
-
-    # JsonWriter(fpath=experiment_path + "/input.jsonl").make_executor().run(input_dataset)
-    JsonWriter(fpath=experiment_path + "/input_without_schema.jsonl").make_executor().run(input_dataset)
-
-    # TODO figure out a better way to do this.
-    with_schema_dataset_check = SimpleCheck(
-        name="get_schema_check",
-        compute=[
-            GetSchemaDefinition(),
-        ],
-        source=JsonReader(fpath=experiment_path + "/input_without_schema.jsonl"),
-        sink=JsonWriter(fpath=experiment_path + "/input.jsonl"),
-    )
-    with_schema_dataset_check.make_executor(Settings(logs_folder=experiment_path)).run()
-
-    all_checks = copy.deepcopy(args['evaluation_args']['checks'])
-
-    user_inputs['evaluation_args'] = get_config()
-    manager = ExperimentManager(user_inputs)
-    manager.run()
-
-    cfg = get_config()
-    experiment_path = LOGS_DIR
-    all_checks = copy.deepcopy(cfg['checks'])
-    for check in all_checks:
-        if check.source is not None:
-            check.source.fpath = check.source.fpath.format(experiment_path=experiment_path)
-        if check.sink is not None:
-            check.sink.fpath = check.sink.fpath.format(experiment_path=experiment_path)
-    cfg = Config(checks=all_checks, settings=Settings(logs_folder=LOGS_DIR))
-    cfg.setup()
-    for check in cfg.checks:
-        results = check.make_executor(cfg.settings).run()
-
-    if args.start_streamlit:
-        start_streamlit()
-
-    # import pdb; pdb.set_trace()
