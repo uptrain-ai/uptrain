@@ -1,6 +1,3 @@
-import os
-os.environ['OPENAI_API_KEY'] = open("/Users/sourabhagrawal/Desktop/codes/llm/uptrain_experiments/uptrain_experiments/manager/key.txt", "r").read()
-
 from uptrain.framework.checks import SimpleCheck
 from uptrain.operators.language import (
     Embedding,
