@@ -23,7 +23,7 @@ class DeltaWriter(OpBaseModel):
     columns: t.Optional[list[str]] = None
 
     def setup(self, _: t.Optional[Settings] = None):
-        pass
+        return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         if self.columns is None:
@@ -48,6 +48,7 @@ class JsonWriter(OpBaseModel):
             raise Exception(
                 f"{self.fpath} already exists. JsonWriter doesn't support appending new rows to an existing file"
             )
+        return self
 
     def to_reader(self):
         from uptrain.io.readers import JsonReader

@@ -23,7 +23,7 @@ class RougeScore(ColumnOp):
     col_in_generated: str = "text_generated"
     col_in_source: str = "text_source"
 
-    def setup(self, _: Settings | None = None) -> None:
+    def setup(self, _: Settings | None = None):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:

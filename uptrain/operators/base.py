@@ -183,7 +183,7 @@ class PlaceholderOp(OpBaseModel):
     op_name: str
     params: dict[str, t.Any]
 
-    def setup(self, settings: "Settings" | None = None) -> None:
+    def setup(self, settings: "Settings" | None = None):
         raise NotImplementedError
 
     def run(self, *args: pl.DataFrame | None) -> None:
@@ -223,7 +223,7 @@ class SelectOp(TableOp):
             columns[col_name] = deserialize_operator(col_op)
         return cls(columns=columns)
 
-    def setup(self, settings: Settings | None) -> None:
+    def setup(self, settings: Settings | None):
         for _, col_op in self.columns.items():
             col_op.setup(settings)
         return self

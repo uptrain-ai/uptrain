@@ -64,6 +64,8 @@ class SimpleCheck(Operator):
             self._op_dag.add_step(f"sequence_{i}", op, deps=deps)
         self._op_dag.setup(settings)
 
+        return self
+
     def run(self, data: pl.DataFrame | None = None) -> pl.DataFrame | None:
         """Run this check on the given data."""
         if self._settings is None:
@@ -142,6 +144,8 @@ class CheckSet:
 
         for check in self.checks:
             check.setup(self.settings)
+
+        return self
 
     def run(self):
         """Run all checks in this set."""
