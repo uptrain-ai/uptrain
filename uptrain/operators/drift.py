@@ -10,6 +10,9 @@ The module provides the following classes:
 - ConceptDriftExecutor: Executor for the ConceptDrift operator.
 
 Example:
+    # Import the required classes
+    from uptrain.operators import ParamsDDM, ConceptDrift
+
     # Create an instance of the ParamsDDM class with the parameters
     params_ddm = ParamsDDM(warm_start=500, warn_threshold=2.0, alarm_threshold=3.0)
 
