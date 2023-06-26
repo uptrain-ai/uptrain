@@ -22,7 +22,7 @@ for table in parse_one("SELECT x.a, y.c FROM x JOIN y ON x.a = y.b").find_all(ex
 for table in parse_one("SELECT x.a, y.c FROM x JOIN y ON x.a = y.b").find_all(exp.Column):
     print(table.name)
 
-query = "SELECT x.a, y.c FROM x JOIN y ON x.a = y.b"
+query = "SELECT name as n FROM stadium EXCEPT SELECT T2.name FROM concert AS T1 JOIN stadium AS T2 ON T1.stadium_id  =  T2.stadium_id WHERE T1.year  =  2014"
 parsed = parse(query)
 print(type(parsed[0]))
 print(parsed[0])
