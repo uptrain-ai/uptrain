@@ -35,7 +35,7 @@ class Table(BaseModel):
 @register_op
 class GetSchemaDefinition(TableOp):
     col_in_schema: str = "schema"
-    col_out: str = "schema_def"
+    col_out_schema: str = "schema_def"
     col_out_tables: str = "schema_tables"
     col_out_db_path: str = "db_path"
     resources_path: str = ""
@@ -76,7 +76,7 @@ class GetSchemaDefinition(TableOp):
         tables = [result[1] for result in results]
         db_paths = [result[2] for result in results]
         return {"output": data.with_columns(
-            [pl.Series(self.col_out, schemas),
+            [pl.Series(self.col_out_schema, schemas),
              pl.Series(self.col_out_tables, tables),
              pl.Series(self.col_out_db_path, db_paths)])}
 
@@ -118,8 +118,8 @@ class ParseSQL(TableOp):
 class ValidateTables(TableOp):
     col_in_response_tables: str = "response_tables"
     col_in_schema_tables: str = "schema_tables"
-    col_out_tables_valid: str = "tables_valid"
-    col_out_cols_valid: str = "cols_valid"
+    col_out_is_tables_valid: str = "tables_valid"
+    col_out_is_cols_valid: str = "cols_valid"
 
     def setup(self, _: t.Optional[Settings] = None):
         return self
@@ -147,7 +147,7 @@ class ValidateTables(TableOp):
             results.append(is_valid_table)
             results_column.append(is_valid_column)
         return {"output": data.with_columns(
-            [pl.Series(self.col_out_tables_valid, results), pl.Series(self.col_out_cols_valid, results_column)])}
+            [pl.Series(self.col_out_is_tables_valid, results), pl.Series(self.col_out_is_cols_valid, results_column)])}
 
 
 @register_op
