@@ -22,8 +22,6 @@ from uptrain.operators.base import *
 
 sqlglot = lazy_load_dep("sqlglot", "sqlglot")
 
-__all__ = ["HasStar", "ParseCreateStatements", "ParseSQL", "ValidateTables", "ExecuteSQL"]
-
 
 # TODO: define a Table object and dump that into the dataframe
 class Table(BaseModel):
@@ -151,18 +149,3 @@ class ExecuteSQL(TableOp):
         for response_sql, gt_sql, db_path in zip(response_sqls, gt_sqls, db_paths):
             results.append(execute_and_compare_sql(response_sql, gt_sql, db_path))
         return {"output": data.with_columns([pl.Series(self.col_out_execution_accuracy, results)])}
-
-
-# Check if SQL has star
-@register_op
-class HasStar(TableOp):
-    col_in_text: str
-    col_out: str
-
-    def setup(self, _: t.Optional[Settings] = None):
-        return self
-
-    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        sqls = data.get_column(self.col_in_text)
-        results = ["*" in sql for sql in sqls]
-        return {"output": data.with_columns([pl.Series(self.col_out, results)])}

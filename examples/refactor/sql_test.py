@@ -2,12 +2,13 @@ import os
 from uptrain.framework import CheckSet, Settings, SimpleCheck
 from uptrain.io import JsonReader, JsonWriter
 
-from uptrain.operators.language.sql import HasStar, ParseSQL, ValidateTables, ExecuteSQL, sqlglot, \
-    ParseCreateStatements
+from uptrain.operators.language.sql import ParseSQL, ValidateTables, ExecuteSQL, ParseCreateStatements
 
-from uptrain.operators import PlotlyChart
+from uptrain.operators import PlotlyChart, SelectOp
 
 import polars as pl
+
+from uptrain.operators.language.text import KeywordDetector
 
 # Define the config
 LOGS_DIR = "/tmp/uptrain_logs"
@@ -53,10 +54,14 @@ def produce_dataset_w_spider_schema(source_path, sink_path, spider_dataset_path)
 select_all_check = SimpleCheck(
     name="Query has star symbol",
     sequence=[
-        HasStar(
-            col_in_text="response",
-            col_out="has_star_symbol_in_query"
-        ),
+        SelectOp(
+            columns={
+                "has_star_symbol_in_query": KeywordDetector(
+                    col_in_text="response",
+                    keyword="*"
+                ),
+            }
+        )
     ],
     plot=[
         PlotlyChart.Histogram(
