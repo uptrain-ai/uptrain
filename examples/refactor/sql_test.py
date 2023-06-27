@@ -40,12 +40,12 @@ sql_validity_check = SimpleCheck(
     ],
     plot=[
         PlotlyChart.Histogram(
-            title="Distribution: Generated SQL query is valid - table names",
+            title="Distribution: Generated SQL query is valid - column names",
             props=dict(x="cols_valid", nbins=2, color='model', barmode='group'),
         ),
         PlotlyChart.Histogram(
             title="Distribution: Generated SQL query is valid - table names",
-            props=dict(x="cols_valid", nbins=2, color='model', barmode='group'),
+            props=dict(x="tables_valid", nbins=2, color='model', barmode='group'),
         ),
     ],
 )
@@ -94,7 +94,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--start-streamlit", default=False, action="store_true")
+    parser.add_argument("--start-streamlit", default=True, action="store_true")
     args = parser.parse_args()
 
     DATASET_TEXT_TO_SQL = os.path.join(

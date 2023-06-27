@@ -70,15 +70,15 @@ class GetSchemaDefinition(BaseModel):
         return "\n\n".join(create_table_statements), json.dumps(tables_and_columns), db_path
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        schema_names = data.get_column(self.op.col_in_schema)
+        schema_names = data.get_column(self.col_in_schema)
         results = [self.__read_schema_definition(schema_name) for schema_name in schema_names]
         schemas = [result[0] for result in results]
         tables = [result[1] for result in results]
         db_paths = [result[2] for result in results]
         return {"output": data.with_columns(
-            [pl.Series(self.op.col_out, schemas),
-             pl.Series(self.op.col_out_tables, tables),
-             pl.Series(self.op.col_out_db_path, db_paths)])}
+            [pl.Series(self.col_out, schemas),
+             pl.Series(self.col_out_tables, tables),
+             pl.Series(self.col_out_db_path, db_paths)])}
 
 
 # parses output SQL and fetch tables, columns etc
@@ -92,7 +92,7 @@ class ParseSQL(TableOp):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        sqls = data.get_column(self.op.col_in_sql)
+        sqls = data.get_column(self.col_in_sql)
         tables = []
         is_valid = []
         for sql in sqls:
@@ -109,8 +109,8 @@ class ParseSQL(TableOp):
                 tables.append(json.dumps({}))
                 is_valid.append(False)
 
-        return {"output": data.with_columns([pl.Series(self.op.col_out_tables, tables),
-                                             pl.Series(self.op.col_out_is_valid_sql, is_valid)])}
+        return {"output": data.with_columns([pl.Series(self.col_out_tables, tables),
+                                             pl.Series(self.col_out_is_valid_sql, is_valid)])}
 
 
 # Ensures that table names from response are valid tables
@@ -125,8 +125,8 @@ class ValidateTables(TableOp):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        response_tables = data.get_column(self.op.col_in_response_tables)
-        schema_tables = data.get_column(self.op.col_in_schema_tables)
+        response_tables = data.get_column(self.col_in_response_tables)
+        schema_tables = data.get_column(self.col_in_schema_tables)
         results = []
         results_column = []
         for response_table, schema_table in zip(response_tables, schema_tables):
@@ -147,7 +147,7 @@ class ValidateTables(TableOp):
             results.append(is_valid_table)
             results_column.append(is_valid_column)
         return {"output": data.with_columns(
-            [pl.Series(self.op.col_out_tables_valid, results), pl.Series(self.op.col_out_cols_valid, results_column)])}
+            [pl.Series(self.col_out_tables_valid, results), pl.Series(self.col_out_cols_valid, results_column)])}
 
 
 @register_op
@@ -161,13 +161,13 @@ class ExecuteSQL(TableOp):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        response_sqls = data.get_column(self.op.col_in_response_sql)
-        gt_sqls = data.get_column(self.op.col_in_gt_sql)
-        db_paths = data.get_column(self.op.col_in_db_path)
+        response_sqls = data.get_column(self.col_in_response_sql)
+        gt_sqls = data.get_column(self.col_in_gt_sql)
+        db_paths = data.get_column(self.col_in_db_path)
         results = []
         for response_sql, gt_sql, db_path in zip(response_sqls, gt_sqls, db_paths):
             results.append(execute_and_compare_sql(response_sql, gt_sql, db_path))
-        return {"output": data.with_columns([pl.Series(self.op.col_out_execution_accuracy, results)])}
+        return {"output": data.with_columns([pl.Series(self.col_out_execution_accuracy, results)])}
 
 
 # Check if SQL has star
@@ -180,6 +180,6 @@ class HasStar(TableOp):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        sqls = data.get_column(self.op.col_in_text)
+        sqls = data.get_column(self.col_in_text)
         results = ["*" in sql for sql in sqls]
-        return {"output": data.with_columns([pl.Series(self.op.col_out, results)])}
+        return {"output": data.with_columns([pl.Series(self.col_out, results)])}
