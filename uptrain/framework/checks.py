@@ -1,6 +1,7 @@
 """Implements `Check` objects used for LLM evaluation purposes.
 """
 from __future__ import annotations
+from dataclasses import dataclass
 import os
 import typing as t
 
@@ -17,7 +18,8 @@ __all__ = [
 ]
 
 
-class SimpleCheck(OpBaseModel):
+@register_op
+class SimpleCheck(Operator):
     """A simple check that runs the given list of table operators in sequence.
 
     Attributes:
@@ -33,12 +35,20 @@ class SimpleCheck(OpBaseModel):
     _settings: Settings
     _op_dag: OperatorDAG
 
-    @root_validator(pre=True)
-    def check_ops(cls, values):
-        """Ensure that the compute ops are all TableOps."""
-        sequence = values.get("sequence")
-        if not all(isinstance(op, TableOp) for op in sequence):
-            raise ValueError(f"SimpleCheck compute ops must be TableOps")
+    def __init__(
+        self,
+        name: str,
+        sequence: list[TableOp],
+        plot: list[Operator] | None = None,
+    ):
+        self.name = name
+        self.sequence = sequence
+        self.plot = plot if plot is not None else []
+        self._settings = None  # type: ignore
+
+        for op in self.sequence:
+            if not isinstance(op, TableOp):
+                raise ValueError(f"SimpleCheck compute ops must be TableOps, got {op}")
 
     def setup(self, settings: "Settings"):
         self._settings = settings
@@ -86,7 +96,7 @@ class SimpleCheck(OpBaseModel):
         return cls(name=data["name"], sequence=sequence, plot=plot)  # type: ignore
 
 
-class CheckSet(OpBaseModel):
+class CheckSet:
     """Container for a set of checks to run together. This is the entrypoint to Uptrain for users.
 
     Attributes:
@@ -104,10 +114,6 @@ class CheckSet(OpBaseModel):
         self.checks = checks
         self.settings = settings
 
-    @root_validator
-    def check_checks(cls, values):
-        """Ensure that the checks are all SimpleChecks."""
-        checks = values.get("checks")
         check_names = [
             check.name for check in checks
         ]  # verify all checks have different names
@@ -115,7 +121,7 @@ class CheckSet(OpBaseModel):
         for check in checks:
             assert isinstance(
                 check, SimpleCheck
-            ), "All checks must be instances of SimpleCheck"
+            ), "Each check must be an instance of SimpleCheck"
 
     def _get_sink_for_check(self, check: SimpleCheck) -> Operator:
         """Get the sink for the given check."""

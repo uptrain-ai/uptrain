@@ -15,7 +15,7 @@ from uptrain.framework.base import OperatorDAG, Settings
 from uptrain.framework.checks import *
 
 
-class PromptExperiment(OpBaseModel):
+class PromptExperiment:
     """An experiment that runs a prompt on a set of models and checks the results.
 
     Attributes:
@@ -34,6 +34,22 @@ class PromptExperiment(OpBaseModel):
     source: str
     checks: list[SimpleCheck]
     settings: "Settings"
+
+    def __init__(
+        self,
+        prompt_template: str,
+        prompt_params: dict[str, list[str]],
+        models: list[str],
+        source: str,
+        checks: list[SimpleCheck],
+        settings: "Settings",
+    ):
+        self.prompt_template = prompt_template
+        self.prompt_params = prompt_params
+        self.models = models
+        self.source = source
+        self.checks = checks
+        self.settings = settings
 
     def setup(self, settings: "Settings" | None = None):
         return self
