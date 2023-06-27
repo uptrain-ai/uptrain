@@ -55,8 +55,8 @@ sql_validity_check = SimpleCheck(
         ),
         ValidateTables(col_in_response_tables="response_tables",
                        col_in_schema_tables="schema_tables",
-                       col_out_tables_valid="tables_valid",
-                       col_out_cols_valid="cols_valid")
+                       col_out_is_tables_valid="tables_valid",
+                       col_out_is_cols_valid="cols_valid")
     ],
     plot=[
         PlotlyChart.Histogram(
