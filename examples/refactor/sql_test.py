@@ -2,29 +2,50 @@ import os
 from uptrain.framework import CheckSet, Settings, SimpleCheck
 from uptrain.io import JsonReader, JsonWriter
 
-from uptrain.operators.language.sql import HasStar, ParseSQL, ValidateTables, ExecuteSQL, GetSchemaDefinition
+from uptrain.operators.language.sql import HasStar, ParseSQL, ValidateTables, ExecuteSQL, sqlglot, \
+    ParseCreateStatements
 
 from uptrain.operators import PlotlyChart
+
+import polars as pl
 
 # Define the config
 LOGS_DIR = "/tmp/uptrain_logs"
 
 
+# Reads schema definitions from spider dataset. schema definitions are a list of CREATE TABLE Statements
+def __read_schema_definition(schema_name, spider_dataset_path) -> (str, str, str):
+    # List to store all CREATE TABLE statements
+    create_table_statements = []
+    db_path = os.path.join(spider_dataset_path, f'database/{schema_name}/{schema_name}.sqlite')
+
+    with open(os.path.join(spider_dataset_path, f'database/{schema_name}/schema.sql'), 'r') as file:
+        content = file.read()
+
+        # SQL statements are separated by ';'
+        statements = content.split(';')
+
+        # Create table statements
+        for statement in statements:
+            if statement.upper().strip().startswith('CREATE TABLE'):
+                create_table_statements.append(statement.strip())
+
+    return ";\n\n".join(create_table_statements), db_path
+
+
 def produce_dataset_w_spider_schema(source_path, sink_path, spider_dataset_path):
     # Populate schema, sqllite file path from spider dataset
+    # Get spider dataset from https://yale-lily.github.io/spider
 
     source = JsonReader(fpath=source_path)
     source.setup()
     data = source.run()["output"]
 
-    op = SimpleCheck(
-        name="get_schema_check",
-        sequence=[
-            GetSchemaDefinition(),
-        ],
-    )
-    op.setup(Settings(resources_folder=spider_dataset_path))
-    data = op.run(data)
+    schema_names = data.get_column("schema")
+    results = [__read_schema_definition(schema_name, spider_dataset_path) for schema_name in schema_names]
+    schemas = [result[0] for result in results]
+    db_paths = [result[1] for result in results]
+    data = data.with_columns([pl.Series("schema_def", schemas), pl.Series("db_path", db_paths)])
 
     JsonWriter(fpath=sink_path).run(data)
 
@@ -48,6 +69,10 @@ select_all_check = SimpleCheck(
 sql_validity_check = SimpleCheck(
     name="Validate SQL",
     sequence=[
+        ParseCreateStatements(
+            col_in_schema_def="schema_def",
+            col_out_tables="schema_tables",
+        ),
         ParseSQL(
             col_in_sql="response",
             col_out_tables="response_tables",
@@ -117,7 +142,7 @@ if __name__ == "__main__":
     parser.add_argument("--start-streamlit", default=True, action="store_true")
     args = parser.parse_args()
 
-    # produce_dataset_w_spider_schema(DATASET_TEXT_TO_SQL, DATASET_TEXT_TO_SQL_OUT, "/tmp/uptrain_resources/")
+    # produce_dataset_w_spider_schema(DATASET_TEXT_TO_SQL, DATASET_TEXT_TO_SQL_OUT, "/tmp/uptrain_resources/spider")
     DATASET_TEXT_TO_SQL = os.path.join(
         os.path.dirname(os.path.abspath(__file__)),
         "../datasets/text_to_sql_sample.jsonl",

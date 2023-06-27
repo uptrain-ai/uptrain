@@ -22,7 +22,7 @@ from uptrain.operators.base import *
 
 sqlglot = lazy_load_dep("sqlglot", "sqlglot")
 
-__all__ = ["HasStar", "GetSchemaDefinition", "ParseSQL", "ValidateTables", "ExecuteSQL"]
+__all__ = ["HasStar", "ParseCreateStatements", "ParseSQL", "ValidateTables", "ExecuteSQL"]
 
 
 # TODO: define a Table object and dump that into the dataframe
@@ -32,54 +32,37 @@ class Table(BaseModel):
     columns: list
 
 
-# operators to read schema definition from Spider sql dataset
+# Read tables and columns information from CREATE TABLE statements
 @register_op
-class GetSchemaDefinition(TableOp):
-    col_in_schema: str
-    col_out_schema: str
+class ParseCreateStatements(TableOp):
+    col_in_schema_def: str
     col_out_tables: str
-    col_out_db_path: str
-    resources_path: str
 
     def setup(self, settings: t.Optional[Settings] = None):
-        self.resources_path = settings.resources_folder
         return self
 
-    def __read_schema_definition(self, schema_name) -> (str, str, str):
-        # List to store all CREATE TABLE statements
-        create_table_statements = []
+    def __fetch_tables_columns(self, create_statements) -> (str, str, str):
         tables_and_columns = {}
-        db_path = os.path.join(self.resources_path, f'spider/database/{schema_name}/{schema_name}.sqlite')
+        # SQL statements are separated by ';'
+        statements = create_statements.split(';')
 
-        with open(os.path.join(self.resources_path, f'spider/database/{schema_name}/schema.sql'), 'r') as file:
-            content = file.read()
+        # Create table statements
+        for statement in statements:
+            if statement.upper().strip().startswith('CREATE TABLE'):
+                # Add the statement to the list
+                statement = statement.strip()
+                # TODO: handle input database dialect instead of assuming it.
+                print(statement)
+                parsed = sqlglot.parse(statement, read=sqlglot.Dialects.SQLITE)
+                table, columns = extract_tables_and_columns_from_create(parsed[0])
+                tables_and_columns[table] = list(columns)
 
-            # SQL statements are separated by ';'
-            statements = content.split(';')
-
-            # Create table statements
-            for statement in statements:
-                if statement.upper().strip().startswith('CREATE TABLE'):
-                    # Add the statement to the list
-                    statement = statement.strip()
-                    # TODO: handle input databse dialect instead of assuming it.
-                    parsed = sqlglot.parse(statement, read=sqlglot.Dialects.SQLITE)
-                    table, columns = extract_tables_and_columns_from_create(parsed[0])
-                    tables_and_columns[table] = list(columns)
-                    create_table_statements.append(statement)
-
-        return ";\n\n".join(create_table_statements), json.dumps(tables_and_columns), db_path
+        return json.dumps(tables_and_columns)
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        schema_names = data.get_column(self.col_in_schema)
-        results = [self.__read_schema_definition(schema_name) for schema_name in schema_names]
-        schemas = [result[0] for result in results]
-        tables = [result[1] for result in results]
-        db_paths = [result[2] for result in results]
-        return {"output": data.with_columns(
-            [pl.Series(self.col_out_schema, schemas),
-             pl.Series(self.col_out_tables, tables),
-             pl.Series(self.col_out_db_path, db_paths)])}
+        schemas = data.get_column(self.col_in_schema_def)
+        tables = [self.__fetch_tables_columns(schema) for schema in schemas]
+        return {"output": data.with_columns([pl.Series(self.col_out_tables, tables)])}
 
 
 # parses output SQL and fetch tables, columns etc
