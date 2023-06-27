@@ -39,15 +39,8 @@ class GetSchemaDefinition(BaseModel):
     col_out_tables: str = "schema_tables"
     col_out_db_path: str = "db_path"
 
-    def make_executor(self, settings: t.Optional[Settings] = None):
-        return GetSchemaDefinitionExecutor(self, settings)
-
-
-class GetSchemaDefinitionExecutor(OperatorExecutor):
-    op: GetSchemaDefinition
-
-    def __init__(self, op: GetSchemaDefinition, settings: t.Optional[Settings] = None):
-        self.op = op
+    def setup(self, _: t.Optional[Settings] = None):
+        return self
 
     def __read_schema_definition(self, schema_name) -> (str, str, str):
         # TODO figure out a better way to set this
@@ -76,7 +69,7 @@ class GetSchemaDefinitionExecutor(OperatorExecutor):
 
         return "\n\n".join(create_table_statements), json.dumps(tables_and_columns), db_path
 
-    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         schema_names = data.get_column(self.op.col_in_schema)
         results = [self.__read_schema_definition(schema_name) for schema_name in schema_names]
         schemas = [result[0] for result in results]
@@ -90,22 +83,15 @@ class GetSchemaDefinitionExecutor(OperatorExecutor):
 
 # parses output SQL and fetch tables, columns etc
 @register_op
-class ParseSQL(BaseModel):
+class ParseSQL(TableOp):
     col_in_sql: str = "sql"
     col_out_tables: str = "sql_tables"
     col_out_is_valid_sql: str = "is_valid_sql"
 
-    def make_executor(self, settings: t.Optional[Settings] = None):
-        return ParseSQLExecutor(self, settings)
+    def setup(self, _: t.Optional[Settings] = None):
+        return self
 
-
-class ParseSQLExecutor(OperatorExecutor):
-    op: ParseSQL
-
-    def __init__(self, op: ParseSQL, settings: t.Optional[Settings] = None):
-        self.op = op
-
-    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         sqls = data.get_column(self.op.col_in_sql)
         tables = []
         is_valid = []
@@ -129,23 +115,16 @@ class ParseSQLExecutor(OperatorExecutor):
 
 # Ensures that table names from response are valid tables
 @register_op
-class ValidateTables(BaseModel):
+class ValidateTables(TableOp):
     col_in_response_tables: str = "response_tables"
     col_in_schema_tables: str = "schema_tables"
     col_out_tables_valid: str = "tables_valid"
     col_out_cols_valid: str = "cols_valid"
 
-    def make_executor(self, settings: t.Optional[Settings] = None):
-        return ValidateTablesExecutor(self, settings)
+    def setup(self, _: t.Optional[Settings] = None):
+        return self
 
-
-class ValidateTablesExecutor(OperatorExecutor):
-    op: ValidateTables
-
-    def __init__(self, op: ValidateTables, settings: t.Optional[Settings] = None):
-        self.op = op
-
-    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         response_tables = data.get_column(self.op.col_in_response_tables)
         schema_tables = data.get_column(self.op.col_in_schema_tables)
         results = []
@@ -172,23 +151,16 @@ class ValidateTablesExecutor(OperatorExecutor):
 
 
 @register_op
-class ExecuteSQL(BaseModel):
+class ExecuteSQL(TableOp):
     col_in_response_sql: str = "response_sql"
     col_in_gt_sql: str = "gt_query"
     col_in_db_path: str = "db_path"
     col_out_execution_accuracy: str = "execution_accuracy"
 
-    def make_executor(self, settings: t.Optional[Settings] = None):
-        return ExecuteSQLExecutor(self, settings)
+    def setup(self, settings: t.Optional[Settings] = None):
+        return self
 
-
-class ExecuteSQLExecutor(OperatorExecutor):
-    op: ExecuteSQL
-
-    def __init__(self, op: ExecuteSQL, settings: t.Optional[Settings] = None):
-        self.op = op
-
-    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         response_sqls = data.get_column(self.op.col_in_response_sql)
         gt_sqls = data.get_column(self.op.col_in_gt_sql)
         db_paths = data.get_column(self.op.col_in_db_path)
@@ -197,23 +169,17 @@ class ExecuteSQLExecutor(OperatorExecutor):
             results.append(execute_and_compare_sql(response_sql, gt_sql, db_path))
         return {"output": data.with_columns([pl.Series(self.op.col_out_execution_accuracy, results)])}
 
+
 # Check if SQL has star
 @register_op
-class HasStar(BaseModel):
+class HasStar(TableOp):
     col_in_text: str = "text"
     col_out: str = get_output_col_name_at(0)
 
-    def make_executor(self, settings: t.Optional[Settings] = None):
-        return HasStarExecutor(self)
+    def setup(self, _: t.Optional[Settings] = None):
+        return self
 
-
-class HasStarExecutor(OperatorExecutor):
-    op: HasStar
-
-    def __init__(self, op: HasStar):
-        self.op = op
-
-    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         sqls = data.get_column(self.op.col_in_text)
         results = ["*" in sql for sql in sqls]
         return {"output": data.with_columns([pl.Series(self.op.col_out, results)])}
