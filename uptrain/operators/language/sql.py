@@ -9,17 +9,18 @@ import json
 import os
 import typing as t
 
-import sqlglot
-from sqlglot.errors import ParseError
 from pydantic import BaseModel
 import polars as pl
 
+from uptrain.utilities import lazy_load_dep
 from uptrain.utilities.sql_utils import extract_tables_and_columns, extract_tables_and_columns_from_create, \
     PLACEHOLDER_TABLE, execute_and_compare_sql
 
 if t.TYPE_CHECKING:
     from uptrain.framework.base import *
 from uptrain.operators.base import *
+
+sqlglot = lazy_load_dep("sqlglot", "sqlglot")
 
 __all__ = ["HasStar", "GetSchemaDefinition", "ParseSQL", "ValidateTables", "ExecuteSQL"]
 
@@ -105,7 +106,7 @@ class ParseSQL(TableOp):
                     tables_and_columns[table] = list(columns)
                 tables.append(json.dumps(tables_and_columns))
                 is_valid.append(True)
-            except ParseError:
+            except sqlglot.errors.ParseError:
                 tables.append(json.dumps({}))
                 is_valid.append(False)
 
