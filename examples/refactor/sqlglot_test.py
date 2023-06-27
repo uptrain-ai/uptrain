@@ -1,7 +1,7 @@
 from sqlglot import parse_one, exp, parse
 
 from uptrain.utilities.sql_utils import extract_tables_and_columns, extract_tables_and_columns_from_create
-
+# TODO: convert this into unit test
 # print all column references (a and b)
 for column in parse_one("SELECT *, b + 1 AS c FROM d").find_all(exp.Column):
     print(column.alias_or_name)
@@ -29,6 +29,16 @@ print(parsed[0])
 tables_and_columns = extract_tables_and_columns(parsed[0])
 print(tables_and_columns)
 
+query = """SELECT s.Name, s.Song_release_year
+FROM singer s
+WHERE s.Age = (SELECT MIN(Age) FROM singer)
+LIMIT 1;"""
+parsed = parse(query)
+print(type(parsed[0]))
+print(parsed[0])
+tables_and_columns = extract_tables_and_columns(parsed[0])
+print(tables_and_columns)
+
 query = """
 CREATE TABLE "stadium" (
 "Stadium_ID" int,
@@ -41,7 +51,24 @@ CREATE TABLE "stadium" (
 PRIMARY KEY ("Stadium_ID")
 )
 """
+parsed = parse(query)
+print(type(parsed[0]))
+print(parsed[0])
+tables_and_columns = extract_tables_and_columns_from_create(parsed[0])
+print(tables_and_columns)
 
+query = """
+create table Student (
+       StuID            INTEGER PRIMARY KEY,
+       LName            VARCHAR(12),
+       Fname            VARCHAR(12),
+       Age              INTEGER,
+       Sex              VARCHAR(1),
+       Major            INTEGER,
+       Advisor          INTEGER,
+       city_code        VARCHAR(3)
+);
+"""
 parsed = parse(query)
 print(type(parsed[0]))
 print(parsed[0])
