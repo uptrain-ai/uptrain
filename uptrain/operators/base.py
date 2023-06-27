@@ -1,7 +1,9 @@
-"""Operators for the uptrain.core module. 
+"""
+Operators for the uptrain.core module. 
 
 - Arrow/Numpy conversion utils - since we leverage duckdb as a cache and ray for execution, intermediate 
 outputs are stored as Arrow batches. 
+
 """
 
 from __future__ import annotations
@@ -47,7 +49,8 @@ class TYPE_COLUMN_OUTPUT(te.TypedDict):
 
 
 class Operator(t.Protocol):
-    """All operator implementations must implement this protocol.
+    """
+    All operator implementations must implement this protocol.
 
     An operator is usually defined as a pydantic model with the parameters
     necessary to run it. For ex,
@@ -57,15 +60,18 @@ class Operator(t.Protocol):
 
     NOTE: An operator must also define a `run` method with the signature below.
     I can't make mypy happy with it yet though.
+
     """
 
     def dict(self) -> dict:
-        """Serialize this operator to a json dictionary. The objective is to be able to
+        """
+        Serialize this operator to a json dictionary. The objective is to be able to
         recreate the operator from this dict.
 
         NOTE: If your operator is a pydantic model, pydantic handles this. Though for fields
         with custom non-python types, you MUST override and implement both a `dict` and a
         `from_dict` method.
+
         """
         ...
 
@@ -85,6 +91,7 @@ class OpBaseModel(BaseModel):
     Attributes:
         _state (dict): A dict you can use to store state values between multiple
             calls to the `run` method.
+
     """
 
     _state: dict = Field(default_factory=dict)
@@ -99,7 +106,8 @@ class ColumnOp(OpBaseModel):
         raise NotImplementedError
 
     def run(self, data: pl.DataFrame | None = None) -> TYPE_COLUMN_OUTPUT:
-        """Runs the operator on the given data.
+        """
+        Runs the operator on the given data.
 
         Args:
             data (pl.DataFrame): A polars dataframe. It computes a function over one/multiple
@@ -108,6 +116,7 @@ class ColumnOp(OpBaseModel):
         Returns:
             A dictionary with the `output` key set to the computed Series/None. Any extra
                 information can be put in the `extra` key.
+
         """
         raise NotImplementedError
 
@@ -125,6 +134,7 @@ class TableOp(OpBaseModel):
         Returns:
             A dictionary with the `output` key set to the computed dataframe/None. Any extra
                 information can be put in the `extra` key.
+                
         """
         raise NotImplementedError
 

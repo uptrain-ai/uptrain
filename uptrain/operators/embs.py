@@ -5,7 +5,7 @@ Operators:
 - `Distribution`: Computes the distribution of similarity metrics.
 - `UMAP`: Performs UMAP dimensionality reduction.
 
-Note: The above operators only take embeddings as input. Refer uptrain.operators.language.embedding to learn more.
+NOTE: The above operators only take embeddings as input. Refer uptrain.operators.language.embedding to learn more.
 
 Examples:
     Example 1 - Distribution operator:
