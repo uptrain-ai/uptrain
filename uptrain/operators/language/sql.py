@@ -52,7 +52,6 @@ class ParseCreateStatements(TableOp):
                 # Add the statement to the list
                 statement = statement.strip()
                 # TODO: handle input database dialect instead of assuming it.
-                print(statement)
                 parsed = sqlglot.parse(statement, read=sqlglot.Dialects.SQLITE)
                 table, columns = extract_tables_and_columns_from_create(parsed[0])
                 tables_and_columns[table] = list(columns)
