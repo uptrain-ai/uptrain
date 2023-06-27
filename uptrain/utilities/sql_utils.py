@@ -88,7 +88,7 @@ def run_query(query, connection):
 
 
 # Execute predicted SQL, ground truth and compute execution accuracy of the predicted sql
-def execute_sql(predicted_sql, ground_truth, db_path, ignore_column_order=True, ignore_row_order=True):
+def execute_and_compare_sql(predicted_sql, ground_truth, db_path, ignore_column_order=True, ignore_row_order=True):
     conn = sqlite3.connect(db_path)
     res = False
     try:
@@ -124,7 +124,7 @@ if __name__ == "__main__":
     gt_query = """
     SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'
     """
-    res = execute_sql(predicted_sql, gt_query, "/Users/bhanu/src/uptrain_experiments/llm/spider/database/concert_singer/concert_singer.sqlite")
+    res = execute_and_compare_sql(predicted_sql, gt_query, "/Users/bhanu/src/uptrain_experiments/llm/spider/database/concert_singer/concert_singer.sqlite")
     print(res)
 
     # Issue: selects wrong column
@@ -136,7 +136,7 @@ LIMIT 1;"""
     gt_query = """
         SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1
         """
-    res = execute_sql(predicted_sql, gt_query,
+    res = execute_and_compare_sql(predicted_sql, gt_query,
                       "/Users/bhanu/src/uptrain_experiments/llm/spider/database/concert_singer/concert_singer.sqlite")
     print(res)
 
@@ -144,14 +144,14 @@ LIMIT 1;"""
     # Issue: incorrect order of select columns
     predicted_sql = "SELECT City, COUNT(Employee_ID) AS num_employees FROM employee GROUP BY City;"
     gt_query = "SELECT count(*) ,  city FROM employee GROUP BY city"
-    res = execute_sql(predicted_sql, gt_query,
+    res = execute_and_compare_sql(predicted_sql, gt_query,
                       "/Users/bhanu/src/uptrain_experiments/llm/spider/database/employee_hire_evaluation/employee_hire_evaluation.sqlite")
     assert res
 
     # Ignore column order and row order
     predicted_sql = "SELECT City, COUNT(Employee_ID) AS num_employees FROM employee GROUP BY City order by City;"
     gt_query = "SELECT city, count(*) as cnt FROM employee GROUP BY city order by cnt"
-    res = execute_sql(predicted_sql, gt_query,
+    res = execute_and_compare_sql(predicted_sql, gt_query,
                       "/Users/bhanu/src/uptrain_experiments/llm/spider/database/employee_hire_evaluation/employee_hire_evaluation.sqlite")
     assert res
 
@@ -159,13 +159,13 @@ LIMIT 1;"""
     # Issue: incorrect GT query
     predicted_sql = "SELECT Name FROM teacher WHERE Hometown <> 'Little Lever Urban District'"
     gt_query = "select name from teacher where hometown != \"little lever urban district\""
-    res = execute_sql(predicted_sql, gt_query,
+    res = execute_and_compare_sql(predicted_sql, gt_query,
                       "/Users/bhanu/src/uptrain_experiments/llm/spider/database/course_teach/course_teach.sqlite")
     print(res)
 
     # Issue: incorrect order of select columns and column case
     predicted_sql = "SELECT PetType, MAX(weight) FROM Pets GROUP BY PetType;"
     gt_query = "SELECT max(weight) ,  petType FROM pets GROUP BY petType"
-    res = execute_sql(predicted_sql, gt_query,
+    res = execute_and_compare_sql(predicted_sql, gt_query,
                       "/Users/bhanu/src/uptrain_experiments/llm/spider/database/pets_1/pets_1.sqlite")
     print(res)

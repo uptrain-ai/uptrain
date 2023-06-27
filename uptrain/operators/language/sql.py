@@ -15,7 +15,7 @@ from pydantic import BaseModel
 import polars as pl
 
 from uptrain.utilities.sql_utils import extract_tables_and_columns, extract_tables_and_columns_from_create, \
-    PLACEHOLDER_TABLE, execute_sql
+    PLACEHOLDER_TABLE, execute_and_compare_sql
 
 if t.TYPE_CHECKING:
     from uptrain.framework.base import *
@@ -194,7 +194,7 @@ class ExecuteSQLExecutor(OperatorExecutor):
         db_paths = data.get_column(self.op.col_in_db_path)
         results = []
         for response_sql, gt_sql, db_path in zip(response_sqls, gt_sqls, db_paths):
-            results.append(execute_sql(response_sql, gt_sql, db_path))
+            results.append(execute_and_compare_sql(response_sql, gt_sql, db_path))
         return {"output": data.with_columns([pl.Series(self.op.col_out_execution_accuracy, results)])}
 
 # Check if SQL has star
