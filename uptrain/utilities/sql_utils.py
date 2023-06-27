@@ -2,6 +2,9 @@ import sqlite3
 from collections import defaultdict
 from typing import Dict, Any, Set
 
+import numpy as np
+import polars as pl
+
 from sqlglot import Expression
 from sqlglot.expressions import Table, Column, ColumnDef, Create, Schema
 
@@ -72,22 +75,41 @@ def extract_tables_and_columns_from_create(expression: Create):
     return table_name, columns
 
 
+def run_query(query, connection):
+    cursor = connection.cursor()
+    cursor.execute(query)
+
+    # Get data and column names from the cursor
+    data = cursor.fetchall()
+    columns = [description[0] for description in cursor.description]
+
+    df = pl.DataFrame(data, columns)
+    return df
+
+
 # Execute predicted SQL, ground truth and compute execution accuracy of the predicted sql
-# From: https://github.com/AlibabaResearch/DAMO-ConvAI/blob/main/bird/llm/src/evaluation.py
-def execute_sql(predicted_sql, ground_truth, db_path):
+def execute_sql(predicted_sql, ground_truth, db_path, ignore_column_order=True, ignore_row_order=True):
     conn = sqlite3.connect(db_path)
-    # Connect to the database
-    cursor = conn.cursor()
-    # TODO read output as dataframe and compare based on columns
-    # TODO change return value to boolean
-    res = 0
+    res = False
     try:
-        cursor.execute(predicted_sql)
-        predicted_res = cursor.fetchall()
-        cursor.execute(ground_truth)
-        ground_truth_res = cursor.fetchall()
-        if set(predicted_res) == set(ground_truth_res):
-            res = 1
+        # Run the queries
+        pred_df = run_query(predicted_sql, conn)
+        gt_df = run_query(ground_truth, conn)
+
+        # Close the connection
+        conn.close()
+
+        if ignore_column_order:
+            # Bring the columns to the same order
+            pred_df = pred_df.select(sorted(pred_df.columns, key=str.lower))
+            gt_df = gt_df.select(sorted(gt_df.columns, key=str.lower))
+
+        if ignore_row_order:
+            # Sort the dataframe rows to ignore row order
+            pred_df = pred_df.sort(list(pred_df.columns))
+            gt_df = gt_df.sort(list(gt_df.columns))
+
+        res = np.array_equal(pred_df.to_numpy(), gt_df.to_numpy())
     except Exception as e:
         logger.warning(f"Error executing: {e}")
         pass
@@ -95,11 +117,10 @@ def execute_sql(predicted_sql, ground_truth, db_path):
 
 
 if __name__ == "__main__":
+    # TODO: move these to unit tests
     # Issue: Selects country as French instead of France
     predicted_sql = """
-    SELECT AVG(Age), MIN(Age), MAX(Age)
-FROM singer
-WHERE Country = 'French'"""
+    SELECT """
     gt_query = """
     SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'
     """
@@ -125,7 +146,14 @@ LIMIT 1;"""
     gt_query = "SELECT count(*) ,  city FROM employee GROUP BY city"
     res = execute_sql(predicted_sql, gt_query,
                       "/Users/bhanu/src/uptrain_experiments/llm/spider/database/employee_hire_evaluation/employee_hire_evaluation.sqlite")
-    print(res)
+    assert res
+
+    # Ignore column order and row order
+    predicted_sql = "SELECT City, COUNT(Employee_ID) AS num_employees FROM employee GROUP BY City order by City;"
+    gt_query = "SELECT city, count(*) as cnt FROM employee GROUP BY city order by cnt"
+    res = execute_sql(predicted_sql, gt_query,
+                      "/Users/bhanu/src/uptrain_experiments/llm/spider/database/employee_hire_evaluation/employee_hire_evaluation.sqlite")
+    assert res
 
 
     # Issue: incorrect GT query
@@ -133,4 +161,11 @@ LIMIT 1;"""
     gt_query = "select name from teacher where hometown != \"little lever urban district\""
     res = execute_sql(predicted_sql, gt_query,
                       "/Users/bhanu/src/uptrain_experiments/llm/spider/database/course_teach/course_teach.sqlite")
+    print(res)
+
+    # Issue: incorrect order of select columns and column case
+    predicted_sql = "SELECT PetType, MAX(weight) FROM Pets GROUP BY PetType;"
+    gt_query = "SELECT max(weight) ,  petType FROM pets GROUP BY petType"
+    res = execute_sql(predicted_sql, gt_query,
+                      "/Users/bhanu/src/uptrain_experiments/llm/spider/database/pets_1/pets_1.sqlite")
     print(res)
