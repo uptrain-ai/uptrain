@@ -62,34 +62,23 @@
 3) Monitor your model's performance in production and protect yourself against unwanted drifts
 
 
-# Integrations
-
-| Eval Frameworks  | LLM Providers | LLM Packages | Serving frameworks | 
-| ------------- | ------------- | ------------- | ------------- | 
-| OpenAI Evals ✅ | GPT-3.5-turbo ✅ | Langchain | HuggingFace |
-| EleutherAI LM Eval  | GPT-4 ✅  | Llama Index |  Replicate |
-| BIG-Bench | Claude | AutoGPT |
-| | Cohere | 
-
 # Key Features 💡
 
 
-- **[Output Validation]()** - Safeguard against 
-- **[Embeddings Similarity Check](https://docs.uptrain.ai/docs/uptrain-monitors/data-drift)** - Compute cosine similarity between prompt and response embeddings
-- **[UMAP Visualization and Clustering](https://docs.uptrain.ai/docs/uptrain-monitors/concept-drift)** - Track the performance of your models in realtime and get degradation alerts.
-- **[ChatGPT Grading](https://github.com/uptrain-ai/uptrain/blob/main/examples/text_summarization/run.ipynb)** - Specialized dashboards to understand model-inferred embeddings.
-- **[Custom Grading Checks](https://docs.uptrain.ai/docs/uptrain-monitors/edge-case-detection)** - User-defined signals and statistical techniques to detect out-of-distribution data-points.
-- **[](https://docs.uptrain.ai/docs/uptrain-monitors/data-integrity)** - Checks for missing or inconsistent data, duplicate records, data quality, etc. 
-- **[Read from Delta Table and JSONL files](https://docs.uptrain.ai/docs/monitoring-custom-metrics)** - Define custom metrics that make sense for your use case.
-- **[Hallucination Checks](https://github.com/uptrain-ai/uptrain/blob/main/examples/human_orientation_classification/deepdive_examples/uptrain_check_all.ipynb)** - Automate model retraining by attaching your training and inference pipelines.
-- **[Toxic Keywords Checks](https://docs.uptrain.ai/docs/uptrain-monitors/model-bias)** - Track bias in your ML model's predictions.
-- **[Feature Slicing](https://docs.uptrain.ai/docs/uptrain-visuals/shap-explainability)** - Understand relative importance of multiple features on predictions.
-- **Realtime Dashboards** - To visualize your model's health live.
-
+- **[ChatGPT Grading]()** - Utilize LLMs to grade your model outputs.
+- **[Custom Grading Checks]()** - Write your custom grading prompts.
+- **[Embeddings Similarity Check]()** - Compute cosine similarity between prompt and response embeddings
+- **[Output Validation]()** - Safeguard your users against inappropriate responses
+- **[Prompt A/B Testing]()** - Experiment across multiple prompts and compare them quantatively.
+- **[UMAP Visualization and Clustering]()** - Visualize your embeddings space using tools like UMAP and t-SNE.
+- **[Hallucination Checks]()** - Use metrics like custom grading, text similarity, emeddings similarity to check for hallucinations.
+- **[Toxic Keywords Checks]()** - Make sure your model outputs are not biased or contains toxic keywords.
+- **[Feature Slicing]()** - Built-in pivoting functionalities for data dice and slice to pinpoint low performing cohorts.
+- **[Realtime Dashboards]()** - Monitor your model's performance in realtime.
 
 # Get started 🙌
 
-You can quickly get started with [Google Colab here](https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing%2F).
+<!-- You can quickly get started with [Google Colab here](https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing%2F). -->
 
 To run it in your machine, follow the steps below:
 
@@ -115,7 +104,7 @@ checkset = CheckSet(
         ],
         plot = PlotlyChart(kind = "table")
     ),
-    source = '...',
+    source = JsonReader(fpath = '...'),
     settings = Settings(openai_api_key = '...')
 )
 
@@ -128,6 +117,16 @@ For a quick walkthrough of how UpTrain works, check out our [quickstart tutorial
 
 <h4> </h4>
 
+# Integrations
+
+| Eval Frameworks  | LLM Providers | LLM Packages | Serving frameworks | 
+| ------------- | ------------- | ------------- | ------------- | 
+| OpenAI Evals ✅ | GPT-3.5-turbo ✅ | Langchain | HuggingFace |
+| EleutherAI LM Eval  | GPT-4 ✅  | Llama Index |  Replicate |
+| BIG-Bench | Claude | AutoGPT |
+| | Cohere | 
+
+
 # UpTrain in Action
 
 ## Experimentation
@@ -139,8 +138,6 @@ You can use the UpTrain experimentation api to run and compare LLM responses for
 ## Validation
 
 ## Monitoring
-
-
 
 
 # Why UpTrain 🤔?
