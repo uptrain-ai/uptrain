@@ -10,14 +10,22 @@ The module provides the following classes:
 - ConceptDriftExecutor: Executor for the ConceptDrift operator.
 
 Example:
-    # Import the required classes
+    import polars as pl
     from uptrain.operators import ParamsDDM, ConceptDrift
 
     # Create an instance of the ParamsDDM class with the parameters
-    params_ddm = ParamsDDM(warm_start=500, warn_threshold=2.0, alarm_threshold=3.0)
+    params_ddm = ParamsDDM(
+                    warm_start=500,
+                    warn_threshold=2.0,
+                    alarm_threshold=3.0
+                )
 
     # Create an instance of the ConceptDrift operator
-    op = ConceptDrift(algorithm="DDM", params=params_ddm, col_in_measure="metric")
+    op = ConceptDrift(
+            algorithm="DDM",
+            params=params_ddm,
+            col_in_measure="metric"
+        )
 
     # Set up the operator
     op.setup()
@@ -28,9 +36,11 @@ Example:
 
     # Check the detected concept drift information
     if output["alert_info"] is not None:
-        print("Concept drift detected!")
         print("Counter:", output["alert_info"]["counter"])
-        print("Message:", output["alert_info"]["msg"])
+
+Output:
+    INFO     | uptrain.operators.drift:run:181 - Drift detected using DDM!
+    Counter: 129466
 
 """
 
