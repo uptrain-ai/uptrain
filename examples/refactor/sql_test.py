@@ -1,13 +1,33 @@
 import os
 from uptrain.framework import CheckSet, Settings, SimpleCheck
-from uptrain.io import JsonReader
+from uptrain.io import JsonReader, JsonWriter
 
-from uptrain.operators.language.sql import HasStar, ParseSQL, ValidateTables, ExecuteSQL
+from uptrain.operators.language.sql import HasStar, ParseSQL, ValidateTables, ExecuteSQL, GetSchemaDefinition
 
 from uptrain.operators import PlotlyChart
 
 # Define the config
 LOGS_DIR = "/tmp/uptrain_logs"
+
+
+def produce_dataset_w_spider_schema(source_path, sink_path, spider_dataset_path):
+    # Populate schema, sqllite file path from spider dataset
+
+    source = JsonReader(fpath=source_path)
+    source.setup()
+    data = source.run()["output"]
+
+    op = SimpleCheck(
+        name="get_schema_check",
+        sequence=[
+            GetSchemaDefinition(),
+        ],
+    )
+    op.setup(Settings(resources_folder=spider_dataset_path))
+    data = op.run(data)
+
+    JsonWriter(fpath=sink_path).run(data)
+
 
 select_all_check = SimpleCheck(
     name="Query has star symbol",
@@ -97,6 +117,7 @@ if __name__ == "__main__":
     parser.add_argument("--start-streamlit", default=True, action="store_true")
     args = parser.parse_args()
 
+    # produce_dataset_w_spider_schema(DATASET_TEXT_TO_SQL, DATASET_TEXT_TO_SQL_OUT, "/tmp/uptrain_resources/")
     DATASET_TEXT_TO_SQL = os.path.join(
         os.path.dirname(os.path.abspath(__file__)),
         "../datasets/text_to_sql_sample.jsonl",

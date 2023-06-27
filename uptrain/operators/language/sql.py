@@ -33,24 +33,24 @@ class Table(BaseModel):
 
 # operators to read schema definition from Spider sql dataset
 @register_op
-class GetSchemaDefinition(BaseModel):
+class GetSchemaDefinition(TableOp):
     col_in_schema: str = "schema"
     col_out: str = "schema_def"
     col_out_tables: str = "schema_tables"
     col_out_db_path: str = "db_path"
+    resources_path: str = ""
 
-    def setup(self, _: t.Optional[Settings] = None):
+    def setup(self, settings: t.Optional[Settings] = None):
+        self.resources_path = settings.resources_folder
         return self
 
     def __read_schema_definition(self, schema_name) -> (str, str, str):
-        # TODO figure out a better way to set this
-        resources_path = "/Users/bhanu/src/uptrain_experiments/llm/spider/database"
         # List to store all CREATE TABLE statements
         create_table_statements = []
         tables_and_columns = {}
-        db_path = os.path.join(resources_path, f'{schema_name}/{schema_name}.sqlite')
+        db_path = os.path.join(self.resources_path, f'spider/database/{schema_name}/{schema_name}.sqlite')
 
-        with open(os.path.join(resources_path, f'{schema_name}/schema.sql'), 'r') as file:
+        with open(os.path.join(self.resources_path, f'spider/database/{schema_name}/schema.sql'), 'r') as file:
             content = file.read()
 
             # SQL statements are separated by ';'
