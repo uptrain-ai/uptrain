@@ -118,8 +118,8 @@ class ParseSQL(TableOp):
 class ValidateTables(TableOp):
     col_in_response_tables: str = "response_tables"
     col_in_schema_tables: str = "schema_tables"
-    col_out_is_tables_valid: str = "tables_valid"
-    col_out_is_cols_valid: str = "cols_valid"
+    col_out_is_tables_valid: str = "is_tables_valid"
+    col_out_is_cols_valid: str = "is_cols_valid"
 
     def setup(self, _: t.Optional[Settings] = None):
         return self
