@@ -5,7 +5,7 @@
 </h4>
 <h2>
   <p align="center">
-    <p align="center">An open-source framework to observe ML applications, built for engineers</p>
+    <p align="center">An open-source framework to evaluate, validate, test and monitor LLM applications</p>
   </p>
 </h2>
 
