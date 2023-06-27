@@ -35,11 +35,11 @@ class Table(BaseModel):
 # operators to read schema definition from Spider sql dataset
 @register_op
 class GetSchemaDefinition(TableOp):
-    col_in_schema: str = "schema"
-    col_out_schema: str = "schema_def"
-    col_out_tables: str = "schema_tables"
-    col_out_db_path: str = "db_path"
-    resources_path: str = ""
+    col_in_schema: str
+    col_out_schema: str
+    col_out_tables: str
+    col_out_db_path: str
+    resources_path: str
 
     def setup(self, settings: t.Optional[Settings] = None):
         self.resources_path = settings.resources_folder
@@ -68,7 +68,7 @@ class GetSchemaDefinition(TableOp):
                     tables_and_columns[table] = list(columns)
                     create_table_statements.append(statement)
 
-        return "\n\n".join(create_table_statements), json.dumps(tables_and_columns), db_path
+        return ";\n\n".join(create_table_statements), json.dumps(tables_and_columns), db_path
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         schema_names = data.get_column(self.col_in_schema)
@@ -85,9 +85,9 @@ class GetSchemaDefinition(TableOp):
 # parses output SQL and fetch tables, columns etc
 @register_op
 class ParseSQL(TableOp):
-    col_in_sql: str = "sql"
-    col_out_tables: str = "sql_tables"
-    col_out_is_valid_sql: str = "is_valid_sql"
+    col_in_sql: str
+    col_out_tables: str
+    col_out_is_valid_sql: str
 
     def setup(self, _: t.Optional[Settings] = None):
         return self
@@ -117,10 +117,10 @@ class ParseSQL(TableOp):
 # Ensures that table names from response are valid tables
 @register_op
 class ValidateTables(TableOp):
-    col_in_response_tables: str = "response_tables"
-    col_in_schema_tables: str = "schema_tables"
-    col_out_is_tables_valid: str = "is_tables_valid"
-    col_out_is_cols_valid: str = "is_cols_valid"
+    col_in_response_tables: str
+    col_in_schema_tables: str
+    col_out_is_tables_valid: str
+    col_out_is_cols_valid: str
 
     def setup(self, _: t.Optional[Settings] = None):
         return self
@@ -153,10 +153,10 @@ class ValidateTables(TableOp):
 
 @register_op
 class ExecuteSQL(TableOp):
-    col_in_response_sql: str = "response_sql"
-    col_in_gt_sql: str = "gt_query"
-    col_in_db_path: str = "db_path"
-    col_out_execution_accuracy: str = "execution_accuracy"
+    col_in_response_sql: str
+    col_in_gt_sql: str
+    col_in_db_path: str
+    col_out_execution_accuracy: str
 
     def setup(self, settings: t.Optional[Settings] = None):
         return self
@@ -174,8 +174,8 @@ class ExecuteSQL(TableOp):
 # Check if SQL has star
 @register_op
 class HasStar(TableOp):
-    col_in_text: str = "text"
-    col_out: str = get_output_col_name_at(0)
+    col_in_text: str
+    col_out: str
 
     def setup(self, _: t.Optional[Settings] = None):
         return self
