@@ -5,6 +5,8 @@ from typing import Dict, Any, Set
 from sqlglot import Expression
 from sqlglot.expressions import Table, Column, ColumnDef, Create, Schema
 
+from loguru import logger
+
 PLACEHOLDER_TABLE = "PLACEHOLDER_TABLE"
 
 
@@ -70,7 +72,7 @@ def extract_tables_and_columns_from_create(expression: Create):
     return table_name, columns
 
 
-# Execute predicted SQL, ground truth and compare the result
+# Execute predicted SQL, ground truth and compute execution accuracy of the predicted sql
 # From: https://github.com/AlibabaResearch/DAMO-ConvAI/blob/main/bird/llm/src/evaluation.py
 def execute_sql(predicted_sql, ground_truth, db_path):
     conn = sqlite3.connect(db_path)
@@ -87,8 +89,7 @@ def execute_sql(predicted_sql, ground_truth, db_path):
         if set(predicted_res) == set(ground_truth_res):
             res = 1
     except Exception as e:
-        print("error executing", e)
-        # TODO: should not silently error out add log error
+        logger.warning(f"Error executing: {e}")
         pass
     return res
 
