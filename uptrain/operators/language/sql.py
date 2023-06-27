@@ -1,5 +1,5 @@
 """
-Implement oeprators over text data.
+Implement oeprators over sql data.
 """
 
 from __future__ import annotations
@@ -18,7 +18,7 @@ from uptrain.utilities.sql_utils import extract_tables_and_columns, extract_tabl
     PLACEHOLDER_TABLE, execute_sql
 
 if t.TYPE_CHECKING:
-    from uptrain.framework.config import *
+    from uptrain.framework.base import *
 from uptrain.operators.base import *
 
 __all__ = ["HasStar", "GetSchemaDefinition", "ParseSQL", "ValidateTables", "ExecuteSQL"]
@@ -65,13 +65,13 @@ class GetSchemaDefinitionExecutor(OperatorExecutor):
 
             # Create table statements
             for statement in statements:
-                if statement.strip().startswith('CREATE TABLE'):
+                if statement.upper().strip().startswith('CREATE TABLE'):
                     # Add the statement to the list
                     statement = statement.strip()
                     # TODO: handle input databse dialect instead of assuming it.
                     parsed = sqlglot.parse(statement, read=sqlglot.Dialects.SQLITE)
                     table, columns = extract_tables_and_columns_from_create(parsed[0])
-                    tables_and_columns[table] = columns
+                    tables_and_columns[table] = list(columns)
                     create_table_statements.append(statement)
 
         return "\n\n".join(create_table_statements), json.dumps(tables_and_columns), db_path
@@ -113,7 +113,11 @@ class ParseSQLExecutor(OperatorExecutor):
             try:
                 # TODO: parse using expected dialect
                 parsed = sqlglot.parse(sql)
-                tables.append(json.dumps(extract_tables_and_columns(parsed[0])))
+                tables_and_columns = extract_tables_and_columns(parsed[0])
+                # Since sets are not serializable, convert to list
+                for table, columns in tables_and_columns.items():
+                    tables_and_columns[table] = list(columns)
+                tables.append(json.dumps(tables_and_columns))
                 is_valid.append(True)
             except ParseError:
                 tables.append(json.dumps({}))
