@@ -44,10 +44,6 @@ class JsonWriter(OpBaseModel):
     columns: t.Optional[list[str]] = None
 
     def setup(self, settings: Settings | None = None):
-        if os.path.exists(self.fpath):
-            raise Exception(
-                f"{self.fpath} already exists. JsonWriter doesn't support appending new rows to an existing file"
-            )
         return self
 
     def to_reader(self):
@@ -59,5 +55,6 @@ class JsonWriter(OpBaseModel):
         if self.columns is None:
             self.columns = list(data.columns)
         assert set(self.columns) == set(data.columns)
-        data.write_ndjson(file=self.fpath)
+        with open(self.fpath, "w") as f:
+            f.write(data.write_ndjson())
         return {"output": None}

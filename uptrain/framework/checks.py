@@ -5,6 +5,7 @@ import os
 import typing as t
 
 import polars as pl
+from pydantic import root_validator
 
 from uptrain.operators.base import *
 from uptrain.utilities import jsonload, jsondump, to_py_types, clear_directory
@@ -16,9 +17,15 @@ __all__ = [
 ]
 
 
-@register_op
-class SimpleCheck(Operator):
-    """A simple check that runs the given list of table operators in sequence."""
+class SimpleCheck(OpBaseModel):
+    """A simple check that runs the given list of table operators in sequence.
+
+    Attributes:
+        name: Name of the check.
+        compute: A list of operators to run in sequence on the input data. The output of each
+            operator is passed as input to the next operator.
+        plot: How to plot the output of the check.
+    """
 
     name: str
     sequence: list[TableOp]
@@ -26,30 +33,12 @@ class SimpleCheck(Operator):
     _settings: Settings
     _op_dag: OperatorDAG
 
-    def __init__(
-        self,
-        name: str,
-        sequence: list[TableOp],
-        plot: list[Operator] | None = None,
-    ):
-        """
-        Initialize a simple check.
-
-        Args:
-            name: Name of the check.
-            compute: A list of operators to run in sequence on the input data. The output of each
-                operator is passed as input to the next operator.
-            plot: How to plot the output of the check.
-        """
-
-        self.name = name
-        self.sequence = sequence
-        self.plot = plot if plot is not None else []
-        self._settings = None  # type: ignore
-
-        for op in self.sequence:
-            if not isinstance(op, TableOp):
-                raise ValueError(f"SimpleCheck compute ops must be TableOps, got {op}")
+    @root_validator(pre=True)
+    def check_ops(cls, values):
+        """Ensure that the compute ops are all TableOps."""
+        sequence = values.get("sequence")
+        if not all(isinstance(op, TableOp) for op in sequence):
+            raise ValueError(f"SimpleCheck compute ops must be TableOps")
 
     def setup(self, settings: "Settings"):
         self._settings = settings
@@ -97,7 +86,7 @@ class SimpleCheck(Operator):
         return cls(name=data["name"], sequence=sequence, plot=plot)  # type: ignore
 
 
-class CheckSet:
+class CheckSet(OpBaseModel):
     """Container for a set of checks to run together. This is the entrypoint to Uptrain for users.
 
     Attributes:
@@ -115,13 +104,18 @@ class CheckSet:
         self.checks = checks
         self.settings = settings
 
-        # verify all checks have different names
-        check_names = [check.name for check in checks]
+    @root_validator
+    def check_checks(cls, values):
+        """Ensure that the checks are all SimpleChecks."""
+        checks = values.get("checks")
+        check_names = [
+            check.name for check in checks
+        ]  # verify all checks have different names
         assert len(set(check_names)) == len(check_names), "Duplicate check names"
         for check in checks:
             assert isinstance(
                 check, SimpleCheck
-            ), "All checks must be an instance of SimpleCheck"
+            ), "All checks must be instances of SimpleCheck"
 
     def _get_sink_for_check(self, check: SimpleCheck) -> Operator:
         """Get the sink for the given check."""
@@ -170,7 +164,7 @@ class CheckSet:
         return {
             "source": to_py_types(self.source),
             "checks": [to_py_types(check) for check in self.checks],
-            "settings": self.settings.dict(),
+            "settings": to_py_types(self.settings),
         }
 
     @classmethod
