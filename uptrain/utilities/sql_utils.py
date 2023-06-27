@@ -46,10 +46,16 @@ def extract_tables_and_columns(expression: Expression, alias_mapping=None):
         tables[table].add(expression.name)
 
     # Merge aliases
+    # TODO: this does not work if table1 is alias of table2 which is an alias of table3
     for table in tables:
         if table in alias_mapping:
             true_table = alias_mapping[table]
             tables[true_table] = tables[true_table].union(tables[table])
+
+    # remove alias tables
+    for table in alias_mapping:
+        if table in tables:
+            del tables[table]
     return tables
 
 
@@ -70,11 +76,60 @@ def execute_sql(predicted_sql, ground_truth, db_path):
     conn = sqlite3.connect(db_path)
     # Connect to the database
     cursor = conn.cursor()
-    cursor.execute(predicted_sql)
-    predicted_res = cursor.fetchall()
-    cursor.execute(ground_truth)
-    ground_truth_res = cursor.fetchall()
+    # TODO read output as dataframe and compare based on columns
+    # TODO change return value to boolean
     res = 0
-    if set(predicted_res) == set(ground_truth_res):
-        res = 1
+    try:
+        cursor.execute(predicted_sql)
+        predicted_res = cursor.fetchall()
+        cursor.execute(ground_truth)
+        ground_truth_res = cursor.fetchall()
+        if set(predicted_res) == set(ground_truth_res):
+            res = 1
+    except Exception as e:
+        print("error executing", e)
+        # TODO: should not silently error out add log error
+        pass
     return res
+
+
+if __name__ == "__main__":
+    # Issue: Selects country as French instead of France
+    predicted_sql = """
+    SELECT AVG(Age), MIN(Age), MAX(Age)
+FROM singer
+WHERE Country = 'French'"""
+    gt_query = """
+    SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'
+    """
+    res = execute_sql(predicted_sql, gt_query, "/Users/bhanu/src/uptrain_experiments/llm/spider/database/concert_singer/concert_singer.sqlite")
+    print(res)
+
+    # Issue: selects wrong column
+    predicted_sql = """
+        SELECT s.Name, s.Song_release_year
+FROM singer s
+WHERE s.Age = (SELECT MIN(Age) FROM singer)
+LIMIT 1;"""
+    gt_query = """
+        SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1
+        """
+    res = execute_sql(predicted_sql, gt_query,
+                      "/Users/bhanu/src/uptrain_experiments/llm/spider/database/concert_singer/concert_singer.sqlite")
+    print(res)
+
+
+    # Issue: incorrect order of select columns
+    predicted_sql = "SELECT City, COUNT(Employee_ID) AS num_employees FROM employee GROUP BY City;"
+    gt_query = "SELECT count(*) ,  city FROM employee GROUP BY city"
+    res = execute_sql(predicted_sql, gt_query,
+                      "/Users/bhanu/src/uptrain_experiments/llm/spider/database/employee_hire_evaluation/employee_hire_evaluation.sqlite")
+    print(res)
+
+
+    # Issue: incorrect GT query
+    predicted_sql = "SELECT Name FROM teacher WHERE Hometown <> 'Little Lever Urban District'"
+    gt_query = "select name from teacher where hometown != \"little lever urban district\""
+    res = execute_sql(predicted_sql, gt_query,
+                      "/Users/bhanu/src/uptrain_experiments/llm/spider/database/course_teach/course_teach.sqlite")
+    print(res)
