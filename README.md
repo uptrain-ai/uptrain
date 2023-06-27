@@ -11,8 +11,8 @@
 
 <p align="center">
 <a href="https://docs.uptrain.ai/docs/" rel="nofollow"><strong>Docs</strong></a>
--
-<a href="https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing/" rel="nofollow"><strong>Try it out</strong></a>
+<!-- -
+<a href="https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing/" rel="nofollow"><strong>Try it out</strong></a> -->
 -
 <a href="https://discord.com/invite/gVvZhhrQaQ/" rel="nofollow"><strong>Discord Community</strong></a>
 -
@@ -37,14 +37,14 @@
   <a href="https://uptrain.ai/">
     <img src="https://img.shields.io/badge/UpTrain-Website-yellow" alt="Website" />
   </a>
-  <a href="https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing/">
+  <!-- <a href="https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing/">
     <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
-  </a>
+  </a> -->
 </h4>
 
-https://user-images.githubusercontent.com/43818888/229681912-a1d9733d-0c41-4be1-83cf-408d5271518e.mp4
+<!-- https://user-images.githubusercontent.com/43818888/229681912-a1d9733d-0c41-4be1-83cf-408d5271518e.mp4 -->
 
-**Read this in other languages**: 
+<!-- **Read this in other languages**: 
 <kbd>[<img title="English" alt="English language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/us.svg" width="22">](/README.md)</kbd>
 <kbd>[<img title="German" alt="German language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/de.svg" width="22">](/i18n/README.de.md)</kbd>
 <kbd>[<img title="Chinese" alt="Chinese language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/cn.svg" width="22">](/i18n/README.zh-CN.md)</kbd>
@@ -52,7 +52,7 @@ https://user-images.githubusercontent.com/43818888/229681912-a1d9733d-0c41-4be1-
 <kbd>[<img title="Spanish" alt="Spanish language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/es.svg" width="22">](/i18n/README.es.md)</kbd>
 <kbd>[<img title="French" alt="French language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/fr.svg" width="22">](/i18n/README.fr.md)</kbd>
 <kbd>[<img title="Japanese" alt="Japanese language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/jp.svg" width="22">](/i18n/README.ja.md)</kbd>
-<kbd>[<img title="Russian" alt="Russian language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/ru.svg" width="22">](/i18n/README.ru.md)</kbd>
+<kbd>[<img title="Russian" alt="Russian language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/ru.svg" width="22">](/i18n/README.ru.md)</kbd> -->
 
 
 **[UpTrain](https://uptrain.ai)** is a Python framework that helps users to check the performance of their LLM applications on aspects such as correctness, structural integrity, bias, hallucination, etc. UpTrain can be used to:
@@ -62,15 +62,16 @@ https://user-images.githubusercontent.com/43818888/229681912-a1d9733d-0c41-4be1-
 3) Monitor your model's performance in production and protect yourself against unwanted drifts
 
 
-# Integrations:
+# Integrations
 
 | Eval Frameworks  | LLM Providers | LLM Packages | Serving frameworks | 
 | ------------- | ------------- | ------------- | ------------- | 
-| OpenAI Evals  | GPT-3.5-turbo (ChatGPT) | Langchain | HuggingFace |
-| Content Cell  | GPT-4  | Llama Index |  Replicate |
+| OpenAI Evals ✅ | GPT-3.5-turbo ✅ | Langchain | HuggingFace |
+| EleutherAI LM Eval  | GPT-4 ✅  | Llama Index |  Replicate |
+| BIG-Bench | Claude | AutoGPT |
+| | Cohere | 
 
-
-# **[Key Features](https://uptrain.gitbook.io/docs/what-is-uptrain/key-features)** 💡
+# Key Features 💡
 
 
 - **[Output Validation]()** - Safeguard against 
