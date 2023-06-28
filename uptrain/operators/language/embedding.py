@@ -5,35 +5,6 @@ This module provides the `Embedding` class, which is used to generate embeddings
 The `Embedding` class supports different models such as MiniLM-L6-v2 and hkunlp/instructor-xl. The embeddings are 
 generated for a specified text column in a DataFrame.
 
-Example:
-    import polars as pl
-    from uptrain.operators.language import Embedding
-
-    # Create a DataFrame
-    df = pl.DataFrame({
-        'text': ['This is the first sentence.', 'Here is another sentence.']
-    })
-
-    # Create an instance of the Embedding class
-    embedding_op = Embedding(model="MiniLM-L6-v2", col_in_text="text")
-    
-    # Set up the Embedding operator
-    embedding_op.setup()
-    
-    # Generate embeddings for the text column
-    embeddings = embedding_op.run(df)["output"]
-
-    # Print the embeddings
-    print(embeddings)
-
-Output:
-    shape: (2,)
-    Series: '_col_0' [list[f32]]
-    [
-            [0.098575, 0.056978, … -0.071038]
-            [0.072772, 0.073564, … -0.043947]
-    ]
-        
 """
 
 from __future__ import annotations
@@ -65,6 +36,35 @@ class Embedding(ColumnOp):
 
     Returns:
         dict: A dictionary containing the generated embeddings.
+
+    Example:
+        import polars as pl
+        from uptrain.operators.language import Embedding
+
+        # Create a DataFrame
+        df = pl.DataFrame({
+            'text': ['This is the first sentence.', 'Here is another sentence.']
+        })
+
+        # Create an instance of the Embedding class
+        embedding_op = Embedding(model="MiniLM-L6-v2", col_in_text="text")
+        
+        # Set up the Embedding operator
+        embedding_op.setup()
+        
+        # Generate embeddings for the text column
+        embeddings = embedding_op.run(df)["output"]
+
+        # Print the embeddings
+        print(embeddings)
+
+    Output:
+        shape: (2,)
+        Series: '_col_0' [list[f32]]
+        [
+                [0.098575, 0.056978, … -0.071038]
+                [0.072772, 0.073564, … -0.043947]
+        ]
 
     """
 

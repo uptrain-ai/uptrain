@@ -9,39 +9,6 @@ The module provides the following classes:
 - ConceptDrift: Operator for detecting concept drift.
 - ConceptDriftExecutor: Executor for the ConceptDrift operator.
 
-Example:
-    import polars as pl
-    from uptrain.operators import ParamsDDM, ConceptDrift
-
-    # Create an instance of the ParamsDDM class with the parameters
-    params_ddm = ParamsDDM(
-                    warm_start=500,
-                    warn_threshold=2.0,
-                    alarm_threshold=3.0
-                )
-
-    # Create an instance of the ConceptDrift operator
-    op = ConceptDrift(
-            algorithm="DDM",
-            params=params_ddm,
-            col_in_measure="metric"
-        )
-
-    # Set up the operator
-    op.setup()
-
-    # Run the operator on the input data
-    input_data = pl.DataFrame(...)
-    output = op.run(input_data)["extra"]
-
-    # Check the detected concept drift information
-    if output["alert_info"] is not None:
-        print("Counter:", output["alert_info"]["counter"])
-
-Output:
-    INFO     | uptrain.operators.drift:run:181 - Drift detected using DDM!
-    Counter: 129466
-
 """
 
 from __future__ import annotations
@@ -67,7 +34,7 @@ class ParamsDDM(OpBaseModel):
         warm_start (int): The number of instances required before any drift detection.
         warning_threshold (float): The warning threshold value for the drift detection.
         drift_threshold (float): The alarm threshold value for the drift detection.
-    
+
     """
 
     warm_start: int = 500
@@ -107,6 +74,39 @@ class ConceptDrift(ColumnOp):
 
     Raises:
         ValueError: If the specified algorithm does not match the type of the parameters.
+
+    Example:
+        import polars as pl
+        from uptrain.operators import ParamsDDM, ConceptDrift
+
+        # Create an instance of the ParamsDDM class with the parameters
+        params_ddm = ParamsDDM(
+                        warm_start=500,
+                        warn_threshold=2.0,
+                        alarm_threshold=3.0
+                    )
+
+        # Create an instance of the ConceptDrift operator
+        op = ConceptDrift(
+                algorithm="DDM",
+                params=params_ddm,
+                col_in_measure="metric"
+            )
+
+        # Set up the operator
+        op.setup()
+
+        # Run the operator on the input data
+        input_data = pl.DataFrame(...)
+        output = op.run(input_data)["extra"]
+
+        # Check the detected concept drift information
+        if output["alert_info"] is not None:
+            print("Counter:", output["alert_info"]["counter"])
+
+    Output:
+        INFO     | uptrain.operators.drift:run:181 - Drift detected using DDM!
+        Counter: 129466
 
     """
 

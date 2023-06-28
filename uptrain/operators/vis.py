@@ -5,25 +5,6 @@ The module provides the `PlotlyChart` class, which allows generating various typ
 The supported chart types are line, scatter, bar, histogram, and table. The charts are created based on 
 the input DataFrame.
 
-Example:
-    import polars as pl
-    from uptrain.operators import PlotlyChart
-
-    # Create a DataFrame
-    df = pl.DataFrame({
-        'x': [1, 2, 3, 4, 5],
-        'y': [10, 20, 15, 25, 30]
-    })
-
-    # Create a line chart using the PlotlyChart class
-    line_chart = PlotlyChart.Line(props={'x': 'x', 'y': 'y'}, title='Line Chart')
-
-    # Generate the line chart
-    chart = line_chart.run(df)["extra"]["chart"]
-
-    # Show the chart
-    chart.show()
-
 """
 
 from __future__ import annotations
@@ -65,6 +46,25 @@ class PlotlyChart(OpBaseModel):
         Bar(**kwargs) -> PlotlyChart: Creates a bar chart.
         Histogram(**kwargs) -> PlotlyChart: Creates a histogram.
         Table(**kwargs) -> PlotlyChart: Creates a table.
+
+    Example:
+        import polars as pl
+        from uptrain.operators import PlotlyChart
+
+        # Create a DataFrame
+        df = pl.DataFrame({
+            'x': [1, 2, 3, 4, 5],
+            'y': [10, 20, 15, 25, 30]
+        })
+
+        # Create a line chart using the PlotlyChart class
+        line_chart = PlotlyChart.Line(props={'x': 'x', 'y': 'y'}, title='Line Chart')
+
+        # Generate the line chart
+        chart = line_chart.run(df)["extra"]["chart"]
+
+        # Show the chart
+        chart.show()
 
     """
 

@@ -7,88 +7,6 @@ Operators:
 
 NOTE: The above operators only take embeddings as input. Refer uptrain.operators.language.embedding to learn more.
 
-Examples:
-    Example 1 - Distribution operator:
-        import polars as pl
-        from uptrain.operators import Distribution
-
-        # Create an instance of the Distribution operator
-        op = Distribution(
-                kind="cosine_similarity",
-                col_in_embs=["context_embeddings", "response_embeddings"],
-                col_in_groupby=["question_idx", "experiment_id"],
-                col_out=["similarity-context", "similarity-response"],
-            )
-
-        # Set up the operator
-        op.setup()
-
-        # Run the operator on the input data
-        input_data = pl.DataFrame(...)
-        output = op.run(input_data)["output"]
-
-        # Print the output
-        print(output)
-
-        
-    Output 1 - Distrubution operator:
-        shape: (90, 4)
-        ┌──────────────┬───────────────┬────────────────────┬─────────────────────┐
-        │ question_idx ┆ experiment_id ┆ similarity-context ┆ similarity-response │
-        │ ---          ┆ ---           ┆ ---                ┆ ---                 │
-        │ i64          ┆ i64           ┆ f64                ┆ f64                 │
-        ╞══════════════╪═══════════════╪════════════════════╪═════════════════════╡
-        │ 2            ┆ 0             ┆ 0.314787           ┆ 1.0                 │
-        │ 2            ┆ 0             ┆ 0.387398           ┆ 0.204949            │
-        │ 2            ┆ 0             ┆ 0.344797           ┆ 0.23195             │
-        │ 2            ┆ 0             ┆ 0.306041           ┆ 1.0                 │
-        │ …            ┆ …             ┆ …                  ┆ …                   │
-        │ 0            ┆ 2             ┆ 0.997804           ┆ 0.996358            │
-        │ 0            ┆ 2             ┆ 0.66862            ┆ 0.300155            │
-        │ 0            ┆ 2             ┆ 0.224229           ┆ 0.637781            │
-        │ 0            ┆ 2             ┆ 0.379936           ┆ 0.260659            │
-        └──────────────┴───────────────┴────────────────────┴─────────────────────┘
-
-        
-    Example 2 - UMAP operator:
-        import polars as pl
-        from uptrain.operators import UMAP        
-
-        # Create an instance of the UMAP operator
-        op = UMAP(
-                col_in_embs_1="embeddings",
-                col_in_embs_2="embeddings_2"
-            )
-
-        # Set up the operator
-        op.setup()
-
-        # Run the operator on the input data
-        input_data = pl.DataFrame(...)
-        output = op.run(input_data)
-
-        # Get the output DataFrame
-        umap_df = output["output"]
-
-    
-    Output 2 - UMAP operator:
-        shape: (180, 4)
-        ┌───────────┬───────────┬────────┬─────────┐
-        │ umap_0    ┆ umap_1    ┆ symbol ┆ cluster │
-        │ ---       ┆ ---       ┆ ---    ┆ ---     │
-        │ f32       ┆ f32       ┆ str    ┆ str     │
-        ╞═══════════╪═══════════╪════════╪═════════╡
-        │ 14.922973 ┆ 4.189351  ┆ star   ┆ default │
-        │ 40.150131 ┆ 8.316374  ┆ star   ┆ default │
-        │ 39.838726 ┆ 8.043911  ┆ star   ┆ default │
-        │ 40.064186 ┆ 8.510321  ┆ star   ┆ default │
-        │ …         ┆ …         ┆ …      ┆ …       │
-        │ 12.529058 ┆ -0.074642 ┆ circle ┆ default │
-        │ 3.296701  ┆ 21.817385 ┆ circle ┆ default │
-        │ 16.352724 ┆ 12.401769 ┆ circle ┆ default │
-        │ 3.858282  ┆ 5.807839  ┆ circle ┆ default │
-        └───────────┴───────────┴────────┴─────────┘
-        
 """
 
 from __future__ import annotations
@@ -121,6 +39,47 @@ class Distribution(TableOp):
 
     Raises:
         AssertionError: If the number of output columns does not match the number of input embedding columns.
+
+    Example:
+        import polars as pl
+        from uptrain.operators import Distribution
+
+        # Create an instance of the Distribution operator
+        op = Distribution(
+                kind="cosine_similarity",
+                col_in_embs=["context_embeddings", "response_embeddings"],
+                col_in_groupby=["question_idx", "experiment_id"],
+                col_out=["similarity-context", "similarity-response"],
+            )
+
+        # Set up the operator
+        op.setup()
+
+        # Run the operator on the input data
+        input_data = pl.DataFrame(...)
+        output = op.run(input_data)["output"]
+
+        # Print the output
+        print(output)
+
+    
+    Output:
+        shape: (90, 4)
+        ┌──────────────┬───────────────┬────────────────────┬─────────────────────┐
+        │ question_idx ┆ experiment_id ┆ similarity-context ┆ similarity-response │
+        │ ---          ┆ ---           ┆ ---                ┆ ---                 │
+        │ i64          ┆ i64           ┆ f64                ┆ f64                 │
+        ╞══════════════╪═══════════════╪════════════════════╪═════════════════════╡
+        │ 2            ┆ 0             ┆ 0.314787           ┆ 1.0                 │
+        │ 2            ┆ 0             ┆ 0.387398           ┆ 0.204949            │
+        │ 2            ┆ 0             ┆ 0.344797           ┆ 0.23195             │
+        │ 2            ┆ 0             ┆ 0.306041           ┆ 1.0                 │
+        │ …            ┆ …             ┆ …                  ┆ …                   │
+        │ 0            ┆ 2             ┆ 0.997804           ┆ 0.996358            │
+        │ 0            ┆ 2             ┆ 0.66862            ┆ 0.300155            │
+        │ 0            ┆ 2             ┆ 0.224229           ┆ 0.637781            │
+        │ 0            ┆ 2             ┆ 0.379936           ┆ 0.260659            │
+        └──────────────┴───────────────┴────────────────────┴─────────────────────┘
 
     """
 
@@ -197,6 +156,45 @@ class UMAP(TableOp):
     Attributes:
         col_in_embs_1 (str): The input column containing embeddings.
         col_in_embs_2 (str): The second input column containing embeddings.
+
+    Example:
+        import polars as pl
+        from uptrain.operators import UMAP        
+
+        # Create an instance of the UMAP operator
+        op = UMAP(
+                col_in_embs_1="embeddings",
+                col_in_embs_2="embeddings_2"
+            )
+
+        # Set up the operator
+        op.setup()
+
+        # Run the operator on the input data
+        input_data = pl.DataFrame(...)
+        output = op.run(input_data)
+
+        # Get the output DataFrame
+        umap_df = output["output"]
+
+
+    Output:
+        shape: (180, 4)
+        ┌───────────┬───────────┬────────┬─────────┐
+        │ umap_0    ┆ umap_1    ┆ symbol ┆ cluster │
+        │ ---       ┆ ---       ┆ ---    ┆ ---     │
+        │ f32       ┆ f32       ┆ str    ┆ str     │
+        ╞═══════════╪═══════════╪════════╪═════════╡
+        │ 14.922973 ┆ 4.189351  ┆ star   ┆ default │
+        │ 40.150131 ┆ 8.316374  ┆ star   ┆ default │
+        │ 39.838726 ┆ 8.043911  ┆ star   ┆ default │
+        │ 40.064186 ┆ 8.510321  ┆ star   ┆ default │
+        │ …         ┆ …         ┆ …      ┆ …       │
+        │ 12.529058 ┆ -0.074642 ┆ circle ┆ default │
+        │ 3.296701  ┆ 21.817385 ┆ circle ┆ default │
+        │ 16.352724 ┆ 12.401769 ┆ circle ┆ default │
+        │ 3.858282  ┆ 5.807839  ┆ circle ┆ default │
+        └───────────┴───────────┴────────┴─────────┘
 
     """
 
