@@ -35,14 +35,14 @@ class ColumnExpand(TableOp):
 
         # Create a DataFrame
         df = pl.DataFrame({
-            'column1': [1, 2, 3],
-            'column2': ['A', 'B', 'C']
+            "column1": [1, 2, 3],
+            "column2": ["A", "B", "C"]
         })
 
         # Create an instance of the ColumnExpand class
         expand_op = ColumnExpand(
-                        col_out_names=['column1', 'column2'],
-                        col_vals=[df['column1'], df['column2']]
+                        col_out_names=["column1", "column2"],
+                        col_vals=[df["column1"], df["column2"]]
                     )
 
         # Run the expand operation

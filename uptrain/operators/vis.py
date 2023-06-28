@@ -53,12 +53,12 @@ class PlotlyChart(OpBaseModel):
 
         # Create a DataFrame
         df = pl.DataFrame({
-            'x': [1, 2, 3, 4, 5],
-            'y': [10, 20, 15, 25, 30]
+            "x": [1, 2, 3, 4, 5],
+            "y": [10, 20, 15, 25, 30]
         })
 
         # Create a line chart using the PlotlyChart class
-        line_chart = PlotlyChart.Line(props={'x': 'x', 'y': 'y'}, title='Line Chart')
+        line_chart = PlotlyChart.Line(props={"x": "x", "y": "y"}, title="Line Chart")
 
         # Generate the line chart
         chart = line_chart.run(df)["extra"]["chart"]

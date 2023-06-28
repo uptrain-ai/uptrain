@@ -39,8 +39,8 @@ class RougeScore(ColumnOp):
 
         # Create a DataFrame
         df = pl.DataFrame({
-            'text_generated': ['This is the generated text.', 'Another generated sentence.'],
-            'text_source': ['This is the original source text.', 'This is a different source text.']
+            "text_generated": ["This is the generated text.", "Another generated sentence."],
+            "text_source": ["This is the original source text.", "This is a different source text."]
         })
 
         # Create an instance of the RougeScore class

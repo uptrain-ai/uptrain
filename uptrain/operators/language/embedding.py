@@ -43,7 +43,7 @@ class Embedding(ColumnOp):
 
         # Create a DataFrame
         df = pl.DataFrame({
-            'text': ['This is the first sentence.', 'Here is another sentence.']
+            "text": ["This is the first sentence.", "Here is another sentence."]
         })
 
         # Create an instance of the Embedding class
