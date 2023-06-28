@@ -102,6 +102,7 @@ def get_checkset(source_path):
                             col_in_text="document_text"
                         ),
                         "response_document_overlap_score": RougeScore(
+                            score_type="f1",
                             col_in_generated="response",
                             col_in_source="document_text",
                         ),

@@ -252,9 +252,9 @@ class UMAP(TableOp):
         }
 
 
-# -----------------------------------------------------------------------
-# Utility routines (These are used by the Distriution and UMAP classes)
-# -----------------------------------------------------------------------
+# -----------------------------------------------------------
+# Utility routines (for above operators)
+# -----------------------------------------------------------
 
 
 def sample_pairs_from_values(n_values: int, n_pairs: int):
