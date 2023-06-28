@@ -85,7 +85,8 @@ class Operator(t.Protocol):
 
 
 class OpBaseModel(BaseModel):
-    """Base class you can use if constructing an operator using a pydantic
+    """
+    Base class you can use if constructing an operator using a pydantic
     model, to get around some of the sharp edges.
 
     Attributes:

@@ -1,5 +1,36 @@
 """
-Implement some metrics common to a lot of checks. 
+This module provides the Accuracy operator that computes the accuracy between predicted and ground truth values.
+
+Example:
+    from uptrain.operators import Accuracy
+    from uptrain.io.readers import CsvReader
+
+    # Create an instance of the Accuracy operator
+    op = Accuracy(
+            kind="NOT_EQUAL",
+            col_in_prediction="prediction",
+            col_in_ground_truth="ground_truth"
+        )
+
+    # Set up the operator
+    op.setup()
+
+    # Run the operator on the input data
+    input_data = pl.DataFrame(...)
+    accuracy_scores = op.run(input_data)["output"]
+
+    # Print the accuracy scores
+    print(accuracy_scores)
+
+Output:
+    shape: (3,)
+    Series: '_col_0' [bool]
+    [
+            true
+            false
+            true
+    ]
+
 """
 
 from __future__ import annotations
@@ -16,16 +47,34 @@ from uptrain.operators.base import *
 
 @register_op
 class Accuracy(ColumnOp):
+    """
+    Operator for computing accuracy measures between predicted values and ground truth values.
+
+    Args:
+        kind (Literal["NOT_EQUAL", "ABS_ERROR"]): The type of accuracy measure.
+        col_in_prediction (str): The name of the column containing the predicted values.
+        col_in_ground_truth (str): The name of the column containing the ground truth values.
+
+    """
+
     kind: t.Literal["NOT_EQUAL", "ABS_ERROR"]
     col_in_prediction: str = "prediction"
     col_in_ground_truth: str = "ground_truth"
 
     def setup(self, _: t.Optional[Settings] = None):
+        """
+        Set up and return the Accuracy operator.
+
+        """
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
-        preds = data.get_column(self.col_in_prediction)
-        gts = data.get_column(self.col_in_ground_truth)
+        """
+        Run the Accuracy operator on the input data.
+
+        """
+        preds = np.array(data.get_column(self.col_in_prediction))
+        gts = np.array(data.get_column(self.col_in_ground_truth))
 
         if self.kind == "NOT_EQUAL":
             acc = np.not_equal(preds, gts)

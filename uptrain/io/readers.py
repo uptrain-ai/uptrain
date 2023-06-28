@@ -49,6 +49,7 @@ class JsonReader(TableOp):
 
     def setup(self, settings: Settings | None = None):
         self._executor = TextReaderExecutor(self)
+        return self
 
     def run(self) -> TYPE_TABLE_OUTPUT:
         return {"output": self._executor.run()}
