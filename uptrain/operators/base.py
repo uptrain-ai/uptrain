@@ -114,7 +114,7 @@ class ColumnOp(OpBaseModel):
 
 
 class TableOp(OpBaseModel):
-    def setup(self, _: "Settings" | None = None) -> None:
+    def setup(self, _: "Settings" | None = None):
         raise NotImplementedError
 
     def run(self, *args: pl.DataFrame | None) -> TYPE_TABLE_OUTPUT:
