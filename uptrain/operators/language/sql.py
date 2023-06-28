@@ -30,9 +30,15 @@ class Table(BaseModel):
     columns: list
 
 
-# Read tables and columns information from CREATE TABLE statements
 @register_op
 class ParseCreateStatements(TableOp):
+    """
+    Read tables and columns from ";" separated CREATE TABLE statements and writes a json dictionary Table -> [columns].
+
+    Args:
+        col_in_schema_def: Column name of schema def containing CREATE TABLE statements.
+        col_out_tables: Column to write parsed tables and columns.
+    """
     col_in_schema_def: str
     col_out_tables: str
 
@@ -62,9 +68,20 @@ class ParseCreateStatements(TableOp):
         return {"output": data.with_columns([pl.Series(self.col_out_tables, tables)])}
 
 
-# parses output SQL and fetch tables, columns etc
 @register_op
 class ParseSQL(TableOp):
+    """
+    Read tables and columns from a generic SQL SELECT statement and writes a json dictionary Table -> [columns].
+    Note that we don't use table schema definition to do this but instead simply parse the SQL. Output might have a
+    placeholder tables to include columns that are accessed without a Table descriptor.
+
+    This is typically used along with ValidateTables to validate tables and columns in the predicted SQL.
+
+    Args:
+        col_in_sql: Column of input SQL containing SQL SELECT statement.
+        col_out_tables: Column to write parsed tables and columns.
+        col_out_is_valid_sql: Column to store if sql is valid as per sql parser.
+    """
     col_in_sql: str
     col_out_tables: str
     col_out_is_valid_sql: str
@@ -94,9 +111,20 @@ class ParseSQL(TableOp):
                                              pl.Series(self.col_out_is_valid_sql, is_valid)])}
 
 
-# Ensures that table names from response are valid tables
 @register_op
 class ValidateTables(TableOp):
+    """
+    Ensures that table and column names from response/predicted SQL are valid tables columns as per the schema
+    definition.
+
+    This is typically used with ParseSQL and ParseCreateStatements.
+
+    Args:
+        col_in_response_tables: Column containing response SQL tables and columns as a json dict Table -> [columns].
+        col_in_schema_tables: Column containing schema definition tables and columns as a json dict Table -> [columns].
+        col_out_is_tables_valid: Column to store if tables are valid.
+        col_out_is_cols_valid: Column to store if columns are valid.
+    """
     col_in_response_tables: str
     col_in_schema_tables: str
     col_out_is_tables_valid: str
@@ -132,11 +160,30 @@ class ValidateTables(TableOp):
 
 
 @register_op
-class ExecuteSQL(TableOp):
+class ExecuteAndCompareSQL(TableOp):
+    """
+    Execute predicted SQL, ground truth SQL and compute execution accuracy of the predicted sql.
+
+    For now, we expect the output to exactly match along with the column names.
+
+    ignore_column_order, ignore_row_order params attempt to do a semantic match by ignoring the order. This allows us to
+    correctly compare `SELECT a,b` and `SELECT b,a` if the column order was not important. However, the intent in the
+    text query also needs to be taken in consideration for correct sematic match.
+
+    Args:
+        col_in_response_sql: Column containing response SQL.
+        col_in_gt_sql: Column containing schema definition tables and columns as a json dict Table -> [columns].
+        col_in_db_path: Column to store if tables are valid.
+        col_out_execution_accuracy: Column to store if columns are valid.
+        ignore_column_order: Boolean param to ignore column order when comparing SQL output. True by default.
+        ignore_row_order: Boolean param to ignore row order when comparing SQL output. True by default.
+    """
     col_in_response_sql: str
     col_in_gt_sql: str
     col_in_db_path: str
     col_out_execution_accuracy: str
+    ignore_column_order: bool = True
+    ignore_row_order: bool = True
 
     def setup(self, settings: t.Optional[Settings] = None):
         return self
@@ -147,5 +194,9 @@ class ExecuteSQL(TableOp):
         db_paths = data.get_column(self.col_in_db_path)
         results = []
         for response_sql, gt_sql, db_path in zip(response_sqls, gt_sqls, db_paths):
-            results.append(execute_and_compare_sql(response_sql, gt_sql, db_path))
+            results.append(execute_and_compare_sql(response_sql,
+                                                   gt_sql,
+                                                   db_path,
+                                                   ignore_column_order=self.ignore_column_order,
+                                                   ignore_row_order=self.ignore_row_order))
         return {"output": data.with_columns([pl.Series(self.col_out_execution_accuracy, results)])}

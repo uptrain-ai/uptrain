@@ -2,7 +2,7 @@ import os
 from uptrain.framework import CheckSet, Settings, SimpleCheck
 from uptrain.io import JsonReader, JsonWriter
 
-from uptrain.operators.language.sql import ParseSQL, ValidateTables, ExecuteSQL, ParseCreateStatements
+from uptrain.operators.language.sql import ParseSQL, ValidateTables, ExecuteAndCompareSQL, ParseCreateStatements
 
 from uptrain.operators import PlotlyChart, SelectOp
 
@@ -103,10 +103,10 @@ sql_validity_check = SimpleCheck(
 execution_accuracy_check = SimpleCheck(
     name="Generated SQL query execution accuracy",
     sequence=[
-        ExecuteSQL(col_in_response_sql="response",
-                   col_in_gt_sql="gt_query",
-                   col_in_db_path="db_path",
-                   col_out_execution_accuracy="execution_accuracy")
+        ExecuteAndCompareSQL(col_in_response_sql="response",
+                             col_in_gt_sql="gt_query",
+                             col_in_db_path="db_path",
+                             col_out_execution_accuracy="execution_accuracy")
     ],
     plot=[
         PlotlyChart.Histogram(

@@ -87,7 +87,8 @@ def run_query(query, connection):
     return df
 
 
-# Execute predicted SQL, ground truth and compute execution accuracy of the predicted sql
+# Execute predicted SQL, ground truth and compute execution accuracy of the predicted sql. We assume these queries to be
+# read queries.
 def execute_and_compare_sql(predicted_sql, ground_truth, db_path, ignore_column_order=True, ignore_row_order=True):
     conn = sqlite3.connect(db_path)
     res = False
