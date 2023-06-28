@@ -1,5 +1,35 @@
 """
-Implement checks to test if a piece of text has been taken from a source.  
+Implement checks to test if a piece of text has been taken from a source.
+
+This module provides the `RougeScore` class, which allows comparing a generated text with a source text to check if it has been taken from the source. It uses the Rouge score metric, specifically the Rouge-L score, to measure the similarity between the two texts.
+
+Example:
+    import polars as pl
+    from uptrain.operators.language import RougeScore
+
+    # Create a DataFrame
+    df = pl.DataFrame({
+        'text_generated': ['This is the generated text.', 'Another generated sentence.'],
+        'text_source': ['This is the original source text.', 'This is a different source text.']
+    })
+
+    # Create an instance of the RougeScore class
+    rouge_op = RougeScore(score_type="f1")
+
+    # Calculate the Rouge-L scores
+    scores = rouge_op.run(df)["output"]
+
+    # Print the Rouge-L scores
+    print(scores)
+
+Output:
+    shape: (2,)
+    Series: '_col_0' [i64]
+    [
+            72
+            0
+    ]
+
 """
 
 from __future__ import annotations
@@ -19,7 +49,20 @@ rouge_scorer = lazy_load_dep("rouge_score.rouge_scorer", "rouge_score")
 
 @register_op
 class RougeScore(ColumnOp):
-    score_type: str = "precision"
+    """
+    Operator to compare a generated text with a source text using the Rouge score metric.
+
+    Args:
+        score_type (Literal["precision", "recall", "f1"]): The type of Rouge score to calculate.
+        col_in_generated (str): The name of the input column containing the generated text.
+        col_in_source (str): The name of the input column containing the source text.
+
+    Returns:
+        dict: A dictionary containing the Rouge scores for each pair of generated and source text.
+
+    """
+
+    score_type: t.Literal["precision", "recall", "f1"]
     col_in_generated: str = "text_generated"
     col_in_source: str = "text_source"
 
