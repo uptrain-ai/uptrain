@@ -1,5 +1,6 @@
 """
-Implement checks to test if a piece of text has been taken from a source.  
+Implement checks to test if a piece of text has been taken from a source.
+
 """
 
 from __future__ import annotations
@@ -21,6 +22,20 @@ UPTRAIN_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 @register_op
 class OpenAIGradeScore(ColumnOp):
+    """
+    Operator to calculate the grade score of text completions using OpenAI models.
+
+    Args:
+        score_type (str): The type of score to calculate ("correct" or "grade").
+        col_in_input (str): The name of the input column containing the prompts.
+        col_in_completion (str): The name of the input column containing the completions.
+        eval_name (str): The name of the OpenAI evaluation to use.
+
+    Returns:
+        dict: A dictionary containing the calculated grade scores.
+
+    """
+
     score_type: str = "correct"
     col_in_input: str = "prompt"
     col_in_completion: str = "response"
@@ -60,6 +75,23 @@ class OpenAIGradeScore(ColumnOp):
 
 @register_op
 class ModelGradeScore(ColumnOp):
+    """
+    Operator to calculate the grade score of text completions using a custom grading model.
+
+    Args:
+        col_in_input (str): The name of the input column containing the prompts.
+        col_in_completion (str): The name of the input column containing the completions.
+        grading_prompt_template (str): The template for the grading prompt.
+        eval_type (str): The type of evaluation for grading ("cot_classify" by default).
+        choice_strings (list[str]): The list of choice strings for grading.
+        choice_scores (dict): The dictionary mapping choice strings to scores.
+        grading_prompt_mapping (dict): The mapping of column names to grading prompt variables.
+
+    Returns:
+        dict: A dictionary containing the calculated grade scores.
+
+    """
+
     col_in_input: str
     col_in_completion: str
     grading_prompt_template: str

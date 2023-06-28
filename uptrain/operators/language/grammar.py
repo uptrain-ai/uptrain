@@ -1,5 +1,9 @@
 """
-Implement checks to test language quality. 
+Implement checks to test language quality.
+
+This module provides the `GrammarScore` class, which allows evaluating the grammatical correctness of sentences using
+the OpenAI GPT-3.5-turbo language model. It generates a grammar score for each input sentence on a scale of 0 to 100.
+
 """
 
 from __future__ import annotations
@@ -19,6 +23,17 @@ __all__ = ["GrammarScore"]
 
 @register_op
 class GrammarScore(ColumnOp):
+    """
+    Operator to test the grammatical correctness of sentences using the OpenAI GPT-3.5-turbo language model.
+
+    Args:
+        col_in_text (str): The name of the input column containing the sentences to evaluate.
+
+    Returns:
+        dict: A dictionary containing the grammar scores for each input sentence.
+
+    """
+    
     col_in_text: str = "text"
     _api_client: LLMMulticlient
 
