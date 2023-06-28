@@ -71,6 +71,22 @@ class TextComparison(ColumnOp):
         }
 
 
+# Check if a Keyword exists in input text
+@register_op
+class KeywordDetector(ColumnOp):
+    col_in_text: str
+    keyword: str
+
+    def setup(self, _: t.Optional[Settings] = None):
+        return self
+
+    def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
+        return {
+            "output": data.get_column(self.col_in_text)
+            .apply(lambda sql: self.keyword in sql)
+            .alias(get_output_col_name_at(0))
+        }
+
 # -----------------------------------------------------------
 # Utility routines
 # -----------------------------------------------------------
