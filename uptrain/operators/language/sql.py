@@ -73,7 +73,7 @@ class ParseSQL(TableOp):
     """
     Read tables and columns from a generic SQL SELECT statement and writes a json dictionary Table -> [columns].
     Note that we don't use table schema definition to do this but instead simply parse the SQL. Output might have a
-    placeholder tables to include columns that are accessed without a Table descriptor.
+    placeholder table to include columns that are accessed without a table descriptor.
 
     This is typically used along with ValidateTables to validate tables and columns in the predicted SQL.
 
@@ -167,7 +167,7 @@ class ExecuteAndCompareSQL(TableOp):
     For now, we expect the output to exactly match along with the column names.
 
     ignore_column_order, ignore_row_order params attempt to do a semantic match by ignoring the order. This allows us to
-    correctly compare `SELECT a,b` and `SELECT b,a` if the column order was not important. However, the intent in the
+    correctly compare `SELECT a,b` and `SELECT b,a` if the column order is not important. However, the intent in the
     text query also needs to be taken in consideration for correct sematic match.
 
     Args:
