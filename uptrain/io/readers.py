@@ -1,7 +1,6 @@
 from __future__ import annotations
 import typing as t
 
-from pydantic import BaseModel
 import polars as pl
 import deltalake as dl
 
@@ -15,7 +14,7 @@ from uptrain.operators.base import *
 
 
 @register_op
-class CsvReader(BaseModel):
+class CsvReader(TableOp):
     """Reads data from a csv file.
 
     Args:
@@ -25,13 +24,18 @@ class CsvReader(BaseModel):
 
     fpath: str
     batch_size: t.Optional[int] = None
+    _executor: TextReaderExecutor
 
-    def make_executor(self, settings: t.Optional[Settings] = None):
-        return TextReaderExecutor(self)
+    def setup(self, settings: Settings | None = None):
+        self._executor = TextReaderExecutor(self)
+        return self
+
+    def run(self) -> TYPE_TABLE_OUTPUT:
+        return {"output": self._executor.run()}
 
 
 @register_op
-class JsonReader(BaseModel):
+class JsonReader(TableOp):
     """Reads data from a json file.
 
     Args:
@@ -41,12 +45,17 @@ class JsonReader(BaseModel):
 
     fpath: str
     batch_size: t.Optional[int] = None
+    _executor: TextReaderExecutor
 
-    def make_executor(self, settings: t.Optional[Settings] = None):
-        return TextReaderExecutor(self)
+    def setup(self, settings: Settings | None = None):
+        self._executor = TextReaderExecutor(self)
+        return self
+
+    def run(self) -> TYPE_TABLE_OUTPUT:
+        return {"output": self._executor.run()}
 
 
-class TextReaderExecutor(OperatorExecutor):
+class TextReaderExecutor:
     op: t.Union[CsvReader, JsonReader]
     dataset: pl.DataFrame
     rows_read: int
@@ -63,7 +72,7 @@ class TextReaderExecutor(OperatorExecutor):
     def is_incremental(self) -> bool:
         return self.op.batch_size is not None
 
-    def run(self) -> TYPE_OP_OUTPUT:
+    def run(self) -> pl.DataFrame | None:
         if not self.is_incremental:
             data = self.dataset
         else:
@@ -73,7 +82,7 @@ class TextReaderExecutor(OperatorExecutor):
                 assert self.op.batch_size is not None
                 self.rows_read += self.op.batch_size
                 data = self.dataset.slice(self.rows_read, self.op.batch_size)
-        return {"output": data}
+        return data
 
 
 # -----------------------------------------------------------
@@ -82,7 +91,7 @@ class TextReaderExecutor(OperatorExecutor):
 
 
 @register_op
-class DeltaReader(BaseModel):
+class DeltaReader(TableOp):
     """Reads data from a Delta Lake table.
 
     Args:
@@ -92,27 +101,20 @@ class DeltaReader(BaseModel):
 
     fpath: str
     batch_split: bool = False
-
-    def make_executor(self, settings: t.Optional[Settings] = None):
-        return DeltaReaderExecutor(self)
-
-
-class DeltaReaderExecutor(OperatorExecutor):
-    op: DeltaReader
     _dataset: t.Any  # pyarrow dataset
     _batch_generator: t.Optional[t.Iterator[t.Any]]  # record batch generator
 
-    def __init__(self, op: DeltaReader):
-        self.op = op
-        self._dataset = dl.DeltaTable(self.op.fpath).to_pyarrow_dataset()
+    def setup(self, settings: Settings | None = None):
+        self._dataset = dl.DeltaTable(self.fpath).to_pyarrow_dataset()
         if self.is_incremental:
             self._batch_generator = iter(self._dataset.to_batches())
+        return self
 
     @property
     def is_incremental(self) -> bool:
-        return self.op.batch_split is True
+        return self.batch_split is True
 
-    def run(self) -> TYPE_OP_OUTPUT:
+    def run(self) -> TYPE_TABLE_OUTPUT:
         if not self.is_incremental:
             data = pl.from_arrow(self._dataset.to_table())
         else:
@@ -131,18 +133,13 @@ class DeltaReaderExecutor(OperatorExecutor):
 # -----------------------------------------------------------
 
 
-class UptrainReader(BaseModel):
+class UptrainReader(TableOp):
     dataset_id: str
 
-    def make_executor(self, settings: t.Optional[Settings] = None):
-        return UptrainReaderExecutor(self)
+    def setup(self, _: t.Optional[Settings] = None):
+        return self
 
-
-def UptrainReaderExecutor(OperatorExecutor):
-    op: UptrainReader
-
-    def __init__(self, op: UptrainReader):
-        self.op = op
-
-    def run(self) -> TYPE_OP_OUTPUT:
-        raise NotImplementedError("UptrainReaderExecutor is not implemented yet in the library.")
+    def run(self) -> TYPE_TABLE_OUTPUT:
+        raise NotImplementedError(
+            "UptrainReader is not implemented yet in the library."
+        )

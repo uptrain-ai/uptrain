@@ -6,7 +6,6 @@ import polars as pl
 import pandas as pd
 import plotly.express as px
 
-from uptrain.io import DeltaWriter, JsonWriter
 from uptrain.framework.checks import CheckSet, SimpleCheck
 
 
@@ -42,21 +41,20 @@ def st_make_check_selector(checkset: "CheckSet"):
             options=list(range(len(checkset.checks))),
             format_func=lambda x: checkset.checks[x].name,
         )  # streamlit is being weird with classes, so iterate over their indices
-    check = checkset.checks[select_check_index]
+    check = checkset.checks[select_check_index]  # type: ignore
     return check
 
 
 def load_data_for_check_local(checkset: "CheckSet", check):
-    sink = checkset.get_sink_for_check(check)
-    if isinstance(sink, DeltaWriter):
+    from uptrain.io import DeltaWriter, JsonWriter
+
+    sink = checkset._get_sink_for_check(check)
+    if isinstance(sink, (DeltaWriter, JsonWriter)):
         source = sink.to_reader()
-        source_exec = source.make_executor(checkset.settings)
-    elif isinstance(sink, JsonWriter):
-        source = sink.to_reader()
-        source_exec = source.make_executor(checkset.settings)
+        source.setup(checkset.settings)
     else:
         raise NotImplementedError(f"{type(sink)} is not supported for now.")
-    output = source_exec.run()
+    output = source.run()
     return output["output"]
 
 

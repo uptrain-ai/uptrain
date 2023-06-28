@@ -9,12 +9,7 @@ import networkx as nx
 import polars as pl
 from pydantic import BaseSettings, Field
 
-from uptrain.operators.base import (
-    TYPE_OP_OUTPUT,
-    Operator,
-    OperatorExecutor,
-    deserialize_operator,
-)
+from uptrain.operators.base import *
 from uptrain.utilities import to_py_types
 
 __all__ = [
@@ -29,7 +24,7 @@ class Settings(BaseSettings):
 
     # external api related
     openai_api_key: str = Field(None, env="OPENAI_API_KEY")
-    opeani_rpm_limit: int = 100
+    openai_rpm_limit: int = 100
 
     # uptrain managed service related
     uptrain_access_token: str = Field(None, env="UPTRAIN_ACCESS_TOKEN")
@@ -44,20 +39,17 @@ class Settings(BaseSettings):
 
 
 class OperatorDAG:
-    """A Graph is a DAG of Uptrain operators, that defines the data pipeline to execute."""
+    """A Graph is a DAG of Uptrain table operators, that defines the data pipeline to execute."""
 
     name: str
     graph: nx.DiGraph
-    _node_executors: dict[str, OperatorExecutor]
 
     def __init__(self, name: str):
         self.name = name
         self.graph = nx.DiGraph()
-        # not initialized here, since we need the Settings object to set up the executors
-        self._node_executors = {}
 
     def add_step(
-        self, name: str, node: Operator, deps: t.Optional[list[str]] = None
+        self, name: str, node: TableOp, deps: t.Optional[list[str]] = None
     ) -> None:
         """Add a node to the DAG, along with its dependencies."""
         if name in self.graph.nodes:
@@ -81,11 +73,18 @@ class OperatorDAG:
                 f"Adding a node for operator: {name} creates a cycle in the compute DAG: {self.name}"
             )
 
+    def setup(self, settings: "Settings") -> None:
+        """Set up the operators in the DAG."""
+        sorted_nodes = list(nx.algorithms.dag.topological_sort(self.graph))
+        for node_name in sorted_nodes:
+            node: "TableOp" = self.graph.nodes[node_name]["op_class"]
+            assert isinstance(node, TableOp)
+            node.setup(settings)
+
     def run(
         self,
-        settings: "Settings",
-        node_inputs: t.Optional[dict[str, pl.DataFrame]] = None,
-        output_nodes: t.Optional[list[str]] = None,
+        node_inputs: dict[str, pl.DataFrame | None],
+        output_nodes: list[str],
     ) -> dict[str, pl.DataFrame]:
         """Runs the compute DAG.
         Args:
@@ -93,10 +92,6 @@ class OperatorDAG:
                 from the upstream operators is used as input.
             node_outputs: A list of operator names, whose output should be returned.
         """
-        if node_inputs is None:
-            node_inputs = {}
-        if output_nodes is None:
-            output_nodes = []
 
         # dict to hold the output of each node
         node_to_output = {}
@@ -109,13 +104,8 @@ class OperatorDAG:
         # run each node in topological order
         for node_name in sorted_nodes:
             logger.debug(f"Executing node: {node_name} for operator DAG: {self.name}")
-            node = self.graph.nodes[node_name]["op_class"]
-            # set executors the first time they get used
-            if node_name in self._node_executors:
-                executor = self._node_executors[node_name]
-            else:
-                executor = node.make_executor(settings)
-                self._node_executors[node_name] = executor
+            node: "TableOp" = self.graph.nodes[node_name]["op_class"]
+            assert isinstance(node, TableOp)
 
             # get input for this node from its dependencies
             inputs_from_deps = []
@@ -130,11 +120,11 @@ class OperatorDAG:
                             f"Cannot find output/provided value for dependency: {dep} of node: {node_name}"
                         )
 
-            # run the executor and store the output
-            res: "TYPE_OP_OUTPUT" = executor.run(*inputs_from_deps)
+            # run the operator and store the output
+            res = node.run(*inputs_from_deps)
             node_to_output[node_name] = res["output"]
 
-            # decrease dependents count for each dependency
+            # decrease dependents count for each dependency so we don't old onto memory
             for parent in self.graph.predecessors(node_name):
                 dependents_count[parent] -= 1
                 if dependents_count[parent] == 0 and parent not in output_nodes:

@@ -7,7 +7,6 @@ import re
 import typing as t
 
 from loguru import logger
-from pydantic import BaseModel, Field
 import polars as pl
 
 if t.TYPE_CHECKING:
@@ -19,21 +18,13 @@ __all__ = ["GrammarScore"]
 
 
 @register_op
-class GrammarScore(BaseModel):
+class GrammarScore(ColumnOp):
     col_in_text: str = "text"
-    col_out: str = get_output_col_name_at(0)
+    _api_client: LLMMulticlient
 
-    def make_executor(self, settings: t.Optional[Settings] = None):
-        return GrammarScoreExecutor(self, settings)
-
-
-class GrammarScoreExecutor(OperatorExecutor):
-    op: GrammarScore
-    api_client: LLMMulticlient
-
-    def __init__(self, op: GrammarScore, settings: t.Optional[Settings] = None):
-        self.op = op
-        self.api_client = LLMMulticlient(settings=settings)
+    def setup(self, settings: t.Optional[Settings] = None):
+        self._api_client = LLMMulticlient(settings=settings)
+        return self
 
     def _make_payload(self, id: t.Any, text: str) -> Payload:
         return Payload(
@@ -56,18 +47,18 @@ class GrammarScoreExecutor(OperatorExecutor):
             metadata={"index": id},
         )
 
-    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
-        text_ser = data.get_column(self.op.col_in_text)
+    def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
+        text_ser = data.get_column(self.col_in_text)
         input_payloads = [
             self._make_payload(idx, text) for idx, text in enumerate(text_ser)
         ]
-        output_payloads = self.api_client.fetch_responses(input_payloads)
+        output_payloads = self._api_client.fetch_responses(input_payloads)
 
         results = []
         for res in output_payloads:
             assert (
                 res is not None
-            ), "Response should not be None, we must handle all exceptions before."
+            ), "Response should not be None, we should've handled exceptions beforehand."
             idx = res.metadata["index"]
             if res.error is not None:
                 logger.error(
@@ -82,6 +73,4 @@ class GrammarScoreExecutor(OperatorExecutor):
         result_scores = pl.Series(
             [val for _, val in sorted(results, key=lambda x: x[0])]
         )
-        return {
-            "output": data.with_columns([pl.Series(self.op.col_out, result_scores)])
-        }
+        return {"output": pl.Series(result_scores).alias(get_output_col_name_at(0))}

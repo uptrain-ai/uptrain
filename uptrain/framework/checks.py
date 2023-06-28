@@ -1,10 +1,12 @@
 """Implements `Check` objects used for LLM evaluation purposes.
 """
 from __future__ import annotations
+from dataclasses import dataclass
 import os
 import typing as t
 
 import polars as pl
+from pydantic import root_validator
 
 from uptrain.operators.base import *
 from uptrain.utilities import jsonload, jsondump, to_py_types, clear_directory
@@ -17,100 +19,92 @@ __all__ = [
 
 
 @register_op
-class SimpleCheck:
-    """A simple check that runs the given list of operators in sequence."""
+class SimpleCheck(Operator):
+    """A simple check that runs the given list of table operators in sequence.
+
+    Attributes:
+        name: Name of the check.
+        compute: A list of operators to run in sequence on the input data. The output of each
+            operator is passed as input to the next operator.
+        plot: How to plot the output of the check.
+    """
 
     name: str
-    compute: list[Operator]
-    plot: t.Optional[Operator]
+    sequence: list[TableOp]
+    plot: list[Operator]
+    _settings: Settings
+    _op_dag: OperatorDAG
 
     def __init__(
         self,
         name: str,
-        compute: list[Operator],
-        plot: t.Optional[Operator] = None,
+        sequence: list[TableOp],
+        plot: list[Operator] | None = None,
     ):
-        """
-        Initialize a simple check.
-
-        Args:
-            name: Name of the check.
-            compute: A list of operators to run in sequence on the input data. The output of each
-                operator is passed as input to the next operator.
-            plot: How to plot the output of the check.
-        """
-
         self.name = name
-        self.compute = compute
-        self.plot = plot
+        self.sequence = sequence
+        self.plot = plot if plot is not None else []
+        self._settings = None  # type: ignore
 
-    def make_executor(self, settings: Settings) -> "SimpleCheckExecutor":
-        """Make an executor for this check."""
-        return SimpleCheckExecutor(self, settings)
+        for op in self.sequence:
+            if not isinstance(op, TableOp):
+                raise ValueError(f"SimpleCheck compute ops must be TableOps, got {op}")
 
-    def dict(self) -> dict:
-        """Serialize this check to a dict."""
-        return {
-            "name": self.name,
-            "compute": [to_py_types(op) for op in self.compute],
-            "plot": to_py_types(self.plot),
-        }  # serializes only the attributes of the class, like pydantic models
-
-    @classmethod
-    def from_dict(cls, data: dict) -> "SimpleCheck":
-        """Deserialize a check from a dict of its parameters."""
-        compute = [deserialize_operator(op) for op in data["compute"]]
-
-        def get_value(key):
-            val = data.get(key, None)
-            if val is not None:
-                return deserialize_operator(val)
-            else:
-                return None
-
-        return cls(
-            name=data["name"],
-            compute=compute,
-            plot=get_value("plot"),
-        )
-
-
-class SimpleCheckExecutor:
-    """Executor for a check."""
-
-    op: SimpleCheck
-    op_dag: OperatorDAG
-    settings: "Settings"
-
-    def __init__(self, check: SimpleCheck, settings: "Settings"):
-        self.op = check
-        self.settings = settings
+    def setup(self, settings: "Settings"):
+        self._settings = settings
 
         # no need to add the plot operator to the dag, since it's run later
-        self.op_dag = OperatorDAG(name=check.name)
-        for i, op in enumerate(self.op.compute):
+        self._op_dag = OperatorDAG(name=self.name)
+        for i, op in enumerate(self.sequence):
             if i == 0:
                 deps = []
             else:
-                deps = [f"compute_{i-1}"]
-            self.op_dag.add_step(f"compute_{i}", op, deps=deps)
+                deps = [f"sequence_{i-1}"]
+            self._op_dag.add_step(f"sequence_{i}", op, deps=deps)
+        self._op_dag.setup(settings)
 
-    def run(self, data: t.Optional[pl.DataFrame] = None) -> t.Optional[pl.DataFrame]:
+        return self
+
+    def run(self, data: pl.DataFrame | None = None) -> pl.DataFrame | None:
         """Run this check on the given data."""
+        if self._settings is None:
+            raise ValueError(f"Must call setup() before running the check: {self.name}")
 
-        node_inputs = {"compute_0": data}
+        node_inputs = {"sequence_0": data}
 
-        # pick output from the last compute op
-        name_final_node = f"compute_{len(self.op.compute) - 1}"
-        node_outputs = self.op_dag.run(
-            settings=self.settings,
+        # pick output from the last op in the sequence
+        name_final_node = f"sequence_{len(self.sequence) - 1}"
+        node_outputs = self._op_dag.run(
             node_inputs=node_inputs,
             output_nodes=[name_final_node],
         )
         return node_outputs[name_final_node]
 
+    def dict(self) -> dict:
+        """Serialize this check to a dict."""
+        return {
+            "name": self.name,
+            "sequence": [to_py_types(op) for op in self.sequence],
+            "plot": [to_py_types(op) for op in self.plot],
+        }  # serializes only the attributes of the class, like pydantic models
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "SimpleCheck":
+        """Deserialize a check from a dict of its parameters."""
+        sequence = [deserialize_operator(op) for op in data["sequence"]]
+        plot = [deserialize_operator(op) for op in data["plot"]]
+        return cls(name=data["name"], sequence=sequence, plot=plot)  # type: ignore
+
 
 class CheckSet:
+    """Container for a set of checks to run together. This is the entrypoint to Uptrain for users.
+
+    Attributes:
+        source: The source operator to run. Specifies where to get the data from.
+        checks: The list of checks to run on the input data.
+        settings: Settings to run this check set with.
+    """
+
     source: Operator
     checks: list[SimpleCheck]
     settings: Settings
@@ -120,20 +114,27 @@ class CheckSet:
         self.checks = checks
         self.settings = settings
 
-        # verify all checks have different names
-        check_names = [check.name for check in checks]
+        check_names = [
+            check.name for check in checks
+        ]  # verify all checks have different names
         assert len(set(check_names)) == len(check_names), "Duplicate check names"
+        for check in checks:
+            assert isinstance(
+                check, SimpleCheck
+            ), "Each check must be an instance of SimpleCheck"
 
-    def get_sink_for_check(self, check: SimpleCheck) -> Operator:
+    def _get_sink_for_check(self, check: SimpleCheck) -> Operator:
         """Get the sink for the given check."""
         from uptrain.io.writers import JsonWriter
 
         return JsonWriter(
             fpath=os.path.join(self.settings.logs_folder, f"{check.name}.jsonl")
-        )
+        )  # type: ignore
 
     def setup(self):
-        """Create the logs directory, or clear it if it already exists. Also create sinks for each check."""
+        """Create the logs directory, or clear it if it already exists. Also, persist the
+        evaluation config.
+        """
         logs_dir = self.settings.logs_folder
         if not os.path.exists(logs_dir):
             os.makedirs(logs_dir)
@@ -141,13 +142,21 @@ class CheckSet:
             clear_directory(logs_dir)
         self.serialize(os.path.join(logs_dir, "config.json"))
 
+        for check in self.checks:
+            check.setup(self.settings)
+
+        return self
+
     def run(self):
         """Run all checks in this set."""
-        source_output = self.source.make_executor(self.settings).run()["output"]
+        self.source.setup(self.settings)
+        source_output = self.source.run()["output"]
         for check in self.checks:
-            check_ouptut = check.make_executor(self.settings).run(source_output)
-            sink = self.get_sink_for_check(check)
-            sink.make_executor(self.settings).run(check_ouptut)
+            check_ouptut = check.run(source_output)
+
+            sink = self._get_sink_for_check(check)
+            sink.setup(self.settings)
+            sink.run(check_ouptut)
 
     @classmethod
     def from_dict(cls, data: dict) -> "CheckSet":
@@ -161,7 +170,7 @@ class CheckSet:
         return {
             "source": to_py_types(self.source),
             "checks": [to_py_types(check) for check in self.checks],
-            "settings": self.settings.dict(),
+            "settings": to_py_types(self.settings),
         }
 
     @classmethod

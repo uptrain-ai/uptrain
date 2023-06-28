@@ -1,13 +1,41 @@
 """
-Implement checks to detect drift in the data. 
+This module implements the ConceptDrift operator and its associated executor for detecting concept drift
+using the DDM (Drift Detection Method) or ADWIN (Adaptive Windowing) algorithm.
+
+The module provides the following classes:
+
+- ParamsDDM: Parameters for the DDM algorithm.
+- ParamsADWIN: Parameters for the ADWIN algorithm.
+- ConceptDrift: Operator for detecting concept drift.
+- ConceptDriftExecutor: Executor for the ConceptDrift operator.
+
+Example:
+    # Create an instance of the ParamsDDM class with the parameters
+    params_ddm = ParamsDDM(warm_start=500, warn_threshold=2.0, alarm_threshold=3.0)
+
+    # Create an instance of the ConceptDrift operator
+    op = ConceptDrift(algorithm="DDM", params=params_ddm, col_in_measure="metric")
+
+    # Set up the operator
+    op.setup()
+
+    # Run the operator on the input data
+    input_data = pl.DataFrame(...)
+    op.run(input_data)
+
+    # Check the detected concept drift information
+    if op._alert_info is not None:
+        print("Concept drift detected!")
+        print("Counter:", op._alert_info["counter"])
+        print("Message:", op._alert_info["msg"])
+
 """
 
 from __future__ import annotations
 import typing as t
 
-from lazy_loader import load
 from loguru import logger
-from pydantic import BaseModel, root_validator
+from pydantic import root_validator
 import polars as pl
 
 if t.TYPE_CHECKING:
@@ -15,16 +43,38 @@ if t.TYPE_CHECKING:
 from uptrain.operators.base import *
 from uptrain.utilities import lazy_load_dep
 
-river = lazy_load_dep("river", "river")
+drift = lazy_load_dep("river.drift", "river")
 
 
-class ParamsDDM(BaseModel):
+class ParamsDDM(OpBaseModel):
+    """
+    Parameters for the DDM (Drift Detection Method) algorithm.
+
+    Attributes:
+        warm_start (int): The number of instances required before any drift detection.
+        warning_threshold (float): The warning threshold value for the drift detection.
+        drift_threshold (float): The alarm threshold value for the drift detection.
+    
+    """
+
     warm_start: int = 500
-    warn_threshold: float = 2.0
-    alarm_threshold: float = 3.0
+    warning_threshold: float = 2.0
+    drift_threshold: float = 3.0
 
 
-class ParamsADWIN(BaseModel):
+class ParamsADWIN(OpBaseModel):
+    """
+    Parameters for the ADWIN (Adaptive Windowing) algorithm.
+
+    Attributes:
+        delta (float): The delta value for the drift detection.
+        clock (int): The clock value for the drift detection.
+        max_buckets (int): The maximum number of buckets to keep for the drift detection.
+        min_window_length (int): The minimum length of the window for the drift detection.
+        grace_period (int): The grace period value for the drift detection.
+
+    """
+    
     delta: float = 0.002
     clock: int = 32
     max_buckets: int = 5
@@ -33,13 +83,50 @@ class ParamsADWIN(BaseModel):
 
 
 @register_op
-class ConceptDrift(BaseModel):
+class ConceptDrift(ColumnOp):
+    """
+    Operator for detecting concept drift using the DDM (Drift Detection Method) or ADWIN (Adaptive Windowing) algorithm.
+
+    Attributes:
+        algorithm (Literal["DDM", "ADWIN"]): The algorithm to use for concept drift detection.
+        params (Union[ParamsDDM, ParamsADWIN]): The parameters for the selected algorithm.
+        col_in_measure (str): The name of the column in the input data representing the metric to measure concept drift.
+        _algo_obj (Any): The internal object representing the selected algorithm.
+        _counter (int): Internal counter for tracking the number of processed instances.
+        _cuml_accuracy (float): Cumulative accuracy for tracking concept drift.
+        _alert_info (Optional[dict]): Information about detected concept drift alerts.
+        _avg_accuracy (float): Average accuracy for tracking concept drift.
+
+    Raises:
+        ValueError: If the specified algorithm does not match the type of the parameters.
+
+    """
+
     algorithm: t.Literal["DDM", "ADWIN"]
     params: t.Union[ParamsDDM, ParamsADWIN]
     col_in_measure: str = "metric"
+    _algo_obj: t.Any
+    _counter: int
+    _cuml_accuracy: float
+    _avg_accuracy: float
+    _alert_info: t.Optional[dict]
 
     @root_validator
     def check_params(cls, values):
+        """
+        Root validator for checking the parameters of the ConceptDrift operator.
+
+        Args:
+            cls: The class.
+            values: The input values.
+
+        Raises:
+            ValueError: If the specified algorithm does not match the type of the parameters.
+
+        Returns:
+            dict: The validated values.
+
+        """
         algo = values["algorithm"]
         params = values["params"]
         if algo == "DDM" and not isinstance(params, ParamsDDM):
@@ -52,49 +139,70 @@ class ConceptDrift(BaseModel):
             )
         return values
 
-    def make_executor(self, settings: t.Optional[Settings] = None):
-        return ConceptDriftExecutor(self)
+    def setup(self, _: t.Optional[Settings] = None):
+        """
+        Setup method for the ConceptDrift operator.
 
+        Args:
+            _: Optional settings parameter (not used).
 
-class ConceptDriftExecutor(OperatorExecutor):
-    op: ConceptDrift
-    algo: t.Any
-    counter: int
-    cuml_accuracy: float
-    alert_info: t.Optional[dict]
+        Returns:
+            self: The ConceptDrift operator instance.
 
-    def __init__(self, op: ConceptDrift):
-        import river.drift.binary
-        import river.drift
+        """
+        if self.algorithm == "DDM":
+            self._algo_obj = drift.DDM(**self.params.dict())  # type: ignore
+        elif self.algorithm == "ADWIN":
+            self._algo_obj = drift.ADWIN(**self.params.dict())  # type: ignore
+        self._counter = 0
+        self._avg_accuracy = 0.0
+        self._cuml_accuracy = 0.0
+        self._alert_info = None
+        return self
 
-        self.op = op
-        if op.algorithm == "DDM":
-            self.algo = river.drift.binary.DDM(**op.params.dict())
-        elif op.algorithm == "ADWIN":
-            self.algo = river.drift.ADWIN(**op.params.dict())
-        self.counter = 0
-        self.avg_accuracy = 0.0
-        self.alert_info = None
+    def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
+        """
+        Run the concept drift detection on the input data.
 
-    def run(self, data: pl.DataFrame) -> TYPE_OP_OUTPUT:
-        ser = data.get_column(self.op.col_in_measure)
+        Args:
+            data (pl.DataFrame): The input data.
+
+        Returns:
+            TYPE_COLUMN_OUTPUT: The output of the operator.
+
+            The dictionary has the following structure:
+            {
+                "output": None,
+                "extra": {
+                    "counter": int,  # The number of instances processed.
+                    "avg_accuracy": float,  # The average accuracy of the drift detection.
+                    "alert_info": dict or None,  # Information about the detected concept drift or None if no drift detected.
+                        {
+                            "counter": int,  # The counter value when the drift was detected.
+                            "msg": str  # The message indicating the detection of concept drift.
+                        }
+                }
+            }
+
+        """
+        ser = data.get_column(self.col_in_measure)
 
         for val in ser:
-            self.algo.update(val)
-            if self.algo.drift_detected and self.alert_info is None:
-                msg = f"Drift detected using {self.op.algorithm}!"
-                self.alert_info = {"counter": self.counter, "msg": msg}
+            self._algo_obj.update(val)
+            if self._algo_obj.drift_detected and self._alert_info is None:
+                msg = f"Drift detected using {self.algorithm}!"
+                self._alert_info = {"counter": self._counter, "msg": msg}
                 logger.info(msg)
 
-            self.counter += 1
-            self.cuml_accuracy += val
+            self._counter += 1
+            self._cuml_accuracy += val
 
-        avg_accuracy = self.cuml_accuracy / self.counter if self.counter > 0 else 0.0
+        self._avg_accuracy = self._cuml_accuracy / self._counter if self._counter > 0 else 0.0
         return {
             "output": None,
             "extra": {
-                "counter": self.counter,
-                "avg_accuracy": avg_accuracy,
-                "alert_info": self.alert_info,
+                "counter": self._counter,
+                "avg_accuracy": self._avg_accuracy,
+                "alert_info": self._alert_info,
             },
         }

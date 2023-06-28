@@ -4,16 +4,11 @@ Implement checks to test language quality.
 
 from __future__ import annotations
 import asyncio
-from concurrent.futures import (
-    ThreadPoolExecutor,
-    as_completed,
-    wait as wait_for_futures,
-)
+from concurrent.futures import ThreadPoolExecutor
 import typing as t
 
 import aiolimiter
 from loguru import logger
-import tqdm
 from tqdm.asyncio import tqdm_asyncio
 from pydantic import BaseModel, Field
 
@@ -121,7 +116,6 @@ class LLMMulticlient:
             self._rpm_limit = settings.check_and_get("openai_rpm_limit")
 
     def fetch_responses(self, input_payloads: list[Payload]) -> list[Payload]:
-        # return self.sync_fetch_responses(input_payloads)
         try:
             loop = asyncio.get_running_loop()
         except RuntimeError:
@@ -131,7 +125,7 @@ class LLMMulticlient:
             logger.warning(
                 "Detected Jupyter environment, scheduling requests in a separate thread."
             )
-            with ThreadPoolExecutor() as executor:
+            with ThreadPoolExecutor(max_workers=1) as executor:
                 return executor.submit(
                     asyncio.run, self.async_fetch_responses(input_payloads)
                 ).result()
