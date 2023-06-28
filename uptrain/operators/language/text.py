@@ -41,8 +41,7 @@ class DocsLinkVersion(ColumnOp):
 
         # Create a DataFrame
         df = pl.DataFrame({
-            "text": ["https://docs.streamlit.io/1.9.0/library/api-reference/charts/st.plotly_chart#stplotly_chart", "This is an example: v1.2.3", 
-            "Another example: https://example.com/v2.0"]
+            "text": ["https://docs.streamlit.io/1.9.0/library/api-reference/charts/st.plotly_chart#stplotly_chart", "No version here"]
         })
 
         # Create an instance of the DocsLinkVersion class
@@ -55,11 +54,10 @@ class DocsLinkVersion(ColumnOp):
         print(versions)
 
     Output:
-        shape: (3,)
+        shape: (2,)
         Series: '_col_0' [str]
         [
                 "1.9.0"
-                null
                 null
         ]
 
