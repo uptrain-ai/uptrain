@@ -245,10 +245,6 @@ def test_vis_plot_operators():
     histogram.show()
 
 
-# uptrain.operators.vis
-def test_vis_table_operator():
-    ...
-
 # uptrain.operators.language.rouge
 def test_rouge_operator():
     import polars as pl
