@@ -102,6 +102,7 @@ def get_checkset(source_path):
                             col_in_text="document_text"
                         ),
                         "response_document_overlap_score": RougeScore(
+                            score_type="f1",
                             col_in_generated="response",
                             col_in_source="document_text",
                         ),
@@ -135,8 +136,8 @@ def get_checkset(source_path):
             name="question_umap",
             sequence=[
                 UMAP(
-                    col_in_embs="question_embeddings",
-                    col_in_embs2="response_embeddings",
+                    col_in_embs_1="question_embeddings",
+                    col_in_embs_2="response_embeddings",
                 )
             ],
             plot=[
