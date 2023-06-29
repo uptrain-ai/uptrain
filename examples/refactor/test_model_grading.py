@@ -83,7 +83,16 @@ def get_list_checks():
     check = SimpleCheck(
         name="Model grade scores",
         sequence=[SelectOp(columns=column_to_ops)],
-        plot=[PlotlyChart(kind="table", title="Model grade scores")],
+        plot=[
+            PlotlyChart(kind="table", title="Model grade scores"),
+            PlotlyChart.Histogram(
+                props=dict(x="chatgpt_model_grade", title="chatgpt-grading", nbins=3)
+            ),
+            *[
+                PlotlyChart.Histogram(props=dict(x=col, title=persona, nbins=3))
+                for col, persona in zip(column_to_ops, BOT_PERSONAS)
+            ],
+        ],
     )
 
     return [check]
