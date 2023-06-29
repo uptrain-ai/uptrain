@@ -1,4 +1,11 @@
-"""This module implements visualization operators for simple-checks in uptrain."""
+"""
+This module implements visualization operators for simple-checks in uptrain.
+
+The module provides the `PlotlyChart` class, which allows generating various types of charts using Plotly. 
+The supported chart types are line, scatter, bar, histogram, and table. The charts are created based on 
+the input DataFrame.
+
+"""
 
 from __future__ import annotations
 import typing as t
@@ -20,6 +27,47 @@ __all__ = ["PlotlyChart"]
 
 @register_op
 class PlotlyChart(OpBaseModel):
+    """
+    Operator to generate various types of charts using Plotly.
+
+    Args:
+        kind (str): The type of chart to generate. Supported values are "line", "scatter", "bar", 
+            "histogram", and "table".
+        props (dict): Additional properties to pass to the Plotly chart constructor.
+        title (str): The title of the chart.
+        filter_on (list[str]): The names of columns to filter the chart data on.
+
+    Returns:
+        dict: A dictionary containing the chart object.
+
+    Class Methods:
+        Line(**kwargs) -> PlotlyChart: Creates a line chart.
+        Scatter(**kwargs) -> PlotlyChart: Creates a scatter chart.
+        Bar(**kwargs) -> PlotlyChart: Creates a bar chart.
+        Histogram(**kwargs) -> PlotlyChart: Creates a histogram.
+        Table(**kwargs) -> PlotlyChart: Creates a table.
+
+    Example:
+        import polars as pl
+        from uptrain.operators import PlotlyChart
+
+        # Create a DataFrame
+        df = pl.DataFrame({
+            "x": [1, 2, 3, 4, 5],
+            "y": [10, 20, 15, 25, 30]
+        })
+
+        # Create a line chart using the PlotlyChart class
+        line_chart = PlotlyChart.Line(props={"x": "x", "y": "y"}, title="Line Chart")
+
+        # Generate the line chart
+        chart = line_chart.run(df)["extra"]["chart"]
+
+        # Show the chart
+        chart.show()
+
+    """
+
     kind: t.Literal["line", "scatter", "bar", "histogram", "table"]
     props: dict = Field(default_factory=dict)
     title: str = ""

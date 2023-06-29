@@ -9,26 +9,6 @@ The module provides the following classes:
 - ConceptDrift: Operator for detecting concept drift.
 - ConceptDriftExecutor: Executor for the ConceptDrift operator.
 
-Example:
-    # Create an instance of the ParamsDDM class with the parameters
-    params_ddm = ParamsDDM(warm_start=500, warn_threshold=2.0, alarm_threshold=3.0)
-
-    # Create an instance of the ConceptDrift operator
-    op = ConceptDrift(algorithm="DDM", params=params_ddm, col_in_measure="metric")
-
-    # Set up the operator
-    op.setup()
-
-    # Run the operator on the input data
-    input_data = pl.DataFrame(...)
-    op.run(input_data)
-
-    # Check the detected concept drift information
-    if op._alert_info is not None:
-        print("Concept drift detected!")
-        print("Counter:", op._alert_info["counter"])
-        print("Message:", op._alert_info["msg"])
-
 """
 
 from __future__ import annotations
@@ -54,7 +34,7 @@ class ParamsDDM(OpBaseModel):
         warm_start (int): The number of instances required before any drift detection.
         warning_threshold (float): The warning threshold value for the drift detection.
         drift_threshold (float): The alarm threshold value for the drift detection.
-    
+
     """
 
     warm_start: int = 500
@@ -91,14 +71,42 @@ class ConceptDrift(ColumnOp):
         algorithm (Literal["DDM", "ADWIN"]): The algorithm to use for concept drift detection.
         params (Union[ParamsDDM, ParamsADWIN]): The parameters for the selected algorithm.
         col_in_measure (str): The name of the column in the input data representing the metric to measure concept drift.
-        _algo_obj (Any): The internal object representing the selected algorithm.
-        _counter (int): Internal counter for tracking the number of processed instances.
-        _cuml_accuracy (float): Cumulative accuracy for tracking concept drift.
-        _alert_info (Optional[dict]): Information about detected concept drift alerts.
-        _avg_accuracy (float): Average accuracy for tracking concept drift.
 
     Raises:
         ValueError: If the specified algorithm does not match the type of the parameters.
+
+    Example:
+        import polars as pl
+        from uptrain.operators import ParamsDDM, ConceptDrift
+
+        # Create an instance of the ParamsDDM class with the parameters
+        params_ddm = ParamsDDM(
+                        warm_start=500,
+                        warn_threshold=2.0,
+                        alarm_threshold=3.0
+                    )
+
+        # Create an instance of the ConceptDrift operator
+        op = ConceptDrift(
+                algorithm="DDM",
+                params=params_ddm,
+                col_in_measure="metric"
+            )
+
+        # Set up the operator
+        op.setup()
+
+        # Run the operator on the input data
+        input_data = pl.DataFrame(...)
+        output = op.run(input_data)["extra"]
+
+        # Check the detected concept drift information
+        if output["alert_info"] is not None:
+            print("Counter:", output["alert_info"]["counter"])
+
+    Output:
+        INFO     | uptrain.operators.drift:run:181 - Drift detected using DDM!
+        Counter: 129466
 
     """
 
@@ -114,18 +122,8 @@ class ConceptDrift(ColumnOp):
     @root_validator
     def check_params(cls, values):
         """
-        Root validator for checking the parameters of the ConceptDrift operator.
-
-        Args:
-            cls: The class.
-            values: The input values.
-
-        Raises:
-            ValueError: If the specified algorithm does not match the type of the parameters.
-
-        Returns:
-            dict: The validated values.
-
+        Check if the parameters are valid for the specified algorithm.
+        
         """
         algo = values["algorithm"]
         params = values["params"]
@@ -141,13 +139,7 @@ class ConceptDrift(ColumnOp):
 
     def setup(self, _: t.Optional[Settings] = None):
         """
-        Setup method for the ConceptDrift operator.
-
-        Args:
-            _: Optional settings parameter (not used).
-
-        Returns:
-            self: The ConceptDrift operator instance.
+        Set up and return the ConceptDrift operator.
 
         """
         if self.algorithm == "DDM":

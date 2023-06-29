@@ -50,6 +50,16 @@ class UptrainEvalRecorder(evals.record.RecorderBase):
 
 @register_op
 class OpenaiEval(ColumnOp):
+    """
+    Operator for running OpenAI evals.
+
+    Args:
+        bundle_path (str): Path to the bundle containing eval resources.
+        completion_name (str): Name of the completion function to use.
+        eval_name (str): Name of the eval to run.
+
+    """
+
     bundle_path: str
     completion_name: str
     eval_name: str
@@ -145,6 +155,20 @@ class OpenaiEval(ColumnOp):
 
 
 class PromptEval(TableOp):
+    """
+    Operator for running prompt-based evaluations.
+
+    Args:
+        prompt_template (str): Template for the prompt string.
+        prompt_variables (list[str]): List of variables to substitute in the prompt template.
+        gt_variables (list[str]): List of ground truth variables.
+        model_name (str): Name of the model to use for evaluation.
+        col_out_prompt (str, optional): Output column name for prompts. Defaults to "prompt".
+        col_out_response (str, optional): Output column name for responses. Defaults to "response".
+        _settings (Settings): The framework settings.
+    
+    """
+    
     prompt_template: str
     prompt_variables: list[str]
     gt_variables: list[str]
