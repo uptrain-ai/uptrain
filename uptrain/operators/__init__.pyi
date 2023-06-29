@@ -7,6 +7,8 @@ __all__ = [
     "register_op",
     "get_output_col_name_at",
     # drift
+    "ParamsDDM",
+    "ParamsADWIN",
     "ConceptDrift",
     # embs
     "Distribution",
@@ -41,7 +43,7 @@ from .base import (
     register_op,
     get_output_col_name_at,
 )
-from .drift import ConceptDrift
+from .drift import ConceptDrift, ParamsADWIN, ParamsDDM
 from .embs import Distribution, UMAP
 from .table import ColumnExpand
 from .metrics import Accuracy

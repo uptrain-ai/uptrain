@@ -1,5 +1,8 @@
 """
-Implement checks to return the input dataset as it is. 
+Implement checks to return the input dataset as it is.
+
+This module provides the `ColumnExpand` class, which returns the input DataFrame as it is without any modifications. It can be used to pass the data through unchanged in a pipeline.
+
 """
 
 from __future__ import annotations
@@ -16,6 +19,52 @@ from uptrain.operators.base import *
 
 @register_op
 class ColumnExpand(TableOp):
+    """
+    Table operation to return the input DataFrame as it is without any modifications.
+
+    Args:
+        col_out_names (list[str]): The names of the output columns. Must be the same length as `col_vals`.
+        col_vals (list[Any]): The values for the output columns. Must be the same length as `col_out_names`.
+
+    Returns:
+        dict: A dictionary containing the input DataFrame.
+
+    Example:
+        import polars as pl
+        from uptrain.operators import ColumnExpand
+
+        # Create a DataFrame
+        df = pl.DataFrame({
+            "column1": [1, 2, 3],
+            "column2": ["A", "B", "C"]
+        })
+
+        # Create an instance of the ColumnExpand class
+        expand_op = ColumnExpand(
+                        col_out_names=["column1", "column2"],
+                        col_vals=[df["column1"], df["column2"]]
+                    )
+
+        # Run the expand operation
+        output_df = expand_op.run(df)["output"]
+
+        # Print the output DataFrame
+        print(output_df)
+
+    Output:
+        shape: (3, 2)
+        ┌─────────┬─────────┐
+        │ column1 ┆ column2 │
+        │ ---     ┆ ---     │
+        │ i64     ┆ str     │
+        ╞═════════╪═════════╡
+        │ 1       ┆ A       │
+        │ 2       ┆ B       │
+        │ 3       ┆ C       │
+        └─────────┴─────────┘
+
+    """
+    
     col_out_names: list[str]
     col_vals: list[t.Any]
 

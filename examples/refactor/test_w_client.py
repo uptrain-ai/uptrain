@@ -42,8 +42,8 @@ def get_list_checks():
         name="question_umap",
         sequence=[
             UMAP(
-                col_in_embs="question_embeddings",
-                col_in_embs2="response_embeddings",
+                col_in_embs_1="question_embeddings",
+                col_in_embs_2="response_embeddings",
             )
         ],
         plot=[

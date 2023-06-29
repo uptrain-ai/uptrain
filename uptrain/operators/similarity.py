@@ -1,5 +1,8 @@
 """
-Implement checks to test similarity between two pieces of text. 
+Implement checks to test similarity between two pieces of text.
+
+This module provides the `CosineSimilarity` class, which calculates the cosine similarity between two vectors representing text. The vectors can be columns in a DataFrame. The cosine similarity measures the similarity between two vectors based on the cosine of the angle between them.
+
 """
 
 from __future__ import annotations
@@ -16,6 +19,46 @@ from uptrain.operators.base import *
 
 @register_op
 class CosineSimilarity(ColumnOp):
+    """
+    Column operation to calculate the cosine similarity between two vectors representing text.
+
+    Args:
+        col_in_vector_1 (str): The name of the column containing the first vector.
+        col_in_vector_2 (str): The name of the column containing the second vector.
+
+    Returns:
+        dict: A dictionary containing the cosine similarity scores.
+
+    Example:
+        import polars as pl
+        import numpy as np
+
+        # Create a DataFrame
+        df = pl.DataFrame({
+            "vector_1": [np.array([0.1, 0.2, 0.3]), np.array([0.4, 0.5, 0.6])],
+            "vector_2": [np.array([0.7, 0.8, 0.9]), np.array([0.2, 0.3, 0.4])]
+        })
+
+        # Create an instance of the CosineSimilarity class
+        similarity_op = CosineSimilarity(col_in_vector_1="vector_1", col_in_vector_2="vector_2")
+
+        # Calculate the cosine similarity between the two vectors
+        result = similarity_op.run(df)
+        similarity_scores = result["output"]
+
+        # Print the similarity scores
+        print(similarity_scores)
+
+    Output:
+        shape: (2,)
+        Series: '_col_0' [f64]
+        [
+                1.861259
+                0.288437
+        ]
+
+    """
+
     col_in_vector_1: str
     col_in_vector_2: str
 
