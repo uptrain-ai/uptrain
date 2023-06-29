@@ -37,8 +37,9 @@ class GrammarScore(ColumnOp):
     col_in_text: str = "text"
     _api_client: LLMMulticlient
 
-    def __init__(self, settings: t.Optional[Settings] = None):
+    def setup(self, settings: t.Optional[Settings] = None):
         self._api_client = LLMMulticlient(settings=settings)
+        return self
 
     def _make_payload(self, id: t.Any, text: str) -> Payload:
         return Payload(
@@ -72,7 +73,7 @@ class GrammarScore(ColumnOp):
         for res in output_payloads:
             assert (
                 res is not None
-            ), "Response should not be None, we must handle all exceptions before."
+            ), "Response should not be None, we should've handled exceptions beforehand."
             idx = res.metadata["index"]
             if res.error is not None:
                 logger.error(

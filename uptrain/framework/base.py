@@ -24,7 +24,7 @@ class Settings(BaseSettings):
 
     # external api related
     openai_api_key: str = Field(None, env="OPENAI_API_KEY")
-    opeani_rpm_limit: int = 100
+    openai_rpm_limit: int = 100
 
     # uptrain managed service related
     uptrain_access_token: str = Field(None, env="UPTRAIN_ACCESS_TOKEN")

@@ -108,6 +108,7 @@ class DeltaReader(TableOp):
         self._dataset = dl.DeltaTable(self.fpath).to_pyarrow_dataset()
         if self.is_incremental:
             self._batch_generator = iter(self._dataset.to_batches())
+        return self
 
     @property
     def is_incremental(self) -> bool:
@@ -136,7 +137,7 @@ class UptrainReader(TableOp):
     dataset_id: str
 
     def setup(self, _: t.Optional[Settings] = None):
-        pass
+        return self
 
     def run(self) -> TYPE_TABLE_OUTPUT:
         raise NotImplementedError(

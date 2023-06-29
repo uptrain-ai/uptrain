@@ -58,8 +58,9 @@ class Operator(t.Protocol):
     - columns required in the input dataset
     - columns that will be generated as output, etc.
 
-    NOTE: An operator must also define a `run` method with the signature below.
-    I can't make mypy happy with it yet though.
+    NOTE: An operator must also define `setup` and `run` methods like shown below.
+    I can't make mypy happy with it yet though, so we just check for it inside the
+    `register_op` decorator.
 
     """
 
@@ -75,7 +76,7 @@ class Operator(t.Protocol):
         """
         ...
 
-    def setup(self, settings: "Settings" | None = None) -> None:
+    def setup(self, settings: "Settings" | None = None) -> "Operator":
         """Setup the operator. This must be called before the operator is run."""
         ...
 
@@ -123,7 +124,7 @@ class ColumnOp(OpBaseModel):
 
 
 class TableOp(OpBaseModel):
-    def setup(self, _: "Settings" | None = None) -> None:
+    def setup(self, _: "Settings" | None = None):
         raise NotImplementedError
 
     def run(self, *args: pl.DataFrame | None) -> TYPE_TABLE_OUTPUT:
@@ -193,7 +194,7 @@ class PlaceholderOp(OpBaseModel):
     op_name: str
     params: dict[str, t.Any]
 
-    def setup(self, settings: "Settings" | None = None) -> None:
+    def setup(self, settings: "Settings" | None = None):
         raise NotImplementedError
 
     def run(self, *args: pl.DataFrame | None) -> None:
@@ -233,7 +234,7 @@ class SelectOp(TableOp):
             columns[col_name] = deserialize_operator(col_op)
         return cls(columns=columns)
 
-    def setup(self, settings: Settings | None) -> None:
+    def setup(self, settings: Settings | None):
         for _, col_op in self.columns.items():
             col_op.setup(settings)
         return self

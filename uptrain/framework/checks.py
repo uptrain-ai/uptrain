@@ -1,10 +1,12 @@
 """Implements `Check` objects used for LLM evaluation purposes.
 """
 from __future__ import annotations
+from dataclasses import dataclass
 import os
 import typing as t
 
 import polars as pl
+from pydantic import root_validator
 
 from uptrain.operators.base import *
 from uptrain.utilities import jsonload, jsondump, to_py_types, clear_directory
@@ -18,7 +20,14 @@ __all__ = [
 
 @register_op
 class SimpleCheck(Operator):
-    """A simple check that runs the given list of table operators in sequence."""
+    """A simple check that runs the given list of table operators in sequence.
+
+    Attributes:
+        name: Name of the check.
+        compute: A list of operators to run in sequence on the input data. The output of each
+            operator is passed as input to the next operator.
+        plot: How to plot the output of the check.
+    """
 
     name: str
     sequence: list[TableOp]
@@ -32,16 +41,6 @@ class SimpleCheck(Operator):
         sequence: list[TableOp],
         plot: list[Operator] | None = None,
     ):
-        """
-        Initialize a simple check.
-
-        Args:
-            name: Name of the check.
-            compute: A list of operators to run in sequence on the input data. The output of each
-                operator is passed as input to the next operator.
-            plot: How to plot the output of the check.
-        """
-
         self.name = name
         self.sequence = sequence
         self.plot = plot if plot is not None else []
@@ -63,6 +62,8 @@ class SimpleCheck(Operator):
                 deps = [f"sequence_{i-1}"]
             self._op_dag.add_step(f"sequence_{i}", op, deps=deps)
         self._op_dag.setup(settings)
+
+        return self
 
     def run(self, data: pl.DataFrame | None = None) -> pl.DataFrame | None:
         """Run this check on the given data."""
@@ -113,13 +114,14 @@ class CheckSet:
         self.checks = checks
         self.settings = settings
 
-        # verify all checks have different names
-        check_names = [check.name for check in checks]
+        check_names = [
+            check.name for check in checks
+        ]  # verify all checks have different names
         assert len(set(check_names)) == len(check_names), "Duplicate check names"
         for check in checks:
             assert isinstance(
                 check, SimpleCheck
-            ), "All checks must be an instance of SimpleCheck"
+            ), "Each check must be an instance of SimpleCheck"
 
     def _get_sink_for_check(self, check: SimpleCheck) -> Operator:
         """Get the sink for the given check."""
@@ -142,6 +144,8 @@ class CheckSet:
 
         for check in self.checks:
             check.setup(self.settings)
+
+        return self
 
     def run(self):
         """Run all checks in this set."""
@@ -166,7 +170,7 @@ class CheckSet:
         return {
             "source": to_py_types(self.source),
             "checks": [to_py_types(check) for check in self.checks],
-            "settings": self.settings.dict(),
+            "settings": to_py_types(self.settings),
         }
 
     @classmethod
