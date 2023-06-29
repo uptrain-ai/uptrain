@@ -1,9 +1,5 @@
 """
 Operators for the uptrain.core module. 
-
-- Arrow/Numpy conversion utils - since we leverage duckdb as a cache and ray for execution, intermediate 
-outputs are stored as Arrow batches. 
-
 """
 
 from __future__ import annotations
@@ -136,7 +132,7 @@ class TableOp(OpBaseModel):
         Returns:
             A dictionary with the `output` key set to the computed dataframe/None. Any extra
                 information can be put in the `extra` key.
-                
+
         """
         raise NotImplementedError
 

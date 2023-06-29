@@ -4,7 +4,6 @@ Create embeddings for text
 This module provides the `Embedding` class, which is used to generate embeddings for text using pre-trained models. 
 The `Embedding` class supports different models such as MiniLM-L6-v2 and hkunlp/instructor-xl. The embeddings are 
 generated for a specified text column in a DataFrame.
-
 """
 
 from __future__ import annotations
@@ -48,10 +47,10 @@ class Embedding(ColumnOp):
 
         # Create an instance of the Embedding class
         embedding_op = Embedding(model="MiniLM-L6-v2", col_in_text="text")
-        
+
         # Set up the Embedding operator
         embedding_op.setup()
-        
+
         # Generate embeddings for the text column
         embeddings = embedding_op.run(df)["output"]
 

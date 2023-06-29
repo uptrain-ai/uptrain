@@ -31,7 +31,7 @@ class PlotlyChart(OpBaseModel):
     Operator to generate various types of charts using Plotly.
 
     Args:
-        kind (str): The type of chart to generate. Supported values are "line", "scatter", "bar", 
+        kind (str): The type of chart to generate. Supported values are "line", "scatter", "bar",
             "histogram", and "table".
         props (dict): Additional properties to pass to the Plotly chart constructor.
         title (str): The title of the chart.
@@ -39,13 +39,6 @@ class PlotlyChart(OpBaseModel):
 
     Returns:
         dict: A dictionary containing the chart object.
-
-    Class Methods:
-        Line(**kwargs) -> PlotlyChart: Creates a line chart.
-        Scatter(**kwargs) -> PlotlyChart: Creates a scatter chart.
-        Bar(**kwargs) -> PlotlyChart: Creates a bar chart.
-        Histogram(**kwargs) -> PlotlyChart: Creates a histogram.
-        Table(**kwargs) -> PlotlyChart: Creates a table.
 
     Example:
         import polars as pl
@@ -85,20 +78,25 @@ class PlotlyChart(OpBaseModel):
 
     @classmethod
     def Line(cls, **kwargs) -> PlotlyChart:
+        """PlotlyChart: Creates a line chart."""
         return cls(kind="line", **kwargs)
 
     @classmethod
     def Scatter(cls, **kwargs) -> PlotlyChart:
+        """PlotlyChart: Creates a scatter plot."""
         return cls(kind="scatter", **kwargs)
 
     @classmethod
     def Bar(cls, **kwargs) -> PlotlyChart:
+        """PlotlyChart: Creates a bar chart."""
         return cls(kind="bar", **kwargs)
 
     @classmethod
     def Histogram(cls, **kwargs) -> PlotlyChart:
+        """PlotlyChart: Creates a histogram."""
         return cls(kind="histogram", **kwargs)
 
     @classmethod
     def Table(cls, **kwargs) -> PlotlyChart:
+        """PlotlyChart: Display the static table."""
         return cls(kind="table", **kwargs)

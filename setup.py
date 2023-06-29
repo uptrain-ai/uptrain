@@ -50,7 +50,7 @@ setup(
         "lazy_loader",
         "networkx",
         # datasets and transforms
-        "polars>=0.17",
+        "polars>=0.18",
         "deltalake>=0.9",
         "numpy>=1.23.0",
         "pyarrow>=10.0.0",
