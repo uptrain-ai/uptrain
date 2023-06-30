@@ -1,0 +1,9 @@
+site_name: "UpTrain API Reference"
+docs_dir: docs/api-reference
+
+theme:
+  name: "material"
+
+plugins:
+  - search
+  - mkdocstrings

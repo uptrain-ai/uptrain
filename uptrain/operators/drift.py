@@ -76,10 +76,12 @@ class ConceptDrift(ColumnOp):
         ValueError: If the specified algorithm does not match the type of the parameters.
 
     Example:
+        ```py
         import polars as pl
         from uptrain.operators import ParamsDDM, ConceptDrift
-
+        
         # Create an instance of the ParamsDDM class with the parameters
+        
         params_ddm = ParamsDDM(
                         warm_start=500,
                         warn_threshold=2.0,
@@ -103,10 +105,13 @@ class ConceptDrift(ColumnOp):
         # Check the detected concept drift information
         if output["alert_info"] is not None:
             print("Counter:", output["alert_info"]["counter"])
+        ```
 
     Output:
+        ```
         INFO     | uptrain.operators.drift:run:181 - Drift detected using DDM!
         Counter: 129466
+        ```
 
     """
 
@@ -120,7 +125,7 @@ class ConceptDrift(ColumnOp):
     _alert_info: t.Optional[dict]
 
     @root_validator
-    def check_params(cls, values):
+    def _check_params(cls, values):
         """
         Check if the parameters are valid for the specified algorithm.
         
@@ -138,10 +143,6 @@ class ConceptDrift(ColumnOp):
         return values
 
     def setup(self, _: t.Optional[Settings] = None):
-        """
-        Set up and return the ConceptDrift operator.
-
-        """
         if self.algorithm == "DDM":
             self._algo_obj = drift.DDM(**self.params.dict())  # type: ignore
         elif self.algorithm == "ADWIN":
@@ -153,30 +154,6 @@ class ConceptDrift(ColumnOp):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
-        """
-        Run the concept drift detection on the input data.
-
-        Args:
-            data (pl.DataFrame): The input data.
-
-        Returns:
-            TYPE_COLUMN_OUTPUT: The output of the operator.
-
-            The dictionary has the following structure:
-            {
-                "output": None,
-                "extra": {
-                    "counter": int,  # The number of instances processed.
-                    "avg_accuracy": float,  # The average accuracy of the drift detection.
-                    "alert_info": dict or None,  # Information about the detected concept drift or None if no drift detected.
-                        {
-                            "counter": int,  # The counter value when the drift was detected.
-                            "msg": str  # The message indicating the detection of concept drift.
-                        }
-                }
-            }
-
-        """
         ser = data.get_column(self.col_in_measure)
 
         for val in ser:

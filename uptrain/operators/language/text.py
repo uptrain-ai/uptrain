@@ -28,7 +28,7 @@ class DocsLinkVersion(ColumnOp):
     """
     Operator to extract version numbers from URLs in text data.
 
-    Args:
+    Attributes:
         domain_name (str, optional): Filter down to links from this domain. Defaults to None.
         col_in_text (str): The name of the input column containing the text data.
 
@@ -36,6 +36,7 @@ class DocsLinkVersion(ColumnOp):
         dict: A dictionary containing the extracted version numbers.
 
     Example:
+        ```
         import polars as pl
         from uptrain.operators.language import DocsLinkVersion
 
@@ -52,14 +53,17 @@ class DocsLinkVersion(ColumnOp):
 
         # Print the extracted version numbers
         print(versions)
+        ```
 
     Output:
+        ```
         shape: (2,)
         Series: '_col_0' [str]
         [
                 "1.9.0"
                 null
         ]
+        ```
 
     """
 
@@ -89,13 +93,14 @@ class TextLength(ColumnOp):
     """
     Operator to calculate the length of each text entry in a column.
 
-    Args:
+    Attributes:
         col_in_text (str): The name of the input column containing the text data.
 
     Returns:
         dict: A dictionary containing the calculated text lengths.
 
     Example:
+        ```
         import polars as pl
         from uptrain.operators.language import TextLength
 
@@ -112,8 +117,10 @@ class TextLength(ColumnOp):
 
         # Print the text lengths
         print(lengths)
+        ```
 
     Output:
+        ```
         shape: (3,)
         Series: '_col_0' [i64]
         [
@@ -121,6 +128,7 @@ class TextLength(ColumnOp):
                 25
                 21
         ]
+        ```
 
     """
 
@@ -142,7 +150,7 @@ class TextComparison(ColumnOp):
     """
     Operator to compare each text entry in a column with a reference text.
 
-    Args:
+    Attributes:
         reference_text (str): The reference text for comparison.
         col_in_text (str): The name of the input column containing the text data.
 
@@ -150,6 +158,7 @@ class TextComparison(ColumnOp):
         dict: A dictionary containing the comparison results (1 if equal, 0 otherwise).
 
     Example:
+        ```
         import polars as pl
         from uptrain.operators.language import TextComparison
 
@@ -169,8 +178,10 @@ class TextComparison(ColumnOp):
         
         # Print the comparison results
         print(comparison)
+        ```
 
     Output:
+        ```
         shape: (3,)
         Series: '_col_0' [i64]
         [
@@ -178,6 +189,7 @@ class TextComparison(ColumnOp):
                 0
                 0
         ]
+        ```
     
     """
 
@@ -220,7 +232,7 @@ def extract_links(text, base_domain=None):
     """
     Extracts links from the given text.
 
-    Args:
+    Attributes:
         text (str): The text from which links are to be extracted.
         base_domain (str, optional): If provided, only links containing this base domain will be returned. Defaults to None.
 
@@ -240,7 +252,7 @@ def extract_version(url):
     """
     Extracts version information from the given URL.
 
-    Args:
+    Attributes:
         url (str): The URL from which version information is to be extracted.
 
     Returns:

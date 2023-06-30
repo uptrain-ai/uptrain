@@ -25,7 +25,7 @@ class OpenAIGradeScore(ColumnOp):
     """
     Operator to calculate the grade score of text completions using OpenAI models.
 
-    Args:
+    Attributes:
         score_type (str): The type of score to calculate ("correct" or "grade").
         col_in_input (str): The name of the input column containing the prompts.
         col_in_completion (str): The name of the input column containing the completions.
@@ -78,7 +78,7 @@ class ModelGradeScore(ColumnOp):
     """
     Operator to calculate the grade score of text completions using a custom grading model.
 
-    Args:
+    Attributes:
         col_in_input (str): The name of the input column containing the prompts.
         col_in_completion (str): The name of the input column containing the completions.
         grading_prompt_template (str): The template for the grading prompt.

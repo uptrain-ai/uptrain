@@ -25,7 +25,7 @@ class RougeScore(ColumnOp):
     """
     Operator to compare a generated text with a source text using the Rouge score metric.
 
-    Args:
+    Attributes:
         score_type (Literal["precision", "recall", "f1"]): The type of Rouge score to calculate.
         col_in_generated (str): The name of the input column containing the generated text.
         col_in_source (str): The name of the input column containing the source text.
@@ -34,6 +34,7 @@ class RougeScore(ColumnOp):
         dict: A dictionary containing the Rouge scores for each pair of generated and source text.
 
     Example:
+        ```
         import polars as pl
         from uptrain.operators.language import RougeScore
 
@@ -51,14 +52,17 @@ class RougeScore(ColumnOp):
 
         # Print the Rouge-L scores
         print(scores)
+        ```
 
     Output:
+        ```
         shape: (2,)
         Series: '_col_0' [i64]
         [
                 72
                 0
         ]
+        ```
 
     """
 

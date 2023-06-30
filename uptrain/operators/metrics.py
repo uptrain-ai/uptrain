@@ -20,12 +20,13 @@ class Accuracy(ColumnOp):
     """
     Operator for computing accuracy measures between predicted values and ground truth values.
 
-    Args:
+    Attributes:
         kind (Literal["NOT_EQUAL", "ABS_ERROR"]): The type of accuracy measure.
         col_in_prediction (str): The name of the column containing the predicted values.
         col_in_ground_truth (str): The name of the column containing the ground truth values.
 
     Example:
+        ```
         from uptrain.operators import Accuracy
         from uptrain.io.readers import CsvReader
 
@@ -45,8 +46,10 @@ class Accuracy(ColumnOp):
 
         # Print the accuracy scores
         print(accuracy_scores)
-
+        ```
+        
     Output:
+        ```
         shape: (3,)
         Series: '_col_0' [bool]
         [
@@ -54,6 +57,7 @@ class Accuracy(ColumnOp):
                 false
                 true
         ]
+        ```
 
     """
 
@@ -62,17 +66,9 @@ class Accuracy(ColumnOp):
     col_in_ground_truth: str = "ground_truth"
 
     def setup(self, _: t.Optional[Settings] = None):
-        """
-        Set up and return the Accuracy operator.
-
-        """
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
-        """
-        Run the Accuracy operator on the input data.
-
-        """
         preds = np.array(data.get_column(self.col_in_prediction))
         gts = np.array(data.get_column(self.col_in_ground_truth))
 

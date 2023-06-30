@@ -27,7 +27,7 @@ class Embedding(ColumnOp):
     """
     Column operation that generates embeddings for text using pre-trained models.
 
-    Args:
+    Attributes:
         model (Literal["MiniLM-L6-v2", "hkunlp/instructor-xl"]): The name of the pre-trained model to use.
         col_in_text (str): The name of the text column in the DataFrame.
 
@@ -35,9 +35,10 @@ class Embedding(ColumnOp):
         Exception: If the specified model is not supported.
 
     Returns:
-        dict: A dictionary containing the generated embeddings.
+        TYPE_COLUMN_OUTPUT: A dictionary containing the output text.
 
     Example:
+        ```
         import polars as pl
         from uptrain.operators.language import Embedding
 
@@ -57,14 +58,17 @@ class Embedding(ColumnOp):
 
         # Print the embeddings
         print(embeddings)
+        ```
 
     Output:
+        ```
         shape: (2,)
         Series: '_col_0' [list[f32]]
         [
                 [0.098575, 0.056978, … -0.071038]
                 [0.072772, 0.073564, … -0.043947]
         ]
+        ```
 
     """
 

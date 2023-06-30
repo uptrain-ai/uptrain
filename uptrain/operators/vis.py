@@ -30,7 +30,7 @@ class PlotlyChart(OpBaseModel):
     """
     Operator to generate various types of charts using Plotly.
 
-    Args:
+    Attributes:
         kind (str): The type of chart to generate. Supported values are "line", "scatter", "bar", 
             "histogram", and "table".
         props (dict): Additional properties to pass to the Plotly chart constructor.
@@ -48,6 +48,7 @@ class PlotlyChart(OpBaseModel):
         Table(**kwargs) -> PlotlyChart: Creates a table.
 
     Example:
+        ```
         import polars as pl
         from uptrain.operators import PlotlyChart
 
@@ -65,6 +66,7 @@ class PlotlyChart(OpBaseModel):
 
         # Show the chart
         chart.show()
+        ```
 
     """
 

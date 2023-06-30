@@ -26,7 +26,7 @@ class GrammarScore(ColumnOp):
     """
     Operator to test the grammatical correctness of sentences using the OpenAI GPT-3.5-turbo language model.
 
-    Args:
+    Attributes:
         col_in_text (str): The name of the input column containing the sentences to evaluate.
 
     Returns:

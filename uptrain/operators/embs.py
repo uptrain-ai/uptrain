@@ -41,6 +41,7 @@ class Distribution(TableOp):
         AssertionError: If the number of output columns does not match the number of input embedding columns.
 
     Example:
+        ```
         import polars as pl
         from uptrain.operators import Distribution
 
@@ -61,9 +62,11 @@ class Distribution(TableOp):
 
         # Print the output
         print(output)
+        ```
 
     
     Output:
+        ```
         shape: (90, 4)
         ┌──────────────┬───────────────┬────────────────────┬─────────────────────┐
         │ question_idx ┆ experiment_id ┆ similarity-context ┆ similarity-response │
@@ -80,7 +83,8 @@ class Distribution(TableOp):
         │ 0            ┆ 2             ┆ 0.224229           ┆ 0.637781            │
         │ 0            ┆ 2             ┆ 0.379936           ┆ 0.260659            │
         └──────────────┴───────────────┴────────────────────┴─────────────────────┘
-
+        ```
+        
     """
 
     kind: t.Literal["cosine_similarity", "rouge"]
@@ -90,11 +94,11 @@ class Distribution(TableOp):
     _agg_func: t.Callable | None = None
 
     @root_validator(pre=True)
-    def check_cols(cls, values):
+    def _check_cols(cls, values):
         """
         Validator to check the validity of input and output column lists.
 
-        Args:
+        Attributes:
             values (dict): The input attribute values.
 
         Returns:
@@ -111,10 +115,6 @@ class Distribution(TableOp):
         return values
 
     def setup(self, settings: t.Optional[Settings] = None):
-        """
-        Set up and return the Distribution operator.
-
-        """
         if self.kind == "cosine_similarity":
             self._agg_func = get_cosine_sim_dist
         elif self.kind == "rouge":
@@ -126,10 +126,6 @@ class Distribution(TableOp):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        """
-        Run the Distribution operator on the input data.
-
-        """
         if self.col_out is None:
             agg_cols = [get_output_col_name_at(i) for i in range(len(self.col_in_embs))]
         else:
@@ -154,10 +150,11 @@ class UMAP(TableOp):
     Operator for performing UMAP dimensionality reduction.
 
     Attributes:
-        col_in_embs_1 (str): The input column containing embeddings.
+        col_in_embs_1 (str): The first input column containing embeddings.
         col_in_embs_2 (str): The second input column containing embeddings.
 
     Example:
+        ```
         import polars as pl
         from uptrain.operators import UMAP        
 
@@ -176,9 +173,10 @@ class UMAP(TableOp):
 
         # Get the output DataFrame
         umap_df = output["output"]
-
+        ```
 
     Output:
+        ```
         shape: (180, 4)
         ┌───────────┬───────────┬────────┬─────────┐
         │ umap_0    ┆ umap_1    ┆ symbol ┆ cluster │
@@ -195,6 +193,7 @@ class UMAP(TableOp):
         │ 16.352724 ┆ 12.401769 ┆ circle ┆ default │
         │ 3.858282  ┆ 5.807839  ┆ circle ┆ default │
         └───────────┴───────────┴────────┴─────────┘
+        ```
 
     """
 
@@ -202,33 +201,9 @@ class UMAP(TableOp):
     col_in_embs_2: str
 
     def setup(self, _: t.Optional[Settings] = None):
-        """
-        Set up and return the UMAP operator.
-
-        """
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        """
-        Run the UMAP operator on the input data.
-
-        Args:
-            data (pl.DataFrame): The input data.
-
-        Returns:
-            TYPE_TABLE_OUTPUT: The output of the operator.
-
-        The "output" key contains a pl.DataFrame object, which represents the output of the operator. It consists of
-        four columns:
-
-        - "umap_0": A pl.Series object representing the first dimension of the UMAP embeddings.
-        - "umap_1": A pl.Series object representing the second dimension of the UMAP embeddings.
-        - "symbol": A pl.Series object representing the symbols associated with each data point. This column is populated
-          with the values "star" for the data points from `embs_1` and "circle" for the data points from `embs_2`.
-        - "cluster": A pl.Series object representing the clusters associated with each data point. This column is
-          populated with the value "default" for all data points in `combined_embs`.
-
-        """
         embs_1 = np.asarray(data[self.col_in_embs_1].to_list())
         embs_2 = np.asarray(data[self.col_in_embs_2].to_list())
 
@@ -259,7 +234,7 @@ def sample_pairs_from_values(n_values: int, n_pairs: int):
     """
     Sample pairs of indices from a given number of values.
 
-    Args:
+    Attributes:
         n_values (int): The total number of values.
         n_pairs (int): The number of pairs to sample.
 
@@ -278,7 +253,7 @@ def get_cosine_sim_dist(col_vectors: pl.Series, num_pairs_per_group: int = 10):
     """
     Compute cosine similarity distances between pairs of vectors.
 
-    Args:
+    Attributes:
         col_vectors (pl.Series): The column containing the vectors.
         num_pairs_per_group (int): The number of pairs to sample per group.
 
@@ -302,7 +277,7 @@ def get_rouge_score(col_vectors: pl.Series, num_pairs_per_group: int = 10):
     """
     Compute ROUGE scores between pairs of vectors.
 
-    Args:
+    Attributes:
         col_vectors (pl.Series): The column containing the vectors.
         num_pairs_per_group (int): The number of pairs to sample per group.
 
