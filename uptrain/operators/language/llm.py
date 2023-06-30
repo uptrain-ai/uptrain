@@ -40,33 +40,6 @@ class Payload(BaseModel):
     error: t.Optional[str] = None
 
 
-def sync_process_payload(payload: Payload, max_retries: int) -> Payload:
-    """TODO: add other endpoints here."""
-    for _ in range(max_retries):
-        try:
-            if payload.endpoint == "chat.completions":
-                payload.response = openai.ChatCompletion.create(**payload.data)
-                break
-            else:
-                raise ValueError(f"Unknown endpoint: {payload.endpoint}")
-        except Exception as exc:
-            payload.error = str(exc)
-            logger.error(f"Error when sending request to openai API: {payload.error}")
-            if not isinstance(
-                exc,
-                (
-                    openai.error.ServiceUnavailableError,
-                    openai.error.APIError,
-                    openai.error.RateLimitError,
-                    openai.error.APIConnectionError,
-                    openai.error.Timeout,
-                ),
-            ):
-                break
-
-    return payload
-
-
 async def async_process_payload(
     payload: Payload, limiter: aiolimiter.AsyncLimiter, max_retries: int
 ) -> Payload:
@@ -85,18 +58,17 @@ async def async_process_payload(
                 logger.error(
                     f"Error when sending request to openai API: {payload.error}"
                 )
-                if isinstance(exc, openai.error.RateLimitError):
-                    await asyncio.sleep(5)
-                elif isinstance(
+                if isinstance(
                     exc,
                     (
+                        openai.error.RateLimitError,
                         openai.error.ServiceUnavailableError,
                         openai.error.APIError,
                         openai.error.APIConnectionError,
                         openai.error.Timeout,
                     ),
                 ):
-                    continue
+                    await asyncio.sleep(5)
                 else:
                     break
 
@@ -109,7 +81,7 @@ class LLMMulticlient:
     """
 
     def __init__(self, settings: t.Optional[Settings] = None):
-        self._max_tries = 2
+        self._max_tries = 3
         self._rpm_limit = 20
         if settings is not None:
             openai.api_key = settings.check_and_get("openai_api_key")  # type: ignore

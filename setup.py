@@ -59,7 +59,7 @@ setup(
         "streamlit>=1.23",
         # llm related
         "openai>=0.27",
-        "evals",
+        "evals @ git+https://github.com/openai/evals.git@main",
         # access to remote execution
         "httpx>=0.24.1",
     ],
