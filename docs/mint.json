@@ -43,6 +43,11 @@
       "name": "Community",
       "icon": "discord",
       "url": "https://discord.gg/zYXDMktp9P"
+    },
+    {
+      "name": "API Reference",
+      "icon": "terminal",
+      "url": "https://api.uptrain.ai"
     }
   ],
   "navigation": [
