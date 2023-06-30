@@ -22,6 +22,7 @@ jobs:
         run: |
           pip install mkdocs
           pip install mkdocs-material
+          pip install mkdocstrings
           pip install mkdocstrings[python]
 
       - name: Build Documentation
