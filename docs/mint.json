@@ -56,55 +56,66 @@
       "pages": [
         "getting-started/introduction", 
         "getting-started/quickstart", 
-        "getting-started/key-features"
+        "getting-started/key-concepts"
       ]
     },
     {
-      "group": "Monitors",
+      "group": "v0",
       "pages": [
-        "monitors/concept-drift",
-        "monitors/data-drift",
-        "monitors/data-integrity",
-        "monitors/edge-case-detection",
-        "monitors/model-bias",
-        "monitors/custom-monitors"
-      ]
-    },
-    {
-      "group": "Measurables",
-      "pages": [
-        "measurables/overview",
-        "measurables/predefined",
-        "measurables/custom"
-      ]
-    },
-    {
-      "group": "Visuals",
-      "pages": [
-        "visuals/plot",
-        "visuals/shap",
-        "visuals/umap",
-        "visuals/tsne"
-      ]
-    },
-    {
-      "group": "Statistics",
-      "pages": [
-        "statistics/distances",
-        "statistics/convergence-analysis"
-      ]
-    },
-    {
-      "group": "Examples",
-      "pages": [
-        "examples/text-summarization",
-        "examples/fraud-detection",
-        "examples/human-orientation-classification",
-        "examples/deep-dive-examples",
-        "examples/shopping-cart-recommendation",
-        "examples/ride-time-estimation",
-        "examples/masked-language-modeling",
-        "examples/conversation-summarization"
+        {
+          "group": "Getting Started",
+          "pages": [
+            "v0/getting-started/key-features"
+          ]
+        },
+        {
+          "group": "Monitors",
+          "pages": [
+            "v0/monitors/concept-drift",
+            "v0/monitors/data-drift",
+            "v0/monitors/data-integrity",
+            "v0/monitors/edge-case-detection",
+            "v0/monitors/model-bias",
+            "v0/monitors/custom-monitors"
+          ]
+        },
+        {
+          "group": "Measurables",
+          "pages": [
+            "v0/measurables/overview",
+            "v0/measurables/predefined",
+            "v0/measurables/custom"
+          ]
+        },
+        {
+          "group": "Visuals",
+          "pages": [
+            "v0/visuals/plot",
+            "v0/visuals/shap",
+            "v0/visuals/umap",
+            "v0/visuals/tsne"
+          ]
+        },
+        {
+          "group": "Statistics",
+          "pages": [
+            "v0/statistics/distances",
+            "v0/statistics/convergence-analysis"
+          ]
+        },
+        {
+          "group": "Examples",
+          "pages": [
+            "v0/examples/text-summarization",
+            "v0/examples/fraud-detection",
+            "v0/examples/human-orientation-classification",
+            "v0/examples/deep-dive-examples",
+            "v0/examples/shopping-cart-recommendation",
+            "v0/examples/ride-time-estimation",
+            "v0/examples/masked-language-modeling",
+            "v0/examples/conversation-summarization"
+          ]
+        }  
       ]
     },
     {
