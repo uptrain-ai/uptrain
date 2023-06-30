@@ -1,23 +1,20 @@
-name: Deploy API Docs
-
+name: ci 
 on:
   push:
     branches:
+      - master 
       - main
       - dhruv/docstrings
-
+permissions:
+  contents: write
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Set Up Python
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
-      
+          python-version: 3.x
       - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV 
       - uses: actions/cache@v3
         with:
@@ -25,17 +22,6 @@ jobs:
           path: .cache
           restore-keys: |
             mkdocs-material-
-
-      - name: Install Dependencies
-        run: |
-          pip install mkdocs
-          pip install mkdocs-material
-          pip install mkdocstrings
-          pip install mkdocstrings[python]
-
-      - name: Build Documentation
-        run: mkdocs build
-
-      - name: Deploy to GitHub Pages
-        run: mkdocs gh-deploy --force
-
+      - run: pip install mkdocs-material
+      - run: pip install mkdocstrings[python]
+      - run: mkdocs gh-deploy --force
