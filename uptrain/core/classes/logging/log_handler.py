@@ -17,6 +17,7 @@ class LogHandler:
             clear_directory(log_folder)
 
         self.st_writer = None
+        self.postgres_writer = None
         if cfg.logging_args.st_logging:
             from uptrain.core.classes.logging.log_streamlit import StreamlitLogs
 
@@ -24,6 +25,13 @@ class LogHandler:
             os.makedirs(self.st_log_folder, exist_ok=True)
             self.st_writer = StreamlitLogs(
                 self.st_log_folder, port=cfg.logging_args.dashboard_port
+            )
+        elif cfg.logging_args.postgres_logging:
+            from uptrain.core.classes.logging.log_postgres import PostgresLogs
+
+            self.postgres_database = cfg.logging_args.database
+            self.postgres_writer = PostgresLogs(
+                self.postgres_database
             )
 
         # Get Webhook URL for alerting on slack
@@ -78,8 +86,6 @@ class LogHandler:
         file_name=None,
         update_val=False,
     ):
-        if self.st_writer is None:
-            return
         dashboard_name, plot_name = self.dir_friendly_name([dashboard_name, plot_name])
         dictn.update(features)
         dictn.update(models)
@@ -89,15 +95,23 @@ class LogHandler:
                 dictn.values(),
             )
         )
-        dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
-        plot_folder = os.path.join(dashboard_dir, "line_plots", plot_name)
-        os.makedirs(plot_folder, exist_ok=True)
         new_dictn.update({"x_count": count})
-        if file_name is None:
-            file_name = plot_name
-        self.st_writer.add_scalars(
-            new_dictn, plot_folder, file_name=file_name, update_val=update_val
-        )
+
+        if self.st_writer is not None:
+            dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
+            plot_folder = os.path.join(dashboard_dir, "line_plots", plot_name)
+            os.makedirs(plot_folder, exist_ok=True)
+            if file_name is None:
+                file_name = plot_name
+            if self.st_writer is not None:
+                self.st_writer.add_scalars(
+                    new_dictn, plot_folder, file_name=file_name, update_val=update_val
+                )
+        if self.postgres_writer is not None:
+            plot_table = dashboard_name + "_line_plots_" + plot_name
+            self.postgres_writer.add_scalars(
+                new_dictn, plot_table, update_val=update_val
+            )
 
     def add_histogram(
         self,
@@ -108,6 +122,8 @@ class LogHandler:
         models=None,
         file_name=None,
     ):
+        if self.postgres_writer is not None:
+            raise Exception("Postgres Log writer not supported for Histogram")
         dashboard_name, plot_name = self.dir_friendly_name([dashboard_name, plot_name])
         if self.st_writer:
             dashboard_dir = os.path.join(self.st_log_folder, dashboard_name)
@@ -120,6 +136,8 @@ class LogHandler:
             )
 
     def add_bar_graphs(self, plot_name, data, dashboard_name, count=-1, hover_data={}):
+        if self.postgres_writer is not None:
+            raise Exception("Postgres Log writer not supported for Bar Graphs")
         if self.st_writer is None:
             return
         dashboard_name, plot_name = self.dir_friendly_name([dashboard_name, plot_name])

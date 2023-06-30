@@ -32,6 +32,8 @@ class LoggingArgs(BaseModel):
     log_folder: str = "uptrain_logs"
     log_data: bool = True
     st_logging: bool = False
+    postgres_logging: bool = False
+    database: str = None
     run_background_streamlit: bool = True
     use_new_handler: bool = False
 
@@ -39,6 +41,15 @@ class LoggingArgs(BaseModel):
 class LicenseArgs(BaseModel):
     openai_key: str = None
 
+
+class ReaderArgs(BaseModel):
+    mode: str = 'default'
+    frequency_in_seconds: typing.Optional[typing.Union[float, int]] = None
+    num_backlog: typing.Optional[int] = 1
+    type: str = None
+    sql_query: str = None
+    sql_variables_dictn: typing.Optional[dict] = None
+    database: str = None
 
 class Config(BaseModel):
     training_args: TrainingArgs = TrainingArgs()
@@ -56,6 +67,7 @@ class Config(BaseModel):
     use_cache: bool = False
     run_background_log_consumer: bool = False
     running_ee: bool = False
+    reader_args: ReaderArgs = ReaderArgs()
 
 
 # class InputArgs(BaseModel):
