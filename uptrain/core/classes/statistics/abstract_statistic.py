@@ -1,4 +1,0 @@
-from uptrain.core.classes.monitors import AbstractCheck
-
-class AbstractStatistic(AbstractCheck):
-    statistic_type = None
