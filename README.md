@@ -131,13 +131,15 @@ checkset.run()
 
 ## Experimentation
 
-You can use the UpTrain experimentation api to run and compare LLM responses for different prompts, models, LLM chains, etc.
-
-
+You can use the UpTrain framework to run and compare LLM responses for different prompts, models, LLM chains, etc. Check out the experimentation tutorial to learn more.
 
 ## Validation
 
+You can use the UpTrain Validation Manager to define checks, retry logic and validate your LLM responses before showing it to your users. Check out the tutorial here.
+
 ## Monitoring
+
+You can use the UpTrain framework to continuously monitor your model's performance and get realtime insights on how well it is doing on a variety of evaluation metrics. Check out the monitoring tutorial to learn more.
 
 
 # Why UpTrain 🤔?
@@ -155,7 +157,7 @@ We are constantly working to make UpTrain better. Want a new feature or need any
 
 # License 💻
 
-This repo is published under Apache 2.0 license. We are also working towards adding a hosted offering to make setting off eval runs easier - please fill this form to get a waitlist slot.
+This repo is published under Apache 2.0 license. We are also working towards adding a hosted offering to make setting off eval runs easier - please fill [this form](https://docs.google.com/forms/d/e/1FAIpQLSf9h_SXoU0rJP2MUc4NIKOmOCqJ5J0xgephN1xgeoXscSHUSA/viewform?usp=sf_link) to get a waitlist slot.
 
 # Stay Updated ☎️
 We are continuously adding tons of features and use cases. Please support us by giving the project a star ⭐!
