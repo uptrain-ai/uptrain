@@ -33,11 +33,13 @@ class PromptExperiment(TableOp):
     prompt_template: str
     prompt_params: dict[str, list[str]]
     models: list[str]
-    context_vars: dict[str, str]
+    context_vars: t.Union[list[str], dict[str, str]]
     _settings: Settings
 
     def setup(self, settings: "Settings"):
         self._settings = settings
+        if isinstance(self.context_vars, list):
+            self.context_vars=dict(zip(self.context_vars, self.context_vars))
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
