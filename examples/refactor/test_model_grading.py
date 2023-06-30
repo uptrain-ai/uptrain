@@ -1,74 +1,50 @@
 import os
-
-os.environ["OPENAI_API_KEY"] = "..."
-source_path = "..."
-LOGS_DIR = "uptrain_logs"
-
+import polars as pl
 
 from uptrain.framework import CheckSet, Settings, SimpleCheck
-from uptrain.operators import PlotlyChart, ColumnExpand, SelectOp
 from uptrain.io import JsonReader, JsonWriter
-from uptrain.operators.language import OpenAIGradeScore, ModelGradeScore
-
-source_path_with_context = source_path.split(".")[0] + "_input.jsonl"
-if os.path.exists(source_path_with_context):
-    os.remove(source_path_with_context)
-
-# Add context to input dataset
-source = JsonReader(fpath=source_path)
-source.setup()
-data = source.run()["output"]
-
-op = ColumnExpand(
-    col_out_names=["model", "pipeline"],
-    col_vals=["gpt-4", "context_retrieval"],
-)
-op.setup()
-data = op.run(data)["output"]
-
-sink = JsonWriter(fpath=source_path_with_context)
-sink.setup()
-sink.run(data)
+from uptrain.operators import PlotlyChart, SelectOp
+from uptrain.operators.language import ModelGradeScore, OpenAIGradeScore
 
 
-def resolve_prompts(template, resolver_args):
-    prompt_variables = [x.split("}")[0] for x in template.split("{")[1:]]
-    resolved_prompts = []
-    for resolver_arg in resolver_args:
-        resolved_prompt = template
-        for prompt_var in prompt_variables:
-            if prompt_var in resolver_arg:
-                resolved_prompt = resolved_prompt.replace(
-                    "{" + prompt_var + "}", resolver_arg[prompt_var]
-                )
-        resolved_prompts.append(resolved_prompt)
-    return resolved_prompts
+def produce_dataset_w_context(source_path, sink_path):
+    source = JsonReader(fpath=source_path)
+    source.setup()
+    data = source.run()["output"]
+
+    assert data is not None
+    # keep size small since we make a lot of openai calls
+    data = data.with_columns(
+        [pl.lit("gpt-4").alias("model"), pl.lit("context_retrieval").alias("pipeline")]
+    ).sample(20)
+
+    JsonWriter(fpath=sink_path).setup().run(data)
 
 
-grading_prompt_template = """
-        {personality_description}
-        
-        You are comparing a block quote to the document of information it was pulled from.
-        Here is the data:
-        [BEGIN DATA]
-        ************
-        [Document]: {document}
-        ************
-        [Submitted Quote]: {chunked_summary}
-        ************
-        [END DATA]
-        
-        Compare the factual content of the submitted quote with the document. Ignore any differences in style, grammar, or punctuation.
-        The submitted quote may either be a subset of the document, superset of the document, or it may conflict with it. Determine which case applies.
-        Answer the question by selecting one of the following options:
-        
-        (A) The submitted quote is a subset of the document and is fully consistent with it.
-        (B) The submitted quote is a superset of the document, but is consistent with the document.
-        (C) The submitted quote is a superset of the document and is not consistent with the document.
+GRADING_PROMPT_TEMPLATE = """
+{personality_description}
+
+You are comparing a block quote to the document of information it was pulled from.
+Here is the data:
+[BEGIN DATA]
+************
+[Document]: {document}
+************
+[Submitted Quote]: {chunked_summary}
+************
+[END DATA]
+
+Compare the factual content of the submitted quote with the document. Ignore any differences in style, grammar, or punctuation.
+The submitted quote may either be a subset of the document, superset of the document, or it may conflict with it. Determine which case applies.
+Answer the question by selecting one of the following options:
+
+(A) The submitted quote is a subset of the document and is fully consistent with it.
+(B) The submitted quote is a superset of the document, but is consistent with the document.
+(C) The submitted quote is a superset of the document and is not consistent with the document.
 """
 
 
-bot_personalities = {
+BOT_PERSONAS = {
     "analytical_validator": "You are an analytical and meticulous LLM with an emphasis on logical consistency and factual accuracy. Your purpose is to critically evaluate answers and ensure they align with the information presented in the document.",
     "contextual_inquirer": "You are a curious and context-oriented LLM, seeking to understand the underlying context and nuances of the document. You scrutinize answers to ensure they demonstrate a clear understanding of the document's context and maintain coherence with the presented information.",
     "evidential_fact-checker": "You are an evidence-driven LLM that places high importance on supporting facts and references. You diligently verify claims and check for evidence within the document to ensure answers rely on reliable information and align with the documented evidence.",
@@ -77,67 +53,76 @@ bot_personalities = {
 }
 
 
-def get_checkset():
+def partial_fmt(input_str, fill_param, fill_value):
+    return input_str.replace("{" + fill_param + "}", fill_value)
+
+
+def get_list_checks():
     column_to_ops = {}
     column_to_ops["chatgpt_model_grade"] = OpenAIGradeScore(
         col_in_input="document_text",
         col_in_completion="response",
-        col_out="chatgpt_model_grade_score",
         eval_name="coqa-closedqa-correct",
     )
 
-    grading_prompts = resolve_prompts(
-        template=grading_prompt_template,
-        resolver_args=[
-            {"personality_description": x} for x in list(bot_personalities.values())
-        ],
-    )
-
-    for idx in range(len(grading_prompts)):
-        name = "custom_model_grade_" + list(bot_personalities.keys())[idx]
+    for persona, descr in BOT_PERSONAS.items():
+        name = "custom_model_grade_" + persona
         column_to_ops[name] = ModelGradeScore(
-            col_in_input="document_text",
-            col_in_completion="response",
-            grading_prompt_template=grading_prompts[idx],
+            grading_prompt_template=partial_fmt(
+                GRADING_PROMPT_TEMPLATE, "personality_description", descr
+            ),
             eval_type="cot_classify",
             choice_strings=["A", "B", "C"],
             choice_scores={"A": 1.0, "B": 0.5, "C": 0.0},
-            grading_prompt_mapping={
-                "document_text": "document",
-                "response": "chunked_summary",
+            context_vars={
+                "document": "document_text",
+                "chunked_summary": "response",
             },
         )
 
     check = SimpleCheck(
         name="Model grade scores",
         sequence=[SelectOp(columns=column_to_ops)],
-        plot=[PlotlyChart(kind="table", title="Model grade scores")],
+        plot=[
+            PlotlyChart(kind="table", title="Model grade scores"),
+            PlotlyChart.Histogram(
+                props=dict(x="chatgpt_model_grade", title="chatgpt-grading", nbins=3)
+            ),
+            *[
+                PlotlyChart.Histogram(props=dict(x=col, title=persona, nbins=3))
+                for col, persona in zip(column_to_ops, BOT_PERSONAS)
+            ],
+        ],
     )
 
-    checkset = CheckSet(
-        source=JsonReader(fpath=source_path_with_context),
-        checks=[check],
-        settings=Settings(logs_folder=LOGS_DIR),
-    )
-
-    return checkset
-
-
-# -----------------------------------------------------------
-# Starting a streamlit server to visualize the results
-# -----------------------------------------------------------
-
-
-def start_streamlit():
-    from uptrain.dashboard import StreamlitRunner
-
-    runner = StreamlitRunner(LOGS_DIR)
-    runner.start()
+    return [check]
 
 
 if __name__ == "__main__":
-    cfg = get_checkset()
-    cfg.setup()
-    cfg.run()
+    import argparse
 
-    start_streamlit()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--start-streamlit", default=False, action="store_true")
+    args = parser.parse_args()
+
+    LOGS_DIR = "/tmp/uptrain_logs"
+    original_dataset_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        "../datasets/qna_on_docs_samples.jsonl",
+    )
+    new_dataset_path = os.path.join("/tmp/_dataset_w_context.jsonl")
+    produce_dataset_w_context(original_dataset_path, new_dataset_path)
+
+    checkset = CheckSet(
+        source=JsonReader(fpath=new_dataset_path),
+        checks=get_list_checks(),
+        settings=Settings(logs_folder=LOGS_DIR),
+    )
+    checkset.setup()
+    checkset.run()
+
+    if args.start_streamlit:
+        from uptrain.dashboard import StreamlitRunner
+
+        runner = StreamlitRunner(LOGS_DIR)
+        runner.start()

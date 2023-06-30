@@ -49,10 +49,10 @@ class Embedding(ColumnOp):
 
         # Create an instance of the Embedding class
         embedding_op = Embedding(model="MiniLM-L6-v2", col_in_text="text")
-        
+
         # Set up the Embedding operator
         embedding_op.setup()
-        
+
         # Generate embeddings for the text column
         embeddings = embedding_op.run(df)["output"]
 
