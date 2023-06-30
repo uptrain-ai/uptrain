@@ -20,6 +20,7 @@ class CsvReader(TableOp):
     Args:
         fpath: Path to the csv file.
         batch_size: Number of rows to read at a time. Defaults to None, which reads the entire file.
+
     """
 
     fpath: str
@@ -41,6 +42,7 @@ class JsonReader(TableOp):
     Args:
         fpath: Path to the json file.
         batch_size: Number of rows to read at a time. Defaults to None, which reads the entire file.
+
     """
 
     fpath: str
@@ -97,6 +99,7 @@ class DeltaReader(TableOp):
     Args:
         fpath: File path to the Delta Lake table.
         batch_split: Whether to read the table in batches. Defaults to False.
+        
     """
 
     fpath: str

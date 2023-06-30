@@ -27,6 +27,7 @@ class SimpleCheck(Operator):
         compute: A list of operators to run in sequence on the input data. The output of each
             operator is passed as input to the next operator.
         plot: How to plot the output of the check.
+
     """
 
     name: str
@@ -103,6 +104,7 @@ class CheckSet:
         source: The source operator to run. Specifies where to get the data from.
         checks: The list of checks to run on the input data.
         settings: Settings to run this check set with.
+        
     """
 
     source: Operator

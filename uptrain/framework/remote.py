@@ -2,8 +2,8 @@
 This module implements a simple client that can be used to schedule unit-tests/evaluations 
 on the UpTrain server. 
 
-- TODO: add user defined custom evaluations (maybe ship the full code to the server?)
 """
+# TODO: add user defined custom evaluations (maybe ship the full code to the server?)
 
 from dataclasses import dataclass
 import typing as t
