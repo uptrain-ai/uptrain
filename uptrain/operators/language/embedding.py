@@ -35,7 +35,7 @@ class Embedding(ColumnOp):
         Exception: If the specified model is not supported.
 
     Returns:
-        TYPE_COLUMN_OUTPUT: A dictionary containing the generated embedding.
+        TYPE_COLUMN_OUTPUT: A dictionary containing the generated embeddings.
 
     Example:
         ```
