@@ -31,10 +31,7 @@ class ColumnExpand(TableOp):
 
     Example:
         ```
-        import polars as pl
         from uptrain.operators import ColumnExpand
-
-        # Create a DataFrame
         df = pl.DataFrame({
             "column1": [1, 2, 3],
             "column2": ["A", "B", "C"]

@@ -22,11 +22,11 @@ class PromptExperiment(TableOp):
 
     Attributes:
         prompt_template (str) : A string template for the prompt.
-        prompt_params dict[str, list[str]]: A dictionary mapping parameter names to lists of values.
+        prompt_params (dict[str, list[str]]): A dictionary mapping parameter names to lists of values.
             The cartesian product of all the parameter values will be used to
             construct the prompts.
-        models: A list of models to run the experiment on.
-        context_vars: A dictionary mapping context variable names to corresponding
+        models (list[str]): A list of models to run the experiment on.
+        context_vars (Union[list[str], dict[str, str]]): A dictionary mapping context variable names to corresponding
             columns in the input dataset.
 
     """
@@ -34,7 +34,7 @@ class PromptExperiment(TableOp):
     prompt_template: str
     prompt_params: dict[str, list[str]]
     models: list[str]
-    context_vars: dict[str, str]
+    context_vars: t.Union[list[str], dict[str, str]]
     _settings: Settings
 
     def setup(self, settings: "Settings"):

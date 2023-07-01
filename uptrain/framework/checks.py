@@ -23,10 +23,10 @@ class SimpleCheck(Operator):
     """A simple check that runs the given list of table operators in sequence.
 
     Attributes:
-        name: Name of the check.
-        compute: A list of operators to run in sequence on the input data. The output of each
+        name (str): Name of the check.
+        compute (list[TableOp]): A list of operators to run in sequence on the input data. The output of each
             operator is passed as input to the next operator.
-        plot: How to plot the output of the check.
+        plot (list[Operator]): How to plot the output of the check.
 
     """
 
@@ -101,9 +101,9 @@ class CheckSet:
     """Container for a set of checks to run together. This is the entrypoint to Uptrain for users.
 
     Attributes:
-        source: The source operator to run. Specifies where to get the data from.
-        checks: The list of checks to run on the input data.
-        settings: Settings to run this check set with.
+        source (Operator): The source operator to run. Specifies where to get the data from.
+        checks (list[SimpleCheck]): The list of checks to run on the input data.
+        settings (Settings): Settings to run this check set with.
         
     """
 

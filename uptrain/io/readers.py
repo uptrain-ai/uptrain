@@ -17,10 +17,10 @@ from uptrain.operators.base import *
 class CsvReader(TableOp):
     """Reads data from a csv file.
 
-    Args:
-        fpath: Path to the csv file.
-        batch_size: Number of rows to read at a time. Defaults to None, which reads the entire file.
-
+    Attributes:
+        fpath (str): Path to the csv file.
+        batch_size (Optional[int]): Number of rows to read at a time. Defaults to None, which reads the entire file.
+    
     """
 
     fpath: str
@@ -39,10 +39,10 @@ class CsvReader(TableOp):
 class JsonReader(TableOp):
     """Reads data from a json file.
 
-    Args:
-        fpath: Path to the json file.
-        batch_size: Number of rows to read at a time. Defaults to None, which reads the entire file.
-
+    Attributes:
+        fpath (str): Path to the json file.
+        batch_size (Optional[int]): Number of rows to read at a time. Defaults to None, which reads the entire file.
+    
     """
 
     fpath: str
@@ -96,10 +96,10 @@ class TextReaderExecutor:
 class DeltaReader(TableOp):
     """Reads data from a Delta Lake table.
 
-    Args:
-        fpath: File path to the Delta Lake table.
-        batch_split: Whether to read the table in batches. Defaults to False.
-        
+    Attributes:
+        fpath (str): File path to the Delta Lake table.
+        batch_split (bool): Whether to read the table in batches. Defaults to False.
+    
     """
 
     fpath: str
