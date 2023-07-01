@@ -58,7 +58,7 @@
 **[UpTrain](https://uptrain.ai)** is a Python framework that helps users to check the performance of their LLM applications on aspects such as correctness, structural integrity, bias, hallucination, etc. UpTrain can be used to:
 
 1) Validate model's response and safeguard your users against hallucinations, bias, incorrect output formats, etc.
-2) Experiment across multiple model providers, prompt templates, and quantify model's performance.
+2) Experiment across multiple model providers, prompt templates, and quantify model's performance for  
 3) Monitor your model's performance in production and protect yourself against unwanted drifts
 
 
