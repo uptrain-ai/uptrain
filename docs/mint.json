@@ -23,6 +23,7 @@
     "type": "github",
     "url": "https://github.com/uptrain-ai/uptrain"
   },
+  "versions": ["v1", "v0"],
   "anchors": [
     {
       "name": "Changelog",
@@ -53,6 +54,7 @@
   "navigation": [
     {
       "group": "Getting Started",
+      "version": "v1",
       "pages": [
         "getting-started/introduction", 
         "getting-started/quickstart", 
@@ -60,66 +62,69 @@
       ]
     },
     {
-      "group": "v0",
+      "group": "Getting Started",
+      "version": "v0",
       "pages": [
-        {
-          "group": "Getting Started",
-          "pages": [
-            "v0/getting-started/key-features"
-          ]
-        },
-        {
-          "group": "Monitors",
-          "pages": [
-            "v0/monitors/concept-drift",
-            "v0/monitors/data-drift",
-            "v0/monitors/data-integrity",
-            "v0/monitors/edge-case-detection",
-            "v0/monitors/model-bias",
-            "v0/monitors/custom-monitors"
-          ]
-        },
-        {
-          "group": "Measurables",
-          "pages": [
-            "v0/measurables/overview",
-            "v0/measurables/predefined",
-            "v0/measurables/custom"
-          ]
-        },
-        {
-          "group": "Visuals",
-          "pages": [
-            "v0/visuals/plot",
-            "v0/visuals/shap",
-            "v0/visuals/umap",
-            "v0/visuals/tsne"
-          ]
-        },
-        {
-          "group": "Statistics",
-          "pages": [
-            "v0/statistics/distances",
-            "v0/statistics/convergence-analysis"
-          ]
-        },
-        {
-          "group": "Examples",
-          "pages": [
-            "v0/examples/text-summarization",
-            "v0/examples/fraud-detection",
-            "v0/examples/human-orientation-classification",
-            "v0/examples/deep-dive-examples",
-            "v0/examples/shopping-cart-recommendation",
-            "v0/examples/ride-time-estimation",
-            "v0/examples/masked-language-modeling",
-            "v0/examples/conversation-summarization"
-          ]
-        }  
+        "v0/getting-started/quickstart",
+        "v0/getting-started/key-features"
+      ]
+    },
+    {
+      "group": "Monitors",
+      "version": "v0",
+      "pages": [
+        "v0/monitors/concept-drift",
+        "v0/monitors/data-drift",
+        "v0/monitors/data-integrity",
+        "v0/monitors/edge-case-detection",
+        "v0/monitors/model-bias",
+        "v0/monitors/custom-monitors"
+      ]
+    },
+    {
+      "group": "Measurables",
+      "version": "v0",
+      "pages": [
+        "v0/measurables/overview",
+        "v0/measurables/predefined",
+        "v0/measurables/custom"
+      ]
+    },
+    {
+      "group": "Visuals",
+      "version": "v0",
+      "pages": [
+        "v0/visuals/plot",
+        "v0/visuals/shap",
+        "v0/visuals/umap",
+        "v0/visuals/tsne"
+      ]
+    },
+    {
+      "group": "Statistics",
+      "version": "v0",
+      "pages": [
+        "v0/statistics/distances",
+        "v0/statistics/convergence-analysis"
+      ]
+    },
+    {
+      "group": "Examples",
+      "version": "v0",
+      "pages": [
+        "v0/examples/text-summarization",
+        "v0/examples/fraud-detection",
+        "v0/examples/human-orientation-classification",
+        "v0/examples/deep-dive-examples",
+        "v0/examples/shopping-cart-recommendation",
+        "v0/examples/ride-time-estimation",
+        "v0/examples/masked-language-modeling",
+        "v0/examples/conversation-summarization"
       ]
     },
     {
       "group": "Contributing",
+      "version": "v0",
       "pages": [
         "contributing/development",
         "contributing/documentation"

@@ -1,5 +1,5 @@
 site_name: "UpTrain API Reference"
-docs_dir: api-reference
+docs_dir: docs/api-reference
 
 theme:
   name: "material"
