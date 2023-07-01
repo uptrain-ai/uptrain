@@ -126,7 +126,7 @@ class TableOp(OpBaseModel):
     def run(self, *args: pl.DataFrame | None) -> TYPE_TABLE_OUTPUT:
         """Runs the operator on the given data.
 
-        Args:
+        Attributes:
             *args (pl.DataFrame): Zero or more dataframes as inputs.
 
         Returns:

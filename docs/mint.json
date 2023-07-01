@@ -62,6 +62,14 @@
       ]
     },
     {
+      "group": "Examples",
+      "version": "v1",
+      "pages": [
+        "examples/prompt-experiments",
+        "examples/validation"
+      ]
+    },
+    {
       "group": "Getting Started",
       "version": "v0",
       "pages": [

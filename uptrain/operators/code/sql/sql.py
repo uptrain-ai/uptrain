@@ -35,17 +35,19 @@ class ParseCreateStatements(TableOp):
     """
     Read tables and columns from ";" separated CREATE TABLE statements and writes a json dictionary Table -> [columns].
 
-    Args:
-        col_in_schema_def: Column name of schema def containing CREATE TABLE statements.
-        col_out_tables: Column to write parsed tables and columns.
+    Attributes:
+        col_in_schema_def (str): Column name of schema def containing CREATE TABLE statements.
+        col_out_tables (str): Column to write parsed tables and columns.
+
     """
+
     col_in_schema_def: str
     col_out_tables: str
 
     def setup(self, settings: t.Optional[Settings] = None):
         return self
 
-    def __fetch_tables_columns(self, create_statements) -> (str, str, str):
+    def __fetch_tables_columns(self, create_statements) -> t.Tuple(str, str, str):
         tables_and_columns = {}
         # SQL statements are separated by ';'
         statements = create_statements.split(';')
@@ -77,11 +79,13 @@ class ParseSQL(TableOp):
 
     This is typically used along with ValidateTables to validate tables and columns in the predicted SQL.
 
-    Args:
-        col_in_sql: Column of input SQL containing SQL SELECT statement.
-        col_out_tables: Column to write parsed tables and columns.
-        col_out_is_valid_sql: Column to store if sql is valid as per sql parser.
+    Attributes:
+        col_in_sql (str): Column of input SQL containing SQL SELECT statement.
+        col_out_tables (str): Column to write parsed tables and columns.
+        col_out_is_valid_sql (str): Column to store if sql is valid as per sql parser.
+
     """
+
     col_in_sql: str
     col_out_tables: str
     col_out_is_valid_sql: str
@@ -119,12 +123,14 @@ class ValidateTables(TableOp):
 
     This is typically used with ParseSQL and ParseCreateStatements.
 
-    Args:
-        col_in_response_tables: Column containing response SQL tables and columns as a json dict Table -> [columns].
-        col_in_schema_tables: Column containing schema definition tables and columns as a json dict Table -> [columns].
-        col_out_is_tables_valid: Column to store if tables are valid.
-        col_out_is_cols_valid: Column to store if columns are valid.
+    Attributes:
+        col_in_response_tables (str): Column containing response SQL tables and columns as a json dict Table -> [columns].
+        col_in_schema_tables (str): Column containing schema definition tables and columns as a json dict Table -> [columns].
+        col_out_is_tables_valid (str): Column to store if tables are valid.
+        col_out_is_cols_valid (str): Column to store if columns are valid.
+
     """
+
     col_in_response_tables: str
     col_in_schema_tables: str
     col_out_is_tables_valid: str
@@ -170,14 +176,16 @@ class ExecuteAndCompareSQL(TableOp):
     correctly compare `SELECT a,b` and `SELECT b,a` if the column order is not important. However, the intent in the
     text query also needs to be taken in consideration for correct sematic match.
 
-    Args:
-        col_in_response_sql: Column containing response SQL.
-        col_in_gt_sql: Column containing schema definition tables and columns as a json dict Table -> [columns].
-        col_in_db_path: Column to store if tables are valid.
-        col_out_execution_accuracy: Column to store if columns are valid.
-        ignore_column_order: Boolean param to ignore column order when comparing SQL output. True by default.
-        ignore_row_order: Boolean param to ignore row order when comparing SQL output. True by default.
+    Attributes:
+        col_in_response_sql (str): Column containing response SQL.
+        col_in_gt_sql (str): Column containing schema definition tables and columns as a json dict Table -> [columns].
+        col_in_db_path (str): Column to store if tables are valid.
+        col_out_execution_accuracy (str): Column to store if columns are valid.
+        ignore_column_order (bool): Boolean param to ignore column order when comparing SQL output. True by default.
+        ignore_row_order (bool): Boolean param to ignore row order when comparing SQL output. True by default.
+
     """
+    
     col_in_response_sql: str
     col_in_gt_sql: str
     col_in_db_path: str

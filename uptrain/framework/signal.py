@@ -5,18 +5,13 @@ class Signal:
     """
     Signal Class wrapper for any dataframe column
 
-    ...
-    Attributes
-    ----------
-    col_name : str
-        Column Name
-    identifier : str
-        Used as an identifier for printing 
+    Attributes:
+        col_name (str): Column Name
+        identifier (str): Used as an identifier for printing 
 
-    Methods
-    -------
-    run(self, data):
-        Evaluates on given data
+    Methods:
+        run(self, data): Evaluates on given data
+        
     """
 
     def __init__(self, col_name=""):

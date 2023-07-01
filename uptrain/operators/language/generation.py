@@ -21,13 +21,14 @@ class PromptExperiment(TableOp):
     """Operator to generate text given different prompts/LLM-input-parameters.
 
     Attributes:
-        prompt_template: A string template for the prompt.
-        prompt_params: A dictionary mapping parameter names to lists of values.
+        prompt_template (str) : A string template for the prompt.
+        prompt_params (dict[str, list[str]]): A dictionary mapping parameter names to lists of values.
             The cartesian product of all the parameter values will be used to
             construct the prompts.
-        models: A list of models to run the experiment on.
-        context_vars: A dictionary mapping context variable names to corresponding
+        models (list[str]): A list of models to run the experiment on.
+        context_vars (Union[list[str], dict[str, str]]): A dictionary mapping context variable names to corresponding
             columns in the input dataset.
+
     """
 
     prompt_template: str
@@ -42,8 +43,8 @@ class PromptExperiment(TableOp):
             self.context_vars=dict(zip(self.context_vars, self.context_vars))
         return self
 
+    """Construct all the prompt variations and generate completions for each."""
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        """Construct all the prompt variations and generate completions for each."""
         list_params = []
         for combo in itertools.product(*self.prompt_params.values(), self.models):
             prompt_params, model = combo[:-1], combo[-1]
@@ -84,8 +85,18 @@ class PromptExperiment(TableOp):
 
 @register_op
 class TextCompletion(ColumnOp):
-    """Take a prompt template, parameters to vary and generate output text
-    by calling an LLM."""
+    """
+    Take a prompt template, parameters to vary and generate output text
+    by calling an LLM.
+    
+    Attributes:
+        col_in_prompt (str): The name of the column containing the prompt template.
+        col_in_model (str): The name of the column containing the model name.
+    
+    Returns:
+        TYPE_COLUMN_OUTPUT: A dictionary containing the output text.
+
+    """
 
     col_in_prompt: str = "prompt"
     col_in_model: str = "model"

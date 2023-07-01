@@ -29,7 +29,7 @@ class OpenAIGradeScore(ColumnOp):
     """
     Operator to calculate the grade score of text completions using OpenAI models.
 
-    Args:
+    Attributes:
         col_in_input (str): The name of the input column containing the prompts.
         col_in_completion (str): The name of the input column containing the completions.
         eval_name (str): The name of the OpenAI evaluation to use.
@@ -83,14 +83,13 @@ class ModelGradeScore(ColumnOp):
     replacing just the completion call.
 
     Attributes:
-        col_in_input (str): Input column containing the prompt used for generation
-        col_in_completion (str): Input column containing the generated text
         grading_prompt_template (str): Template for the grading prompt.
-        eval_type (str): The type of evaluation for grading ("cot_classify" by default).
+        eval_type (Literal["cot_classify", "classify", "classify_cot"]): The type of evaluation for grading ("cot_classify" by default).
         choice_strings (list[str]): The list of choice strings for grading.
-        choice_scores (dict): The dictionary mapping choice strings to scores.
-        context_vars (dict): A dictionary mapping context variable names to corresponding
+        choice_scores (dict[str, float]): The dictionary mapping choice strings to scores.
+        context_vars (dict[str, str]): A dictionary mapping context variable names to corresponding
             columns in the input dataset.
+            
     """
 
     grading_prompt_template: str

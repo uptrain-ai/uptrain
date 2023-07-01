@@ -22,7 +22,7 @@ class ColumnExpand(TableOp):
     """
     Table operation to return the input DataFrame as it is without any modifications.
 
-    Args:
+    Attributes:
         col_out_names (list[str]): The names of the output columns. Must be the same length as `col_vals`.
         col_vals (list[Any]): The values for the output columns. Must be the same length as `col_out_names`.
 
@@ -30,10 +30,8 @@ class ColumnExpand(TableOp):
         dict: A dictionary containing the input DataFrame.
 
     Example:
-        import polars as pl
+        ```
         from uptrain.operators import ColumnExpand
-
-        # Create a DataFrame
         df = pl.DataFrame({
             "column1": [1, 2, 3],
             "column2": ["A", "B", "C"]
@@ -50,8 +48,10 @@ class ColumnExpand(TableOp):
 
         # Print the output DataFrame
         print(output_df)
+        ```
 
     Output:
+        ```
         shape: (3, 2)
         ┌─────────┬─────────┐
         │ column1 ┆ column2 │
@@ -62,6 +62,7 @@ class ColumnExpand(TableOp):
         │ 2       ┆ B       │
         │ 3       ┆ C       │
         └─────────┴─────────┘
+        ```
 
     """
     

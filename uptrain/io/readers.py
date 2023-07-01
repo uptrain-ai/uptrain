@@ -18,8 +18,8 @@ class CsvReader(TableOp):
     """Reads data from a csv file.
 
     Attributes:
-        fpath: Path to the csv file.
-        batch_size: Number of rows to read at a time. Defaults to None, which reads the entire file.
+        fpath (str): Path to the csv file.
+        batch_size (Optional[int]): Number of rows to read at a time. Defaults to None, which reads the entire file.
     
     """
 
@@ -40,8 +40,8 @@ class JsonReader(TableOp):
     """Reads data from a json file.
 
     Attributes:
-        fpath: Path to the json file.
-        batch_size: Number of rows to read at a time. Defaults to None, which reads the entire file.
+        fpath (str): Path to the json file.
+        batch_size (Optional[int]): Number of rows to read at a time. Defaults to None, which reads the entire file.
     
     """
 
@@ -97,8 +97,8 @@ class DeltaReader(TableOp):
     """Reads data from a Delta Lake table.
 
     Attributes:
-        fpath: File path to the Delta Lake table.
-        batch_split: Whether to read the table in batches. Defaults to False.
+        fpath (str): File path to the Delta Lake table.
+        batch_split (bool): Whether to read the table in batches. Defaults to False.
     
     """
 

@@ -22,7 +22,7 @@ class CosineSimilarity(ColumnOp):
     """
     Column operation to calculate the cosine similarity between two vectors representing text.
 
-    Args:
+    Attributes:
         col_in_vector_1 (str): The name of the column containing the first vector.
         col_in_vector_2 (str): The name of the column containing the second vector.
 
@@ -30,8 +30,10 @@ class CosineSimilarity(ColumnOp):
         dict: A dictionary containing the cosine similarity scores.
 
     Example:
+        ```
         import polars as pl
         import numpy as np
+        from uptrain.operators import CosineSimilarity
 
         # Create a DataFrame
         df = pl.DataFrame({
@@ -48,14 +50,17 @@ class CosineSimilarity(ColumnOp):
 
         # Print the similarity scores
         print(similarity_scores)
+        ```
 
     Output:
+        ```
         shape: (2,)
         Series: '_col_0' [f64]
         [
                 1.861259
                 0.288437
         ]
+        ```
 
     """
 

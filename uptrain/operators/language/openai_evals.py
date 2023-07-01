@@ -53,7 +53,7 @@ class OpenaiEval(ColumnOp):
     """
     Operator for running OpenAI evals.
 
-    Args:
+    Attributes:
         bundle_path (str): Path to the bundle containing eval resources.
         completion_name (str): Name of the completion function to use.
         eval_name (str): Name of the eval to run.
@@ -158,7 +158,7 @@ class PromptEval(TableOp):
     """
     Operator for running prompt-based evaluations.
 
-    Args:
+    Attributes:
         prompt_template (str): Template for the prompt string.
         prompt_variables (list[str]): List of variables to substitute in the prompt template.
         gt_variables (list[str]): List of ground truth variables.

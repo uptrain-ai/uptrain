@@ -2,9 +2,7 @@ name: ci
 on:
   push:
     branches:
-      - master 
       - main
-      - dhruv/docstrings
 permissions:
   contents: write
 jobs:
