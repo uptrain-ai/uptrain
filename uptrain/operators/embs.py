@@ -98,7 +98,7 @@ class Distribution(TableOp):
         """
         Validator to check the validity of input and output column lists.
 
-        Attributes:
+        Args:
             values (dict): The input attribute values.
 
         Returns:
@@ -234,7 +234,7 @@ def sample_pairs_from_values(n_values: int, n_pairs: int):
     """
     Sample pairs of indices from a given number of values.
 
-    Attributes:
+    Args:
         n_values (int): The total number of values.
         n_pairs (int): The number of pairs to sample.
 
@@ -253,7 +253,7 @@ def get_cosine_sim_dist(col_vectors: pl.Series, num_pairs_per_group: int = 10):
     """
     Compute cosine similarity distances between pairs of vectors.
 
-    Attributes:
+    Args:
         col_vectors (pl.Series): The column containing the vectors.
         num_pairs_per_group (int): The number of pairs to sample per group.
 
@@ -277,7 +277,7 @@ def get_rouge_score(col_vectors: pl.Series, num_pairs_per_group: int = 10):
     """
     Compute ROUGE scores between pairs of vectors.
 
-    Attributes:
+    Args:
         col_vectors (pl.Series): The column containing the vectors.
         num_pairs_per_group (int): The number of pairs to sample per group.
 
