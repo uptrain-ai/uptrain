@@ -232,7 +232,7 @@ def extract_links(text, base_domain=None):
     """
     Extracts links from the given text.
 
-    Attributes:
+    Args:
         text (str): The text from which links are to be extracted.
         base_domain (str, optional): If provided, only links containing this base domain will be returned. Defaults to None.
 

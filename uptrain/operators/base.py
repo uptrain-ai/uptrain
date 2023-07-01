@@ -107,7 +107,7 @@ class ColumnOp(OpBaseModel):
         """
         Runs the operator on the given data.
 
-        Attributes:
+        Args:
             data (pl.DataFrame): A polars dataframe. It computes a function over one/multiple
                 columns of it.
 
@@ -259,7 +259,7 @@ class SelectOp(TableOp):
 #     def run(self, data: list[pl.DataFrame]) -> TYPE_COLUMN_OUTPUT:
 #         """Runs the aggregation op on the given list of sub-dataframe.
 
-#         Attributes:
+#         Args:
 #             data (pl.DataFrame): A polars dataframe, one for each group key values. It
 #                 aggregates over each group to compute a single value, and returns a series of
 #                 the same length as the input.
