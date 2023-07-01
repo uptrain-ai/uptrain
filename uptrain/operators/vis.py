@@ -31,7 +31,7 @@ class PlotlyChart(OpBaseModel):
     Operator to generate various types of charts using Plotly.
 
     Attributes:
-        kind (str): The type of chart to generate. Supported values are "line", "scatter", "bar", 
+        kind (str): The type of chart to generate. Supported values are "line", "scatter", "bar",
             "histogram", and "table".
         props (dict): Additional properties to pass to the Plotly chart constructor.
         title (str): The title of the chart.

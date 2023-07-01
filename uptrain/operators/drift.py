@@ -79,7 +79,7 @@ class ConceptDrift(ColumnOp):
         ```py
         import polars as pl
         from uptrain.operators import ParamsDDM, ConceptDrift
-        
+
         # Create an instance of the ParamsDDM class with the parameters
         
         params_ddm = ParamsDDM(

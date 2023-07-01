@@ -31,7 +31,11 @@ class CosineSimilarity(ColumnOp):
 
     Example:
         ```
+        import polars as pl
         import numpy as np
+        from uptrain.operators import CosineSimilarity
+
+        # Create a DataFrame
         df = pl.DataFrame({
             "vector_1": [np.array([0.1, 0.2, 0.3]), np.array([0.4, 0.5, 0.6])],
             "vector_2": [np.array([0.7, 0.8, 0.9]), np.array([0.2, 0.3, 0.4])]

@@ -39,6 +39,8 @@ class PromptExperiment(TableOp):
 
     def setup(self, settings: "Settings"):
         self._settings = settings
+        if isinstance(self.context_vars, list):
+            self.context_vars=dict(zip(self.context_vars, self.context_vars))
         return self
 
     """Construct all the prompt variations and generate completions for each."""
