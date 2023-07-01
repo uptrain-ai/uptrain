@@ -65,12 +65,12 @@
 # Key Features 💡
 
 
-- **[ChatGPT Grading]()** - Utilize LLMs to grade your model outputs.
-- **[Custom Grading Checks]()** - Write your custom grading prompts.
+- **[ChatGPT Grading](https://uptrain-ai.github.io/uptrain/operators/language/OpenAIGradeScore/)** - Utilize LLMs to grade your model outputs.
+- **[Custom Grading Checks](https://uptrain-ai.github.io/uptrain/operators/language/ModelGradeScore/)** - Write your custom grading prompts.
 - **[Embeddings Similarity Check]()** - Compute cosine similarity between prompt and response embeddings
-- **[Output Validation]()** - Safeguard your users against inappropriate responses
-- **[Prompt A/B Testing]()** - Experiment across multiple prompts and compare them quantatively.
-- **[UMAP Visualization and Clustering]()** - Visualize your embedding space using tools like UMAP and t-SNE.
+- **[Output Validation](https://github.com/uptrain-ai/uptrain/blob/main/examples/validation_tutorial.ipynb)** - Safeguard your users against inappropriate responses
+- **[Prompt A/B Testing](https://github.com/uptrain-ai/uptrain/blob/main/examples/prompt_experiments_tutorial.ipynb)** - Experiment across multiple prompts and compare them quantatively.
+- **[UMAP Visualization and Clustering](https://uptrain-ai.github.io/uptrain/operators/UMAP/)** - Visualize your embedding space using tools like UMAP and t-SNE.
 - **[Hallucination Checks]()** - Use metrics like custom grading, text similarity, and embedding similarity to check for hallucinations.
 - **[Toxic Keywords Checks]()** - Make sure your model outputs are not biased or contain toxic keywords.
 - **[Feature Slicing]()** - Built-in pivoting functionalities for data dice and slice to pinpoint low-performing cohorts.
@@ -135,11 +135,11 @@ checkset.run()
 
 ## Experimentation
 
-You can use the UpTrain framework to run and compare LLM responses for different prompts, models, LLM chains, etc. Check out the experimentation tutorial to learn more.
+You can use the UpTrain framework to run and compare LLM responses for different prompts, models, LLM chains, etc. Check out the [experimentation tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/prompt_experiments_tutorial.ipynb) to learn more.
 
 ## Validation
 
-You can use the UpTrain Validation Manager to define checks, retry logic and validate your LLM responses before showing it to your users. Check out the tutorial here.
+You can use the UpTrain Validation Manager to define checks, retry logic and validate your LLM responses before showing it to your users. Check out the [tutorial here](https://github.com/uptrain-ai/uptrain/blob/main/examples/validation_tutorial.ipynb).
 
 ## Monitoring
 
