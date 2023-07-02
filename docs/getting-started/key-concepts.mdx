@@ -1,0 +1,50 @@
+---
+title: "Key Concepts 🗝️"
+description: "Learn what UpTrain can do in practice"
+---
+
+## Operators
+
+Uptrain evaluations are defined as regular table transforms, which we refer to as `Operators`. Each Operator 
+is defined as a pydantic model, which specifies:
+
+1. Required input columns in the input dataset and output column names
+2. Parameter values to customize the evaluation. For ex, the `Distribution` operator which evaluates ...
+
+Operators implement,
+1. A `setup` method (initialize resources, set up API keys, etc.)
+2. A `run` method (takes the dataset and computes the evaluation)
+
+Uptrain provides some friendly constructs like a CheckSet and Experiment to make it easy to run multiple evaluations together. However, you 
+can just as easily use uptrain operators with your regular data pipelines. 
+
+## Checks
+
+Uptrain evaluations are specified as `Check` objects. Each `SimpleCheck` specifies a sequence of tabular 
+transformations (`Operators`) to apply to the input dataset, and optionally a set of plots to visualize 
+the results.
+
+TODO: Add code example of a check
+
+## CheckSet
+
+A `CheckSet` is the Uptrain equivalent of a test-suite. It specifies a collection of `Check` objects run against the same 
+dataset. It is a higher level construct to  make scheduling and running multiple checks easier. A `CheckSet` object can 
+optionally be serialized and run remotely. 
+
+## Experiment
+
+An experiment combines prompt-generation and evaluation. 
+
+The prompt generator is a simple tool to help you generate prompts for your evaluation. It takes a prompt template, 
+which is a string with placeholders for variables you might want to tweak, and a list of test values for each variable. 
+It then generates a prompt for each combination of values and calls the completion API to generate the output text. 
+
+TODO: Add example of PromptEval
+
+The generated text can then be used as input to your evaluation. Uptrain then generates a Streamlit dashboard to 
+visualize the results. 
+
+## Managed Service
+
+We can run the evaluations for you. Please contact us for more information. 

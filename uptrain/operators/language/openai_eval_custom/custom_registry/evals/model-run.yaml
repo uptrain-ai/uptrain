@@ -1,0 +1,6 @@
+model_run_all:
+  id: model_run.test.v1
+model_run.test.v1:
+  args:
+    samples_jsonl: ""
+  class: uptrain.operators.language.openai_eval_custom.elsuite.model_run:ModelRun
