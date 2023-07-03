@@ -47,9 +47,9 @@ class Check(Operator):
         self.plot = plot if plot is not None else []
         self._settings = None  # type: ignore
 
-        for op in self.sequence:
-            if not isinstance(op, TableOp):
-                raise ValueError(f"Check compute ops must be TableOps, got {op}")
+        # for op in self.sequence:
+        #     if not isinstance(op, TableOp):
+        #         raise ValueError(f"Check compute ops must be TableOps, got {op}")
 
     def setup(self, settings: "Settings"):
         self._settings = settings
@@ -75,11 +75,11 @@ class Check(Operator):
 
         # pick output from the last op in the sequence
         name_final_node = f"sequence_{len(self.sequence) - 1}"
-        node_outputs = self._op_dag.run(
+        node_outputs, new_data = self._op_dag.run(
             node_inputs=node_inputs,
             output_nodes=[name_final_node],
         )
-        return node_outputs[name_final_node]
+        return node_outputs[name_final_node], new_data
 
     def dict(self) -> dict:
         """Serialize this check to a dict."""
@@ -151,8 +151,9 @@ class CheckSet:
         """Run all checks in this set."""
         self.source.setup(self.settings)
         source_output = self.source.run()["output"]
+        new_source_output = source_output
         for check in self.checks:
-            check_ouptut = check.run(source_output)
+            check_ouptut, new_source_output = check.run(new_source_output)
 
             sink = self._get_sink_for_check(check)
             sink.setup(self.settings)

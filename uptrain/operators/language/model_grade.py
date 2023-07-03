@@ -7,6 +7,7 @@ from __future__ import annotations
 import typing as t
 import yaml
 import os
+import uuid
 
 from loguru import logger
 import polars as pl
@@ -42,10 +43,14 @@ class OpenAIGradeScore(ColumnOp):
     col_in_input: str = "prompt"
     col_in_completion: str = "response"
     eval_name: str
+    col_out: str | None = None
     _settings: Settings
 
     def setup(self, settings: Settings):
         self._settings = settings
+        if self.col_out is None:
+            self.col_out = f"OpenAIGradeScore(Input: {self.col_in_input}, Response: {self.col_in_completion})_{uuid.uuid4()}"
+
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
@@ -69,8 +74,8 @@ class OpenAIGradeScore(ColumnOp):
             and "score" in oaieval_res["extra"]["metrics"]
         )
         return {
-            "output": pl.Series(oaieval_res["extra"]["metrics"]["score"]).alias(
-                get_output_col_name_at(0)
+            "output": data.with_columns(pl.Series(oaieval_res["extra"]["metrics"]["score"]).alias(
+                self.col_out)
             )
         }
 
@@ -97,11 +102,14 @@ class ModelGradeScore(ColumnOp):
     choice_strings: list[str]
     choice_scores: dict[str, float]
     context_vars: dict[str, str]
+    col_out: str | None = None
     _settings: Settings
     _api_client: "LLMMulticlient"
 
     def setup(self, settings: Settings):
         self._api_client = LLMMulticlient(settings=settings)
+        if self.col_out is None:
+            self.col_out = f"CustomModelGradeScore_{settings.column_count}_{uuid.uuid4()}"
         return self
 
     def _make_payload(self, id: t.Any, messages: list[dict]) -> Payload:

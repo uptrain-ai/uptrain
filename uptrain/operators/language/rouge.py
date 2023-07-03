@@ -11,6 +11,7 @@ import typing as t
 from loguru import logger
 import polars as pl
 from uptrain.framework import Settings
+import uuid
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
@@ -69,8 +70,11 @@ class RougeScore(ColumnOp):
     score_type: t.Literal["precision", "recall", "f1"]
     col_in_generated: str = "text_generated"
     col_in_source: str = "text_source"
+    col_out: str | None = None
 
     def setup(self, _: Settings | None = None):
+        if self.col_out is None:
+            self.col_out = f"Rouge_{self.score_type}({self.col_in_generated},{self.col_in_source})_{uuid.uuid4()}"
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
@@ -90,4 +94,4 @@ class RougeScore(ColumnOp):
         results = [
             int(x["rougeL"][type_to_index[self.score_type]] * 100) for x in scores
         ]
-        return {"output": pl.Series(get_output_col_name_at(0), results)}
+        return {"output": data.with_columns(pl.Series(self.col_out, results))}

@@ -99,6 +99,17 @@ class OpBaseModel(BaseModel):
         underscore_attrs_are_private = True
 
 
+    def calculate_dependencies(self, lineage: dict = {}):
+        in_fields = list(filter(lambda x: not ("col_out" in x), list(self.__fields__.keys())))
+        dependencies = []
+        for field in in_fields:
+            dependencies.append(f"{self.__class__.__name__}_{field}_{self.dict()[field]}")
+            dependencies.extend(lineage.get(self.dict()[field], []))
+
+        dependencies.sort(key = lambda x: x)
+        return dependencies
+
+
 class ColumnOp(OpBaseModel):
     def setup(self, settings: "Settings" | None = None) -> None:
         raise NotImplementedError
@@ -118,6 +129,42 @@ class ColumnOp(OpBaseModel):
         """
         raise NotImplementedError
 
+    def _append_to_data(self):
+        return True
+
+    def run_and_append_data(self, data: pl.DataFrame | None = None, lineage: dict = {}) -> TYPE_COLUMN_OUTPUT:
+        dependencies = self.calculate_dependencies(lineage)
+
+        out_fields = list(filter(lambda x: ("col_out" in x), list(self.__fields__.keys())))
+        
+        for out_field_key in out_fields:
+            for field in list(lineage.keys()):
+                if (self.dict()[out_field_key] == field.split(":")[-1]) and not (lineage[field] == dependencies):
+                    raise Exception(f"Trying to add different columns with same names - {self.dict()[out_field_key]} with dependencies: {dependencies} and " + field.split(":")[-1] + f" with dependencies: {lineage[field]}")
+
+
+        matching_fields = []
+        for field in list(lineage.keys()):
+            if lineage[field] == dependencies:
+                matching_fields.append(field)
+
+
+        if len(matching_fields):
+            for out_field_key in out_fields:
+                out_field = self.__class__.__name__ + ":" + out_field_key + ":" + self.dict()[out_field_key]
+                for match_field in matching_fields:
+                    if out_field.split(":")[0:2] == match_field.split(":")[0:2]:
+                        data = data.with_columns((data[match_field.split(":")[-1]]).alias(out_field.split(":")[-1]))
+                        lineage[out_field] = lineage[match_field]
+                        print(f"Got cached values for {out_field}")
+            return {"output": data}
+        else:
+            print(f"Running compute for {self.__class__.__name__}")
+            for field in out_fields:
+                lineage[self.__class__.__name__ + ":" + field + ":" + self.dict()[field]] = dependencies
+            return self.run(data)
+
+
 
 class TableOp(OpBaseModel):
     def setup(self, _: "Settings" | None = None):
@@ -135,6 +182,9 @@ class TableOp(OpBaseModel):
 
         """
         raise NotImplementedError
+
+    def _append_to_data(self):
+        return False
 
 
 T = t.TypeVar("T")

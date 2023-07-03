@@ -78,7 +78,7 @@ class OperatorDAG:
         sorted_nodes = list(nx.algorithms.dag.topological_sort(self.graph))
         for node_name in sorted_nodes:
             node: "TableOp" = self.graph.nodes[node_name]["op_class"]
-            assert isinstance(node, TableOp)
+            # assert isinstance(node, TableOp)
             node.setup(settings)
 
     def run(
@@ -102,10 +102,15 @@ class OperatorDAG:
         }
 
         # run each node in topological order
+        can_be_appended = True
+        modified_input = node_inputs['sequence_0']
+        print("INPUT COLUMNS: ", modified_input.columns)
+        lineage = {}
+
         for node_name in sorted_nodes:
             logger.debug(f"Executing node: {node_name} for operator DAG: {self.name}")
             node: "TableOp" = self.graph.nodes[node_name]["op_class"]
-            assert isinstance(node, TableOp)
+            # assert isinstance(node, TableOp)
 
             # get input for this node from its dependencies
             inputs_from_deps = []
@@ -120,9 +125,21 @@ class OperatorDAG:
                             f"Cannot find output/provided value for dependency: {dep} of node: {node_name}"
                         )
 
-            # run the operator and store the output
-            res = node.run(*inputs_from_deps)
+            if not node._append_to_data():
+                can_be_appended = False
+                print(f"Encountered non-column Op: {node.__class__.__name__}")
+
+            if can_be_appended:
+                # run the operator and store the output
+                print(f"Run and Append Data for Op: {node.__class__.__name__}")
+                res = node.run_and_append_data(*inputs_from_deps, *lineage)
+                modified_input = res["output"]
+            else:
+                # run the operator and store the output
+                print(f"Only Run for Op: {node.__class__.__name__}")
+                res = node.run(*inputs_from_deps)
             node_to_output[node_name] = res["output"]
+            print("")
 
             # decrease dependents count for each dependency so we don't old onto memory
             for parent in self.graph.predecessors(node_name):
@@ -130,7 +147,11 @@ class OperatorDAG:
                 if dependents_count[parent] == 0 and parent not in output_nodes:
                     node_to_output.pop(parent, None)
 
-        return {node_name: node_to_output[node_name] for node_name in output_nodes}
+        print("OUTPUT COLUMNS: ", modified_input.columns)
+        print("")
+        print("")
+        print("")
+        return {node_name: node_to_output[node_name] for node_name in output_nodes}, modified_input
 
     def _get_node_parents(self, name: str) -> list[str]:
         return list(self.graph.predecessors(name))

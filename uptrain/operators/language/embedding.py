@@ -12,6 +12,7 @@ import typing as t
 
 from loguru import logger
 import polars as pl
+import uuid
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
@@ -72,19 +73,26 @@ class Embedding(ColumnOp):
 
     """
 
-    model: t.Literal["MiniLM-L6-v2", "hkunlp/instructor-xl"]
-    col_in_text: str = "text"
+    model: t.Literal["MiniLM-L6-v2", "hkunlp/instructor-xl", "MiniLM-L12-v2"]
+    col_in_text: str
+    col_out: str | None = None
     _model_obj: t.Any
 
-    def setup(self, _: t.Optional[Settings] = None):
+    def setup(self, settings: t.Optional[Settings] = None):
         if self.model == "hkunlp/instructor-xl":
             self._model_obj = InstructorEmbedding.INSTRUCTOR(self.model)  # type: ignore
         elif self.model == "MiniLM-L6-v2":
             self._model_obj = sentence_transformers.SentenceTransformer(
                 "sentence-transformers/all-MiniLM-L6-v2"
             )  # type: ignore
+        elif self.model == "MiniLM-L12-v2":
+            self._model_obj = sentence_transformers.SentenceTransformer(
+                "sentence-transformers/all-MiniLM-L12-v2"
+            )  # type: ignore
         else:
             raise Exception(f"Embeddings model: {self.model} is not supported yet.")
+        if self.col_out is None:
+            self.col_out = f"{self.model}_embeddings({self.col_in_text})_{uuid.uuid4()}"
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
@@ -94,9 +102,11 @@ class Embedding(ColumnOp):
                 ["Represent the developer documentation sentence: ", x] for x in text
             ]
         elif self.model == "MiniLM-L6-v2":
-            inputs = list(text)
+            inputs = [str(x) for x in list(text)]
+        elif self.model == "MiniLM-L12-v2":
+            inputs = [str(x) for x in list(text)]
         else:
             raise Exception("Embeddings model not supported")
         results = self._model_obj.encode(inputs)
 
-        return {"output": pl.Series(results).alias(get_output_col_name_at(0))}
+        return {"output": data.with_columns(pl.Series(results).alias(self.col_out))}

@@ -11,6 +11,7 @@ import typing as t
 import numpy as np
 from loguru import logger
 import polars as pl
+import uuid
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
@@ -66,8 +67,11 @@ class CosineSimilarity(ColumnOp):
 
     col_in_vector_1: str
     col_in_vector_2: str
+    col_out: str | None = None
 
     def setup(self, _: t.Optional[Settings] = None):
+        if self.col_out is None:
+            self.col_out = f"CosineSimilarity({self.col_in_vector_1},{self.col_in_vector_2})_{uuid.uuid4()}"
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
@@ -81,4 +85,4 @@ class CosineSimilarity(ColumnOp):
             similarity_score = np.dot(v1, v2) / np.linalg.norm(v1) * np.linalg.norm(v2)
             results.append(similarity_score)
 
-        return {"output": pl.Series(results).alias(get_output_col_name_at(0))}
+        return {"output": data.with_columns(pl.Series(results).alias(self.col_out))}

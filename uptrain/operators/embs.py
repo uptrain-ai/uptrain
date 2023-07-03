@@ -16,6 +16,7 @@ from loguru import logger
 import numpy as np
 import polars as pl
 from pydantic import root_validator
+import uuid
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
@@ -145,7 +146,7 @@ class Distribution(TableOp):
 
 
 @register_op
-class UMAP(TableOp):
+class UMAP(ColumnOp):
     """
     Operator for performing UMAP dimensionality reduction.
 
@@ -205,21 +206,22 @@ class UMAP(TableOp):
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         embs_1 = np.asarray(data[self.col_in_embs_1].to_list())
-        embs_2 = np.asarray(data[self.col_in_embs_2].to_list())
+        # embs_2 = np.asarray(data[self.col_in_embs_2].to_list())
 
         embs_list = list(embs_1)
-        embs_list.extend(list(embs_2))
+        # embs_list.extend(list(embs_2))
         combined_embs = np.array(embs_list)
-        symbols = ["star"] * len(embs_1) + ["circle"] * len(embs_2)
+        symbols = ["star"] * len(embs_1) # + ["circle"] * len(embs_2)
         clusters = ["default"] * len(combined_embs)
         umap_output = umap.UMAP().fit_transform(combined_embs)  # type: ignore
+        iden = f"{uuid.uuid4()}"
         return {
-            "output": pl.DataFrame(
+            "output": data.with_columns(
                 [
-                    pl.Series(values=umap_output[:, 0]).alias("umap_0"),
-                    pl.Series(values=umap_output[:, 1]).alias("umap_1"),
-                    pl.Series(values=symbols).alias("symbol"),
-                    pl.Series(values=clusters).alias("cluster"),
+                    pl.Series(values=umap_output[:, 0]).alias(f"umap_0_{iden}"),
+                    pl.Series(values=umap_output[:, 1]).alias(f"umap_1_{iden}"),
+                    pl.Series(values=symbols).alias(f"umap_symbol_{iden}"),
+                    pl.Series(values=clusters).alias(f"umap_cluster_{iden}"),
                 ]
             )
         }

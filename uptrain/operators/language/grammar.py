@@ -12,6 +12,7 @@ import typing as t
 
 from loguru import logger
 import polars as pl
+import uuid
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
@@ -34,11 +35,14 @@ class GrammarScore(ColumnOp):
 
     """
     
-    col_in_text: str = "text"
+    col_in_text: str
+    col_out: str | None = None
     _api_client: LLMMulticlient
 
     def setup(self, settings: t.Optional[Settings] = None):
         self._api_client = LLMMulticlient(settings=settings)
+        if self.col_out is None:
+            self.col_out = f"GrammarCorrectnessScore({self.col_in_text})_{uuid.uuid4()}"
         return self
 
     def _make_payload(self, id: t.Any, text: str) -> Payload:
