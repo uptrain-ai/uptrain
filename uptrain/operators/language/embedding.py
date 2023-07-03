@@ -76,7 +76,7 @@ class Embedding(ColumnOp):
     col_in_text: str = "text"
     _model_obj: t.Any
 
-    def setup(self, _: t.Optional[Settings] = None):
+    def setup(self, settings: Settings):
         if self.model == "hkunlp/instructor-xl":
             self._model_obj = InstructorEmbedding.INSTRUCTOR(self.model)  # type: ignore
         elif self.model == "MiniLM-L6-v2":

@@ -13,8 +13,12 @@ from pydantic import BaseModel
 import polars as pl
 
 from uptrain.utilities import lazy_load_dep
-from uptrain.utilities.sql_utils import extract_tables_and_columns, extract_tables_and_columns_from_create, \
-    PLACEHOLDER_TABLE, execute_and_compare_sql
+from uptrain.utilities.sql_utils import (
+    extract_tables_and_columns,
+    extract_tables_and_columns_from_create,
+    PLACEHOLDER_TABLE,
+    execute_and_compare_sql,
+)
 
 if t.TYPE_CHECKING:
     from uptrain.framework.base import *
@@ -44,17 +48,17 @@ class ParseCreateStatements(TableOp):
     col_in_schema_def: str
     col_out_tables: str
 
-    def setup(self, settings: t.Optional[Settings] = None):
+    def setup(self, settings: Settings):
         return self
 
     def __fetch_tables_columns(self, create_statements) -> t.Tuple(str, str, str):
         tables_and_columns = {}
         # SQL statements are separated by ';'
-        statements = create_statements.split(';')
+        statements = create_statements.split(";")
 
         # Create table statements
         for statement in statements:
-            if statement.upper().strip().startswith('CREATE TABLE'):
+            if statement.upper().strip().startswith("CREATE TABLE"):
                 # Add the statement to the list
                 statement = statement.strip()
                 # TODO: handle input database dialect instead of assuming it.
@@ -90,7 +94,7 @@ class ParseSQL(TableOp):
     col_out_tables: str
     col_out_is_valid_sql: str
 
-    def setup(self, _: t.Optional[Settings] = None):
+    def setup(self, settings: Settings):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
@@ -111,8 +115,14 @@ class ParseSQL(TableOp):
                 tables.append(json.dumps({}))
                 is_valid.append(False)
 
-        return {"output": data.with_columns([pl.Series(self.col_out_tables, tables),
-                                             pl.Series(self.col_out_is_valid_sql, is_valid)])}
+        return {
+            "output": data.with_columns(
+                [
+                    pl.Series(self.col_out_tables, tables),
+                    pl.Series(self.col_out_is_valid_sql, is_valid),
+                ]
+            )
+        }
 
 
 @register_op
@@ -136,7 +146,7 @@ class ValidateTables(TableOp):
     col_out_is_tables_valid: str
     col_out_is_cols_valid: str
 
-    def setup(self, _: t.Optional[Settings] = None):
+    def setup(self, settings: Settings):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
@@ -155,14 +165,31 @@ class ValidateTables(TableOp):
             for table, columns in r.items():
                 is_valid_table &= table == PLACEHOLDER_TABLE or table in s
                 # TODO: handle aliases and do lineage check
-                is_valid_column = is_valid_column and is_valid_table and \
-                                   ((table != PLACEHOLDER_TABLE and set(columns).issubset(set(s[table]))) or
-                                    (table == PLACEHOLDER_TABLE and set(columns).issubset(all_columns)))
+                is_valid_column = (
+                    is_valid_column
+                    and is_valid_table
+                    and (
+                        (
+                            table != PLACEHOLDER_TABLE
+                            and set(columns).issubset(set(s[table]))
+                        )
+                        or (
+                            table == PLACEHOLDER_TABLE
+                            and set(columns).issubset(all_columns)
+                        )
+                    )
+                )
 
             results.append(is_valid_table)
             results_column.append(is_valid_column)
-        return {"output": data.with_columns(
-            [pl.Series(self.col_out_is_tables_valid, results), pl.Series(self.col_out_is_cols_valid, results_column)])}
+        return {
+            "output": data.with_columns(
+                [
+                    pl.Series(self.col_out_is_tables_valid, results),
+                    pl.Series(self.col_out_is_cols_valid, results_column),
+                ]
+            )
+        }
 
 
 @register_op
@@ -185,7 +212,7 @@ class ExecuteAndCompareSQL(TableOp):
         ignore_row_order (bool): Boolean param to ignore row order when comparing SQL output. True by default.
 
     """
-    
+
     col_in_response_sql: str
     col_in_gt_sql: str
     col_in_db_path: str
@@ -193,7 +220,7 @@ class ExecuteAndCompareSQL(TableOp):
     ignore_column_order: bool = True
     ignore_row_order: bool = True
 
-    def setup(self, settings: t.Optional[Settings] = None):
+    def setup(self, settings: Settings):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
@@ -202,9 +229,17 @@ class ExecuteAndCompareSQL(TableOp):
         db_paths = data.get_column(self.col_in_db_path)
         results = []
         for response_sql, gt_sql, db_path in zip(response_sqls, gt_sqls, db_paths):
-            results.append(execute_and_compare_sql(response_sql,
-                                                   gt_sql,
-                                                   db_path,
-                                                   ignore_column_order=self.ignore_column_order,
-                                                   ignore_row_order=self.ignore_row_order))
-        return {"output": data.with_columns([pl.Series(self.col_out_execution_accuracy, results)])}
+            results.append(
+                execute_and_compare_sql(
+                    response_sql,
+                    gt_sql,
+                    db_path,
+                    ignore_column_order=self.ignore_column_order,
+                    ignore_row_order=self.ignore_row_order,
+                )
+            )
+        return {
+            "output": data.with_columns(
+                [pl.Series(self.col_out_execution_accuracy, results)]
+            )
+        }

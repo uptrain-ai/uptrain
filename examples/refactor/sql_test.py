@@ -1,6 +1,6 @@
 import os
-from uptrain.framework import CheckSet, Settings, Check
-from uptrain.io import JsonReader, JsonWriter
+
+import polars as pl
 
 from uptrain.operators.language.sql import (
     ParseSQL,
@@ -8,15 +8,15 @@ from uptrain.operators.language.sql import (
     ExecuteAndCompareSQL,
     ParseCreateStatements,
 )
-
+from uptrain.framework import CheckSet, Settings, Check
+from uptrain.operators.io import JsonReader, JsonWriter
 from uptrain.operators import PlotlyChart, SelectOp
-
-import polars as pl
-
 from uptrain.operators.language.text import KeywordDetector
+
 
 # Define the config
 LOGS_DIR = "/tmp/uptrain_logs"
+SETTINGS = Settings(logs_folder=LOGS_DIR)
 
 
 # Reads schema definitions from spider dataset. schema definitions are a list of CREATE TABLE Statements
@@ -48,7 +48,7 @@ def produce_dataset_w_spider_schema(source_path, sink_path, spider_dataset_path)
     # Get spider dataset from https://yale-lily.github.io/spider
 
     source = JsonReader(fpath=source_path)
-    source.setup()
+    source.setup(SETTINGS)
     data = source.run()["output"]
 
     schema_names = data.get_column("schema")

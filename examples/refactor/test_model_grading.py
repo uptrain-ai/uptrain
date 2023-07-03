@@ -2,7 +2,7 @@ import os
 import polars as pl
 
 from uptrain.framework import CheckSet, Settings, Check
-from uptrain.io import JsonReader, JsonWriter
+from uptrain.operators.io import JsonReader, JsonWriter
 from uptrain.operators import PlotlyChart, SelectOp
 from uptrain.operators.language import ModelGradeScore, OpenAIGradeScore
 

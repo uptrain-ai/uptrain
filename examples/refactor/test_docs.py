@@ -7,7 +7,7 @@ from uptrain.operators import (
     UMAP,
     SelectOp,
 )
-from uptrain.io import JsonReader, JsonWriter
+from uptrain.operators.io import JsonReader, JsonWriter
 from uptrain.operators.language import (
     Embedding,
     RougeScore,

@@ -20,14 +20,13 @@ class CsvReader(TableOp):
     Attributes:
         fpath (str): Path to the csv file.
         batch_size (Optional[int]): Number of rows to read at a time. Defaults to None, which reads the entire file.
-    
+
     """
 
     fpath: str
     batch_size: t.Optional[int] = None
-    _executor: TextReaderExecutor
 
-    def setup(self, settings: Settings | None = None):
+    def setup(self, settings: Settings):
         self._executor = TextReaderExecutor(self)
         return self
 
@@ -42,14 +41,13 @@ class JsonReader(TableOp):
     Attributes:
         fpath (str): Path to the json file.
         batch_size (Optional[int]): Number of rows to read at a time. Defaults to None, which reads the entire file.
-    
+
     """
 
     fpath: str
     batch_size: t.Optional[int] = None
-    _executor: TextReaderExecutor
 
-    def setup(self, settings: Settings | None = None):
+    def setup(self, settings: Settings):
         self._executor = TextReaderExecutor(self)
         return self
 
@@ -99,7 +97,7 @@ class DeltaReader(TableOp):
     Attributes:
         fpath (str): File path to the Delta Lake table.
         batch_split (bool): Whether to read the table in batches. Defaults to False.
-    
+
     """
 
     fpath: str
@@ -107,7 +105,7 @@ class DeltaReader(TableOp):
     _dataset: t.Any  # pyarrow dataset
     _batch_generator: t.Optional[t.Iterator[t.Any]]  # record batch generator
 
-    def setup(self, settings: Settings | None = None):
+    def setup(self, settings: Settings):
         self._dataset = dl.DeltaTable(self.fpath).to_pyarrow_dataset()
         if self.is_incremental:
             self._batch_generator = iter(self._dataset.to_batches())
@@ -139,7 +137,7 @@ class DeltaReader(TableOp):
 class UptrainReader(TableOp):
     dataset_id: str
 
-    def setup(self, _: t.Optional[Settings] = None):
+    def setup(self, settings: Settings):
         return self
 
     def run(self) -> TYPE_TABLE_OUTPUT:

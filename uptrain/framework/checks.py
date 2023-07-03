@@ -6,7 +6,6 @@ import os
 import typing as t
 
 import polars as pl
-from pydantic import root_validator
 
 from uptrain.operators.base import *
 from uptrain.utilities import jsonload, jsondump, to_py_types, clear_directory
@@ -24,7 +23,7 @@ class Check(Operator):
 
     Attributes:
         name (str): Name of the check.
-        compute (list[TableOp]): A list of operators to run in sequence on the input data. The output of each
+        sequence (list[TableOp]): A list of operators to run in sequence on the input data. The output of each
             operator is passed as input to the next operator.
         plot (list[Operator]): How to plot the output of the check.
 
@@ -103,19 +102,15 @@ class CheckSet:
     Attributes:
         source (Operator): The source operator to run. Specifies where to get the data from.
         checks (list[Check]): The list of checks to run on the input data.
-        settings (Settings): Settings to run this check set with.
-
     """
 
     source: Operator
     checks: list[Check]
-    settings: Settings
+    _settings: Settings
 
-    def __init__(self, source: Operator, checks: list[t.Any], settings: Settings):
+    def __init__(self, source: Operator, checks: list[t.Any]):
         self.source = source
         self.checks = checks
-        self.settings = settings
-
         check_names = [
             check.name for check in checks
         ]  # verify all checks have different names
@@ -125,17 +120,18 @@ class CheckSet:
 
     def _get_sink_for_check(self, check: Check) -> Operator:
         """Get the sink for the given check."""
-        from uptrain.io.writers import JsonWriter
+        from uptrain.operators.io import JsonWriter
 
         return JsonWriter(
-            fpath=os.path.join(self.settings.logs_folder, f"{check.name}.jsonl")
+            fpath=os.path.join(self._settings.logs_folder, f"{check.name}.jsonl")
         )  # type: ignore
 
-    def setup(self):
+    def setup(self, settings: Settings):
         """Create the logs directory, or clear it if it already exists. Also, persist the
         evaluation config.
         """
-        logs_dir = self.settings.logs_folder
+        self._settings = settings
+        logs_dir = self._settings.logs_folder
         if not os.path.exists(logs_dir):
             os.makedirs(logs_dir)
         else:
@@ -143,19 +139,19 @@ class CheckSet:
         self.serialize(os.path.join(logs_dir, "config.json"))
 
         for check in self.checks:
-            check.setup(self.settings)
+            check.setup(self._settings)
 
         return self
 
     def run(self):
         """Run all checks in this set."""
-        self.source.setup(self.settings)
+        self.source.setup(self._settings)
         source_output = self.source.run()["output"]
         for check in self.checks:
             check_ouptut = check.run(source_output)
 
             sink = self._get_sink_for_check(check)
-            sink.setup(self.settings)
+            sink.setup(self._settings)
             sink.run(check_ouptut)
 
     @classmethod
@@ -170,7 +166,7 @@ class CheckSet:
         return {
             "source": to_py_types(self.source),
             "checks": [to_py_types(check) for check in self.checks],
-            "settings": to_py_types(self.settings),
+            "settings": to_py_types(self._settings),
         }
 
     @classmethod
@@ -180,7 +176,7 @@ class CheckSet:
 
     def serialize(self, fpath: t.Optional[str] = None):
         if fpath is None:
-            fpath = os.path.join(self.settings.logs_folder, "config.json")
+            fpath = os.path.join(self._settings.logs_folder, "config.json")
 
         with open(fpath, "w") as f:
             jsondump(self.dict(), f)

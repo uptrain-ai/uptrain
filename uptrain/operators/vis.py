@@ -68,7 +68,7 @@ class PlotlyChart(OpBaseModel):
     title: str = ""
     filter_on: list[str] = Field(default_factory=list)
 
-    def setup(self, settings: t.Optional[Settings] = None):
+    def setup(self, settings: Settings):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:

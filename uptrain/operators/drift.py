@@ -54,7 +54,7 @@ class ParamsADWIN(OpBaseModel):
         grace_period (int): The grace period value for the drift detection.
 
     """
-    
+
     delta: float = 0.002
     clock: int = 32
     max_buckets: int = 5
@@ -81,7 +81,7 @@ class ConceptDrift(ColumnOp):
         from uptrain.operators import ParamsDDM, ConceptDrift
 
         # Create an instance of the ParamsDDM class with the parameters
-        
+
         params_ddm = ParamsDDM(
                         warm_start=500,
                         warn_threshold=2.0,
@@ -128,7 +128,7 @@ class ConceptDrift(ColumnOp):
     def _check_params(cls, values):
         """
         Check if the parameters are valid for the specified algorithm.
-        
+
         """
         algo = values["algorithm"]
         params = values["params"]
@@ -142,7 +142,7 @@ class ConceptDrift(ColumnOp):
             )
         return values
 
-    def setup(self, _: t.Optional[Settings] = None):
+    def setup(self, settings: Settings):
         if self.algorithm == "DDM":
             self._algo_obj = drift.DDM(**self.params.dict())  # type: ignore
         elif self.algorithm == "ADWIN":
@@ -166,7 +166,9 @@ class ConceptDrift(ColumnOp):
             self._counter += 1
             self._cuml_accuracy += val
 
-        self._avg_accuracy = self._cuml_accuracy / self._counter if self._counter > 0 else 0.0
+        self._avg_accuracy = (
+            self._cuml_accuracy / self._counter if self._counter > 0 else 0.0
+        )
         return {
             "output": None,
             "extra": {

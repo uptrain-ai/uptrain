@@ -40,10 +40,11 @@ class PromptExperiment(TableOp):
     def setup(self, settings: "Settings"):
         self._settings = settings
         if isinstance(self.context_vars, list):
-            self.context_vars=dict(zip(self.context_vars, self.context_vars))
+            self.context_vars = dict(zip(self.context_vars, self.context_vars))
         return self
 
     """Construct all the prompt variations and generate completions for each."""
+
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         list_params = []
         for combo in itertools.product(*self.prompt_params.values(), self.models):
@@ -88,11 +89,11 @@ class TextCompletion(ColumnOp):
     """
     Take a prompt template, parameters to vary and generate output text
     by calling an LLM.
-    
+
     Attributes:
         col_in_prompt (str): The name of the column containing the prompt template.
         col_in_model (str): The name of the column containing the model name.
-    
+
     Returns:
         TYPE_COLUMN_OUTPUT: A dictionary containing the output text.
 
@@ -102,7 +103,7 @@ class TextCompletion(ColumnOp):
     col_in_model: str = "model"
     _api_client: LLMMulticlient
 
-    def setup(self, settings: t.Optional[Settings] = None):
+    def setup(self, settings: Settings):
         self._api_client = LLMMulticlient(settings=settings)
         return self
 

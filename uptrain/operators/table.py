@@ -65,11 +65,11 @@ class ColumnExpand(TableOp):
         ```
 
     """
-    
+
     col_out_names: list[str]
     col_vals: list[t.Any]
 
-    def setup(self, _: t.Optional[Settings] = None):
+    def setup(self, settings: Settings):
         assert len(self.col_out_names) == len(self.col_vals)
         return self
 

@@ -110,10 +110,10 @@ checkset = CheckSet(
         plot = PlotlyChart.Table(title="Grammar scores"),
     ),
     source = JsonReader(fpath = '...'),
-    settings = Settings(openai_api_key = '...')
 )
+settings = Settings(openai_api_key = '...')
 
-checkset.setup()
+checkset.setup(settings)
 checkset.run()
 
 ```

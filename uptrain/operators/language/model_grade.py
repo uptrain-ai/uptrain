@@ -42,7 +42,6 @@ class OpenAIGradeScore(ColumnOp):
     col_in_input: str = "prompt"
     col_in_completion: str = "response"
     eval_name: str
-    _settings: Settings
 
     def setup(self, settings: Settings):
         self._settings = settings
@@ -89,7 +88,7 @@ class ModelGradeScore(ColumnOp):
         choice_scores (dict[str, float]): The dictionary mapping choice strings to scores.
         context_vars (dict[str, str]): A dictionary mapping context variable names to corresponding
             columns in the input dataset.
-            
+
     """
 
     grading_prompt_template: str

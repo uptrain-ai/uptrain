@@ -72,7 +72,7 @@ class Operator(t.Protocol):
         """
         ...
 
-    def setup(self, settings: "Settings" | None = None) -> "Operator":
+    def setup(self, settings: "Settings") -> "Operator":
         """Setup the operator. This must be called before the operator is run."""
         ...
 
@@ -95,12 +95,13 @@ class OpBaseModel(BaseModel):
     _state: dict = Field(default_factory=dict)
 
     class Config:
+        extra = "allow"
         smart_union = True
         underscore_attrs_are_private = True
 
 
 class ColumnOp(OpBaseModel):
-    def setup(self, settings: "Settings" | None = None) -> None:
+    def setup(self, settings: "Settings"):
         raise NotImplementedError
 
     def run(self, data: pl.DataFrame | None = None) -> TYPE_COLUMN_OUTPUT:
@@ -120,7 +121,7 @@ class ColumnOp(OpBaseModel):
 
 
 class TableOp(OpBaseModel):
-    def setup(self, _: "Settings" | None = None):
+    def setup(self, settings: Settings):
         raise NotImplementedError
 
     def run(self, *args: pl.DataFrame | None) -> TYPE_TABLE_OUTPUT:
@@ -190,7 +191,7 @@ class PlaceholderOp(OpBaseModel):
     op_name: str
     params: dict[str, t.Any]
 
-    def setup(self, settings: "Settings" | None = None):
+    def setup(self, settings: "Settings"):
         raise NotImplementedError
 
     def run(self, *args: pl.DataFrame | None) -> None:
@@ -230,7 +231,7 @@ class SelectOp(TableOp):
             columns[col_name] = deserialize_operator(col_op)
         return cls(columns=columns)
 
-    def setup(self, settings: Settings | None):
+    def setup(self, settings: Settings):
         for _, col_op in self.columns.items():
             col_op.setup(settings)
         return self

@@ -6,7 +6,7 @@ given some context obtained from doing an embedding search on a corpus of docume
 """
 
 from uptrain.framework import CheckSet, Settings, Check
-from uptrain.io import JsonReader
+from uptrain.operators.io import JsonReader
 from uptrain.operators import (
     UMAP,
     CosineSimilarity,
