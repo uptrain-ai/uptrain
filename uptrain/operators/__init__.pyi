@@ -33,6 +33,8 @@ __all__ = [
     "TextComparison",
     "OpenAIGradeScore",
     "ModelGradeScore",
+    "PromptGenerator",
+    "TextCompletion",
     # io - also include all the subimports
     "io",
     "CsvReader",
@@ -64,6 +66,7 @@ from .language.embedding import Embedding
 from .language.rouge import RougeScore
 from .language.text import DocsLinkVersion, TextLength, TextComparison
 from .language.model_grade import ModelGradeScore, OpenAIGradeScore
+from .language.generation import PromptGenerator, TextCompletion
 
 import io
 from .io.readers import CsvReader, JsonReader, DeltaReader

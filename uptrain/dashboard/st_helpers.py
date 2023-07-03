@@ -6,7 +6,7 @@ import polars as pl
 import pandas as pd
 import plotly.express as px
 
-from uptrain.framework.checks import CheckSet, Check
+from uptrain.framework import CheckSet, Check, Settings
 
 
 # -----------------------------------------------------------
@@ -26,10 +26,16 @@ def st_setup_layout():
     st.markdown(st_style, unsafe_allow_html=True)
 
 
-def read_config(logs_folder: str):
+def read_checkset(logs_folder: str):
     """read the uptrain configuration for this run"""
     config_path = os.path.join(logs_folder, "config.json")
     return CheckSet.deserialize(config_path)
+
+
+def read_settings(logs_folder: str):
+    """read the settings used for this run"""
+    config_path = os.path.join(logs_folder, "settings.json")
+    return Settings.deserialize(config_path)
 
 
 def st_make_check_selector(checkset: "CheckSet"):
@@ -45,13 +51,13 @@ def st_make_check_selector(checkset: "CheckSet"):
     return check
 
 
-def load_data_for_check_local(checkset: "CheckSet", check):
+def load_data_for_check_local(settings: "Settings", check: "Check"):
     from uptrain.operators.io import DeltaWriter, JsonWriter
 
-    sink = checkset._get_sink_for_check(check)
+    sink = CheckSet._get_sink_for_check(settings, check)
     if isinstance(sink, (DeltaWriter, JsonWriter)):
         source = sink.to_reader()
-        source.setup(checkset.settings)
+        source.setup(settings)
     else:
         raise NotImplementedError(f"{type(sink)} is not supported for now.")
     output = source.run()

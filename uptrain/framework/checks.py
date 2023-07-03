@@ -11,6 +11,9 @@ from uptrain.operators.base import *
 from uptrain.utilities import jsonload, jsondump, to_py_types, clear_directory
 from uptrain.framework.base import OperatorDAG, Settings
 
+if t.TYPE_CHECKING:
+    from uptrain.operators import PromptGenerator
+
 __all__ = [
     "Check",
     "CheckSet",
@@ -32,8 +35,6 @@ class Check(Operator):
     name: str
     sequence: list[TableOp]
     plot: list[Operator]
-    _settings: Settings
-    _op_dag: OperatorDAG
 
     def __init__(
         self,
@@ -44,7 +45,6 @@ class Check(Operator):
         self.name = name
         self.sequence = sequence
         self.plot = plot if plot is not None else []
-        self._settings = None  # type: ignore
 
         for op in self.sequence:
             if not isinstance(op, TableOp):
@@ -67,9 +67,6 @@ class Check(Operator):
 
     def run(self, data: pl.DataFrame | None = None) -> pl.DataFrame | None:
         """Run this check on the given data."""
-        if self._settings is None:
-            raise ValueError(f"Must call setup() before running the check: {self.name}")
-
         node_inputs = {"sequence_0": data}
 
         # pick output from the last op in the sequence
@@ -101,30 +98,29 @@ class CheckSet:
 
     Attributes:
         source (Operator): The source operator to run. Specifies where to get the data from.
-        checks (list[Check]): The list of checks to run on the input data.
+        preprocessors (list[TableOp]): A list of operators to run on the input data before running the checks.
+        checks (list[Check]): The set of checks to run on the input data.
     """
 
     source: Operator
     checks: list[Check]
-    _settings: Settings
+    preprocessors: list[TableOp]
 
-    def __init__(self, source: Operator, checks: list[t.Any]):
+    def __init__(
+        self,
+        source: Operator,
+        checks: list[t.Any],
+        preprocessors: list[TableOp] | None = None,
+    ):
         self.source = source
         self.checks = checks
-        check_names = [
-            check.name for check in checks
-        ]  # verify all checks have different names
+        self.preprocessors = preprocessors if preprocessors is not None else []
+
+        # verify all checks have different names
+        check_names = [check.name for check in checks]
         assert len(set(check_names)) == len(check_names), "Duplicate check names"
         for check in checks:
             assert isinstance(check, Check), "Each check must be an instance of Check"
-
-    def _get_sink_for_check(self, check: Check) -> Operator:
-        """Get the sink for the given check."""
-        from uptrain.operators.io import JsonWriter
-
-        return JsonWriter(
-            fpath=os.path.join(self._settings.logs_folder, f"{check.name}.jsonl")
-        )  # type: ignore
 
     def setup(self, settings: Settings):
         """Create the logs directory, or clear it if it already exists. Also, persist the
@@ -136,37 +132,66 @@ class CheckSet:
             os.makedirs(logs_dir)
         else:
             clear_directory(logs_dir)
-        self.serialize(os.path.join(logs_dir, "config.json"))
 
+        # persist the check-set as well as the corresponding settings
+        self.serialize(os.path.join(logs_dir, "config.json"))
+        self._settings.serialize(os.path.join(logs_dir, "settings.json"))
+
+        self.source.setup(self._settings)
+        for preprocessor in self.preprocessors:
+            preprocessor.setup(self._settings)
         for check in self.checks:
             check.setup(self._settings)
-
         return self
 
     def run(self):
         """Run all checks in this set."""
-        self.source.setup(self._settings)
+        from uptrain.operators.io import JsonWriter
+
         source_output = self.source.run()["output"]
+        assert source_output is not None, "Output of source is None"
+
+        if len(self.preprocessors) > 0:
+            for preprocessor in self.preprocessors:
+                source_output = preprocessor.run(source_output)["output"]
+                assert source_output is not None, "Output of preprocessor is None"
+
+            # persist the preprocessed input for debugging
+            JsonWriter(
+                fpath=os.path.join(
+                    self._settings.logs_folder, "preprocessed_input.jsonl"
+                )
+            ).setup(self._settings).run(source_output)
+
         for check in self.checks:
             check_ouptut = check.run(source_output)
+            assert check_ouptut is not None, f"Output of check {check.name} is None"
+            self._get_sink_for_check(self._settings, check).run(check_ouptut)
 
-            sink = self._get_sink_for_check(check)
-            sink.setup(self._settings)
-            sink.run(check_ouptut)
+    @staticmethod
+    def _get_sink_for_check(settings: Settings, check: Check):
+        """Get the sink operator for this check."""
+        from uptrain.operators.io import JsonWriter
+
+        return JsonWriter(
+            fpath=os.path.join(settings.logs_folder, f"{check.name}.jsonl")
+        )
 
     @classmethod
     def from_dict(cls, data: dict) -> "CheckSet":
         return cls(
             source=deserialize_operator(data["source"]),
+            preprocessors=[
+                deserialize_operator(op) for op in data.get("preprocessors", [])
+            ],  # type: ignore
             checks=[deserialize_operator(check) for check in data.get("checks", [])],
-            settings=Settings(**data["settings"]),
         )
 
     def dict(self) -> dict:
         return {
             "source": to_py_types(self.source),
+            "preprocessors": [to_py_types(op) for op in self.preprocessors],
             "checks": [to_py_types(check) for check in self.checks],
-            "settings": to_py_types(self._settings),
         }
 
     @classmethod
@@ -175,6 +200,7 @@ class CheckSet:
             return cls.from_dict(jsonload(f))
 
     def serialize(self, fpath: t.Optional[str] = None):
+        """Serialize this check set along with the run settings to a JSON file."""
         if fpath is None:
             fpath = os.path.join(self._settings.logs_folder, "config.json")
 

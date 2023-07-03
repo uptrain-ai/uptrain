@@ -71,7 +71,7 @@ class LLMExperimentExecutor:
     def run_eval(self) -> None:
         self.cfg.setup()
         for check in self.cfg.checks:
-            results = check.make_executor(self.cfg.settings).run()
+            results = check.make_executor(self.cfg._settings).run()
 
 
 # {

@@ -139,11 +139,9 @@ execution_accuracy_check = Check(
 def get_checkset(source_path):
     # Define the config
     checks = [select_all_check, sql_validity_check, execution_accuracy_check]
-
     return CheckSet(
         source=JsonReader(fpath=source_path),
         checks=checks,
-        settings=Settings(logs_folder=LOGS_DIR),
     )
 
 
@@ -173,8 +171,7 @@ if __name__ == "__main__":
     )
 
     cfg = get_checkset(DATASET_TEXT_TO_SQL)
-    cfg.setup()
-    cfg.run()
+    cfg.setup(SETTINGS).run()
 
     if args.start_streamlit:
         start_streamlit()

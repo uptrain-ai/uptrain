@@ -96,8 +96,6 @@ class ModelGradeScore(ColumnOp):
     choice_strings: list[str]
     choice_scores: dict[str, float]
     context_vars: dict[str, str]
-    _settings: Settings
-    _api_client: "LLMMulticlient"
 
     def setup(self, settings: Settings):
         self._api_client = LLMMulticlient(settings=settings)

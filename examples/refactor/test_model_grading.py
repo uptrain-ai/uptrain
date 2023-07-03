@@ -8,9 +8,9 @@ from uptrain.operators.language import ModelGradeScore, OpenAIGradeScore
 
 
 def produce_dataset_w_context(source_path, sink_path):
+    _settings = Settings()
     source = JsonReader(fpath=source_path)
-    source.setup()
-    data = source.run()["output"]
+    data = source.setup(_settings).run()["output"]
 
     assert data is not None
     # keep size small since we make a lot of openai calls
@@ -18,7 +18,7 @@ def produce_dataset_w_context(source_path, sink_path):
         [pl.lit("gpt-4").alias("model"), pl.lit("context_retrieval").alias("pipeline")]
     ).sample(20)
 
-    JsonWriter(fpath=sink_path).setup().run(data)
+    JsonWriter(fpath=sink_path).setup(_settings).run(data)
 
 
 GRADING_PROMPT_TEMPLATE = """
@@ -116,10 +116,9 @@ if __name__ == "__main__":
     checkset = CheckSet(
         source=JsonReader(fpath=new_dataset_path),
         checks=get_list_checks(),
-        settings=Settings(logs_folder=LOGS_DIR),
     )
-    checkset.setup()
-    checkset.run()
+    settings = Settings(logs_folder=LOGS_DIR)
+    checkset.setup(settings).run()
 
     if args.start_streamlit:
         from uptrain.dashboard import StreamlitRunner

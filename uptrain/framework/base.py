@@ -2,6 +2,7 @@
 """
 
 from __future__ import annotations
+import os
 import typing as t
 
 from loguru import logger
@@ -10,7 +11,7 @@ import polars as pl
 from pydantic import BaseSettings, Field
 
 from uptrain.operators.base import *
-from uptrain.utilities import to_py_types
+from uptrain.utilities import to_py_types, jsondump, jsonload
 
 __all__ = [
     "OperatorDAG",
@@ -36,6 +37,19 @@ class Settings(BaseSettings):
         if value is None:
             raise ValueError(f"Expected value for {key} to be present in the settings.")
         return value
+
+    def serialize(self, fpath: str | None = None):
+        """Serialize the settings to a json file."""
+        if fpath is None:
+            fpath = os.path.join(self.logs_folder, "settings.json")
+        with open(fpath, "w") as f:
+            jsondump(self.dict(), f)
+
+    @classmethod
+    def deserialize(cls, fpath: str):
+        """Deserialize the settings from a json file."""
+        with open(fpath, "r") as f:
+            return cls(**jsonload(f))
 
 
 class OperatorDAG:

@@ -17,7 +17,7 @@ from uptrain.operators.language.llm import LLMMulticlient, Payload
 
 
 @register_op
-class PromptExperiment(TableOp):
+class PromptGenerator(TableOp):
     """Operator to generate text given different prompts/LLM-input-parameters.
 
     Attributes:
@@ -28,6 +28,7 @@ class PromptExperiment(TableOp):
         models (list[str]): A list of models to run the experiment on.
         context_vars (Union[list[str], dict[str, str]]): A dictionary mapping context variable names to corresponding
             columns in the input dataset.
+        col_out_prefix (str): Prefix for the output columns.
 
     """
 
@@ -35,7 +36,7 @@ class PromptExperiment(TableOp):
     prompt_params: dict[str, list[str]]
     models: list[str]
     context_vars: t.Union[list[str], dict[str, str]]
-    _settings: Settings
+    col_out_prefix: str = "exp_"
 
     def setup(self, settings: "Settings"):
         self._settings = settings
@@ -53,8 +54,8 @@ class PromptExperiment(TableOp):
             list_params.append(
                 {
                     "template": self.prompt_template,
-                    "exp_model": model,
-                    **variables,
+                    self.col_out_prefix + "model": model,
+                    **{self.col_out_prefix + k: v for k, v in variables.items()},
                 }
             )
         params_dataset = pl.DataFrame(list_params)
@@ -68,39 +69,45 @@ class PromptExperiment(TableOp):
         prompts = []
         for row in input_dataset.iter_rows(named=True):
             fill = {k: row[v] for k, v in self.context_vars.items()}
-            fill.update({k: row[k] for k in self.prompt_params.keys()})
+            fill.update(
+                {k: row[self.col_out_prefix + k] for k in self.prompt_params.keys()}
+            )
             prompt = row["template"].format(**fill)
             prompts.append(prompt)
-        input_w_prompts = input_dataset.with_columns([pl.Series("exp_prompt", prompts)])
 
-        # get text completions for each row
-        op_completion = TextCompletion(
-            col_in_prompt="exp_prompt", col_in_model="exp_model"
+        input_w_prompts = input_dataset.with_columns(
+            [pl.Series(self.col_out_prefix + "prompt", prompts)]
         )
-        completions = op_completion.setup(self._settings).run(input_w_prompts)["output"]
-        assert completions is not None
-        return {
-            "output": input_w_prompts.with_columns([completions.alias("exp_generated")])
-        }
+        return {"output": input_w_prompts}
+
+        # # get text completions for each row
+        # op_completion = TextCompletion(
+        #     col_in_prompt="exp_prompt", col_in_model="exp_model"
+        # )
+        # completions = op_completion.setup(self._settings).run(input_w_prompts)["output"]
+        # assert completions is not None
+        # return {
+        #     "output": input_w_prompts.with_columns([completions.alias("exp_generated")])
+        # }
 
 
 @register_op
-class TextCompletion(ColumnOp):
+class TextCompletion(TableOp):
     """
-    Take a prompt template, parameters to vary and generate output text
-    by calling an LLM.
+    Takes a table of prompts and LLM model to use, generates output text.
 
     Attributes:
         col_in_prompt (str): The name of the column containing the prompt template.
         col_in_model (str): The name of the column containing the model name.
+        col_out_completion (str): The name of the column containing the generated text.
 
     Returns:
-        TYPE_COLUMN_OUTPUT: A dictionary containing the output text.
-
+        TYPE_TABLE_OUTPUT: A dictionary containing the dataset with the output text.
     """
 
     col_in_prompt: str = "prompt"
     col_in_model: str = "model"
+    col_out_completion: str = "generated"
     _api_client: LLMMulticlient
 
     def setup(self, settings: Settings):
@@ -117,7 +124,7 @@ class TextCompletion(ColumnOp):
             metadata={"index": id},
         )
 
-    def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         prompt_ser = data.get_column(self.col_in_prompt)
         model_ser = data.get_column(self.col_in_model)
         input_payloads = [
@@ -144,4 +151,6 @@ class TextCompletion(ColumnOp):
         output_text = pl.Series(
             values=[val for _, val in sorted(results, key=lambda x: x[0])]
         )
-        return {"output": output_text}
+        return {
+            "output": data.with_columns([output_text.alias(self.col_out_completion)])
+        }

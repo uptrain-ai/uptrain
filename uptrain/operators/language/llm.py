@@ -68,7 +68,7 @@ async def async_process_payload(
                         openai.error.Timeout,
                     ),
                 ):
-                    await asyncio.sleep(5)
+                    await asyncio.sleep(3)
                 else:
                     break
 
