@@ -1,10 +1,10 @@
-
 from pydantic import BaseModel
 import typing as t
 import polars as pl
 
 from uptrain.framework.signal import Signal
-from uptrain.framework.checks import SimpleCheck, Settings
+from uptrain.framework.checks import Check, Settings
+
 
 class ValidationManager(BaseModel):
     check: t.Any
@@ -20,9 +20,9 @@ class ValidationManager(BaseModel):
             inputs[key] = [inputs[key]]
         response_is_valid = False
         num_tries = 0
-        while(not response_is_valid):
+        while not response_is_valid:
             response = self.completion_fn(inputs)
-            inputs['response'] = [response]
+            inputs["response"] = [response]
             data = pl.from_dict(inputs)
             data = self.check.run(data)
             response_is_valid = self.pass_condition.run(data)[0]
@@ -32,10 +32,3 @@ class ValidationManager(BaseModel):
                 response_is_valid = True
 
         return response
-
-
-
-
-
-
-

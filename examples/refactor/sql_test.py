@@ -1,8 +1,13 @@
 import os
-from uptrain.framework import CheckSet, Settings, SimpleCheck
+from uptrain.framework import CheckSet, Settings, Check
 from uptrain.io import JsonReader, JsonWriter
 
-from uptrain.operators.language.sql import ParseSQL, ValidateTables, ExecuteAndCompareSQL, ParseCreateStatements
+from uptrain.operators.language.sql import (
+    ParseSQL,
+    ValidateTables,
+    ExecuteAndCompareSQL,
+    ParseCreateStatements,
+)
 
 from uptrain.operators import PlotlyChart, SelectOp
 
@@ -18,17 +23,21 @@ LOGS_DIR = "/tmp/uptrain_logs"
 def __read_schema_definition(schema_name, spider_dataset_path) -> (str, str, str):
     # List to store all CREATE TABLE statements
     create_table_statements = []
-    db_path = os.path.join(spider_dataset_path, f'database/{schema_name}/{schema_name}.sqlite')
+    db_path = os.path.join(
+        spider_dataset_path, f"database/{schema_name}/{schema_name}.sqlite"
+    )
 
-    with open(os.path.join(spider_dataset_path, f'database/{schema_name}/schema.sql'), 'r') as file:
+    with open(
+        os.path.join(spider_dataset_path, f"database/{schema_name}/schema.sql"), "r"
+    ) as file:
         content = file.read()
 
         # SQL statements are separated by ';'
-        statements = content.split(';')
+        statements = content.split(";")
 
         # Create table statements
         for statement in statements:
-            if statement.upper().strip().startswith('CREATE TABLE'):
+            if statement.upper().strip().startswith("CREATE TABLE"):
                 create_table_statements.append(statement.strip())
 
     return ";\n\n".join(create_table_statements), db_path
@@ -43,22 +52,26 @@ def produce_dataset_w_spider_schema(source_path, sink_path, spider_dataset_path)
     data = source.run()["output"]
 
     schema_names = data.get_column("schema")
-    results = [__read_schema_definition(schema_name, spider_dataset_path) for schema_name in schema_names]
+    results = [
+        __read_schema_definition(schema_name, spider_dataset_path)
+        for schema_name in schema_names
+    ]
     schemas = [result[0] for result in results]
     db_paths = [result[1] for result in results]
-    data = data.with_columns([pl.Series("schema_def", schemas), pl.Series("db_path", db_paths)])
+    data = data.with_columns(
+        [pl.Series("schema_def", schemas), pl.Series("db_path", db_paths)]
+    )
 
     JsonWriter(fpath=sink_path).run(data)
 
 
-select_all_check = SimpleCheck(
+select_all_check = Check(
     name="Query has star symbol",
     sequence=[
         SelectOp(
             columns={
                 "has_star_symbol_in_query": KeywordDetector(
-                    col_in_text="response",
-                    keyword="*"
+                    col_in_text="response", keyword="*"
                 ),
             }
         )
@@ -66,12 +79,14 @@ select_all_check = SimpleCheck(
     plot=[
         PlotlyChart.Histogram(
             title="Distribution: Generated SQL query has '*' symbol",
-            props=dict(x="has_star_symbol_in_query", nbins=2, color='model', barmode='group'),
+            props=dict(
+                x="has_star_symbol_in_query", nbins=2, color="model", barmode="group"
+            ),
         )
     ],
 )
 
-sql_validity_check = SimpleCheck(
+sql_validity_check = Check(
     name="Validate SQL",
     sequence=[
         ParseCreateStatements(
@@ -81,37 +96,41 @@ sql_validity_check = SimpleCheck(
         ParseSQL(
             col_in_sql="response",
             col_out_tables="response_tables",
-            col_out_is_valid_sql="is_sql_valid"
+            col_out_is_valid_sql="is_sql_valid",
         ),
-        ValidateTables(col_in_response_tables="response_tables",
-                       col_in_schema_tables="schema_tables",
-                       col_out_is_tables_valid="tables_valid",
-                       col_out_is_cols_valid="cols_valid")
+        ValidateTables(
+            col_in_response_tables="response_tables",
+            col_in_schema_tables="schema_tables",
+            col_out_is_tables_valid="tables_valid",
+            col_out_is_cols_valid="cols_valid",
+        ),
     ],
     plot=[
         PlotlyChart.Histogram(
             title="Distribution: Generated SQL query is valid - column names",
-            props=dict(x="cols_valid", nbins=2, color='model', barmode='group'),
+            props=dict(x="cols_valid", nbins=2, color="model", barmode="group"),
         ),
         PlotlyChart.Histogram(
             title="Distribution: Generated SQL query is valid - table names",
-            props=dict(x="tables_valid", nbins=2, color='model', barmode='group'),
+            props=dict(x="tables_valid", nbins=2, color="model", barmode="group"),
         ),
     ],
 )
 
-execution_accuracy_check = SimpleCheck(
+execution_accuracy_check = Check(
     name="Generated SQL query execution accuracy",
     sequence=[
-        ExecuteAndCompareSQL(col_in_response_sql="response",
-                             col_in_gt_sql="gt_query",
-                             col_in_db_path="db_path",
-                             col_out_execution_accuracy="execution_accuracy")
+        ExecuteAndCompareSQL(
+            col_in_response_sql="response",
+            col_in_gt_sql="gt_query",
+            col_in_db_path="db_path",
+            col_out_execution_accuracy="execution_accuracy",
+        )
     ],
     plot=[
         PlotlyChart.Histogram(
             title="Distribution: SQL execution gives correct results",
-            props=dict(x="execution_accuracy", nbins=2, color='model', barmode='group'),
+            props=dict(x="execution_accuracy", nbins=2, color="model", barmode="group"),
         ),
     ],
 )

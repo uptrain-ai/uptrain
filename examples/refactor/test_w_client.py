@@ -5,7 +5,7 @@ The dataset comes from a QnA task where the objective is to answer a question,
 given some context obtained from doing an embedding search on a corpus of documents. 
 """
 
-from uptrain.framework import CheckSet, Settings, SimpleCheck
+from uptrain.framework import CheckSet, Settings, Check
 from uptrain.io import JsonReader
 from uptrain.operators import (
     UMAP,
@@ -21,7 +21,7 @@ from uptrain.operators.language import (
 
 # Create the check-set object that lists the checks to run
 def get_list_checks():
-    check_1 = SimpleCheck(
+    check_1 = Check(
         name="scores",
         sequence=[
             SelectOp(
@@ -38,7 +38,7 @@ def get_list_checks():
         ],
         plot=[PlotlyChart.Table(title="All scores")],
     )
-    check_2 = SimpleCheck(
+    check_2 = Check(
         name="question_umap",
         sequence=[
             UMAP(
@@ -53,7 +53,7 @@ def get_list_checks():
             )
         ],
     )
-    check_3 = SimpleCheck(
+    check_3 = Check(
         name="distribution-embeddings",
         sequence=[
             Distribution(

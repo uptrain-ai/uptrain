@@ -1,5 +1,5 @@
 import os
-from uptrain.framework import CheckSet, Settings, SimpleCheck
+from uptrain.framework import CheckSet, Settings, Check
 from uptrain.operators import (
     PlotlyChart,
     Distribution,
@@ -46,7 +46,7 @@ def get_checkset(source_path):
     checks = []
 
     checks.append(
-        SimpleCheck(
+        Check(
             name="distribution_of_document_embeddings",
             sequence=[
                 Distribution(
@@ -70,7 +70,7 @@ def get_checkset(source_path):
     )
 
     checks.append(
-        SimpleCheck(
+        Check(
             name="text_overlap_between_documents",
             sequence=[
                 Distribution(
@@ -90,7 +90,7 @@ def get_checkset(source_path):
     )
 
     checks.append(
-        SimpleCheck(
+        Check(
             name="quality_scores",
             sequence=[
                 SelectOp(
@@ -132,7 +132,7 @@ def get_checkset(source_path):
     )
 
     checks.append(
-        SimpleCheck(
+        Check(
             name="question_umap",
             sequence=[
                 UMAP(

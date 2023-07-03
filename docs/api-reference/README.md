@@ -95,7 +95,7 @@ Say we want to check whether our model's responses contain any grammatical mista
 # and api_keys
 
 checkset = CheckSet(
-    checks = SimpleCheck(
+    checks = Check(
         name = "grammar_score",
         sequence = [
             SelectOp(

@@ -112,7 +112,7 @@ As we notice from our prompt, our model gives us empty responses for certain cas
 Let's define a "simple check"(uptrain tool) to evaluate if the model response is empty or not. We utilize the pre-built TextComparison operator for the same. After running this on our input data a new variable called 'is_empty_response' is created.
 
 ```python
-from uptrain.framework import SimpleCheck, Signal
+from uptrain.framework import Check, Signal
 from uptrain.operators import (
     SelectOp,
 )
@@ -121,7 +121,7 @@ from uptrain.operators.language import (
 )
 from validation_wrapper import ValidationManager
 
-check = SimpleCheck(
+check = Check(
         name="empty_response_validation",
         sequence=[
             SelectOp(

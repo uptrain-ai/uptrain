@@ -6,7 +6,7 @@ import polars as pl
 import pandas as pd
 import plotly.express as px
 
-from uptrain.framework.checks import CheckSet, SimpleCheck
+from uptrain.framework.checks import CheckSet, Check
 
 
 # -----------------------------------------------------------

@@ -13,13 +13,13 @@ from uptrain.utilities import jsonload, jsondump, to_py_types, clear_directory
 from uptrain.framework.base import OperatorDAG, Settings
 
 __all__ = [
-    "SimpleCheck",
+    "Check",
     "CheckSet",
 ]
 
 
 @register_op
-class SimpleCheck(Operator):
+class Check(Operator):
     """A simple check that runs the given list of table operators in sequence.
 
     Attributes:
@@ -49,7 +49,7 @@ class SimpleCheck(Operator):
 
         for op in self.sequence:
             if not isinstance(op, TableOp):
-                raise ValueError(f"SimpleCheck compute ops must be TableOps, got {op}")
+                raise ValueError(f"Check compute ops must be TableOps, got {op}")
 
     def setup(self, settings: "Settings"):
         self._settings = settings
@@ -90,7 +90,7 @@ class SimpleCheck(Operator):
         }  # serializes only the attributes of the class, like pydantic models
 
     @classmethod
-    def from_dict(cls, data: dict) -> "SimpleCheck":
+    def from_dict(cls, data: dict) -> "Check":
         """Deserialize a check from a dict of its parameters."""
         sequence = [deserialize_operator(op) for op in data["sequence"]]
         plot = [deserialize_operator(op) for op in data["plot"]]
@@ -102,13 +102,13 @@ class CheckSet:
 
     Attributes:
         source (Operator): The source operator to run. Specifies where to get the data from.
-        checks (list[SimpleCheck]): The list of checks to run on the input data.
+        checks (list[Check]): The list of checks to run on the input data.
         settings (Settings): Settings to run this check set with.
-        
+
     """
 
     source: Operator
-    checks: list[SimpleCheck]
+    checks: list[Check]
     settings: Settings
 
     def __init__(self, source: Operator, checks: list[t.Any], settings: Settings):
@@ -121,11 +121,9 @@ class CheckSet:
         ]  # verify all checks have different names
         assert len(set(check_names)) == len(check_names), "Duplicate check names"
         for check in checks:
-            assert isinstance(
-                check, SimpleCheck
-            ), "Each check must be an instance of SimpleCheck"
+            assert isinstance(check, Check), "Each check must be an instance of Check"
 
-    def _get_sink_for_check(self, check: SimpleCheck) -> Operator:
+    def _get_sink_for_check(self, check: Check) -> Operator:
         """Get the sink for the given check."""
         from uptrain.io.writers import JsonWriter
 

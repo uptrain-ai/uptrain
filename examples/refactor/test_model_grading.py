@@ -1,7 +1,7 @@
 import os
 import polars as pl
 
-from uptrain.framework import CheckSet, Settings, SimpleCheck
+from uptrain.framework import CheckSet, Settings, Check
 from uptrain.io import JsonReader, JsonWriter
 from uptrain.operators import PlotlyChart, SelectOp
 from uptrain.operators.language import ModelGradeScore, OpenAIGradeScore
@@ -80,7 +80,7 @@ def get_list_checks():
             },
         )
 
-    check = SimpleCheck(
+    check = Check(
         name="Model grade scores",
         sequence=[SelectOp(columns=column_to_ops)],
         plot=[
