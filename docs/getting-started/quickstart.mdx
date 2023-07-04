@@ -3,38 +3,114 @@ title: "Quickstart ⚡️"
 description: "Get started with UpTrain in a few simple steps"
 ---
 
-To run it in your machine, follow the steps below:
+### Install the package 
 
-### Install the package through pip
+Using [full] will install the UpTrain package with all its dependencies
+
 ```bash
-pip install uptrain
+pip install uptrain[full]
 ```
 
-### Define your checks
-Say we want to check whether our model's responses contain any grammatical mistakes or not.
+
+### Define your requirement
+
+There are many ways you can use UpTrain. You can set it up based on your requirements. 
+
+Let's say we asked a Large Language Model like ChatGPT to generate responses for given inputs and stored them in a CSV spreadsheet called "responses.csv". Now, we want to do the following:
+
+1. Check the grammatical correctness of the generated responses.
+2. Calculate the length of each response.
+
+
+### Choose and create Operators
+
+An [Operator](https://uptrain-ai.github.io/uptrain/operators/ColumnExpand) runs a function on a given column of data and returns the result in a new column.
+
+In our case, we clearly want to use the `GrammarScore` and `TextLength` Operators. So, we will create them by specifying the input and output coloumn names as follows:
 
 ```python
-# Define your checkset - list of simple checks, dataset file, and api_keys
+from uptrain.operators.language import GrammarScore, TextLength
 
-checkset = CheckSet(
-    checks = Check(
-        name = "grammar_score",
-        sequence = [
-            SelectOp(
-                columns = {
-                    "grammar_score": GrammarScore(
-                        col_in_text = "model_response",
-                        col_out = "grammar_score"
-                    ),
-                }
-            )
-        ],
-        plot = PlotlyChart.Table(title="Grammar scores"),
-    ),
-    source = JsonReader(fpath = '...'),
-    settings = Settings(openai_api_key = '...')
+grammar_score = GrammarScore(
+    col_in_text = "model_response",
+    col_out = "grammar_correctness_score"
 )
 
-checkset.setup()
-checkset.run()
+text_length = TextLength(
+    col_in_text = "model_response",
+    col_out = "response_length"
+)
+```
+
+
+### Create the Checks
+
+A [Check](https://uptrain-ai.github.io/uptrain/framework/Check) runs the given list of operators in the order in which they are specified by the user. We will create a `Check` with the Operators we created above. We will also specify how we want to visualize the results. 
+
+```python
+from uptrain import Check
+response_analysis = Check(
+    name = "response_analysis"
+    operators = [grammar_score, text_length],
+    plots = [Table(), Histogram(x = "response_length", y = "grammar_correctness_score")]
+)
+```
+
+Here, we show a table with all the columns and a histogram that depicts the relationship between the length of the responses and their grammatical correctness. 
+You can create more than one `Check`, but for the sake of simplicity, we will just create one.
+
+
+### Configure the Settings
+
+We need to tell UpTrain where we want our results to be stored (logs_folder). Since, the `GrammarScore` uses OpenAI's API, we also need to specify an API key. You can get your API key from [here](https://platform.openai.com/account/api-keys).
+
+We configure the settings for our checks as follows:
+
+```python
+from uptrain.framework import Settings
+
+uptrain_settings = Settings(
+    logs_folder = "/tmp/uptrain_logs",
+    openai_api_key = "YOUR_API_KEY"
+)
+```
+
+
+### Create a CheckSet
+
+You can create as many `Check`s as you want and add them to a [CheckSet](https://uptrain-ai.github.io/uptrain/framework/CheckSet). It will run all the `Check`s and you can view them individually. For now, we just add the response_analysis `Check` we created above. 
+
+Here, we use UpTrain's `CsvReader` to read the content from our CSV file containing the responses.
+
+```python
+from uptrain.framework import CheckSet
+from uptrain.io.readers import CsvReader
+
+check_set = CheckSet(
+    checks = [grammar_check],
+    source = CsvReader(fpath = "responses.csv"),
+    settings = uptrain_settings
+)
+```
+
+
+### Set up and run the CheckSet
+
+Now, we will set up the `CheckSet` and run it. 
+
+```python
+check_set.setup()
+check_set.run()
+```
+
+
+### Visualize the results
+
+Finally, we use UpTrain's `StreamlitRunner` to visualize the results. 
+
+```python
+from uptrain.dashboard import StreamlitRunner
+
+st_runner = StreamlitRunner(LOGS_DIR)
+st_runner.start()
 ```
