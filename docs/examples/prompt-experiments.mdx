@@ -7,18 +7,19 @@ desctription: How to use UpTrain to experiment with multiple prompts
 **Overview**: In this example, we will see how to experiment with multiple prompts using UpTrain, to select which one works best for the given use case. The experimentation is done by defining multiple prompt templates along with a test dataset, utilizing UpTrain to compute model responses for them, and running a variety of evaluations to compare them quantitatively. We will use a Q&A task as an example to highlight the same.
 
 
-**Why evaluate prompts**: LLM outputs are highly sensitive to the prompt provided. Trivial changes to the prompt such as assigning a personality to the LLM by prefixing the prompt with "Imagine you are a CEO/Writer scientist etc.", can generate widely different responses, thus impacting the overall application's performance. Hence, it becomes crucial to test multiple prompts over a wide variety of cases to find the one best suited for the application.
+**Why evaluate prompts**: LLM outputs are highly sensitive to the prompt provided. Trivial changes to the prompt such as assigning a personality to the LLM by prefixing the prompt with "Imagine you are a CEO/Writer/Scientist etc." can generate widely different responses. This difference impacts the overall application's performance, making it crucial to test multiple prompts over cases to find the one best suited for the application.
 
 
 **Problem**: The workflow of our hypothetical Q&A application goes like,
-- User enters a natural language query. 
-- The query is converted to an embedding, and relevant sections from the documentation are retrieved using nearest neighbor search. 
-- The original query along with the retrieved sections is passed to a language model (LM), along with a custom prompt to generate a response. 
+- The user enters a question. 
+- The question is converted to a vector encoding.
+- Relevant sections from the documentation are retrieved using a vector database. 
+- The question and the retrieved sections are inserted into a custom prompt and passed to a language model (LM) to generate a response. 
 
-The goal is to find the best prompt which answers the user query. In the given tutorial, we consider a prompt template with LLM_PERSONALITY as a variable and using the experimentation framework to find the best personality to fill in.
+The goal is to find the best prompt which answers the user's question.
 
 
-**Solution**: We demonstrate how to use the Uptrain framework to first obtain output responses for a test set of queries. We then evaluate the quality of the responses on some specified metrics.
+**Solution**: In the given tutorial, we consider a prompt template with LLM_PERSONALITY as a variable and using the experimentation framework to find the best personality to fill in. We demonstrate how to use the Uptrain framework to first obtain output responses for a test set of queries. We then evaluate the quality of the responses on some specified metrics.
 
 ## Install required packages
 
@@ -26,16 +27,21 @@ The goal is to find the best prompt which answers the user query. In the given t
 pip install uptrain[full] # Install UpTrain with all dependencies
 ```
 
-#### Make sure to define openai_api_key
-
 ```python
 import os
-os.environ['OPENAI_API_KEY'] = "..."
+import tempfile
+
 import polars as pl
-import numpy as np
-import json
 from loguru import logger
-logger.remove()
+
+logger.remove() # if you are getting errors, comment this line out and retry
+TEMP_DIR = tempfile.gettempdir()
+```
+
+**This notebook uses the OpenAI API to generate text for prompts, make sure the env variable is populated.**
+
+```python
+# os.environ["OPENAI_API_KEY"] = "..."
 ```
 
 # Let's first define our prompts and model
@@ -58,24 +64,27 @@ As we see from above prompt, we have an additional variable in our prompt called
 Just for clarity, let's see how these prompts look like:
 
 ```python
-print("prompt_bot: ", prompt_base.replace("{LLM_PERSONALITY}",'bot'), "\n")
-print("prompt_developer: ", prompt_base.replace("{LLM_PERSONALITY}",'backend developer'))
-print("prompt_expert: ", prompt_base.replace("{LLM_PERSONALITY}",'python expert'))
+print("prompt_bot: ", prompt_base.replace("{LLM_PERSONALITY}", "bot"))
+print("prompt_developer: ", prompt_base.replace("{LLM_PERSONALITY}", "backend developer"))
+print("prompt_expert: ", prompt_base.replace("{LLM_PERSONALITY}", "python expert"))
 ```
 
 Let's now load our dataset and see how that looks
 
 ```python
 url = "https://oodles-dev-training-data.s3.us-west-1.amazonaws.com/qna-streamlit-docs.jsonl"
-dataset_path = os.path.join("datasets", "qna-notebook-data.jsonl")
+dataset_path = os.path.join(TEMP_DIR, "qna-notebook-data.jsonl")
 
 if not os.path.exists(dataset_path):
     import httpx
+
     r = httpx.get(url)
     with open(dataset_path, "wb") as f:
         f.write(r.content)
 
-dataset = pl.read_ndjson(dataset_path).select(pl.col(['question', 'document_title', 'document_text']))
+dataset = pl.read_ndjson(dataset_path).select(
+    pl.col(["question", "document_title", "document_text"])
+)
 print("Number of test cases: ", len(dataset))
 print("Couple of samples: ", dataset[0:2])
 ```
@@ -83,29 +92,14 @@ print("Couple of samples: ", dataset[0:2])
 # Using UpTrain Framework to compare multiple prompts
 
 
-Now that we have multiple prompts, let's define our checks to compare which one performs best. As our prompt explicitly asks the LLM to answer the given question using sections from document text only, we are defining a hallucination check which uses (Rouge score)[https://en.wikipedia.org/wiki/ROUGE_(metric)] between the input document text and LLM response.
+We start by configuring UpTrain to run our experiment. We will be using OpenAI's GPT-3.5-Turbo as our LLM. 
 
-```python
-from uptrain.operators import SelectOp
-from uptrain.operators.language import RougeScore
-
-hallucination_check = SelectOp(
-    columns={
-        "overlap_score": RougeScore(
-            col_in_generated="exp_generated", col_in_source="document_text", score_type='precision'
-        )
-    }
-)
-```
-
-Let's now configure UpTrain to run our experiment. We will be using OpenAI's GPT-3.5-Turbo as our LLM.
-
-Let's define an UpTrain 'Settings' object which has the directory location where we want to save the results of this experiment.
+Let's define an UpTrain 'Settings' object which has the directory location where we want to save the results of this experiment. Note that you must have `OPENAI_API_KEY` specified in your env variables or specify it explicitiy in the `Settings` object. 
 
 ```python
 from uptrain.framework import Settings
 
-UPTRAIN_LOGS_DIR = os.path.join("uptrain_prompt_experiments", "logs")
+UPTRAIN_LOGS_DIR = os.path.join(TEMP_DIR, "uptrain_prompt_experiments")
 os.makedirs(UPTRAIN_LOGS_DIR, exist_ok=True)
 
 UPTRAIN_SETTINGS = Settings(logs_folder=UPTRAIN_LOGS_DIR)
@@ -114,35 +108,85 @@ UPTRAIN_SETTINGS = Settings(logs_folder=UPTRAIN_LOGS_DIR)
 ### Compute LLM responses for all the three prompts
 
 
-To generate model responses, UpTrain provides a PromptExperiment class where one can define their prompt template, multiple parameters to generate different prompt variations and the LLM model to be used
+Now that we have multiple prompts, let's define our checks to compare which one performs best. As our prompt explicitly asks the LLM to answer the given question using sections from document text only, we are defining a hallucination check which uses [Rouge score](https://en.wikipedia.org/wiki/ROUGE_(metric)) between the input document text and LLM response.
 
 ```python
-from uptrain.operators.language import PromptExperiment
-response_generation = PromptExperiment(
-    prompt_template=prompt_base,
-    prompt_params={
-        "LLM_PERSONALITY": ["bot", "backend developer", "python expert"]
-    },
-    models=["gpt-3.5-turbo"],
-    context_vars=["question", "document_title", "document_text"]
+from uptrain.framework import Check, CheckSet
+from uptrain.operators import PlotlyChart, RougeScore, SelectOp
+
+hallucination_check = Check(
+    name="hallucination",
+    sequence=[
+        SelectOp(
+            columns={
+                "overlap_score": RougeScore(
+                    col_in_generated="exp_generated",
+                    col_in_source="document_text",
+                    score_type="precision",
+                )
+            }
+        )
+    ],
+    plot=[
+        PlotlyChart.Histogram(
+            props=dict(x="overlap_score", nbins=20, color="exp_LLM_PERSONALITY")
+        ),
+        PlotlyChart.Table(title="Hallucination scores"),
+    ],
 )
-
-dataset_w_generations = response_generation.setup(UPTRAIN_SETTINGS).run(dataset)["output"]
-dataset_w_generations = dataset_w_generations.filter(pl.col("exp_generated").is_not_null())
-output_df = hallucination_check.setup(UPTRAIN_SETTINGS).run(dataset_w_generations)["output"]
-print(output_df)
 ```
 
-Let's do some pivoting operations to see which of the experiments have highest overlap score
+To create multiple prompts from te same prompt template, UpTrain provides a PromptExperiment class where one can define their prompt template, multiple parameters to generate different prompt variations and the LLM model to be used. 
 
 ```python
-print(output_df.to_pandas().pivot_table(index=['exp_model'], columns=['LLM_PERSONALITY'], values='overlap_score', aggfunc=np.mean))
+from uptrain.operators import JsonReader, PromptGenerator, TextCompletion
+
+check_set = CheckSet(
+    source=JsonReader(fpath=dataset_path),
+    preprocessors=[
+        PromptGenerator(
+            prompt_template=prompt_base,
+            prompt_params={
+                "LLM_PERSONALITY": ["bot", "backend developer", "python expert"]
+            },
+            models=["gpt-3.5-turbo"],
+            context_vars=["question", "document_title", "document_text"],
+        ),
+        TextCompletion(
+            col_in_prompt="exp_prompt",
+            col_in_model="exp_model",
+            col_out_completion="exp_generated",
+        ),
+    ],
+    checks=[hallucination_check],
+)
 ```
 
-We can further visualize the data using plotly charts
+Now we run the `CheckSet` and see which prompts performs best.
 
 ```python
-import plotly.express as px
-fig = px.histogram(output_df.to_pandas(), x="overlap_score", nbins=20, color="LLM_PERSONALITY")
-fig.show()
+check_set.setup(UPTRAIN_SETTINGS).run()
 ```
+
+We can now start the Streamlit dashboard to visualize the evaluation results. 
+
+```python
+from uptrain.dashboard import StreamlitRunner
+
+runner = StreamlitRunner(UPTRAIN_LOGS_DIR)
+runner.start()
+```
+
+### Visualizing the evaluation results
+
+
+UpTrain offers pivoting options for table. Here, we use this to find out which of the three personalities has the highest overlap scores.
+
+
+![prompt_experiment_pivot_table.png](attachment:51e75410-2165-495b-b294-7ba8c9dd4902.png)
+
+
+Alternatively, we could look at the distribution of hallucination scores across different prompt parameters. 
+
+
+![prompt_experiment_plot.png](attachment:6c766044-7b50-4e19-a0c0-067390c2f13f.png)
