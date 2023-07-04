@@ -14,7 +14,7 @@
 <!-- -
 <a href="https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing/" rel="nofollow"><strong>Try it out</strong></a> -->
 -
-<a href="https://discord.com/invite/gVvZhhrQaQ/" rel="nofollow"><strong>Discord Community</strong></a>
+<a href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg" rel="nofollow"><strong>Slack Community</strong></a>
 -
 <a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=bug&template=bug_report.md&title=" rel="nofollow"><strong>Bug Report</strong></a>
 -
@@ -31,7 +31,7 @@
   <a href="https://docs.uptrain.ai/docs/">
     <img src="https://img.shields.io/badge/Read-Docs-brightgreen" alt="Docs" />
   </a>
-  <a href="https://discord.com/invite/gVvZhhrQaQ">
+  <a href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg">
     <img src="https://img.shields.io/badge/Discord-Community-orange" alt="Community" />
   </a>
   <a href="https://uptrain.ai/">
@@ -80,7 +80,7 @@
 
 <!-- You can quickly get started with [Google Colab here](https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing%2F). -->
 
-To run it in your machine, follow the steps below:
+To run it on your machine, follow the steps below:
 
 ### Install the package through pip:
 ```bash
@@ -148,14 +148,14 @@ You can use the UpTrain framework to continuously monitor your model's performan
 
 # Why UpTrain 🤔?
 
-Large language models are trained over billions of data-points and perform really well over a wide variety of tasks. But one thing these models are not good at, is being deterministic. Even with the most well-crafted prompts, the model can misbehave for certain inputs, be it hallucinations, wrong output structure, toxic or biased response, irrelevant response, error modes can be immense. 
+Large language models are trained over billions of data points and perform really well over a wide variety of tasks. But one thing these models are not good at is being deterministic. Even with the most well-crafted prompts, the model can misbehave for certain inputs, be it hallucinations, wrong output structure, toxic or biased response, irrelevant response, and error modes can be immense. 
 
-To ensure your LLM applications work reliably and correctly, UpTrain makes it easy for developers to evaluate the responses of their applications on multiple criterion. UpTrain's evaluation framework can be used to:
+To ensure your LLM applications work reliably and correctly, UpTrain makes it easy for developers to evaluate the responses of their applications on multiple criteria. UpTrain's evaluation framework can be used to:
 
 1) Validate (and correct) the response of the model before showing it to the user
 2) Get quantitative measures to experiment across multiple prompts, model providers, etc.
 3) Do unit testing to ensure no buggy prompt or code gets pushed into your production
-4) Monitor your LLM applications in real-time and understand when they are going wrong in order to fix them before users complain.
+4) Monitor your LLM applications in real time and understand when they are going wrong in order to fix them before users complain.
 
 We are constantly working to make UpTrain better. Want a new feature or need any integrations? Feel free to [create an issue](https://github.com/uptrain-ai/uptrain/issues) or [contribute](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md) directly to the repository.
 
