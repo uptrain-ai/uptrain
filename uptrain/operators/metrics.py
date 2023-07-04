@@ -28,7 +28,7 @@ class Accuracy(ColumnOp):
     Example:
         ```
         from uptrain.operators import Accuracy
-        from uptrain.io.readers import CsvReader
+        from uptrain.operators.io import CsvReader
 
         # Create an instance of the Accuracy operator
         op = Accuracy(
@@ -47,7 +47,7 @@ class Accuracy(ColumnOp):
         # Print the accuracy scores
         print(accuracy_scores)
         ```
-        
+
     Output:
         ```
         shape: (3,)
@@ -65,7 +65,7 @@ class Accuracy(ColumnOp):
     col_in_prediction: str = "prediction"
     col_in_ground_truth: str = "ground_truth"
 
-    def setup(self, _: t.Optional[Settings] = None):
+    def setup(self, settings: Settings):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:

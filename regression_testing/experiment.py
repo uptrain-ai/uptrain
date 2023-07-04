@@ -8,7 +8,7 @@ import numpy as np
 
 from uptrain.operators.language.openai_evals import PromptEval, OpenaiEval
 from uptrain.framework.checks import CheckSet, Settings, Check
-from uptrain.io import JsonReader, JsonWriter
+from uptrain.operators.io import JsonReader, JsonWriter
 
 
 # -----------------------------------------------------------
@@ -71,7 +71,7 @@ class LLMExperimentExecutor:
     def run_eval(self) -> None:
         self.cfg.setup()
         for check in self.cfg.checks:
-            results = check.make_executor(self.cfg.settings).run()
+            results = check.make_executor(self.cfg._settings).run()
 
 
 # {

@@ -64,7 +64,7 @@ class Distribution(TableOp):
         print(output)
         ```
 
-    
+
     Output:
         ```
         shape: (90, 4)
@@ -84,7 +84,7 @@ class Distribution(TableOp):
         │ 0            ┆ 2             ┆ 0.379936           ┆ 0.260659            │
         └──────────────┴───────────────┴────────────────────┴─────────────────────┘
         ```
-        
+
     """
 
     kind: t.Literal["cosine_similarity", "rouge"]
@@ -114,7 +114,7 @@ class Distribution(TableOp):
             ), "Distribution Op needs as many output columns as input embedding columns"
         return values
 
-    def setup(self, settings: t.Optional[Settings] = None):
+    def setup(self, settings: Settings):
         if self.kind == "cosine_similarity":
             self._agg_func = get_cosine_sim_dist
         elif self.kind == "rouge":
@@ -156,7 +156,7 @@ class UMAP(TableOp):
     Example:
         ```
         import polars as pl
-        from uptrain.operators import UMAP        
+        from uptrain.operators import UMAP
 
         # Create an instance of the UMAP operator
         op = UMAP(
@@ -200,7 +200,7 @@ class UMAP(TableOp):
     col_in_embs_1: str
     col_in_embs_2: str
 
-    def setup(self, _: t.Optional[Settings] = None):
+    def setup(self, settings: Settings):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:

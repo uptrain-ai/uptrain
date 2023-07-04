@@ -70,7 +70,7 @@ class RougeScore(ColumnOp):
     col_in_generated: str = "text_generated"
     col_in_source: str = "text_source"
 
-    def setup(self, _: Settings | None = None):
+    def setup(self, settings: Settings):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
@@ -81,13 +81,16 @@ class RougeScore(ColumnOp):
         scores = []
         for i in range(len(text_generated)):
             scorer = rouge_scorer.RougeScorer(["rougeL"])  # type: ignore
-            scores.append(scorer.score(text_source[i], text_generated[i]))
+            if text_source[i] is None or text_generated[i] is None:
+                scores.append({"rougeL": (0, 0, 0)})
+            else:
+                scores.append(scorer.score(text_source[i], text_generated[i]))
 
         type_to_index = {"precision": 0, "recall": 1, "f1": 2}
         if self.score_type not in type_to_index:
             raise Exception(f"{self.score_type} not implemented")
+        else:
+            score_index = type_to_index[self.score_type]
 
-        results = [
-            int(x["rougeL"][type_to_index[self.score_type]] * 100) for x in scores
-        ]
+        results = [int(x["rougeL"][score_index] * 100) for x in scores]
         return {"output": pl.Series(get_output_col_name_at(0), results)}

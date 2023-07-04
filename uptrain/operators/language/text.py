@@ -70,7 +70,7 @@ class DocsLinkVersion(ColumnOp):
     domain_name: t.Optional[str] = None  # filter down to links from this domain
     col_in_text: str
 
-    def setup(self, settings: Settings | None = None):
+    def setup(self, settings: Settings):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
@@ -134,7 +134,7 @@ class TextLength(ColumnOp):
 
     col_in_text: str
 
-    def setup(self, settings: Settings | None = None):
+    def setup(self, settings: Settings):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
@@ -175,7 +175,7 @@ class TextComparison(ColumnOp):
 
         # Compare each text entry with the reference text
         comparison = comp_op.run(df)["output"]
-        
+
         # Print the comparison results
         print(comparison)
         ```
@@ -190,13 +190,13 @@ class TextComparison(ColumnOp):
                 0
         ]
         ```
-    
+
     """
 
     reference_text: str
     col_in_text: str
 
-    def setup(self, settings: Settings | None = None):
+    def setup(self, settings: Settings):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
@@ -213,7 +213,7 @@ class KeywordDetector(ColumnOp):
     col_in_text: str
     keyword: str
 
-    def setup(self, _: t.Optional[Settings] = None):
+    def setup(self, settings: Settings):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
@@ -222,6 +222,7 @@ class KeywordDetector(ColumnOp):
             .apply(lambda sql: self.keyword in sql)
             .alias(get_output_col_name_at(0))
         }
+
 
 # -----------------------------------------------------------
 # Utility routines (for above operators)
@@ -238,7 +239,7 @@ def extract_links(text, base_domain=None):
 
     Returns:
         list: A list of extracted links from the text, optionally filtered by the base domain.
-    
+
     """
     pattern = r"\bhttps?://\S+\b"
     matches = re.findall(pattern, text)
@@ -257,7 +258,7 @@ def extract_version(url):
 
     Returns:
         str or None: The extracted version information, or None if no version information is found.
-    
+
     """
     patterns = [
         r"v\d+\.\d+\.\d+",

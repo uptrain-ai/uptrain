@@ -35,6 +35,7 @@ grammar_score = GrammarScore(
     col_in_text = "model_response",
     col_out = "grammar_correctness_score"
 )
+settings = Settings(openai_api_key = '...')
 
 text_length = TextLength(
     col_in_text = "model_response",
@@ -69,7 +70,7 @@ We configure the settings for our checks as follows:
 ```python
 from uptrain.framework import Settings
 
-uptrain_settings = Settings(
+settings = Settings(
     logs_folder = "/tmp/uptrain_logs",
     openai_api_key = "YOUR_API_KEY"
 )
@@ -88,18 +89,17 @@ from uptrain.io.readers import CsvReader
 
 check_set = CheckSet(
     checks = [grammar_check],
-    source = CsvReader(fpath = "responses.csv"),
-    settings = uptrain_settings
+    source = CsvReader(fpath = "responses.csv")
 )
 ```
 
 
 ### Set up and run the CheckSet
 
-Now, we will set up the `CheckSet` and run it. 
+Now, we will set up the `CheckSet` with the settings we created above and run it. 
 
 ```python
-check_set.setup()
+check_set.setup(settings)
 check_set.run()
 ```
 

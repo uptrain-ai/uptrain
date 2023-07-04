@@ -9,7 +9,7 @@ __all__ = [
     "TextComparison",
     "OpenAIGradeScore",
     "ModelGradeScore",
-    "PromptExperiment",
+    "PromptGenerator",
     "TextCompletion",
 ]
 
@@ -19,4 +19,4 @@ from .embedding import Embedding
 from .rouge import RougeScore
 from .text import DocsLinkVersion, TextLength, TextComparison
 from .model_grade import ModelGradeScore, OpenAIGradeScore
-from .generation import PromptExperiment, TextCompletion
+from .generation import PromptGenerator, TextCompletion

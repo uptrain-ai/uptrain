@@ -7,7 +7,7 @@ from uptrain.operators import (
     UMAP,
     SelectOp,
 )
-from uptrain.io import JsonReader, JsonWriter
+from uptrain.operators.io import JsonReader
 from uptrain.operators.language import (
     Embedding,
     RougeScore,
@@ -41,7 +41,7 @@ LOGS_DIR = "/tmp/uptrain_logs"
 #     JsonWriter(fpath=sink_path).run(data)
 
 
-def get_checkset(source_path):
+def get_list_checks(source_path):
     # Define the config
     checks = []
 
@@ -151,11 +151,7 @@ def get_checkset(source_path):
         )
     )
 
-    return CheckSet(
-        source=JsonReader(fpath=source_path),
-        checks=checks,
-        settings=Settings(logs_folder=LOGS_DIR),
-    )
+    return checks
 
 
 # -----------------------------------------------------------
@@ -183,9 +179,11 @@ if __name__ == "__main__":
         "../datasets/qna_on_docs_samples.jsonl",
     )
 
-    cfg = get_checkset(DATASET_W_EMB_PATH)
-    cfg.setup()
-    cfg.run()
+    checks = get_list_checks(DATASET_W_EMB_PATH)
+    check_set = CheckSet(source=JsonReader(fpath=DATASET_W_EMB_PATH), checks=checks)
+    settings = Settings(logs_folder=LOGS_DIR)
+
+    check_set.setup(settings).run()
 
     if args.start_streamlit:
         start_streamlit()

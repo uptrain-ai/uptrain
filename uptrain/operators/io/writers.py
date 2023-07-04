@@ -22,7 +22,7 @@ class DeltaWriter(OpBaseModel):
     fpath: str
     columns: t.Optional[list[str]] = None
 
-    def setup(self, _: t.Optional[Settings] = None):
+    def setup(self, settings: Settings):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
@@ -33,7 +33,7 @@ class DeltaWriter(OpBaseModel):
         return {"output": None}
 
     def to_reader(self):
-        from uptrain.io.readers import DeltaReader
+        from uptrain.operators.io import DeltaReader
 
         return DeltaReader(fpath=self.fpath)  # type: ignore
 
@@ -43,11 +43,11 @@ class JsonWriter(OpBaseModel):
     fpath: str
     columns: t.Optional[list[str]] = None
 
-    def setup(self, settings: Settings | None = None):
+    def setup(self, settings: Settings):
         return self
 
     def to_reader(self):
-        from uptrain.io.readers import JsonReader
+        from uptrain.operators.io import JsonReader
 
         return JsonReader(fpath=self.fpath)  # type: ignore
 

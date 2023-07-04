@@ -72,11 +72,11 @@ class Operator(t.Protocol):
         """
         ...
 
-    def setup(self, settings: "Settings" | None = None) -> "Operator":
+    def setup(self, settings: "Settings") -> "Operator":
         """Setup the operator. This must be called before the operator is run."""
         ...
 
-    # def run(self, *args: pl.DataFrame | None) -> t.Any:
+    # def run(self, *args: pl.DataFrame) -> t.Any:
     #     """Runs the operator."""
     #     ...
 
@@ -95,21 +95,22 @@ class OpBaseModel(BaseModel):
     _state: dict = Field(default_factory=dict)
 
     class Config:
+        extra = "allow"
         smart_union = True
         underscore_attrs_are_private = True
 
 
 class ColumnOp(OpBaseModel):
-    def setup(self, settings: "Settings" | None = None) -> None:
+    def setup(self, settings: "Settings"):
         raise NotImplementedError
 
-    def run(self, data: pl.DataFrame | None = None) -> TYPE_COLUMN_OUTPUT:
+    def run(self, *args: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
         """
         Runs the operator on the given data.
 
         Args:
-            data (pl.DataFrame): A polars dataframe. It computes a function over one/multiple
-                columns of it.
+            data (pl.DataFrame): 0/1/more polars dataframes. It computes a function over one/multiple
+                columns of the inputs.
 
         Returns:
             A dictionary with the `output` key set to the computed Series/None. Any extra
@@ -120,10 +121,10 @@ class ColumnOp(OpBaseModel):
 
 
 class TableOp(OpBaseModel):
-    def setup(self, _: "Settings" | None = None):
+    def setup(self, settings: Settings):
         raise NotImplementedError
 
-    def run(self, *args: pl.DataFrame | None) -> TYPE_TABLE_OUTPUT:
+    def run(self, *args: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         """Runs the operator on the given data.
 
         Attributes:
@@ -190,10 +191,10 @@ class PlaceholderOp(OpBaseModel):
     op_name: str
     params: dict[str, t.Any]
 
-    def setup(self, settings: "Settings" | None = None):
+    def setup(self, settings: "Settings"):
         raise NotImplementedError
 
-    def run(self, *args: pl.DataFrame | None) -> None:
+    def run(self, *args: pl.DataFrame) -> None:
         raise NotImplementedError(
             "This is only a placeholder since the operator: {self.op_name} is not registered with Uptrain. Import the module where it is defined and try again."
         )
@@ -230,12 +231,12 @@ class SelectOp(TableOp):
             columns[col_name] = deserialize_operator(col_op)
         return cls(columns=columns)
 
-    def setup(self, settings: Settings | None):
+    def setup(self, settings: Settings):
         for _, col_op in self.columns.items():
             col_op.setup(settings)
         return self
 
-    def run(self, data: pl.DataFrame | None) -> TYPE_TABLE_OUTPUT:
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         new_cols = []
         for col_name, col_op in self.columns.items():
             out_op = col_op.run(data)["output"]
