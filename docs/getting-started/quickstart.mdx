@@ -16,7 +16,7 @@ pip install uptrain[full]
 
 There are many ways you can use UpTrain. You can set it up based on your requirements. 
 
-Let's say we asked a Large Language Model like ChatGPT to generate responses for given inputs and stored them in a CSV spreadsheet called "responses.csv". Now, we want to do the following:
+Let's say we asked a Large Language Model like ChatGPT to generate responses for given inputs and stored them in a CSV spreadsheet called [responses.csv](https://docs.google.com/spreadsheets/d/16lln3OWUMCN53IBMytdiZL0uAlKBqgWJn9umpMCeii4/edit?usp=sharing). Now, we want to do the following:
 
 1. Check the grammatical correctness of the generated responses.
 2. Calculate the length of each response.
@@ -29,17 +29,16 @@ An [Operator](https://uptrain-ai.github.io/uptrain/operators/ColumnExpand) runs 
 In our case, we clearly want to use the `GrammarScore` and `TextLength` Operators. So, we will create them by specifying the input and output coloumn names as follows:
 
 ```python
-from uptrain.operators.language import GrammarScore, TextLength
+from uptrain.operators import GrammarScore, TextLength
 
 grammar_score = GrammarScore(
-    col_in_text = "model_response",
-    col_out = "grammar_correctness_score"
+    col_in_text="model_response",
+    col_out="grammar_correctness_score"
 )
-settings = Settings(openai_api_key = '...')
 
 text_length = TextLength(
-    col_in_text = "model_response",
-    col_out = "response_length"
+    col_in_text="model_response",
+    col_out="response_length"
 )
 ```
 
@@ -49,11 +48,12 @@ text_length = TextLength(
 A [Check](https://uptrain-ai.github.io/uptrain/framework/Check) runs the given list of operators in the order in which they are specified by the user. We will create a `Check` with the Operators we created above. We will also specify how we want to visualize the results. 
 
 ```python
-from uptrain import Check
+from uptrain.framework import Check
+
 response_analysis = Check(
-    name = "response_analysis"
-    operators = [grammar_score, text_length],
-    plots = [Table(), Histogram(x = "response_length", y = "grammar_correctness_score")]
+    name="response_analysis"
+    sequence=[grammar_score, text_length],
+    plot=[Table()]
 )
 ```
 
@@ -63,16 +63,22 @@ You can create more than one `Check`, but for the sake of simplicity, we will ju
 
 ### Configure the Settings
 
-We need to tell UpTrain where we want our results to be stored (logs_folder). Since, the `GrammarScore` uses OpenAI's API, we also need to specify an API key. You can get your API key from [here](https://platform.openai.com/account/api-keys).
+We need to tell UpTrain where we want our results to be stored (logs_folder). Since, the `GrammarScore` uses OpenAI's API, we also need to enter the OpenAI API key. 
+
+To learn more about how to get an OpenAI API key and set it as an environment variable, check out this [guide](https://www.immersivelimit.com/tutorials/adding-your-openai-api-key-to-system-environment-variables). It is recommended to store your API key as an environment variable for security reasons.
 
 We configure the settings for our checks as follows:
 
 ```python
+import os
 from uptrain.framework import Settings
 
+LOGS_DIR = "/tmp/uptrain_logs"
+OPENAI_API_KEY = os.environ["OPENAI_API_KEY"]
+
 settings = Settings(
-    logs_folder = "/tmp/uptrain_logs",
-    openai_api_key = "YOUR_API_KEY"
+    logs_folder=LOGS_DIR,
+    openai_api_key=OPENAI_API_KEY
 )
 ```
 
@@ -85,11 +91,11 @@ Here, we use UpTrain's `CsvReader` to read the content from our CSV file contain
 
 ```python
 from uptrain.framework import CheckSet
-from uptrain.io.readers import CsvReader
+from uptrain.operators import CsvReader
 
 check_set = CheckSet(
-    checks = [grammar_check],
-    source = CsvReader(fpath = "responses.csv")
+    checks=[grammar_check],
+    source=CsvReader(fpath="responses.csv")
 )
 ```
 
@@ -114,3 +120,9 @@ from uptrain.dashboard import StreamlitRunner
 st_runner = StreamlitRunner(LOGS_DIR)
 st_runner.start()
 ```
+
+This will open a new tab in your browser with the UpTrain dashboard. You can view the results of the `Check` we created above.
+
+Here is a screenshot of the dashboard:
+
+![dashboard.png]()
