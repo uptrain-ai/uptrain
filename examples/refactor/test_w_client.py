@@ -12,7 +12,6 @@ from uptrain.operators import (
     CosineSimilarity,
     Distribution,
     PlotlyChart,
-    SelectOp,
 )
 from uptrain.operators.language import (
     RougeScore,
@@ -24,17 +23,15 @@ def get_list_checks():
     check_1 = Check(
         name="scores",
         sequence=[
-            SelectOp(
-                columns={
-                    "hallucination-score": RougeScore(
-                        col_in_generated="response", col_in_source="document_text"
-                    ),
-                    "similarity-question/extracted_text": CosineSimilarity(
-                        col_in_vector_1="question_embeddings",
-                        col_in_vector_2="response_embeddings",
-                    ),
-                }
-            )
+            RougeScore(
+                score_type="precision",
+                col_in_generated="response",
+                col_in_source="document_text",
+            ),
+            CosineSimilarity(
+                col_in_vector_1="question_embeddings",
+                col_in_vector_2="response_embeddings",
+            ),
         ],
         plot=[PlotlyChart.Table(title="All scores")],
     )

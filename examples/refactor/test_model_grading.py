@@ -3,7 +3,7 @@ import polars as pl
 
 from uptrain.framework import CheckSet, Settings, Check
 from uptrain.operators.io import JsonReader, JsonWriter
-from uptrain.operators import PlotlyChart, SelectOp
+from uptrain.operators import PlotlyChart
 from uptrain.operators.language import ModelGradeScore, OpenAIGradeScore
 
 
@@ -58,39 +58,45 @@ def partial_fmt(input_str, fill_param, fill_value):
 
 
 def get_list_checks():
-    column_to_ops = {}
-    column_to_ops["chatgpt_model_grade"] = OpenAIGradeScore(
-        col_in_input="document_text",
-        col_in_completion="response",
-        eval_name="coqa-closedqa-correct",
+    list_score_ops = []
+    list_score_ops.append(
+        OpenAIGradeScore(
+            col_in_input="document_text",
+            col_in_completion="response",
+            eval_name="coqa-closedqa-correct",
+            col_out="openai_grade_score",
+        )
     )
 
     for persona, descr in BOT_PERSONAS.items():
-        name = "custom_model_grade_" + persona
-        column_to_ops[name] = ModelGradeScore(
-            grading_prompt_template=partial_fmt(
-                GRADING_PROMPT_TEMPLATE, "personality_description", descr
-            ),
-            eval_type="cot_classify",
-            choice_strings=["A", "B", "C"],
-            choice_scores={"A": 1.0, "B": 0.5, "C": 0.0},
-            context_vars={
-                "document": "document_text",
-                "chunked_summary": "response",
-            },
+        name = "model_grade_" + persona + "_score"
+        list_score_ops.append(
+            ModelGradeScore(
+                grading_prompt_template=partial_fmt(
+                    GRADING_PROMPT_TEMPLATE, "personality_description", descr
+                ),
+                eval_type="cot_classify",
+                choice_strings=["A", "B", "C"],
+                choice_scores={"A": 1.0, "B": 0.5, "C": 0.0},
+                context_vars={
+                    "document": "document_text",
+                    "chunked_summary": "response",
+                },
+                col_out=name,
+            )
         )
 
     check = Check(
         name="Model grade scores",
-        sequence=[SelectOp(columns=column_to_ops)],
+        sequence=list_score_ops,
         plot=[
             PlotlyChart(kind="table", title="Model grade scores"),
             PlotlyChart.Histogram(
-                props=dict(x="chatgpt_model_grade", title="chatgpt-grading", nbins=3)
+                props=dict(x="openai_grade_score", title="chatgpt-grading", nbins=3)
             ),
             *[
-                PlotlyChart.Histogram(props=dict(x=col, title=persona, nbins=3))
-                for col, persona in zip(column_to_ops, BOT_PERSONAS)
+                PlotlyChart.Histogram(props=dict(x=op.col_out, title=persona, nbins=3))
+                for op, persona in zip(list_score_ops[1:], BOT_PERSONAS.keys())
             ],
         ],
     )

@@ -33,9 +33,9 @@ class GrammarScore(ColumnOp):
         dict: A dictionary containing the grammar scores for each input sentence.
 
     """
-    
+
     col_in_text: str = "text"
-    _api_client: LLMMulticlient
+    col_out: str = "grammar_score"
 
     def setup(self, settings: t.Optional[Settings] = None):
         self._api_client = LLMMulticlient(settings=settings)
@@ -62,7 +62,7 @@ class GrammarScore(ColumnOp):
             metadata={"index": id},
         )
 
-    def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         text_ser = data.get_column(self.col_in_text)
         input_payloads = [
             self._make_payload(idx, text) for idx, text in enumerate(text_ser)
@@ -88,4 +88,4 @@ class GrammarScore(ColumnOp):
         result_scores = pl.Series(
             [val for _, val in sorted(results, key=lambda x: x[0])]
         )
-        return {"output": pl.Series(result_scores).alias(get_output_col_name_at(0))}
+        return {"output": data.with_columns([result_scores.alias(self.col_out)])}

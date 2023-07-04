@@ -10,7 +10,7 @@ from uptrain.operators.language.sql import (
 )
 from uptrain.framework import CheckSet, Settings, Check
 from uptrain.operators.io import JsonReader, JsonWriter
-from uptrain.operators import PlotlyChart, SelectOp
+from uptrain.operators import PlotlyChart
 from uptrain.operators.language.text import KeywordDetector
 
 
@@ -20,7 +20,7 @@ SETTINGS = Settings(logs_folder=LOGS_DIR)
 
 
 # Reads schema definitions from spider dataset. schema definitions are a list of CREATE TABLE Statements
-def __read_schema_definition(schema_name, spider_dataset_path) -> (str, str, str):
+def __read_schema_definition(schema_name, spider_dataset_path) -> tuple[str, str]:
     # List to store all CREATE TABLE statements
     create_table_statements = []
     db_path = os.path.join(
@@ -68,13 +68,9 @@ def produce_dataset_w_spider_schema(source_path, sink_path, spider_dataset_path)
 select_all_check = Check(
     name="Query has star symbol",
     sequence=[
-        SelectOp(
-            columns={
-                "has_star_symbol_in_query": KeywordDetector(
-                    col_in_text="response", keyword="*"
-                ),
-            }
-        )
+        KeywordDetector(
+            col_in_text="response", keyword="*", col_out="has_star_symbol_in_query"
+        ),
     ],
     plot=[
         PlotlyChart.Histogram(

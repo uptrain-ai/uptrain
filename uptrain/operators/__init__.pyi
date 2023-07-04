@@ -2,8 +2,7 @@ __all__ = [
     # base
     "Operator",
     "ColumnOp",
-    "TableOp",
-    "SelectOp",
+    "TransformOp",
     "register_op",
     "get_output_col_name_at",
     # drift
@@ -47,8 +46,7 @@ __all__ = [
 from .base import (
     Operator,
     ColumnOp,
-    TableOp,
-    SelectOp,
+    TransformOp,
     register_op,
     get_output_col_name_at,
 )

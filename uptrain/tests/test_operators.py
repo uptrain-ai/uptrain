@@ -1,3 +1,8 @@
+from uptrain.framework import Settings
+
+SETTINGS = Settings()
+
+
 # uptrain.operators.drift
 def test_concept_drift():
     import polars as pl
@@ -10,14 +15,13 @@ def test_concept_drift():
     # Create an instance of the ConceptDrift operator
     op = ConceptDrift(algorithm="DDM", params=params_ddm, col_in_measure="prediction")
 
-    # Set up the operator
-    op.setup()
-
     # Run the operator on the input data
     input_data = (
-        CsvReader(fpath="uptrain/tests/data/predictions.csv").setup().run()["output"]
+        CsvReader(fpath="uptrain/tests/data/predictions.csv")
+        .setup(SETTINGS)
+        .run()["output"]
     )
-    output = op.run(input_data)["extra"]
+    output = op.setup(SETTINGS).run(input_data)["extra"]
 
     # Check the detected concept drift information
     if output["alert_info"] is not None:
@@ -37,11 +41,8 @@ def test_embedding():
     # Create an instance of the Embedding class
     embedding_op = Embedding(model="MiniLM-L6-v2", col_in_text="text")
 
-    # Set up the Embedding operator
-    embedding_op.setup()
-
     # Generate embeddings for the text column
-    embeddings = embedding_op.run(df)["output"]
+    embeddings = embedding_op.setup(SETTINGS).run(df)["output"]
 
     # Print the embeddings
     print(embeddings)
@@ -60,16 +61,14 @@ def test_embs_cosine_distribution():
         col_in_groupby=["question_idx", "experiment_id"],
         col_out=["similarity-context", "similarity-response"],
     )
-    # Set up the operator
-    op.setup()
 
     # Run the operator on the input data
     input_data = (
         JsonReader(fpath="uptrain/tests/data/qna_on_docs_samples.jsonl")
-        .setup()
+        .setup(SETTINGS)
         .run()["output"]
     )
-    output = op.run(input_data)["output"]
+    output = op.setup(SETTINGS).run(input_data)["output"]
 
     # Print the output
     print(output)
@@ -88,16 +87,13 @@ def test_embs_rouge_score():
         col_in_groupby=["question_idx", "experiment_id"],
         col_out=["rogue_f1"],
     )
-    # Set up the operator
-    op.setup()
-
     # Run the operator on the input data
     input_data = (
         JsonReader(fpath="uptrain/tests/data/qna_on_docs_samples.jsonl")
-        .setup()
+        .setup(SETTINGS)
         .run()["output"]
     )
-    output = op.run(input_data)["output"]
+    output = op.setup(SETTINGS).run(input_data)["output"]
 
     # Print the output
     print(output)
@@ -112,16 +108,13 @@ def test_embs_umap_operator():
     # Create an instance of the UMAP operator
     op = UMAP(col_in_embs_1="context_embeddings", col_in_embs_2="response_embeddings")
 
-    # Set up the operator
-    op.setup()
-
     # Run the operator on the input data
     input_data = (
         JsonReader(fpath="uptrain/tests/data/qna_on_docs_samples.jsonl")
-        .setup()
+        .setup(SETTINGS)
         .run()["output"]
     )
-    output = op.run(input_data)["output"]
+    output = op.setup(SETTINGS).run(input_data)["output"]
 
     # Print the output
     print(output)
@@ -166,14 +159,13 @@ def test_accuracy_operator():
         col_in_ground_truth="ground_truth",
     )
 
-    # Set up the operator
-    op.setup()
-
     # Run the operator on the input data
     input_data = (
-        CsvReader(fpath="uptrain/tests/data/predictions.csv").setup().run()["output"]
+        CsvReader(fpath="uptrain/tests/data/predictions.csv")
+        .setup(SETTINGS)
+        .run()["output"]
     )
-    accuracy_scores = op.run(input_data)["output"]
+    accuracy_scores = op.setup(SETTINGS).run(input_data)["output"]
 
     # Print the accuracy scores
     print(accuracy_scores)

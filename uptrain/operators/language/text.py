@@ -69,11 +69,12 @@ class DocsLinkVersion(ColumnOp):
 
     domain_name: t.Optional[str] = None  # filter down to links from this domain
     col_in_text: str
+    col_out: str = "docs_link_version"
 
     def setup(self, settings: Settings):
         return self
 
-    def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         def fetch_version(text):
             for link in extract_links(text, self.domain_name):
                 v = extract_version(link)
@@ -81,11 +82,8 @@ class DocsLinkVersion(ColumnOp):
                     return v
             return None
 
-        return {
-            "output": data.get_column(self.col_in_text)
-            .apply(fetch_version)
-            .alias(get_output_col_name_at(0))
-        }
+        results = data.get_column(self.col_in_text).apply(fetch_version)
+        return {"output": data.with_columns([results.alias(self.col_out)])}
 
 
 @register_op
@@ -137,12 +135,9 @@ class TextLength(ColumnOp):
     def setup(self, settings: Settings):
         return self
 
-    def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
-        return {
-            "output": data.get_column(self.col_in_text)
-            .apply(len)
-            .alias(get_output_col_name_at(0))
-        }
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
+        results = data.get_column(self.col_in_text).apply(len)
+        return {"output": data.with_columns([results.alias(self.col_out)])}
 
 
 @register_op
@@ -195,16 +190,16 @@ class TextComparison(ColumnOp):
 
     reference_text: str
     col_in_text: str
+    col_out: str = "text_comparison"
 
     def setup(self, settings: Settings):
         return self
 
-    def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
-        return {
-            "output": data.get_column(self.col_in_text)
-            .apply(lambda x: int(x == self.reference_text))
-            .alias(get_output_col_name_at(0))
-        }
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
+        results = data.get_column(self.col_in_text).apply(
+            lambda x: int(x == self.reference_text)
+        )
+        return {"output": data.with_columns([results.alias(self.col_out)])}
 
 
 # Check if a Keyword exists in input text
@@ -212,16 +207,16 @@ class TextComparison(ColumnOp):
 class KeywordDetector(ColumnOp):
     col_in_text: str
     keyword: str
+    col_out: str = "keyword_detector"
 
     def setup(self, settings: Settings):
         return self
 
-    def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
-        return {
-            "output": data.get_column(self.col_in_text)
-            .apply(lambda sql: self.keyword in sql)
-            .alias(get_output_col_name_at(0))
-        }
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
+        results = data.get_column(self.col_in_text).apply(
+            lambda sql: self.keyword in sql
+        )
+        return {"output": data.with_columns([results.alias(self.col_out)])}
 
 
 # -----------------------------------------------------------

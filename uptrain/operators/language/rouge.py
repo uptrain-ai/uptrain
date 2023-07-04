@@ -69,11 +69,12 @@ class RougeScore(ColumnOp):
     score_type: t.Literal["precision", "recall", "f1"]
     col_in_generated: str = "text_generated"
     col_in_source: str = "text_source"
+    col_out: str = "rouge_score"
 
     def setup(self, settings: Settings):
         return self
 
-    def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         text_generated = data.get_column(self.col_in_generated)
         text_source = data.get_column(self.col_in_source)
 
@@ -92,5 +93,5 @@ class RougeScore(ColumnOp):
         else:
             score_index = type_to_index[self.score_type]
 
-        results = [int(x["rougeL"][score_index] * 100) for x in scores]
-        return {"output": pl.Series(get_output_col_name_at(0), results)}
+        results = pl.Series([int(x["rougeL"][score_index] * 100) for x in scores])
+        return {"output": data.with_columns([results.alias(self.col_out)])}

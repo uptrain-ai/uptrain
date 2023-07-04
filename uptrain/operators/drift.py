@@ -118,11 +118,6 @@ class ConceptDrift(ColumnOp):
     algorithm: t.Literal["DDM", "ADWIN"]
     params: t.Union[ParamsDDM, ParamsADWIN]
     col_in_measure: str = "metric"
-    _algo_obj: t.Any
-    _counter: int
-    _cuml_accuracy: float
-    _avg_accuracy: float
-    _alert_info: t.Optional[dict]
 
     @root_validator
     def _check_params(cls, values):
@@ -153,7 +148,7 @@ class ConceptDrift(ColumnOp):
         self._alert_info = None
         return self
 
-    def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         ser = data.get_column(self.col_in_measure)
 
         for val in ser:

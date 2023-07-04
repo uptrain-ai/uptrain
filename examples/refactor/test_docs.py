@@ -1,13 +1,7 @@
 import os
 from uptrain.framework import CheckSet, Settings, Check
-from uptrain.operators import (
-    PlotlyChart,
-    Distribution,
-    CosineSimilarity,
-    UMAP,
-    SelectOp,
-)
-from uptrain.operators.io import JsonReader
+from uptrain.operators import PlotlyChart, Distribution, CosineSimilarity, UMAP
+from uptrain.operators.io import JsonReader, JsonWriter
 from uptrain.operators.language import (
     Embedding,
     RougeScore,
@@ -24,18 +18,26 @@ LOGS_DIR = "/tmp/uptrain_logs"
 #     # Compute all the embeddings - question, document, response
 
 #     source = JsonReader(fpath=source_path)
-#     source.setup()
+#     source.setup(Settings())
 #     data = source.run()["output"]
 
-#     op = SelectOp(
-#         columns={
-#             "question_embeddings": Embedding(col_in_text="question"),
-#             "context_embeddings": Embedding(col_in_text="document_text"),
-#             "response_embeddings": Embedding(col_in_text="response"),
-#         }
-#     )
-#     op.setup(Settings())
-#     data = op.run(data)["output"]
+#     list_ops = [
+#         Embedding(
+#             model="MiniLM-L6-v2", col_in_text="question", col_out="question_embeddings"
+#         ),
+#         Embedding(
+#             model="MiniLM-L6-v2",
+#             col_in_text="document_text",
+#             col_out="context_embeddings",
+#         ),
+#         Embedding(
+#             model="MiniLM-L6-v2", col_in_text="response", col_out="response_embeddings"
+#         ),
+#     ]
+#     for op in list_ops:
+#         op.setup(Settings())
+#         assert data is not None
+#         data = op.run(data)["output"]
 
 #     os.remove(sink_path)
 #     JsonWriter(fpath=sink_path).run(data)
@@ -93,29 +95,28 @@ def get_list_checks(source_path):
         Check(
             name="quality_scores",
             sequence=[
-                SelectOp(
-                    columns={
-                        "document_link_version": DocsLinkVersion(
-                            col_in_text="document_link"
-                        ),
-                        "document_context_length": TextLength(
-                            col_in_text="document_text"
-                        ),
-                        "response_document_overlap_score": RougeScore(
-                            score_type="f1",
-                            col_in_generated="response",
-                            col_in_source="document_text",
-                        ),
-                        "question_response_similarity": CosineSimilarity(
-                            col_in_vector_1="question_embeddings",
-                            col_in_vector_2="response_embeddings",
-                        ),
-                        "empty_response": TextComparison(
-                            reference_text="<EMPTY MESSAGE>",
-                            col_in_text="response",
-                        ),
-                    }
-                )
+                DocsLinkVersion(
+                    col_in_text="document_link", col_out="document_link_version"
+                ),
+                TextLength(
+                    col_in_text="document_text", col_out="document_context_length"
+                ),
+                RougeScore(
+                    score_type="f1",
+                    col_in_generated="response",
+                    col_in_source="document_text",
+                    col_out="response_document_overlap_score",
+                ),
+                CosineSimilarity(
+                    col_in_vector_1="question_embeddings",
+                    col_in_vector_2="response_embeddings",
+                    col_out="question_response_similarity",
+                ),
+                TextComparison(
+                    reference_text="<EMPTY MESSAGE>",
+                    col_in_text="response",
+                    col_out="empty_response",
+                ),
             ],
             plot=[
                 PlotlyChart.Table(title="Quality scores"),

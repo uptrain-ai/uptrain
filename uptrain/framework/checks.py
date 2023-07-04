@@ -33,22 +33,18 @@ class Check(Operator):
     """
 
     name: str
-    sequence: list[TableOp]
+    sequence: list[Operator]
     plot: list[Operator]
 
     def __init__(
         self,
         name: str,
-        sequence: list[TableOp],
+        sequence: list[Operator],
         plot: list[Operator] | None = None,
     ):
         self.name = name
         self.sequence = sequence
         self.plot = plot if plot is not None else []
-
-        for op in self.sequence:
-            if not isinstance(op, TableOp):
-                raise ValueError(f"Check compute ops must be TableOps, got {op}")
 
     def setup(self, settings: "Settings"):
         self._settings = settings
@@ -104,13 +100,13 @@ class CheckSet:
 
     source: Operator
     checks: list[Check]
-    preprocessors: list[TableOp]
+    preprocessors: list[TransformOp]
 
     def __init__(
         self,
         source: Operator,
         checks: list[t.Any],
-        preprocessors: list[TableOp] | None = None,
+        preprocessors: list[TransformOp] | None = None,
     ):
         self.source = source
         self.checks = checks

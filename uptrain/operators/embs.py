@@ -27,7 +27,7 @@ rouge_scorer = lazy_load_dep("rouge_score.rouge_scorer", "rouge_score")
 
 
 @register_op
-class Distribution(TableOp):
+class Distribution(TransformOp):
     """
     Operator for computing distribution of similarity metrics.
 
@@ -91,7 +91,6 @@ class Distribution(TableOp):
     col_in_embs: list[str]
     col_in_groupby: list[str]
     col_out: list[str] | None = None
-    _agg_func: t.Callable | None = None
 
     @root_validator(pre=True)
     def _check_cols(cls, values):
@@ -145,7 +144,7 @@ class Distribution(TableOp):
 
 
 @register_op
-class UMAP(TableOp):
+class UMAP(TransformOp):
     """
     Operator for performing UMAP dimensionality reduction.
 

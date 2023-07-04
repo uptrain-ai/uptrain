@@ -35,7 +35,7 @@ class Embedding(ColumnOp):
         Exception: If the specified model is not supported.
 
     Returns:
-        TYPE_COLUMN_OUTPUT: A dictionary containing the generated embeddings.
+        TYPE_TABLE_OUTPUT: A dictionary containing the generated embeddings.
 
     Example:
         ```
@@ -74,7 +74,7 @@ class Embedding(ColumnOp):
 
     model: t.Literal["MiniLM-L6-v2", "hkunlp/instructor-xl"]
     col_in_text: str = "text"
-    _model_obj: t.Any
+    col_out: str = "embedding"
 
     def setup(self, settings: Settings):
         if self.model == "hkunlp/instructor-xl":
@@ -87,7 +87,7 @@ class Embedding(ColumnOp):
             raise Exception(f"Embeddings model: {self.model} is not supported yet.")
         return self
 
-    def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         text = data.get_column(self.col_in_text)
         if self.model == "hkunlp/instructor-xl":
             inputs = [
@@ -99,4 +99,4 @@ class Embedding(ColumnOp):
             raise Exception("Embeddings model not supported")
         results = self._model_obj.encode(inputs)
 
-        return {"output": pl.Series(results).alias(get_output_col_name_at(0))}
+        return {"output": data.with_columns([pl.Series(results).alias(self.col_out)])}
