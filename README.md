@@ -32,7 +32,7 @@
     <img src="https://img.shields.io/badge/Read-Docs-brightgreen" alt="Docs" />
   </a>
   <a href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg">
-    <img src="https://img.shields.io/badge/Discord-Community-orange" alt="Community" />
+    <img src="https://img.shields.io/badge/Slack-Community-orange" alt="Community" />
   </a>
   <a href="https://uptrain.ai/">
     <img src="https://img.shields.io/badge/UpTrain-Website-yellow" alt="Website" />
