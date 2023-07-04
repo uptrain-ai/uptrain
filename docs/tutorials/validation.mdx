@@ -80,7 +80,7 @@ dataset = pl.read_ndjson(dataset_path).select(pl.col(['question', 'document_titl
 print(dataset[0:2])
 ```
 
-Let’s now get responses from our LLM by defining our completion function. 
+Let's now get responses from our LLM by defining our completion function. 
 We are using GPT-3.5-Turbo for the same
 
 ```python

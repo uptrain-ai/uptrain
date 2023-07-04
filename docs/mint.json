@@ -62,11 +62,11 @@
       ]
     },
     {
-      "group": "Examples",
+      "group": "Tutorials",
       "version": "v1",
       "pages": [
-        "examples/prompt-experiments",
-        "examples/validation"
+        "tutorials/prompt-experiments",
+        "tutorials/validation"
       ]
     },
     {
