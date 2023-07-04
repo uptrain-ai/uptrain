@@ -6,6 +6,7 @@ from __future__ import annotations
 import importlib
 import typing as t
 import typing_extensions as te
+import json
 
 from loguru import logger
 from pydantic import BaseModel, Field, root_validator
@@ -103,7 +104,13 @@ class OpBaseModel(BaseModel):
         in_fields = list(filter(lambda x: not ("col_out" in x), list(self.__fields__.keys())))
         dependencies = []
         for field in in_fields:
-            dependencies.append(f"{self.__class__.__name__}_{field}_{self.dict()[field]}")
+            dependencies.append(
+                json.dumps({
+                    'class': self.__class__.__name__,
+                    'field_key': field,
+                    'field_value': self.dict()[field]
+                })
+            )
             dependencies.extend(lineage.get(self.dict()[field], []))
 
         dependencies.sort(key = lambda x: x)
@@ -138,9 +145,21 @@ class ColumnOp(OpBaseModel):
         out_fields = list(filter(lambda x: ("col_out" in x), list(self.__fields__.keys())))
         
         for out_field_key in out_fields:
+            if not (isinstance(self.dict()[out_field_key], str) | (isinstance(self.dict()[out_field_key], list) and all(isinstance(item, str) for item in self.dict()[out_field_key]))):
+                print(f"Output type {type(self.dict()[out_field_key])} of {self.dict()[out_field_key]} is not supported for caching, running compute for {self.__class__.__name__}...")
+                for field in out_fields:
+                    lineage[
+                        json.dumps({
+                            'class': self.__class__.__name__,
+                            'field_key': field,
+                            'field_value': self.dict()[field]
+                        })
+                    ] = dependencies
+                return self.run(data)
+
             for field in list(lineage.keys()):
-                if (self.dict()[out_field_key] == field.split(":")[-1]) and not (lineage[field] == dependencies):
-                    raise Exception(f"Trying to add different columns with same names - {self.dict()[out_field_key]} with dependencies: {dependencies} and " + field.split(":")[-1] + f" with dependencies: {lineage[field]}")
+                if (self.dict()[out_field_key] == json.loads(field)['field_value']) and not (lineage[field] == dependencies):
+                    raise Exception(f"Trying to add different columns with same names - {self.dict()[out_field_key]} with dependencies: {dependencies} and " + json.loads(field)['field_value'] + f" with dependencies: {lineage[field]}")
 
 
         matching_fields = []
@@ -151,17 +170,33 @@ class ColumnOp(OpBaseModel):
 
         if len(matching_fields):
             for out_field_key in out_fields:
-                out_field = self.__class__.__name__ + ":" + out_field_key + ":" + self.dict()[out_field_key]
+                out_field = json.dumps({
+                    'class': self.__class__.__name__,
+                    'field_key': out_field_key,
+                    'field_value': self.dict()[out_field_key]
+                })
                 for match_field in matching_fields:
-                    if out_field.split(":")[0:2] == match_field.split(":")[0:2]:
-                        data = data.with_columns((data[match_field.split(":")[-1]]).alias(out_field.split(":")[-1]))
+                    if (json.loads(out_field)['class'] == json.loads(match_field)['class']) and (json.loads(out_field)['field_key'] == json.loads(match_field)['field_key']):
+                        if isinstance(json.loads(out_field)['field_value'], list):
+                            print(match_field, out_field)
+                            match_field_list = json.loads(match_field)['field_value']
+                            for out_field_elem_idx in range(len(json.loads(out_field)['field_value'])):
+                                data = data.with_columns((data[match_field_list[out_field_elem_idx]]).alias(json.loads(out_field)['field_value'][out_field_elem_idx]))
+                        else:
+                            data = data.with_columns((data[json.loads(match_field)['field_value']]).alias(json.loads(out_field)['field_value']))
                         lineage[out_field] = lineage[match_field]
                         print(f"Got cached values for {out_field}")
             return {"output": data}
         else:
             print(f"Running compute for {self.__class__.__name__}")
             for field in out_fields:
-                lineage[self.__class__.__name__ + ":" + field + ":" + self.dict()[field]] = dependencies
+                lineage[
+                    json.dumps({
+                        'class': self.__class__.__name__,
+                        'field_key': field,
+                        'field_value': self.dict()[field]
+                    })
+                ] = dependencies
             return self.run(data)
 
 
