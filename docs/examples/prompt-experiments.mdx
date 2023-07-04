@@ -69,6 +69,9 @@ print("prompt_developer: ", prompt_base.replace("{LLM_PERSONALITY}", "backend de
 print("prompt_expert: ", prompt_base.replace("{LLM_PERSONALITY}", "python expert"))
 ```
 
+![sample_prompts](https://github.com/uptrain-ai/uptrain/assets/43818888/572a658c-f2f0-4ca8-bfe0-71323f9155e7)
+
+
 Let's now load our dataset and see how that looks
 
 ```python
@@ -88,6 +91,9 @@ dataset = pl.read_ndjson(dataset_path).select(
 print("Number of test cases: ", len(dataset))
 print("Couple of samples: ", dataset[0:2])
 ```
+
+![dataset_sample](https://github.com/uptrain-ai/uptrain/assets/43818888/358cfcec-c5ff-4a26-88d2-66added0d879)
+
 
 # Using UpTrain Framework to compare multiple prompts
 
@@ -183,10 +189,10 @@ runner.start()
 UpTrain offers pivoting options for tables. Here, we use this to find out which of the three personalities has the highest overlap scores.
 
 
-![prompt_experiment_pivot_table.png](https://github.com/uptrain-ai/uptrain/assets/43818888/1d501d2b-6e43-409d-ac58-d3436c045ee8)
+![prompt_experiment_pivot_table](https://github.com/uptrain-ai/uptrain/assets/43818888/1d501d2b-6e43-409d-ac58-d3436c045ee8)
 
 
 Alternatively, we could look at the distribution of hallucination scores across different prompt parameters. 
 
 
-![prompt_experiment_plot.png](https://github.com/uptrain-ai/uptrain/assets/43818888/ba3ab292-c06d-4b47-9843-7618b2334def)
+![prompt_experiment_plot](https://github.com/uptrain-ai/uptrain/assets/43818888/ba3ab292-c06d-4b47-9843-7618b2334def)
