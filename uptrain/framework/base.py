@@ -103,7 +103,7 @@ class OperatorDAG:
 
         # run each node in topological order
         can_be_appended = True
-        modified_input = node_inputs['sequence_0']
+        modified_input = node_inputs["sequence_0"]
         print("INPUT COLUMNS: ", modified_input.columns)
         lineage = {}
 
@@ -151,7 +151,9 @@ class OperatorDAG:
         print("")
         print("")
         print("")
-        return {node_name: node_to_output[node_name] for node_name in output_nodes}, modified_input
+        return {
+            node_name: node_to_output[node_name] for node_name in output_nodes
+        }, modified_input
 
     def _get_node_parents(self, name: str) -> list[str]:
         return list(self.graph.predecessors(name))
