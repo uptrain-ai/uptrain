@@ -66,11 +66,12 @@ class CosineSimilarity(ColumnOp):
 
     col_in_vector_1: str
     col_in_vector_2: str
+    col_out: str = "cosine_similarity"
 
     def setup(self, settings: Settings):
         return self
 
-    def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         vector_1 = data.get_column(self.col_in_vector_1)
         vector_2 = data.get_column(self.col_in_vector_2)
 
@@ -81,4 +82,4 @@ class CosineSimilarity(ColumnOp):
             similarity_score = np.dot(v1, v2) / np.linalg.norm(v1) * np.linalg.norm(v2)
             results.append(similarity_score)
 
-        return {"output": pl.Series(results).alias(get_output_col_name_at(0))}
+        return {"output": data.with_columns(pl.Series(results).alias(self.col_out))}

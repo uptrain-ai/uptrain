@@ -63,7 +63,7 @@ class OperatorDAG:
         self.graph = nx.DiGraph()
 
     def add_step(
-        self, name: str, node: TableOp, deps: t.Optional[list[str]] = None
+        self, name: str, node: Operator, deps: t.Optional[list[str]] = None
     ) -> None:
         """Add a node to the DAG, along with its dependencies."""
         if name in self.graph.nodes:
@@ -91,8 +91,7 @@ class OperatorDAG:
         """Set up the operators in the DAG."""
         sorted_nodes = list(nx.algorithms.dag.topological_sort(self.graph))
         for node_name in sorted_nodes:
-            node: "TableOp" = self.graph.nodes[node_name]["op_class"]
-            assert isinstance(node, TableOp)
+            node: "Operator" = self.graph.nodes[node_name]["op_class"]
             node.setup(settings)
 
     def run(
@@ -118,8 +117,7 @@ class OperatorDAG:
         # run each node in topological order
         for node_name in sorted_nodes:
             logger.debug(f"Executing node: {node_name} for operator DAG: {self.name}")
-            node: "TableOp" = self.graph.nodes[node_name]["op_class"]
-            assert isinstance(node, TableOp)
+            node: "TransformOp" = self.graph.nodes[node_name]["op_class"]
 
             # get input for this node from its dependencies
             inputs_from_deps = []

@@ -18,11 +18,10 @@ from uptrain.utilities import to_py_types
 
 __all__ = [
     "TYPE_TABLE_OUTPUT",
-    "TYPE_COLUMN_OUTPUT",
     "Operator",
     "OpBaseModel",
     "ColumnOp",
-    "TableOp",
+    "TransformOp",
     "PlaceholderOp",
     "register_op",
     "deserialize_operator",
@@ -39,11 +38,6 @@ class TYPE_TABLE_OUTPUT(te.TypedDict):
     extra: te.NotRequired[dict]
 
 
-class TYPE_COLUMN_OUTPUT(te.TypedDict):
-    output: pl.Series | None
-    extra: te.NotRequired[dict]
-
-
 class Operator(t.Protocol):
     """
     All operator implementations must implement this protocol.
@@ -54,10 +48,13 @@ class Operator(t.Protocol):
     - columns required in the input dataset
     - columns that will be generated as output, etc.
 
-    NOTE: An operator must also define `setup` and `run` methods like shown below.
-    I can't make mypy happy with it yet though, so we just check for it inside the
-    `register_op` decorator.
 
+    `Setup`: The `setup` method is called before the operator is run. This is where you
+    can do any setup work, like loading models, settin up file addresses, etc.
+
+    `Run`: The `run` method is called to run the operator. It takes 0 or more polars
+    dataframes as input, and returns a dictionary with the `output` key set to the
+    computed dataframe/None. Any extra information can be put in the `extra` key.
     """
 
     def dict(self) -> dict:
@@ -65,10 +62,9 @@ class Operator(t.Protocol):
         Serialize this operator to a json dictionary. The objective is to be able to
         recreate the operator from this dict.
 
-        NOTE: If your operator is a pydantic model, pydantic handles this. Though for fields
-        with custom non-python types, you MUST override and implement both a `dict` and a
-        `from_dict` method.
-
+        NOTE: If your operator is a pydantic model, pydantic handles this. Though if you
+        have fields with custom non-python types, you MUST override and implement both a
+        `dict` and a`from_dict` method.
         """
         ...
 
@@ -76,9 +72,7 @@ class Operator(t.Protocol):
         """Setup the operator. This must be called before the operator is run."""
         ...
 
-    # def run(self, *args: pl.DataFrame) -> t.Any:
-    #     """Runs the operator."""
-    #     ...
+    run: t.Callable[..., TYPE_TABLE_OUTPUT]  # runs the operator
 
 
 class OpBaseModel(BaseModel):
@@ -101,31 +95,37 @@ class OpBaseModel(BaseModel):
 
 
 class ColumnOp(OpBaseModel):
+    """Represents operations that append columns to the input dataset, and
+    return it as is.
+    """
+
     def setup(self, settings: "Settings"):
         raise NotImplementedError
 
-    def run(self, *args: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
+    def run(self, *args: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         """
-        Runs the operator on the given data.
+        Runs the operator on the input dataset, and returns it with new columns added.
 
         Args:
-            data (pl.DataFrame): 0/1/more polars dataframes. It computes a function over one/multiple
-                columns of the inputs.
+            data (pl.DataFrame): Zero or one dataframe as input.
 
         Returns:
-            A dictionary with the `output` key set to the computed Series/None. Any extra
+            A dictionary with the `output` key set to the computed Table. Any extra
                 information can be put in the `extra` key.
-
         """
         raise NotImplementedError
 
 
-class TableOp(OpBaseModel):
+class TransformOp(OpBaseModel):
+    """Represents operations that transform the input dataset into another.
+    For things like filtering, aggregation, etc.
+    """
+
     def setup(self, settings: Settings):
         raise NotImplementedError
 
     def run(self, *args: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        """Runs the operator on the given data.
+        """Runs the operator on the input dataset, and returns the transformed dataset.
 
         Attributes:
             *args (pl.DataFrame): Zero or more dataframes as inputs.
@@ -133,7 +133,6 @@ class TableOp(OpBaseModel):
         Returns:
             A dictionary with the `output` key set to the computed dataframe/None. Any extra
                 information can be put in the `extra` key.
-
         """
         raise NotImplementedError
 
@@ -194,102 +193,7 @@ class PlaceholderOp(OpBaseModel):
     def setup(self, settings: "Settings"):
         raise NotImplementedError
 
-    def run(self, *args: pl.DataFrame) -> None:
+    def run(self, *args: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         raise NotImplementedError(
             "This is only a placeholder since the operator: {self.op_name} is not registered with Uptrain. Import the module where it is defined and try again."
         )
-
-
-@register_op
-class SelectOp(TableOp):
-    """Use this to combine the output from multiple `ColumnOp` operators."""
-
-    columns: dict[str, ColumnOp]
-
-    @root_validator
-    def check_columns(cls, values: dict) -> dict:
-        columns = values["columns"]
-        for col_name, col_op in columns.items():
-            if not isinstance(col_op, ColumnOp):
-                raise ValueError(
-                    f"Expected a ColumnOp for column: {col_name}, but got: {col_op}"
-                )
-        return values
-
-    def dict(self) -> dict:
-        return {
-            "columns": {
-                col_name: to_py_types(col_op)
-                for col_name, col_op in self.columns.items()
-            }
-        }
-
-    @classmethod
-    def from_dict(cls, data: dict) -> "SelectOp":
-        columns = data["columns"]
-        for col_name, col_op in columns.items():
-            columns[col_name] = deserialize_operator(col_op)
-        return cls(columns=columns)
-
-    def setup(self, settings: Settings):
-        for _, col_op in self.columns.items():
-            col_op.setup(settings)
-        return self
-
-    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        new_cols = []
-        for col_name, col_op in self.columns.items():
-            out_op = col_op.run(data)["output"]
-            if out_op is not None:
-                new_cols.append(out_op.alias(col_name))
-
-        if data is None:
-            return {"output": pl.DataFrame(data=[new_cols])}
-        else:
-            return {"output": data.with_columns(new_cols)}
-
-
-# -----------------------------------------------------------
-# TODO: Aggregate Ops. Not sure if needed.
-# -----------------------------------------------------------
-
-# class AggregateOp(OpBaseModel):
-#     def setup(self, _: "Settings" | None = None) -> None:
-#         raise NotImplementedError
-
-#     def run(self, data: list[pl.DataFrame]) -> TYPE_COLUMN_OUTPUT:
-#         """Runs the aggregation op on the given list of sub-dataframe.
-
-#         Args:
-#             data (pl.DataFrame): A polars dataframe, one for each group key values. It
-#                 aggregates over each group to compute a single value, and returns a series of
-#                 the same length as the input.
-
-#         Returns:
-#             A dictionary with the `output` key set to the computed Series/None. Any extra
-#                 information can be put in the `extra` key.
-#         """
-#         raise NotImplementedError
-
-# class GroupbyOp(TableOp):
-#     """Groups the input dataframe by a set of columns, and computes aggregate operators
-#     over the grouped data.
-#     """
-
-#     cols_groupby: list[str]
-#     cols_agg: dict[str, AggregateOp]
-
-#     def setup(self, settings: Settings | None) -> None:
-#         for _, agg_op in self.cols_agg.items():
-#             agg_op.setup(settings)
-
-#     def run(self, data: pl.DataFrame | None) -> TYPE_TABLE_OUTPUT:
-#         if data is None:
-#             return {"output": None}
-
-#         list_groups = list(data.groupby(self.cols_groupby))
-#         new_cols = []
-#         for col_name, agg_op in self.cols_agg.items():
-#             out_op = agg_op.run(list_groups)["output"]
-#             if out_op is not None:
-#                 new_cols.append(out_op.alias(col_name))

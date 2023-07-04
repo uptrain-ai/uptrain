@@ -41,13 +41,14 @@ class OpenAIGradeScore(ColumnOp):
 
     col_in_input: str = "prompt"
     col_in_completion: str = "response"
+    col_out: str = "openai_grade_score"
     eval_name: str
 
     def setup(self, settings: Settings):
         self._settings = settings
         return self
 
-    def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         samples = data.select(
             [
                 pl.col(self.col_in_input).alias("input"),
@@ -67,11 +68,9 @@ class OpenAIGradeScore(ColumnOp):
             and "metrics" in oaieval_res["extra"]
             and "score" in oaieval_res["extra"]["metrics"]
         )
-        return {
-            "output": pl.Series(oaieval_res["extra"]["metrics"]["score"]).alias(
-                get_output_col_name_at(0)
-            )
-        }
+
+        results = pl.Series(oaieval_res["extra"]["metrics"]["score"])
+        return {"output": data.with_columns([results.alias(self.col_out)])}
 
 
 @register_op
@@ -96,6 +95,7 @@ class ModelGradeScore(ColumnOp):
     choice_strings: list[str]
     choice_scores: dict[str, float]
     context_vars: dict[str, str]
+    col_out: str = "model_grade_score"
 
     def setup(self, settings: Settings):
         self._api_client = LLMMulticlient(settings=settings)
@@ -108,7 +108,7 @@ class ModelGradeScore(ColumnOp):
             metadata={"index": id},
         )
 
-    def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         prompts = []
         for row in data.rows(named=True):
             subs = {k: row[v] for k, v in self.context_vars.items()}
@@ -156,4 +156,4 @@ class ModelGradeScore(ColumnOp):
         result_scores = pl.Series(
             [val for _, val in sorted(results, key=lambda x: x[0])]
         )
-        return {"output": pl.Series(result_scores).alias(get_output_col_name_at(0))}
+        return {"output": data.with_columns([result_scores.alias(self.col_out)])}

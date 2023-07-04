@@ -17,7 +17,7 @@ from uptrain.operators.language.llm import LLMMulticlient, Payload
 
 
 @register_op
-class PromptGenerator(TableOp):
+class PromptGenerator(TransformOp):
     """Operator to generate text given different prompts/LLM-input-parameters.
 
     Attributes:
@@ -92,7 +92,7 @@ class PromptGenerator(TableOp):
 
 
 @register_op
-class TextCompletion(TableOp):
+class TextCompletion(TransformOp):
     """
     Takes a table of prompts and LLM model to use, generates output text.
 

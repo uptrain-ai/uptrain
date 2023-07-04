@@ -64,11 +64,12 @@ class Accuracy(ColumnOp):
     kind: t.Literal["NOT_EQUAL", "ABS_ERROR"]
     col_in_prediction: str = "prediction"
     col_in_ground_truth: str = "ground_truth"
+    col_out: str = "accuracy"
 
     def setup(self, settings: Settings):
         return self
 
-    def run(self, data: pl.DataFrame) -> TYPE_COLUMN_OUTPUT:
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         preds = np.array(data.get_column(self.col_in_prediction))
         gts = np.array(data.get_column(self.col_in_ground_truth))
 
@@ -76,4 +77,4 @@ class Accuracy(ColumnOp):
             acc = np.not_equal(preds, gts)
         else:
             acc = np.abs(preds - gts)
-        return {"output": pl.Series(get_output_col_name_at(0), acc)}
+        return {"output": data.with_columns([pl.Series(self.col_out, acc)])}

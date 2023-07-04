@@ -11,6 +11,7 @@ __all__ = [
     "ModelGradeScore",
     "PromptGenerator",
     "TextCompletion",
+    "sql",
 ]
 
 from .grammar import GrammarScore
@@ -20,3 +21,4 @@ from .rouge import RougeScore
 from .text import DocsLinkVersion, TextLength, TextComparison
 from .model_grade import ModelGradeScore, OpenAIGradeScore
 from .generation import PromptGenerator, TextCompletion
+from . import sql

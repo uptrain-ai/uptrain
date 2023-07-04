@@ -154,7 +154,7 @@ class OpenaiEval(ColumnOp):
 # -----------------------------------------------------------
 
 
-class PromptEval(TableOp):
+class PromptEval(TransformOp):
     """
     Operator for running prompt-based evaluations.
 
@@ -166,9 +166,9 @@ class PromptEval(TableOp):
         col_out_prompt (str, optional): Output column name for prompts. Defaults to "prompt".
         col_out_response (str, optional): Output column name for responses. Defaults to "response".
         _settings (Settings): The framework settings.
-    
+
     """
-    
+
     prompt_template: str
     prompt_variables: list[str]
     gt_variables: list[str]

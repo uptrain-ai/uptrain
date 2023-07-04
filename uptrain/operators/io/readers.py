@@ -14,7 +14,7 @@ from uptrain.operators.base import *
 
 
 @register_op
-class CsvReader(TableOp):
+class CsvReader(TransformOp):
     """Reads data from a csv file.
 
     Attributes:
@@ -35,7 +35,7 @@ class CsvReader(TableOp):
 
 
 @register_op
-class JsonReader(TableOp):
+class JsonReader(TransformOp):
     """Reads data from a json file.
 
     Attributes:
@@ -91,7 +91,7 @@ class TextReaderExecutor:
 
 
 @register_op
-class DeltaReader(TableOp):
+class DeltaReader(TransformOp):
     """Reads data from a Delta Lake table.
 
     Attributes:
@@ -134,7 +134,7 @@ class DeltaReader(TableOp):
 # -----------------------------------------------------------
 
 
-class UptrainReader(TableOp):
+class UptrainReader(TransformOp):
     dataset_id: str
 
     def setup(self, settings: Settings):

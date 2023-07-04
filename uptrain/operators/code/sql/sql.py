@@ -35,7 +35,7 @@ class Table(BaseModel):
 
 
 @register_op
-class ParseCreateStatements(TableOp):
+class ParseCreateStatements(TransformOp):
     """
     Read tables and columns from ";" separated CREATE TABLE statements and writes a json dictionary Table -> [columns].
 
@@ -75,7 +75,7 @@ class ParseCreateStatements(TableOp):
 
 
 @register_op
-class ParseSQL(TableOp):
+class ParseSQL(TransformOp):
     """
     Read tables and columns from a generic SQL SELECT statement and writes a json dictionary Table -> [columns].
     Note that we don't use table schema definition to do this but instead simply parse the SQL. Output might have a
@@ -126,7 +126,7 @@ class ParseSQL(TableOp):
 
 
 @register_op
-class ValidateTables(TableOp):
+class ValidateTables(TransformOp):
     """
     Ensures that table and column names from response/predicted SQL are valid tables columns as per the schema
     definition.
@@ -193,7 +193,7 @@ class ValidateTables(TableOp):
 
 
 @register_op
-class ExecuteAndCompareSQL(TableOp):
+class ExecuteAndCompareSQL(TransformOp):
     """
     Execute predicted SQL, ground truth SQL and compute execution accuracy of the predicted sql.
 

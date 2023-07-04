@@ -18,7 +18,7 @@ from uptrain.operators.base import *
 
 
 @register_op
-class ColumnExpand(TableOp):
+class ColumnExpand(TransformOp):
     """
     Table operation to return the input DataFrame as it is without any modifications.
 
