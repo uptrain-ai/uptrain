@@ -1,13 +1,13 @@
 ---
 title: Prompt Experiments
-desctription: How to use UpTrain to experiment with multiple prompts
+description: How to use UpTrain to experiment with multiple prompts
 ---
 
 
 **Overview**: In this example, we will see how to experiment with multiple prompts using UpTrain, to select which one works best for the given use case. The experimentation is done by defining multiple prompt templates along with a test dataset, utilizing UpTrain to compute model responses for them, and running a variety of evaluations to compare them quantitatively. We will use a Q&A task as an example to highlight the same.
 
 
-**Why evaluate prompts**: LLM outputs are highly sensitive to the prompt provided. Trivial changes to the prompt such as assigning a personality to the LLM by prefixing the prompt with "Imagine you are a CEO/Writer/Scientist etc." can generate widely different responses. This difference impacts the overall application's performance, making it crucial to test multiple prompts over cases to find the one best suited for the application.
+**Why Evaluate Prompts**: LLM outputs are highly sensitive to the prompt provided. Trivial changes to the prompt such as assigning a personality to the LLM by prefixing the prompt with "Imagine you are a CEO/Writer/Scientist etc." can generate widely different responses. This difference impacts the overall application's performance, making it crucial to test multiple prompts over cases to find the one best suited for the application.
 
 
 **Problem**: The workflow of our hypothetical Q&A application goes like,
@@ -19,7 +19,7 @@ desctription: How to use UpTrain to experiment with multiple prompts
 The goal is to find the best prompt which answers the user's question.
 
 
-**Solution**: In the given tutorial, we consider a prompt template with LLM_PERSONALITY as a variable and using the experimentation framework to find the best personality to fill in. We demonstrate how to use the Uptrain framework to first obtain output responses for a test set of queries. We then evaluate the quality of the responses on some specified metrics.
+**Solution**: In the given tutorial, we consider a prompt template with LLM_PERSONALITY as a variable and use the experimentation framework to find the best personality to fill in. We demonstrate how to use the Uptrain framework to first obtain output responses for a test set of queries. We then evaluate the quality of the responses on some specified metrics.
 
 ## Install required packages
 
@@ -58,10 +58,10 @@ prompt_base = """
 """
 ```
 
-As we see from above prompt, we have an additional variable in our prompt called "LLM_PERSONALITY". We want to experiment with multiple personalities like **("bot", "backend developer", "python expert")** and check which of the three gives the most appropriate response.
+As we see from the above prompt, we have an additional variable in our prompt called "LLM_PERSONALITY". We want to experiment with multiple personalities like **("bot", "backend developer", "python expert")** and check which of the three gives the most appropriate response.
 
 
-Just for clarity, let's see how these prompts look like:
+Just for clarity, let's see what these prompts look like:
 
 ```python
 print("prompt_bot: ", prompt_base.replace("{LLM_PERSONALITY}", "bot"))
@@ -94,7 +94,7 @@ print("Couple of samples: ", dataset[0:2])
 
 We start by configuring UpTrain to run our experiment. We will be using OpenAI's GPT-3.5-Turbo as our LLM. 
 
-Let's define an UpTrain 'Settings' object which has the directory location where we want to save the results of this experiment. Note that you must have `OPENAI_API_KEY` specified in your env variables or specify it explicitiy in the `Settings` object. 
+Let's define an UpTrain 'Settings' object which has the directory location where we want to save the results of this experiment. Note that you must have `OPENAI_API_KEY` specified in your env variables or specify it explicitly in the `Settings` object. 
 
 ```python
 from uptrain.framework import Settings
@@ -136,7 +136,7 @@ hallucination_check = Check(
 )
 ```
 
-To create multiple prompts from te same prompt template, UpTrain provides a PromptExperiment class where one can define their prompt template, multiple parameters to generate different prompt variations and the LLM model to be used. 
+To create multiple prompts from the same prompt template, UpTrain provides a PromptExperiment class where one can define their prompt template, multiple parameters to generate different prompt variations and the LLM model to be used. 
 
 ```python
 from uptrain.operators import JsonReader, PromptGenerator, TextCompletion
@@ -162,7 +162,7 @@ check_set = CheckSet(
 )
 ```
 
-Now we run the `CheckSet` and see which prompts performs best.
+Now we run the `CheckSet` and see which prompts perform best.
 
 ```python
 check_set.setup(UPTRAIN_SETTINGS).run()
@@ -180,13 +180,13 @@ runner.start()
 ### Visualizing the evaluation results
 
 
-UpTrain offers pivoting options for table. Here, we use this to find out which of the three personalities has the highest overlap scores.
+UpTrain offers pivoting options for tables. Here, we use this to find out which of the three personalities has the highest overlap scores.
 
 
-![prompt_experiment_pivot_table.png](attachment:51e75410-2165-495b-b294-7ba8c9dd4902.png)
+![prompt_experiment_pivot_table.png](https://github.com/uptrain-ai/uptrain/assets/43818888/1d501d2b-6e43-409d-ac58-d3436c045ee8)
 
 
 Alternatively, we could look at the distribution of hallucination scores across different prompt parameters. 
 
 
-![prompt_experiment_plot.png](attachment:6c766044-7b50-4e19-a0c0-067390c2f13f.png)
+![prompt_experiment_plot.png](https://github.com/uptrain-ai/uptrain/assets/43818888/ba3ab292-c06d-4b47-9843-7618b2334def)
