@@ -121,10 +121,10 @@ checkset.run()
 
 | Eval Frameworks  | LLM Providers | LLM Packages | Serving frameworks | 
 | ------------- | ------------- | ------------- | ------------- | 
-| OpenAI Evals ✅ | GPT-3.5-turbo ✅ | Langchain | HuggingFace |
-| EleutherAI LM Eval  | GPT-4 ✅  | Llama Index |  Replicate |
-| BIG-Bench | Claude | AutoGPT |
-| | Cohere | 
+| OpenAI Evals ✅ | GPT-3.5-turbo ✅ | Langchain 🔜 | HuggingFace 🔜 |
+| EleutherAI LM Eval 🔜 | GPT-4 ✅  | Llama Index 🔜 |  Replicate 🔜 |
+| BIG-Bench 🔜 | Claude 🔜 | AutoGPT 🔜 |
+| | Cohere 🔜 | 
 
 
 # UpTrain in Action
