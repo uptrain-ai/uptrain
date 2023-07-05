@@ -10,6 +10,7 @@ import polars as pl
 from uptrain.operators.base import *
 from uptrain.utilities import jsonload, jsondump, to_py_types, clear_directory
 from uptrain.framework.base import OperatorDAG, Settings
+from uptrain.operators import PlotlyChart
 
 if t.TYPE_CHECKING:
     from uptrain.operators import PromptGenerator
@@ -65,13 +66,16 @@ class Check(Operator):
         """Run this check on the given data."""
         node_inputs = {"sequence_0": data}
 
-        # pick output from the last op in the sequence
-        name_final_node = f"sequence_{len(self.sequence) - 1}"
-        node_outputs = self._op_dag.run(
-            node_inputs=node_inputs,
-            output_nodes=[name_final_node],
-        )
-        return node_outputs[name_final_node]
+        if len(self.sequence):
+            # pick output from the last op in the sequence
+            name_final_node = f"sequence_{len(self.sequence) - 1}"
+            node_outputs = self._op_dag.run(
+                node_inputs=node_inputs,
+                output_nodes=[name_final_node],
+            )
+            return node_outputs[name_final_node]
+        else:
+            return data
 
     def dict(self) -> dict:
         """Serialize this check to a dict."""
@@ -101,6 +105,7 @@ class CheckSet:
     source: Operator
     checks: list[Check]
     preprocessors: list[TransformOp]
+    _consolidated_check: None
 
     def __init__(
         self,
@@ -108,6 +113,12 @@ class CheckSet:
         checks: list[t.Any],
         preprocessors: list[TransformOp] | None = None,
     ):
+        self._consolidated_check = Check(
+            name="Consolidated Results",
+            sequence=[],
+            plot=[PlotlyChart.Table(title="Consolidated Results")]
+        )
+
         self.source = source
         self.checks = checks
         self.preprocessors = preprocessors if preprocessors is not None else []
@@ -138,6 +149,7 @@ class CheckSet:
             preprocessor.setup(self._settings)
         for check in self.checks:
             check.setup(self._settings)
+        self._consolidated_check.setup(self._settings)
         return self
 
     def run(self):
@@ -159,10 +171,19 @@ class CheckSet:
                 )
             ).setup(self._settings).run(source_output)
 
+        consolidated_outputs = source_output
         for check in self.checks:
-            check_ouptut = check.run(source_output)
-            assert check_ouptut is not None, f"Output of check {check.name} is None"
-            self._get_sink_for_check(self._settings, check).run(check_ouptut)
+            check_output = check.run(source_output)
+            assert check_output is not None, f"Output of check {check.name} is None"
+            self._get_sink_for_check(self._settings, check).run(check_output)
+
+            if all(isinstance(operator, ColumnOp) for operator in check.sequence):
+                consolidated_outputs = consolidated_outputs.with_columns([
+                    check_output[col_name] for col_name in list(set(check_output.columns) - set(consolidated_outputs.columns))
+                ])
+
+        self._get_sink_for_check(self._settings, self._consolidated_check).run(self._consolidated_check.run(consolidated_outputs))
+
 
     @staticmethod
     def _get_sink_for_check(settings: Settings, check: Check):
@@ -187,7 +208,7 @@ class CheckSet:
         return {
             "source": to_py_types(self.source),
             "preprocessors": [to_py_types(op) for op in self.preprocessors],
-            "checks": [to_py_types(check) for check in self.checks],
+            "checks": [to_py_types(check) for check in self.checks + [self._consolidated_check]],
         }
 
     @classmethod
