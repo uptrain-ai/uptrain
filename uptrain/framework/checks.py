@@ -208,7 +208,7 @@ class CheckSet:
         return {
             "source": to_py_types(self.source),
             "preprocessors": [to_py_types(op) for op in self.preprocessors],
-            "checks": [to_py_types(check) for check in self.checks + [self._consolidated_check]],
+            "checks": [to_py_types(check) for check in self.checks]
         }
 
     @classmethod
