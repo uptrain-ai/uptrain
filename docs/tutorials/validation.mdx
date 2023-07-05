@@ -82,8 +82,12 @@ if not os.path.exists(dataset_path):
 dataset = pl.read_ndjson(dataset_path).select(
     pl.col(["question", "document_title", "document_text"])
 )
-print(dataset[0:2])
+print("Number of test cases: ", len(dataset))
+print("Couple of samples: ", dataset[0:2])
 ```
+
+![sample_dataset.png](https://github.com/uptrain-ai/uptrain/assets/43818888/6081b07a-4dbb-449f-b9ed-97260a9c86d2)
+
 
 Let's now get responses from our LLM by defining our completion function. 
 We are using GPT-3.5-Turbo for the same.
@@ -132,6 +136,9 @@ print(
     "\n",
 )
 ```
+
+![sample_responses.png](https://github.com/uptrain-ai/uptrain/assets/43818888/16e6bacc-c96b-42c4-893d-44be456bec6a)
+
 
 As we can see, our model gives us empty responses for certain cases. Let's see how we can use the UpTrain Validation Framework to check for the same and retry the LLM whenever that happens.
 
@@ -185,3 +192,5 @@ Finally, let's run it a few values from our input dataset.
 for inputs in dataset.to_dicts()[:20]:
     validated_response = validation_manager.run(inputs)
 ```
+
+![validation_dashboard.png](https://github.com/uptrain-ai/uptrain/assets/43818888/3dbf3d6f-a0ad-46dd-8946-58a23ac55d08)
