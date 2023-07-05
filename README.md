@@ -80,14 +80,14 @@
 
 <!-- You can quickly get started with [Google Colab here](https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing%2F). -->
 
-To run it on your machine, follow the steps below:
+To run it on your machine, checkout the [Quickstart tutorial](https://docs.uptrain.ai/getting-started/quickstart):
 
 ### Install the package through pip:
 ```bash
 pip install uptrain
 ```
 
-### Define your checks:
+### How to define checks:
 Say we want to check whether our model's responses contain any grammatical mistakes or not.
 
 ```python
