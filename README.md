@@ -55,7 +55,7 @@
 <kbd>[<img title="Russian" alt="Russian language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/ru.svg" width="22">](/i18n/README.ru.md)</kbd> -->
 
 
-**[UpTrain](https://uptrain.ai)** is a Python framework that helps users to check the performance of their LLM applications on aspects such as correctness, structural integrity, bias, hallucination, etc. UpTrain can be used to:
+**[UpTrain](https://uptrain.ai)** is a Python framework that ensures your LLM applications are performing reliably by allowing users to check aspects such as correctness, structural integrity, bias, hallucination, etc. UpTrain can be used to:
 
 1) Validate model's response and safeguard your users against hallucinations, bias, incorrect output formats, etc.
 2) Experiment across multiple model providers, prompt templates, and quantify model's performance.
