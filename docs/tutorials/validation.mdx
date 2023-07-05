@@ -154,7 +154,7 @@ from uptrain.operators import TextComparison
 
 check = Check(
     name="empty_response_validation",
-    sequence=[
+    operators=[
         TextComparison(
             reference_text="<EMPTY MESSAGE>",
             col_in_text="response",

@@ -22,7 +22,7 @@ from uptrain.operators.language import (
 def get_list_checks():
     check_1 = Check(
         name="scores",
-        sequence=[
+        operators=[
             RougeScore(
                 score_type="precision",
                 col_in_generated="response",
@@ -37,7 +37,7 @@ def get_list_checks():
     )
     check_2 = Check(
         name="question_umap",
-        sequence=[
+        operators=[
             UMAP(
                 col_in_embs_1="question_embeddings",
                 col_in_embs_2="response_embeddings",
@@ -52,7 +52,7 @@ def get_list_checks():
     )
     check_3 = Check(
         name="distribution-embeddings",
-        sequence=[
+        operators=[
             Distribution(
                 kind="cosine_similarity",
                 col_in_embs=["context_embeddings", "response_embeddings"],

@@ -88,7 +88,7 @@ def get_list_checks():
 
     check = Check(
         name="Model grade scores",
-        sequence=list_score_ops,
+        operators=list_score_ops,
         plot=[
             PlotlyChart(kind="table", title="Model grade scores"),
             PlotlyChart.Histogram(

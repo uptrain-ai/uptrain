@@ -67,7 +67,7 @@ def produce_dataset_w_spider_schema(source_path, sink_path, spider_dataset_path)
 
 select_all_check = Check(
     name="Query has star symbol",
-    sequence=[
+    operators=[
         KeywordDetector(
             col_in_text="response", keyword="*", col_out="has_star_symbol_in_query"
         ),
@@ -84,7 +84,7 @@ select_all_check = Check(
 
 sql_validity_check = Check(
     name="Validate SQL",
-    sequence=[
+    operators=[
         ParseCreateStatements(
             col_in_schema_def="schema_def",
             col_out_tables="schema_tables",
@@ -115,7 +115,7 @@ sql_validity_check = Check(
 
 execution_accuracy_check = Check(
     name="Generated SQL query execution accuracy",
-    sequence=[
+    operators=[
         ExecuteAndCompareSQL(
             col_in_response_sql="response",
             col_in_gt_sql="gt_query",

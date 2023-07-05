@@ -27,24 +27,24 @@ class Check(Operator):
 
     Attributes:
         name (str): Name of the check.
-        sequence (list[TableOp]): A list of operators to run in sequence on the input data. The output of each
+        operators (list[TableOp]): A list of operators to run in sequence on the input data. The output of each
             operator is passed as input to the next operator.
         plot (list[Operator]): How to plot the output of the check.
 
     """
 
     name: str
-    sequence: list[Operator]
+    operators: list[Operator]
     plot: list[Operator]
 
     def __init__(
         self,
         name: str,
-        sequence: list[Operator],
+        operators: list[Operator],
         plot: list[Operator] | None = None,
     ):
         self.name = name
-        self.sequence = sequence
+        self.operators = operators
         self.plot = plot if plot is not None else []
 
     def setup(self, settings: "Settings"):
@@ -52,23 +52,23 @@ class Check(Operator):
 
         # no need to add the plot operator to the dag, since it's run later
         self._op_dag = OperatorDAG(name=self.name)
-        for i, op in enumerate(self.sequence):
+        for i, op in enumerate(self.operators):
             if i == 0:
                 deps = []
             else:
-                deps = [f"sequence_{i-1}"]
-            self._op_dag.add_step(f"sequence_{i}", op, deps=deps)
+                deps = [f"operator_{i-1}"]
+            self._op_dag.add_step(f"operator_{i}", op, deps=deps)
         self._op_dag.setup(settings)
 
         return self
 
     def run(self, data: pl.DataFrame | None = None) -> pl.DataFrame | None:
         """Run this check on the given data."""
-        node_inputs = {"sequence_0": data}
+        node_inputs = {"operator_0": data}
 
-        if len(self.sequence):
+        if len(self.operators):
             # pick output from the last op in the sequence
-            name_final_node = f"sequence_{len(self.sequence) - 1}"
+            name_final_node = f"operator_{len(self.operators) - 1}"
             node_outputs = self._op_dag.run(
                 node_inputs=node_inputs,
                 output_nodes=[name_final_node],
@@ -81,16 +81,16 @@ class Check(Operator):
         """Serialize this check to a dict."""
         return {
             "name": self.name,
-            "sequence": [to_py_types(op) for op in self.sequence],
+            "operators": [to_py_types(op) for op in self.operators],
             "plot": [to_py_types(op) for op in self.plot],
         }  # serializes only the attributes of the class, like pydantic models
 
     @classmethod
     def from_dict(cls, data: dict) -> "Check":
         """Deserialize a check from a dict of its parameters."""
-        sequence = [deserialize_operator(op) for op in data["sequence"]]
+        operators = [deserialize_operator(op) for op in data["operators"]]
         plot = [deserialize_operator(op) for op in data["plot"]]
-        return cls(name=data["name"], sequence=sequence, plot=plot)  # type: ignore
+        return cls(name=data["name"], operators=operators, plot=plot)  # type: ignore
 
 
 class CheckSet:
@@ -115,7 +115,7 @@ class CheckSet:
     ):
         self._consolidated_check = Check(
             name="Consolidated Results",
-            sequence=[],
+            operators=[],
             plot=[PlotlyChart.Table(title="Consolidated Results")]
         )
 
@@ -177,7 +177,7 @@ class CheckSet:
             assert check_output is not None, f"Output of check {check.name} is None"
             self._get_sink_for_check(self._settings, check).run(check_output)
 
-            if all(isinstance(operator, ColumnOp) for operator in check.sequence):
+            if all(isinstance(operator, ColumnOp) for operator in check.operators):
                 consolidated_outputs = consolidated_outputs.with_columns([
                     check_output[col_name] for col_name in list(set(check_output.columns) - set(consolidated_outputs.columns))
                 ])

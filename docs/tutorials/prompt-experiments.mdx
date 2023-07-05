@@ -121,7 +121,7 @@ from uptrain.operators import PlotlyChart, RougeScore
 
 hallucination_check = Check(
     name="hallucination",
-    sequence=[
+    operators=[
         RougeScore(
             col_in_generated="exp_generated",
             col_in_source="document_text",
