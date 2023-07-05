@@ -97,15 +97,11 @@ Say we want to check whether our model's responses contain any grammatical mista
 checkset = CheckSet(
     checks = Check(
         name = "grammar_score",
-        sequence = [
-            SelectOp(
-                columns = {
-                    "grammar_score": GrammarScore(
-                        col_in_text = "model_response",
-                        col_out = "grammar_score"
-                    ),
-                }
-            )
+        operators = [
+            GrammarScore(
+                col_in_text = "model_response",
+                col_out = "grammar_score"
+            ),
         ],
         plot = PlotlyChart.Table(title="Grammar scores"),
     ),

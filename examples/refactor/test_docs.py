@@ -50,7 +50,7 @@ def get_list_checks(source_path):
     checks.append(
         Check(
             name="distribution_of_document_embeddings",
-            sequence=[
+            operators=[
                 Distribution(
                     kind="cosine_similarity",
                     col_in_embs=["context_embeddings", "response_embeddings"],
@@ -74,7 +74,7 @@ def get_list_checks(source_path):
     checks.append(
         Check(
             name="text_overlap_between_documents",
-            sequence=[
+            operators=[
                 Distribution(
                     kind="rouge",
                     col_in_embs=["document_text"],
@@ -94,7 +94,7 @@ def get_list_checks(source_path):
     checks.append(
         Check(
             name="quality_scores",
-            sequence=[
+            operators=[
                 DocsLinkVersion(
                     col_in_text="document_link", col_out="document_link_version"
                 ),
@@ -135,7 +135,7 @@ def get_list_checks(source_path):
     checks.append(
         Check(
             name="question_umap",
-            sequence=[
+            operators=[
                 UMAP(
                     col_in_embs_1="question_embeddings",
                     col_in_embs_2="response_embeddings",

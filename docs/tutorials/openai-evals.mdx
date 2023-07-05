@@ -80,7 +80,7 @@ from uptrain.operators import PlotlyChart, ModelGradeScore, OpenAIGradeScore
 
 check = Check(
     name="Eval scores",
-    sequence=[
+    operators=[
         ## Add your checks here
         # First is the openai grade eval - uses GPT-3.5-turbo
         OpenAIGradeScore(
