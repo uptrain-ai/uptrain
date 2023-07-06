@@ -10,7 +10,7 @@ def test_concept_drift():
     from uptrain.operators.io import CsvReader
 
     # Create an instance of the ParamsDDM class with the parameters
-    params_ddm = ParamsDDM(warm_start=500, warn_threshold=2.0, alarm_threshold=3.0)
+    params_ddm = ParamsDDM(warm_start=500, warning_threshold=2.0, drift_threshold=3.0)
 
     # Create an instance of the ConceptDrift operator
     op = ConceptDrift(algorithm="DDM", params=params_ddm, col_in_measure="prediction")
