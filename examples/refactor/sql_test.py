@@ -67,12 +67,12 @@ def produce_dataset_w_spider_schema(source_path, sink_path, spider_dataset_path)
 
 select_all_check = Check(
     name="Query has star symbol",
-    sequence=[
+    operators=[
         KeywordDetector(
             col_in_text="response", keyword="*", col_out="has_star_symbol_in_query"
         ),
     ],
-    plot=[
+    plots=[
         PlotlyChart.Histogram(
             title="Distribution: Generated SQL query has '*' symbol",
             props=dict(
@@ -84,7 +84,7 @@ select_all_check = Check(
 
 sql_validity_check = Check(
     name="Validate SQL",
-    sequence=[
+    operators=[
         ParseCreateStatements(
             col_in_schema_def="schema_def",
             col_out_tables="schema_tables",
@@ -101,7 +101,7 @@ sql_validity_check = Check(
             col_out_is_cols_valid="cols_valid",
         ),
     ],
-    plot=[
+    plots=[
         PlotlyChart.Histogram(
             title="Distribution: Generated SQL query is valid - column names",
             props=dict(x="cols_valid", nbins=2, color="model", barmode="group"),
@@ -115,7 +115,7 @@ sql_validity_check = Check(
 
 execution_accuracy_check = Check(
     name="Generated SQL query execution accuracy",
-    sequence=[
+    operators=[
         ExecuteAndCompareSQL(
             col_in_response_sql="response",
             col_in_gt_sql="gt_query",
@@ -123,7 +123,7 @@ execution_accuracy_check = Check(
             col_out_execution_accuracy="execution_accuracy",
         )
     ],
-    plot=[
+    plots=[
         PlotlyChart.Histogram(
             title="Distribution: SQL execution gives correct results",
             props=dict(x="execution_accuracy", nbins=2, color="model", barmode="group"),

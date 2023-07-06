@@ -55,7 +55,7 @@
 <kbd>[<img title="Russian" alt="Russian language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/ru.svg" width="22">](/i18n/README.ru.md)</kbd> -->
 
 
-**[UpTrain](https://uptrain.ai)** is a Python framework that helps users to check the performance of their LLM applications on aspects such as correctness, structural integrity, bias, hallucination, etc. UpTrain can be used to:
+**[UpTrain](https://uptrain.ai)** is a Python framework that ensures your LLM applications are performing reliably by allowing users to check aspects such as correctness, structural integrity, bias, hallucination, etc. UpTrain can be used to:
 
 1) Validate model's response and safeguard your users against hallucinations, bias, incorrect output formats, etc.
 2) Experiment across multiple model providers, prompt templates, and quantify model's performance.
@@ -80,14 +80,14 @@
 
 <!-- You can quickly get started with [Google Colab here](https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing%2F). -->
 
-To run it on your machine, follow the steps below:
+To run it on your machine, checkout the [Quickstart tutorial](https://docs.uptrain.ai/getting-started/quickstart):
 
 ### Install the package through pip:
 ```bash
 pip install uptrain
 ```
 
-### Define your checks:
+### How to define checks:
 Say we want to check whether our model's responses contain any grammatical mistakes or not.
 
 ```python
@@ -97,17 +97,13 @@ Say we want to check whether our model's responses contain any grammatical mista
 checkset = CheckSet(
     checks = Check(
         name = "grammar_score",
-        sequence = [
-            SelectOp(
-                columns = {
-                    "grammar_score": GrammarScore(
-                        col_in_text = "model_response",
-                        col_out = "grammar_score"
-                    ),
-                }
-            )
+        operators = [
+            GrammarScore(
+                col_in_text = "model_response",
+                col_out = "grammar_score"
+            ),
         ],
-        plot = PlotlyChart.Table(title="Grammar scores"),
+        plots = PlotlyChart.Table(title="Grammar scores"),
     ),
     source = JsonReader(fpath = '...')
 )
@@ -125,10 +121,10 @@ checkset.run()
 
 | Eval Frameworks  | LLM Providers | LLM Packages | Serving frameworks | 
 | ------------- | ------------- | ------------- | ------------- | 
-| OpenAI Evals ✅ | GPT-3.5-turbo ✅ | Langchain | HuggingFace |
-| EleutherAI LM Eval  | GPT-4 ✅  | Llama Index |  Replicate |
-| BIG-Bench | Claude | AutoGPT |
-| | Cohere | 
+| OpenAI Evals ✅ | GPT-3.5-turbo ✅ | Langchain 🔜 | HuggingFace 🔜 |
+| EleutherAI LM Eval 🔜 | GPT-4 ✅  | Llama Index 🔜 |  Replicate 🔜 |
+| BIG-Bench 🔜 | Claude 🔜 | AutoGPT 🔜 |
+| | Cohere 🔜 | 
 
 
 # UpTrain in Action

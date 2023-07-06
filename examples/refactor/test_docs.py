@@ -50,7 +50,7 @@ def get_list_checks(source_path):
     checks.append(
         Check(
             name="distribution_of_document_embeddings",
-            sequence=[
+            operators=[
                 Distribution(
                     kind="cosine_similarity",
                     col_in_embs=["context_embeddings", "response_embeddings"],
@@ -58,7 +58,7 @@ def get_list_checks(source_path):
                     col_out=["similarity-context", "similarity-response"],
                 )
             ],
-            plot=[
+            plots=[
                 PlotlyChart.Histogram(
                     title="Embeddings similarity - Context",
                     props=dict(x="similarity-context", nbins=20),
@@ -74,7 +74,7 @@ def get_list_checks(source_path):
     checks.append(
         Check(
             name="text_overlap_between_documents",
-            sequence=[
+            operators=[
                 Distribution(
                     kind="rouge",
                     col_in_embs=["document_text"],
@@ -82,7 +82,7 @@ def get_list_checks(source_path):
                     col_out=["rogue_f1"],
                 )
             ],
-            plot=[
+            plots=[
                 PlotlyChart.Histogram(
                     title="Text Overlap between document embeddings",
                     props=dict(x="rogue_f1", nbins=20),
@@ -94,7 +94,7 @@ def get_list_checks(source_path):
     checks.append(
         Check(
             name="quality_scores",
-            sequence=[
+            operators=[
                 DocsLinkVersion(
                     col_in_text="document_link", col_out="document_link_version"
                 ),
@@ -118,7 +118,7 @@ def get_list_checks(source_path):
                     col_out="empty_response",
                 ),
             ],
-            plot=[
+            plots=[
                 PlotlyChart.Table(title="Quality scores"),
                 PlotlyChart.Bar(
                     title="Bar Plot of Link version",
@@ -135,13 +135,13 @@ def get_list_checks(source_path):
     checks.append(
         Check(
             name="question_umap",
-            sequence=[
+            operators=[
                 UMAP(
                     col_in_embs_1="question_embeddings",
                     col_in_embs_2="response_embeddings",
                 )
             ],
-            plot=[
+            plots=[
                 PlotlyChart.Scatter(
                     title="UMAP for question embeddings",
                     props=dict(

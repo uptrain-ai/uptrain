@@ -10,7 +10,7 @@ description: How to use UpTrain to experiment with multiple prompts
 **Why Evaluate Prompts**: LLM outputs are highly sensitive to the prompt provided. Trivial changes to the prompt such as assigning a personality to the LLM by prefixing the prompt with "Imagine you are a CEO/Writer/Scientist etc." can generate widely different responses. This difference impacts the overall application's performance, making it crucial to test multiple prompts over cases to find the one best suited for the application.
 
 
-**Problem**: The workflow of our hypothetical Q&A application goes like,
+**Problem**: The workflow of our hypothetical Q&A application goes like this,
 - The user enters a question. 
 - The question is converted to a vector encoding.
 - Relevant sections from the documentation are retrieved using a vector database. 
@@ -38,7 +38,7 @@ logger.remove() # if you are getting errors, comment this line out and retry
 TEMP_DIR = tempfile.gettempdir()
 ```
 
-**This notebook uses the OpenAI API to generate text for prompts, make sure the env variable is populated.**
+**This notebook uses the OpenAI API to generate text for prompts, make sure the env variable is populated with the API key.**
 
 ```python
 # os.environ["OPENAI_API_KEY"] = "..."
@@ -70,7 +70,6 @@ print("prompt_expert: ", prompt_base.replace("{LLM_PERSONALITY}", "python expert
 ```
 
 ![sample_prompts.png](https://github.com/uptrain-ai/uptrain/assets/43818888/3a96ce12-6af1-42bb-8535-bd1a093eb703)
-
 
 Let's now load our dataset and see how that looks
 
@@ -118,22 +117,19 @@ Now that we have multiple prompts, let's define our checks to compare which one 
 
 ```python
 from uptrain.framework import Check, CheckSet
-from uptrain.operators import PlotlyChart, RougeScore, SelectOp
+from uptrain.operators import PlotlyChart, RougeScore
 
 hallucination_check = Check(
     name="hallucination",
-    sequence=[
-        SelectOp(
-            columns={
-                "overlap_score": RougeScore(
-                    col_in_generated="exp_generated",
-                    col_in_source="document_text",
-                    score_type="precision",
-                )
-            }
-        )
+    operators=[
+        RougeScore(
+            col_in_generated="exp_generated",
+            col_in_source="document_text",
+            score_type="precision",
+            col_out="overlap_score",
+        ),
     ],
-    plot=[
+    plots=[
         PlotlyChart.Histogram(
             props=dict(x="overlap_score", nbins=20, color="exp_LLM_PERSONALITY")
         ),

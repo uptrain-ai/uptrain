@@ -41,13 +41,14 @@ def read_settings(logs_folder: str):
 def st_make_check_selector(checkset: "CheckSet"):
     """Make a selector for a checkset"""
     # Pick a check from the checkset to view
+    checks = checkset.checks + [checkset._consolidated_check]
     with st.sidebar:
         select_check_index = st.sidebar.selectbox(
             "Select a check to view",
-            options=list(range(len(checkset.checks))),
-            format_func=lambda x: checkset.checks[x].name,
+            options=list(range(len(checks))),
+            format_func=lambda x: checks[x].name,
         )  # streamlit is being weird with classes, so iterate over their indices
-    check = checkset.checks[select_check_index]  # type: ignore
+    check = checks[select_check_index]  # type: ignore
     return check
 
 

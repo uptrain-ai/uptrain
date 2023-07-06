@@ -53,7 +53,7 @@
   ],
   "navigation": [
     {
-      "group": "Getting Started",
+      "group": "Getting Started 🚀",
       "version": "v1",
       "pages": [
         "getting-started/introduction", 
@@ -62,11 +62,12 @@
       ]
     },
     {
-      "group": "Tutorials",
+      "group": "Tutorials 📑",
       "version": "v1",
       "pages": [
         "tutorials/prompt-experiments",
-        "tutorials/validation"
+        "tutorials/validation",
+        "tutorials/openai-evals"
       ]
     },
     {

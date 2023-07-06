@@ -1,5 +1,5 @@
 ---
-title: "Quickstart ⚡️"
+title: "Quickstart"
 description: "Get started with UpTrain in a few simple steps"
 ---
 
@@ -52,8 +52,8 @@ from uptrain.framework import Check
 
 response_analysis = Check(
     name="response_analysis"
-    sequence=[grammar_score, text_length],
-    plot=[Table()]
+    operators=[grammar_score, text_length],
+    plots=[Table()]
 )
 ```
 

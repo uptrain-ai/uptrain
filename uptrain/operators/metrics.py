@@ -24,6 +24,7 @@ class Accuracy(ColumnOp):
         kind (Literal["NOT_EQUAL", "ABS_ERROR"]): The type of accuracy measure.
         col_in_prediction (str): The name of the column containing the predicted values.
         col_in_ground_truth (str): The name of the column containing the ground truth values.
+        col_out (str): The name of the output column containing the accuracy scores.
 
     Example:
         ```

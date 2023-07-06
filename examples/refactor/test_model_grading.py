@@ -88,8 +88,8 @@ def get_list_checks():
 
     check = Check(
         name="Model grade scores",
-        sequence=list_score_ops,
-        plot=[
+        operators=list_score_ops,
+        plots=[
             PlotlyChart(kind="table", title="Model grade scores"),
             PlotlyChart.Histogram(
                 props=dict(x="openai_grade_score", title="chatgpt-grading", nbins=3)

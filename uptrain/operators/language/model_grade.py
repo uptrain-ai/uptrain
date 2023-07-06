@@ -33,6 +33,7 @@ class OpenAIGradeScore(ColumnOp):
         col_in_input (str): The name of the input column containing the prompts.
         col_in_completion (str): The name of the input column containing the completions.
         eval_name (str): The name of the OpenAI evaluation to use.
+        col_out (str): The name of the output column containing the grade scores.
 
     Returns:
         dict: A dictionary containing the calculated grade scores.

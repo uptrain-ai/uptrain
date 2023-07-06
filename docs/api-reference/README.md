@@ -14,7 +14,7 @@
 <!-- -
 <a href="https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing/" rel="nofollow"><strong>Try it out</strong></a> -->
 -
-<a href="https://discord.com/invite/gVvZhhrQaQ/" rel="nofollow"><strong>Discord Community</strong></a>
+<a href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg" rel="nofollow"><strong>Slack Community</strong></a>
 -
 <a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=bug&template=bug_report.md&title=" rel="nofollow"><strong>Bug Report</strong></a>
 -
@@ -31,8 +31,8 @@
   <a href="https://docs.uptrain.ai/docs/">
     <img src="https://img.shields.io/badge/Read-Docs-brightgreen" alt="Docs" />
   </a>
-  <a href="https://discord.com/invite/gVvZhhrQaQ">
-    <img src="https://img.shields.io/badge/Discord-Community-orange" alt="Community" />
+  <a href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg">
+    <img src="https://img.shields.io/badge/Slack-Community-orange" alt="Community" />
   </a>
   <a href="https://uptrain.ai/">
     <img src="https://img.shields.io/badge/UpTrain-Website-yellow" alt="Website" />
@@ -55,22 +55,22 @@
 <kbd>[<img title="Russian" alt="Russian language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/ru.svg" width="22">](/i18n/README.ru.md)</kbd> -->
 
 
-**[UpTrain](https://uptrain.ai)** is a Python framework that helps users to check the performance of their LLM applications on aspects such as correctness, structural integrity, bias, hallucination, etc. UpTrain can be used to:
+**[UpTrain](https://uptrain.ai)** is a Python framework that ensures your LLM applications are performing reliably by allowing users to check aspects such as correctness, structural integrity, bias, hallucination, etc. UpTrain can be used to:
 
 1) Validate model's response and safeguard your users against hallucinations, bias, incorrect output formats, etc.
-2) Experiment across multiple model providers, prompt templates, and quantify model's performance for  
+2) Experiment across multiple model providers, prompt templates, and quantify model's performance.
 3) Monitor your model's performance in production and protect yourself against unwanted drifts
 
 
 # Key Features 💡
 
 
-- **[ChatGPT Grading]()** - Utilize LLMs to grade your model outputs.
-- **[Custom Grading Checks]()** - Write your custom grading prompts.
+- **[ChatGPT Grading](https://uptrain-ai.github.io/uptrain/operators/language/OpenAIGradeScore/)** - Utilize LLMs to grade your model outputs.
+- **[Custom Grading Checks](https://uptrain-ai.github.io/uptrain/operators/language/ModelGradeScore/)** - Write your custom grading prompts.
 - **[Embeddings Similarity Check]()** - Compute cosine similarity between prompt and response embeddings
-- **[Output Validation]()** - Safeguard your users against inappropriate responses
-- **[Prompt A/B Testing]()** - Experiment across multiple prompts and compare them quantatively.
-- **[UMAP Visualization and Clustering]()** - Visualize your embedding space using tools like UMAP and t-SNE.
+- **[Output Validation](https://github.com/uptrain-ai/uptrain/blob/main/examples/validation_tutorial.ipynb)** - Safeguard your users against inappropriate responses
+- **[Prompt A/B Testing](https://github.com/uptrain-ai/uptrain/blob/main/examples/prompt_experiments_tutorial.ipynb)** - Experiment across multiple prompts and compare them quantatively.
+- **[UMAP Visualization and Clustering](https://uptrain-ai.github.io/uptrain/operators/UMAP/)** - Visualize your embedding space using tools like UMAP and t-SNE.
 - **[Hallucination Checks]()** - Use metrics like custom grading, text similarity, and embedding similarity to check for hallucinations.
 - **[Toxic Keywords Checks]()** - Make sure your model outputs are not biased or contain toxic keywords.
 - **[Feature Slicing]()** - Built-in pivoting functionalities for data dice and slice to pinpoint low-performing cohorts.
@@ -80,42 +80,37 @@
 
 <!-- You can quickly get started with [Google Colab here](https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing%2F). -->
 
-To run it in your machine, follow the steps below:
+To run it on your machine, checkout the [Quickstart tutorial](https://docs.uptrain.ai/getting-started/quickstart):
 
 ### Install the package through pip:
 ```bash
 pip install uptrain
 ```
 
-### Define your checks:
+### How to define checks:
 Say we want to check whether our model's responses contain any grammatical mistakes or not.
 
 ```python
-# Define your checkset - list of simple checks, dataset file,
+# Define your checkset - list of simple checks, dataset file, 
 # and api_keys
 
 checkset = CheckSet(
     checks = Check(
         name = "grammar_score",
-        sequence = [
-            SelectOp(
-                columns = {
-                    "grammar_score": GrammarScore(
-                        col_in_text = "model_response",
-                        col_out = "grammar_score"
-                    ),
-                }
-            )
+        operators = [
+            GrammarScore(
+                col_in_text = "model_response",
+                col_out = "grammar_score"
+            ),
         ],
-        plot = PlotlyChart.Table(title="Grammar scores"),
+        plots = PlotlyChart.Table(title="Grammar scores"),
     ),
-    source = JsonReader(fpath = '...'),
+    source = JsonReader(fpath = '...')
 )
 settings = Settings(openai_api_key = '...')
 
 checkset.setup(settings)
 checkset.run()
-
 ```
 
 <!-- For a quick walkthrough of how UpTrain works, check out our [quickstart tutorial](https://docs.uptrain.ai/docs/uptrain-examples/quickstart-tutorial). -->
@@ -126,21 +121,21 @@ checkset.run()
 
 | Eval Frameworks  | LLM Providers | LLM Packages | Serving frameworks | 
 | ------------- | ------------- | ------------- | ------------- | 
-| OpenAI Evals ✅ | GPT-3.5-turbo ✅ | Langchain | HuggingFace |
-| EleutherAI LM Eval  | GPT-4 ✅  | Llama Index |  Replicate |
-| BIG-Bench | Claude | AutoGPT |
-| | Cohere | 
+| OpenAI Evals ✅ | GPT-3.5-turbo ✅ | Langchain 🔜 | HuggingFace 🔜 |
+| EleutherAI LM Eval 🔜 | GPT-4 ✅  | Llama Index 🔜 |  Replicate 🔜 |
+| BIG-Bench 🔜 | Claude 🔜 | AutoGPT 🔜 |
+| | Cohere 🔜 | 
 
 
 # UpTrain in Action
 
 ## Experimentation
 
-You can use the UpTrain framework to run and compare LLM responses for different prompts, models, LLM chains, etc. Check out the experimentation tutorial to learn more.
+You can use the UpTrain framework to run and compare LLM responses for different prompts, models, LLM chains, etc. Check out the [experimentation tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/prompt_experiments_tutorial.ipynb) to learn more.
 
 ## Validation
 
-You can use the UpTrain Validation Manager to define checks, retry logic and validate your LLM responses before showing it to your users. Check out the tutorial here.
+You can use the UpTrain Validation Manager to define checks, retry logic and validate your LLM responses before showing it to your users. Check out the [tutorial here](https://github.com/uptrain-ai/uptrain/blob/main/examples/validation_tutorial.ipynb).
 
 ## Monitoring
 
@@ -149,14 +144,14 @@ You can use the UpTrain framework to continuously monitor your model's performan
 
 # Why UpTrain 🤔?
 
-Large language models are trained over billions of data-points and perform really well over a wide variety of tasks. But one thing these models are not good at, is being deterministic. Even with the most well-crafted prompts, the model can misbehave for certain inputs, be it hallucinations, wrong output structure, toxic or biased response, irrelevant response, error modes can be immense. 
+Large language models are trained over billions of data points and perform really well over a wide variety of tasks. But one thing these models are not good at is being deterministic. Even with the most well-crafted prompts, the model can misbehave for certain inputs, be it hallucinations, wrong output structure, toxic or biased response, irrelevant response, and error modes can be immense. 
 
-To ensure your LLM applications work reliably and correctly, UpTrain makes it easy for developers to evaluate the responses of their applications on multiple criterion. UpTrain's evaluation framework can be used to:
+To ensure your LLM applications work reliably and correctly, UpTrain makes it easy for developers to evaluate the responses of their applications on multiple criteria. UpTrain's evaluation framework can be used to:
 
 1) Validate (and correct) the response of the model before showing it to the user
 2) Get quantitative measures to experiment across multiple prompts, model providers, etc.
 3) Do unit testing to ensure no buggy prompt or code gets pushed into your production
-4) Monitor your LLM applications in real-time and understand when they are going wrong in order to fix them before users complain.
+4) Monitor your LLM applications in real time and understand when they are going wrong in order to fix them before users complain.
 
 We are constantly working to make UpTrain better. Want a new feature or need any integrations? Feel free to [create an issue](https://github.com/uptrain-ai/uptrain/issues) or [contribute](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md) directly to the repository.
 

@@ -30,6 +30,7 @@ class Embedding(ColumnOp):
     Attributes:
         model (Literal["MiniLM-L6-v2", "hkunlp/instructor-xl"]): The name of the pre-trained model to use.
         col_in_text (str): The name of the text column in the DataFrame.
+        col_out (str): The name of the output column in the DataFrame.
 
     Raises:
         Exception: If the specified model is not supported.

@@ -28,6 +28,7 @@ class GrammarScore(ColumnOp):
 
     Attributes:
         col_in_text (str): The name of the input column containing the sentences to evaluate.
+        col_out (str): The name of the output column containing the grammar scores.
 
     Returns:
         dict: A dictionary containing the grammar scores for each input sentence.
