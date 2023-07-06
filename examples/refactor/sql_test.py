@@ -72,7 +72,7 @@ select_all_check = Check(
             col_in_text="response", keyword="*", col_out="has_star_symbol_in_query"
         ),
     ],
-    plot=[
+    plots=[
         PlotlyChart.Histogram(
             title="Distribution: Generated SQL query has '*' symbol",
             props=dict(
@@ -101,7 +101,7 @@ sql_validity_check = Check(
             col_out_is_cols_valid="cols_valid",
         ),
     ],
-    plot=[
+    plots=[
         PlotlyChart.Histogram(
             title="Distribution: Generated SQL query is valid - column names",
             props=dict(x="cols_valid", nbins=2, color="model", barmode="group"),
@@ -123,7 +123,7 @@ execution_accuracy_check = Check(
             col_out_execution_accuracy="execution_accuracy",
         )
     ],
-    plot=[
+    plots=[
         PlotlyChart.Histogram(
             title="Distribution: SQL execution gives correct results",
             props=dict(x="execution_accuracy", nbins=2, color="model", barmode="group"),

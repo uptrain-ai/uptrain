@@ -35,7 +35,7 @@ SETTINGS = read_settings(LOGS_DIR)
 check = st_make_check_selector(CHECK_SET)
 
 # Check the plot operator for the check
-plot_ops = check.plot
+plot_ops = check.plots
 if len(plot_ops) == 0:
     st.warning("No plot operator specified for the check")
     st.stop()

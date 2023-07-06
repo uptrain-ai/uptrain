@@ -58,7 +58,7 @@ def get_list_checks(source_path):
                     col_out=["similarity-context", "similarity-response"],
                 )
             ],
-            plot=[
+            plots=[
                 PlotlyChart.Histogram(
                     title="Embeddings similarity - Context",
                     props=dict(x="similarity-context", nbins=20),
@@ -82,7 +82,7 @@ def get_list_checks(source_path):
                     col_out=["rogue_f1"],
                 )
             ],
-            plot=[
+            plots=[
                 PlotlyChart.Histogram(
                     title="Text Overlap between document embeddings",
                     props=dict(x="rogue_f1", nbins=20),
@@ -118,7 +118,7 @@ def get_list_checks(source_path):
                     col_out="empty_response",
                 ),
             ],
-            plot=[
+            plots=[
                 PlotlyChart.Table(title="Quality scores"),
                 PlotlyChart.Bar(
                     title="Bar Plot of Link version",
@@ -141,7 +141,7 @@ def get_list_checks(source_path):
                     col_in_embs_2="response_embeddings",
                 )
             ],
-            plot=[
+            plots=[
                 PlotlyChart.Scatter(
                     title="UMAP for question embeddings",
                     props=dict(
