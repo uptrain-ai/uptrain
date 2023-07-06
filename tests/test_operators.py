@@ -1,6 +1,8 @@
+import os
 from uptrain.framework import Settings
 
 SETTINGS = Settings()
+SELF_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 # uptrain.operators.drift
@@ -10,14 +12,14 @@ def test_concept_drift():
     from uptrain.operators.io import CsvReader
 
     # Create an instance of the ParamsDDM class with the parameters
-    params_ddm = ParamsDDM(warm_start=500, warn_threshold=2.0, alarm_threshold=3.0)
+    params_ddm = ParamsDDM(warm_start=500, warning_threshold=2.0, drift_threshold=3.0)
 
     # Create an instance of the ConceptDrift operator
     op = ConceptDrift(algorithm="DDM", params=params_ddm, col_in_measure="prediction")
 
     # Run the operator on the input data
     input_data = (
-        CsvReader(fpath="uptrain/tests/data/predictions.csv")
+        CsvReader(fpath=os.path.join(SELF_DIR, "data/predictions.csv"))
         .setup(SETTINGS)
         .run()["output"]
     )
@@ -64,7 +66,7 @@ def test_embs_cosine_distribution():
 
     # Run the operator on the input data
     input_data = (
-        JsonReader(fpath="uptrain/tests/data/qna_on_docs_samples.jsonl")
+        JsonReader(fpath=os.path.join(SELF_DIR, "data/qna_on_docs_samples.jsonl"))
         .setup(SETTINGS)
         .run()["output"]
     )
@@ -89,7 +91,7 @@ def test_embs_rouge_score():
     )
     # Run the operator on the input data
     input_data = (
-        JsonReader(fpath="uptrain/tests/data/qna_on_docs_samples.jsonl")
+        JsonReader(fpath=os.path.join(SELF_DIR, "data/qna_on_docs_samples.jsonl"))
         .setup(SETTINGS)
         .run()["output"]
     )
@@ -110,7 +112,7 @@ def test_embs_umap_operator():
 
     # Run the operator on the input data
     input_data = (
-        JsonReader(fpath="uptrain/tests/data/qna_on_docs_samples.jsonl")
+        JsonReader(fpath=os.path.join(SELF_DIR, "data/qna_on_docs_samples.jsonl"))
         .setup(SETTINGS)
         .run()["output"]
     )
@@ -161,7 +163,7 @@ def test_accuracy_operator():
 
     # Run the operator on the input data
     input_data = (
-        CsvReader(fpath="uptrain/tests/data/predictions.csv")
+        CsvReader(fpath=os.path.join(SELF_DIR, "data/predictions.csv"))
         .setup(SETTINGS)
         .run()["output"]
     )

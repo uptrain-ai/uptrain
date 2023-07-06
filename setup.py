@@ -12,6 +12,10 @@ from pathlib import Path
 this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()
 
+# sentence-tranformers deps (it installs torch-gpu by default)
+
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+
 setup(
     name="uptrain",
     version="0.2.0",
@@ -73,10 +77,11 @@ setup(
             "xgboost",
         ],
         "full": [
-            "river",
+            "river<0.18",
             "scikit_learn>=1.0.0",
             "umap-learn",
             "rouge-score",
+            "sentence-transformers",
         ],
     },  # Optional
     tests_require=["pytest>=7.0"],

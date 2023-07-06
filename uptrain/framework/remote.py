@@ -29,14 +29,14 @@ class DatasetsAPI:
 
     def get(self, name: str, version: t.Optional[int] = None):
         url = f"{self.base_url}/dataset"
-        params = {"name": name}
+        params: dict = {"name": name}
         if version is not None:
             params["version"] = version
         response = self.client.get(url, params=params)
         return response.json()
 
     def list(self, skip: int = 0, limit: int = 100):
-        url = f"{self.client.base_url}/datasets"
+        url = f"{self.base_url}/datasets"
         params = {"skip": skip, "limit": limit}
         response = self.client.get(url, params=params)
         return response.json()
@@ -54,7 +54,7 @@ class ChecksetsAPI:
 
     def get(self, name: str, version: t.Optional[int] = None):
         url = f"{self.base_url}/checkset"
-        params = {"name": name}
+        params: dict = {"name": name}
         if version is not None:
             params["version"] = version
         response = self.client.get(url, params=params)
@@ -67,36 +67,12 @@ class ChecksetsAPI:
         return response.json()
 
 
-class APIClient:
+@dataclass
+class RunsAPI:
     base_url: str
     client: httpx.Client
-    datasets: DatasetsAPI
-    checksets: ChecksetsAPI
 
-    def __init__(self, settings: Settings) -> None:
-        server_url = settings.check_and_get("uptrain_server_url")
-        api_key = settings.check_and_get("uptrain_access_token")
-
-        self.base_url = server_url.rstrip("/") + "/api/public"
-        self.client = httpx.Client(headers={"uptrain-access-token": api_key})
-        self.datasets = DatasetsAPI(base_url=self.base_url, client=self.client)
-        self.checksets = ChecksetsAPI(base_url=self.base_url, client=self.client)
-
-    def check_auth(self):
-        """Ping the server to check if the client is authenticated."""
-        url = f"{self.base_url}/auth"
-        try:
-            response = self.client.get(url)
-            if not response.is_success:
-                raise RuntimeError(
-                    f"Failed to authenticate with the Uptrain server: {response.json()}"
-                )
-        except httpx.ConnectError as e:
-            raise RuntimeError(
-                f"Failed to connect to the Uptrain server at {self.base_url}"
-            ) from e
-
-    def add_run(self, dataset: str, checkset: str) -> dict:
+    def add(self, dataset: str, checkset: str) -> dict:
         """Schedules an evaluation on the server. Specify the dataset and checkset to use.
 
         Args:
@@ -112,7 +88,7 @@ class APIClient:
         )
         return response.json()
 
-    def get_run_status(self, run_id: str) -> str:
+    def get(self, run_id: str) -> str:
         """Get the status of a run.
 
         Args:
@@ -125,7 +101,7 @@ class APIClient:
         response = self.client.get(url)
         return response.json()
 
-    def list_all_active_runs(self):
+    def list(self, only_active: bool = True):
         """List all the runs on the server.
 
         - filter by scheduled/completed/in-process?
@@ -133,14 +109,46 @@ class APIClient:
         """
         ...
 
-    def cancel_active_run(self):
+    def cancel(self, run_id: str):
         """Cancel an active run on the server."""
         ...
 
-    def get_logs_for_run(self):
+    def get_logs(self, run_id: str):
         """Get logs for a run."""
         ...
 
-    def get_results_for_run(self):
+    def get_results(self, run_id: str):
         """Get results for a run."""
         ...
+
+
+class APIClient:
+    base_url: str
+    client: httpx.Client
+    datasets: DatasetsAPI
+    checksets: ChecksetsAPI
+    runs: RunsAPI
+
+    def __init__(self, settings: Settings) -> None:
+        server_url = settings.check_and_get("uptrain_server_url")
+        api_key = settings.check_and_get("uptrain_access_token")
+
+        self.base_url = server_url.rstrip("/") + "/api/public"
+        self.client = httpx.Client(headers={"uptrain-access-token": api_key})
+        self.datasets = DatasetsAPI(base_url=self.base_url, client=self.client)
+        self.checksets = ChecksetsAPI(base_url=self.base_url, client=self.client)
+        self.runs = RunsAPI(base_url=self.base_url, client=self.client)
+
+    def check_auth(self):
+        """Ping the server to check if the client is authenticated."""
+        url = f"{self.base_url}/auth"
+        try:
+            response = self.client.get(url)
+            if not response.is_success:
+                raise RuntimeError(
+                    f"Failed to authenticate with the Uptrain server: {response.json()}"
+                )
+        except httpx.ConnectError as e:
+            raise RuntimeError(
+                f"Failed to connect to the Uptrain server at {self.base_url}"
+            ) from e
