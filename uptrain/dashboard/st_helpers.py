@@ -53,7 +53,7 @@ def st_make_check_selector(checkset: "CheckSet"):
 
 
 def load_data_for_check_local(settings: "Settings", check: "Check"):
-    from uptrain.operators.io import DeltaWriter, JsonWriter
+    from uptrain.operators import DeltaWriter, JsonWriter
 
     sink = CheckSet._get_sink_for_check(settings, check)
     if isinstance(sink, (DeltaWriter, JsonWriter)):

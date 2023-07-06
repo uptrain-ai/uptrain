@@ -33,7 +33,7 @@ class DeltaWriter(OpBaseModel):
         return {"output": None}
 
     def to_reader(self):
-        from uptrain.operators.io import DeltaReader
+        from uptrain.operators.io.readers import DeltaReader
 
         return DeltaReader(fpath=self.fpath)  # type: ignore
 
@@ -47,7 +47,7 @@ class JsonWriter(OpBaseModel):
         return self
 
     def to_reader(self):
-        from uptrain.operators.io import JsonReader
+        from uptrain.operators.io.readers import JsonReader
 
         return JsonReader(fpath=self.fpath)  # type: ignore
 

@@ -87,6 +87,11 @@ To run it on your machine, checkout the [Quickstart tutorial](https://docs.uptra
 pip install uptrain
 ```
 
+Note: Uptrain uses commonly used python libraries like openai-evals and sentence-transformers. To make sure, all the functionalities work, use the `uptrain-add` command to install the full version of the package.
+```bash
+uptrain-add --feature full
+```
+
 ### How to define checks:
 Say we want to check whether our model's responses contain any grammatical mistakes or not.
 

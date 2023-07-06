@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+
+[project]
+name = "uptrain"
+version = "0.3.2"
+description = "UpTrain - ML Observability and Retraining Framework"
+readme = "README.md"
+maintainers = [{ name = "UpTrain AI Team", email = "uptrain.ai@gmail.com" }]
+license = {text = "Apache-2.0"}
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Build Tools",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+keywords = ["uptrain", "ai", "retraining", "ML", "observability"]
+dependencies = [
+    "tqdm>=4.0",
+    "pydantic<1.10.10",
+    "aiolimiter>=1.1",
+    "loguru",
+    "lazy_loader",
+    "networkx",
+    "polars>=0.18",
+    "deltalake>=0.9",
+    "numpy>=1.23.0",
+    "pyarrow>=10.0.0",
+    "plotly>=5.0.0",
+    "streamlit>=1.23",
+    "httpx>=0.24.1",
+]
+
+[project.urls]
+Homepage = "https://uptrain.ai"
+Repository = "https://github.com/uptrain-ai/uptrain"
+
+[project.scripts]
+uptrain-add = "uptrain.cli:main"
+
+[project.optional-dependencies]
+# Optional dependencies are installed using the uptrain-cli
+test = [
+    "pytest>=7.0"
+]
+
+[tools.setuptools]
+packages = ["uptrain"]

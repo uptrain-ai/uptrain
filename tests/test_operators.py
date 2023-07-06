@@ -9,7 +9,7 @@ SELF_DIR = os.path.dirname(os.path.abspath(__file__))
 def test_concept_drift():
     import polars as pl
     from uptrain.operators import ParamsDDM, ConceptDrift
-    from uptrain.operators.io import CsvReader
+    from uptrain.operators import CsvReader
 
     # Create an instance of the ParamsDDM class with the parameters
     params_ddm = ParamsDDM(warm_start=500, warning_threshold=2.0, drift_threshold=3.0)
@@ -33,7 +33,7 @@ def test_concept_drift():
 # uptrain.operators.language.embedding
 def test_embedding():
     import polars as pl
-    from uptrain.operators.language import Embedding
+    from uptrain.operators import Embedding
 
     # Create a DataFrame
     df = pl.DataFrame(
@@ -54,7 +54,7 @@ def test_embedding():
 def test_embs_cosine_distribution():
     import polars as pl
     from uptrain.operators import Distribution
-    from uptrain.operators.io import JsonReader
+    from uptrain.operators import JsonReader
 
     # Create an instance of the Distribution operator
     op = Distribution(
@@ -80,7 +80,7 @@ def test_embs_cosine_distribution():
 def test_embs_rouge_score():
     import polars as pl
     from uptrain.operators import Distribution
-    from uptrain.operators.io import JsonReader
+    from uptrain.operators import JsonReader
 
     # Create an instance of the Distribution operator
     op = Distribution(
@@ -105,7 +105,7 @@ def test_embs_rouge_score():
 def test_embs_umap_operator():
     import polars as pl
     from uptrain.operators import UMAP
-    from uptrain.operators.io import JsonReader
+    from uptrain.operators import JsonReader
 
     # Create an instance of the UMAP operator
     op = UMAP(col_in_embs_1="context_embeddings", col_in_embs_2="response_embeddings")
@@ -152,7 +152,7 @@ def test_cosine_similarity_operator():
 # uptrain.operators.metrics
 def test_accuracy_operator():
     from uptrain.operators import Accuracy
-    from uptrain.operators.io import CsvReader
+    from uptrain.operators import CsvReader
 
     # Create an instance of the Accuracy operator
     op = Accuracy(
@@ -209,7 +209,7 @@ def test_vis_plot_operators():
     line_chart = line_chart.run(df)["extra"]["chart"]
 
     # Show the chart
-    line_chart.show()
+    # line_chart.show()
 
     # SCATTER CHART
     # Create a scatter chart using the PlotlyChart class
@@ -221,7 +221,7 @@ def test_vis_plot_operators():
     scatter_chart = scatter_chart.run(df)["extra"]["chart"]
 
     # Show the chart
-    scatter_chart.show()
+    # scatter_chart.show()
 
     # BAR CHART
     # Create a bar chart using the PlotlyChart class
@@ -231,7 +231,7 @@ def test_vis_plot_operators():
     bar_chart = bar_chart.run(df)["extra"]["chart"]
 
     # Show the chart
-    bar_chart.show()
+    # bar_chart.show()
 
     # HISTOGRAM
     # Create a histogram using the PlotlyChart class
@@ -241,13 +241,13 @@ def test_vis_plot_operators():
     histogram = histogram.run(df)["extra"]["chart"]
 
     # Show the chart
-    histogram.show()
+    # histogram.show()
 
 
 # uptrain.operators.language.rouge
 def test_rouge_operator():
     import polars as pl
-    from uptrain.operators.language import RougeScore
+    from uptrain.operators import RougeScore
 
     # Create a DataFrame
     df = pl.DataFrame(
@@ -276,7 +276,7 @@ def test_rouge_operator():
 # uptrain.operators.language.text
 def test_docs_link_version_operator():
     import polars as pl
-    from uptrain.operators.language import DocsLinkVersion
+    from uptrain.operators import DocsLinkVersion
 
     # Create a DataFrame
     df = pl.DataFrame(
@@ -301,7 +301,7 @@ def test_docs_link_version_operator():
 # uptrain.operators.language.text
 def test_text_length_operator():
     import polars as pl
-    from uptrain.operators.language import TextLength
+    from uptrain.operators import TextLength
 
     # Create a DataFrame
     df = pl.DataFrame(
@@ -327,7 +327,7 @@ def test_text_length_operator():
 # uptrain.operators.language.text
 def test_text_comparison_operator():
     import polars as pl
-    from uptrain.operators.language import TextComparison
+    from uptrain.operators import TextComparison
 
     # Create a DataFrame
     df = pl.DataFrame(
