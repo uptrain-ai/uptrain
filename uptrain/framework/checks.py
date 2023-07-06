@@ -105,7 +105,6 @@ class CheckSet:
     source: Operator
     checks: list[Check]
     preprocessors: list[TransformOp]
-    _consolidated_check: None
 
     def __init__(
         self,
@@ -116,7 +115,7 @@ class CheckSet:
         self._consolidated_check = Check(
             name="Consolidated Results",
             operators=[],
-            plots=[PlotlyChart.Table(title="Consolidated Results")]
+            plots=[PlotlyChart.Table(title="Consolidated Results")],
         )
 
         self.source = source
@@ -154,7 +153,7 @@ class CheckSet:
 
     def run(self):
         """Run all checks in this set."""
-        from uptrain.operators.io import JsonWriter
+        from uptrain.operators.io.writers import JsonWriter
 
         source_output = self.source.run()["output"]
         assert source_output is not None, "Output of source is None"
@@ -178,17 +177,24 @@ class CheckSet:
             self._get_sink_for_check(self._settings, check).run(check_output)
 
             if all(isinstance(operator, ColumnOp) for operator in check.operators):
-                consolidated_outputs = consolidated_outputs.with_columns([
-                    check_output[col_name] for col_name in list(set(check_output.columns) - set(consolidated_outputs.columns))
-                ])
+                consolidated_outputs = consolidated_outputs.with_columns(
+                    [
+                        check_output[col_name]
+                        for col_name in list(
+                            set(check_output.columns)
+                            - set(consolidated_outputs.columns)
+                        )
+                    ]
+                )
 
-        self._get_sink_for_check(self._settings, self._consolidated_check).run(self._consolidated_check.run(consolidated_outputs))
-
+        self._get_sink_for_check(self._settings, self._consolidated_check).run(
+            self._consolidated_check.run(consolidated_outputs)
+        )
 
     @staticmethod
     def _get_sink_for_check(settings: Settings, check: Check):
         """Get the sink operator for this check."""
-        from uptrain.operators.io import JsonWriter
+        from uptrain.operators.io.writers import JsonWriter
 
         return JsonWriter(
             fpath=os.path.join(settings.logs_folder, f"{check.name}.jsonl")
@@ -208,7 +214,7 @@ class CheckSet:
         return {
             "source": to_py_types(self.source),
             "preprocessors": [to_py_types(op) for op in self.preprocessors],
-            "checks": [to_py_types(check) for check in self.checks]
+            "checks": [to_py_types(check) for check in self.checks],
         }
 
     @classmethod

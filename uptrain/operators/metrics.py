@@ -29,7 +29,7 @@ class Accuracy(ColumnOp):
     Example:
         ```
         from uptrain.operators import Accuracy
-        from uptrain.operators.io import CsvReader
+        from uptrain.operators import CsvReader
 
         # Create an instance of the Accuracy operator
         op = Accuracy(

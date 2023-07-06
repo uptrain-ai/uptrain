@@ -30,6 +30,7 @@ __all__ = [
     "DocsLinkVersion",
     "TextLength",
     "TextComparison",
+    "KeywordDetector",
     "OpenAIGradeScore",
     "ModelGradeScore",
     "PromptGenerator",
@@ -41,6 +42,12 @@ __all__ = [
     "JsonWriter",
     "DeltaReader",
     "DeltaWriter",
+    # code
+    "code",
+    "ParseCreateStatements",
+    "ParseSQL",
+    "ValidateTables",
+    "ExecuteAndCompareSQL",
 ]
 
 from .base import (
@@ -57,15 +64,23 @@ from .metrics import Accuracy
 from .similarity import CosineSimilarity
 from .vis import PlotlyChart
 
-import language
+from . import language
 from .language.grammar import GrammarScore
 from .language.openai_evals import OpenaiEval, PromptEval
 from .language.embedding import Embedding
 from .language.rouge import RougeScore
-from .language.text import DocsLinkVersion, TextLength, TextComparison
+from .language.text import DocsLinkVersion, TextLength, TextComparison, KeywordDetector
 from .language.model_grade import ModelGradeScore, OpenAIGradeScore
 from .language.generation import PromptGenerator, TextCompletion
 
-import io
+from . import io
 from .io.readers import CsvReader, JsonReader, DeltaReader
 from .io.writers import JsonWriter, DeltaWriter
+
+from . import code
+from .code.sql import (
+    ParseCreateStatements,
+    ParseSQL,
+    ValidateTables,
+    ExecuteAndCompareSQL,
+)

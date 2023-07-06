@@ -2,9 +2,9 @@ import os
 import polars as pl
 
 from uptrain.framework import CheckSet, Settings, Check
-from uptrain.operators.io import JsonReader, JsonWriter
+from uptrain.operators import JsonReader, JsonWriter
 from uptrain.operators import PlotlyChart
-from uptrain.operators.language import ModelGradeScore, OpenAIGradeScore
+from uptrain.operators import ModelGradeScore, OpenAIGradeScore
 
 
 def produce_dataset_w_context(source_path, sink_path):

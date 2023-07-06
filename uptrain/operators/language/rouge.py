@@ -37,7 +37,7 @@ class RougeScore(ColumnOp):
     Example:
         ```
         import polars as pl
-        from uptrain.operators.language import RougeScore
+        from uptrain.operators import RougeScore
 
         # Create a DataFrame
         df = pl.DataFrame({

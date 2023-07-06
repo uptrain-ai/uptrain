@@ -2,16 +2,16 @@ import os
 
 import polars as pl
 
-from uptrain.operators.language.sql import (
+from uptrain.operators import (
     ParseSQL,
     ValidateTables,
     ExecuteAndCompareSQL,
     ParseCreateStatements,
 )
 from uptrain.framework import CheckSet, Settings, Check
-from uptrain.operators.io import JsonReader, JsonWriter
+from uptrain.operators import JsonReader, JsonWriter
 from uptrain.operators import PlotlyChart
-from uptrain.operators.language.text import KeywordDetector
+from uptrain.operators import KeywordDetector
 
 
 # Define the config

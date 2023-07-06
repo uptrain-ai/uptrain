@@ -1,8 +1,8 @@
 import os
 from uptrain.framework import CheckSet, Settings, Check
 from uptrain.operators import PlotlyChart, Distribution, CosineSimilarity, UMAP
-from uptrain.operators.io import JsonReader, JsonWriter
-from uptrain.operators.language import (
+from uptrain.operators import JsonReader, JsonWriter
+from uptrain.operators import (
     Embedding,
     RougeScore,
     DocsLinkVersion,

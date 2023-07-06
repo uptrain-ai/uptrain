@@ -38,7 +38,7 @@ class DocsLinkVersion(ColumnOp):
     Example:
         ```
         import polars as pl
-        from uptrain.operators.language import DocsLinkVersion
+        from uptrain.operators import DocsLinkVersion
 
         # Create a DataFrame
         df = pl.DataFrame({
@@ -101,7 +101,7 @@ class TextLength(ColumnOp):
     Example:
         ```
         import polars as pl
-        from uptrain.operators.language import TextLength
+        from uptrain.operators import TextLength
 
         # Create a DataFrame
         df = pl.DataFrame({
@@ -158,7 +158,7 @@ class TextComparison(ColumnOp):
     Example:
         ```
         import polars as pl
-        from uptrain.operators.language import TextComparison
+        from uptrain.operators import TextComparison
 
         # Create a DataFrame
         df = pl.DataFrame({

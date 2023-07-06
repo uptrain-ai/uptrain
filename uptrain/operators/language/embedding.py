@@ -41,7 +41,7 @@ class Embedding(ColumnOp):
     Example:
         ```
         import polars as pl
-        from uptrain.operators.language import Embedding
+        from uptrain.operators import Embedding
 
         # Create a DataFrame
         df = pl.DataFrame({
