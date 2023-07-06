@@ -21,10 +21,11 @@ The goal is to find the best prompt which answers the user's question.
 
 **Solution**: In the given tutorial, we consider a prompt template with LLM_PERSONALITY as a variable and use the experimentation framework to find the best personality to fill in. We demonstrate how to use the Uptrain framework to first obtain output responses for a test set of queries. We then evaluate the quality of the responses on some specified metrics.
 
-## Install required packages
+## Install UpTrain with all dependencies
 
 ```bash
-pip install uptrain[full] # Install UpTrain with all dependencies
+pip install uptrain
+uptrain-add --feature full
 ```
 
 ```python

@@ -1,1 +1,1 @@
-::: uptrain.operators.code.sql.sql.ParseCreateStatements
+::: uptrain.operators.code.sql.ParseCreateStatements
