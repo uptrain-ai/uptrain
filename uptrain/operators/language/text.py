@@ -93,6 +93,7 @@ class TextLength(ColumnOp):
 
     Attributes:
         col_in_text (str): The name of the input column containing the text data.
+        col_out (str): The name of the output column containing the text lengths.
 
     Returns:
         dict: A dictionary containing the calculated text lengths.
@@ -131,6 +132,7 @@ class TextLength(ColumnOp):
     """
 
     col_in_text: str
+    col_out: str = "text_length"
 
     def setup(self, settings: Settings):
         return self
@@ -148,6 +150,7 @@ class TextComparison(ColumnOp):
     Attributes:
         reference_text (str): The reference text for comparison.
         col_in_text (str): The name of the input column containing the text data.
+        col_out (str): The name of the output column containing the comparison results.
 
     Returns:
         dict: A dictionary containing the comparison results (1 if equal, 0 otherwise).

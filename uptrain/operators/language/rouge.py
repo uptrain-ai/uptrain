@@ -29,6 +29,7 @@ class RougeScore(ColumnOp):
         score_type (Literal["precision", "recall", "f1"]): The type of Rouge score to calculate.
         col_in_generated (str): The name of the input column containing the generated text.
         col_in_source (str): The name of the input column containing the source text.
+        col_out (str): The name of the output column containing the Rouge scores.
 
     Returns:
         dict: A dictionary containing the Rouge scores for each pair of generated and source text.
