@@ -89,7 +89,7 @@ def get_list_checks():
     check = Check(
         name="Model grade scores",
         operators=list_score_ops,
-        plot=[
+        plots=[
             PlotlyChart(kind="table", title="Model grade scores"),
             PlotlyChart.Histogram(
                 props=dict(x="openai_grade_score", title="chatgpt-grading", nbins=3)

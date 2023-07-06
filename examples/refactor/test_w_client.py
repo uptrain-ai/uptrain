@@ -33,7 +33,7 @@ def get_list_checks():
                 col_in_vector_2="response_embeddings",
             ),
         ],
-        plot=[PlotlyChart.Table(title="All scores")],
+        plots=[PlotlyChart.Table(title="All scores")],
     )
     check_2 = Check(
         name="question_umap",
@@ -43,7 +43,7 @@ def get_list_checks():
                 col_in_embs_2="response_embeddings",
             )
         ],
-        plot=[
+        plots=[
             PlotlyChart.Scatter(
                 title="UMAP for question embeddings",
                 props=dict(x="umap_0", y="umap_1", symbol="symbol", color="cluster"),
@@ -60,7 +60,7 @@ def get_list_checks():
                 col_out=["similarity-context", "similarity-response"],
             )
         ],
-        plot=[
+        plots=[
             PlotlyChart.Histogram(
                 title="Embeddings similarity - Context",
                 props=dict(x="similarity-context", nbins=20),

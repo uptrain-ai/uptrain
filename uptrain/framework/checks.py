@@ -29,23 +29,23 @@ class Check(Operator):
         name (str): Name of the check.
         operators (list[TableOp]): A list of operators to run in sequence on the input data. The output of each
             operator is passed as input to the next operator.
-        plot (list[Operator]): How to plot the output of the check.
+        plots (list[Operator]): How to plot the output of the check.
 
     """
 
     name: str
     operators: list[Operator]
-    plot: list[Operator]
+    plots: list[Operator]
 
     def __init__(
         self,
         name: str,
         operators: list[Operator],
-        plot: list[Operator] | None = None,
+        plots: list[Operator] | None = None,
     ):
         self.name = name
         self.operators = operators
-        self.plot = plot if plot is not None else []
+        self.plots = plots if plots is not None else []
 
     def setup(self, settings: "Settings"):
         self._settings = settings
@@ -82,15 +82,15 @@ class Check(Operator):
         return {
             "name": self.name,
             "operators": [to_py_types(op) for op in self.operators],
-            "plot": [to_py_types(op) for op in self.plot],
+            "plots": [to_py_types(op) for op in self.plots],
         }  # serializes only the attributes of the class, like pydantic models
 
     @classmethod
     def from_dict(cls, data: dict) -> "Check":
         """Deserialize a check from a dict of its parameters."""
         operators = [deserialize_operator(op) for op in data["operators"]]
-        plot = [deserialize_operator(op) for op in data["plot"]]
-        return cls(name=data["name"], operators=operators, plot=plot)  # type: ignore
+        plots = [deserialize_operator(op) for op in data["plots"]]
+        return cls(name=data["name"], operators=operators, plots=plots)  # type: ignore
 
 
 class CheckSet:
@@ -116,7 +116,7 @@ class CheckSet:
         self._consolidated_check = Check(
             name="Consolidated Results",
             operators=[],
-            plot=[PlotlyChart.Table(title="Consolidated Results")]
+            plots=[PlotlyChart.Table(title="Consolidated Results")]
         )
 
         self.source = source

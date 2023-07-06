@@ -103,7 +103,7 @@ checkset = CheckSet(
                 col_out = "grammar_score"
             ),
         ],
-        plot = PlotlyChart.Table(title="Grammar scores"),
+        plots = PlotlyChart.Table(title="Grammar scores"),
     ),
     source = JsonReader(fpath = '...')
 )
