@@ -20,7 +20,6 @@ env
 *.csv
 *.json
 *.log
-data
 
 # UpTrain
 uptrain_*

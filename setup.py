@@ -13,8 +13,7 @@ this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()
 
 # sentence-tranformers deps (it installs torch-gpu by default)
-
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+# pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 
 setup(
     name="uptrain",
@@ -82,7 +81,7 @@ setup(
             "umap-learn",
             "rouge-score",
             "sentence-transformers",
-            "InstructorEmbedding"
+            "InstructorEmbedding",
         ],
     },  # Optional
     tests_require=["pytest>=7.0"],
