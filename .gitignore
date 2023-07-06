@@ -17,10 +17,7 @@ dist
 env
 
 # Dataset/Log files
-*.csv
-*.json
 *.log
-data
 
 # UpTrain
 uptrain_*
