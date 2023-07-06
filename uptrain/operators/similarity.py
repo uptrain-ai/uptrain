@@ -25,6 +25,7 @@ class CosineSimilarity(ColumnOp):
     Attributes:
         col_in_vector_1 (str): The name of the column containing the first vector.
         col_in_vector_2 (str): The name of the column containing the second vector.
+        col_out (str): The name of the output column containing the cosine similarity scores.
 
     Returns:
         dict: A dictionary containing the cosine similarity scores.
