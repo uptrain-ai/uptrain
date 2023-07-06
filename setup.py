@@ -47,7 +47,7 @@ setup(
     install_requires=[
         # utilities
         "tqdm>=4.0",
-        "pydantic>=1.9.0",
+        "pydantic<1.10.10",
         "aiolimiter>=1.1",
         "loguru",
         "lazy_loader",
