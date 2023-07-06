@@ -1,1 +1,1 @@
-::: uptrain.operators.code.sql.sql.ExecuteAndCompareSQL
+::: uptrain.operators.code.sql.ExecuteAndCompareSQL
