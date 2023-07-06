@@ -1,1 +1,1 @@
-::: uptrain.operators.io.DeltaWriter
+::: uptrain.operators.io.writers.DeltaWriter

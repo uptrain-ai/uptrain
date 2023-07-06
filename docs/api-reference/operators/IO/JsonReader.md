@@ -1,1 +1,1 @@
-::: uptrain.operators.io.JsonReader
+::: uptrain.operators.io.readers.JsonReader

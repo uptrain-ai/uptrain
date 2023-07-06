@@ -1,1 +1,1 @@
-::: uptrain.operators.io.DeltaReader
+::: uptrain.operators.io.readers.DeltaReader
