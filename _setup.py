@@ -1,14 +1,26 @@
-from pathlib import Path
+"""
+A setuptools based setup module.
+"""
+#!/usr/bin/env python
+
+# Always prefer setuptools over distutils
 from setuptools import setup, find_packages
+
+# read the contents of your README file
+from pathlib import Path
 
 this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()
+
+# sentence-tranformers deps (it installs torch-gpu by default)
+# pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 
 setup(
     name="uptrain",
     version="0.3.2",
     description="UpTrain - ML Observability and Retraining Framework",
     long_description=long_description,
+    long_description_content_type="text/markdown",
     # The project's main homepage.
     url="https://github.com/uptrain-ai/uptrain",
     # Author details
@@ -49,5 +61,23 @@ setup(
         "openai>=0.27",
         "evals @ git+https://github.com/openai/evals.git",
     ],
+    extras_require={
+        "v0": [
+            "pandas>=1.0.0",
+            "river",
+            "scikit_learn>=1.0.0",
+            "umap-learn",
+            "json-fix>=0.5.0",
+            "xgboost",
+        ],
+        "full": [
+            "river<0.18",
+            "scikit_learn>=1.0.0",
+            "umap-learn",
+            "rouge-score",
+            "sentence-transformers",
+            "InstructorEmbedding",
+        ],
+    },  # Optional
     tests_require=["pytest>=7.0"],
 )
