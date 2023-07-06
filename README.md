@@ -87,9 +87,9 @@ To run it on your machine, checkout the [Quickstart tutorial](https://docs.uptra
 pip install uptrain
 ```
 
-Note: Uptrain uses commonly used python libraries like openai-evals and sentence-transformers. To make sure, all the functionalities work, use the `uptrain-cli` to install the full version of the package.
+Note: Uptrain uses commonly used python libraries like openai-evals and sentence-transformers. To make sure, all the functionalities work, use the `uptrain-add` command to install the full version of the package.
 ```bash
-uptrain-cli --feature full
+uptrain-add --feature full
 ```
 
 ### How to define checks:

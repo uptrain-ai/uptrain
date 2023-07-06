@@ -40,7 +40,7 @@ Homepage = "https://uptrain.ai"
 Repository = "https://github.com/uptrain-ai/uptrain"
 
 [project.scripts]
-uptrain-cli = "uptrain.cli:main"
+uptrain-add = "uptrain.cli:main"
 
 [project.optional-dependencies]
 # Optional dependencies are installed using the uptrain-cli
