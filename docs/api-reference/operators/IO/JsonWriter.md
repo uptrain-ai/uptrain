@@ -1,1 +1,1 @@
-::: uptrain.operators.io.JsonWriter
+::: uptrain.operators.io.writers.JsonWriter
