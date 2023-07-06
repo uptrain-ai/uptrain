@@ -82,6 +82,7 @@ setup(
             "umap-learn",
             "rouge-score",
             "sentence-transformers",
+            "InstructorEmbedding"
         ],
     },  # Optional
     tests_require=["pytest>=7.0"],
