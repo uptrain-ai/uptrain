@@ -9,8 +9,29 @@ if t.TYPE_CHECKING:
 from uptrain.operators.base import *
 
 # -----------------------------------------------------------
-# Read from text file formats - csv and json
+# Read from text file formats - csv, xlsx and json
 # -----------------------------------------------------------
+
+# @dependency_required(xlsx2csv, "xlsx2csv")
+@register_op
+class ExcelReader(TransformOp):
+    """Reads an excel file.
+
+    Attributes:
+        fpath (str): Path to the xlsx file.
+        batch_size (Optional[int]): Number of rows to read at a time. Defaults to None, which reads the entire file.
+
+    """
+
+    fpath: str
+    batch_size: t.Optional[int] = None
+
+    def setup(self, settings: Settings):
+        self._executor = TextReaderExecutor(self)
+        return self
+
+    def run(self) -> TYPE_TABLE_OUTPUT:
+        return {"output": self._executor.run()}
 
 
 @register_op
@@ -56,14 +77,16 @@ class JsonReader(TransformOp):
 
 
 class TextReaderExecutor:
-    op: t.Union[CsvReader, JsonReader]
+    op: t.Union[ExcelReader, CsvReader, JsonReader]
     dataset: pl.DataFrame
     rows_read: int
 
-    def __init__(self, op: t.Union[CsvReader, JsonReader]):
+    def __init__(self, op: t.Union[ExcelReader, CsvReader, JsonReader]):
         self.op = op
         self.rows_read = 0
-        if isinstance(self.op, CsvReader):
+        if isinstance(self.op, ExcelReader):
+            self.dataset = pl.read_excel(self.op.fpath)
+        elif isinstance(self.op, CsvReader):
             self.dataset = pl.read_csv(self.op.fpath)
         elif isinstance(self.op, JsonReader):
             self.dataset = pl.read_ndjson(self.op.fpath)

@@ -5,6 +5,7 @@ Implement operators to generate text.
 from __future__ import annotations
 import itertools
 import typing as t
+import json
 
 from loguru import logger
 import polars as pl
@@ -72,7 +73,10 @@ class PromptGenerator(TransformOp):
             fill.update(
                 {k: row[self.col_out_prefix + k] for k in self.prompt_params.keys()}
             )
-            prompt = row["template"].format(**fill)
+            prompt = row['template']
+            for k, v in fill.items():
+                prompt = prompt.replace("{{" + k + "}}", v)
+            # prompt = row["template"].format(**fill)
             prompts.append(prompt)
 
         input_w_prompts = input_dataset.with_columns(
@@ -154,3 +158,32 @@ class TextCompletion(TransformOp):
         return {
             "output": data.with_columns([output_text.alias(self.col_out_completion)])
         }
+
+
+@register_op
+class OutputParser(ColumnOp):
+    """
+    Takes a table of prompts and LLM model to use, generates output text.
+
+    Attributes:
+        col_in_prompt (str): The name of the column containing the prompt template.
+        col_in_model (str): The name of the column containing the model name.
+        col_out_completion (str): The name of the column containing the generated text.
+
+    Returns:
+        TYPE_TABLE_OUTPUT: A dictionary containing the dataset with the output text.
+    """
+
+    col_in_response: str 
+    col_out_mapping: dict
+
+    def setup(self, settings: "Settings"):
+        return self
+
+    """Construct all the prompt variations and generate completions for each."""
+
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
+        responses = data[self.col_in_response]
+        parsed_responses = pl.DataFrame([json.loads(x) for x in responses])
+        out = data.with_columns([parsed_responses[k].alias(v) for k,v in self.col_out_mapping.items()])
+        return {"output": out}

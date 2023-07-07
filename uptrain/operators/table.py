@@ -81,3 +81,67 @@ class ColumnExpand(TransformOp):
             ]
         )
         return {"output": out}
+
+
+@register_op
+class ColumnComparison(ColumnOp):
+    """
+    Column operation to add a new boolean column which represents if the given columns are all same or not
+
+    Attributes:
+        col_in_names (list[str]): The names of the input columns. All of the columns will be compared row-wise.
+        col_out (str): The name of the output boolean column 
+
+    Returns:
+        dict: A dictionary containing the input DataFrame.
+
+    Example:
+        ```
+        from uptrain.operators import ColumnComparison
+        df = pl.DataFrame({
+            "column1": [1, 2, 3],
+            "column2": [1, 2, 1],
+            "column3": [2, 2, 4]
+        })
+
+        # Create an instance of the ColumnComparison class
+        compare_op = ColumnComparison(
+                        col_in_names=["column1", "column2", "column3"],
+                        col_out="is_equal"
+                    )
+
+        # Run the compare operation
+        output_df = compare_op.run(df)["output"]
+
+        # Print the output DataFrame
+        print(output_df)
+        ```
+
+    Output:
+        ```
+        shape: (3, 2)
+        ┌─────────┬─────────┐─────────┐─────────┐
+        │ column1 ┆ column2 ┆ column3 ┆is_equal │
+        │ ---     ┆ ---     ┆ ---     ┆ ---     │
+        │ i64     ┆ i64     ┆ i64     ┆ bool    │
+        ╞═════════╪═════════╪═════════╪═════════╡
+        │ 1       ┆ 1       ┆ 2       ┆ Fals    │
+        │ 2       ┆ 2       ┆ 2       ┆ True    │
+        │ 3       ┆ 1       ┆ 4       ┆ False   │
+        └─────────┴─────────┴─────────┴─────────┘
+        ```
+
+    """
+
+    col_in_names: list[str]
+    col_out: str
+
+    def setup(self, settings: Settings):
+        assert len(self.col_in_names) > 1
+        return self
+
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
+        return {"output": data.with_columns(data.select(
+            pl.col(self.col_in_names[0]) ==
+            pl.col(self.col_in_names[1])
+        )['Output'].alias(self.col_out))}
