@@ -51,3 +51,6 @@ test = [
 [tools.setuptools]
 packages = ["uptrain"]
 include-package-data = true
+
+[tool.setuptools.package-data]
+"*" = ["*.pyi"]
