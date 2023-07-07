@@ -1,1 +1,1 @@
-::: uptrain.operators.language.openai_evals.OpenaiEval
+::: uptrain.operators.OpenaiEval

@@ -1,1 +1,1 @@
-::: uptrain.operators.language.model_grade.ModelGradeScore
+::: uptrain.operators.ModelGradeScore

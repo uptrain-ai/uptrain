@@ -1,1 +1,1 @@
-::: uptrain.operators.code.sql.ValidateTables
+::: uptrain.operators.ValidateTables

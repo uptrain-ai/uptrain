@@ -1,1 +1,1 @@
-::: uptrain.operators.table
+::: uptrain.operators.ColumnExpand

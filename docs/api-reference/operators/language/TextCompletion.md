@@ -1,1 +1,1 @@
-::: uptrain.operators.language.generation.TextCompletion
+::: uptrain.operators.TextCompletion

@@ -1,1 +1,1 @@
-::: uptrain.operators.similarity
+::: uptrain.operators.CosineSimilarity

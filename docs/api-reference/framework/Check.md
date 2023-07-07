@@ -1,1 +1,1 @@
-::: uptrain.framework.checks.Check
+::: uptrain.framework.Check
