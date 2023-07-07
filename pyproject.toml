@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 
 [project]
 name = "uptrain"
-version = "0.3.3"
+version = "0.3.4"
 description = "UpTrain - ML Observability and Retraining Framework"
 readme = "README.md"
 maintainers = [{ name = "UpTrain AI Team", email = "uptrain.ai@gmail.com" }]
