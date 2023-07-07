@@ -30,6 +30,7 @@ __all__ = [
     "RougeScore",
     "DocsLinkVersion",
     "TextLength",
+    "WordCount",
     "TextComparison",
     "KeywordDetector",
     "OpenAIGradeScore",
@@ -72,7 +73,7 @@ from .language.grammar import GrammarScore
 from .language.openai_evals import OpenaiEval, PromptEval
 from .language.embedding import Embedding
 from .language.rouge import RougeScore
-from .language.text import DocsLinkVersion, TextLength, TextComparison, KeywordDetector
+from .language.text import DocsLinkVersion, TextLength, TextComparison, KeywordDetector, WordCount
 from .language.model_grade import ModelGradeScore, OpenAIGradeScore
 from .language.generation import PromptGenerator, TextCompletion, OutputParser
 
