@@ -1,1 +1,1 @@
-::: uptrain.operators.code.sql.ParseSQL
+::: uptrain.operators.ParseSQL

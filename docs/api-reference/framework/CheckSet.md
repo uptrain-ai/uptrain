@@ -1,1 +1,1 @@
-::: uptrain.framework.checks.CheckSet
+::: uptrain.framework.CheckSet

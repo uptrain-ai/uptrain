@@ -1,1 +1,1 @@
-::: uptrain.framework.signal.Signal
+::: uptrain.framework.Signal

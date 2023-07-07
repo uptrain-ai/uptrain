@@ -1,1 +1,1 @@
-::: uptrain.operators.embs.UMAP
+::: uptrain.operators.UMAP

@@ -1,1 +1,1 @@
-::: uptrain.operators.language.generation.PromptGenerator
+::: uptrain.operators.PromptGenerator

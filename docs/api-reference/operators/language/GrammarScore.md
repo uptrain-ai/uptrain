@@ -1,1 +1,1 @@
-::: uptrain.operators.language.grammar
+::: uptrain.operators.GrammarScore

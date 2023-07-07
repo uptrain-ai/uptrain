@@ -1,1 +1,1 @@
-::: uptrain.operators.language.openai_evals.PromptEval
+::: uptrain.operators.PromptEval

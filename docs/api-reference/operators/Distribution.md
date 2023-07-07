@@ -1,1 +1,1 @@
-::: uptrain.operators.embs.Distribution
+::: uptrain.operators.Distribution

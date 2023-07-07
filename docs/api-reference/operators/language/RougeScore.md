@@ -1,1 +1,1 @@
-::: uptrain.operators.language.rouge
+::: uptrain.operators.RougeScore

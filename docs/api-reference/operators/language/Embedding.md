@@ -1,1 +1,1 @@
-::: uptrain.operators.language.embedding
+::: uptrain.operators.Embedding

@@ -1,1 +1,1 @@
-::: uptrain.operators.io.readers.CsvReader
+::: uptrain.operators.CsvReader

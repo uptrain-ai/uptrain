@@ -1,1 +1,1 @@
-::: uptrain.operators.language.text.TextComparison
+::: uptrain.operators.TextComparison
