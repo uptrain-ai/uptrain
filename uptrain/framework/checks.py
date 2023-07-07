@@ -6,11 +6,12 @@ import os
 import typing as t
 
 import polars as pl
+from pydantic import BaseModel
 
 from uptrain.operators.base import *
 from uptrain.utilities import jsonload, jsondump, to_py_types, clear_directory
 from uptrain.framework.base import OperatorDAG, Settings
-from uptrain.operators import PlotlyChart
+from uptrain.operators import PlotlyChart, PromptGenerator, TextCompletion, OutputParser
 
 if t.TYPE_CHECKING:
     from uptrain.operators import PromptGenerator
@@ -18,6 +19,7 @@ if t.TYPE_CHECKING:
 __all__ = [
     "Check",
     "CheckSet",
+    "ExperimentArgs"
 ]
 
 
@@ -229,3 +231,65 @@ class CheckSet:
 
         with open(fpath, "w") as f:
             jsondump(self.dict(), f)
+
+
+class ExperimentArgs(BaseModel):
+    """Container for arguments to run a LLM experiment. This is the entrypoint to run prompt/model tests with Uptrain for users.
+    This generates multiple prompts, generate LLM responses for them and parses the response to add multiple columns.
+
+    Attributes:
+        prompt_template (str): Prompt template to generate multiple prompts to experiment with.
+        prompt_params (dict(str, str)): Dictionary of prompt variables with experiment with.
+        models (str or list[str]): Either a single model or list of models to experiment with.
+        context_vars (dict or list): List of dataset variables with mapping between variable name in prompt and variable name in dataset
+        col_out_response (str): LLM output will be saved under this column name
+        col_out_mapping (dict): Mapping used to parse LLM response
+    """
+
+    prompt_template: str
+    prompt_params: dict = {}
+    models: t.Union[str, list[str]]
+    context_vars: t.Union[dict, list]
+    col_out_response: str = 'response'
+    col_out_mapping: t.Optional[dict] = None
+
+    def get_preprocessors(self):
+        "Convert experiment args into checkset preprocessors for execution"
+        if isinstance(self.context_vars, list):
+            self.context_vars = dict(zip(self.context_vars, self.context_vars))
+
+        preprocessors = [
+            PromptGenerator(
+                prompt_template=self.prompt_template,
+                prompt_params=self.prompt_params,
+                models=[self.models] if isinstance(self.models, str) else self.models,
+                context_vars=self.context_vars
+            ),
+            TextCompletion(
+                col_in_prompt="exp_prompt",
+                col_in_model="exp_model",
+                col_out_completion=self.col_out_response,
+            ),
+        ]
+
+        if self.col_out_mapping is not None:
+            preprocessors.append(
+                OutputParser(
+                    col_in_response=self.col_out_response,
+                    col_out_mapping=self.col_out_mapping
+                )
+            )
+
+        return preprocessors
+
+
+    def modify_checks(self, checks):
+        "Modify checks to add experiment variables into plots"
+        for check in checks:
+            if check.plots is not None:
+                for plot in check.plots:
+                    if plot.kind in ['histogram', 'bar', 'line']:
+                        if 'color' not in plot.props:
+                            plot.props.update({'color': []})
+                        plot.props['color'].extend(list(self.prompt_params.keys()))
+        return checks
