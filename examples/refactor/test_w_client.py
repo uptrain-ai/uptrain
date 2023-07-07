@@ -104,11 +104,11 @@ if __name__ == "__main__":
 
     client = APIClient(settings=settings)
     # adding the dataset to the server
-    resp = client.datasets.add("qna_docs_samples", dataset_path)
+    resp = client.add_dataset("qna_docs_samples", dataset_path)
     print("Response from adding the dataset: ", resp)
 
     # adding the eval to the server
-    resp = client.checksets.add("test_qna_docs", check_set)
+    resp = client.add_checkset("test_qna_docs", check_set)
     print("Response from adding the eval: ", resp)
 
     # scheduling a run for the eval
