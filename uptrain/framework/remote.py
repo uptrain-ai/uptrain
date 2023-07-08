@@ -12,6 +12,7 @@ import httpx
 
 from uptrain.framework.checks import CheckSet, ExperimentArgs
 from uptrain.framework.base import Settings
+from uptrain.utilities import to_py_types
 
 
 class APIClient:
