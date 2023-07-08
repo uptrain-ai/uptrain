@@ -49,7 +49,7 @@ class PromptGenerator(TransformOp):
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         list_params = []
-        for combo in itertools.product(*self.prompt_params.values(), self.models):
+        for experiment_id, combo in enumerate(itertools.product(*self.prompt_params.values(), self.models)):
             prompt_params, model = combo[:-1], combo[-1]
             variables = dict(zip(self.prompt_params.keys(), prompt_params))
             list_params.append(
@@ -57,6 +57,7 @@ class PromptGenerator(TransformOp):
                     "template": self.prompt_template,
                     self.col_out_prefix + "model": model,
                     **{self.col_out_prefix + k: v for k, v in variables.items()},
+                    self.col_out_prefix + "experiment_id": experiment_id
                 }
             )
         params_dataset = pl.DataFrame(list_params)

@@ -289,7 +289,7 @@ class ExperimentArgs(BaseModel):
             if check.plots is not None:
                 for plot in check.plots:
                     if plot.kind in ['histogram', 'bar', 'line']:
-                        if 'color' not in plot.props:
-                            plot.props.update({'color': []})
-                        plot.props['color'].extend(list(self.prompt_params.keys()))
+                        if 'barmode' not in plot.props:
+                            plot.props.update({'barmode': 'group'})
+                        plot.props['color'] = "exp_experiment_id"
         return checks

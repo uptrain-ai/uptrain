@@ -86,10 +86,11 @@ class ColumnExpand(TransformOp):
 @register_op
 class ColumnComparison(ColumnOp):
     """
-    Column operation to add a new boolean column which represents if the given columns are all same or not
+    Column operation to add a new boolean column which represents if the given columns are row-wise same or not
 
     Attributes:
-        col_in_names (list[str]): The names of the input columns. All of the columns will be compared row-wise.
+        col_in_1 (str): The name of the 1st input column to be compared row-wise.
+        col_in_2 (str): The name of the 2nd input column to be compared row-wise.
         col_out (str): The name of the output boolean column 
 
     Returns:
@@ -106,7 +107,8 @@ class ColumnComparison(ColumnOp):
 
         # Create an instance of the ColumnComparison class
         compare_op = ColumnComparison(
-                        col_in_names=["column1", "column2", "column3"],
+                        col_in_1="column1",
+                        col_in_2="column2",
                         col_out="is_equal"
                     )
 
@@ -125,7 +127,7 @@ class ColumnComparison(ColumnOp):
         │ ---     ┆ ---     ┆ ---     ┆ ---     │
         │ i64     ┆ i64     ┆ i64     ┆ bool    │
         ╞═════════╪═════════╪═════════╪═════════╡
-        │ 1       ┆ 1       ┆ 2       ┆ Fals    │
+        │ 1       ┆ 1       ┆ 2       ┆ True    │
         │ 2       ┆ 2       ┆ 2       ┆ True    │
         │ 3       ┆ 1       ┆ 4       ┆ False   │
         └─────────┴─────────┴─────────┴─────────┘
@@ -133,15 +135,15 @@ class ColumnComparison(ColumnOp):
 
     """
 
-    col_in_names: list[str]
+    col_in_1: str
+    col_in_2: str
     col_out: str
 
     def setup(self, settings: Settings):
-        assert len(self.col_in_names) > 1
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         return {"output": data.with_columns(data.select(
-            pl.col(self.col_in_names[0]) ==
-            pl.col(self.col_in_names[1])
+            pl.col(self.col_in_1) ==
+            pl.col(self.col_in_2)
         )['Output'].alias(self.col_out))}
