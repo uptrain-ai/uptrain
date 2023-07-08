@@ -30,7 +30,10 @@ def to_py_types(obj: t.Any) -> t.Any:
     elif dataclasses.is_dataclass(obj):
         return to_py_types(dataclasses.asdict(obj))
     elif hasattr(obj, "_uptrain_op_name"):
-        return {"op_name": getattr(obj, "_uptrain_op_name"), "params": obj.dict()}
+        return {
+            "op_name": getattr(obj, "_uptrain_op_name"),
+            "params": obj.dict(include=set(obj.__fields__)),
+        }
     elif isinstance(obj, pydantic.BaseModel):
         return obj.dict()
 

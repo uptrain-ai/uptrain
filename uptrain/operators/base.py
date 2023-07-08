@@ -62,9 +62,12 @@ class Operator(t.Protocol):
         Serialize this operator to a json dictionary. The objective is to be able to
         recreate the operator from this dict.
 
-        NOTE: If your operator is a pydantic model, pydantic handles this. Though if you
-        have fields with custom non-python types, you MUST override and implement both a
-        `dict` and a`from_dict` method.
+        NOTE: If your operator is a pydantic model, the `to_py_types` method in
+        `uptrain.utilities` handles this. Though if you have fields with custom
+        non-python types, you MUST override and implement both a `dict` and a`from_dict`
+        method.
+        TODO: With pydantic v2, nested models work with custome (de)serializers. Use that
+        when moving.
         """
         ...
 
@@ -79,14 +82,7 @@ class OpBaseModel(BaseModel):
     """
     Base class you can use if constructing an operator using a pydantic
     model, to get around some of the sharp edges.
-
-    Attributes:
-        _state (dict): A dict you can use to store state values between multiple
-            calls to the `run` method.
-
     """
-
-    _state: dict = Field(default_factory=dict)
 
     class Config:
         extra = "allow"

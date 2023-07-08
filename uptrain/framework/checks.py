@@ -21,7 +21,6 @@ __all__ = [
 ]
 
 
-@register_op
 class Check(Operator):
     """A simple check that runs the given list of table operators in sequence.
 
