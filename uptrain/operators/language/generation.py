@@ -73,10 +73,14 @@ class PromptGenerator(TransformOp):
             fill.update(
                 {k: row[self.col_out_prefix + k] for k in self.prompt_params.keys()}
             )
-            prompt = row['template']
-            for k, v in fill.items():
-                prompt = prompt.replace("{{" + k + "}}", v)
-            # prompt = row["template"].format(**fill)
+
+            #TODO: Temp Fix for handling json in prompts. Permanent fix is to integrate langchain?
+            try:
+                prompt = row["template"].format(**fill)
+            except:
+                prompt = row['template']
+                for k, v in fill.items():
+                    prompt = prompt.replace("{{" + k + "}}", v)
             prompts.append(prompt)
 
         input_w_prompts = input_dataset.with_columns(
@@ -147,6 +151,7 @@ class TextCompletion(TransformOp):
                 logger.error(
                     f"Error when processing payload at index {idx}: {res.error}"
                 )
+                # TODO: Seeing errors when message is present but response also has an error (Timed Out). What to do?
                 results.append((idx, None))
             else:
                 resp_text = res.response["choices"][0]["message"]["content"]
@@ -163,12 +168,11 @@ class TextCompletion(TransformOp):
 @register_op
 class OutputParser(ColumnOp):
     """
-    Takes a table of prompts and LLM model to use, generates output text.
-
+    Takes a table of LLM respones and parses them into individual columns
+    
     Attributes:
-        col_in_prompt (str): The name of the column containing the prompt template.
-        col_in_model (str): The name of the column containing the model name.
-        col_out_completion (str): The name of the column containing the generated text.
+        col_in_response (str): The name of the column containing the raw model response.
+        col_out_mapping (str): A dictionary containing the mapping of keys in response to their output column names.
 
     Returns:
         TYPE_TABLE_OUTPUT: A dictionary containing the dataset with the output text.
@@ -180,10 +184,9 @@ class OutputParser(ColumnOp):
     def setup(self, settings: "Settings"):
         return self
 
-    """Construct all the prompt variations and generate completions for each."""
+    """Parse the LLM responses"""
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         responses = data[self.col_in_response]
         parsed_responses = pl.DataFrame([json.loads(x) for x in responses])
-        out = data.with_columns([parsed_responses[k].alias(v) for k,v in self.col_out_mapping.items()])
-        return {"output": out}
+        return {"output": data.with_columns([parsed_responses[k].alias(v) for k,v in self.col_out_mapping.items()])}
