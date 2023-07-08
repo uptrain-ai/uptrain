@@ -12,16 +12,13 @@ from uptrain.utilities import jsonload, jsondump, to_py_types, clear_directory
 from uptrain.framework.base import OperatorDAG, Settings
 from uptrain.operators import PlotlyChart
 
-if t.TYPE_CHECKING:
-    from uptrain.operators import PromptGenerator
-
 __all__ = [
     "Check",
     "CheckSet",
 ]
 
 
-class Check(Operator):
+class Check:
     """A simple check that runs the given list of table operators in sequence.
 
     Attributes:
@@ -29,7 +26,6 @@ class Check(Operator):
         operators (list[TableOp]): A list of operators to run in sequence on the input data. The output of each
             operator is passed as input to the next operator.
         plots (list[Operator]): How to plot the output of the check.
-
     """
 
     name: str
@@ -201,19 +197,20 @@ class CheckSet:
 
     @classmethod
     def from_dict(cls, data: dict) -> "CheckSet":
+        checks = [Check.from_dict(check) for check in data.get("checks", [])]
         return cls(
             source=deserialize_operator(data["source"]),
             preprocessors=[
                 deserialize_operator(op) for op in data.get("preprocessors", [])
             ],  # type: ignore
-            checks=[deserialize_operator(check) for check in data.get("checks", [])],
+            checks=checks,
         )
 
     def dict(self) -> dict:
         return {
             "source": to_py_types(self.source),
             "preprocessors": [to_py_types(op) for op in self.preprocessors],
-            "checks": [to_py_types(check) for check in self.checks],
+            "checks": [check.dict() for check in self.checks],
         }
 
     @classmethod
