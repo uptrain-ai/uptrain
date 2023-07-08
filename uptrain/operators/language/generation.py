@@ -152,7 +152,6 @@ class TextCompletion(TransformOp):
                 logger.error(
                     f"Error when processing payload at index {idx}: {res.error}"
                 )
-                # TODO: Seeing errors when message is present but response also has an error (Timed Out). What to do?
                 results.append((idx, None))
             else:
                 resp_text = res.response["choices"][0]["message"]["content"]
