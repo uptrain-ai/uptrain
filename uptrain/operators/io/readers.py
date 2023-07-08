@@ -7,12 +7,15 @@ import deltalake as dl
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
 from uptrain.operators.base import *
+from uptrain.utilities import lazy_load_dep
 
 # -----------------------------------------------------------
 # Read from text file formats - csv, xlsx and json
 # -----------------------------------------------------------
 
-# @dependency_required(xlsx2csv, "xlsx2csv")
+# TODO: How to enforce the below dependency for ExcelReader?
+xlsx2csv = lazy_load_dep("xlsx2csv", "xlsx2csv")
+
 @register_op
 class ExcelReader(TransformOp):
     """Reads an excel file.
@@ -27,11 +30,10 @@ class ExcelReader(TransformOp):
     batch_size: t.Optional[int] = None
 
     def setup(self, settings: Settings):
-        self._executor = TextReaderExecutor(self)
         return self
 
     def run(self) -> TYPE_TABLE_OUTPUT:
-        return {"output": self._executor.run()}
+        return {"output": pl.read_excel(self.fpath)}
 
 
 @register_op
@@ -77,16 +79,14 @@ class JsonReader(TransformOp):
 
 
 class TextReaderExecutor:
-    op: t.Union[ExcelReader, CsvReader, JsonReader]
+    op: t.Union[CsvReader, JsonReader]
     dataset: pl.DataFrame
     rows_read: int
 
-    def __init__(self, op: t.Union[ExcelReader, CsvReader, JsonReader]):
+    def __init__(self, op: t.Union[CsvReader, JsonReader]):
         self.op = op
         self.rows_read = 0
-        if isinstance(self.op, ExcelReader):
-            self.dataset = pl.read_excel(self.op.fpath)
-        elif isinstance(self.op, CsvReader):
+        if isinstance(self.op, CsvReader):
             self.dataset = pl.read_csv(self.op.fpath)
         elif isinstance(self.op, JsonReader):
             self.dataset = pl.read_ndjson(self.op.fpath)

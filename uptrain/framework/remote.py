@@ -84,16 +84,19 @@ class APIClient:
         response = self.client.get(url, params=params)
         return response.json()
 
-    def add_experiment(self, name: str, checkset: CheckSet, experiment_args: ExperimentArgs):
-        preprocessors = experiment_args.get_preprocessors()
-        modified_checks = experiment_args.modify_checks(checkset.checks)
+    def add_experiment(self, name: str, checkset: CheckSet, experiment_args: ExperimentArgs, settings: Settings):
+        preprocessors = experiment_args._get_preprocessors()
+        modified_checks = experiment_args._modify_checks(checkset.checks)
         modified_checkset = CheckSet(
             source=checkset.source,
             checks=modified_checks,
             preprocessors=preprocessors
         )
         url = f"{self.base_url}/checkset"
-        response = self.client.post(url, json={"name": name, "config": modified_checkset.dict()})
+        response = self.client.post(
+            url, 
+            json={"name": name, "config": modified_checkset.dict(),  "settings": settings.dict()}
+        )
         return response.json()
 
 

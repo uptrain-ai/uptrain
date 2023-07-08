@@ -251,7 +251,7 @@ class ExperimentArgs(BaseModel):
     col_out_response: str = 'response'
     col_out_mapping: t.Optional[dict] = None
 
-    def get_preprocessors(self):
+    def _get_preprocessors(self):
         "Convert experiment args into checkset preprocessors for execution"
         if isinstance(self.context_vars, list):
             self.context_vars = dict(zip(self.context_vars, self.context_vars))
@@ -282,7 +282,7 @@ class ExperimentArgs(BaseModel):
         return preprocessors
 
 
-    def modify_checks(self, checks):
+    def _modify_checks(self, checks):
         "Modify checks to add experiment variables into plots"
         for check in checks:
             if check.plots is not None:
