@@ -238,6 +238,7 @@ class ExperimentArgs(BaseModel):
         prompt_params (dict(str, str)): Dictionary of prompt variables with experiment with.
         models (str or list[str]): Either a single model or list of models to experiment with.
         context_vars (dict or list): List of dataset variables with mapping between variable name in prompt and variable name in dataset
+        temperature (float): Temperature for the LLM response generation.
         col_out_response (str): LLM output will be saved under this column name
         col_out_mapping (dict): Mapping used to parse LLM response
     """
@@ -246,6 +247,7 @@ class ExperimentArgs(BaseModel):
     prompt_params: dict = {}
     models: t.Union[str, list[str]]
     context_vars: t.Union[dict, list]
+    temperature: float = 1.0
     col_out_response: str = 'response'
     col_out_mapping: t.Optional[dict] = None
 
@@ -265,6 +267,7 @@ class ExperimentArgs(BaseModel):
                 col_in_prompt="exp_prompt",
                 col_in_model="exp_model",
                 col_out_completion=self.col_out_response,
+                temperature=self.temperature
             ),
         ]
 

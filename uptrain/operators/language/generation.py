@@ -109,6 +109,7 @@ class TextCompletion(TransformOp):
         col_in_prompt (str): The name of the column containing the prompt template.
         col_in_model (str): The name of the column containing the model name.
         col_out_completion (str): The name of the column containing the generated text.
+        temperature (float): Temperature for the LLM to generate responses.
 
     Returns:
         TYPE_TABLE_OUTPUT: A dictionary containing the dataset with the output text.
@@ -117,6 +118,7 @@ class TextCompletion(TransformOp):
     col_in_prompt: str = "prompt"
     col_in_model: str = "model"
     col_out_completion: str = "generated"
+    temperature: float = 1.0
     _api_client: LLMMulticlient
 
     def setup(self, settings: Settings):
@@ -129,6 +131,7 @@ class TextCompletion(TransformOp):
             data={
                 "model": model,
                 "messages": [{"role": "user", "content": text}],
+                "temperature": self.temperature,
             },
             metadata={"index": id},
         )
