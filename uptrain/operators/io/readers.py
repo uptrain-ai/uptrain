@@ -27,10 +27,11 @@ class ExcelReader(TransformOp):
     batch_size: t.Optional[int] = None
 
     def setup(self, settings: Settings):
+        self._executor = TextReaderExecutor(self)
         return self
 
     def run(self) -> TYPE_TABLE_OUTPUT:
-        return {"output": TextReaderExecutor(self).run()}
+        return {"output": self._executor.run()}
 
 
 @register_op
@@ -47,10 +48,11 @@ class CsvReader(TransformOp):
     batch_size: t.Optional[int] = None
 
     def setup(self, settings: Settings):
+        self._executor = TextReaderExecutor(self)
         return self
 
     def run(self) -> TYPE_TABLE_OUTPUT:
-        return {"output": TextReaderExecutor(self).run()}
+        return {"output": self._executor.run()}
 
 
 @register_op
@@ -67,10 +69,11 @@ class JsonReader(TransformOp):
     batch_size: t.Optional[int] = None
 
     def setup(self, settings: Settings):
+        self._executor = TextReaderExecutor(self)
         return self
 
     def run(self) -> TYPE_TABLE_OUTPUT:
-        return {"output": TextReaderExecutor(self).run()}
+        return {"output": self._executor.run()}
 
 
 class TextReaderExecutor:
