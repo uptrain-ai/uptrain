@@ -112,7 +112,6 @@ class ConceptDrift(ColumnOp):
         INFO     | uptrain.operators.drift:run:181 - Drift detected using DDM!
         Counter: 129466
         ```
-
     """
 
     algorithm: t.Literal["DDM", "ADWIN"]
