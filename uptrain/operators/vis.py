@@ -63,7 +63,7 @@ class PlotlyChart(OpBaseModel):
 
     """
 
-    kind: t.Literal["line", "scatter", "bar", "histogram", "table"]
+    kind: t.Literal["line", "scatter", "bar", "histogram", "table", "subplot"]
     props: dict = Field(default_factory=dict)
     title: str = ""
     filter_on: list[str] = Field(default_factory=list)
@@ -74,6 +74,22 @@ class PlotlyChart(OpBaseModel):
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         if self.kind == "table":
             return {"output": None}
+        elif self.kind == "subplot":
+            from plotly.subplots import make_subplots
+            import plotly.graph_objects as go
+
+            subplot = make_subplots(
+                rows=1,
+                cols=len(self.props["charts"]),
+                subplot_titles=[chart["title"] for chart in self.props["charts"]],
+            )
+
+            for plot in self.props["charts"]:
+                chart = getattr(px, plot["kind"])(data.to_pandas(), **plot["props"])
+                subplot.add_trace(chart.to_dict()["data"][0], row=1, col=self.props["charts"].index(plot) + 1)
+
+            return {"output": None, "extra": {"chart": subplot}}
+
         else:
             chart = getattr(px, self.kind)(data.to_pandas(), **self.props)
             return {"output": None, "extra": {"chart": chart}}
@@ -102,3 +118,8 @@ class PlotlyChart(OpBaseModel):
     def Table(cls, **kwargs) -> PlotlyChart:
         """PlotlyChart: Display the static table."""
         return cls(kind="table", **kwargs)
+
+    @classmethod
+    def SubPlot(cls, charts: list[PlotlyChart], **kwargs) -> PlotlyChart:
+        """PlotlyChart: Creates a subplot."""
+        return cls(kind="subplot", props={"charts": charts}, **kwargs)

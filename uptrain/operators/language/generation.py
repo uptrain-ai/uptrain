@@ -5,6 +5,7 @@ Implement operators to generate text.
 from __future__ import annotations
 import itertools
 import typing as t
+import json
 
 from loguru import logger
 import polars as pl
@@ -48,7 +49,7 @@ class PromptGenerator(TransformOp):
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         list_params = []
-        for combo in itertools.product(*self.prompt_params.values(), self.models):
+        for experiment_id, combo in enumerate(itertools.product(*self.prompt_params.values(), self.models)):
             prompt_params, model = combo[:-1], combo[-1]
             variables = dict(zip(self.prompt_params.keys(), prompt_params))
             list_params.append(
@@ -56,6 +57,7 @@ class PromptGenerator(TransformOp):
                     "template": self.prompt_template,
                     self.col_out_prefix + "model": model,
                     **{self.col_out_prefix + k: v for k, v in variables.items()},
+                    self.col_out_prefix + "experiment_id": experiment_id
                 }
             )
         params_dataset = pl.DataFrame(list_params)
@@ -72,7 +74,14 @@ class PromptGenerator(TransformOp):
             fill.update(
                 {k: row[self.col_out_prefix + k] for k in self.prompt_params.keys()}
             )
-            prompt = row["template"].format(**fill)
+
+            #TODO: Temp Fix for handling json in prompts. Permanent fix is to integrate langchain?
+            try:
+                prompt = row["template"].format(**fill)
+            except:
+                prompt = row['template']
+                for k, v in fill.items():
+                    prompt = prompt.replace("{{" + k + "}}", v)
             prompts.append(prompt)
 
         input_w_prompts = input_dataset.with_columns(
@@ -100,6 +109,7 @@ class TextCompletion(TransformOp):
         col_in_prompt (str): The name of the column containing the prompt template.
         col_in_model (str): The name of the column containing the model name.
         col_out_completion (str): The name of the column containing the generated text.
+        temperature (float): Temperature for the LLM to generate responses.
 
     Returns:
         TYPE_TABLE_OUTPUT: A dictionary containing the dataset with the output text.
@@ -108,6 +118,7 @@ class TextCompletion(TransformOp):
     col_in_prompt: str = "prompt"
     col_in_model: str = "model"
     col_out_completion: str = "generated"
+    temperature: float = 1.0
     _api_client: LLMMulticlient
 
     def setup(self, settings: Settings):
@@ -120,6 +131,7 @@ class TextCompletion(TransformOp):
             data={
                 "model": model,
                 "messages": [{"role": "user", "content": text}],
+                "temperature": self.temperature,
             },
             metadata={"index": id},
         )
@@ -154,3 +166,30 @@ class TextCompletion(TransformOp):
         return {
             "output": data.with_columns([output_text.alias(self.col_out_completion)])
         }
+
+
+@register_op
+class OutputParser(ColumnOp):
+    """
+    Takes a table of LLM respones and parses them into individual columns
+    
+    Attributes:
+        col_in_response (str): The name of the column containing the raw model response.
+        col_out_mapping (str): A dictionary containing the mapping of keys in response to their output column names.
+
+    Returns:
+        TYPE_TABLE_OUTPUT: A dictionary containing the dataset with the output text.
+    """
+
+    col_in_response: str 
+    col_out_mapping: dict
+
+    def setup(self, settings: "Settings"):
+        return self
+
+    """Parse the LLM responses"""
+
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
+        responses = data[self.col_in_response]
+        parsed_responses = pl.DataFrame([json.loads(x) for x in responses])
+        return {"output": data.with_columns([parsed_responses[k].alias(v) for k,v in self.col_out_mapping.items()])}

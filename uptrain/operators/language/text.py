@@ -87,6 +87,62 @@ class DocsLinkVersion(ColumnOp):
 
 
 @register_op
+class WordCount(ColumnOp):
+    """
+    Operator to calculate the number of words in each text entry in a column.
+
+    Attributes:
+        col_in_text (str): The name of the input column containing the text data.
+        col_out (str): The name of the output column containing the number of words.
+
+    Returns:
+        dict: A dictionary containing the calculated number of words.
+
+    Example:
+        ```
+        import polars as pl
+        from uptrain.operators import WordCount
+
+        # Create a DataFrame
+        df = pl.DataFrame({
+            "text": ["This is a sample text.", "Another example sentence.", "Yet another sentence."]
+        })
+
+        # Create an instance of the WordCount class
+        word_count_op = WordCount(col_in_text="text")
+
+        # Calculate the number of words in each text entry
+        word_counts = word_count_op.run(df)["output"]
+
+        # Print the word counts
+        print(word_counts)
+        ```
+
+    Output:
+        ```
+        shape: (3,)
+        Series: '_col_0' [i64]
+        [
+                5
+                3
+                3
+        ]
+        ```
+
+    """
+
+    col_in_text: str
+    col_out: str = "word_count"
+
+    def setup(self, settings: Settings):
+        return self
+
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
+        results = data.get_column(self.col_in_text).apply(lambda x: len(x.split(" ")))
+        return {"output": data.with_columns([results.alias(self.col_out)])}
+
+
+@register_op
 class TextLength(ColumnOp):
     """
     Operator to calculate the length of each text entry in a column.
@@ -145,10 +201,10 @@ class TextLength(ColumnOp):
 @register_op
 class TextComparison(ColumnOp):
     """
-    Operator to compare each text entry in a column with a reference text.
+    Operator to compare each text entry in a column with a list of reference texts.
 
     Attributes:
-        reference_text (str): The reference text for comparison.
+        reference_texts (str): List of reference text for comparison.
         col_in_text (str): The name of the input column containing the text data.
         col_out (str): The name of the output column containing the comparison results.
 
@@ -166,7 +222,7 @@ class TextComparison(ColumnOp):
         })
 
         # Set the reference text for comparison
-        ref_text = "This is a sample text."
+        ref_text = ["This is a sample text.", "Yet another sentence."]
 
         # Create an instance of the TextComparison class
         comp_op = TextComparison(reference_text=ref_text, col_in_text="text")
@@ -185,22 +241,24 @@ class TextComparison(ColumnOp):
         [
                 1
                 0
-                0
+                1
         ]
         ```
 
     """
 
-    reference_text: str
+    reference_texts: t.Union[list[str], str]
     col_in_text: str
     col_out: str = "text_comparison"
 
     def setup(self, settings: Settings):
+        if isinstance(self.reference_texts, str):
+            self.reference_texts = [self.reference_texts]
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         results = data.get_column(self.col_in_text).apply(
-            lambda x: int(x == self.reference_text)
+            lambda x: int(sum([x == y for y in self.reference_texts]))
         )
         return {"output": data.with_columns([results.alias(self.col_out)])}
 
