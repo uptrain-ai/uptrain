@@ -266,8 +266,6 @@ class MultiPlot(Chart):
     title: str = ""
     charts: list
 
-    kind = "multiplot"
-
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         subplot = ps.make_subplots(
             rows=1,
@@ -279,5 +277,6 @@ class MultiPlot(Chart):
             plot = getattr(px, chart.kind)(data.to_pandas(), **chart.props)
             subplot.add_trace(plot.to_dict()["data"][0], row=1, col=self.charts.index(chart) + 1)
 
+        subplot.update_layout(title_text=self.title)
         return {"output": None, "extra": {"chart": subplot}}
 

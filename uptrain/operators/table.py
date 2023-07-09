@@ -26,15 +26,10 @@ class Table():
         props (dict): Additional properties to pass to the Table constructor.
         title (str): The title of the chart.
 
-    Returns:
-        dict: A dictionary containing the chart object.
-
     """
 
     props: dict = Field(default_factory=dict)
     title: str = ""
-
-    kind = "table"
 
     def setup(self, settings: Settings):
         return self
