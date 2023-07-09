@@ -14,6 +14,7 @@ __all__ = [
     "UMAP",
     # table
     "ColumnExpand",
+    "ColumnComparison",
     # metrics
     "Accuracy",
     # similarity
@@ -29,14 +30,17 @@ __all__ = [
     "RougeScore",
     "DocsLinkVersion",
     "TextLength",
+    "WordCount",
     "TextComparison",
     "KeywordDetector",
     "OpenAIGradeScore",
     "ModelGradeScore",
     "PromptGenerator",
     "TextCompletion",
+    "OutputParser",
     # io - also include all the subimports
     "io",
+    "ExcelReader",
     "CsvReader",
     "JsonReader",
     "JsonWriter",
@@ -59,7 +63,7 @@ from .base import (
 )
 from .drift import ConceptDrift, ParamsADWIN, ParamsDDM
 from .embs import Distribution, UMAP
-from .table import ColumnExpand
+from .table import ColumnExpand, ColumnComparison
 from .metrics import Accuracy
 from .similarity import CosineSimilarity
 from .vis import PlotlyChart
@@ -69,12 +73,12 @@ from .language.grammar import GrammarScore
 from .language.openai_evals import OpenaiEval, PromptEval
 from .language.embedding import Embedding
 from .language.rouge import RougeScore
-from .language.text import DocsLinkVersion, TextLength, TextComparison, KeywordDetector
+from .language.text import DocsLinkVersion, TextLength, TextComparison, KeywordDetector, WordCount
 from .language.model_grade import ModelGradeScore, OpenAIGradeScore
-from .language.generation import PromptGenerator, TextCompletion
+from .language.generation import PromptGenerator, TextCompletion, OutputParser
 
 from . import io
-from .io.readers import CsvReader, JsonReader, DeltaReader
+from .io.readers import ExcelReader, CsvReader, JsonReader, DeltaReader
 from .io.writers import JsonWriter, DeltaWriter
 
 from . import code

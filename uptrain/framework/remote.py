@@ -10,7 +10,7 @@ import typing as t
 from loguru import logger
 import httpx
 
-from uptrain.framework.checks import CheckSet
+from uptrain.framework.checks import CheckSet, ExperimentArgs
 from uptrain.framework.base import Settings
 from uptrain.utilities import to_py_types
 
@@ -83,6 +83,22 @@ class APIClient:
         params = {"skip": skip, "limit": limit}
         response = self.client.get(url, params=params)
         return response.json()
+
+    def add_experiment(self, name: str, checkset: CheckSet, experiment_args: ExperimentArgs, settings: Settings):
+        preprocessors = experiment_args._get_preprocessors()
+        modified_checks = experiment_args._modify_checks(checkset.checks)
+        modified_checkset = CheckSet(
+            source=checkset.source,
+            checks=modified_checks,
+            preprocessors=preprocessors
+        )
+        url = f"{self.base_url}/checkset"
+        response = self.client.post(
+            url, 
+            json={"name": name, "config": modified_checkset.dict(),  "settings": settings.dict()}
+        )
+        return response.json()
+
 
     def add_run(self, dataset: str, checkset: str) -> dict:
         """Schedules an evaluation on the server. Specify the dataset and checkset to use.

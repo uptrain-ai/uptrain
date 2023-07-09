@@ -105,7 +105,7 @@ class ModelGradeScore(ColumnOp):
     def _make_payload(self, id: t.Any, messages: list[dict]) -> Payload:
         return Payload(
             endpoint="chat.completions",
-            data={"model": "gpt-3.5-turbo", "messages": messages},
+            data={"model": "gpt-3.5-turbo", "messages": messages, "temperature": 0.2},
             metadata={"index": id},
         )
 

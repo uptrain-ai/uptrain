@@ -54,7 +54,6 @@ async def async_process_payload(
                 else:
                     raise ValueError(f"Unknown endpoint: {payload.endpoint}")
             except Exception as exc:
-                payload.error = str(exc)
                 logger.error(
                     f"Error when sending request to openai API: {payload.error}"
                 )
@@ -70,6 +69,7 @@ async def async_process_payload(
                 ):
                     await asyncio.sleep(3)
                 else:
+                    payload.error = str(exc)
                     break
 
         return payload
