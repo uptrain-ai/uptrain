@@ -20,7 +20,12 @@ __all__ = [
     # similarity
     "CosineSimilarity",
     # vis
-    "PlotlyChart",
+    "Bar",
+    "Histogram",
+    "Line",
+    "Scatter",
+    "Subplot",
+    "Table",
     # language - also include all the subimports
     "language",
     "GrammarScore",
@@ -63,10 +68,10 @@ from .base import (
 )
 from .drift import ConceptDrift, ParamsADWIN, ParamsDDM
 from .embs import Distribution, UMAP
-from .table import ColumnExpand, ColumnComparison
+from .table import Table, ColumnExpand, ColumnComparison
 from .metrics import Accuracy
 from .similarity import CosineSimilarity
-from .vis import PlotlyChart
+from .chart import Bar, Line, Scatter, Histogram, Subplot
 
 from . import language
 from .language.grammar import GrammarScore

@@ -2,9 +2,7 @@ import os
 import polars as pl
 
 from uptrain.framework import CheckSet, Settings, Check
-from uptrain.operators import JsonReader, JsonWriter
-from uptrain.operators import PlotlyChart
-from uptrain.operators import ModelGradeScore, OpenAIGradeScore
+from uptrain.operators import JsonReader, JsonWriter, Histogram, ModelGradeScore, OpenAIGradeScore, Table
 
 
 def produce_dataset_w_context(source_path, sink_path):
@@ -90,12 +88,12 @@ def get_list_checks():
         name="Model grade scores",
         operators=list_score_ops,
         plots=[
-            PlotlyChart(kind="table", title="Model grade scores"),
-            PlotlyChart.Histogram(
+            Table(title="Model grade scores"),
+            Histogram(
                 props=dict(x="openai_grade_score", title="chatgpt-grading", nbins=3)
             ),
             *[
-                PlotlyChart.Histogram(props=dict(x=op.col_out, title=persona, nbins=3))
+                Histogram(props=dict(x=op.col_out, title=persona, nbins=3))
                 for op, persona in zip(list_score_ops[1:], BOT_PERSONAS.keys())
             ],
         ],

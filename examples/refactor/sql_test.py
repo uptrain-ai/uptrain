@@ -7,11 +7,12 @@ from uptrain.operators import (
     ValidateTables,
     ExecuteAndCompareSQL,
     ParseCreateStatements,
+    JsonReader,
+    JsonWriter,
+    Histogram,
+    KeywordDetector
 )
 from uptrain.framework import CheckSet, Settings, Check
-from uptrain.operators import JsonReader, JsonWriter
-from uptrain.operators import PlotlyChart
-from uptrain.operators import KeywordDetector
 
 
 # Define the config
@@ -73,7 +74,7 @@ select_all_check = Check(
         ),
     ],
     plots=[
-        PlotlyChart.Histogram(
+        Histogram(
             title="Distribution: Generated SQL query has '*' symbol",
             props=dict(
                 x="has_star_symbol_in_query", nbins=2, color="model", barmode="group"
@@ -102,11 +103,11 @@ sql_validity_check = Check(
         ),
     ],
     plots=[
-        PlotlyChart.Histogram(
+        Histogram(
             title="Distribution: Generated SQL query is valid - column names",
             props=dict(x="cols_valid", nbins=2, color="model", barmode="group"),
         ),
-        PlotlyChart.Histogram(
+        Histogram(
             title="Distribution: Generated SQL query is valid - table names",
             props=dict(x="tables_valid", nbins=2, color="model", barmode="group"),
         ),
@@ -124,7 +125,7 @@ execution_accuracy_check = Check(
         )
     ],
     plots=[
-        PlotlyChart.Histogram(
+        Histogram(
             title="Distribution: SQL execution gives correct results",
             props=dict(x="execution_accuracy", nbins=2, color="model", barmode="group"),
         ),
