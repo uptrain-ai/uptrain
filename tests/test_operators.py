@@ -267,7 +267,6 @@ def test_vis_plot_operators():
         ],
         title="MultiPlot",
     )
-                # , scatter_chart, bar_chart, histogram],
 
     # Generate the subplot
     subplot = subplot.run(df)["extra"]["chart"]
