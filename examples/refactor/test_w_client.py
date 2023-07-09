@@ -12,7 +12,7 @@ from uptrain.operators import (
     Distribution,
     JsonReader,
     Table,
-    Scatter,
+    ScatterPlot,
     Histogram
 )
 from uptrain.operators.language import (
@@ -46,7 +46,7 @@ def get_list_checks():
             )
         ],
         plots=[
-            Scatter(
+            ScatterPlot(
                 title="UMAP for question embeddings",
                 props=dict(x="umap_0", y="umap_1", symbol="symbol", color="cluster"),
             )

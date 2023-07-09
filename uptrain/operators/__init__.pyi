@@ -20,11 +20,11 @@ __all__ = [
     # similarity
     "CosineSimilarity",
     # vis
-    "Bar",
+    "BarChart",
     "Histogram",
-    "Line",
-    "Scatter",
-    "Subplot",
+    "LineChart",
+    "ScatterPlot",
+    "MultiPlot",
     "Table",
     # language - also include all the subimports
     "language",
@@ -71,7 +71,7 @@ from .embs import Distribution, UMAP
 from .table import Table, ColumnExpand, ColumnComparison
 from .metrics import Accuracy
 from .similarity import CosineSimilarity
-from .chart import Bar, Line, Scatter, Histogram, Subplot
+from .chart import BarChart, LineChart, ScatterPlot, Histogram, MultiPlot
 
 from . import language
 from .language.grammar import GrammarScore

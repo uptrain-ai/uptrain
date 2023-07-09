@@ -1,7 +1,7 @@
 """
 This module implements visualization operators for simple-checks in uptrain.
 
-The module provides the `Bar`, `Line`, `Scatter`, `Table`, `Histogram`, and `Subplot` classes, 
+The module provides the `BarChart`, `LineChart`, `ScatterPlot`, `Table`, `Histogram`, and `MultiPlot` classes, 
 which allow generating various types of visualizations. The charts are created based on 
 the input DataFrame.
 
@@ -22,7 +22,7 @@ from uptrain.utilities import lazy_load_dep
 px = lazy_load_dep("plotly.express", "plotly")
 ps = lazy_load_dep("plotly.subplots", "plotly")
 
-__all__ = ["Bar", "Line", "Scatter", "Table", "Histogram", "Subplot"]
+__all__ = ["BarChart", "LineChart", "ScatterPlot", "Table", "Histogram", "MultiPlot"]
 
 
 # Not to be used as an operator, only as a base class
@@ -39,12 +39,12 @@ class Chart(OpBaseModel):
         return {"output": None, "extra": {"chart": chart}}
 
 @register_op
-class Bar(Chart):
+class BarChart(Chart):
     """
     Operator to generate a bar chart.
 
     Attributes:
-        props (dict): Additional properties to pass to the Bar chart constructor.
+        props (dict): Additional properties to pass to the BarChart constructor.
         title (str): The title of the chart.
 
     Returns:
@@ -53,7 +53,7 @@ class Bar(Chart):
     Example:
         ```
         import polars as pl
-        from uptrain.operators import Bar
+        from uptrain.operators import BarChart
 
         # Create a DataFrame
         df = pl.DataFrame({
@@ -61,8 +61,8 @@ class Bar(Chart):
             "y": [10, 20, 15, 25, 30]
         })
 
-        # Create a bar chart using the Bar class
-        bar_chart = Bar(props={"x": "x", "y": "y"}, title="Bar Chart")
+        # Create a bar chart using the BarChart class
+        bar_chart = BarChart(props={"x": "x", "y": "y"}, title="Bar Chart")
 
         # Generate the bar chart
         chart = bar_chart.run(df)["extra"]["chart"]
@@ -81,12 +81,12 @@ class Bar(Chart):
 
 
 @register_op
-class Line(Chart):
+class LineChart(Chart):
     """
     Operator to generate a line chart.
 
     Attributes:
-        props (dict): Additional properties to pass to the Line chart constructor.
+        props (dict): Additional properties to pass to the LineChart constructor.
         title (str): The title of the chart.
 
     Returns:
@@ -95,7 +95,7 @@ class Line(Chart):
     Example:
         ```
         import polars as pl
-        from uptrain.operators import Line
+        from uptrain.operators import LineChart
 
         # Create a DataFrame
         df = pl.DataFrame({
@@ -103,8 +103,8 @@ class Line(Chart):
             "y": [10, 20, 15, 25, 30]
         })
 
-        # Create a line chart using the Line class
-        line_chart = Line(props={"x": "x", "y": "y"}, title="Line Chart")
+        # Create a line chart using the LineChart class
+        line_chart = LineChart(props={"x": "x", "y": "y"}, title="Line Chart")
 
         # Generate the line chart
         chart = line_chart.run(df)["extra"]["chart"]
@@ -123,12 +123,12 @@ class Line(Chart):
 
 
 @register_op
-class Scatter(Chart):
+class ScatterPlot(Chart):
     """
     Operator to generate a scatter chart.
 
     Attributes:
-        props (dict): Additional properties to pass to the Scatter chart constructor.
+        props (dict): Additional properties to pass to the ScatterPlot constructor.
         title (str): The title of the chart.
 
     Returns:
@@ -137,7 +137,7 @@ class Scatter(Chart):
     Example:
         ```
         import polars as pl
-        from uptrain.operators import Scatter
+        from uptrain.operators import ScatterPlot
 
         # Create a DataFrame
         df = pl.DataFrame({
@@ -145,11 +145,11 @@ class Scatter(Chart):
             "y": [10, 20, 15, 25, 30]
         })
 
-        # Create a scatter chart using the Scatter class
-        scatter_chart = Scatter(props={"x": "x", "y": "y"}, title="Scatter Chart")
+        # Create a scatter chart using the ScatterPlot class
+        scatter_plot = ScatterPlot(props={"x": "x", "y": "y"}, title="Scatter Plot")
 
-        # Generate the scatter chart
-        chart = scatter_chart.run(df)["extra"]["chart"]
+        # Generate the scatter plot
+        chart = scatter_plot.run(df)["extra"]["chart"]
 
         # Show the chart
         chart.show()
@@ -207,19 +207,19 @@ class Histogram(Chart):
 
 
 @register_op
-class Subplot(Chart):
+class MultiPlot(Chart):
     """
     Operator to generate a subplot that can display multiple charts side-by-side.
 
     Attributes:
-        props (dict): Additional properties to pass to the Subplot constructor.
+        props (dict): Additional properties to pass to the MultiPlot constructor.
         title (str): The title of the chart.
 
     Returns:
         dict: A dictionary containing the chart object.
 
     Example:
-        TODO
+        
 
     """
 
@@ -227,11 +227,9 @@ class Subplot(Chart):
     title: str = ""
     charts: list
 
-    kind = "subplot"
+    kind = "multiplot"
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        # self.charts = [chart.to_dict() for chart in self.charts]
-        # import pdb; pdb.set_trace()
         subplot = ps.make_subplots(
             rows=1,
             cols=len(self.charts),

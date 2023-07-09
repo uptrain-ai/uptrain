@@ -3,8 +3,8 @@ from uptrain.framework import CheckSet, Settings, Check
 from uptrain.operators import (
     Histogram,
     Table,
-    Bar,
-    Scatter,
+    BarChart,
+    ScatterPlot,
     Distribution,
     CosineSimilarity,
     UMAP,
@@ -127,7 +127,7 @@ def get_list_checks(source_path):
             ],
             plots=[
                 Table(title="Quality scores"),
-                Bar(
+                BarChart(
                     title="Bar Plot of Link version",
                     props=dict(x="document_link_version"),
                 ),
@@ -149,7 +149,7 @@ def get_list_checks(source_path):
                 )
             ],
             plots=[
-                Scatter(
+                ScatterPlot(
                     title="UMAP for question embeddings",
                     props=dict(
                         x="umap_0", y="umap_1", symbol="symbol", color="cluster"
