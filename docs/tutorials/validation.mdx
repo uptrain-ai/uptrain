@@ -157,7 +157,7 @@ check = Check(
     name="empty_response_validation",
     operators=[
         TextComparison(
-            reference_text="<EMPTY MESSAGE>",
+            reference_texts="<EMPTY MESSAGE>",
             col_in_text="response",
             col_out="is_empty_response",
         ),

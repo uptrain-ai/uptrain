@@ -376,7 +376,7 @@ def test_text_comparison_operator():
     ref_text = "This is a sample text."
 
     # Create an instance of the TextComparison class
-    comp_op = TextComparison(reference_text=ref_text, col_in_text="text")
+    comp_op = TextComparison(reference_texts=ref_text, col_in_text="text")
 
     # Compare each text entry with the reference text
     comparison = comp_op.run(df)["output"]
