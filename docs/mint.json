@@ -57,8 +57,19 @@
       "version": "v1",
       "pages": [
         "getting-started/introduction", 
-        "getting-started/quickstart", 
-        "getting-started/key-concepts"
+        "getting-started/quickstart"
+      ]
+    },
+    {
+      "group": "Key Concepts 🗝️",
+      "version": "v1",
+      "pages": [
+        "key-concepts/core-idea",
+        "key-concepts/operator",
+        "key-concepts/check",
+        "key-concepts/checkset",
+        "key-concepts/experiment",
+        "key-concepts/managed-service"
       ]
     },
     {
