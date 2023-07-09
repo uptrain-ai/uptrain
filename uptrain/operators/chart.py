@@ -219,7 +219,46 @@ class MultiPlot(Chart):
         dict: A dictionary containing the chart object.
 
     Example:
-        
+        ```
+        import polars as pl
+        from uptrain.operators import MultiPlot, LineChart, ScatterPlot, BarChart, Histogram
+
+        # Create a DataFrame
+        df = pl.DataFrame({
+            "x": [1, 2, 3, 4, 5],
+            "y": [10, 20, 15, 25, 30]
+        })
+
+        # Create a multiplot using the MultiPlot class
+        multiplot = MultiPlot(
+            props={},
+            charts=[
+                LineChart(
+                    props={"x": "x", "y": "y"}, 
+                    title="Line Chart"
+                ),
+                ScatterPlot(
+                    props={"x": "x", "y": "y"},
+                    title="Scatter Plot"
+                ),
+                BarChart(
+                    props={"x": "x", "y": "y"},
+                    title="Bar Chart"
+                ),
+                Histogram(
+                    props={"x": "x"},
+                    title="Histogram"
+                )
+            ],
+            title="MultiPlot",
+        )
+
+        # Generate the multiplot
+        chart = multiplot.run(df)["extra"]["chart"]
+
+        # Show the chart
+        chart.show()
+        ```
 
     """
 

@@ -211,17 +211,17 @@ def test_vis_plot_operators():
     # Show the chart
     # line_chart.show()
 
-    # SCATTER CHART
+    # SCATTER PLOT
     # Create a scatter chart using the ScatterPlot class
-    scatter_chart = ScatterPlot(
-        props={"x": "x", "y": "y"}, title="Scatter Chart"
+    scatter_plot = ScatterPlot(
+        props={"x": "x", "y": "y"}, title="Scatter Plot"
     )
 
     # Generate the scatter chart
-    scatter_chart = scatter_chart.run(df)["extra"]["chart"]
+    scatter_plot = scatter_plot.run(df)["extra"]["chart"]
 
     # Show the chart
-    # scatter_chart.show()
+    # scatter_plot.show()
 
     # BAR CHART
     # Create a bar chart using the BarChart class
@@ -243,9 +243,9 @@ def test_vis_plot_operators():
     # Show the chart
     # histogram.show()
 
-    # SUBPLOT
-    # Create a subplot using the MultiPlot class
-    subplot = MultiPlot(
+    # MULTIPLOT
+    # Create a multiplot using the MultiPlot class
+    multiplot = MultiPlot(
         props={},
         charts=[
             LineChart(
@@ -268,11 +268,11 @@ def test_vis_plot_operators():
         title="MultiPlot",
     )
 
-    # Generate the subplot
-    subplot = subplot.run(df)["extra"]["chart"]
+    # Generate the multiplot
+    multiplot = multiplot.run(df)["extra"]["chart"]
 
     # Show the chart
-    subplot.show()
+    multiplot.show()
 
 
 # uptrain.operators.language.rouge
