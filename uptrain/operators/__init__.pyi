@@ -26,6 +26,7 @@ __all__ = [
     "ScatterPlot",
     "MultiPlot",
     "Table",
+    "CustomPlotlyChart",
     # language - also include all the subimports
     "language",
     "GrammarScore",
@@ -71,7 +72,7 @@ from .embs import Distribution, UMAP
 from .table import Table, ColumnExpand, ColumnComparison
 from .metrics import Accuracy
 from .similarity import CosineSimilarity
-from .chart import BarChart, LineChart, ScatterPlot, Histogram, MultiPlot
+from .chart import BarChart, LineChart, ScatterPlot, Histogram, MultiPlot, CustomPlotlyChart
 
 from . import language
 from .language.grammar import GrammarScore

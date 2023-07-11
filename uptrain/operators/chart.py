@@ -1,5 +1,5 @@
 """
-This module implements visualization operators for simple-checks in uptrain.
+This module implements visualization operators for checks in uptrain.
 
 The module provides the `BarChart`, `LineChart`, `ScatterPlot`, `Table`, `Histogram`, and `MultiPlot` classes, 
 which allow generating various types of visualizations. The charts are created based on 
@@ -22,14 +22,13 @@ from uptrain.utilities import lazy_load_dep
 px = lazy_load_dep("plotly.express", "plotly")
 ps = lazy_load_dep("plotly.subplots", "plotly")
 
-__all__ = ["BarChart", "LineChart", "ScatterPlot", "Table", "Histogram", "MultiPlot"]
+__all__ = ["BarChart", "LineChart", "ScatterPlot", "Histogram", "MultiPlot", "CustomPlotlyChart"]
 
 
 # Not to be used as an operator, only as a base class
 class Chart(OpBaseModel):
     props: dict = Field(default_factory=dict)
     title: str = ""
-    filter_on: list[str] = Field(default_factory=list)
 
     def setup(self, settings: Settings):
         return self
@@ -37,6 +36,48 @@ class Chart(OpBaseModel):
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         chart = getattr(px, self.kind)(data.to_pandas(), **self.props)
         return {"output": None, "extra": {"chart": chart}}
+
+
+@register_op
+class CustomPlotlyChart(Chart):
+    """
+    Operator to generate a custom plotly chart, other than the ones provided by uptrain.
+
+    Attributes:
+        props (dict): Additional properties to pass to the PlotlyChart constructor.
+        title (str): The title of the chart.
+        kind (str): The type of chart to generate.
+
+    Returns:
+        dict: A dictionary containing the chart object.
+
+    Example:
+        ```
+        import polars as pl
+        from uptrain.operators import CustomPlotlyChart
+
+        # Create a DataFrame
+        df = pl.DataFrame({
+            "x": [1, 2, 3, 4, 5],
+            "y": [10, 20, 15, 25, 30]
+        })
+
+        # Create a funnel chart using the CustomPlotlyChart class
+        funnel_chart = CustomPlotlyChart(props={"x": "x", "y": "y"}, title="Funnel Chart")
+
+        # Generate the funnel chart
+        chart = funnel_chart.run(df)["extra"]["chart"]
+
+        # Show the chart
+        chart.show()
+        ```
+
+    """
+
+    props: dict = Field(default_factory=dict)
+    title: str = ""
+    kind: str = Field(default_factory=str)
+
 
 @register_op
 class BarChart(Chart):

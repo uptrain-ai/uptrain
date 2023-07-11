@@ -18,7 +18,7 @@ if t.TYPE_CHECKING:
 from uptrain.operators.base import *
 
 @register_op
-class Table():
+class Table(OpBaseModel):
     """
     Operator to generate a table.
 
@@ -30,6 +30,8 @@ class Table():
 
     props: dict = Field(default_factory=dict)
     title: str = ""
+
+    kind = "table"
 
     def setup(self, settings: Settings):
         return self

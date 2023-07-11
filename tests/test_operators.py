@@ -196,55 +196,11 @@ def test_table_operator():
 # uptrain.operators.vis
 def test_vis_plot_operators():
     import polars as pl
-    from uptrain.operators import LineChart, ScatterPlot, BarChart, Histogram, MultiPlot
+    from uptrain.operators import LineChart, ScatterPlot, BarChart, Histogram, MultiPlot, CustomPlotlyChart
 
     # Create a DataFrame
     df = pl.DataFrame({"x": [1, 2, 3, 4, 5], "y": [10, 20, 15, 25, 30]})
 
-    # LINE CHART
-    # Create a line chart using the LineChart class
-    line_chart = LineChart(props={"x": "x", "y": "y"}, title="Line Chart")
-
-    # Generate the line chart
-    line_chart = line_chart.run(df)["extra"]["chart"]
-
-    # Show the chart
-    # line_chart.show()
-
-    # SCATTER PLOT
-    # Create a scatter chart using the ScatterPlot class
-    scatter_plot = ScatterPlot(
-        props={"x": "x", "y": "y"}, title="Scatter Plot"
-    )
-
-    # Generate the scatter chart
-    scatter_plot = scatter_plot.run(df)["extra"]["chart"]
-
-    # Show the chart
-    # scatter_plot.show()
-
-    # BAR CHART
-    # Create a bar chart using the BarChart class
-    bar_chart = BarChart(props={"x": "x", "y": "y"}, title="Bar Chart")
-
-    # Generate the bar chart
-    bar_chart = bar_chart.run(df)["extra"]["chart"]
-
-    # Show the chart
-    # bar_chart.show()
-
-    # HISTOGRAM
-    # Create a histogram using the Histogram class
-    histogram = Histogram(props={"x": "x"}, title="Histogram")
-
-    # Generate the histogram
-    histogram = histogram.run(df)["extra"]["chart"]
-
-    # Show the chart
-    # histogram.show()
-
-    # MULTIPLOT
-    # Create a multiplot using the MultiPlot class
     multiplot = MultiPlot(
         props={},
         charts=[
@@ -263,16 +219,21 @@ def test_vis_plot_operators():
             Histogram(
                 props={"x": "x"},
                 title="Histogram"
+            ),
+            CustomPlotlyChart(
+                kind="funnel",
+                props={"x": "x", "y": "y"},
+                title="Funnel Chart"
             )
         ],
         title="MultiPlot",
     )
 
     # Generate the multiplot
-    multiplot = multiplot.run(df)["extra"]["chart"]
+    chart = multiplot.run(df)["extra"]["chart"]
 
     # Show the chart
-    multiplot.show()
+    chart.show()
 
 
 # uptrain.operators.language.rouge
