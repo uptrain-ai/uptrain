@@ -1,8 +1,15 @@
 import os
 from uptrain.framework import CheckSet, Settings, Check
-from uptrain.operators import PlotlyChart, Distribution, CosineSimilarity, UMAP
-from uptrain.operators import JsonReader, JsonWriter
 from uptrain.operators import (
+    Histogram,
+    Table,
+    BarChart,
+    ScatterPlot,
+    Distribution,
+    CosineSimilarity,
+    UMAP,
+    JsonReader,
+    JsonWriter,
     Embedding,
     RougeScore,
     DocsLinkVersion,
@@ -59,13 +66,15 @@ def get_list_checks(source_path):
                 )
             ],
             plots=[
-                PlotlyChart.Histogram(
+                Histogram(
                     title="Embeddings similarity - Context",
-                    props=dict(x="similarity-context", nbins=20),
+                    x="similarity-context",
+                    nbins=20,
                 ),
-                PlotlyChart.Histogram(
+                Histogram(
                     title="Embeddings similarity - Responses",
-                    props=dict(x="similarity-response", nbins=20),
+                    x="similarity-response",
+                    nbins=20,
                 ),
             ],
         )
@@ -83,9 +92,10 @@ def get_list_checks(source_path):
                 )
             ],
             plots=[
-                PlotlyChart.Histogram(
+                Histogram(
                     title="Text Overlap between document embeddings",
-                    props=dict(x="rogue_f1", nbins=20),
+                    x="rouge_f1",
+                    nbins=20,
                 )
             ],
         )
@@ -113,20 +123,21 @@ def get_list_checks(source_path):
                     col_out="question_response_similarity",
                 ),
                 TextComparison(
-                    reference_text="<EMPTY MESSAGE>",
+                    reference_texts="<EMPTY MESSAGE>",
                     col_in_text="response",
                     col_out="empty_response",
                 ),
             ],
             plots=[
-                PlotlyChart.Table(title="Quality scores"),
-                PlotlyChart.Bar(
+                Table(title="Quality scores"),
+                BarChart(
                     title="Bar Plot of Link version",
-                    props=dict(x="document_link_version"),
+                    x="document_link_version",
                 ),
-                PlotlyChart.Histogram(
+                Histogram(
                     title="Histogram of Context Length",
-                    props=dict(x="document_context_length", nbins=20),
+                    x="document_context_length",
+                    nbins=20,
                 ),
             ],
         )
@@ -142,11 +153,12 @@ def get_list_checks(source_path):
                 )
             ],
             plots=[
-                PlotlyChart.Scatter(
+                ScatterPlot(
                     title="UMAP for question embeddings",
-                    props=dict(
-                        x="umap_0", y="umap_1", symbol="symbol", color="cluster"
-                    ),
+                    x="umap_0",
+                    y="umap_1",
+                    symbol="symbol",
+                    color="cluster",
                 )
             ],
         )

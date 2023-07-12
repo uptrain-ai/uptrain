@@ -6,12 +6,14 @@ given some context obtained from doing an embedding search on a corpus of docume
 """
 
 from uptrain.framework import CheckSet, Settings, Check
-from uptrain.operators.io import JsonReader
 from uptrain.operators import (
     UMAP,
     CosineSimilarity,
     Distribution,
-    PlotlyChart,
+    JsonReader,
+    Table,
+    ScatterPlot,
+    Histogram
 )
 from uptrain.operators.language import (
     RougeScore,
@@ -33,7 +35,7 @@ def get_list_checks():
                 col_in_vector_2="response_embeddings",
             ),
         ],
-        plots=[PlotlyChart.Table(title="All scores")],
+        plots=[Table(title="All scores")],
     )
     check_2 = Check(
         name="question_umap",
@@ -44,9 +46,12 @@ def get_list_checks():
             )
         ],
         plots=[
-            PlotlyChart.Scatter(
+            ScatterPlot(
                 title="UMAP for question embeddings",
-                props=dict(x="umap_0", y="umap_1", symbol="symbol", color="cluster"),
+                x="umap_0",
+                y="umap_1",
+                symbol="symbol",
+                color="cluster",
             )
         ],
     )
@@ -61,13 +66,15 @@ def get_list_checks():
             )
         ],
         plots=[
-            PlotlyChart.Histogram(
+            Histogram(
                 title="Embeddings similarity - Context",
-                props=dict(x="similarity-context", nbins=20),
+                x="similarity-context",
+                nbins=20,
             ),
-            PlotlyChart.Histogram(
+            Histogram(
                 title="Embeddings similarity - Responses",
-                props=dict(x="similarity-response", nbins=20),
+                X="similarity-response",
+                nbins=20,
             ),
         ],
     )

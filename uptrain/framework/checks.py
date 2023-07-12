@@ -11,7 +11,7 @@ from pydantic import BaseModel
 from uptrain.operators.base import *
 from uptrain.utilities import jsonload, jsondump, to_py_types, clear_directory
 from uptrain.framework.base import OperatorDAG, Settings
-from uptrain.operators import PlotlyChart, PromptGenerator, TextCompletion, OutputParser
+from uptrain.operators import Table, PromptGenerator, TextCompletion, OutputParser
 
 __all__ = [
     "Check",
@@ -112,7 +112,7 @@ class CheckSet:
         self._consolidated_check = Check(
             name="Consolidated Results",
             operators=[],
-            plots=[PlotlyChart.Table(title="Consolidated Results")],
+            plots=[Table(title="Consolidated Results")],
         )
 
         self.source = source
