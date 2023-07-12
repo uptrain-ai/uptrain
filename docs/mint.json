@@ -61,15 +61,15 @@
       ]
     },
     {
-      "group": "Key Concepts 🗝️",
+      "group": "Key Components 🗝️",
       "version": "v1",
       "pages": [
-        "key-concepts/core-idea",
-        "key-concepts/operator",
-        "key-concepts/check",
-        "key-concepts/checkset",
-        "key-concepts/experiment",
-        "key-concepts/managed-service"
+        "/key-components/core-idea",
+        "/key-components/operator",
+        "/key-components/chart",
+        "/key-components/check",
+        "/key-components/checkset",
+        "/key-components/managed-service"
       ]
     },
     {

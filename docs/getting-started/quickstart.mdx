@@ -3,13 +3,6 @@ title: "Quickstart"
 description: "Get started with UpTrain in a few simple steps"
 ---
 
-## Install UpTrain with all dependencies
-
-```bash
-pip install uptrain
-uptrain-add --feature full
-```
-
 ### Define your requirement
 
 There are many ways you can use UpTrain. You can set it up based on your requirements. 
@@ -20,9 +13,17 @@ Let's say we asked a Large Language Model like ChatGPT to generate responses for
 2. Calculate the length of each response.
 
 
+### Install UpTrain with all dependencies
+
+```bash
+pip install uptrain
+uptrain-add --feature full
+```
+
+
 ### Choose and create Operators
 
-An [Operator](https://uptrain-ai.github.io/uptrain/operators/ColumnExpand) runs a function on a given column of data and returns the result in a new column.
+An [Operator](/key-components/operator) runs a function on a given column of data and returns the result in a new column.
 
 In our case, we clearly want to use the `GrammarScore` and `TextLength` Operators. So, we will create them by specifying the input and output coloumn names as follows:
 
@@ -43,7 +44,12 @@ text_length = TextLength(
 
 ### Create the Checks
 
-A [Check](https://uptrain-ai.github.io/uptrain/framework/Check) runs the given list of operators in the order in which they are specified by the user. We will create a `Check` with the Operators we created above. We will also specify how we want to visualize the results. 
+A [Check](https://uptrain-ai.github.io/uptrain/framework/Check) runs the given list of operators in the order in which they are specified by the user. 
+
+A `Check` in UpTrain takes three arguments:
+1. **name -** The name of the check
+2. **operators -** The operators that are to be run when the check is executed
+3. **plots -** The plots that are to be generated when the check is executed
 
 ```python
 from uptrain.framework import Check
