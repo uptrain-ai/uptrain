@@ -70,7 +70,7 @@ class CustomPlotlyChart(Chart):
         })
 
         # Create a funnel chart using the CustomPlotlyChart class
-        funnel_chart = CustomPlotlyChart(props={"x": "x", "y": "y"}, title="Funnel Chart")
+        funnel_chart = CustomPlotlyChart(x="x", y="y", title="Funnel Chart")
 
         # Generate the funnel chart
         chart = funnel_chart.run(df)["extra"]["chart"]
@@ -117,7 +117,7 @@ class BarChart(Chart):
         })
 
         # Create a bar chart using the BarChart class
-        bar_chart = BarChart(props={"x": "x", "y": "y"}, title="Bar Chart")
+        bar_chart = BarChart(x="x", y="y", title="Bar Chart")
 
         # Generate the bar chart
         chart = bar_chart.run(df)["extra"]["chart"]
@@ -166,7 +166,7 @@ class LineChart(Chart):
         })
 
         # Create a line chart using the LineChart class
-        line_chart = LineChart(props={"x": "x", "y": "y"}, title="Line Chart")
+        line_chart = LineChart(x="x", y="y", title="Line Chart")
 
         # Generate the line chart
         chart = line_chart.run(df)["extra"]["chart"]
@@ -214,7 +214,7 @@ class ScatterPlot(Chart):
         })
 
         # Create a scatter chart using the ScatterPlot class
-        scatter_plot = ScatterPlot(props={"x": "x", "y": "y"}, title="Scatter Plot")
+        scatter_plot = ScatterPlot(x="x", y="y", title="Scatter Plot")
 
         # Generate the scatter plot
         chart = scatter_plot.run(df)["extra"]["chart"]
@@ -231,6 +231,7 @@ class ScatterPlot(Chart):
     x: str = ""
     y: str = ""
     color: str = ""
+    symbol: str = "symbol"
 
     kind = "scatter"
 
@@ -263,7 +264,7 @@ class Histogram(Chart):
         })
 
         # Create a histogram chart using the Histogram class
-        histogram_chart = Histogram(props={"x": "x", "y": "y"}, title="Histogram Chart")
+        histogram_chart = Histogram(x="x", y="y", title="Histogram Chart")
 
         # Generate the histogram chart
         chart = histogram_chart.run(df)["extra"]["chart"]
@@ -314,19 +315,23 @@ class MultiPlot(Chart):
             props={},
             charts=[
                 LineChart(
-                    props={"x": "x", "y": "y"}, 
+                    x="x",
+                    y="y", 
                     title="Line Chart"
                 ),
                 ScatterPlot(
-                    props={"x": "x", "y": "y"},
+                    x="x",
+                    y="y",
                     title="Scatter Plot"
                 ),
                 BarChart(
-                    props={"x": "x", "y": "y"},
+                    x="x",
+                    y="y",
                     title="Bar Chart"
                 ),
                 Histogram(
-                    props={"x": "x"},
+                    x="x",
+                    y="y",
                     title="Histogram"
                 )
             ],
