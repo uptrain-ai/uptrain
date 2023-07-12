@@ -118,7 +118,7 @@ Now that we have multiple prompts, let's define our checks to compare which one 
 
 ```python
 from uptrain.framework import Check, CheckSet
-from uptrain.operators import PlotlyChart, RougeScore
+from uptrain.operators import Histogram, Table, RougeScore
 
 hallucination_check = Check(
     name="hallucination",
@@ -131,10 +131,12 @@ hallucination_check = Check(
         ),
     ],
     plots=[
-        PlotlyChart.Histogram(
-            props=dict(x="overlap_score", nbins=20, color="exp_LLM_PERSONALITY")
+        Histogram(
+            x="overlap_score",
+            nbins=20,
+            color="exp_LLM_PERSONALITY",
         ),
-        PlotlyChart.Table(title="Hallucination scores"),
+        Table(title="Hallucination scores"),
     ],
 )
 ```
