@@ -15,6 +15,13 @@ from uptrain.framework.base import Settings
 from uptrain.utilities import to_py_types
 
 
+def raise_or_return(response: httpx.Response):
+    if not response.is_success:
+        response.raise_for_status()
+    else:
+        return response.json()
+
+
 class APIClient:
     base_url: str
     client: httpx.Client
@@ -30,12 +37,7 @@ class APIClient:
         url = f"{self.base_url}/auth"
         try:
             response = self.client.get(url)
-            if not response.is_success:
-                raise RuntimeError(
-                    f"Failed to authenticate with the Uptrain server: {response.json()}"
-                )
-            else:
-                return response.json()
+            return raise_or_return(response)
         except httpx.ConnectError as e:
             raise RuntimeError(
                 f"Failed to connect to the Uptrain server at {self.base_url}"
@@ -46,7 +48,7 @@ class APIClient:
         with open(fpath, "rb") as file:
             files = {"data_file": (name, file, "application/octet-stream")}
             response = self.client.post(url, data={"name": name}, files=files)
-        return response.json()
+        return raise_or_return(response)
 
     def get_dataset(self, name: str, version: t.Optional[int] = None):
         url = f"{self.base_url}/dataset"
@@ -54,13 +56,13 @@ class APIClient:
         if version is not None:
             params["version"] = version
         response = self.client.get(url, params=params)
-        return response.json()
+        return raise_or_return(response)
 
     def list_datasets(self, skip: int = 0, limit: int = 100):
         url = f"{self.base_url}/datasets"
         params = {"skip": skip, "limit": limit}
         response = self.client.get(url, params=params)
-        return response.json()
+        return raise_or_return(response)
 
     def add_checkset(self, name: str, checkset: CheckSet, settings: Settings):
         url = f"{self.base_url}/checkset"
@@ -68,7 +70,7 @@ class APIClient:
             url,
             json={"name": name, "config": checkset.dict(), "settings": settings.dict()},
         )
-        return response.json()
+        return raise_or_return(response)
 
     def get_checkset(self, name: str, version: t.Optional[int] = None):
         url = f"{self.base_url}/checkset"
@@ -76,29 +78,36 @@ class APIClient:
         if version is not None:
             params["version"] = version
         response = self.client.get(url, params=params)
-        return response.json()
+        return raise_or_return(response)
 
     def list_checksets(self, skip: int = 0, limit: int = 10):
         url = f"{self.base_url}/checksets"
         params = {"skip": skip, "limit": limit}
         response = self.client.get(url, params=params)
-        return response.json()
+        return raise_or_return(response)
 
-    def add_experiment(self, name: str, checkset: CheckSet, experiment_args: ExperimentArgs, settings: Settings):
+    def add_experiment(
+        self,
+        name: str,
+        checkset: CheckSet,
+        experiment_args: ExperimentArgs,
+        settings: Settings,
+    ):
         preprocessors = experiment_args._get_preprocessors()
         modified_checks = experiment_args._modify_checks(checkset.checks)
         modified_checkset = CheckSet(
-            source=checkset.source,
-            checks=modified_checks,
-            preprocessors=preprocessors
+            source=checkset.source, checks=modified_checks, preprocessors=preprocessors
         )
         url = f"{self.base_url}/checkset"
         response = self.client.post(
-            url, 
-            json={"name": name, "config": modified_checkset.dict(),  "settings": settings.dict()}
+            url,
+            json={
+                "name": name,
+                "config": modified_checkset.dict(),
+                "settings": settings.dict(),
+            },
         )
-        return response.json()
-
+        return raise_or_return(response)
 
     def add_run(self, dataset: str, checkset: str) -> dict:
         """Schedules an evaluation on the server. Specify the dataset and checkset to use.
@@ -114,7 +123,7 @@ class APIClient:
         response = self.client.post(
             url, json={"dataset": dataset, "checkset": checkset}
         )
-        return response.json()
+        return raise_or_return(response)
 
     def get_run(self, run_id: str) -> str:
         """Get the status of a run.
@@ -127,7 +136,7 @@ class APIClient:
         """
         url = f"{self.base_url}/run/{run_id}"
         response = self.client.get(url)
-        return response.json()
+        return raise_or_return(response)
 
     def list_runs(self, num: int = 10, only_completed: bool = False):
         """List all the runs on the server.
@@ -139,4 +148,53 @@ class APIClient:
         if only_completed:
             params["status"] = "completed"
         response = self.client.get(url, params=params)
-        return response.json()
+        return raise_or_return(response)
+
+    def add_daily_schedule(self, checkset: str, start_on: str) -> dict:
+        """Schedules a periodic evaluation on the server. Specify the checkset to run against it.
+
+        Args:
+            checkset: name of the checkset to use
+            start_on: date to start the schedule on
+
+        Returns:
+            run: information about the schedule along with a unique identifier.
+        """
+        url = f"{self.base_url}/schedule"
+        response = self.client.post(
+            url, json={"checkset": checkset, "start_on": start_on}
+        )
+        return raise_or_return(response)
+
+    def get_schedule(self, schedule_id: str) -> str:
+        """Get the status of a schedule.
+
+        Args:
+            schedule_id: unique identifier for the run.
+
+        Returns:
+            run: information about the schedule along with a unique identifier.
+        """
+        url = f"{self.base_url}/schedule/{schedule_id}"
+        response = self.client.get(url)
+        return raise_or_return(response)
+
+    def remove_schedule(self, schedule_id: str) -> str:
+        """Remove a schedule.
+
+        Args:
+            schedule_id: unique identifier for the run.
+
+        Returns:
+            run: information about the schedule along with a unique identifier.
+        """
+        url = f"{self.base_url}/schedule/{schedule_id}"
+        response = self.client.delete(url)
+        return raise_or_return(response)
+
+    def list_schedules(self, num: int = 10, active_only: bool = True):
+        """List all the schedules on the server."""
+        url = f"{self.base_url}/schedules"
+        params: dict = {"num": num, "active_only": active_only}
+        response = self.client.get(url, params=params)
+        return raise_or_return(response)

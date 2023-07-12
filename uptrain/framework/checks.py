@@ -13,11 +13,7 @@ from uptrain.utilities import jsonload, jsondump, to_py_types, clear_directory
 from uptrain.framework.base import OperatorDAG, Settings
 from uptrain.operators import PlotlyChart, PromptGenerator, TextCompletion, OutputParser
 
-__all__ = [
-    "Check",
-    "CheckSet",
-    "ExperimentArgs"
-]
+__all__ = ["Check", "CheckSet", "ExperimentArgs"]
 
 
 class Check:
@@ -109,12 +105,6 @@ class CheckSet:
         checks: list[t.Any],
         preprocessors: list[TransformOp] | None = None,
     ):
-        self._consolidated_check = Check(
-            name="Consolidated Results",
-            operators=[],
-            plots=[PlotlyChart.Table(title="Consolidated Results")],
-        )
-
         self.source = source
         self.checks = checks
         self.preprocessors = preprocessors if preprocessors is not None else []
@@ -145,7 +135,6 @@ class CheckSet:
             preprocessor.setup(self._settings)
         for check in self.checks:
             check.setup(self._settings)
-        self._consolidated_check.setup(self._settings)
         return self
 
     def run(self):
@@ -167,26 +156,10 @@ class CheckSet:
                 )
             ).setup(self._settings).run(source_output)
 
-        consolidated_outputs = source_output
         for check in self.checks:
             check_output = check.run(source_output)
             assert check_output is not None, f"Output of check {check.name} is None"
             self._get_sink_for_check(self._settings, check).run(check_output)
-
-            if all(isinstance(operator, ColumnOp) for operator in check.operators):
-                consolidated_outputs = consolidated_outputs.with_columns(
-                    [
-                        check_output[col_name]
-                        for col_name in list(
-                            set(check_output.columns)
-                            - set(consolidated_outputs.columns)
-                        )
-                    ]
-                )
-
-        self._get_sink_for_check(self._settings, self._consolidated_check).run(
-            self._consolidated_check.run(consolidated_outputs)
-        )
 
     @staticmethod
     def _get_sink_for_check(settings: Settings, check: Check):
@@ -248,7 +221,7 @@ class ExperimentArgs(BaseModel):
     models: t.Union[str, list[str]]
     context_vars: t.Union[dict, list]
     temperature: float = 1.0
-    col_out_response: str = 'response'
+    col_out_response: str = "response"
     col_out_mapping: t.Optional[dict] = None
 
     def _get_preprocessors(self):
@@ -261,13 +234,13 @@ class ExperimentArgs(BaseModel):
                 prompt_template=self.prompt_template,
                 prompt_params=self.prompt_params,
                 models=[self.models] if isinstance(self.models, str) else self.models,
-                context_vars=self.context_vars
+                context_vars=self.context_vars,
             ),
             TextCompletion(
                 col_in_prompt="exp_prompt",
                 col_in_model="exp_model",
                 col_out_completion=self.col_out_response,
-                temperature=self.temperature
+                temperature=self.temperature,
             ),
         ]
 
@@ -275,20 +248,19 @@ class ExperimentArgs(BaseModel):
             preprocessors.append(
                 OutputParser(
                     col_in_response=self.col_out_response,
-                    col_out_mapping=self.col_out_mapping
+                    col_out_mapping=self.col_out_mapping,
                 )
             )
 
         return preprocessors
-
 
     def _modify_checks(self, checks):
         "Modify checks to add experiment variables into plots"
         for check in checks:
             if check.plots is not None:
                 for plot in check.plots:
-                    if plot.kind in ['histogram', 'bar', 'line']:
-                        if 'barmode' not in plot.props:
-                            plot.props.update({'barmode': 'group'})
-                        plot.props['color'] = "exp_experiment_id"
+                    if plot.kind in ["histogram", "bar", "line"]:
+                        if "barmode" not in plot.props:
+                            plot.props.update({"barmode": "group"})
+                        plot.props["color"] = "exp_experiment_id"
         return checks

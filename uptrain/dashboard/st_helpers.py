@@ -14,6 +14,12 @@ from uptrain.framework import CheckSet, Check, Settings
 # NOTE: functions with prefix `st_` create streamlit elements
 # -----------------------------------------------------------
 
+CONSOLIDATED_CHECK = Check(
+    name="Consolidated Results",
+    operators=[],
+    plots=[Table(title="Consolidated Results")],
+)
+
 
 def st_setup_layout():
     st.set_page_config(
@@ -63,6 +69,11 @@ def load_data_for_check_local(settings: "Settings", check: "Check"):
         raise NotImplementedError(f"{type(sink)} is not supported for now.")
     output = source.run()
     return output["output"]
+
+
+@st.cache_data
+def load_data_for_checks_consolidated(settings: "Settings", checkset: "CheckSet"):
+    pass
 
 
 def st_filter_template(df, attribute, default_all=False):
