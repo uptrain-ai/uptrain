@@ -1,0 +1,15 @@
+---
+title: Check
+description: An easy way to chain your operators and create charts 
+---
+
+A `Check` in UpTrain runs a series of [Operators](/key-components/operator) in the order in which they are specified.
+
+A `Check` in UpTrain takes three arguments:
+1. **name -** The name of the check
+2. **operators -** The operators that are to be run when the check is executed
+3. **plots -** The [Charts](/key-components/chart) that you want to see generated when the check is executed 
+
+`Checks` can be run on their own by using the `run()` method. However, to make full use of them you can use a [CheckSet](/key-components/checkset) to run all your `Checks` at once.
+
+To learn more about `Checks`, see the [Check Documentation](https://uptrain-ai.github.io/uptrain/framework/Check/)
