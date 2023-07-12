@@ -246,6 +246,7 @@ class Histogram(Chart):
         x (str): The name of the column to use for the x-axis.
         y (str): The name of the column to use for the y-axis.
         color (str): The name of the column to use for the color.
+        nbins (int): The maximum number of bins to use for the histogram.
 
     Returns:
         dict: A dictionary containing the chart object.
@@ -279,6 +280,7 @@ class Histogram(Chart):
     x: str = ""
     y: str = ""
     color: str = ""
+    nbins: int = 20
 
     kind = "histogram"
 
