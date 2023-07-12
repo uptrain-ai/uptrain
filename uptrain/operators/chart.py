@@ -231,7 +231,7 @@ class ScatterPlot(Chart):
     x: str = ""
     y: str = ""
     color: str = ""
-    symbol: str = "symbol"
+    symbol: str = "circle"
 
     kind = "scatter"
 
