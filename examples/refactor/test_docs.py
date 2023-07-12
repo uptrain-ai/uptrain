@@ -68,11 +68,13 @@ def get_list_checks(source_path):
             plots=[
                 Histogram(
                     title="Embeddings similarity - Context",
-                    props=dict(x="similarity-context", nbins=20),
+                    x="similarity-context",
+                    nbins=20,
                 ),
                 Histogram(
                     title="Embeddings similarity - Responses",
-                    props=dict(x="similarity-response", nbins=20),
+                    x="similarity-response",
+                    nbins=20,
                 ),
             ],
         )
@@ -92,7 +94,8 @@ def get_list_checks(source_path):
             plots=[
                 Histogram(
                     title="Text Overlap between document embeddings",
-                    props=dict(x="rogue_f1", nbins=20),
+                    x="rouge_f1",
+                    nbins=20,
                 )
             ],
         )
@@ -129,11 +132,12 @@ def get_list_checks(source_path):
                 Table(title="Quality scores"),
                 BarChart(
                     title="Bar Plot of Link version",
-                    props=dict(x="document_link_version"),
+                    x="document_link_version",
                 ),
                 Histogram(
                     title="Histogram of Context Length",
-                    props=dict(x="document_context_length", nbins=20),
+                    x="document_context_length",
+                    nbins=20,
                 ),
             ],
         )
@@ -151,9 +155,10 @@ def get_list_checks(source_path):
             plots=[
                 ScatterPlot(
                     title="UMAP for question embeddings",
-                    props=dict(
-                        x="umap_0", y="umap_1", symbol="symbol", color="cluster"
-                    ),
+                    x="umap_0",
+                    y="umap_1",
+                    symbol="symbol",
+                    color="cluster",
                 )
             ],
         )

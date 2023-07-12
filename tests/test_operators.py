@@ -202,7 +202,6 @@ def test_chart_operators():
     df = pl.DataFrame({"x": [1, 2, 3, 4, 5], "y": [10, 20, 15, 25, 30]})
 
     multiplot = MultiPlot(
-        props={},
         charts=[
             LineChart(
                 x="x",

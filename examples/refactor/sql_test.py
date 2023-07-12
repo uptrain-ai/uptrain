@@ -76,9 +76,10 @@ select_all_check = Check(
     plots=[
         Histogram(
             title="Distribution: Generated SQL query has '*' symbol",
-            props=dict(
-                x="has_star_symbol_in_query", nbins=2, color="model", barmode="group"
-            ),
+            x="has_star_symbol_in_query",
+            nbins=2,
+            color="model",
+            barmode="group",
         )
     ],
 )
@@ -105,11 +106,17 @@ sql_validity_check = Check(
     plots=[
         Histogram(
             title="Distribution: Generated SQL query is valid - column names",
-            props=dict(x="cols_valid", nbins=2, color="model", barmode="group"),
+            x="cols_valid",
+            nbins=2,
+            color="model",
+            barmode="group",
         ),
         Histogram(
             title="Distribution: Generated SQL query is valid - table names",
-            props=dict(x="tables_valid", nbins=2, color="model", barmode="group"),
+            x="tables_valid",
+            nbins=2,
+            color="model",
+            barmode="group",
         ),
     ],
 )
@@ -127,7 +134,10 @@ execution_accuracy_check = Check(
     plots=[
         Histogram(
             title="Distribution: SQL execution gives correct results",
-            props=dict(x="execution_accuracy", nbins=2, color="model", barmode="group"),
+            x="execution_accuracy",
+            nbins=2,
+            color="model",
+            barmode="group",
         ),
     ],
 )

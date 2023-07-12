@@ -90,10 +90,16 @@ def get_list_checks():
         plots=[
             Table(title="Model grade scores"),
             Histogram(
-                props=dict(x="openai_grade_score", title="chatgpt-grading", nbins=3)
+                x="openai_grade_score",
+                title="chatgpt-grading",
+                nbins=3
             ),
             *[
-                Histogram(props=dict(x=op.col_out, title=persona, nbins=3))
+                Histogram(
+                    x=op.col_out,
+                    title=persona,
+                    nbins=3
+                )
                 for op, persona in zip(list_score_ops[1:], BOT_PERSONAS.keys())
             ],
         ],

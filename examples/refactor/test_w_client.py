@@ -48,7 +48,10 @@ def get_list_checks():
         plots=[
             ScatterPlot(
                 title="UMAP for question embeddings",
-                props=dict(x="umap_0", y="umap_1", symbol="symbol", color="cluster"),
+                x="umap_0",
+                y="umap_1",
+                symbol="symbol",
+                color="cluster",
             )
         ],
     )
@@ -65,11 +68,13 @@ def get_list_checks():
         plots=[
             Histogram(
                 title="Embeddings similarity - Context",
-                props=dict(x="similarity-context", nbins=20),
+                x="similarity-context",
+                nbins=20,
             ),
             Histogram(
                 title="Embeddings similarity - Responses",
-                props=dict(x="similarity-response", nbins=20),
+                X="similarity-response",
+                nbins=20,
             ),
         ],
     )

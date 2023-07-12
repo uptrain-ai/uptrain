@@ -132,7 +132,9 @@ hallucination_check = Check(
     ],
     plots=[
         Histogram(
-            props=dict(x="overlap_score", nbins=20, color="exp_LLM_PERSONALITY")
+            x="overlap_score",
+            nbins=20,
+            color="exp_LLM_PERSONALITY",
         ),
         Table(title="Hallucination scores"),
     ],
