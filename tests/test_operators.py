@@ -193,8 +193,8 @@ def test_table_operator():
     print(output_df)
 
 
-# uptrain.operators.vis
-def test_vis_plot_operators():
+# uptrain.operators.chart
+def test_chart_operators():
     import polars as pl
     from uptrain.operators import LineChart, ScatterPlot, BarChart, Histogram, MultiPlot, CustomPlotlyChart
 
@@ -205,24 +205,28 @@ def test_vis_plot_operators():
         props={},
         charts=[
             LineChart(
-                props={"x": "x", "y": "y"}, 
+                x="x",
+                y="y",
                 title="Line Chart"
             ),
             ScatterPlot(
-                props={"x": "x", "y": "y"},
+                x="x",
+                y="y",
                 title="Scatter Plot"
             ),
             BarChart(
-                props={"x": "x", "y": "y"},
+                x="x",
+                y="y",
                 title="Bar Chart"
             ),
             Histogram(
-                props={"x": "x"},
+                x="x",
                 title="Histogram"
             ),
             CustomPlotlyChart(
                 kind="funnel",
-                props={"x": "x", "y": "y"},
+                x="x",
+                y="y",
                 title="Funnel Chart"
             )
         ],

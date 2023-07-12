@@ -29,8 +29,12 @@ __all__ = ["BarChart", "LineChart", "ScatterPlot", "Histogram", "MultiPlot", "Cu
 class Chart(OpBaseModel):
     props: dict = Field(default_factory=dict)
     title: str = ""
+    x: str = ""
+    y: str = ""
+    color: str = ""
 
-    def setup(self, settings: Settings):
+    def setup(self, settings: Settings = None):
+        self.props = self.props | {k: v for k, v in [("x", self.x), ("y", self.y), ("color", self.color), ("title", self.title)] if v}
         return self
     
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
@@ -46,6 +50,9 @@ class CustomPlotlyChart(Chart):
     Attributes:
         props (dict): Additional properties to pass to the PlotlyChart constructor.
         title (str): The title of the chart.
+        x (str): The name of the column to use for the x-axis.
+        y (str): The name of the column to use for the y-axis.
+        color (str): The name of the column to use for the color.
         kind (str): The type of chart to generate.
 
     Returns:
@@ -76,6 +83,9 @@ class CustomPlotlyChart(Chart):
 
     props: dict = Field(default_factory=dict)
     title: str = ""
+    x: str = ""
+    y: str = ""
+    color: str = ""
     kind: str = Field(default_factory=str)
 
 
@@ -86,6 +96,10 @@ class BarChart(Chart):
 
     Attributes:
         props (dict): Additional properties to pass to the BarChart constructor.
+        x (str): The name of the column to use for the x-axis.
+        y (str): The name of the column to use for the y-axis.
+        color (str): The name of the column to use for the color.
+        barmode (str): The type of bar chart to generate.
         title (str): The title of the chart.
 
     Returns:
@@ -117,6 +131,10 @@ class BarChart(Chart):
 
     props: dict = Field(default_factory=dict)
     title: str = ""
+    x: str = ""
+    y: str = ""
+    color: str = ""
+    barmode: str = "group"
 
     kind = "bar"
 
@@ -128,6 +146,9 @@ class LineChart(Chart):
 
     Attributes:
         props (dict): Additional properties to pass to the LineChart constructor.
+        x (str): The name of the column to use for the x-axis.
+        y (str): The name of the column to use for the y-axis.
+        color (str): The name of the column to use for the color.
         title (str): The title of the chart.
 
     Returns:
@@ -159,6 +180,9 @@ class LineChart(Chart):
 
     props: dict = Field(default_factory=dict)
     title: str = ""
+    x: str = ""
+    y: str = ""
+    color: str = ""
 
     kind = "line"
 
@@ -171,6 +195,9 @@ class ScatterPlot(Chart):
     Attributes:
         props (dict): Additional properties to pass to the ScatterPlot constructor.
         title (str): The title of the chart.
+        x (str): The name of the column to use for the x-axis.
+        y (str): The name of the column to use for the y-axis.
+        color (str): The name of the column to use for the color.
 
     Returns:
         dict: A dictionary containing the chart object.
@@ -201,6 +228,9 @@ class ScatterPlot(Chart):
 
     props: dict = Field(default_factory=dict)
     title: str = ""
+    x: str = ""
+    y: str = ""
+    color: str = ""
 
     kind = "scatter"
 
@@ -213,6 +243,9 @@ class Histogram(Chart):
     Attributes:
         props (dict): Additional properties to pass to the Histogram chart constructor.
         title (str): The title of the chart.
+        x (str): The name of the column to use for the x-axis.
+        y (str): The name of the column to use for the y-axis.
+        color (str): The name of the column to use for the color.
 
     Returns:
         dict: A dictionary containing the chart object.
@@ -243,6 +276,9 @@ class Histogram(Chart):
 
     props: dict = Field(default_factory=dict)
     title: str = ""
+    x: str = ""
+    y: str = ""
+    color: str = ""
 
     kind = "histogram"
 
@@ -255,6 +291,7 @@ class MultiPlot(Chart):
     Attributes:
         props (dict): Additional properties to pass to the MultiPlot constructor.
         title (str): The title of the chart.
+        charts (list): A list of charts to display in the subplot.
 
     Returns:
         dict: A dictionary containing the chart object.
@@ -307,7 +344,11 @@ class MultiPlot(Chart):
     title: str = ""
     charts: list
 
+    kind = "multiplot"
+
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
+        if type(self.charts[0]) == dict:
+            self.charts = [Chart(**chart).setup() for chart in self.charts]
         subplot = ps.make_subplots(
             rows=1,
             cols=len(self.charts),
