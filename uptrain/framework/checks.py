@@ -139,7 +139,7 @@ class CheckSet:
 
     def run(self):
         """Run all checks in this set."""
-        from uptrain.operators.io.writers import JsonWriter
+        from uptrain.operators import JsonWriter
 
         source_output = self.source.run()["output"]
         assert source_output is not None, "Output of source is None"
@@ -164,7 +164,7 @@ class CheckSet:
     @staticmethod
     def _get_sink_for_check(settings: Settings, check: Check):
         """Get the sink operator for this check."""
-        from uptrain.operators.io.writers import JsonWriter
+        from uptrain.operators import JsonWriter
 
         return JsonWriter(
             fpath=os.path.join(settings.logs_folder, f"{check.name}.jsonl")
