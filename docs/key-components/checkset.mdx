@@ -1,0 +1,22 @@
+---
+title: CheckSet
+description: The UpTrain equivalent of a test suite
+---
+
+A `CheckSet` specifies a collection of [Check](/key-components/check) objects run against the same dataset. It is a higher level construct to make scheduling and running multiple checks easier. 
+
+A `CheckSet` in UpTrain takes three arguments:
+1. **source -** The location of the file along with the corresponding [Reader Operator](https://uptrain-ai.github.io/uptrain/operators/IO/CsvReader/). 
+2. **preprocessors -** The list of operators to run on the input data before running the checks.
+3. **checks -** The set of checks to be run on the input data after preprocessing.
+
+The `CheckSet` class implements two methods, which are to be run in order:
+1. `setup()` - This method performs the setup before the `run()` method is called. You can pass a [Settings](/key-components/settings) object with the required configurations. 
+2. `run()` -  Reads the data and runs all the `Checks`
+
+A `CheckSet` object can optionally be serialized and run remotely. 
+
+
+
+
+
