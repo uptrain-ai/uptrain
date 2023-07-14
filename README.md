@@ -115,7 +115,7 @@ checkset = CheckSet(
     source = JsonReader(fpath = '...')
 )
 
-# Step 4: Set up and run our CheckSet
+# Step 4: Set up and run the CheckSet
 checkset.setup(Settings(openai_api_key = '...'))
 checkset.run()
 ```
