@@ -100,22 +100,21 @@ Say we want to check whether our model's responses contain any grammatical mista
 # and api_keys
 
 checkset = CheckSet(
-    checks = Check(
-        name = "grammar_score",
-        operators = [
-            GrammarScore(
-                col_in_text = "model_response",
-                col_out = "grammar_score"
-            ),
-        ],
-        plots = Table(title="Grammar scores"),
-    ),
-    source = JsonReader(fpath = '...')
-)
-settings = Settings(openai_api_key = '...')
+    checks = [
 
-checkset.setup(settings)
-checkset.run()
+      # Gives a score between 1 to 100 based on the grammar correctness of the model output
+      GrammarCheck(),
+
+      # Gives a score between 1 to 100 based on if the response complies with the given context or not
+      HallucinationCheck(col_context = "context"),
+
+      # Gives a score between 1 to 100 based on if the response is a relevant answer for the question or not
+      RelevanceCheck(col_query = "user_question")
+    ]
+)
+
+checkset.setup(openai_api_key = '...')
+checkset.run(test_dataset)
 ```
 
 <!-- For a quick walkthrough of how UpTrain works, check out our [quickstart tutorial](https://docs.uptrain.ai/docs/uptrain-examples/quickstart-tutorial). -->
