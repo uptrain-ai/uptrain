@@ -204,7 +204,7 @@ class TextComparison(ColumnOp):
     Operator to compare each text entry in a column with a list of reference texts.
 
     Attributes:
-        reference_texts (str): List of reference text for comparison.
+        reference_texts (Union[list[str], str]): List of reference text for comparison.
         col_in_text (str): The name of the input column containing the text data.
         col_out (str): The name of the output column containing the comparison results.
 
@@ -225,7 +225,7 @@ class TextComparison(ColumnOp):
         ref_text = ["This is a sample text.", "Yet another sentence."]
 
         # Create an instance of the TextComparison class
-        comp_op = TextComparison(reference_text=ref_text, col_in_text="text")
+        comp_op = TextComparison(reference_texts=ref_text, col_in_text="text")
 
         # Compare each text entry with the reference text
         comparison = comp_op.run(df)["output"]

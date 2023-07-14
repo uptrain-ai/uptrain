@@ -193,55 +193,50 @@ def test_table_operator():
     print(output_df)
 
 
-# uptrain.operators.vis
-def test_vis_plot_operators():
+# uptrain.operators.chart
+def test_chart_operators():
     import polars as pl
-    from uptrain.operators import PlotlyChart
+    from uptrain.operators import LineChart, ScatterPlot, BarChart, Histogram, MultiPlot, CustomPlotlyChart
 
     # Create a DataFrame
     df = pl.DataFrame({"x": [1, 2, 3, 4, 5], "y": [10, 20, 15, 25, 30]})
 
-    # LINE CHART
-    # Create a line chart using the PlotlyChart class
-    line_chart = PlotlyChart.Line(props={"x": "x", "y": "y"}, title="Line Chart")
-
-    # Generate the line chart
-    line_chart = line_chart.run(df)["extra"]["chart"]
-
-    # Show the chart
-    # line_chart.show()
-
-    # SCATTER CHART
-    # Create a scatter chart using the PlotlyChart class
-    scatter_chart = PlotlyChart.Scatter(
-        props={"x": "x", "y": "y"}, title="Scatter Chart"
+    multiplot = MultiPlot(
+        charts=[
+            LineChart(
+                x="x",
+                y="y",
+                title="Line Chart"
+            ),
+            ScatterPlot(
+                x="x",
+                y="y",
+                title="Scatter Plot"
+            ),
+            BarChart(
+                x="x",
+                y="y",
+                title="Bar Chart"
+            ),
+            Histogram(
+                x="x",
+                title="Histogram"
+            ),
+            CustomPlotlyChart(
+                kind="funnel",
+                x="x",
+                y="y",
+                title="Funnel Chart"
+            )
+        ],
+        title="MultiPlot",
     )
 
-    # Generate the scatter chart
-    scatter_chart = scatter_chart.run(df)["extra"]["chart"]
+    # Generate the multiplot
+    chart = multiplot.run(df)["extra"]["chart"]
 
     # Show the chart
-    # scatter_chart.show()
-
-    # BAR CHART
-    # Create a bar chart using the PlotlyChart class
-    bar_chart = PlotlyChart.Bar(props={"x": "x", "y": "y"}, title="Bar Chart")
-
-    # Generate the bar chart
-    bar_chart = bar_chart.run(df)["extra"]["chart"]
-
-    # Show the chart
-    # bar_chart.show()
-
-    # HISTOGRAM
-    # Create a histogram using the PlotlyChart class
-    histogram = PlotlyChart.Histogram(props={"x": "x"}, title="Histogram")
-
-    # Generate the histogram
-    histogram = histogram.run(df)["extra"]["chart"]
-
-    # Show the chart
-    # histogram.show()
+    chart.show()
 
 
 # uptrain.operators.language.rouge
@@ -344,7 +339,7 @@ def test_text_comparison_operator():
     ref_text = "This is a sample text."
 
     # Create an instance of the TextComparison class
-    comp_op = TextComparison(reference_text=ref_text, col_in_text="text")
+    comp_op = TextComparison(reference_texts=ref_text, col_in_text="text")
 
     # Compare each text entry with the reference text
     comparison = comp_op.run(df)["output"]

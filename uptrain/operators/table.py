@@ -10,12 +10,34 @@ import typing as t
 
 import numpy as np
 from loguru import logger
+from pydantic import Field
 import polars as pl
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
 from uptrain.operators.base import *
 
+@register_op
+class Table(OpBaseModel):
+    """
+    Operator to generate a table.
+
+    Attributes:
+        props (dict): Additional properties to pass to the Table constructor.
+        title (str): The title of the chart.
+
+    """
+
+    props: dict = Field(default_factory=dict)
+    title: str = ""
+
+    kind = "table"
+
+    def setup(self, settings: Settings):
+        return self
+
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
+        return {"output": None}
 
 @register_op
 class ColumnExpand(TransformOp):
