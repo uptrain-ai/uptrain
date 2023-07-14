@@ -1,10 +1,9 @@
-"""IO operators to read from Excel files"""
+"""IO operators to read/write from/to Bigquery."""
 
 from __future__ import annotations
 import typing as t
 
 import polars as pl
-import deltalake as dl
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings

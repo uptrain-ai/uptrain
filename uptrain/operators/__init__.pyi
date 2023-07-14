@@ -4,7 +4,9 @@ __all__ = [
     "ColumnOp",
     "TransformOp",
     "register_op",
+    "register_custom_op",
     "get_output_col_name_at",
+    "deserialize_operator",
     # drift
     "ParamsDDM",
     "ParamsADWIN",
@@ -66,14 +68,23 @@ from .base import (
     ColumnOp,
     TransformOp,
     register_op,
+    register_custom_op,
     get_output_col_name_at,
+    deserialize_operator,
 )
 from .drift import ConceptDrift, ParamsADWIN, ParamsDDM
 from .embs import Distribution, UMAP
 from .table import Table, ColumnExpand, ColumnComparison
 from .metrics import Accuracy
 from .similarity import CosineSimilarity
-from .chart import BarChart, LineChart, ScatterPlot, Histogram, MultiPlot, CustomPlotlyChart
+from .chart import (
+    BarChart,
+    LineChart,
+    ScatterPlot,
+    Histogram,
+    MultiPlot,
+    CustomPlotlyChart,
+)
 
 from . import language
 from .language.grammar import GrammarScore

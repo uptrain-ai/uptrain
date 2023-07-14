@@ -22,6 +22,8 @@ import pyarrow as pa
 
 
 def to_py_types(obj: t.Any) -> t.Any:
+    import inspect
+
     # for nested dataclasses/pydantic models/operators
     if isinstance(obj, dict):
         return {k: to_py_types(v) for k, v in obj.items()}
@@ -30,10 +32,17 @@ def to_py_types(obj: t.Any) -> t.Any:
     elif dataclasses.is_dataclass(obj):
         return to_py_types(dataclasses.asdict(obj))
     elif hasattr(obj, "_uptrain_op_name"):
-        return {
-            "op_name": getattr(obj, "_uptrain_op_name"),
-            "params": obj.dict(include=set(obj.__fields__)),
-        }
+        if hasattr(obj, "_uptrain_op_custom"):
+            return {
+                "op_name": getattr(obj, "_uptrain_op_name"),
+                "params": obj.dict(include=set(obj.__fields__)),
+                "source": inspect.getsource(obj.__class__),
+            }
+        else:
+            return {
+                "op_name": getattr(obj, "_uptrain_op_name"),
+                "params": obj.dict(include=set(obj.__fields__)),
+            }
     elif isinstance(obj, pydantic.BaseModel):
         return obj.dict()
 
