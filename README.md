@@ -61,6 +61,8 @@
 
 UpTrain framework can be used to experiment across multiple prompts, model providers, chain configurations, etc. and get quantitative scores to compare them. Check out the [experimentation tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/prompt_experiments_tutorial.ipynb) to learn more.
 
+https://github.com/uptrain-ai/uptrain/assets/108270398/e44da6c7-87d3-4935-b90d-e123904d6ae2
+
 ## Validation
 
 You can use the UpTrain Validation Manager to define checks, retry logic and validate your LLM responses before showing it to your users. Check out the [tutorial here](https://github.com/uptrain-ai/uptrain/blob/main/examples/validation_tutorial.ipynb).
