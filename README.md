@@ -92,29 +92,31 @@ Note: Uptrain uses commonly used python libraries like openai-evals and sentence
 uptrain-add --feature full
 ```
 
-### How to define checks:
-Say we want to check whether our model's responses contain any grammatical mistakes or not.
+### How to use UpTrain in 4 simple steps:
+Say we want to plot a line chart showing whether our model's responses contain any grammatical mistakes or not.
 
 ```python
-# Define your checkset - list of simple checks, dataset file, 
-# and api_keys
+# Step 1: Choose the appropriate operator from uptrain
+grammar_score = GrammarScore(
+  col_in_text = "model_response",
+  col_out = "grammar_score"
+)
 
+# Step 2: Create a check with the line chart
+grammar_check = Check(
+  name = "grammar_score",
+  operators = [grammar_score],
+  plots = LineChart(y = "grammar_score")
+)
+
+# Step 3: Create a CheckSet with our check, data source
 checkset = CheckSet(
-    checks = Check(
-        name = "grammar_score",
-        operators = [
-            GrammarScore(
-                col_in_text = "model_response",
-                col_out = "grammar_score"
-            ),
-        ],
-        plots = Table(title="Grammar scores"),
-    ),
+    checks = [grammar_check]
     source = JsonReader(fpath = '...')
 )
-settings = Settings(openai_api_key = '...')
 
-checkset.setup(settings)
+# Step 4: Set up and run our CheckSet
+checkset.setup(Settings(openai_api_key = '...'))
 checkset.run()
 ```
 
