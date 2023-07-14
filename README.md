@@ -98,8 +98,8 @@ Say we want to plot a line chart showing whether our model's responses contain a
 ```python
 # Step 1: Choose and create the appropriate operator from UpTrain
 grammar_score = GrammarScore(
-  col_in_text = "model_response",            # input column name (from dataset)
-  col_out = "grammar_score"                  # desired output column name
+  col_in_text = "model_response",       # input column name (from dataset)
+  col_out = "grammar_score"             # desired output column name
 )
 
 # Step 2: Create a check with the operators and the required plots as arguments 
