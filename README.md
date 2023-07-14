@@ -96,20 +96,19 @@ uptrain-add --feature full
 Say we want to plot a line chart showing whether our model's responses contain any grammatical mistakes or not.
 
 ```python
-# Step 1: Choose the appropriate operator from uptrain
+# Step 1: Choose and create the appropriate operator from UpTrain
 grammar_score = GrammarScore(
-  col_in_text = "model_response",
-  col_out = "grammar_score"
+  col_in_text = "model_response",            # input column name (from dataset)
+  col_out = "grammar_score"                  # desired output column name
 )
 
-# Step 2: Create a check with the line chart
+# Step 2: Create a check with the operators and the required plots as arguments 
 grammar_check = Check(
-  name = "grammar_score",
   operators = [grammar_score],
   plots = LineChart(y = "grammar_score")
 )
 
-# Step 3: Create a CheckSet with our check, data source
+# Step 3: Create a CheckSet with the checks and data source as arguments
 checkset = CheckSet(
     checks = [grammar_check]
     source = JsonReader(fpath = '...')
@@ -117,7 +116,7 @@ checkset = CheckSet(
 
 # Step 4: Set up and run the CheckSet
 checkset.setup(Settings(openai_api_key = '...'))
-checkset.run()
+checkset.run(dataset)
 ```
 
 <!-- For a quick walkthrough of how UpTrain works, check out our [quickstart tutorial](https://docs.uptrain.ai/docs/uptrain-examples/quickstart-tutorial). -->
