@@ -33,10 +33,14 @@ def to_py_types(obj: t.Any) -> t.Any:
         return to_py_types(dataclasses.asdict(obj))
     elif hasattr(obj, "_uptrain_op_name"):
         if hasattr(obj, "_uptrain_op_custom"):
+            if hasattr(obj, "_uptrain_op_custom_source"):
+                source = obj._uptrain_op_custom_source
+            else:
+                source = inspect.getsource(obj.__class__)
             return {
                 "op_name": getattr(obj, "_uptrain_op_name"),
                 "params": obj.dict(include=set(obj.__fields__)),
-                "source": inspect.getsource(obj.__class__),
+                "source": source,
             }
         else:
             return {

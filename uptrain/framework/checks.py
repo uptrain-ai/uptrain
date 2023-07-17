@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import os
 import typing as t
 
+from loguru import logger
 import polars as pl
 from pydantic import BaseModel
 
@@ -126,6 +127,8 @@ class CheckSet:
         else:
             clear_directory(logs_dir)
 
+        logger.info(f"Uptrain Logs directory: {logs_dir}")
+
         # persist the check-set as well as the corresponding settings
         self.serialize(os.path.join(logs_dir, "config.json"))
         self._settings.serialize(os.path.join(logs_dir, "settings.json"))
@@ -142,7 +145,10 @@ class CheckSet:
         from uptrain.operators import JsonWriter
 
         source_output = self.source.run()["output"]
-        assert source_output is not None, "Output of source is None"
+        if source_output is None:
+            raise RuntimeError("Dataset read from the source is: None")
+        if len(source_output) == 0:
+            raise RuntimeError("Dataset read from the source is: empty")
 
         if len(self.preprocessors) > 0:
             for preprocessor in self.preprocessors:

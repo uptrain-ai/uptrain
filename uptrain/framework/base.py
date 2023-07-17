@@ -21,7 +21,7 @@ __all__ = [
 
 class Settings(BaseSettings):
     # uptrain stores logs in this folder
-    logs_folder: str = "/tmp/uptrain_logs"
+    logs_folder: str = "/tmp/uptrain-logs"
 
     # external api related
     openai_api_key: str = Field(None, env="OPENAI_API_KEY")

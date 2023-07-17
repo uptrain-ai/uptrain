@@ -20,7 +20,7 @@ class Sum(ColumnOp):
 
 
 def test_custom_op():
-    """Test the custom operator."""
+    """Test the custom operator by serializing and deserializing it."""
     import polars as pl
     from uptrain.framework import Check, Settings
 

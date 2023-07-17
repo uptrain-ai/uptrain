@@ -4,6 +4,7 @@ Operators for the uptrain.core module.
 
 from __future__ import annotations
 import importlib
+import types
 import typing as t
 import typing_extensions as te
 
@@ -31,6 +32,20 @@ __all__ = [
 # -----------------------------------------------------------
 # Base classes for operators
 # -----------------------------------------------------------
+
+
+def make_module_for_custom_ops():
+    """Creates a module to hold custom operators. `inspect.getsource` is
+    giving me a lot of grief.
+    """
+    mod = types.ModuleType("_uptrain_custom_ops")
+    preamble = [
+        "from uptrain.operators import ColumnOp, TransformOp, register_custom_op",
+        "import polars as pl",
+    ]
+    for line in preamble:
+        exec(line, mod.__dict__)
+    return mod
 
 
 class TYPE_TABLE_OUTPUT(te.TypedDict):
@@ -156,9 +171,14 @@ def register_custom_op(cls: T) -> T:
     - This operator is dserialised in an empty namespace, so all imports must
     be done inside the class definition.
     - For typing, use string annotations.
+    - Custom operators must be defined in a separate .py file and not in the
+    interpreter (like a jupyter notebook).
     """
     cls._uptrain_op_custom = True  # type: ignore
     return register_op(cls)
+
+
+CUSTOM_OP_MODULE = make_module_for_custom_ops()
 
 
 def deserialize_operator(data: dict) -> Operator:
@@ -168,11 +188,12 @@ def deserialize_operator(data: dict) -> Operator:
     mod_name, cls_name = op_name.split(":")
     try:
         # Check if it is a custom operator, that'd need exec-ing
-        if data.get("_uptrain_op_custom", False):
-            g = {}
-            preamble = "from uptrain.operators import ColumnOp, TransformOp, register_custom_op\n\n"
-            exec(preamble + params["source"], g)
-            return g[cls_name](**params)
+        if "source" in data:
+            exec(data["source"], CUSTOM_OP_MODULE.__dict__)
+            klass = getattr(CUSTOM_OP_MODULE, cls_name)
+            # to get around serialisation round-trip woes
+            klass._uptrain_op_custom_source = data["source"]
+            return klass(**params)  # type: ignore
         else:
             mod = importlib.import_module(mod_name)
             op = getattr(mod, cls_name)

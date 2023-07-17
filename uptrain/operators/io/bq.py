@@ -18,7 +18,8 @@ bigquery = lazy_load_dep("google.cloud.bigquery", "google-cloud-bigquery")
 class BigqueryReader(TransformOp):
     """Read data from a bigquery table.
 
-    NOTE: To use this operator, you must include the GCP service account credentials in the settings.
+    NOTE: To use this operator, you must include the GCP service account credentials in
+    the settings, using the key `gcp_service_account_credentials`.
 
     Attributes:
         query (str): Query to run against the BigQuery table.

@@ -19,7 +19,8 @@ from uptrain.dashboard.st_helpers import (
 # Utility functions
 # -----------------------------------------------------------
 
-read_checkset = st.cache_data(read_checkset)
+# TODO: Streamlit can't pickle custom operators, so we need to use a workaround to cache
+# read_checkset = st.cache_data(read_checkset)
 
 
 @st.cache_data
