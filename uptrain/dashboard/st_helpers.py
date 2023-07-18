@@ -7,6 +7,7 @@ import pandas as pd
 import plotly.express as px
 
 from uptrain.framework import CheckSet, Check, Settings
+from uptrain.operators import Table
 
 
 # -----------------------------------------------------------
@@ -14,14 +15,20 @@ from uptrain.framework import CheckSet, Check, Settings
 # NOTE: functions with prefix `st_` create streamlit elements
 # -----------------------------------------------------------
 
+CONSOLIDATED_CHECK = Check(
+    name="Consolidated Results",
+    operators=[],
+    plots=[Table(title="Consolidated Results")],
+)
 
-def st_setup_layout():
+
+def st_setup_layout(title: str = "UpTrain Dashboard"):
     st.set_page_config(
         page_title="UpTrain Dashboard",
         layout="wide",
         page_icon="https://github.com/uptrain-ai/uptrain/raw/dashboard/uptrain/core/classes/logging/uptrain_logo_icon.png",
     )  # TODO: find another source for the icon
-    st.title("UpTrain Live Dashboard")
+    st.title(title)
     st_style = """<style> footer {visibility: hidden;} </style>"""
     st.markdown(st_style, unsafe_allow_html=True)
 
@@ -41,7 +48,7 @@ def read_settings(logs_folder: str):
 def st_make_check_selector(checkset: "CheckSet"):
     """Make a selector for a checkset"""
     # Pick a check from the checkset to view
-    checks = checkset.checks + [checkset._consolidated_check]
+    checks = checkset.checks + [CONSOLIDATED_CHECK]
     with st.sidebar:
         select_check_index = st.sidebar.selectbox(
             "Select a check to view",
@@ -50,19 +57,6 @@ def st_make_check_selector(checkset: "CheckSet"):
         )  # streamlit is being weird with classes, so iterate over their indices
     check = checks[select_check_index]  # type: ignore
     return check
-
-
-def load_data_for_check_local(settings: "Settings", check: "Check"):
-    from uptrain.operators import DeltaWriter, JsonWriter
-
-    sink = CheckSet._get_sink_for_check(settings, check)
-    if isinstance(sink, (DeltaWriter, JsonWriter)):
-        source = sink.to_reader()
-        source.setup(settings)
-    else:
-        raise NotImplementedError(f"{type(sink)} is not supported for now.")
-    output = source.run()
-    return output["output"]
 
 
 def st_filter_template(df, attribute, default_all=False):

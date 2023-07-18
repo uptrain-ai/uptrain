@@ -88,7 +88,7 @@ def get_list_checks(source_path):
                     kind="rouge",
                     col_in_embs=["document_text"],
                     col_in_groupby=["question_idx", "experiment_id"],
-                    col_out=["rogue_f1"],
+                    col_out=["rouge_f1"],
                 )
             ],
             plots=[

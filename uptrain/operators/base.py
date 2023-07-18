@@ -4,6 +4,7 @@ Operators for the uptrain.core module.
 
 from __future__ import annotations
 import importlib
+import types
 import typing as t
 import typing_extensions as te
 
@@ -31,6 +32,20 @@ __all__ = [
 # -----------------------------------------------------------
 # Base classes for operators
 # -----------------------------------------------------------
+
+
+def make_module_for_custom_ops():
+    """Creates a module to hold custom operators. `inspect.getsource` is
+    giving me a lot of grief.
+    """
+    mod = types.ModuleType("_uptrain_custom_ops")
+    preamble = [
+        "from uptrain.operators import ColumnOp, TransformOp, register_custom_op",
+        "import polars as pl",
+    ]
+    for line in preamble:
+        exec(line, mod.__dict__)
+    return mod
 
 
 class TYPE_TABLE_OUTPUT(te.TypedDict):
@@ -66,7 +81,7 @@ class Operator(t.Protocol):
         `uptrain.utilities` handles this. Though if you have fields with custom
         non-python types, you MUST override and implement both a `dict` and a`from_dict`
         method.
-        TODO: With pydantic v2, nested models work with custome (de)serializers. Use that
+        TODO: With pydantic v2, nested models work with custom (de)serializers. Use that
         when moving.
         """
         ...
@@ -147,26 +162,52 @@ def register_op(cls: T) -> T:
     return cls
 
 
+def register_custom_op(cls: T) -> T:
+    """Decorator that marks the class as a custom Uptrain operator, that is not
+    part of the core uptrain package. These are serialized by storing the entire
+    source code of the class, and deserialized by exec-ing the source code.
+
+    NOTE: This introduces some restrictions on the operator.
+    - This operator is dserialised in an empty namespace, so all imports must
+    be done inside the class definition.
+    - For typing, use string annotations.
+    - Custom operators must be defined in a separate .py file and not in the
+    interpreter (like a jupyter notebook).
+    """
+    cls._uptrain_op_custom = True  # type: ignore
+    return register_op(cls)
+
+
+CUSTOM_OP_MODULE = make_module_for_custom_ops()
+
+
 def deserialize_operator(data: dict) -> Operator:
     """Deserialize an operator from the serialized dict."""
     op_name = data["op_name"]
+    params = data["params"]
     mod_name, cls_name = op_name.split(":")
     try:
-        mod = importlib.import_module(mod_name)
-        op = getattr(mod, cls_name)
+        # Check if it is a custom operator, that'd need exec-ing
+        if "source" in data:
+            exec(data["source"], CUSTOM_OP_MODULE.__dict__)
+            klass = getattr(CUSTOM_OP_MODULE, cls_name)
+            # to get around serialisation round-trip woes
+            klass._uptrain_op_custom_source = data["source"]
+            return klass(**params)  # type: ignore
+        else:
+            mod = importlib.import_module(mod_name)
+            op = getattr(mod, cls_name)
+            # Is it a class implemented by uptrain or a regular pydantic model?
+            if hasattr(op, "from_dict"):
+                return op.from_dict(params)  # type: ignore
+            else:
+                return op(**params)  # type: ignore
+
     except (ModuleNotFoundError, AttributeError) as exc:
         logger.error(
             f"Error when trying to fetch the operator: \n{exc}\n Creating a placeholder op for {op_name}."
         )
         return PlaceholderOp(op_name=op_name, params=data["params"])
-
-    params = data["params"]
-    if hasattr(op, "from_dict"):
-        # not a pydantic model, so a class implemented by uptrain
-        return op.from_dict(params)  # type: ignore
-    else:
-        # likely a pydantic model
-        return op(**params)  # type: ignore
 
 
 # -----------------------------------------------------------

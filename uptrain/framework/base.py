@@ -21,7 +21,7 @@ __all__ = [
 
 class Settings(BaseSettings):
     # uptrain stores logs in this folder
-    logs_folder: str = "/tmp/uptrain_logs"
+    logs_folder: str = "/tmp/uptrain-logs"
 
     # external api related
     openai_api_key: str = Field(None, env="OPENAI_API_KEY")
@@ -30,6 +30,10 @@ class Settings(BaseSettings):
     # uptrain managed service related
     uptrain_access_token: str = Field(None, env="UPTRAIN_ACCESS_TOKEN")
     uptrain_server_url: str = Field(None, env="UPTRAIN_SERVER_URL")
+
+    # allow additional fields as needed by different operators
+    class Config:
+        extra = "allow"
 
     def check_and_get(self, key: str) -> t.Any:
         """Check if a value is present in the settings and return it."""
