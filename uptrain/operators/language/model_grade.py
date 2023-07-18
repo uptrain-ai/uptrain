@@ -142,17 +142,23 @@ class ModelGradeScore(ColumnOp):
                 )
                 results.append((idx, None))
             else:
-                resp_text = res.response["choices"][0]["message"]["content"]
-                choice = get_choice(
-                    text=resp_text,
-                    eval_type=self.eval_type,
-                    match_fn="starts_or_endswith",
-                    choice_strings=self.choice_strings,
-                )
-                score = get_choice_score(
-                    choice, self.choice_strings, self.choice_scores
-                )
-                results.append((idx, score))
+                try:
+                    resp_text = res.response["choices"][0]["message"]["content"]
+                    choice = get_choice(
+                        text=resp_text,
+                        eval_type=self.eval_type,
+                        match_fn="starts_or_endswith",
+                        choice_strings=self.choice_strings,
+                    )
+                    score = get_choice_score(
+                        choice, self.choice_strings, self.choice_scores
+                    )
+                    results.append((idx, score))
+                except Exception as e:
+                    logger.error(
+                        f"Error when processing payload at index {idx}, though not marked as error by OpenAI: {e}"
+                    )
+                    results.append((idx, None))
 
         result_scores = pl.Series(
             [val for _, val in sorted(results, key=lambda x: x[0])]
