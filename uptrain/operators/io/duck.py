@@ -18,8 +18,6 @@ duckdb = lazy_load_dep("duckdb", "duckdb")
 class DuckdbReader(TransformOp):
     """Read data from a Duckdb table.
 
-    NOTE: To use this operator, you must include the GCP service account credentials in the settings.
-
     Attributes:
         fpath (str): Path to the Duckdb file.
         query (str): Query to run against the duckdb database.
