@@ -5,7 +5,7 @@
 </h4>
 <h2>
   <p align="center">
-    <p align="center">An open-source framework to evaluate, test and monitor LLM applications</p>
+    <p align="center">An open-source framework to evaluate and monitor LLM applications</p>
   </p>
 </h2>
 
@@ -57,24 +57,19 @@
 
 **[UpTrain](https://uptrain.ai)** is a Python framework that ensures your LLM applications are performing reliably by allowing users to check aspects such as correctness, structural integrity, bias, hallucination, etc. UpTrain can be used to:
 
-1) Validate model's response and safeguard your users against hallucinations, bias, incorrect output formats, etc.
-2) Experiment across multiple model providers, prompt templates, and quantify model's performance.
-3) Monitor your model's performance in production and protect yourself against unwanted drifts
+## Experimentation
 
+UpTrain framework can be used to experiment across multiple prompts, model providers, chain configurations, etc. and get quantitative scores to compare them. Check out the [experimentation tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/prompt_experiments_tutorial.ipynb) to learn more.
 
-# Key Features 💡
+https://github.com/uptrain-ai/uptrain/assets/108270398/e44da6c7-87d3-4935-b90d-e123904d6ae2
 
+## Validation
 
-- **[ChatGPT Grading](https://uptrain-ai.github.io/uptrain/operators/language/OpenAIGradeScore/)** - Utilize LLMs to grade your model outputs.
-- **[Custom Grading Checks](https://uptrain-ai.github.io/uptrain/operators/language/ModelGradeScore/)** - Write your custom grading prompts.
-- **[Embeddings Similarity Check](https://uptrain-ai.github.io/uptrain/operators/CosineSimilarity/)** - Compute cosine similarity between prompt and response embeddings
-- **[Output Validation](https://github.com/uptrain-ai/uptrain/blob/main/examples/validation_tutorial.ipynb)** - Safeguard your users against inappropriate responses
-- **[Prompt A/B Testing](https://github.com/uptrain-ai/uptrain/blob/main/examples/prompt_experiments_tutorial.ipynb)** - Experiment across multiple prompts and compare them quantatively.
-- **[UMAP Visualization and Clustering](https://uptrain-ai.github.io/uptrain/operators/UMAP/)** - Visualize your embedding space using tools like UMAP and t-SNE.
-- **[Hallucination Checks]()** - Use metrics like custom grading, text similarity, and embedding similarity to check for hallucinations.
-- **[Toxic Keywords Checks]()** - Make sure your model outputs are not biased or contain toxic keywords.
-- **[Feature Slicing]()** - Built-in pivoting functionalities for data dice and slice to pinpoint low-performing cohorts.
-- **[Realtime Dashboards]()** - Monitor your model's performance in realtime.
+You can use the UpTrain Validation Manager to define checks, retry logic and validate your LLM responses before showing it to your users. Check out the [tutorial here](https://github.com/uptrain-ai/uptrain/blob/main/examples/validation_tutorial.ipynb).
+
+## Monitoring
+
+You can use the UpTrain framework to continuously monitor your model's performance and get real-time insights on how well it is doing on a variety of evaluation metrics. Check out the monitoring tutorial to learn more.
 
 # Get started 🙌
 
@@ -92,35 +87,51 @@ Note: Uptrain uses commonly used python libraries like openai-evals and sentence
 uptrain-add --feature full
 ```
 
-### How to define checks:
-Say we want to check whether our model's responses contain any grammatical mistakes or not.
+### How to use UpTrain in 4 simple steps:
+Say we want to plot a line chart showing whether our model's responses contain any grammatical mistakes or not.
 
 ```python
-# Define your checkset - list of simple checks, dataset file, 
-# and api_keys
+# Step 1: Choose and create the appropriate operator from UpTrain
+grammar_score = GrammarScore(
+  col_in_text = "model_response",       # input column name (from dataset)
+  col_out = "grammar_score"             # desired output column name
+)
 
+# Step 2: Create a check with the operators and the required plots as arguments 
+grammar_check = Check(
+  operators = [grammar_score],
+  plots = LineChart(y = "grammar_score")
+)
+
+# Step 3: Create a CheckSet with the checks and data source as arguments
 checkset = CheckSet(
-    checks = Check(
-        name = "grammar_score",
-        operators = [
-            GrammarScore(
-                col_in_text = "model_response",
-                col_out = "grammar_score"
-            ),
-        ],
-        plots = Table(title="Grammar scores"),
-    ),
+    checks = [grammar_check]
     source = JsonReader(fpath = '...')
 )
-settings = Settings(openai_api_key = '...')
 
-checkset.setup(settings)
-checkset.run()
+# Step 4: Set up and run the CheckSet
+checkset.setup(Settings(openai_api_key = '...'))
+checkset.run(dataset)
 ```
 
 <!-- For a quick walkthrough of how UpTrain works, check out our [quickstart tutorial](https://docs.uptrain.ai/docs/uptrain-examples/quickstart-tutorial). -->
 
 <h4> </h4>
+
+# Key Features 💡
+
+
+- **[ChatGPT Grading](https://uptrain-ai.github.io/uptrain/operators/language/OpenAIGradeScore/)** - Utilize LLMs to grade your model outputs.
+- **[Custom Grading Checks](https://uptrain-ai.github.io/uptrain/operators/language/ModelGradeScore/)** - Write your custom grading prompts.
+- **[Embeddings Similarity Check](https://uptrain-ai.github.io/uptrain/operators/CosineSimilarity/)** - Compute cosine similarity between prompt and response embeddings
+- **[Output Validation](https://github.com/uptrain-ai/uptrain/blob/main/examples/validation_tutorial.ipynb)** - Safeguard your users against inappropriate responses
+- **[Prompt A/B Testing](https://github.com/uptrain-ai/uptrain/blob/main/examples/prompt_experiments_tutorial.ipynb)** - Experiment across multiple prompts and compare them quantatively.
+- **[UMAP Visualization and Clustering](https://uptrain-ai.github.io/uptrain/operators/UMAP/)** - Visualize your embedding space using tools like UMAP and t-SNE.
+- **[Hallucination Checks]()** - Use metrics like custom grading, text similarity, and embedding similarity to check for hallucinations.
+- **[Toxic Keywords Checks]()** - Make sure your model outputs are not biased or contain toxic keywords.
+- **[Feature Slicing]()** - Built-in pivoting functionalities for data dice and slice to pinpoint low-performing cohorts.
+- **[Realtime Dashboards]()** - Monitor your model's performance in realtime.
+
 
 # Integrations
 
@@ -130,21 +141,6 @@ checkset.run()
 | EleutherAI LM Eval 🔜 | GPT-4 ✅  | Llama Index 🔜 |  Replicate 🔜 |
 | BIG-Bench 🔜 | Claude 🔜 | AutoGPT 🔜 |
 | | Cohere 🔜 | 
-
-
-# UpTrain in Action
-
-## Experimentation
-
-You can use the UpTrain framework to run and compare LLM responses for different prompts, models, LLM chains, etc. Check out the [experimentation tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/prompt_experiments_tutorial.ipynb) to learn more.
-
-## Validation
-
-You can use the UpTrain Validation Manager to define checks, retry logic and validate your LLM responses before showing it to your users. Check out the [tutorial here](https://github.com/uptrain-ai/uptrain/blob/main/examples/validation_tutorial.ipynb).
-
-## Monitoring
-
-You can use the UpTrain framework to continuously monitor your model's performance and get real-time insights on how well it is doing on a variety of evaluation metrics. Check out the monitoring tutorial to learn more.
 
 
 # Why UpTrain 🤔?
