@@ -44,7 +44,9 @@ async def async_process_payload(
     payload: Payload, limiter: aiolimiter.AsyncLimiter, max_retries: int
 ) -> Payload:
     async with limiter:
-        for _ in range(max_retries):  # failed requests don't count towards rate limit
+        for count in range(
+            max_retries
+        ):  # failed requests don't count towards rate limit
             try:
                 if payload.endpoint == "chat.completions":
                     payload.response = await openai.ChatCompletion.acreate(
@@ -57,15 +59,18 @@ async def async_process_payload(
                 logger.error(
                     f"Error when sending request to openai API: {payload.error}"
                 )
-                if isinstance(
-                    exc,
-                    (
-                        openai.error.RateLimitError,
-                        openai.error.ServiceUnavailableError,
-                        openai.error.APIError,
-                        openai.error.APIConnectionError,
-                        openai.error.Timeout,
-                    ),
+                if (
+                    isinstance(
+                        exc,
+                        (
+                            openai.error.RateLimitError,
+                            openai.error.ServiceUnavailableError,
+                            openai.error.APIError,
+                            openai.error.APIConnectionError,
+                            openai.error.Timeout,
+                        ),
+                    )
+                    and count < max_retries - 1
                 ):
                     await asyncio.sleep(3)
                 else:
