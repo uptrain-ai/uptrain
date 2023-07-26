@@ -138,6 +138,24 @@ class APIClient:
         response = self.client.get(url)
         return raise_or_return(response)
 
+    def download_run_result(self, run_id: str, check_name: str, fpath: str) -> None:
+        """Get the results of a run.
+
+        Args:
+            run_id: unique identifier for the run.
+            check_name: name of the check to get results for.
+            fpath: path to save the results to.
+        """
+        url = f"{self.base_url}/run/{run_id}/results"
+        params: dict = {"check_name": check_name}
+        with self.client.stream("GET", url, params=params) as response:
+            if not response.is_success:
+                response.raise_for_status()
+            else:
+                with open(fpath, "wb") as download_file:
+                    for chunk in response.iter_bytes():
+                        download_file.write(chunk)
+
     def list_runs(self, num: int = 10, only_completed: bool = False):
         """List all the runs on the server.
 

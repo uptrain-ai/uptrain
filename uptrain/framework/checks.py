@@ -172,9 +172,8 @@ class CheckSet:
         """Get the sink operator for this check."""
         from uptrain.operators import JsonWriter
 
-        return JsonWriter(
-            fpath=os.path.join(settings.logs_folder, f"{check.name}.jsonl")
-        )
+        fname = check.name.replace(" ", "_") + ".jsonl"
+        return JsonWriter(fpath=os.path.join(settings.logs_folder, fname))
 
     @classmethod
     def from_dict(cls, data: dict) -> "CheckSet":
