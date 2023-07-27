@@ -67,6 +67,10 @@ https://github.com/uptrain-ai/uptrain/assets/108270398/e44da6c7-87d3-4935-b90d-e
 
 You can use the UpTrain Validation Manager to define checks, retry logic and validate your LLM responses before showing it to your users. Check out the [tutorial here](https://github.com/uptrain-ai/uptrain/blob/main/examples/validation_tutorial.ipynb).
 
+
+https://github.com/uptrain-ai/uptrain/assets/108270398/8a8c9a30-dff2-412b-aeeb-a59217d795ac
+
+
 ## Monitoring
 
 You can use the UpTrain framework to continuously monitor your model's performance and get real-time insights on how well it is doing on a variety of evaluation metrics. Check out the monitoring tutorial to learn more.
