@@ -5,7 +5,6 @@ Implement checks to test if a piece of text has been taken from a source.
 
 from __future__ import annotations
 import typing as t
-import yaml
 import os
 
 from loguru import logger
@@ -94,9 +93,9 @@ class ModelGradeScore(ColumnOp):
     grading_prompt_template: str
     eval_type: t.Literal["cot_classify", "classify", "classify_cot"] = "cot_classify"
     choice_strings: list[str]
-    choice_scores: dict[str, float]
+    choice_scores: t.Union[dict[str, float], dict[str, list[float]]]
     context_vars: dict[str, str]
-    col_out: str = "model_grade_score"
+    col_out: t.Union[str, list[str]] = "model_grade_score"
 
     def setup(self, settings: Settings):
         self._api_client = LLMMulticlient(settings=settings)
@@ -160,7 +159,14 @@ class ModelGradeScore(ColumnOp):
                     )
                     results.append((idx, None))
 
-        result_scores = pl.Series(
-            [val for _, val in sorted(results, key=lambda x: x[0])]
-        )
-        return {"output": data.with_columns([result_scores.alias(self.col_out)])}
+        if isinstance(self.col_out, list):
+            sorted(results, key=lambda x: x[0])
+            result_scores = [
+                pl.Series([val[idx] for _, val in results]).alias(self.col_out[idx])
+                for idx in range(len(self.col_out))
+            ]
+        else:
+            result_scores = pl.Series(
+                [val for _, val in sorted(results, key=lambda x: x[0])]
+            ).alias(self.col_out)
+        return {"output": data.with_columns(result_scores)}
