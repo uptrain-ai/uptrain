@@ -150,7 +150,7 @@ class ModelGradeScore(ColumnOp):
                     results.append((idx, score))
                 except Exception as e:
                     logger.error(
-                        f"Error when processing payload at index {idx}, not an API error: {e}"
+                        f"Error when processing payload at index {idx}, not API error: {e}"
                     )
                     results.append((idx, None))
 
