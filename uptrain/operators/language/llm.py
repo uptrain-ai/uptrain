@@ -72,7 +72,7 @@ async def async_process_payload(
                     )
                     and count < max_retries - 1
                 ):
-                    await asyncio.sleep(3)
+                    await asyncio.sleep(count * 2 + 1)
                 else:
                     payload.error = str(exc)
                     break
@@ -86,7 +86,7 @@ class LLMMulticlient:
     """
 
     def __init__(self, settings: t.Optional[Settings] = None):
-        self._max_tries = 3
+        self._max_tries = 4
         self._rpm_limit = 20
         if settings is not None:
             openai.api_key = settings.check_and_get("openai_api_key")  # type: ignore
