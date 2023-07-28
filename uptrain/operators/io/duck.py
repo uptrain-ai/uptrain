@@ -22,6 +22,18 @@ class DuckDBReader(TransformOp):
         fpath (str): Path to the Duckdb file.
         query (str): Query to run against the duckdb database.
         col_timestamp (str): Column name to use as the timestamp column. Only used in the context of monitoring.
+
+    Example:
+        ```python
+        from uptrain.operators.io import DuckDBReader
+
+        reader = DuckDBReader(
+            fpath="data/duckdb.db",
+            query="SELECT * FROM my_table",
+            col_timestamp="timestamp",
+        )
+        output = reader.setup().run()["output"]
+        ```
     """
 
     fpath: str

@@ -34,7 +34,7 @@ class BigQueryReader(TransformOp):
             query=query,
             col_timestamp="timestamp"
         )
-        reader.run()
+        output = reader.setup().run()["output"]
         ```
     """
 
