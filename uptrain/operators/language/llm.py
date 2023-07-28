@@ -5,6 +5,7 @@ Implement checks to test language quality.
 from __future__ import annotations
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
+import random
 import typing as t
 
 import aiolimiter
@@ -50,7 +51,7 @@ async def async_process_payload(
             try:
                 if payload.endpoint == "chat.completions":
                     payload.response = await openai.ChatCompletion.acreate(
-                        **payload.data, request_timeout=5
+                        **payload.data, request_timeout=10
                     )
                     break
                 else:
@@ -72,7 +73,7 @@ async def async_process_payload(
                     )
                     and count < max_retries - 1
                 ):
-                    await asyncio.sleep(count * 2 + 1)
+                    await asyncio.sleep(random.uniform(0.5, 1.5) * count + 1)
                 else:
                     payload.error = str(exc)
                     break
