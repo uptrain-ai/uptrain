@@ -24,6 +24,18 @@ class BigQueryReader(TransformOp):
     Attributes:
         query (str): Query to run against the BigQuery table.
         col_timestamp (str): Column name to use as the timestamp column. Only used in the context of monitoring.
+
+    Example:
+        ```python
+        from uptrain.operators.io import BigQueryReader
+
+        query = "SELECT * FROM `bigquery-public-data.samples.shakespeare` LIMIT 10"
+        reader = BigQueryReader(
+            query=query,
+            col_timestamp="timestamp"
+        )
+        reader.run()
+        ```
     """
 
     query: str
