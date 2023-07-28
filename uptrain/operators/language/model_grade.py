@@ -131,9 +131,6 @@ class ModelGradeScore(ColumnOp):
 
         results = []
         for res in output_payloads:
-            assert (
-                res is not None
-            ), "Response should not be None, we should've handled exceptions beforehand."
             idx = res.metadata["index"]
             if res.error is not None:
                 logger.error(
@@ -162,7 +159,9 @@ class ModelGradeScore(ColumnOp):
         if isinstance(self.col_out, list):
             sorted(results, key=lambda x: x[0])
             result_scores = [
-                pl.Series([val[idx] for _, val in results]).alias(self.col_out[idx])
+                pl.Series(
+                    [val[idx] if val is not None else None for _, val in results]
+                ).alias(self.col_out[idx])
                 for idx in range(len(self.col_out))
             ]
         else:
