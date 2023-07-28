@@ -15,7 +15,7 @@ duckdb = lazy_load_dep("duckdb", "duckdb")
 
 
 @register_op
-class DuckdbReader(TransformOp):
+class DuckDBReader(TransformOp):
     """Read data from a Duckdb table.
 
     Attributes:

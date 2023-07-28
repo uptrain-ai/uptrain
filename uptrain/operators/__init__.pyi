@@ -54,7 +54,8 @@ __all__ = [
     "JsonWriter",
     "DeltaReader",
     "DeltaWriter",
-    "BigqueryReader",
+    "BigQueryReader",
+    "DuckDBReader",
     # code
     "code",
     "ParseCreateStatements",
@@ -104,7 +105,8 @@ from .language.generation import PromptGenerator, TextCompletion, OutputParser
 from . import io
 from .io.base import CsvReader, JsonReader, DeltaReader, JsonWriter, DeltaWriter
 from .io.excel import ExcelReader
-from .io.bq import BigqueryReader
+from .io.bq import BigQueryReader
+from .io.duck import DuckDBReader
 
 from . import code
 from .code.sql import (
