@@ -17,6 +17,7 @@ from uptrain.utilities import to_py_types
 
 def raise_or_return(response: httpx.Response):
     if not response.is_success:
+        logger.error(response.text)
         response.raise_for_status()
     else:
         return response.json()
@@ -150,6 +151,7 @@ class APIClient:
         params: dict = {"check_name": check_name}
         with self.client.stream("GET", url, params=params) as response:
             if not response.is_success:
+                logger.error(response.text)
                 response.raise_for_status()
             else:
                 with open(fpath, "wb") as download_file:

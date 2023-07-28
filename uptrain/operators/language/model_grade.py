@@ -4,7 +4,6 @@ Implement checks to test if a piece of text has been taken from a source.
 
 from __future__ import annotations
 import typing as t
-import yaml
 import os
 
 from loguru import logger
@@ -92,9 +91,9 @@ class ModelGradeScore(ColumnOp):
     grading_prompt_template: str
     eval_type: t.Literal["cot_classify", "classify", "classify_cot"] = "cot_classify"
     choice_strings: list[str]
-    choice_scores: dict[str, float]
+    choice_scores: t.Union[dict[str, float], dict[str, list[float]]]
     context_vars: dict[str, str]
-    col_out: str = "model_grade_score"
+    col_out: t.Union[str, list[str]] = "model_grade_score"
 
     def setup(self, settings: Settings):
         self._api_client = LLMMulticlient(settings=settings)
@@ -130,9 +129,6 @@ class ModelGradeScore(ColumnOp):
 
         results = []
         for res in output_payloads:
-            assert (
-                res is not None
-            ), "Response should not be None, we should've handled exceptions beforehand."
             idx = res.metadata["index"]
             if res.error is not None:
                 logger.error(
@@ -154,11 +150,20 @@ class ModelGradeScore(ColumnOp):
                     results.append((idx, score))
                 except Exception as e:
                     logger.error(
-                        f"Error when processing payload at index {idx}, though not marked as error by OpenAI: {e}"
+                        f"Error when processing payload at index {idx}, not an API error: {e}"
                     )
                     results.append((idx, None))
 
-        result_scores = pl.Series(
-            [val for _, val in sorted(results, key=lambda x: x[0])]
-        )
-        return {"output": data.with_columns([result_scores.alias(self.col_out)])}
+        if isinstance(self.col_out, list):
+            sorted(results, key=lambda x: x[0])
+            result_scores = [
+                pl.Series(
+                    [val[idx] if val is not None else None for _, val in results]
+                ).alias(self.col_out[idx])
+                for idx in range(len(self.col_out))
+            ]
+        else:
+            result_scores = pl.Series(
+                [val for _, val in sorted(results, key=lambda x: x[0])]
+            ).alias(self.col_out)
+        return {"output": data.with_columns(result_scores)}

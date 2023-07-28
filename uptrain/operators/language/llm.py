@@ -5,6 +5,7 @@ Implement checks to test language quality.
 from __future__ import annotations
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
+import random
 import typing as t
 
 import aiolimiter
@@ -50,7 +51,7 @@ async def async_process_payload(
             try:
                 if payload.endpoint == "chat.completions":
                     payload.response = await openai.ChatCompletion.acreate(
-                        **payload.data, request_timeout=5
+                        **payload.data, request_timeout=10
                     )
                     break
                 else:
@@ -72,7 +73,7 @@ async def async_process_payload(
                     )
                     and count < max_retries - 1
                 ):
-                    await asyncio.sleep(3)
+                    await asyncio.sleep(random.uniform(0.5, 1.5) * count + 1)
                 else:
                     payload.error = str(exc)
                     break
@@ -86,7 +87,7 @@ class LLMMulticlient:
     """
 
     def __init__(self, settings: t.Optional[Settings] = None):
-        self._max_tries = 3
+        self._max_tries = 4
         self._rpm_limit = 20
         if settings is not None:
             openai.api_key = settings.check_and_get("openai_api_key")  # type: ignore
