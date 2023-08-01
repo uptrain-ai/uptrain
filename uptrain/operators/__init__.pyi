@@ -46,6 +46,7 @@ __all__ = [
     "PromptGenerator",
     "TextCompletion",
     "OutputParser",
+    "ResponseFactualScore",
     # io - also include all the subimports
     "io",
     "ExcelReader",
@@ -100,6 +101,7 @@ from .language.text import (
 )
 from .language.model_grade import ModelGradeScore, OpenAIGradeScore
 from .language.generation import PromptGenerator, TextCompletion, OutputParser
+from .language.with_context import ResponseFactualScore
 
 from . import io
 from .io.base import CsvReader, JsonReader, DeltaReader, JsonWriter, DeltaWriter

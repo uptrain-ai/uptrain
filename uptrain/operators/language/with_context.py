@@ -19,107 +19,9 @@ import polars as pl
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
-    from uptrain.framework import Settings
 from uptrain.operators.base import *
 from uptrain.operators.language.openai_evals import OpenaiEval
 from uptrain.operators.language.llm import LLMMulticlient, Payload
-
-CONTEXT_REL_PROMPT_TEMPLATE = """
-[Task]: Extract relevant context. 
-You are an evidence-driven expert that places high importance on supporting facts and references. You are presented with a question along with some context to answer it, retrieved using a search engine. 
-Please identify and return sentences verbatim from the context that are directly relevant to answering the question. If no sentences are relevant, return 'No relevant sentences'. 
-
-Example 1.
-[Question]: What is the capital of France?
-[Context]: France, in Western Europe, encompasses medieval cities, alpine villages and Mediterranean beaches. Paris, its capital, is famed for its fashion houses, classical art museums including the Louvre and monuments like the Eiffel Tower.
-[Relevant]: Paris, its capital, is famed for its fashion houses, classical art museums including the Louvre and monuments like the Eiffel Tower.
-
-Example 2.
-[Question]: Who wrote "Pride and Prejudice"?
-[Context]: "Pride and Prejudice" is a romantic novel of manners written by Jane Austen in 1813. The novel follows the character development of Elizabeth Bennet, the dynamic protagonist of the book who learns about the repercussions of hasty judgments and comes to appreciate the difference between superficial goodness and actual goodness.
-[Relevant]: "Pride and Prejudice" is a romantic novel of manners written by Jane Austen in 1813.
-
-Task data.
-[Question]: {question}
-[Context]: {context}
-[Relevant]: 
-"""
-
-
-@register_op
-class ContextRelevanceScore(ColumnOp):
-    """
-    Grade how relevant the retrieved context was to answering the question. This is done
-    by prompting an LLM to extract sentences from the context that it considers relevant.
-    """
-
-    col_question: str = "question"
-    col_context: str = "context"
-    col_out: str = "context_relevance_score"
-
-    def setup(self, settings: Settings):
-        self._api_client = LLMMulticlient(settings=settings)
-        return self
-
-    def _make_payload(self, id: t.Any, messages: list[dict], context: str) -> Payload:
-        return Payload(
-            endpoint="chat.completions",
-            data={"model": "gpt-3.5-turbo", "messages": messages, "temperature": 0.2},
-            metadata={"index": id, "context": context},
-        )
-
-    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        input_payloads = []
-        for _id, row in enumerate(data.rows(named=True)):
-            context = row[self.col_context]
-            if isinstance(context, list):
-                context = ". ".join(context)
-
-            subs = {
-                "question": row[self.col_question],
-                "context": context,
-            }
-            prompt_msgs = [
-                {"role": "user", "content": CONTEXT_REL_PROMPT_TEMPLATE.format(**subs)}
-            ]
-            input_payloads.append(self._make_payload(_id, prompt_msgs, context))
-
-        output_payloads = self._api_client.fetch_responses(input_payloads)
-        results = []
-        for res in output_payloads:
-            idx = res.metadata["index"]
-            if res.error is not None:
-                logger.error(
-                    f"Error when processing payload at index {idx}: {res.error}"
-                )
-                results.append((idx, None))
-            else:
-                try:
-                    context = res.metadata["context"]
-                    resp_text = res.response["choices"][0]["message"]["content"]
-                    if "no relevant sentences" in resp_text.lower():
-                        results.append((idx, 0.0))
-                    else:
-                        # find overlap between context and response
-                        resp_sents = [
-                            s.strip() for s in resp_text.split(".") if len(s) > 0
-                        ]
-                        context_sents = [
-                            s.strip() for s in context.split(".") if len(s) > 0
-                        ]
-                        overlap = sum(1 for sent in resp_sents if sent in context_sents)
-                        results.append((idx, overlap / len(context_sents)))
-                except Exception as e:
-                    logger.error(
-                        f"Error when processing payload at index {idx}, not API error: {e}"
-                    )
-                    results.append((idx, None))
-
-        result_scores = pl.Series(
-            [val for _, val in sorted(results, key=lambda x: x[0])]
-        ).alias(self.col_out)
-        return {"output": data.with_columns(result_scores)}
-
 
 FACT_GENERATE_PROMPT_TEMPLATE = """
 Please breakdown the following text into independent facts. A fact is a sentence that is true or can be verified. Facts should not depend on each another and must not convey the same information. Limit to 5 facts in the output.
@@ -134,7 +36,7 @@ Task.
 """
 
 FACT_EVAL_PROMPT_TEMPLATE = """
-Given the context, for each statement in the facts, assess if it is supported by the given context. Write down 'yes' or 'no' for each fact and why. At the end, write down a final result concatenating all the yes/no answers.
+Given the context, for each statement in the facts, assess if it is supported by the given context. Write down 'yes' or 'no' for each fact and reason why it is relevant. At the end, write down a final result concatenating all the yes/no answers.
 
 Example.
 [Context]: The Eiffel Tower, located in Paris, is one of the most visited monuments in the world. It was named after the engineer Gustave Eiffel, whose company designed and built the tower. Constructed from 1887 to 1889, it was initially criticized by some of France's leading artists and intellectuals.
@@ -215,7 +117,7 @@ class ResponseFactualScore(ColumnOp):
                 results.append((idx, resp_facts))
         ser_facts = pl.Series(
             [val for _, val in sorted(results, key=lambda x: x[0])]
-        ).alias("facts")
+        ).alias("_atomic_facts")
 
         # evaluate the facts
         input_payloads = []
@@ -249,15 +151,17 @@ class ResponseFactualScore(ColumnOp):
                 results.append((idx, None))
             else:
                 resp_text = res.response["choices"][0]["message"]["content"]
-                if "final result" not in resp_text:
+                if "Final result" not in resp_text:
                     results.append((idx, None))
                 else:
-                    resp_text = resp_text.split("final result: ")[1]
+                    resp_text = resp_text.split("Final result: ")[1]
                     fact_grades = [s.strip() for s in resp_text.strip().split(".")]
                     fact_score = sum(
                         [1 if s == "yes" else 0 for s in fact_grades]
                     ) / len(fact_grades)
                     results.append((idx, fact_score))
 
-        ser_score = pl.Series([val for _, val in sorted(results, key=lambda x: x[0])])
-        return {"output": data.with_columns(ser_score.alias(self.col_out))}
+        ser_score = pl.Series(
+            [val for _, val in sorted(results, key=lambda x: x[0])]
+        ).alias(self.col_out)
+        return {"output": data.with_columns(ser_score)}

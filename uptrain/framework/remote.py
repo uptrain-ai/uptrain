@@ -126,7 +126,7 @@ class APIClient:
         )
         return raise_or_return(response)
 
-    def get_run(self, run_id: str) -> str:
+    def get_run(self, run_id: str):
         """Get the status of a run.
 
         Args:
