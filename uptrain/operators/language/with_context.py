@@ -75,7 +75,7 @@ class ResponseFactualScore(ColumnOp):
 
     col_question: str = "question"
     col_context: str = "context"
-    col_answer: str = "answer"
+    col_answer: str = "response"
     col_out: str = "response_factual_score"
 
     def setup(self, settings: Settings):

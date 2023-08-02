@@ -38,7 +38,7 @@ def _make_payload(id: t.Any, msg: str) -> Payload:
 
 
 _CRITIQUE_TEMPLATE = """ 
-Please evaluate the quality of the responses in the provided question-response pairs, on the listed aspects. 
+Please evaluate the quality of the responses in the provided question-response pair, on the listed aspects. 
 
 Fluency: On a scale of 1-5, how fluent and natural sounding is the response, with 5 being completely fluent and 1 being not fluent at all.
 Coherence: On a scale of 1-5, how well does the response follow logically from the question and context, with 5 being completely coherent and on topic and 1 being completely incoherent or unrelated.
@@ -54,7 +54,7 @@ Example.
 Fluency: 4. The response is mostly clear and natural but a little awkward.
 Coherence: 3. It relates to the question but does not fully answer it.
 Grammar: 5. No grammar or spelling errors.
-Helpfulness: 3. Politely asks for missing information but does not provide the requested directions. 
+Politeness: 3. Politely asks for missing information but does not provide the requested directions. 
 
 Task data.
 [Question]: {question}
@@ -100,12 +100,16 @@ class LanguageCritique(ColumnOp):
                 results.append((idx, None))
             else:
                 resp_text = res.response["choices"][0]["message"]["content"]
-                scores = re.findall(r"([A-Za-z]+): (\d+)\.", resp_text)
+                # `aspect: score. explanation (newline|end of string)`
+                scores = re.findall(r"(\w+): (\d+)\.\s+(.*?)(?:\n|$)", resp_text)
                 try:
                     score_dict = {
-                        aspect.lower(): int(score) / 5 for aspect, score in scores
+                        aspect.lower(): int(score) / 5 for aspect, score, _ in scores
                     }
-                    results.append((idx, score_dict))
+                    explanation_dict = {
+                        aspect.lower(): explanation for aspect, _, explanation in scores
+                    }
+                    results.append((idx, (score_dict, explanation_dict)))
                 except Exception as e:
                     logger.error(f"Error when processing payload at index {idx}: {e}")
                     results.append((idx, None))
@@ -116,10 +120,18 @@ class LanguageCritique(ColumnOp):
             result_cols.append(
                 pl.Series(
                     [
-                        x.get(aspect, None) if x is not None else None
+                        x[0].get(aspect, None) if x is not None else None
                         for x in result_scores
                     ]
                 ).alias(self.col_out_prefix + aspect)
+            )
+            result_cols.append(
+                pl.Series(
+                    [
+                        x[1].get(aspect, None) if x is not None else None
+                        for x in result_scores
+                    ]
+                ).alias(self.col_out_prefix + aspect + "_explanation")
             )
         return {"output": data.with_columns(result_cols)}
 
@@ -130,22 +142,22 @@ Please assess the tone of the machine-generated response in the provided questio
 Please rate how well the tone aligns with expectations for the specified persona, on a scale of 1-5, with 1 meaning a very inappropriate tone for that role and 5 meaning the tone perfectly matches expectations.
 
 Example.
-Persona: Math Tutor
-Question: I'm having trouble understanding this algebra question. Can you explain it step-by-step?
-Response: I'm sorry, but I can't just give you the answers. However if you show me your work so far, we can figure out together where you are getting stuck.
-Tone: 4. Encouraging tone providing guidance without giving away answers. 
+[Persona]: Math Tutor
+[Question]: I'm having trouble understanding this algebra question. Can you explain it step-by-step?
+[Response]: I'm sorry, but I can't just give you the answers. However if you show me your work so far, we can figure out together where you are getting stuck.
+[Tone]: 4. Encouraging tone providing guidance without giving away answers. 
 
 Example.
-Persona: Insurance Agent
-Question: I was in a car accident that wasn't my fault. Will my insurance rates go up?
-Response: I'm sorry to hear about your accident. While filing a claim should not directly impact your rates, premium amount depends on multiple factors. I would be happy to discuss your specific policy details to provide more information about what you can expect.
-Tone: 5. Sympathetic and transparent tone building trust.
+[Persona]: Insurance Agent
+[Question]: I was in a car accident that wasn't my fault. Will my insurance rates go up?
+[Response]: I'm sorry to hear about your accident. While filing a claim should not directly impact your rates, premium amount depends on multiple factors. I would be happy to discuss your specific policy details to provide more information about what you can expect.
+[Tone]: 5. Sympathetic and transparent tone building trust.
 
 Task data.
-Persona: {persona}
-Question: {question}
-Response: {response}
-Tone:
+[Persona]: {persona}
+[Question]: {question}
+[Response]: {response}
+[Tone]: 
 """
 
 
@@ -189,7 +201,7 @@ class ToneCritique(ColumnOp):
                 results.append((idx, None))
             else:
                 resp_text = res.response["choices"][0]["message"]["content"]
-                scores = re.findall(r"Tone: (\d+)\.", resp_text)
+                scores = re.findall(r"(\d+)\.", resp_text)
                 try:
                     results.append((idx, int(scores[0]) / 5))
                 except Exception as e:

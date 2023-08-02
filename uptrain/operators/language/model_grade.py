@@ -154,27 +154,27 @@ class ModelGradeScore(ColumnOp):
                     )
                     results.append((idx, None, None))
 
+        results = sorted(results, key=lambda x: x[0])
         if isinstance(self.col_out, list):
-            sorted(results, key=lambda x: x[0])
             result_scores = [
                 pl.Series(
                     [val[idx] if val is not None else None for _, val, _ in results]
                 ).alias(self.col_out[idx])
                 for idx in range(len(self.col_out))
             ]
-            result_scores.extend([
-                pl.Series(
-                    [explanation for _, _, explanation in results]
-                ).alias(self.col_out[idx] + "_explanation")
-                for idx in range(len(self.col_out))
-            ])
+            result_scores.extend(
+                [
+                    pl.Series([explanation for _, _, explanation in results]).alias(
+                        self.col_out[idx] + "_explanation"
+                    )
+                    for idx in range(len(self.col_out))
+                ]
+            )
         else:
             result_scores = [
-                pl.Series(
-                    [val for _, val, _ in sorted(results, key=lambda x: x[0])]
-                ).alias(self.col_out),
-                pl.Series(
-                    [explanation for _, _, explanation in sorted(results, key=lambda x: x[0])]
-                ).alias(self.col_out + "_explanation")
+                pl.Series([val for _, val, _ in results]).alias(self.col_out),
+                pl.Series([explanation for _, _, explanation in results]).alias(
+                    self.col_out + "_explanation"
+                ),
             ]
         return {"output": data.with_columns(result_scores)}
