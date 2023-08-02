@@ -19,6 +19,24 @@ from uptrain.operators.base import *
 from uptrain.operators.language.llm import LLMMulticlient, Payload
 
 
+def _make_payload(id: t.Any, msg: str) -> Payload:
+    return Payload(
+        endpoint="chat.completions",
+        data={
+            "model": "gpt-3.5-turbo",
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "You are a language assessment coach who critiques and grades machine generated responses in a conversation.",
+                },
+                {"role": "user", "content": msg},
+            ],
+            "temperature": 0.2,
+        },
+        metadata={"index": id},
+    )
+
+
 _CRITIQUE_TEMPLATE = """ 
 Please evaluate the quality of the responses in the provided question-response pairs, on the listed aspects. 
 
@@ -46,9 +64,9 @@ Task data.
 
 
 @register_op
-class Critique(ColumnOp):
+class LanguageCritique(ColumnOp):
     """
-    Operator to test the grammatical correctness of sentences using the OpenAI GPT-3.5-turbo language model.
+    Operator to score machine generated responses in a conversation using the OpenAI GPT-3.5-turbo language model.
 
     Attributes:
         col_in_text (str): The name of the input column containing the text to evaluate.
@@ -57,40 +75,19 @@ class Critique(ColumnOp):
 
     col_question: str = "question"
     col_response: str = "response"
-    col_out_prefix: str = "language_score_"
+    col_out_prefix: str = "score_"
 
     def setup(self, settings: t.Optional[Settings] = None):
         self._api_client = LLMMulticlient(settings=settings)
         return self
 
-    def _make_payload(self, id: t.Any, question: str, response: str) -> Payload:
-        return Payload(
-            endpoint="chat.completions",
-            data={
-                "model": "gpt-3.5-turbo",
-                "messages": [
-                    {
-                        "role": "system",
-                        "content": "You are a language assessment coach who critiques and grades machine generated responses in a conversation.",
-                    },
-                    {
-                        "role": "user",
-                        "content": _CRITIQUE_TEMPLATE.format(
-                            question=question, response=response
-                        ),
-                    },
-                ],
-                "temperature": 0.2,
-            },
-            metadata={"index": id},
-        )
-
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         input_payloads = []
         for _id, row in enumerate(data.rows(named=True)):
-            input_payloads.append(
-                self._make_payload(_id, row[self.col_question], row[self.col_response])
+            msg = _CRITIQUE_TEMPLATE.format(
+                question=row[self.col_question], response=row[self.col_response]
             )
+            input_payloads.append(_make_payload(_id, msg))
         output_payloads = self._api_client.fetch_responses(input_payloads)
 
         results = []
@@ -104,8 +101,14 @@ class Critique(ColumnOp):
             else:
                 resp_text = res.response["choices"][0]["message"]["content"]
                 scores = re.findall(r"([A-Za-z]+): (\d+)\.", resp_text)
-                score_dict = {aspect.lower(): int(score) for aspect, score in scores}
-                results.append((idx, score_dict))
+                try:
+                    score_dict = {
+                        aspect.lower(): int(score) / 5 for aspect, score in scores
+                    }
+                    results.append((idx, score_dict))
+                except Exception as e:
+                    logger.error(f"Error when processing payload at index {idx}: {e}")
+                    results.append((idx, None))
 
         result_scores = [val for _, val in sorted(results, key=lambda x: x[0])]
         result_cols = []
@@ -119,3 +122,81 @@ class Critique(ColumnOp):
                 ).alias(self.col_out_prefix + aspect)
             )
         return {"output": data.with_columns(result_cols)}
+
+
+_TONE_ASSESS_TEMPLATE = """
+Please assess the tone of the machine-generated response in the provided question-response pairs, based on the persona specified for the machine to follow. 
+
+Please rate how well the tone aligns with expectations for the specified persona, on a scale of 1-5, with 1 meaning a very inappropriate tone for that role and 5 meaning the tone perfectly matches expectations.
+
+Example.
+Persona: Math Tutor
+Question: I'm having trouble understanding this algebra question. Can you explain it step-by-step?
+Response: I'm sorry, but I can't just give you the answers. However if you show me your work so far, we can figure out together where you are getting stuck.
+Tone: 4. Encouraging tone providing guidance without giving away answers. 
+
+Example.
+Persona: Insurance Agent
+Question: I was in a car accident that wasn't my fault. Will my insurance rates go up?
+Response: I'm sorry to hear about your accident. While filing a claim should not directly impact your rates, premium amount depends on multiple factors. I would be happy to discuss your specific policy details to provide more information about what you can expect.
+Tone: 5. Sympathetic and transparent tone building trust.
+
+Task data.
+Persona: {persona}
+Question: {question}
+Response: {response}
+Tone:
+"""
+
+
+@register_op
+class ToneCritique(ColumnOp):
+    """
+    Operator to assess the tone of machine generated responses using the OpenAI GPT-3.5-turbo language model.
+
+    Attributes:
+        col_in_text (str): The name of the input column containing the text to evaluate.
+        col_out_prefix (str): Prefix for the name of the output columns containing the scores.
+    """
+
+    persona: str = "helpful-chatbot"
+    col_question: str = "question"
+    col_response: str = "response"
+    col_out: str = "score_tone"
+
+    def setup(self, settings: t.Optional[Settings] = None):
+        self._api_client = LLMMulticlient(settings=settings)
+        return self
+
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
+        input_payloads = []
+        for _id, row in enumerate(data.rows(named=True)):
+            msg = _TONE_ASSESS_TEMPLATE.format(
+                persona=self.persona,
+                question=row[self.col_question],
+                response=row[self.col_response],
+            )
+            input_payloads.append(_make_payload(_id, msg))
+        output_payloads = self._api_client.fetch_responses(input_payloads)
+
+        results = []
+        for res in output_payloads:
+            idx = res.metadata["index"]
+            if res.error is not None:
+                logger.error(
+                    f"Error when processing payload at index {idx}: {res.error}"
+                )
+                results.append((idx, None))
+            else:
+                resp_text = res.response["choices"][0]["message"]["content"]
+                scores = re.findall(r"Tone: (\d+)\.", resp_text)
+                try:
+                    results.append((idx, int(scores[0]) / 5))
+                except Exception as e:
+                    logger.error(f"Error when processing payload at index {idx}: {e}")
+                    results.append((idx, None))
+
+        result_scores = pl.Series(
+            [val for _, val in sorted(results, key=lambda x: x[0])]
+        ).alias(self.col_out)
+        return {"output": data.with_columns([result_scores])}
