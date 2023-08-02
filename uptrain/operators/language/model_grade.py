@@ -1,6 +1,5 @@
 """
 Implement checks to test if a piece of text has been taken from a source.
-
 """
 
 from __future__ import annotations
@@ -87,7 +86,6 @@ class ModelGradeScore(ColumnOp):
         choice_scores (dict[str, float]): The dictionary mapping choice strings to scores.
         context_vars (dict[str, str]): A dictionary mapping context variable names to corresponding
             columns in the input dataset.
-
     """
 
     grading_prompt_template: str
@@ -152,31 +150,31 @@ class ModelGradeScore(ColumnOp):
                     results.append((idx, score, resp_text))
                 except Exception as e:
                     logger.error(
-                        f"Error when processing payload at index {idx}, not an API error: {e}"
+                        f"Error when processing payload at index {idx}, not API error: {e}"
                     )
                     results.append((idx, None, None))
 
+        results = sorted(results, key=lambda x: x[0])
         if isinstance(self.col_out, list):
-            results = sorted(results, key=lambda x: x[0])
             result_scores = [
                 pl.Series(
                     [val[idx] if val is not None else None for _, val, _ in results]
                 ).alias(self.col_out[idx])
                 for idx in range(len(self.col_out))
             ]
-            result_scores.extend([
-                pl.Series(
-                    [explanation for _, _, explanation in results]
-                ).alias(self.col_out[idx] + "_explanation")
-                for idx in range(len(self.col_out))
-            ])
+            result_scores.extend(
+                [
+                    pl.Series([explanation for _, _, explanation in results]).alias(
+                        self.col_out[idx] + "_explanation"
+                    )
+                    for idx in range(len(self.col_out))
+                ]
+            )
         else:
             result_scores = [
-                pl.Series(
-                    [val for _, val, _ in sorted(results, key=lambda x: x[0])]
-                ).alias(self.col_out),
-                pl.Series(
-                    [explanation for _, _, explanation in sorted(results, key=lambda x: x[0])]
-                ).alias(self.col_out + "_explanation")
+                pl.Series([val for _, val, _ in results]).alias(self.col_out),
+                pl.Series([explanation for _, _, explanation in results]).alias(
+                    self.col_out + "_explanation"
+                ),
             ]
         return {"output": data.with_columns(result_scores)}
