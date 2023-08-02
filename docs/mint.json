@@ -78,7 +78,8 @@
       "pages": [
         "tutorials/prompt-experiments",
         "tutorials/validation",
-        "tutorials/openai-evals"
+        "tutorials/openai-evals",
+        "tutorials/custom-operator"
       ]
     },
     {

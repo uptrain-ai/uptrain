@@ -134,7 +134,7 @@ class ModelGradeScore(ColumnOp):
                 logger.error(
                     f"Error when processing payload at index {idx}: {res.error}"
                 )
-                results.append((idx, None))
+                results.append((idx, None, None))
             else:
                 try:
                     resp_text = res.response["choices"][0]["message"]["content"]
@@ -147,23 +147,34 @@ class ModelGradeScore(ColumnOp):
                     score = get_choice_score(
                         choice, self.choice_strings, self.choice_scores
                     )
-                    results.append((idx, score))
+                    results.append((idx, score, resp_text))
                 except Exception as e:
                     logger.error(
                         f"Error when processing payload at index {idx}, not API error: {e}"
                     )
-                    results.append((idx, None))
+                    results.append((idx, None, None))
 
         if isinstance(self.col_out, list):
             sorted(results, key=lambda x: x[0])
             result_scores = [
                 pl.Series(
-                    [val[idx] if val is not None else None for _, val in results]
+                    [val[idx] if val is not None else None for _, val, _ in results]
                 ).alias(self.col_out[idx])
                 for idx in range(len(self.col_out))
             ]
+            result_scores.extend([
+                pl.Series(
+                    [explanation for _, _, explanation in results]
+                ).alias(self.col_out[idx] + "_explanation")
+                for idx in range(len(self.col_out))
+            ])
         else:
-            result_scores = pl.Series(
-                [val for _, val in sorted(results, key=lambda x: x[0])]
-            ).alias(self.col_out)
+            result_scores = [
+                pl.Series(
+                    [val for _, val, _ in sorted(results, key=lambda x: x[0])]
+                ).alias(self.col_out),
+                pl.Series(
+                    [explanation for _, _, explanation in sorted(results, key=lambda x: x[0])]
+                ).alias(self.col_out + "_explanation")
+            ]
         return {"output": data.with_columns(result_scores)}

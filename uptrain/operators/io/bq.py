@@ -15,7 +15,7 @@ bigquery = lazy_load_dep("google.cloud.bigquery", "google-cloud-bigquery")
 
 
 @register_op
-class BigqueryReader(TransformOp):
+class BigQueryReader(TransformOp):
     """Read data from a bigquery table.
 
     NOTE: To use this operator, you must include the GCP service account credentials in
@@ -24,6 +24,18 @@ class BigqueryReader(TransformOp):
     Attributes:
         query (str): Query to run against the BigQuery table.
         col_timestamp (str): Column name to use as the timestamp column. Only used in the context of monitoring.
+
+    Example:
+        ```python
+        from uptrain.operators.io import BigQueryReader
+
+        query = "SELECT * FROM `bigquery-public-data.samples.shakespeare` LIMIT 10"
+        reader = BigQueryReader(
+            query=query,
+            col_timestamp="timestamp"
+        )
+        output = reader.setup().run()["output"]
+        ```
     """
 
     query: str
