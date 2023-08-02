@@ -47,8 +47,8 @@ __all__ = [
     "TextCompletion",
     "OutputParser",
     "ResponseFactualScore",
-    "LanguageCritique",
-    "ToneCritique",
+    "LanguageQuality",
+    "Tonality",
     # io - also include all the subimports
     "io",
     "ExcelReader",
@@ -105,7 +105,7 @@ from .language.text import (
 from .language.model_grade import ModelGradeScore, OpenAIGradeScore
 from .language.generation import PromptGenerator, TextCompletion, OutputParser
 from .language.with_context import ResponseFactualScore
-from .language.critique import LanguageCritique, ToneCritique
+from .language.critique import Tonality, LanguageQuality
 
 from . import io
 from .io.base import CsvReader, JsonReader, DeltaReader, JsonWriter, DeltaWriter
