@@ -157,7 +157,7 @@ class ModelGradeScore(ColumnOp):
                     results.append((idx, None, None))
 
         if isinstance(self.col_out, list):
-            sorted(results, key=lambda x: x[0])
+            results = sorted(results, key=lambda x: x[0])
             result_scores = [
                 pl.Series(
                     [val[idx] if val is not None else None for _, val, _ in results]
