@@ -47,6 +47,7 @@ __all__ = [
     "TextCompletion",
     "OutputParser",
     "ResponseFactualScore",
+    "ContextRelevance",
     "LanguageCritique",
     "ToneCritique",
     # io - also include all the subimports
@@ -104,7 +105,7 @@ from .language.text import (
 )
 from .language.model_grade import ModelGradeScore, OpenAIGradeScore
 from .language.generation import PromptGenerator, TextCompletion, OutputParser
-from .language.with_context import ResponseFactualScore
+from .language.with_context import ResponseFactualScore, ContextRelevance
 from .language.critique import LanguageCritique, ToneCritique
 
 from . import io

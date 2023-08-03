@@ -82,9 +82,7 @@ async def async_process_payload(
 
 
 class LLMMulticlient:
-    """
-    Use multiple threads to send requests to the OpenAI API concurrently.
-    """
+    """Uses asyncio to send requests to the OpenAI API concurrently."""
 
     def __init__(self, settings: t.Optional[Settings] = None):
         self._max_tries = 4

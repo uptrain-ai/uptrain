@@ -1,9 +1,7 @@
 """
 This module implements a simple client that can be used to schedule unit-tests/evaluations 
 on the UpTrain server. 
-
 """
-# TODO: add user defined custom evaluations (maybe ship the full code to the server?)
 
 import typing as t
 
@@ -110,7 +108,7 @@ class APIClient:
         )
         return raise_or_return(response)
 
-    def add_run(self, dataset: str, checkset: str) -> dict:
+    def add_run(self, dataset: str, checkset: str):
         """Schedules an evaluation on the server. Specify the dataset and checkset to use.
 
         Args:
@@ -186,7 +184,7 @@ class APIClient:
         )
         return raise_or_return(response)
 
-    def get_schedule(self, schedule_id: str) -> str:
+    def get_schedule(self, schedule_id: str):
         """Get the status of a schedule.
 
         Args:
@@ -199,7 +197,7 @@ class APIClient:
         response = self.client.get(url)
         return raise_or_return(response)
 
-    def remove_schedule(self, schedule_id: str) -> str:
+    def remove_schedule(self, schedule_id: str):
         """Remove a schedule.
 
         Args:
@@ -217,4 +215,18 @@ class APIClient:
         url = f"{self.base_url}/schedules"
         params: dict = {"num": num, "active_only": active_only}
         response = self.client.get(url, params=params)
+        return raise_or_return(response)
+
+    def evaluate(
+        self,
+        eval_name: str,
+        dataset: list[dict[str, t.Any]],
+        params: dict | None = None,
+    ):
+        """Run an evaluation on the server."""
+        url = f"{self.base_url}/evaluate"
+        response = self.client.post(
+            url,
+            json={"eval_name": eval_name, "dataset": dataset, "params": params},
+        )
         return raise_or_return(response)
