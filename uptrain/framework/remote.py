@@ -7,6 +7,7 @@ import typing as t
 
 from loguru import logger
 import httpx
+import polars as pl
 
 from uptrain.framework.checks import CheckSet, ExperimentArgs
 from uptrain.framework.base import Settings
@@ -29,7 +30,9 @@ class APIClient:
         server_url = settings.check_and_get("uptrain_server_url")
         api_key = settings.check_and_get("uptrain_access_token")
         self.base_url = server_url.rstrip("/") + "/api/public"
-        self.client = httpx.Client(headers={"uptrain-access-token": api_key})
+        self.client = httpx.Client(
+            headers={"uptrain-access-token": api_key}, timeout=10
+        )
 
     def check_auth(self):
         """Ping the server to check if the client is authenticated."""
@@ -168,7 +171,7 @@ class APIClient:
         response = self.client.get(url, params=params)
         return raise_or_return(response)
 
-    def add_daily_schedule(self, checkset: str, start_on: str) -> dict:
+    def add_daily_schedule(self, checkset: str, start_on: str):
         """Schedules a periodic evaluation on the server. Specify the checkset to run against it.
 
         Args:
@@ -220,13 +223,29 @@ class APIClient:
     def evaluate(
         self,
         eval_name: str,
-        dataset: list[dict[str, t.Any]],
+        dataset: pl.DataFrame,
         params: dict | None = None,
     ):
         """Run an evaluation on the server."""
         url = f"{self.base_url}/evaluate"
-        response = self.client.post(
-            url,
-            json={"eval_name": eval_name, "dataset": dataset, "params": params},
-        )
-        return raise_or_return(response)
+        full_dataset = dataset.to_dicts()
+
+        # send in chunks of 50, so the connection doesn't time out waiting for the server
+        results = []
+        for i in range(0, len(full_dataset), 50):
+            logger.info(
+                f"Sending evaluation request for rows {i} to <{i+50} to the Uptrain server"
+            )
+            response = self.client.post(
+                url,
+                json={
+                    "eval_name": eval_name,
+                    "dataset": full_dataset[i : i + 50],
+                    "params": params if params is not None else {},
+                },
+            )
+            response_json = raise_or_return(response)
+            if response_json is not None:
+                results.extend(response_json)
+
+        return results

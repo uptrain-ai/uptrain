@@ -99,7 +99,7 @@ class LLMMulticlient:
 
         if loop and loop.is_running():
             logger.warning(
-                "Detected Jupyter environment, scheduling requests in a separate thread."
+                "Detected a running event loop, scheduling requests in a separate thread."
             )
             with ThreadPoolExecutor(max_workers=1) as executor:
                 return executor.submit(
