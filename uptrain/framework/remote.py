@@ -31,7 +31,8 @@ class APIClient:
         api_key = settings.check_and_get("uptrain_access_token")
         self.base_url = server_url.rstrip("/") + "/api/public"
         self.client = httpx.Client(
-            headers={"uptrain-access-token": api_key}, timeout=10
+            headers={"uptrain-access-token": api_key},
+            timeout=httpx.Timeout(10, connect=5),
         )
 
     def check_auth(self):
@@ -223,12 +224,14 @@ class APIClient:
     def evaluate(
         self,
         eval_name: str,
-        dataset: pl.DataFrame,
+        full_dataset: list[dict],
         params: dict | None = None,
     ):
-        """Run an evaluation on the server."""
+        """Run an evaluation on the server.
+
+        NOTE: Internal use only. Use regular uptrain operators to run evaluations,
+        """
         url = f"{self.base_url}/evaluate"
-        full_dataset = dataset.to_dicts()
 
         # send in chunks of 50, so the connection doesn't time out waiting for the server
         results = []
