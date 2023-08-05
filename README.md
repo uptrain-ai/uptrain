@@ -74,6 +74,8 @@ You can use the UpTrain Validation Manager to define checks, retry logic and val
 
 You can use the UpTrain framework to continuously monitor your model's performance and get real-time insights on how well it is doing on a variety of evaluation metrics. Check out the monitoring tutorial to learn more.
 
+<img width="600" src="https://github.com/uptrain-ai/uptrain/assets/108270398/0446380f-cf7b-4d36-8f4d-e1a3f3c00848" alt="uptrain monitoring">
+
 # Get started 🙌
 
 <!-- You can quickly get started with [Google Colab here](https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing%2F). -->
