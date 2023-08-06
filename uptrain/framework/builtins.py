@@ -7,6 +7,7 @@ from .checks import Check
 from uptrain.operators import Histogram
 from uptrain.operators import (
     ResponseFactualScore,
+    ResponseCompleteness,
     ContextRelevance,
     LanguageCritique,
     ToneCritique,
@@ -67,18 +68,6 @@ C. The generated answer answers the given question adequately.
 
 CheckResponseCompleteness = lambda: Check(
     name="response_completeness_score",
-    operators=[
-        ModelGradeScore(
-            grading_prompt_template=_TEMPLATE_RESPONSE_COMPLETENESS,
-            eval_type="cot_classify",
-            choice_strings=["A", "B", "C"],
-            choice_scores={"A": 0.0, "B": 0.5, "C": 1.0},
-            context_vars={
-                "question": "question",
-                "response": "response",
-            },
-            col_out="response_completeness_score",
-        )
-    ],
-    plots=[Histogram(x="response_completeness_score")],
+    operators=[ResponseCompleteness()],
+    plots=[Histogram(x="score_response_completeness")],
 )
