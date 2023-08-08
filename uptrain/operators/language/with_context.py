@@ -118,3 +118,39 @@ class ContextRelevance(ColumnOp):
 
         assert results is not None
         return {"output": data.with_columns(pl.from_dicts(results))}
+
+
+@register_op
+class ResponseRelevance(ColumnOp):
+    """
+    Grade how if the generated response has any additional irrelevant information for the question asked.
+    """
+
+    col_question: str = "question"
+    col_response: str = "response"
+
+    def setup(self, settings: t.Optional[Settings] = None):
+        from uptrain.framework.remote import APIClient
+
+        assert settings is not None
+        self._api_client = APIClient(settings)
+        return self
+
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
+        data_send = [
+            {
+                "question": row[self.col_question],
+                "response": row[self.col_response],
+            }
+            for row in data.to_dicts()
+        ]
+        try:
+            results = self._api_client.evaluate(
+                "score_response_relevance", data_send
+            )
+        except Exception as e:
+            logger.error(f"Failed to run evaluation for `ResponseRelevance`: {e}")
+            raise e
+
+        assert results is not None
+        return {"output": data.with_columns(pl.from_dicts(results))}
