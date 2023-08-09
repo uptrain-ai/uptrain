@@ -10,32 +10,42 @@
 </h2>
 
 <p align="center">
-<a href="https://docs.uptrain.ai/docs/" rel="nofollow"><strong>Docs</strong></a>
 <!-- -
 <a href="https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing/" rel="nofollow"><strong>Try it out</strong></a> -->
+<a href="https://demo.uptrain.ai/evals_demo/" rel="nofollow"><strong>Try out Evaluations</strong></a>
+-
+<!-- <a href="https://docs.uptrain.ai/docs/" rel="nofollow"><strong>Docs</strong></a>
+- -->
+<a href="https://uptrain.ai/~demo/" rel="nofollow"><strong>UpTrain in Action</strong></a>
 -
 <a href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg" rel="nofollow"><strong>Slack Community</strong></a>
 -
-<a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=bug&template=bug_report.md&title=" rel="nofollow"><strong>Bug Report</strong></a>
--
+<!-- <a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=bug&template=bug_report.md&title=" rel="nofollow"><strong>Bug Report</strong></a>
+- -->
 <a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=" rel="nofollow"><strong>Feature Request</strong></a>
 </p>
 
 <h4 align="center">
   <a href="https://github.com/uptrain-ai/uptrain/graphs/contributors">
-    <img src="https://img.shields.io/github/contributors/uptrain-ai/uptrain">
+    <img src="https://img.shields.io/badge/Prebuilt-Evaluations-violet.svg?style=shields">
+  </a>
+  <a href="https://github.com/uptrain-ai/uptrain/graphs/contributors">
+    <img src="https://img.shields.io/badge/UpTrain-Demo-indigo.svg?style=shields">
   </a>
   <a href='https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md'>
-    <img alt='PRs Welcome' src='https://img.shields.io/badge/PRs-welcome-orange.svg?style=shields'/>
+    <img alt='PRs Welcome' src='https://img.shields.io/badge/PRs-welcome-blue.svg?style=shields'/>
+  </a>
+  <a href="https://github.com/uptrain-ai/uptrain/graphs/contributors">
+    <img src="https://img.shields.io/github/contributors/uptrain-ai/uptrain">
   </a>
   <a href="https://docs.uptrain.ai/docs/">
-    <img src="https://img.shields.io/badge/Read-Docs-brightgreen" alt="Docs" />
+    <img src="https://img.shields.io/badge/Read-Docs-yellow" alt="Docs" />
   </a>
   <a href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg">
     <img src="https://img.shields.io/badge/Slack-Community-orange" alt="Community" />
   </a>
   <a href="https://uptrain.ai/">
-    <img src="https://img.shields.io/badge/UpTrain-Website-yellow" alt="Website" />
+    <img src="https://img.shields.io/badge/UpTrain-Website-red" alt="Website" />
   </a>
   <!-- <a href="https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing/">
     <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
@@ -91,10 +101,31 @@ Note: Uptrain uses commonly used python libraries like openai-evals and sentence
 uptrain-add --feature full
 ```
 
-### How to use UpTrain in 4 simple steps:
+### How to use UpTrain:
+
+#### Using UpTrain's builtin evaluation sets:
+UpTrain provides a variety of checks like response relevance, response completeness, factual accuracy, retrieved-context quality, etc. which can be accessed using UpTrain's API key. [Learn more](https://demo.uptrain.ai/evals_demo/) about these evaluations.
+
+Get your free UpTrain API Key [here](https://demo.uptrain.ai/api/login/).
+
+```python
+
+data = pl.DataFrame({
+  "question": ["What is the meaning of life?"],
+  "response": ["Who knows 🤔"]
+})
+
+check = CheckResponseCompleteness()
+output = check.setup(Settings(uptrain_access_token="up-9g....")).run(data)
+```
+
+
+#### Configuring your own evaluation sets:
+
 Say we want to plot a line chart showing whether our model's responses contain any grammatical mistakes or not.
 
 ```python
+
 # Step 1: Choose and create the appropriate operator from UpTrain
 grammar_score = GrammarScore(
   col_in_text = "model_response",       # input column name (from dataset)
