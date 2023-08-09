@@ -48,6 +48,8 @@ __all__ = [
     "OutputParser",
     "ResponseFactualScore",
     "ContextRelevance",
+    "ResponseRelevance",
+    "ResponseCompleteness",
     "LanguageCritique",
     "ToneCritique",
     # io - also include all the subimports
@@ -109,6 +111,7 @@ from .language.with_context import (
     ResponseFactualScore,
     ContextRelevance,
     ResponseCompleteness,
+    ResponseRelevance,
 )
 from .language.critique import LanguageCritique, ToneCritique
 

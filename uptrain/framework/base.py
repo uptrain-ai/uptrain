@@ -29,7 +29,7 @@ class Settings(BaseSettings):
 
     # uptrain managed service related
     uptrain_access_token: str = Field(None, env="UPTRAIN_ACCESS_TOKEN")
-    uptrain_server_url: str = Field(None, env="UPTRAIN_SERVER_URL")
+    uptrain_server_url: str = Field("https://demo.uptrain.ai/", env="UPTRAIN_SERVER_URL")
 
     # allow additional fields as needed by different operators
     class Config:

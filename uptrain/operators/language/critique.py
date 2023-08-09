@@ -26,11 +26,9 @@ class LanguageCritique(ColumnOp):
     explanation for the score.
 
     Attributes:
-        col_question (str): The name of the input column containing question text
         col_response (str): The name of the input column containing response text
     """
 
-    col_question: str = "question"
     col_response: str = "response"
 
     def setup(self, settings: t.Optional[Settings] = None):
@@ -42,7 +40,7 @@ class LanguageCritique(ColumnOp):
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         data_send = [
-            {"question": row[self.col_question], "response": row[self.col_response]}
+            {"text": row[self.col_response]}
             for row in data.to_dicts()
         ]
         try:
@@ -62,12 +60,10 @@ class ToneCritique(ColumnOp):
 
     Attributes:
         persona (str): The persona the chatbot being assesses was expected to follow
-        col_question (str): The name of the input column containing question text
         col_response (str): The name of the input column containing response text
     """
 
     persona: str = "helpful-chatbot"
-    col_question: str = "question"
     col_response: str = "response"
 
     def setup(self, settings: t.Optional[Settings] = None):
@@ -79,7 +75,7 @@ class ToneCritique(ColumnOp):
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         data_send = [
-            {"question": row[self.col_question], "response": row[self.col_response]}
+            {"response": row[self.col_response]}
             for row in data.to_dicts()
         ]
         try:
