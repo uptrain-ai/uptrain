@@ -11,6 +11,7 @@ from uptrain.framework.builtins import (
     CheckResponseCompleteness,
     CheckResponseFacts,
     CheckToneQuality,
+    CheckResponseRelevance
 )
 
 settings = Settings()
@@ -55,6 +56,12 @@ def test_check_language_quality():
 
 def test_check_response_completeness():
     check = CheckResponseCompleteness()
+    output = check.setup(settings).run(dataset)
+    assert isinstance(output, pl.DataFrame)
+
+
+def test_check_response_relevance():
+    check = CheckResponseRelevance()
     output = check.setup(settings).run(dataset)
     assert isinstance(output, pl.DataFrame)
 
