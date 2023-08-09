@@ -16,7 +16,7 @@
 -
 <!-- <a href="https://docs.uptrain.ai/docs/" rel="nofollow"><strong>Docs</strong></a>
 - -->
-<a href="https://uptrain.ai/~demo/" rel="nofollow"><strong>UpTrain in Action</strong></a>
+<a href="https://uptrain.ai/#demo" rel="nofollow"><strong>UpTrain in Action</strong></a>
 -
 <a href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg" rel="nofollow"><strong>Slack Community</strong></a>
 -
@@ -26,10 +26,10 @@
 </p>
 
 <h4 align="center">
-  <a href="https://github.com/uptrain-ai/uptrain/graphs/contributors">
+  <a href="https://demo.uptrain.ai/evals_demo/">
     <img src="https://img.shields.io/badge/Prebuilt-Evaluations-violet.svg?style=shields">
   </a>
-  <a href="https://github.com/uptrain-ai/uptrain/graphs/contributors">
+  <a href="https://uptrain.ai/#demo">
     <img src="https://img.shields.io/badge/UpTrain-Demo-indigo.svg?style=shields">
   </a>
   <a href='https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md'>
