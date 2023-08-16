@@ -106,7 +106,7 @@ uptrain-add --feature full
 #### Using UpTrain's builtin evaluation sets:
 UpTrain provides a variety of checks like response relevance, response completeness, factual accuracy, retrieved-context quality, etc. which can be accessed using UpTrain's API key. [Learn more](https://demo.uptrain.ai/evals_demo/) about these evaluations.
 
-Get your free UpTrain API Key [here](https://demo.uptrain.ai/api/login/).
+Get your free UpTrain API Key [here](https://uptrain.ai/dashboard).
 
 ```python
 
