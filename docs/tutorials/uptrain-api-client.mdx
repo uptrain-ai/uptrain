@@ -1,0 +1,224 @@
+---
+title: Uptrain API Client
+description: How to run your evaluations remotely using the Uptrain API Client
+---
+
+### Create an API Key
+
+To get started, you will first need to get your API key from the [Uptrain Dashboard](https://uptrain.ai/dashboard).
+
+1. Login with Google
+2. Click on "Create API Key"
+3. Copy the API key and save it somewhere safe
+
+
+### Install the Uptrain Python Package
+
+```bash
+pip install uptrain
+```
+
+
+### Create an API Client
+
+```python
+from uptrain import APIClient, Settings
+
+settings = Settings(
+    uptrain_access_token=YOUR_API_KEY,
+    uptrain_server_url="https://demo.uptrain.ai"
+)
+
+client = APIClient(settings)
+```
+
+
+### Check if you are authenticated
+
+```python
+client.check_auth()
+```
+
+
+## Running Evaluations
+There are two ways to run evaluations using the API client.
+
+### Method 1: Using the `evaluate` method
+You can use this method when you wish to do one-off evaluations. This is for evaluations involving small datasets and few operators.
+
+<Note>This is not recommended for evaluations involving multiple operators, large datasets or ones that you need to perform on a regular basis.</Note>
+
+
+#### Step 1: Define the dataset
+Your dataset should contain the following columns:
+- `context`: The context for the question
+- `question`: The question to be answered
+- `response`: The correct answer to the question
+
+Go through the code below to learn how to create a dataset for your evaluation.
+
+```python
+import polars as pl
+
+dataset = pl.DataFrame(
+    {
+        "context": [
+            "Lolita is a 1962 psychological comedy-drama film directed by Stanley Kubrick. The film follows Humbert Humbert, a middle-aged literature lecturer who becomes infatuated with Dolores Haze, a young adolescent girl. It stars Sue Lyon as the titular character.",
+            "William Shakespeare was an English playwright and poet, widely regarded as the world's greatest dramatist. He is often called the Bard of Avon. His works consist of some 39 plays, 154 sonnets and a few other verses.",
+            "Sachin Tendulkar is a former international cricketer from India. He is widely regarded as one of the greatest batsmen in the history of cricket. He is the highest run scorer of all time in International cricket and played until 16 May 2013.",
+            "Python is a high-level general-purpose programming language. Its design philosophy emphasizes code readability. Its language constructs aim to help programmers write clear, logical code for both small and large-scale projects.",
+            "The Apollo program was a human spaceflight program carried out by NASA. It accomplished landing the first humans on the Moon from 1969 to 1972. The program was named after Apollo, the Greek god of light, music, and the sun. The first mission flown was dubbed as Apollo 1.",
+        ],
+        "question": [
+            "What was the age of Sue Lyon when she played Lolita?",
+            "How many sonnets did Shakespeare write?",
+            "When did Sachin Tendulkar retire from cricket?",
+            "Who created the Python language?",
+            "Which was the first manned Apollo mission?",
+        ],
+        "response": [
+            "The actress who played Lolita, Sue Lyon, was 14 at the time of filming.",
+            "Shakespeare wrote 154 sonnets.",
+            "Sachin Tendulkar retired from cricket in 2013.",
+            "Python language was created by Guido van Rossum.",
+            "The first manned Apollo mission was Apollo 1.",
+        ],
+    }
+)
+```
+
+
+#### Step 2: Run the evaluation
+To run the evaluation on the dataset you created, you will need to specify the following parameters:
+- `eval_name`: The evaluation you wish to evaluate your model on
+- `full_dataset`: The dataset you created in Step 1
+- `params`: The parameters required by the operator you chose
+
+You can choose the operator you wish to evaluate your model on from the list of operators [here](https://uptrain-ai.github.io/uptrain/operators/Accuracy/).
+
+For example, if you wish to evaluate your model on the `critique_tone` operator, you will need to specify the `persona` parameter.
+
+```python
+response = client.evaluate(
+    eval_name="critique_tone",
+    full_dataset=dataset.to_dicts(),
+    params={"persona": "Wikipedia"}
+)
+```
+
+#### Step 3: View the results
+You can view the results of your evaluation by printing the response.
+
+```python
+print(response)
+```
+
+
+### Method 2: Using the `add_run` method
+This method is recommended for evaluations involving multiple operators, large datasets or ones that you need to perform on a regular basis.
+
+
+#### Step 1: Add dataset
+Unlike the previouse method where you had to create a dataset in Python, this method requires you to upload a file containing your dataset. The supported file formats are:
+
+- .csv
+- .json
+- .jsonl
+
+You can add the dataset file to the UpTrain platform using the `add_dataset` method.
+
+To upload your dataset file, you will need to specify the following parameters:
+- `name`: The name of your dataset
+- `fpath`: The path to your dataset file
+
+Let's say you have a dataset file called `qna-notebook-data.jsonl` in your current directory. You can upload it using the code below.
+
+```python
+client.add_dataset(name="qna-dataset", fpath="qna-notebook-data.jsonl")
+```
+
+
+#### Step 2: Add checksets
+A checkset contains the operators you wish to evaluate your model on. You can learn more about checksets [here](/key-components/checkset).
+
+You can add a checkset using the `add_checkset` method.
+
+To add a checkset, you will need to specify the following parameters:
+- `name`: The name of your checkset
+- `checkset`: The checkset you wish to add
+- `settings`: The settings you defined while creating the API client
+
+```python
+from uptrain.framework import Check, CheckSet
+from uptrain.operators import CosineSimilarity, JsonReader, Histogram, RougeScore
+
+rouge_score = RougeScore(
+    score_type="precision",
+    col_in_generated="response",
+    col_in_source="document_text",
+    col_out="hallucination-score",
+)
+
+cosine_similarity = CosineSimilarity(
+    col_in_vector_1="question_embeddings",
+    col_in_vector_2="context_embeddings",
+    col_out="similarity-question-context",
+)
+
+list_checks = [
+    Check(
+        name="hallucination_check",
+        operators=[rouge_score],
+        plots=[
+            Histogram(props=dict(x="hallucination-score", nbins=20)),
+        ],
+    ),
+    Check(
+        name="similarity_check"",
+        operators=[cosine_similarity],
+        plots=[
+                Histogram(
+                props=dict(x="similarity-question-context", nbins=20)
+            ),
+        ],
+    ),
+]
+
+check_set = CheckSet(
+    source=JsonReader(fpath=dataset_path),
+    checks=list_checks
+)
+
+client.add_checkset(
+    name="qna-checkset",
+    checkset=check_set,
+    settings=settings
+)
+```
+
+
+#### Step 3: Add run
+A run is a combination of a dataset and a checkset. You can learn more about runs [here](/key-components/run).
+
+You can add a run using the `add_run` method.
+
+To add a run, you will need to specify the following parameters:
+- `dataset`: The name of the dataset you wish to add
+- `checkset`: The name of the checkset you wish to add
+
+```python
+respoonse = client.add_run(
+    dataset="qna-dataset",
+    checkset="qna-checkset"
+)
+```
+
+
+#### Step 4: View the results
+You can view the results of your evaluation by using the `get_run` method.
+
+```python
+client.get_run(response["run_id"])
+```
+
+You can also view the results on the [UpTrain Dashboard](https://demo.uptrain.ai/dashboard/) by entering your API key as password.
