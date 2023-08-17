@@ -5,37 +5,47 @@
 </h4>
 <h2>
   <p align="center">
-    <p align="center">An open-source framework to evaluate, test and monitor LLM applications</p>
+    <p align="center">An open-source framework to evaluate and monitor LLM applications</p>
   </p>
 </h2>
 
 <p align="center">
-<a href="https://docs.uptrain.ai/docs/" rel="nofollow"><strong>Docs</strong></a>
 <!-- -
 <a href="https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing/" rel="nofollow"><strong>Try it out</strong></a> -->
+<a href="https://demo.uptrain.ai/evals_demo/" rel="nofollow"><strong>Try out Evaluations</strong></a>
+-
+<!-- <a href="https://docs.uptrain.ai/docs/" rel="nofollow"><strong>Docs</strong></a>
+- -->
+<a href="https://uptrain.ai/#demo" rel="nofollow"><strong>UpTrain in Action</strong></a>
 -
 <a href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg" rel="nofollow"><strong>Slack Community</strong></a>
 -
-<a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=bug&template=bug_report.md&title=" rel="nofollow"><strong>Bug Report</strong></a>
--
+<!-- <a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=bug&template=bug_report.md&title=" rel="nofollow"><strong>Bug Report</strong></a>
+- -->
 <a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=" rel="nofollow"><strong>Feature Request</strong></a>
 </p>
 
 <h4 align="center">
+  <a href="https://demo.uptrain.ai/evals_demo/">
+    <img src="https://img.shields.io/badge/Prebuilt-Evaluations-violet.svg?style=shields">
+  </a>
+  <a href="https://uptrain.ai/#demo">
+    <img src="https://img.shields.io/badge/UpTrain-Demo-indigo.svg?style=shields">
+  </a>
+  <a href='https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md'>
+    <img alt='PRs Welcome' src='https://img.shields.io/badge/PRs-welcome-blue.svg?style=shields'/>
+  </a>
   <a href="https://github.com/uptrain-ai/uptrain/graphs/contributors">
     <img src="https://img.shields.io/github/contributors/uptrain-ai/uptrain">
   </a>
-  <a href='https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md'>
-    <img alt='PRs Welcome' src='https://img.shields.io/badge/PRs-welcome-orange.svg?style=shields'/>
-  </a>
   <a href="https://docs.uptrain.ai/docs/">
-    <img src="https://img.shields.io/badge/Read-Docs-brightgreen" alt="Docs" />
+    <img src="https://img.shields.io/badge/Read-Docs-yellow" alt="Docs" />
   </a>
   <a href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg">
     <img src="https://img.shields.io/badge/Slack-Community-orange" alt="Community" />
   </a>
   <a href="https://uptrain.ai/">
-    <img src="https://img.shields.io/badge/UpTrain-Website-yellow" alt="Website" />
+    <img src="https://img.shields.io/badge/UpTrain-Website-red" alt="Website" />
   </a>
   <!-- <a href="https://colab.research.google.com/drive/1ZIITMB7XYotvhg5CNvGPFnBdM4SR2w4Q?usp=sharing/">
     <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
@@ -57,24 +67,23 @@
 
 **[UpTrain](https://uptrain.ai)** is a Python framework that ensures your LLM applications are performing reliably by allowing users to check aspects such as correctness, structural integrity, bias, hallucination, etc. UpTrain can be used to:
 
-1) Validate model's response and safeguard your users against hallucinations, bias, incorrect output formats, etc.
-2) Experiment across multiple model providers, prompt templates, and quantify model's performance.
-3) Monitor your model's performance in production and protect yourself against unwanted drifts
+## Experimentation
 
+UpTrain framework can be used to experiment across multiple prompts, model providers, chain configurations, etc. and get quantitative scores to compare them. Check out the [experimentation tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/prompt_experiments_tutorial.ipynb) to learn more.
 
-# Key Features 💡
+<img width="500" src="https://github.com/uptrain-ai/uptrain/assets/108270398/12c93f96-fe2a-45d0-8394-4faf1b64af0c" alt="uptrain experimentation">
 
+## Validation
 
-- **[ChatGPT Grading](https://uptrain-ai.github.io/uptrain/operators/language/OpenAIGradeScore/)** - Utilize LLMs to grade your model outputs.
-- **[Custom Grading Checks](https://uptrain-ai.github.io/uptrain/operators/language/ModelGradeScore/)** - Write your custom grading prompts.
-- **[Embeddings Similarity Check](https://uptrain-ai.github.io/uptrain/operators/CosineSimilarity/)** - Compute cosine similarity between prompt and response embeddings
-- **[Output Validation](https://github.com/uptrain-ai/uptrain/blob/main/examples/validation_tutorial.ipynb)** - Safeguard your users against inappropriate responses
-- **[Prompt A/B Testing](https://github.com/uptrain-ai/uptrain/blob/main/examples/prompt_experiments_tutorial.ipynb)** - Experiment across multiple prompts and compare them quantatively.
-- **[UMAP Visualization and Clustering](https://uptrain-ai.github.io/uptrain/operators/UMAP/)** - Visualize your embedding space using tools like UMAP and t-SNE.
-- **[Hallucination Checks]()** - Use metrics like custom grading, text similarity, and embedding similarity to check for hallucinations.
-- **[Toxic Keywords Checks]()** - Make sure your model outputs are not biased or contain toxic keywords.
-- **[Feature Slicing]()** - Built-in pivoting functionalities for data dice and slice to pinpoint low-performing cohorts.
-- **[Realtime Dashboards]()** - Monitor your model's performance in realtime.
+You can use the UpTrain Validation Manager to define checks, retry logic and validate your LLM responses before showing it to your users. Check out the [tutorial here](https://github.com/uptrain-ai/uptrain/blob/main/examples/validation_tutorial.ipynb).
+
+<img width="500" src="https://github.com/uptrain-ai/uptrain/assets/108270398/09bcdd2b-28cc-4b39-9cf8-78df47a3b297" alt="uptrain validation">
+
+## Monitoring
+
+You can use the UpTrain framework to continuously monitor your model's performance and get real-time insights on how well it is doing on a variety of evaluation metrics. Check out the monitoring tutorial to learn more.
+
+<img width="500" src="https://github.com/uptrain-ai/uptrain/assets/108270398/0ede5648-d1c3-44ff-af65-a1b688792888" alt="uptrain monitoring">
 
 # Get started 🙌
 
@@ -92,10 +101,31 @@ Note: Uptrain uses commonly used python libraries like openai-evals and sentence
 uptrain-add --feature full
 ```
 
-### How to use UpTrain in 4 simple steps:
+### How to use UpTrain:
+
+#### Using UpTrain's builtin evaluation sets:
+UpTrain provides a variety of checks like response relevance, response completeness, factual accuracy, retrieved-context quality, etc. which can be accessed using UpTrain's API key. [Learn more](https://demo.uptrain.ai/evals_demo/) about these evaluations.
+
+Get your free UpTrain API Key [here](https://uptrain.ai/dashboard).
+
+```python
+
+data = pl.DataFrame({
+  "question": ["What is the meaning of life?"],
+  "response": ["Who knows 🤔"]
+})
+
+check = CheckResponseCompleteness()
+output = check.setup(Settings(uptrain_access_token="up-9g....")).run(data)
+```
+
+
+#### Configuring your own evaluation sets:
+
 Say we want to plot a line chart showing whether our model's responses contain any grammatical mistakes or not.
 
 ```python
+
 # Step 1: Choose and create the appropriate operator from UpTrain
 grammar_score = GrammarScore(
   col_in_text = "model_response",       # input column name (from dataset)
@@ -123,6 +153,21 @@ checkset.run(dataset)
 
 <h4> </h4>
 
+# Key Features 💡
+
+
+- **[ChatGPT Grading](https://uptrain-ai.github.io/uptrain/operators/language/OpenAIGradeScore/)** - Utilize LLMs to grade your model outputs.
+- **[Custom Grading Checks](https://uptrain-ai.github.io/uptrain/operators/language/ModelGradeScore/)** - Write your custom grading prompts.
+- **[Embeddings Similarity Check](https://uptrain-ai.github.io/uptrain/operators/CosineSimilarity/)** - Compute cosine similarity between prompt and response embeddings
+- **[Output Validation](https://github.com/uptrain-ai/uptrain/blob/main/examples/validation_tutorial.ipynb)** - Safeguard your users against inappropriate responses
+- **[Prompt A/B Testing](https://github.com/uptrain-ai/uptrain/blob/main/examples/prompt_experiments_tutorial.ipynb)** - Experiment across multiple prompts and compare them quantatively.
+- **[UMAP Visualization and Clustering](https://uptrain-ai.github.io/uptrain/operators/UMAP/)** - Visualize your embedding space using tools like UMAP and t-SNE.
+- **[Hallucination Checks]()** - Use metrics like custom grading, text similarity, and embedding similarity to check for hallucinations.
+- **[Toxic Keywords Checks]()** - Make sure your model outputs are not biased or contain toxic keywords.
+- **[Feature Slicing]()** - Built-in pivoting functionalities for data dice and slice to pinpoint low-performing cohorts.
+- **[Realtime Dashboards]()** - Monitor your model's performance in realtime.
+
+
 # Integrations
 
 | Eval Frameworks  | LLM Providers | LLM Packages | Serving frameworks | 
@@ -131,21 +176,6 @@ checkset.run(dataset)
 | EleutherAI LM Eval 🔜 | GPT-4 ✅  | Llama Index 🔜 |  Replicate 🔜 |
 | BIG-Bench 🔜 | Claude 🔜 | AutoGPT 🔜 |
 | | Cohere 🔜 | 
-
-
-# UpTrain in Action
-
-## Experimentation
-
-You can use the UpTrain framework to run and compare LLM responses for different prompts, models, LLM chains, etc. Check out the [experimentation tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/prompt_experiments_tutorial.ipynb) to learn more.
-
-## Validation
-
-You can use the UpTrain Validation Manager to define checks, retry logic and validate your LLM responses before showing it to your users. Check out the [tutorial here](https://github.com/uptrain-ai/uptrain/blob/main/examples/validation_tutorial.ipynb).
-
-## Monitoring
-
-You can use the UpTrain framework to continuously monitor your model's performance and get real-time insights on how well it is doing on a variety of evaluation metrics. Check out the monitoring tutorial to learn more.
 
 
 # Why UpTrain 🤔?
