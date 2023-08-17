@@ -72,11 +72,11 @@
       ]
     },
     {
-      "group": "Managed Service ☁️",
+      "group": "Managed Services ☁️",
       "version": "v1",
       "pages": [
-        "managed-service/overview",
-        "managed-service/pricing"
+        "managed-services/overview",
+        "managed-services/pricing"
       ]
     },
     {
