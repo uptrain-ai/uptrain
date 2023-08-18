@@ -104,7 +104,9 @@ uptrain-add --feature full
 ### How to use UpTrain:
 
 #### Using UpTrain's builtin evaluation sets:
-UpTrain provides a variety of checks like response relevance, response completeness, factual accuracy, retrieved-context quality, etc. which can be accessed using UpTrain's API key. [Learn more](https://demo.uptrain.ai/evals_demo/) about these evaluations.
+UpTrain provides a variety of checks like response relevance, response completeness, factual accuracy, retrieved-context quality, etc. which can be accessed using UpTrain's API key. To seem them in action, you can see the [Live Evaluation Demo](https://demo.uptrain.ai/evals_demo/)
+
+To learn how more about these builtin checks, check out the [Built-in Checks Documentation](https://docs.uptrain.ai/key-components/check#built-in-checks).
 
 Get your free UpTrain API Key [here](https://uptrain.ai/dashboard).
 
@@ -137,10 +139,13 @@ grammar_check = Check(
   operators = [grammar_score],
   plots = LineChart(y = "grammar_score")
 )
+# We can also use prebuilt checks like CheckResponseCompleteness, CheckResponseRelevance, etc.
+response_completeness_check = CheckResponseRelevance()
+
 
 # Step 3: Create a CheckSet with the checks and data source as arguments
 checkset = CheckSet(
-    checks = [grammar_check]
+    checks = [grammar_check, response_relevance_check]
     source = JsonReader(fpath = '...')
 )
 
@@ -148,6 +153,10 @@ checkset = CheckSet(
 checkset.setup(Settings(openai_api_key = '...'))
 checkset.run(dataset)
 ```
+
+### Running evaluations on UpTrain's hosted platform:
+
+To learn how to run evaluations on UpTrain's hosted platform, check out the [UpTrain API Client Tutorial](https://docs.uptrain.ai/tutorials/uptrain-api-client).
 
 <!-- For a quick walkthrough of how UpTrain works, check out our [quickstart tutorial](https://docs.uptrain.ai/docs/uptrain-examples/quickstart-tutorial). -->
 
