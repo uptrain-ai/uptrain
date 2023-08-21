@@ -32,7 +32,7 @@ class APIClient:
         self.base_url = server_url.rstrip("/") + "/api/public"
         self.client = httpx.Client(
             headers={"uptrain-access-token": api_key},
-            timeout=httpx.Timeout(10, connect=5),
+            timeout=httpx.Timeout(50, connect=5),
         )
 
     def check_auth(self):
@@ -235,19 +235,29 @@ class APIClient:
 
         # send in chunks of 50, so the connection doesn't time out waiting for the server
         results = []
-        for i in range(0, len(full_dataset), 50):
-            logger.info(
-                f"Sending evaluation request for rows {i} to <{i+50} to the Uptrain server"
-            )
-            response = self.client.post(
-                url,
-                json={
-                    "eval_name": eval_name,
-                    "dataset": full_dataset[i : i + 50],
-                    "params": params if params is not None else {},
-                },
-            )
-            response_json = raise_or_return(response)
+        NUM_TRIES = 3
+        for i in range(0, len(full_dataset), 10):
+            for try_num in range(NUM_TRIES):
+                try:
+                    logger.info(
+                        f"Sending evaluation request for rows {i} to <{i+10} to the Uptrain server"
+                    )
+                    response = self.client.post(
+                        url,
+                        json={
+                            "eval_name": eval_name,
+                            "dataset": full_dataset[i : i + 10],
+                            "params": params if params is not None else {},
+                        },
+                    )
+                    response_json = raise_or_return(response)
+                    break
+                except Exception as e:
+                    logger.info("Retrying evaluation request")
+                    if try_num == NUM_TRIES - 1:
+                        logger.error(f"Evaluation failed with error: {e}")
+                        raise e
+
             if response_json is not None:
                 results.extend(response_json)
 
