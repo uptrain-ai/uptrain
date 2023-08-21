@@ -27,7 +27,7 @@ CheckContextRelevance = lambda: Check(
 CheckResponseFacts = lambda: Check(
     name="score_factual_accuracy",
     operators=[ResponseFactualScore()],
-    plots=[Histogram(x="response_factual_score")],
+    plots=[Histogram(x="score_factual_accuracy")],
 )
 
 # -----------------------------------------------------------
