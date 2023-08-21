@@ -18,6 +18,17 @@ from uptrain.operators.base import *
 class ResponseFactualScore(ColumnOp):
     """
     Grade how factual the generated response was.
+    
+     Attributes:
+        col_question (str): Column name for the stored questions
+        col_context: (str) Coloumn name for stored context 
+        col_response (str): Coloumn name for the stored responses
+    
+    Raises :
+        Exception : Raises exception for any failed evaluation attempts
+    
+   
+   
     """
 
     col_question: str = "question"
@@ -54,6 +65,14 @@ class ResponseFactualScore(ColumnOp):
 class ResponseCompleteness(ColumnOp):
     """
     Grade how complete the generated response was for the question specified.
+    
+    Attributes:
+        col_question (str): Column name for the stored questions
+        col_response (str): Coloumn name for the stored responses
+    
+    Raises :
+        Exception :  Raises exception for any failed evaluation attempts   
+        
     """
 
     col_question: str = "question"
@@ -90,6 +109,14 @@ class ResponseCompleteness(ColumnOp):
 class ContextRelevance(ColumnOp):
     """
     Grade how relevant the context was to the question asked.
+    
+    Attributes : 
+        col_question: (str) Column Name for the stored questions
+        col_context: (str) Coloumn name for stored context 
+    
+    Raises :
+        Exception :  Raises exception for any failed evaluation attempts
+
     """
 
     col_question: str = "question"
@@ -124,6 +151,15 @@ class ContextRelevance(ColumnOp):
 class ResponseRelevance(ColumnOp):
     """
     Grade how if the generated response has any additional irrelevant information for the question asked.
+    
+    Attributes:
+        col_question (str): Column name for the stored questions
+        col_response (str): Coloumn name for the stored responses
+    
+    Raises :
+        Exception :  Raises exception for any failed evaluation attempts 
+    
+    
     """
 
     col_question: str = "question"
