@@ -3,6 +3,12 @@ title: "Quickstart"
 description: "Get started with UpTrain in a few simple steps"
 ---
 
+### Choose your style
+
+UpTrain can be used in two ways:
+1. **Using the API client:** The UpTrain API client offers many pre-built Operators and Checks that you can use to analyze your data. You can easily run evaluations with settings that we have already configured for you. This is the recommended way to use UpTrain. To learn how to use the API client, check out the [UpTrain API Client Tutorial](/tutorials/uptrain-api-client).
+2. **Using the framework:** The UpTrain framework allows you to create your own Operators and Checks. You can also configure your own settings and run evaluations. This is recommended for advanced users who want to customize their evaluations. To learn how to use this, follow the steps below.
+
 ### Define your requirement
 
 There are many ways you can use UpTrain. You can set it up based on your requirements. 
@@ -65,6 +71,18 @@ Here, we show a table with all the columns and a histogram that depicts the rela
 You can create more than one `Check`, but for the sake of simplicity, we will just create one.
 
 
+### Using pre-built Checks
+
+UpTrain comes with many pre-built `Check`s that you can use. These have been pre-configured with operators and plots. You can use them as follows:
+
+```python
+from uptrain.framework.builtins import CheckResponseCompleteness
+
+response_completeness_check = CheckResponseCompleteness()
+```
+
+To learn more about the pre-built `Check`s, check out their [documentation](/key-components/check#built-in-checks).
+
 ### Configure the Settings
 
 We need to tell UpTrain where we want our results to be stored (logs_folder). Since, the `GrammarScore` uses OpenAI's API, we also need to enter the OpenAI API key. 
@@ -98,7 +116,7 @@ from uptrain.framework import CheckSet
 from uptrain.operators import CsvReader
 
 check_set = CheckSet(
-    checks=[grammar_check],
+    checks=[response_analysis, response_completeness_check],
     source=CsvReader(fpath="responses.csv")
 )
 ```
