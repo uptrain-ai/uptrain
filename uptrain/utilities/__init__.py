@@ -14,6 +14,7 @@ import pydantic
 import numpy as np
 import numpy.typing as npt
 import pyarrow as pa
+import polars as pl
 
 # -----------------------------------------------------------
 # utility routines for JSON serialization - parts picked off
@@ -128,6 +129,23 @@ def np_arrays_to_arrow_table(arrays: list[npt.NDArray], cols: list[str]) -> pa.T
     return pa.Table.from_pydict(
         {c: array_np_to_arrow(arr) for c, arr in zip(cols, arrays)}
     )
+
+
+def polars_to_pandas(data: pl.DataFrame):
+    """Convert a polars dataframe to a pandas dataframe"""
+    # FIXME: obscure error during pandas conversion through pyarrow. I tried pandas 1.5.3 and pyarrow>12,
+    # as rec-d on github.
+    import pandas as pd
+
+    try:
+        pd_data = data.to_pandas()
+    except:
+        # convert to python native types first and then to pandas
+        logger.warning(
+            "Error converting polars to pandas. Trying to convert to python native types first."
+        )
+        pd_data = pd.DataFrame(data.to_dicts())
+    return pd_data
 
 
 # -----------------------------------------------------------

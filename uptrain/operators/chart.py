@@ -17,12 +17,19 @@ import polars as pl
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
 from uptrain.operators.base import *
-from uptrain.utilities import lazy_load_dep
+from uptrain.utilities import lazy_load_dep, polars_to_pandas
 
 px = lazy_load_dep("plotly.express", "plotly")
 ps = lazy_load_dep("plotly.subplots", "plotly")
 
-__all__ = ["BarChart", "LineChart", "ScatterPlot", "Histogram", "MultiPlot", "CustomPlotlyChart"]
+__all__ = [
+    "BarChart",
+    "LineChart",
+    "ScatterPlot",
+    "Histogram",
+    "MultiPlot",
+    "CustomPlotlyChart",
+]
 
 
 # Not to be used as an operator, only as a base class
@@ -34,11 +41,20 @@ class Chart(OpBaseModel):
     color: str = ""
 
     def setup(self, settings: Settings = None):
-        self.props = self.props | {k: v for k, v in [("x", self.x), ("y", self.y), ("color", self.color), ("title", self.title)] if v}
+        self.props = self.props | {
+            k: v
+            for k, v in [
+                ("x", self.x),
+                ("y", self.y),
+                ("color", self.color),
+                ("title", self.title),
+            ]
+            if v
+        }
         return self
-    
+
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        chart = getattr(px, self.kind)(data.to_pandas(), **self.props)
+        chart = getattr(px, self.kind)(polars_to_pandas(data), **self.props)
         return {"output": None, "extra": {"chart": chart}}
 
 
@@ -128,7 +144,6 @@ class BarChart(Chart):
 
     """
 
-
     props: dict = Field(default_factory=dict)
     title: str = ""
     x: str = ""
@@ -177,7 +192,6 @@ class LineChart(Chart):
 
     """
 
-
     props: dict = Field(default_factory=dict)
     title: str = ""
     x: str = ""
@@ -224,7 +238,6 @@ class ScatterPlot(Chart):
         ```
 
     """
-
 
     props: dict = Field(default_factory=dict)
     title: str = ""
@@ -275,7 +288,6 @@ class Histogram(Chart):
 
     """
 
-
     props: dict = Field(default_factory=dict)
     title: str = ""
     x: str = ""
@@ -316,7 +328,7 @@ class MultiPlot(Chart):
             charts=[
                 LineChart(
                     x="x",
-                    y="y", 
+                    y="y",
                     title="Line Chart"
                 ),
                 ScatterPlot(
@@ -363,9 +375,10 @@ class MultiPlot(Chart):
         )
 
         for chart in self.charts:
-            plot = getattr(px, chart.kind)(data.to_pandas(), **chart.props)
-            subplot.add_trace(plot.to_dict()["data"][0], row=1, col=self.charts.index(chart) + 1)
+            plot = getattr(px, chart.kind)(polars_to_pandas(data), **chart.props)
+            subplot.add_trace(
+                plot.to_dict()["data"][0], row=1, col=self.charts.index(chart) + 1
+            )
 
         subplot.update_layout(title_text=self.title)
         return {"output": None, "extra": {"chart": subplot}}
-

@@ -1,6 +1,8 @@
 import os
 import sys
+import typing as t
 
+from loguru import logger
 import streamlit as st
 import polars as pl
 import pandas as pd
@@ -8,6 +10,7 @@ import plotly.express as px
 
 from uptrain.framework import CheckSet, Check, Settings
 from uptrain.operators import Table
+from uptrain.utilities import polars_to_pandas
 
 
 # -----------------------------------------------------------
@@ -73,7 +76,7 @@ def st_filter_template(df, attribute, default_all=False):
     return selected_options
 
 
-def st_show_table(data):
+def st_show_table(data: pl.DataFrame):
     # Hide Columns
     hide_columns = st.multiselect("Choose columns to hide", data.columns, default=[])
 
@@ -88,19 +91,19 @@ def st_show_table(data):
     for column, values in filters.items():
         data = data.filter(pl.col(column).is_in(values))
 
-    data = data.drop(hide_columns).to_pandas()
-    st.dataframe(data)
+    pd_data = polars_to_pandas(data.drop(hide_columns))
+    st.dataframe(pd_data)
 
     # Pivot Table
     st.write("Pivot Table")
     pivot = {"index": [], "values": [], "columns": [], "aggfunc": "mean"}
-    pivot["index"] = st.multiselect("Choose Index", data.columns, default=[])
-    pivot["values"] = st.multiselect("Choose values", data.columns, default=[])
-    pivot["columns"] = st.multiselect("Choose columns", data.columns, default=[])
+    pivot["index"] = st.multiselect("Choose Index", pd_data.columns, default=[])
+    pivot["values"] = st.multiselect("Choose values", pd_data.columns, default=[])
+    pivot["columns"] = st.multiselect("Choose columns", pd_data.columns, default=[])
     if pivot["index"] and pivot["values"] and pivot["columns"]:
         st.dataframe(
             pd.pivot_table(
-                data,
+                pd_data,
                 index=pivot["index"],
                 values=pivot["values"],
                 columns=pivot["columns"],
