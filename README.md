@@ -204,7 +204,7 @@ We are constantly working to make UpTrain better. Want a new feature or need any
 
 # License 💻
 
-This repo is published under Apache 2.0 license and we are committed to adding more functionalities to the UpTrain open-source repo. Upon popular demand, we have also rolled out a **[no-code self-serve console](https://demo.uptrain.ai/dashboard). For customized onboarding, please book a **[demo call here](https://calendly.com/uptrain-sourabh/uptrain-demo).
+This repo is published under Apache 2.0 license and we are committed to adding more functionalities to the UpTrain open-source repo. Upon popular demand, we have also rolled out a [no-code self-serve console](https://demo.uptrain.ai/dashboard). For customized onboarding, please book a [demo call here](https://calendly.com/uptrain-sourabh/uptrain-demo).
 
 # Stay Updated ☎️
 We are continuously adding tons of features and use cases. Please support us by giving the project a star ⭐!
