@@ -40,6 +40,7 @@ class BigQueryReader(TransformOp):
 
     query: str
     col_timestamp: str = "timestamp"
+    limit_rows: int | None = None
 
     def setup(self, settings: Settings):
         from google.oauth2 import service_account
@@ -52,6 +53,9 @@ class BigQueryReader(TransformOp):
         return self
 
     def run(self) -> TYPE_TABLE_OUTPUT:
-        query_job = self._client.query(self.query)
+        if self.limit_rows is None:
+            query_job = self._client.query(self.query)
+        else:
+            query_job = self._client.query(self.query + " LIMIT " + str(self.limit_rows))
         rows = query_job.result()
         return {"output": pl.from_arrow(rows.to_arrow())}
