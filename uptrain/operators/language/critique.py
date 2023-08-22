@@ -28,8 +28,8 @@ class LanguageCritique(ColumnOp):
     Attributes:
         col_response (str): The name of the input column containing response text
     
-    Raises :
-        Exception :  Raises exception for any failed evaluation attempts
+    Raises:
+        Exception:  Raises exception for any failed evaluation attempts
     
     """
 
@@ -66,8 +66,8 @@ class ToneCritique(ColumnOp):
         persona (str): The persona the chatbot being assesses was expected to follow
         col_response (str): The name of the input column containing response text
     
-    Raise:
-        Exception : Raises exception for any failed evaluation attempts
+    Raises:
+        Exception: Raises exception for any failed evaluation attempts
     
     """
 
