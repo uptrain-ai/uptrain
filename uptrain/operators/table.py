@@ -25,8 +25,7 @@ class Table(OpBaseModel):
     Attributes:
         props (dict): Additional properties to pass to the Table constructor.
         title (str): The title of the chart.
-        Kind (str) : to depict what type of output
-    
+
     """
 
     props: dict = Field(default_factory=dict)
