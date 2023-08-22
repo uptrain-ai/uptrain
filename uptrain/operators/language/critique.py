@@ -29,7 +29,7 @@ class LanguageCritique(ColumnOp):
         col_response (str): The name of the input column containing response text
     
     Raises:
-        Exception:  Raises exception for any failed evaluation attempts
+        Exception: Raises exception for any failed evaluation attempts
     
     """
 
