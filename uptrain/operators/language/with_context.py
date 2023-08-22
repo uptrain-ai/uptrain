@@ -24,8 +24,8 @@ class ResponseFactualScore(ColumnOp):
         col_context: (str) Coloumn name for stored context 
         col_response (str): Coloumn name for the stored responses
     
-    Raises :
-        Exception : Raises exception for any failed evaluation attempts
+    Raises:
+        Exception: Raises exception for any failed evaluation attempts
     
    
    
@@ -70,8 +70,8 @@ class ResponseCompleteness(ColumnOp):
         col_question (str): Column name for the stored questions
         col_response (str): Coloumn name for the stored responses
     
-    Raises :
-        Exception :  Raises exception for any failed evaluation attempts   
+    Raises:
+        Exception: Raises exception for any failed evaluation attempts   
         
     """
 
@@ -110,12 +110,12 @@ class ContextRelevance(ColumnOp):
     """
     Grade how relevant the context was to the question asked.
     
-    Attributes : 
+    Attributes: 
         col_question: (str) Column Name for the stored questions
         col_context: (str) Coloumn name for stored context 
     
-    Raises :
-        Exception :  Raises exception for any failed evaluation attempts
+    Raises:
+        Exception:  Raises exception for any failed evaluation attempts
 
     """
 
@@ -156,8 +156,8 @@ class ResponseRelevance(ColumnOp):
         col_question (str): Column name for the stored questions
         col_response (str): Coloumn name for the stored responses
     
-    Raises :
-        Exception :  Raises exception for any failed evaluation attempts 
+    Raises:
+        Exception: Raises exception for any failed evaluation attempts 
     
     
     """
