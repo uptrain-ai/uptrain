@@ -115,7 +115,7 @@ class ContextRelevance(ColumnOp):
         col_context: (str) Coloumn name for stored context 
     
     Raises:
-        Exception:  Raises exception for any failed evaluation attempts
+        Exception: Raises exception for any failed evaluation attempts
 
     """
 
