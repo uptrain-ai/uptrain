@@ -133,7 +133,8 @@ def np_arrays_to_arrow_table(arrays: list[npt.NDArray], cols: list[str]) -> pa.T
 
 def polars_to_pandas(data: pl.DataFrame):
     """Convert a polars dataframe to a pandas dataframe"""
-    # FIXME: obscure error during pandas conversion through pyarrow. I tried pandas 1.5.3 and pyarrow>12,
+    # FIXME: obscure error during pandas conversion through pyarrow for string columns, though
+    # they already are utf-8 encoded by arrow/polars?? I tried pandas 1.5.3 and pyarrow>12,
     # as rec-d on github.
     import pandas as pd
 
@@ -144,7 +145,20 @@ def polars_to_pandas(data: pl.DataFrame):
         logger.warning(
             "Error converting polars to pandas. Trying to convert to python native types first."
         )
-        pd_data = pd.DataFrame(data.to_dicts())
+        # We can't iterate over polars as such, since rust panics can't be caught in python
+        # convert to pyarrow first
+        all_rows = []
+        arrow_data = data.to_arrow()
+        for row in range(len(data)):
+            try:
+                row_dict = {}
+                for col in data.columns:
+                    row_dict[col] = arrow_data[col][row].as_py()
+                all_rows.append(row_dict)
+            except Exception as e:
+                logger.warning(f"Error converting row {row}: {e}")
+
+        pd_data = pd.DataFrame(all_rows)
     return pd_data
 
 
