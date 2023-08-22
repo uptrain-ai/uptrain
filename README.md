@@ -16,21 +16,23 @@
 -
 <!-- <a href="https://docs.uptrain.ai/docs/" rel="nofollow"><strong>Docs</strong></a>
 - -->
-<a href="https://uptrain.ai/#demo" rel="nofollow"><strong>UpTrain in Action</strong></a>
+<a href="https://demo.uptrain.ai/dashboard" rel="nofollow"><strong>Self-serve Console</strong></a>
 -
 <a href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg" rel="nofollow"><strong>Slack Community</strong></a>
 -
 <!-- <a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=bug&template=bug_report.md&title=" rel="nofollow"><strong>Bug Report</strong></a>
 - -->
 <a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=" rel="nofollow"><strong>Feature Request</strong></a>
+-
+<a href="https://uptrain.ai/#demo" rel="nofollow"><strong>UpTrain in Action</strong></a>
 </p>
 
 <h4 align="center">
   <a href="https://demo.uptrain.ai/evals_demo/">
     <img src="https://img.shields.io/badge/Prebuilt-Evaluations-violet.svg?style=shields">
   </a>
-  <a href="https://uptrain.ai/#demo">
-    <img src="https://img.shields.io/badge/UpTrain-Demo-indigo.svg?style=shields">
+  <a href="https://demo.uptrain.ai/dashboard">
+    <img src="https://img.shields.io/badge/Self-Serve-indigo.svg?style=shields">
   </a>
   <a href='https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md'>
     <img alt='PRs Welcome' src='https://img.shields.io/badge/PRs-welcome-blue.svg?style=shields'/>
@@ -156,7 +158,7 @@ checkset.run(dataset)
 
 ### Running evaluations on UpTrain's hosted platform:
 
-To learn how to run evaluations on UpTrain's hosted platform, check out the [UpTrain API Client Tutorial](https://docs.uptrain.ai/tutorials/uptrain-api-client).
+To learn how to run evaluations on [UpTrain's hosted platform](https://demo.uptrain.ai/dashboard), check out the [UpTrain API Client Tutorial](https://docs.uptrain.ai/tutorials/uptrain-api-client).
 
 <!-- For a quick walkthrough of how UpTrain works, check out our [quickstart tutorial](https://docs.uptrain.ai/docs/uptrain-examples/quickstart-tutorial). -->
 
@@ -196,13 +198,13 @@ To ensure your LLM applications work reliably and correctly, UpTrain makes it ea
 1) Validate (and correct) the response of the model before showing it to the user
 2) Get quantitative measures to experiment across multiple prompts, model providers, etc.
 3) Do unit testing to ensure no buggy prompt or code gets pushed into your production
-4) Monitor your LLM applications in real time and understand when they are going wrong in order to fix them before users complain.
+4) Monitor your LLM applications in real-time and understand when they are going wrong in order to fix them before users complain.
 
 We are constantly working to make UpTrain better. Want a new feature or need any integrations? Feel free to [create an issue](https://github.com/uptrain-ai/uptrain/issues) or [contribute](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md) directly to the repository.
 
 # License 💻
 
-This repo is published under Apache 2.0 license. We are also working towards adding a hosted offering to make setting off eval runs easier - please fill **[this form](https://docs.google.com/forms/d/e/1FAIpQLSf9h_SXoU0rJP2MUc4NIKOmOCqJ5J0xgephN1xgeoXscSHUSA/viewform?usp=sf_link)** to get a waitlist slot.
+This repo is published under Apache 2.0 license and we are committed to adding more functionalities to the UpTrain open-source repo. Upon popular demand, we have also rolled out a **[no-code self-serve console](https://demo.uptrain.ai/dashboard). For customized onboarding, please book a **[demo call here](https://calendly.com/uptrain-sourabh/uptrain-demo).
 
 # Stay Updated ☎️
 We are continuously adding tons of features and use cases. Please support us by giving the project a star ⭐!
