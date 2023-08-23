@@ -401,8 +401,19 @@ class MultiPlot(Chart):
             shared_xaxes=True,
             shared_yaxes=True,
             horizontal_spacing=0.05,
+            vertical_spacing=0.2,  # Adjust this value for spacing between graph and annotation
             subplot_titles=[chart.title for chart in self.charts],
         )
+
+        annotation_single_height = (
+            -0.1
+        )  # Adjust this value for single-line annotation position
+        annotation_multi_height = (
+            -0.3
+        )  # Adjust this value for multiline annotation position
+        annotation_line_height = (
+            -0.05
+        )  # Adjust this value for multiline annotation spacing
 
         for idx, chart in enumerate(self.charts):
             plot = getattr(px, chart.kind)(data.to_pandas(), **chart.props)
@@ -411,15 +422,28 @@ class MultiPlot(Chart):
             trace = plot.data[0]
             fig.add_trace(trace, row=1, col=idx + 1)
 
-            # Add description annotation underneath the subplot, lower than axes labels
+            # Break down description into segments of four words each for long descriptions
+            words = chart.description.split()
+            if len(words) > 12:
+                description_lines = [words[i : i + 4] for i in range(0, len(words), 4)]
+                multiline_description = "<br>".join(
+                    " ".join(line) for line in description_lines
+                )
+                annotation_text = multiline_description
+                annotation_height = annotation_multi_height
+            else:
+                annotation_text = chart.description
+                annotation_height = annotation_single_height
+
+            # Add annotation for the description
             annotation = dict(
-                text=chart.description,
+                text=annotation_text,
                 align="center",
                 showarrow=False,
                 xref=f"x{idx + 1}",
                 yref="paper",
                 x=0.5,
-                y=-0.15,  # Adjust this value to further lower the description
+                y=annotation_height,
                 font=dict(size=10),
             )
             fig.add_annotation(annotation)
