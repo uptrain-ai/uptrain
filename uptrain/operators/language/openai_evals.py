@@ -49,7 +49,7 @@ class UptrainEvalRecorder(evals.record.RecorderBase):
 
 
 @register_op
-class OpenaiEval(ColumnOp):
+class OpenAIEval(ColumnOp):
     """
     Operator for running OpenAI evals.
 
@@ -202,7 +202,7 @@ class PromptEval(TransformOp):
         self._validate_data(data)
         prompts = self._construct_prompts(data)
 
-        eval_op = OpenaiEval(
+        eval_op = OpenAIEval(
             bundle_path=os.path.join(UPTRAIN_BASE_DIR, "openai_eval_custom"),
             completion_name=self.model_name,
             eval_name="model_run_all",

@@ -13,7 +13,7 @@ from uptrain.framework import Settings
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
 from uptrain.operators.base import *
-from uptrain.operators.language.openai_evals import OpenaiEval
+from uptrain.operators.language.openai_evals import OpenAIEval
 from uptrain.operators.language.llm import LLMMulticlient, Payload
 from evals.elsuite.modelgraded.classify_utils import (
     append_answer_prompt,
@@ -54,7 +54,7 @@ class OpenAIGradeScore(ColumnOp):
                 pl.col(self.col_in_completion).alias("completion"),
             ]
         )
-        grading_op = OpenaiEval(
+        grading_op = OpenAIEval(
             bundle_path="",
             completion_name="gpt-3.5-turbo",
             eval_name=self.eval_name,
