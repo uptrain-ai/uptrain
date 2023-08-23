@@ -22,7 +22,14 @@ from uptrain.utilities import lazy_load_dep
 px = lazy_load_dep("plotly.express", "plotly")
 ps = lazy_load_dep("plotly.subplots", "plotly")
 
-__all__ = ["BarChart", "LineChart", "ScatterPlot", "Histogram", "MultiPlot", "CustomPlotlyChart"]
+__all__ = [
+    "BarChart",
+    "LineChart",
+    "ScatterPlot",
+    "Histogram",
+    "MultiPlot",
+    "CustomPlotlyChart",
+]
 
 
 # Not to be used as an operator, only as a base class
@@ -32,13 +39,41 @@ class Chart(OpBaseModel):
     x: str = ""
     y: str = ""
     color: str = ""
+    description: str = ""
 
     def setup(self, settings: Settings = None):
-        self.props = self.props | {k: v for k, v in [("x", self.x), ("y", self.y), ("color", self.color), ("title", self.title)] if v}
+        self.props = self.props | {
+            k: v
+            for k, v in [
+                ("x", self.x),
+                ("y", self.y),
+                ("color", self.color),
+                ("title", self.title),
+                ("description", self.description),
+            ]
+            if v
+        }
         return self
-    
+
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         chart = getattr(px, self.kind)(data.to_pandas(), **self.props)
+
+        # Add annotation based on the description
+        if self.description:
+            chart.update_layout(
+                annotations=[
+                    dict(
+                        text=self.description,
+                        x=0.5,
+                        y=-0.25,
+                        xref="paper",
+                        yref="paper",
+                        showarrow=False,
+                        align="center",
+                    )
+                ]
+            )
+
         return {"output": None, "extra": {"chart": chart}}
 
 
@@ -54,7 +89,7 @@ class CustomPlotlyChart(Chart):
         y (str): The name of the column to use for the y-axis.
         color (str): The name of the column to use for the color.
         kind (str): The type of chart to generate.
-
+        description : str = ""
     Returns:
         dict: A dictionary containing the chart object.
 
@@ -85,6 +120,7 @@ class CustomPlotlyChart(Chart):
     title: str = ""
     x: str = ""
     y: str = ""
+    description: str = ""
     color: str = ""
     kind: str = Field(default_factory=str)
 
@@ -101,7 +137,7 @@ class BarChart(Chart):
         color (str): The name of the column to use for the color.
         barmode (str): The type of bar chart to generate.
         title (str): The title of the chart.
-
+        description : str = ""
     Returns:
         dict: A dictionary containing the chart object.
 
@@ -128,12 +164,13 @@ class BarChart(Chart):
 
     """
 
-
     props: dict = Field(default_factory=dict)
     title: str = ""
     x: str = ""
     y: str = ""
+    description: str = ""
     color: str = ""
+
     barmode: str = "group"
 
     kind = "bar"
@@ -150,7 +187,7 @@ class LineChart(Chart):
         y (str): The name of the column to use for the y-axis.
         color (str): The name of the column to use for the color.
         title (str): The title of the chart.
-
+        description : str = ""
     Returns:
         dict: A dictionary containing the chart object.
 
@@ -177,11 +214,11 @@ class LineChart(Chart):
 
     """
 
-
     props: dict = Field(default_factory=dict)
     title: str = ""
     x: str = ""
     y: str = ""
+    description: str = ""
     color: str = ""
 
     kind = "line"
@@ -198,7 +235,7 @@ class ScatterPlot(Chart):
         x (str): The name of the column to use for the x-axis.
         y (str): The name of the column to use for the y-axis.
         color (str): The name of the column to use for the color.
-
+        description : str = ""
     Returns:
         dict: A dictionary containing the chart object.
 
@@ -225,11 +262,11 @@ class ScatterPlot(Chart):
 
     """
 
-
     props: dict = Field(default_factory=dict)
     title: str = ""
     x: str = ""
     y: str = ""
+    description: str = ""
     color: str = ""
     symbol: str = "circle"
 
@@ -248,7 +285,7 @@ class Histogram(Chart):
         y (str): The name of the column to use for the y-axis.
         color (str): The name of the column to use for the color.
         nbins (int): The maximum number of bins to use for the histogram.
-
+        description : str = ""
     Returns:
         dict: A dictionary containing the chart object.
 
@@ -275,11 +312,11 @@ class Histogram(Chart):
 
     """
 
-
     props: dict = Field(default_factory=dict)
     title: str = ""
     x: str = ""
     y: str = ""
+    description: str = ""
     color: str = ""
     nbins: int = 20
 
@@ -295,7 +332,7 @@ class MultiPlot(Chart):
         props (dict): Additional properties to pass to the MultiPlot constructor.
         title (str): The title of the chart.
         charts (list): A list of charts to display in the subplot.
-
+        description : str = ""
     Returns:
         dict: A dictionary containing the chart object.
 
@@ -316,7 +353,7 @@ class MultiPlot(Chart):
             charts=[
                 LineChart(
                     x="x",
-                    y="y", 
+                    y="y",
                     title="Line Chart"
                 ),
                 ScatterPlot(
@@ -349,6 +386,7 @@ class MultiPlot(Chart):
 
     props: dict = Field(default_factory=dict)
     title: str = ""
+    description: str = ""
     charts: list
 
     kind = "multiplot"
@@ -356,16 +394,42 @@ class MultiPlot(Chart):
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         if type(self.charts[0]) == dict:
             self.charts = [Chart(**chart).setup() for chart in self.charts]
-        subplot = ps.make_subplots(
+
+        fig = ps.make_subplots(
             rows=1,
             cols=len(self.charts),
+            shared_xaxes=True,
+            shared_yaxes=True,
+            horizontal_spacing=0.05,
             subplot_titles=[chart.title for chart in self.charts],
         )
 
-        for chart in self.charts:
+        for idx, chart in enumerate(self.charts):
             plot = getattr(px, chart.kind)(data.to_pandas(), **chart.props)
-            subplot.add_trace(plot.to_dict()["data"][0], row=1, col=self.charts.index(chart) + 1)
 
-        subplot.update_layout(title_text=self.title)
-        return {"output": None, "extra": {"chart": subplot}}
+            # Use only the first trace from the plot
+            trace = plot.data[0]
+            fig.add_trace(trace, row=1, col=idx + 1)
 
+            # Add description annotation underneath the subplot, lower than axes labels
+            annotation = dict(
+                text=chart.description,
+                align="center",
+                showarrow=False,
+                xref=f"x{idx + 1}",
+                yref="paper",
+                x=0.5,
+                y=-0.15,  # Adjust this value to further lower the description
+                font=dict(size=10),
+            )
+            fig.add_annotation(annotation)
+
+        fig.update_layout(
+            title_text=self.title,
+            showlegend=False,
+            width=800,
+            height=400,
+            margin=dict(t=100, b=50),  # Adjust the bottom margin to center the title
+        )
+
+        return {"output": None, "extra": {"chart": fig}}

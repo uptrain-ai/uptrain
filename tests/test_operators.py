@@ -206,21 +206,25 @@ def test_chart_operators():
             LineChart(
                 x="x",
                 y="y",
-                title="Line Chart"
+                title="Line Chart",
+                description ="Line Chart"
             ),
             ScatterPlot(
                 x="x",
                 y="y",
-                title="Scatter Plot"
+                title="Scatter Plot",
+                description ="Scatter Plot"
             ),
             BarChart(
                 x="x",
                 y="y",
-                title="Bar Chart"
+                title="Bar Chart",
+                description ="Bar Chart"
             ),
             Histogram(
                 x="x",
-                title="Histogram"
+                title="Histogram",
+                description = "Histogram"
             ),
             CustomPlotlyChart(
                 kind="funnel",
@@ -346,3 +350,4 @@ def test_text_comparison_operator():
 
     # Print the comparison results
     print(comparison)
+
