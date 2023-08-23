@@ -49,19 +49,13 @@ class Chart(OpBaseModel):
                 ("y", self.y),
                 ("color", self.color),
                 ("title", self.title),
-<<<<<<< HEAD
-=======
                 ("description", self.description),
->>>>>>> anush-docs
             ]
             if v
         }
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-<<<<<<< HEAD
-        chart = getattr(px, self.kind)(polars_to_pandas(data), **self.props)
-=======
         chart = getattr(px, self.kind)(data.to_pandas(), **self.props)
 
         # Add annotation based on the description
@@ -80,7 +74,6 @@ class Chart(OpBaseModel):
                 ]
             )
 
->>>>>>> anush-docs
         return {"output": None, "extra": {"chart": chart}}
 
 
@@ -412,16 +405,6 @@ class MultiPlot(Chart):
             subplot_titles=[chart.title for chart in self.charts],
         )
 
-<<<<<<< HEAD
-        for chart in self.charts:
-            plot = getattr(px, chart.kind)(polars_to_pandas(data), **chart.props)
-            subplot.add_trace(
-                plot.to_dict()["data"][0], row=1, col=self.charts.index(chart) + 1
-            )
-
-        subplot.update_layout(title_text=self.title)
-        return {"output": None, "extra": {"chart": subplot}}
-=======
         annotation_single_height = (
             -0.1
         )  # Adjust this value for single-line annotation position
@@ -474,4 +457,3 @@ class MultiPlot(Chart):
         )
 
         return {"output": None, "extra": {"chart": fig}}
->>>>>>> anush-docs
