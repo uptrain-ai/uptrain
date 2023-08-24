@@ -337,7 +337,7 @@ class MultiPlot(Chart):
         props (dict): Additional properties to pass to the MultiPlot constructor.
         title (str): The title of the chart.
         charts (list): A list of charts to display in the subplot.
-        description (str): Add a description of the chart being created.
+        description (str): Add a description of the chart being created. (supports upto 70 characters without overlapping on graph)
         
     Returns:
         dict: A dictionary containing the chart object.
