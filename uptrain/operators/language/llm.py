@@ -64,16 +64,28 @@ async def async_process_payload(
                     isinstance(
                         exc,
                         (
-                            openai.error.RateLimitError,
                             openai.error.ServiceUnavailableError,
-                            openai.error.APIError,
                             openai.error.APIConnectionError,
+                            openai.error.RateLimitError,
+                            openai.error.APIError,
                             openai.error.Timeout,
+                            openai.error.TryAgain,
                         ),
                     )
                     and count < max_retries - 1
                 ):
                     await asyncio.sleep(random.uniform(0.5, 1.5) * count + 1)
+                elif (
+                    isinstance(exc, openai.error.InvalidRequestError)
+                    and "context_length" in exc.code
+                    and count < max_retries - 1
+                ):
+                    # refer - https://github.com/BerriAI/reliableGPT/
+                    # TODO: check the model being used and not always switch to 3.5 16k variant
+                    payload.data["model"] = "gpt-3.5-turbo-16k"
+                    logger.info(
+                        f"Switching to 16k model for payload {payload.metadata['index']}"
+                    )
                 else:
                     payload.error = str(exc)
                     break
