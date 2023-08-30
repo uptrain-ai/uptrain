@@ -192,7 +192,7 @@ class APIClient:
         """Get the status of a schedule.
 
         Args:
-            schedule_id: unique identifier for the run.
+            schedule_id: unique identifier for the schedule.
 
         Returns:
             run: information about the schedule along with a unique identifier.
@@ -205,7 +205,7 @@ class APIClient:
         """Remove a schedule.
 
         Args:
-            schedule_id: unique identifier for the run.
+            schedule_id: unique identifier for the schedule.
 
         Returns:
             run: information about the schedule along with a unique identifier.
@@ -219,6 +219,22 @@ class APIClient:
         url = f"{self.base_url}/schedules"
         params: dict = {"num": num, "active_only": active_only}
         response = self.client.get(url, params=params)
+        return raise_or_return(response)
+
+    def rerun_schedule(self, schedule_id: str, start_on: str):
+        """Rerun a schedule.
+        - New checks added to the checkset are run for all dates
+        - Existing checks are run only on the failed rows.
+
+        Args:
+            schedule_id: unique identifier for the run.
+            start_on: date to start the reruns on
+
+        Returns:
+            run: information about the schedule along with a unique identifier.
+        """
+        url = f"{self.base_url}/schedule/{schedule_id}/rerun"
+        response = self.client.put(url, params={"start_on": start_on})
         return raise_or_return(response)
 
     def evaluate(
