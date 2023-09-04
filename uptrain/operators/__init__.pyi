@@ -50,6 +50,7 @@ __all__ = [
     "ContextRelevance",
     "ResponseRelevance",
     "ResponseCompleteness",
+    "ResponseCompletenessWrtContext",
     "LanguageCritique",
     "ToneCritique",
     # io - also include all the subimports
@@ -112,6 +113,7 @@ from .language.with_context import (
     ContextRelevance,
     ResponseCompleteness,
     ResponseRelevance,
+    ResponseCompletenessWrtContext,
 )
 from .language.critique import LanguageCritique, ToneCritique
 
