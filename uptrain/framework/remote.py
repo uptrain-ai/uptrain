@@ -221,7 +221,9 @@ class APIClient:
         response = self.client.get(url, params=params)
         return raise_or_return(response)
 
-    def rerun_schedule(self, schedule_id: str, start_on: str):
+    def rerun_schedule(
+        self, schedule_id: str, start_on: str, end_on: t.Optional[str] = None
+    ):
         """Rerun a schedule.
         - New checks added to the checkset are run for all dates
         - Existing checks are run only on the failed rows.
@@ -229,12 +231,16 @@ class APIClient:
         Args:
             schedule_id: unique identifier for the run.
             start_on: date to start the reruns on
+            end_on: date to end the reruns on
 
         Returns:
             run: information about the schedule along with a unique identifier.
         """
         url = f"{self.base_url}/schedule/{schedule_id}/rerun"
-        response = self.client.put(url, params={"start_on": start_on})
+        params = {"start_on": start_on}
+        if end_on is not None:
+            params["end_on"] = end_on
+        response = self.client.put(url, params=params)
         return raise_or_return(response)
 
     def evaluate(
