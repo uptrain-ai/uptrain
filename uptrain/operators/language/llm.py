@@ -12,6 +12,7 @@ import aiolimiter
 from loguru import logger
 from tqdm.asyncio import tqdm_asyncio
 from pydantic import BaseModel, Field
+from litellm import acompletion
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
@@ -22,6 +23,8 @@ openai = lazy_load_dep("openai", "openai")
 if t.TYPE_CHECKING:
     import openai
     import openai.error
+import cohere
+import cohere.error
 
 
 # -----------------------------------------------------------
@@ -34,7 +37,6 @@ if t.TYPE_CHECKING:
 
 
 class Payload(BaseModel):
-    endpoint: str
     data: dict
     metadata: dict = Field(default_factory=dict)
     response: t.Any = None
@@ -49,16 +51,12 @@ async def async_process_payload(
             max_retries
         ):  # failed requests don't count towards rate limit
             try:
-                if payload.endpoint == "chat.completions":
-                    payload.response = await openai.ChatCompletion.acreate(
-                        **payload.data, request_timeout=10
-                    )
-                    break
-                else:
-                    raise ValueError(f"Unknown endpoint: {payload.endpoint}")
+                payload.response = await acompletion(
+                    **payload.data, 
+                )
             except Exception as exc:
                 logger.error(
-                    f"Error when sending request to openai API: {payload.error}"
+                    f"Error when sending request to LLM API: {exc}"
                 )
                 if (
                     isinstance(
@@ -70,19 +68,28 @@ async def async_process_payload(
                             openai.error.APIError,
                             openai.error.Timeout,
                             openai.error.TryAgain,
+                            cohere.error.CohereAPIError,
+                            cohere.error.CohereConnectionError,
+                            cohere.error.CohereError,                            
                         ),
                     )
-                    and count < max_retries - 1
                 ):
                     await asyncio.sleep(random.uniform(0.5, 1.5) * count + 1)
                 elif (
                     isinstance(exc, openai.error.InvalidRequestError)
                     and "context_length" in exc.code
-                    and count < max_retries - 1
                 ):
                     # refer - https://github.com/BerriAI/reliableGPT/
-                    # TODO: check the model being used and not always switch to 3.5 16k variant
-                    payload.data["model"] = "gpt-3.5-turbo-16k"
+                    # if required to set token limit - https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/chatgpt?pivots=programming-language-chat-completions#managing-conversations
+                    
+                    fallback = {
+                        "gpt-3.5-turbo": "gpt-3.5-turbo-16k",
+                        "gpt-3.5-turbo-0613": "gpt-3.5-turbo-16k-0613",
+                        "gpt-4": "gpt-4-32k",
+                        "gpt-4-0613": "gpt-4-32k-0613",
+                    }
+
+                    payload.data["model"] = fallback[payload.data["model"]]
                     logger.info(
                         f"Switching to 16k model for payload {payload.metadata['index']}"
                     )
@@ -94,7 +101,7 @@ async def async_process_payload(
 
 
 class LLMMulticlient:
-    """Uses asyncio to send requests to the OpenAI API concurrently."""
+    """Uses asyncio to send requests to LLM APIs concurrently."""
 
     def __init__(self, settings: t.Optional[Settings] = None):
         self._max_tries = 4
@@ -123,7 +130,7 @@ class LLMMulticlient:
     async def async_fetch_responses(
         self, input_payloads: list[Payload]
     ) -> list[Payload]:
-        limiter = aiolimiter.AsyncLimiter(self._rpm_limit, time_period=1)
+        limiter = aiolimiter.AsyncLimiter(self._rpm_limit)
         async_outputs = [
             async_process_payload(data, limiter, self._max_tries)
             for data in input_payloads
