@@ -1,6 +1,7 @@
 import os
 import sys
 import typing as t
+import numpy as np
 
 from loguru import logger
 import streamlit as st
@@ -77,6 +78,12 @@ def st_filter_template(df, attribute, default_all=False):
 
 
 def st_show_table(data: pl.DataFrame):
+    # Add a column for index
+    data = data.insert_at_idx(0, pl.Series("index", np.arange(1, data.height+1)))
+
+    # Add a column with all values as 1
+    data = data.with_columns(pl.lit("").alias("default"))
+
     # Hide Columns
     hide_columns = st.multiselect("Choose columns to hide", data.columns, default=[])
 
@@ -92,7 +99,7 @@ def st_show_table(data: pl.DataFrame):
         data = data.filter(pl.col(column).is_in(values))
 
     pd_data = polars_to_pandas(data.drop(hide_columns))
-    st.dataframe(pd_data)
+    st.dataframe(pd_data, hide_index=True)
 
     # Pivot Table
     st.write("Pivot Table")
@@ -100,6 +107,9 @@ def st_show_table(data: pl.DataFrame):
     pivot["index"] = st.multiselect("Choose Index", pd_data.columns, default=[])
     pivot["values"] = st.multiselect("Choose values", pd_data.columns, default=[])
     pivot["columns"] = st.multiselect("Choose columns", pd_data.columns, default=[])
+    pivot["aggfunc"] = st.selectbox(
+        "Choose aggfunc", ["mean", "sum", "count", "min", "max", "median"]
+    )
     if pivot["index"] and pivot["values"] and pivot["columns"]:
         st.dataframe(
             pd.pivot_table(
