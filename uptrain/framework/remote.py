@@ -67,6 +67,26 @@ class APIClient:
         response = self.client.get(url, params=params)
         return raise_or_return(response)
 
+    def download_dataset(self, name: str, fpath: str, version: t.Optional[int] = None) -> None:
+        """
+        Download a dataset from the server.
+        Args:
+            name: name of the dataset to download
+            fpath: path to save the dataset to
+        """
+        url = f"{self.base_url}/dataset/{name}/download"
+        params: dict = {}
+        if version is not None:
+            params["version"] = version
+        response = self.client.get(url, params=params)
+        if not response.is_success:
+            logger.error(response.text)
+            response.raise_for_status()
+        else:
+            with open(fpath, "wb") as download_file:
+                for chunk in response.iter_bytes():
+                    download_file.write(chunk)
+
     def add_checkset(self, name: str, checkset: CheckSet, settings: Settings):
         url = f"{self.base_url}/checkset"
         response = self.client.post(
