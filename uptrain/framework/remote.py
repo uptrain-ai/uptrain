@@ -67,12 +67,16 @@ class APIClient:
         response = self.client.get(url, params=params)
         return raise_or_return(response)
 
-    def download_dataset(self, name: str, fpath: str, version: t.Optional[int] = None) -> None:
+    def download_dataset(
+        self, name: str, fpath: str, version: t.Optional[int] = None
+    ) -> None:
         """
         Download a dataset from the server.
+
         Args:
             name: name of the dataset to download
             fpath: path to save the dataset to
+            version: version of the dataset to download. If None, the latest version is downloaded.
         """
         url = f"{self.base_url}/dataset/{name}/download"
         params: dict = {}
