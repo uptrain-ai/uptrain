@@ -72,12 +72,13 @@ async def async_process_payload(
                             cohere.error.CohereConnectionError,
                             cohere.error.CohereError,                            
                         ),
-                    )
+                    ) and count < max_retries - 1
                 ):
                     await asyncio.sleep(random.uniform(0.5, 1.5) * count + 1)
                 elif (
                     isinstance(exc, openai.error.InvalidRequestError)
                     and "context_length" in exc.code
+                    and count < max_retries - 1
                 ):
                     # refer - https://github.com/BerriAI/reliableGPT/
                     # if required to set token limit - https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/chatgpt?pivots=programming-language-chat-completions#managing-conversations
@@ -105,7 +106,7 @@ class LLMMulticlient:
 
     def __init__(self, settings: t.Optional[Settings] = None):
         self._max_tries = 4
-        self._rpm_limit = 10
+        self._rpm_limit = 20
         if settings is not None:
             openai.api_key = settings.check_and_get("openai_api_key")  # type: ignore
             self._rpm_limit = settings.check_and_get("openai_rpm_limit")
