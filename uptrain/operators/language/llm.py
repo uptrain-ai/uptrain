@@ -54,6 +54,7 @@ async def async_process_payload(
                 payload.response = await acompletion(
                     **payload.data, 
                 )
+                break
             except Exception as exc:
                 logger.error(
                     f"Error when sending request to LLM API: {exc}"
