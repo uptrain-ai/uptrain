@@ -77,6 +77,7 @@ async def async_process_payload(
                             cohere.error.CohereAPIError,
                             cohere.error.CohereConnectionError,
                             cohere.error.CohereError,                            
+
                         ),
                     ) and count < max_retries - 1
                 ):
@@ -97,6 +98,8 @@ async def async_process_payload(
                     }
 
                     payload.data["model"] = fallback[payload.data["model"]]
+                    # TODO: check the model being used and not always switch to 3.5 16k variant
+                    payload.data["model"] = "gpt-3.5-turbo-16k"
                     logger.info(
                         f"Switching to 16k model for payload {payload.metadata['index']}"
                     )
@@ -112,7 +115,7 @@ class LLMMulticlient:
 
     def __init__(self, settings: t.Optional[Settings] = None):
         self._max_tries = 4
-        self._rpm_limit = 20
+        self._rpm_limit = 10
         if settings is not None:
             openai.api_key = settings.check_and_get("openai_api_key")  # type: ignore
             self._rpm_limit = settings.check_and_get("openai_rpm_limit")
