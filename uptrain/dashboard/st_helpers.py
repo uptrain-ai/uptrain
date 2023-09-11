@@ -84,6 +84,9 @@ def st_show_table(data: pl.DataFrame):
     # Add a column with all values as 1
     data = data.with_columns(pl.lit("").alias("default"))
 
+    # Add a scores column wth random values
+    data = data.with_columns(pl.lit(np.random.rand(data.height)).alias("scores"))
+
     # Hide Columns
     hide_columns = st.multiselect("Choose columns to hide", data.columns, default=[])
 
@@ -108,7 +111,7 @@ def st_show_table(data: pl.DataFrame):
     pivot["values"] = st.multiselect("Choose values", pd_data.columns, default=[])
     pivot["columns"] = st.multiselect("Choose columns", pd_data.columns, default=[])
     pivot["aggfunc"] = st.selectbox(
-        "Choose aggfunc", ["mean", "sum", "count", "min", "max", "median"]
+        "Choose aggfunc", ["mean", "sum", "count", "min", "max", "median", "first", "last"]
     )
     if pivot["index"] and pivot["values"] and pivot["columns"]:
         st.dataframe(
