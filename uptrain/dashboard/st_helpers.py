@@ -113,6 +113,17 @@ def st_show_table(data: pl.DataFrame):
     pivot["aggfunc"] = st.selectbox(
         "Choose aggfunc", ["mean", "sum", "count", "min", "max", "median", "first", "last"]
     )
+    aggfunc = dict()
+    if pivot["aggfunc"] not in ["count", "first", "last"]:
+        for value in pivot["values"]:
+            print(value)
+            if pd_data[value].dtype == "object":
+                aggfunc[value] = "count"
+            else:
+                aggfunc[value] = pivot["aggfunc"]
+    if not aggfunc:
+        aggfunc = pivot["aggfunc"]
+
     if pivot["index"] and pivot["values"] and pivot["columns"]:
         st.dataframe(
             pd.pivot_table(
@@ -120,6 +131,6 @@ def st_show_table(data: pl.DataFrame):
                 index=pivot["index"],
                 values=pivot["values"],
                 columns=pivot["columns"],
-                aggfunc=pivot["aggfunc"],
+                aggfunc=aggfunc,
             )
         )
