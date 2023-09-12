@@ -79,13 +79,10 @@ def st_filter_template(df, attribute, default_all=False):
 
 def st_show_table(data: pl.DataFrame):
     # Add a column for index
-    data = data.insert_at_idx(0, pl.Series("index", np.arange(1, data.height+1)))
+    data = data.insert_at_idx(0, pl.Series("index", np.arange(1, data.height + 1)))
 
     # Add a column with all values as 1
     data = data.with_columns(pl.lit("").alias("default"))
-
-    # Add a scores column wth random values
-    data = data.with_columns(pl.lit(np.random.rand(data.height)).alias("scores"))
 
     # Hide Columns
     hide_columns = st.multiselect("Choose columns to hide", data.columns, default=[])
@@ -109,18 +106,27 @@ def st_show_table(data: pl.DataFrame):
     pivot = {"index": [], "values": [], "columns": [], "aggfunc": "mean"}
     pivot["index"] = st.multiselect("Choose Index", pd_data.columns, default=[])
     pivot["values"] = st.multiselect("Choose values", pd_data.columns, default=[])
-    pivot["columns"] = st.multiselect("Choose columns", pd_data.columns, default=[])
-    pivot["aggfunc"] = st.selectbox(
-        "Choose aggfunc", ["mean", "sum", "count", "min", "max", "median", "first", "last"]
+    pivot["columns"] = st.multiselect(
+        "Choose columns", pd_data.columns, default=["default"]
     )
+    pivot["aggfunc"] = st.selectbox(
+        "Choose aggfunc",
+        ["mean", "sum", "count", "min", "max", "median", "first", "last"],
+    )
+
     aggfunc = dict()
     if pivot["aggfunc"] not in ["count", "first", "last"]:
+        remove_values = []
         for value in pivot["values"]:
-            print(value)
             if pd_data[value].dtype == "object":
-                aggfunc[value] = "count"
+                if "count" not in aggfunc.values():
+                    aggfunc[value] = "count"
+                else:
+                    remove_values.append(value)
             else:
                 aggfunc[value] = pivot["aggfunc"]
+        for value in remove_values:
+            pivot["values"].remove(value)
     if not aggfunc:
         aggfunc = pivot["aggfunc"]
 
