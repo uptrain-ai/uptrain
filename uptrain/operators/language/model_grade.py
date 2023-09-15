@@ -5,6 +5,7 @@ Implement checks to test if a piece of text has been taken from a source.
 from __future__ import annotations
 import typing as t
 import os
+import copy 
 
 from loguru import logger
 import polars as pl
@@ -15,11 +16,167 @@ if t.TYPE_CHECKING:
 from uptrain.operators.base import *
 from uptrain.operators.language.openai_evals import OpenaiEval
 from uptrain.operators.language.llm import LLMMulticlient, Payload
-from evals.elsuite.modelgraded.classify_utils import (
-    append_answer_prompt,
-    get_choice,
-    get_choice_score,
-)
+# from evals.elsuite.modelgraded.classify_utils import (
+#     # append_answer_prompt,
+#     # get_choice,
+#     # get_choice_score,
+# )
+
+import logging
+import string
+from typing import Any, Callable, Iterable, Optional, Union
+
+MATCH_FNS = {
+    "include": lambda x, y: float(x in y),
+    "exact": lambda x, y: float(x == y),
+    "endswith": lambda x, y: x.endswith(y),
+    "starts_or_endswith": lambda x, y: x.startswith(y) or x.endswith(y),
+}
+INVALID_STR = "__invalid__"
+
+ANSWER_PROMPTS = {
+    # e.g. "Yes"
+    "classify": "Answer the question by printing only a single choice from {choices} (without quotes or punctuation) corresponding to the correct answer with no other text.".strip(),
+    # e.g. "Yes\n The reasons are: ..."
+    "classify_cot": "First, answer by printing a single choice from {choices} (without quotes or punctuation) corresponding to the correct answer. Then, from the next line, explain your reasonings step by step.".strip(),
+    # e.g. "Let's think step by step. ...\nYes"
+    "cot_classify": """
+First, write out in a step by step manner your reasoning to be sure that your conclusion is correct. Avoid simply stating the correct answer at the outset. Then print only a single choice from {choices} (without quotes or punctuation) on its own line corresponding to the correct answer. At the end, repeat just the answer by itself on a new line. IN THE LAST LINE, YOU SHOULD REPEAT ONLY THE ALPHABET AMONG {choices}, NOT ANYTHING ELSE, NO BRACKETS, NO CHOICE TEXT!!!
+
+Reasoning:""".strip(),
+}
+
+def get_choice_score(
+    choice: str,
+    choice_strings: Iterable[str],
+    choice_scores: Optional[Union[dict[str, float], str]] = None,
+) -> Optional[float]:
+    if choice_scores is None:
+        return None
+    if choice_scores == "from_strings":
+        choice_scores = {c: float(c) for c in choice_strings}
+    # assumption: each INVALID_STR contributes the lowest score
+    if choice == INVALID_STR:
+        return min(choice_scores.values())
+    return choice_scores[choice]
+
+def choice_to_str(choice_strings: Iterable[str]) -> str:
+    """Return a string of choices, e.g. '"Yes" or "No" or "Maybe"'."""
+    return " or ".join(f'"{choice}"' for choice in choice_strings)
+
+def append_answer_prompt(
+    prompt: list,
+    eval_type: str,
+    append_type: str = "as_content",
+    answer_prompt: Optional[list] = None,
+    choice_strings: Optional[Iterable[str]] = None,
+) -> list:
+    """Append answer prompt to prompt."""
+    answer_prompt = answer_prompt or ANSWER_PROMPTS[eval_type] #.format(**{"choice_strings": ','.join(choice_strings)})
+    answer_prompt = format_prompt(answer_prompt, choices=choice_to_str(choice_strings))
+    if append_type == "as_content":
+        assert isinstance(answer_prompt, str), f"prompt must be str, not {type(answer_prompt)}"
+        prompt[-1]["content"] += "\n\n" + answer_prompt
+    elif append_type == "as_message":
+        assert is_chat_prompt(answer_prompt), f"prompt must be chat prompt, not {answer_prompt}"
+        prompt += answer_prompt
+    else:
+        raise ValueError(f"append_type must be 'as_content' or 'as_message', not {append_type}")
+    return prompt
+
+
+def is_chat_prompt(prompt) -> bool:
+    return isinstance(prompt, list) and all(isinstance(msg, dict) for msg in prompt)
+
+def chat_prompt_to_text_prompt(prompt: list, for_completion: bool = True) -> str:
+    """
+    Render a chat prompt as a text prompt. User and assistant messages are separated by newlines
+    and prefixed with "User: " and "Assistant: ", respectively, unless there is only one message.
+    System messages have no prefix.
+    """
+    assert is_chat_prompt(prompt), f"Expected a chat prompt, got {prompt}"
+    chat_to_prefixes = {
+        # roles
+        "system": "",
+        # names
+        "example_user": "User: ",
+        "example_assistant": "Assistant: ",
+    }
+
+    # For a single message, be it system, user, or assistant, just return the message
+    if len(prompt) == 1:
+        return prompt[0]["content"]
+
+    text = ""
+    for msg in prompt:
+        role = msg["name"] if "name" in msg else msg["role"]
+        prefix = chat_to_prefixes.get(role, role.capitalize() + ": ")
+        content = msg["content"]
+        text += f"{prefix}{content}\n"
+    if for_completion:
+        text += "Assistant: "
+    return text.lstrip()
+
+def format_necessary(template: str, allow_missing: bool = False, **kwargs: dict[str, str]) -> str:
+    """Format a template string with only necessary kwargs."""
+    keys = [k[1] for k in string.Formatter().parse(template) if k[1]]
+    if allow_missing:
+        assert (
+            len([k for k in keys if k in kwargs]) > 0
+        ), f"Required: {keys}, got: {sorted(kwargs)}, no inputs are used.\nTemplate:\n{template}"
+        cur_keys = {k: kwargs.get(k, "{" + k + "}") for k in keys}
+    else:
+        assert all(
+            k in kwargs for k in keys
+        ), f"Required: {keys}, got: {sorted(kwargs)}.\nTemplate:\n{template}"
+        cur_keys = {k: kwargs[k] for k in keys}
+    return template.format(**cur_keys)
+
+
+def format_prompt(
+    prompt: list, allow_missing: bool = False, **kwargs: dict[str, str]
+) -> list:
+    """Format a prompt with only necessary kwargs."""
+    # if any input kwargs is chat prompt, convert to text prompt
+    kwargs = {
+        k: chat_prompt_to_text_prompt(v, for_completion=False) if is_chat_prompt(v) else v
+        for k, v in kwargs.items()
+    }
+    if is_chat_prompt(prompt):
+        new_prompt = []
+        for msg in prompt:
+            formatted_msg = copy.copy(msg)
+            if "content" in formatted_msg:
+                formatted_msg["content"] = format_necessary(
+                    formatted_msg["content"], allow_missing=allow_missing, **kwargs
+                )
+            new_prompt.append(formatted_msg)
+        prompt = new_prompt
+    else:
+        # Prompt is a string
+        prompt = format_necessary(prompt, allow_missing=allow_missing, **kwargs)
+    return prompt
+
+
+def get_choice(
+    text: str, eval_type: str, match_fn: Union[str, Callable], choice_strings: Iterable[str]
+) -> str:
+    """Clean the answer string to a choice string to one of choice_strings. Return '__invalid__.' if no match."""
+    if isinstance(match_fn, str):
+        match_fn = MATCH_FNS[match_fn]
+    lines = text.strip().split("\n")
+    if eval_type.startswith("cot_classify"):
+        lines = lines[::-1]  # reverse lines
+    for line in lines:
+        line = line.strip()
+        line = "".join(c for c in line if c not in string.punctuation)
+        if not line:
+            continue
+        for choice in choice_strings:
+            if match_fn(line, choice):
+                return choice
+    logging.warn(f"Choices {choice_strings} not parsable for {eval_type}: {text}")
+    return INVALID_STR
 
 
 @register_op
@@ -141,7 +298,7 @@ class ModelGradeScore(ColumnOp):
                     choice = get_choice(
                         text=resp_text,
                         eval_type=self.eval_type,
-                        match_fn="starts_or_endswith",
+                        match_fn="endswith",
                         choice_strings=self.choice_strings,
                     )
                     score = get_choice_score(

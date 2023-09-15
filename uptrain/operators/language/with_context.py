@@ -106,6 +106,43 @@ class ResponseCompleteness(ColumnOp):
 
 
 @register_op
+class ResponseCompletenessWrtContext(ColumnOp):
+    """
+    Grade how complete the generated response was for the question specified given the information provided in the context.
+    """
+
+    col_question: str = "question"
+    col_response: str = "response"
+    col_context: str = "context"
+
+    def setup(self, settings: t.Optional[Settings] = None):
+        from uptrain.framework.remote import APIClient
+
+        assert settings is not None
+        self._api_client = APIClient(settings)
+        return self
+
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
+        data_send = [
+            {
+                "question": row[self.col_question],
+                "response": row[self.col_response],
+                "context": row[self.col_context]
+            }
+            for row in data.to_dicts()
+        ]
+        try:
+            results = self._api_client.evaluate(
+                "score_response_completeness_wrt_context", data_send
+            )
+        except Exception as e:
+            logger.error(f"Failed to run evaluation for `ResponseCompletenessWrtContext`: {e}")
+            raise e
+
+        assert results is not None
+        return {"output": data.with_columns(pl.from_dicts(results))}
+
+@register_op
 class ContextRelevance(ColumnOp):
     """
     Grade how relevant the context was to the question asked.
