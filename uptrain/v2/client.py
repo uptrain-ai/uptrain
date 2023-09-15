@@ -75,7 +75,7 @@ class APIClient:
             schema: Schema of the data. Only required if the data attributes aren't typical (question, response, context).
             metadata: Attributes to attach to this dataset. Useful for filtering and grouping in the UI.
         """
-        url = f"{self.base_url}/evaluate"
+        url = f"{self.base_url}/evaluate_v2"
 
         if isinstance(data, pd.DataFrame):
             data = data.to_dict(orient="records")
@@ -97,7 +97,7 @@ class APIClient:
                 req_attrs.update([schema.response, schema.context])
             elif m == Metric.RESPONSE_RELEVANCE:
                 req_attrs.update([schema.question, schema.response])
-        for idx, row in data:
+        for idx, row in enumerate(data):
             if not req_attrs.issubset(row.keys()):
                 raise ValueError(
                     f"Row {idx} is missing required all required attributes for evaluation: {req_attrs}"
@@ -133,3 +133,19 @@ class APIClient:
                 results.extend(response_json)
 
         return results
+
+    def download_project_results(self, project_name: str, fpath: str):
+        """Fetch all the evaluation results for a project.
+
+        Args:
+            project_name: Name of the project to fetch results for.
+        """
+        url = f"{self.base_url}/evaluate_v2/{project_name}"
+        with self.client.stream("GET", url) as response:
+            if not response.is_success:
+                logger.error(response.text)
+                response.raise_for_status()
+            else:
+                with open(fpath, "w") as download_file:
+                    for chunk in response.iter_text():
+                        download_file.write(chunk)
