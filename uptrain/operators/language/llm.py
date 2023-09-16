@@ -136,9 +136,9 @@ class LLMMulticlient:
     async def async_fetch_responses(
         self, input_payloads: list[Payload]
     ) -> list[Payload]:
-        limiter = aiolimiter.AsyncLimiter(self._rpm_limit)
+        limiter = aiolimiter.AsyncLimiter(self._rpm_limit, time_period=1)
         async_outputs = [
-            async_process_payload(data, limiter, self._max_tries, time_period=1)
+            async_process_payload(data, limiter, self._max_tries)
             for data in input_payloads
         ]
         output_payloads = await tqdm_asyncio.gather(*async_outputs)
