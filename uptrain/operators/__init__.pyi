@@ -32,7 +32,7 @@ __all__ = [
     # language - also include all the subimports
     "language",
     "GrammarScore",
-    "OpenAIEval",
+    "OpenaiEval",
     "PromptEval",
     "Embedding",
     "RougeScore",
@@ -96,7 +96,7 @@ from .chart import (
 
 from . import language
 from .language.grammar import GrammarScore
-from .language.openai_evals import OpenAIEval, PromptEval
+from .language.openai_evals import OpenaiEval, PromptEval
 from .language.embedding import Embedding
 from .language.rouge import RougeScore
 from .language.text import (

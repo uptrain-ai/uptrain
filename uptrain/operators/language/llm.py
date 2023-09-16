@@ -74,10 +74,6 @@ async def async_process_payload(
                             openai.error.APIError,
                             openai.error.Timeout,
                             openai.error.TryAgain,
-                            cohere.error.CohereAPIError,
-                            cohere.error.CohereConnectionError,
-                            cohere.error.CohereError,                            
-
                         ),
                     ) and count < max_retries - 1
                 ):
@@ -142,7 +138,7 @@ class LLMMulticlient:
     ) -> list[Payload]:
         limiter = aiolimiter.AsyncLimiter(self._rpm_limit)
         async_outputs = [
-            async_process_payload(data, limiter, self._max_tries)
+            async_process_payload(data, limiter, self._max_tries, time_period=1)
             for data in input_payloads
         ]
         output_payloads = await tqdm_asyncio.gather(*async_outputs)

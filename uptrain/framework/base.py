@@ -27,9 +27,7 @@ class Settings(BaseSettings):
     openai_api_key: str = Field(None, env="OPENAI_API_KEY")
     cohere_api_key: str = Field(None, env="COHERE_API_KEY")
     huggingface_api_key: str = Field(None, env="HUGGINGFACE_API_KEY")
-    openai_rpm_limit: int = 2000
-    cohere_rpm_limit: int = 10000
-    huggingface_rpm_limit: int = 5000 # can handle up to 10k rpm, but needs to be throttled
+    openai_rpm_limit: int = 100
 
     # uptrain managed service related
     uptrain_access_token: str = Field(None, env="UPTRAIN_ACCESS_TOKEN")
