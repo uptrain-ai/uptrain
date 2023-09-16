@@ -23,8 +23,6 @@ openai = lazy_load_dep("openai", "openai")
 if t.TYPE_CHECKING:
     import openai
     import openai.error
-import cohere
-import cohere.error
 
 
 # -----------------------------------------------------------
