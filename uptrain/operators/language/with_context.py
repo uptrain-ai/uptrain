@@ -18,17 +18,17 @@ from uptrain.operators.base import *
 class ResponseFactualScore(ColumnOp):
     """
     Grade how factual the generated response was.
-    
+
      Attributes:
         col_question (str): Column name for the stored questions
-        col_context: (str) Coloumn name for stored context 
+        col_context: (str) Coloumn name for stored context
         col_response (str): Coloumn name for the stored responses
-    
+
     Raises:
         Exception: Raises exception for any failed evaluation attempts
-    
-   
-   
+
+
+
     """
 
     col_question: str = "question"
@@ -52,7 +52,7 @@ class ResponseFactualScore(ColumnOp):
             for row in data.to_dicts()
         ]
         try:
-            results = self._api_client.evaluate("score_factual_accuracy", data_send)
+            results = self._api_client.evaluate("factual_accuracy", data_send)
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ResponseFactualScore`: {e}")
             raise e
@@ -65,14 +65,14 @@ class ResponseFactualScore(ColumnOp):
 class ResponseCompleteness(ColumnOp):
     """
     Grade how complete the generated response was for the question specified.
-    
+
     Attributes:
         col_question (str): Column name for the stored questions
         col_response (str): Coloumn name for the stored responses
-    
+
     Raises:
-        Exception: Raises exception for any failed evaluation attempts   
-        
+        Exception: Raises exception for any failed evaluation attempts
+
     """
 
     col_question: str = "question"
@@ -94,9 +94,7 @@ class ResponseCompleteness(ColumnOp):
             for row in data.to_dicts()
         ]
         try:
-            results = self._api_client.evaluate(
-                "score_response_completeness", data_send
-            )
+            results = self._api_client.evaluate("response_completeness", data_send)
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ResponseCompleteness`: {e}")
             raise e
@@ -127,30 +125,33 @@ class ResponseCompletenessWrtContext(ColumnOp):
             {
                 "question": row[self.col_question],
                 "response": row[self.col_response],
-                "context": row[self.col_context]
+                "context": row[self.col_context],
             }
             for row in data.to_dicts()
         ]
         try:
             results = self._api_client.evaluate(
-                "score_response_completeness_wrt_context", data_send
+                "response_completeness_wrt_context", data_send
             )
         except Exception as e:
-            logger.error(f"Failed to run evaluation for `ResponseCompletenessWrtContext`: {e}")
+            logger.error(
+                f"Failed to run evaluation for `ResponseCompletenessWrtContext`: {e}"
+            )
             raise e
 
         assert results is not None
         return {"output": data.with_columns(pl.from_dicts(results))}
 
+
 @register_op
 class ContextRelevance(ColumnOp):
     """
     Grade how relevant the context was to the question asked.
-    
-    Attributes: 
+
+    Attributes:
         col_question: (str) Column Name for the stored questions
-        col_context: (str) Coloumn name for stored context 
-    
+        col_context: (str) Coloumn name for stored context
+
     Raises:
         Exception: Raises exception for any failed evaluation attempts
 
@@ -188,15 +189,15 @@ class ContextRelevance(ColumnOp):
 class ResponseRelevance(ColumnOp):
     """
     Grade how if the generated response has any additional irrelevant information for the question asked.
-    
+
     Attributes:
         col_question (str): Column name for the stored questions
         col_response (str): Coloumn name for the stored responses
-    
+
     Raises:
-        Exception: Raises exception for any failed evaluation attempts 
-    
-    
+        Exception: Raises exception for any failed evaluation attempts
+
+
     """
 
     col_question: str = "question"
@@ -218,9 +219,7 @@ class ResponseRelevance(ColumnOp):
             for row in data.to_dicts()
         ]
         try:
-            results = self._api_client.evaluate(
-                "score_response_relevance", data_send
-            )
+            results = self._api_client.evaluate("response_relevance", data_send)
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ResponseRelevance`: {e}")
             raise e
