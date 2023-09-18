@@ -43,7 +43,7 @@ class APIClient {
   }
 
   async log_and_evaluate(projectName, data, checks, schema = null, metadata = null) {
-    const url = "/evaluate_v2";
+    const url = "/log_and_evaluate";
 
     schema = schema ? new DataSchema(schema) : new DataSchema();
     metadata = metadata || {};
@@ -104,7 +104,7 @@ class APIClient {
   }
 
   async download_project_results(projectName, fpath) {
-    const url = `/evaluate_v2/${projectName}`;
+    const url = `/evaluation_results/${projectName}`;
     const response = await this.client.get(url);
     const fs = require("fs");
     fs.writeFileSync(fpath, response.data);
