@@ -3,15 +3,31 @@ This module implements a simple client that can be used to schedule unit-tests/e
 on the UpTrain server. 
 """
 
+import enum
 import typing as t
 
 from loguru import logger
 import httpx
 import polars as pl
+import pydantic
 
 from uptrain.framework.checks import CheckSet, ExperimentArgs
 from uptrain.framework.base import Settings
 from uptrain.utilities import to_py_types
+
+
+class DataSchema(pydantic.BaseModel):
+    id_: str = "id"
+    question: str = "question"
+    response: str = "response"
+    context: str = "context"
+    ground_truth: str = "ground_truth"
+
+
+class Evals(enum.Enum):
+    CONTEXT_RELEVANCE = "context_relevance"
+    FACTUAL_ACCURACY = "factual_accuracy"
+    RESPONSE_RELEVANCE = "response_relevance"
 
 
 def raise_or_return(response: httpx.Response):
@@ -270,7 +286,7 @@ class APIClient:
     def evaluate(
         self,
         eval_name: str,
-        full_dataset: list[dict],
+        full_dataset: t.Union[list[dict], pl.DataFrame],
         params: dict | None = None,
     ):
         """Run an evaluation on the server.
@@ -278,11 +294,14 @@ class APIClient:
         NOTE: Internal use only. Use regular uptrain operators to run evaluations,
         """
         url = f"{self.base_url}/evaluate"
+        if isinstance(full_dataset, pl.DataFrame):
+            full_dataset = full_dataset.to_dicts()
 
         # send in chunks of 50, so the connection doesn't time out waiting for the server
         results = []
         NUM_TRIES = 3
         for i in range(0, len(full_dataset), 10):
+            response_json = None
             for try_num in range(NUM_TRIES):
                 try:
                     logger.info(
@@ -308,3 +327,100 @@ class APIClient:
                 results.extend(response_json)
 
         return results
+
+    def log_and_evaluate(
+        self,
+        project_name: str,
+        data: t.Union[list[dict], pl.DataFrame],
+        metrics: list[t.Union[str, Evals]],
+        schema: t.Union[DataSchema, dict[str, str], None] = None,
+        metadata: t.Optional[dict[str, t.Any]] = None,
+    ):
+        """Run an evaluation on the server and log the results.
+        NOTE: This api is a bit different than the regular `evaluate` call.
+
+        Args:
+            project_name: Name of the project to evaluate on.
+            data: Data to evaluate on. Either a Pandas DataFrame or a list of dicts.
+            metrics: List of metrics to evaluate on.
+            schema: Schema of the data. Only required if the data attributes aren't typical (question, response, context).
+            metadata: Attributes to attach to this dataset. Useful for filtering and grouping in the UI.
+
+        Returns:
+            results: List of dictionaries with each data point and corresponding evaluation results.
+        """
+        url = f"{self.base_url}/evaluate_v2"
+
+        if isinstance(data, pl.DataFrame):
+            data = data.to_dicts()
+
+        if schema is None:
+            schema = DataSchema()
+        elif isinstance(schema, dict):
+            schema = DataSchema(**schema)
+
+        if metadata is None:
+            metadata = {}
+
+        metrics = [Evals(m) if isinstance(m, str) else m for m in metrics]
+        req_attrs = set()
+        for m in metrics:
+            if m == Evals.CONTEXT_RELEVANCE:
+                req_attrs.update([schema.question, schema.context])
+            elif m == Evals.FACTUAL_ACCURACY:
+                req_attrs.update([schema.response, schema.context])
+            elif m == Evals.RESPONSE_RELEVANCE:
+                req_attrs.update([schema.question, schema.response])
+        for idx, row in enumerate(data):
+            if not req_attrs.issubset(row.keys()):
+                raise ValueError(
+                    f"Row {idx} is missing required all required attributes for evaluation: {req_attrs}"
+                )
+
+        # send in chunks of 50, so the connection doesn't time out waiting for the server
+        results = []
+        NUM_TRIES, BATCH_SIZE = 3, 50
+        for i in range(0, len(data), BATCH_SIZE):
+            response_json = None
+            for try_num in range(NUM_TRIES):
+                try:
+                    logger.info(
+                        f"Sending evaluation request for rows {i} to <{i+BATCH_SIZE} to the Uptrain server"
+                    )
+                    response = self.client.post(
+                        url,
+                        json={
+                            "data": data[i : i + BATCH_SIZE],
+                            "metrics": [m.value for m in metrics],  # type: ignore
+                            "metadata": {"project": project_name, **metadata},
+                        },
+                    )
+                    response_json = raise_or_return(response)
+                    break
+                except Exception as e:
+                    logger.info("Retrying evaluation request")
+                    if try_num == NUM_TRIES - 1:
+                        logger.error(f"Evaluation failed with error: {e}")
+                        raise e
+
+            if response_json is not None:
+                results.extend(response_json)
+
+        return results
+
+    def download_project_eval_results(self, project_name: str, fpath: str):
+        """Fetch all the evaluation results for a project.
+
+        Args:
+            project_name: Name of the project to fetch results for.
+            fpath: Path to save the results to.
+        """
+        url = f"{self.base_url}/evaluate_v2/{project_name}"
+        with self.client.stream("GET", url) as response:
+            if not response.is_success:
+                logger.error(response.text)
+                response.raise_for_status()
+            else:
+                with open(fpath, "w") as download_file:
+                    for chunk in response.iter_text():
+                        download_file.write(chunk)
