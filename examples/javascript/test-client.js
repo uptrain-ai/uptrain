@@ -33,11 +33,11 @@ const data = [
   },
 ];
 
-const metricsList = [Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY];
+const checksList = [Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY];
 
 // Evaluate
 client
-  .evaluate(project, data, metricsList)
+  .log_and_evaluate(project, data, checksList)
   .then((results) => {
     console.log("Evaluation Results:", results);
   })
