@@ -29,10 +29,6 @@ class APIClient {
       headers: { "uptrain-access-token": apiKey },
     });
 
-    // this.client.interceptors.request.use((request) => {
-    //   console.log("Starting Request:", JSON.stringify(request, null, 2));
-    //   return request;
-    // });
   }
 
   async checkAuth() {
@@ -46,14 +42,14 @@ class APIClient {
     }
   }
 
-  async evaluate(projectName, data, evals, schema = null, metadata = null) {
+  async log_and_evaluate(projectName, data, checks, schema = null, metadata = null) {
     const url = "/evaluate_v2";
 
     schema = schema ? new DataSchema(schema) : new DataSchema();
     metadata = metadata || {};
 
     const req_attrs = new Set();
-    evals.forEach((m) => {
+    checks.forEach((m) => {
       if (m === Evals.CONTEXT_RELEVANCE) {
         req_attrs.add(schema.question);
         req_attrs.add(schema.context);
@@ -88,7 +84,7 @@ class APIClient {
         try {
           const response = await this.client.post(url, {
             data: data.slice(i, i + BATCH_SIZE),
-            metrics: evals,
+            checks: checks,
             metadata: { project: projectName, ...metadata },
           });
           responseJson = response.data;
