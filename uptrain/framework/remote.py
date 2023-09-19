@@ -3,7 +3,6 @@ This module implements a simple client that can be used to schedule unit-tests/e
 on the UpTrain server. 
 """
 
-import enum
 import typing as t
 
 from loguru import logger
@@ -13,7 +12,7 @@ import pydantic
 
 from uptrain.framework.checks import CheckSet, ExperimentArgs
 from uptrain.framework.base import Settings
-from uptrain.utilities import to_py_types
+from uptrain.framework.evals import Evals, ParametricEval, CritiqueTone
 
 
 class DataSchema(pydantic.BaseModel):
@@ -22,12 +21,6 @@ class DataSchema(pydantic.BaseModel):
     response: str = "response"
     context: str = "context"
     ground_truth: str = "ground_truth"
-
-
-class Evals(enum.Enum):
-    CONTEXT_RELEVANCE = "context_relevance"
-    FACTUAL_ACCURACY = "factual_accuracy"
-    RESPONSE_RELEVANCE = "response_relevance"
 
 
 def raise_or_return(response: httpx.Response):
@@ -332,7 +325,7 @@ class APIClient:
         self,
         project_name: str,
         data: t.Union[list[dict], pl.DataFrame],
-        metrics: list[t.Union[str, Evals]],
+        metrics: list[t.Union[str, Evals, ParametricEval]],
         schema: t.Union[DataSchema, dict[str, str], None] = None,
         metadata: t.Optional[dict[str, t.Any]] = None,
     ):
@@ -363,7 +356,10 @@ class APIClient:
             metadata = {}
 
         metrics = [Evals(m) if isinstance(m, str) else m for m in metrics]
-        req_attrs = set()
+        for m in metrics:
+            assert isinstance(m, (Evals, ParametricEval))
+
+        req_attrs, ser_metrics = set(), []
         for m in metrics:
             if m == Evals.CONTEXT_RELEVANCE:
                 req_attrs.update([schema.question, schema.context])
@@ -371,6 +367,15 @@ class APIClient:
                 req_attrs.update([schema.response, schema.context])
             elif m == Evals.RESPONSE_RELEVANCE:
                 req_attrs.update([schema.question, schema.response])
+            elif m == Evals.CRITIQUE_LANGUAGE or isinstance(m, CritiqueTone):
+                req_attrs.update([schema.response])
+
+            if isinstance(m, ParametricEval):
+                ser_metrics.append({"check_name": m.__class__.__name__, **m.dict()})
+            elif isinstance(m, Evals):
+                ser_metrics.append(m.value)
+            else:
+                raise ValueError(f"Invalid metric: {m}")
         for idx, row in enumerate(data):
             if not req_attrs.issubset(row.keys()):
                 raise ValueError(
@@ -391,8 +396,12 @@ class APIClient:
                         url,
                         json={
                             "data": data[i : i + BATCH_SIZE],
-                            "metrics": [m.value for m in metrics],  # type: ignore
-                            "metadata": {"project": project_name, **metadata},
+                            "metrics": ser_metrics,
+                            "metadata": {
+                                "project": project_name,
+                                "schema": schema.dict(),
+                                **metadata,
+                            },
                         },
                     )
                     response_json = raise_or_return(response)

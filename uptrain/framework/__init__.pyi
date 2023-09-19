@@ -8,11 +8,10 @@ __all__ = [
     "Signal",
     "APIClient",
     "DataSchema",
-    "Evals",
 ]
 
 from .base import OperatorDAG, Settings
 from .checks import CheckSet, Check, ExperimentArgs
 from .signal import Signal
-from .remote import APIClient, DataSchema, Evals
+from .remote import APIClient, DataSchema
 from . import builtins
