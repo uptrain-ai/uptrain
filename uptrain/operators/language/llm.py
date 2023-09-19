@@ -90,13 +90,11 @@ async def async_process_payload(
                         "gpt-4": "gpt-4-32k",
                         "gpt-4-0613": "gpt-4-32k-0613",
                     }
-
-                    payload.data["model"] = fallback[payload.data["model"]]
-                    # TODO: check the model being used and not always switch to 3.5 16k variant
-                    payload.data["model"] = "gpt-3.5-turbo-16k"
-                    logger.info(
-                        f"Switching to 16k model for payload {payload.metadata['index']}"
-                    )
+                    if payload.data["model"] in fallback.keys():
+                        payload.data["model"] = fallback[payload.data["model"]]
+                        logger.info(
+                            f"Switching to larger context model for payload {payload.metadata['index']}"
+                        )
                 else:
                     payload.error = str(exc)
                     break
