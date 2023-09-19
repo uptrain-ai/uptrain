@@ -12,7 +12,6 @@ import aiolimiter
 from loguru import logger
 from tqdm.asyncio import tqdm_asyncio
 from pydantic import BaseModel, Field
-from litellm import acompletion
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
@@ -20,6 +19,7 @@ from uptrain.operators.base import *
 from uptrain.utilities import lazy_load_dep
 
 openai = lazy_load_dep("openai", "openai")
+litellm = lazy_load_dep("litellm", "litellm")
 if t.TYPE_CHECKING:
     import openai
     import openai.error
@@ -54,7 +54,7 @@ async def async_process_payload(
                         **payload.data, request_timeout=10
                     )
                 else:
-                    payload.response = await acompletion(
+                    payload.response = await litellm.acompletion(
                         **payload.data, 
                     )
                 break
