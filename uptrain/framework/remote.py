@@ -332,7 +332,7 @@ class APIClient:
         self,
         project_name: str,
         data: t.Union[list[dict], pl.DataFrame],
-        metrics: list[t.Union[str, Evals]],
+        checks: list[t.Union[str, Evals]],
         schema: t.Union[DataSchema, dict[str, str], None] = None,
         metadata: t.Optional[dict[str, t.Any]] = None,
     ):
@@ -342,14 +342,14 @@ class APIClient:
         Args:
             project_name: Name of the project to evaluate on.
             data: Data to evaluate on. Either a Pandas DataFrame or a list of dicts.
-            metrics: List of metrics to evaluate on.
+            checks: List of checks to evaluate on.
             schema: Schema of the data. Only required if the data attributes aren't typical (question, response, context).
             metadata: Attributes to attach to this dataset. Useful for filtering and grouping in the UI.
 
         Returns:
             results: List of dictionaries with each data point and corresponding evaluation results.
         """
-        url = f"{self.base_url}/evaluate_v2"
+        url = f"{self.base_url}/log_and_evaluate"
 
         if isinstance(data, pl.DataFrame):
             data = data.to_dicts()
@@ -362,9 +362,9 @@ class APIClient:
         if metadata is None:
             metadata = {}
 
-        metrics = [Evals(m) if isinstance(m, str) else m for m in metrics]
+        checks = [Evals(m) if isinstance(m, str) else m for m in checks]
         req_attrs = set()
-        for m in metrics:
+        for m in checks:
             if m == Evals.CONTEXT_RELEVANCE:
                 req_attrs.update([schema.question, schema.context])
             elif m == Evals.FACTUAL_ACCURACY:
@@ -391,7 +391,7 @@ class APIClient:
                         url,
                         json={
                             "data": data[i : i + BATCH_SIZE],
-                            "metrics": [m.value for m in metrics],  # type: ignore
+                            "checks": [m.value for m in checks],  # type: ignore
                             "metadata": {"project": project_name, **metadata},
                         },
                     )
@@ -415,7 +415,7 @@ class APIClient:
             project_name: Name of the project to fetch results for.
             fpath: Path to save the results to.
         """
-        url = f"{self.base_url}/evaluate_v2/{project_name}"
+        url = f"{self.base_url}/log_and_evaluate/{project_name}"
         with self.client.stream("GET", url) as response:
             if not response.is_success:
                 logger.error(response.text)
