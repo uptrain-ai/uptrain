@@ -325,7 +325,7 @@ class APIClient:
         self,
         project_name: str,
         data: t.Union[list[dict], pl.DataFrame],
-        metrics: list[t.Union[str, Evals, ParametricEval]],
+        checks: list[t.Union[str, Evals, ParametricEval]],
         schema: t.Union[DataSchema, dict[str, str], None] = None,
         metadata: t.Optional[dict[str, t.Any]] = None,
     ):
@@ -335,7 +335,7 @@ class APIClient:
         Args:
             project_name: Name of the project to evaluate on.
             data: Data to evaluate on. Either a Pandas DataFrame or a list of dicts.
-            metrics: List of metrics to evaluate on.
+            checks: List of checks to evaluate on.
             schema: Schema of the data. Only required if the data attributes aren't typical (question, response, context).
             metadata: Attributes to attach to this dataset. Useful for filtering and grouping in the UI.
 
@@ -355,25 +355,25 @@ class APIClient:
         if metadata is None:
             metadata = {}
 
-        metrics = [Evals(m) if isinstance(m, str) else m for m in metrics]
-        for m in metrics:
+        checks = [Evals(m) if isinstance(m, str) else m for m in checks]
+        for m in checks:
             assert isinstance(m, (Evals, ParametricEval))
 
-        req_attrs, ser_metrics = set(), []
-        for m in metrics:
-            if m == Evals.CONTEXT_RELEVANCE:
-                req_attrs.update([schema.question, schema.context])
-            elif m == Evals.FACTUAL_ACCURACY:
-                req_attrs.update([schema.response, schema.context])
-            elif m == Evals.RESPONSE_RELEVANCE:
+        req_attrs, ser_checks = set(), []
+        for m in checks:
+            if m in [Evals.FACTUAL_ACCURACY, Evals.RESPONSE_COMPLETENESS_WRT_CONTEXT]:
+                req_attrs.update([schema.question, schema.context, schema.response])
+            elif m in [Evals.RESPONSE_RELEVANCE, Evals.RESPONSE_COMPLETENESS]:
                 req_attrs.update([schema.question, schema.response])
+            elif m in [Evals.CONTEXT_RELEVANCE]:
+                req_attrs.update([schema.question, schema.context])
             elif m == Evals.CRITIQUE_LANGUAGE or isinstance(m, CritiqueTone):
                 req_attrs.update([schema.response])
 
             if isinstance(m, ParametricEval):
-                ser_metrics.append({"check_name": m.__class__.__name__, **m.dict()})
+                ser_checks.append({"check_name": m.__class__.__name__, **m.dict()})
             elif isinstance(m, Evals):
-                ser_metrics.append(m.value)
+                ser_checks.append(m.value)
             else:
                 raise ValueError(f"Invalid metric: {m}")
         for idx, row in enumerate(data):
@@ -396,7 +396,7 @@ class APIClient:
                         url,
                         json={
                             "data": data[i : i + BATCH_SIZE],
-                            "checks": ser_metrics,
+                            "checks": ser_checks,
                             "metadata": {
                                 "project": project_name,
                                 "schema": schema.dict(),
