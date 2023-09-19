@@ -44,7 +44,6 @@ class GrammarScore(ColumnOp):
 
     def _make_payload(self, id: t.Any, text: str) -> Payload:
         return Payload(
-            endpoint="chat.completions",
             data={
                 "model": "gpt-3.5-turbo",
                 "messages": [

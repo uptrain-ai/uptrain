@@ -19,6 +19,7 @@ from uptrain.operators.base import *
 from uptrain.utilities import lazy_load_dep
 
 openai = lazy_load_dep("openai", "openai")
+litellm = lazy_load_dep("litellm", "litellm")
 if t.TYPE_CHECKING:
     import openai
     import openai.error
@@ -34,7 +35,6 @@ if t.TYPE_CHECKING:
 
 
 class Payload(BaseModel):
-    endpoint: str
     data: dict
     metadata: dict = Field(default_factory=dict)
     response: t.Any = None
@@ -49,16 +49,18 @@ async def async_process_payload(
             max_retries
         ):  # failed requests don't count towards rate limit
             try:
-                if payload.endpoint == "chat.completions":
+                if payload.data["model"].startswith("gpt"):
                     payload.response = await openai.ChatCompletion.acreate(
                         **payload.data, request_timeout=10
                     )
-                    break
                 else:
-                    raise ValueError(f"Unknown endpoint: {payload.endpoint}")
+                    payload.response = await litellm.acompletion(
+                        **payload.data, 
+                    )
+                break
             except Exception as exc:
                 logger.error(
-                    f"Error when sending request to openai API: {payload.error}"
+                    f"Error when sending request to LLM API: {exc}"
                 )
                 if (
                     isinstance(
@@ -71,8 +73,7 @@ async def async_process_payload(
                             openai.error.Timeout,
                             openai.error.TryAgain,
                         ),
-                    )
-                    and count < max_retries - 1
+                    ) and count < max_retries - 1
                 ):
                     await asyncio.sleep(random.uniform(0.5, 1.5) * count + 1)
                 elif (
@@ -81,11 +82,19 @@ async def async_process_payload(
                     and count < max_retries - 1
                 ):
                     # refer - https://github.com/BerriAI/reliableGPT/
-                    # TODO: check the model being used and not always switch to 3.5 16k variant
-                    payload.data["model"] = "gpt-3.5-turbo-16k"
-                    logger.info(
-                        f"Switching to 16k model for payload {payload.metadata['index']}"
-                    )
+                    # if required to set token limit - https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/chatgpt?pivots=programming-language-chat-completions#managing-conversations
+                    
+                    fallback = {
+                        "gpt-3.5-turbo": "gpt-3.5-turbo-16k",
+                        "gpt-3.5-turbo-0613": "gpt-3.5-turbo-16k-0613",
+                        "gpt-4": "gpt-4-32k",
+                        "gpt-4-0613": "gpt-4-32k-0613",
+                    }
+                    if payload.data["model"] in fallback.keys():
+                        payload.data["model"] = fallback[payload.data["model"]]
+                        logger.info(
+                            f"Switching to larger context model for payload {payload.metadata['index']}"
+                        )
                 else:
                     payload.error = str(exc)
                     break
@@ -94,7 +103,7 @@ async def async_process_payload(
 
 
 class LLMMulticlient:
-    """Uses asyncio to send requests to the OpenAI API concurrently."""
+    """Uses asyncio to send requests to LLM APIs concurrently."""
 
     def __init__(self, settings: t.Optional[Settings] = None):
         self._max_tries = 4

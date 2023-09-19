@@ -130,7 +130,6 @@ class TextCompletion(TransformOp):
 
     def _make_payload(self, id: t.Any, text: str, model: str) -> Payload:
         return Payload(
-            endpoint="chat.completions",
             data={
                 "model": model,
                 "messages": [{"role": "user", "content": text}],
