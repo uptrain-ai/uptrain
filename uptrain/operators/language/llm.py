@@ -51,17 +51,15 @@ async def async_process_payload(
             try:
                 if payload.data["model"].startswith("gpt"):
                     payload.response = await openai.ChatCompletion.acreate(
-                        **payload.data, request_timeout=10
+                        **payload.data, request_timeout=17
                     )
                 else:
                     payload.response = await litellm.acompletion(
-                        **payload.data, 
+                        **payload.data,
                     )
                 break
             except Exception as exc:
-                logger.error(
-                    f"Error when sending request to LLM API: {exc}"
-                )
+                logger.error(f"Error when sending request to LLM API: {exc}")
                 if (
                     isinstance(
                         exc,
@@ -73,7 +71,8 @@ async def async_process_payload(
                             openai.error.Timeout,
                             openai.error.TryAgain,
                         ),
-                    ) and count < max_retries - 1
+                    )
+                    and count < max_retries - 1
                 ):
                     await asyncio.sleep(random.uniform(0.5, 1.5) * count + 1)
                 elif (
@@ -83,7 +82,7 @@ async def async_process_payload(
                 ):
                     # refer - https://github.com/BerriAI/reliableGPT/
                     # if required to set token limit - https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/chatgpt?pivots=programming-language-chat-completions#managing-conversations
-                    
+
                     fallback = {
                         "gpt-3.5-turbo": "gpt-3.5-turbo-16k",
                         "gpt-3.5-turbo-0613": "gpt-3.5-turbo-16k-0613",
