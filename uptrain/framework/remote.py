@@ -342,7 +342,7 @@ class APIClient:
         Returns:
             results: List of dictionaries with each data point and corresponding evaluation results.
         """
-        url = f"{self.base_url}/evaluate_v2"
+        url = f"{self.base_url}/log_and_evaluate"
 
         if isinstance(data, pl.DataFrame):
             data = data.to_dicts()
@@ -396,7 +396,7 @@ class APIClient:
                         url,
                         json={
                             "data": data[i : i + BATCH_SIZE],
-                            "metrics": ser_metrics,
+                            "checks": ser_metrics,
                             "metadata": {
                                 "project": project_name,
                                 "schema": schema.dict(),
@@ -424,7 +424,7 @@ class APIClient:
             project_name: Name of the project to fetch results for.
             fpath: Path to save the results to.
         """
-        url = f"{self.base_url}/evaluate_v2/{project_name}"
+        url = f"{self.base_url}/evaluation_results/{project_name}"
         with self.client.stream("GET", url) as response:
             if not response.is_success:
                 logger.error(response.text)
