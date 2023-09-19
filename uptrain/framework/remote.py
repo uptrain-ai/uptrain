@@ -362,15 +362,27 @@ class APIClient:
         if metadata is None:
             metadata = {}
 
-        checks = [Evals(m) if isinstance(m, str) else m for m in checks]
-        req_attrs = set()
-        for m in checks:
-            if m == Evals.CONTEXT_RELEVANCE:
-                req_attrs.update([schema.question, schema.context])
-            elif m == Evals.FACTUAL_ACCURACY:
-                req_attrs.update([schema.response, schema.context])
-            elif m == Evals.RESPONSE_RELEVANCE:
+        metrics = [Evals(m) if isinstance(m, str) else m for m in metrics]
+        for m in metrics:
+            assert isinstance(m, (Evals, ParametricEval))
+
+        req_attrs, ser_metrics = set(), []
+        for m in metrics:
+            if m in [Evals.FACTUAL_ACCURACY, Evals.RESPONSE_COMPLETENESS_WRT_CONTEXT]:
+                req_attrs.update([schema.question, schema.context, schema.response])
+            elif m in [Evals.RESPONSE_RELEVANCE, Evals.RESPONSE_COMPLETENESS]:
                 req_attrs.update([schema.question, schema.response])
+            elif m in [Evals.CONTEXT_RELEVANCE]:
+                req_attrs.update([schema.question, schema.context])
+            elif m == Evals.CRITIQUE_LANGUAGE or isinstance(m, CritiqueTone):
+                req_attrs.update([schema.response])
+
+            if isinstance(m, ParametricEval):
+                ser_metrics.append({"check_name": m.__class__.__name__, **m.dict()})
+            elif isinstance(m, Evals):
+                ser_metrics.append(m.value)
+            else:
+                raise ValueError(f"Invalid metric: {m}")
         for idx, row in enumerate(data):
             if not req_attrs.issubset(row.keys()):
                 raise ValueError(
