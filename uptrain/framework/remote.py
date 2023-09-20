@@ -35,7 +35,13 @@ class APIClient:
     base_url: str
     client: httpx.Client
 
-    def __init__(self, settings: Settings) -> None:
+    def __init__(self, uptrain_api_key: str = None, settings: Settings = None) -> None:
+        if (uptrain_api_key is None) and (settings is None):
+            raise Exception("Please provide UpTrain API Key")
+
+        if settings is None:
+            settings = Settings(uptrain_access_token=uptrain_api_key)
+
         server_url = settings.check_and_get("uptrain_server_url")
         api_key = settings.check_and_get("uptrain_access_token")
         self.base_url = server_url.rstrip("/") + "/api/public"
@@ -280,7 +286,7 @@ class APIClient:
         self,
         eval_name: str,
         full_dataset: t.Union[list[dict], pl.DataFrame],
-        params: dict | None = None,
+        params: t.Union[dict, None] = None,
     ):
         """Run an evaluation on the server.
 

@@ -12,6 +12,7 @@ from uptrain.operators import (
     ContextRelevance,
     LanguageCritique,
     ToneCritique,
+    ResponseCompletenessWrtContext
 )
 
 # -----------------------------------------------------------
@@ -39,6 +40,14 @@ CheckResponseCompleteness = lambda: Check(
     operators=[ResponseCompleteness()],
     plots=[Histogram(x="score_response_completeness")],
 )
+
+
+CheckResponseCompletenessWrtContext = lambda: Check(
+    name="response_completeness_wrt_context_score",
+    operators=[ResponseCompletenessWrtContext()],
+    plots=[Histogram(x="score_response_completeness_wrt_context")],
+)
+
 
 CheckResponseRelevance = lambda: Check(
     name="response_relevance_score",
