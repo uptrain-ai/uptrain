@@ -105,55 +105,32 @@ uptrain-add --feature full
 
 ### How to use UpTrain:
 
-#### Using UpTrain's builtin evaluation sets:
+#### Using UpTrain's evaluations:
 UpTrain provides a variety of checks like response relevance, response completeness, factual accuracy, retrieved-context quality, etc. which can be accessed using UpTrain's API key. To seem them in action, you can see the [Live Evaluation Demo](https://demo.uptrain.ai/evals_demo/)
-
-To learn how more about these builtin checks, check out the [Built-in Checks Documentation](https://docs.uptrain.ai/key-components/check#built-in-checks).
 
 Get your free UpTrain API Key [here](https://uptrain.ai/dashboard).
 
 ```python
+from uptrain.framework import APIClient, Evals, CritiqueTone
+import json
 
-data = pl.DataFrame({
-  "question": ["What is the meaning of life?"],
-  "response": ["Who knows 🤔"]
-})
+UPTRAIN_API_KEY = "up-***************" 
 
-check = CheckResponseCompleteness()
-output = check.setup(Settings(uptrain_access_token="up-9g....")).run(data)
-```
+data = [{
+    'question': 'Which is the most popular global sport?',
+    'context': "The popularity of sports can be measured in various ways, including TV viewership, social media presence, number of participants, and economic impact. Football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi, drawing a followership of more than 4 billion people. Cricket is particularly popular in countries like India, Pakistan, Australia, and England. The ICC Cricket World Cup and Indian Premier League (IPL) have substantial viewership. The NBA has made basketball popular worldwide, especially in countries like the USA, Canada, China, and the Philippines. Major tennis tournaments like Wimbledon, the US Open, French Open, and Australian Open have large global audiences. Players like Roger Federer, Serena Williams, and Rafael Nadal have boosted the sport's popularity. Field Hockey is very popular in countries like India, Netherlands, and Australia. It has a considerable following in many parts of the world.",
+    'response': 'Football is the most popular sport with around 4 billion followers worldwide'
+}]
 
+client = APIClient(uptrain_api_key=UPTRAIN_API_KEY)
 
-#### Configuring your own evaluation sets:
-
-Say we want to plot a line chart showing whether our model's responses contain any grammatical mistakes or not.
-
-```python
-
-# Step 1: Choose and create the appropriate operator from UpTrain
-grammar_score = GrammarScore(
-  col_in_text = "model_response",       # input column name (from dataset)
-  col_out = "grammar_score"             # desired output column name
+res = client.log_and_evaluate(
+    "Sample-Project",
+    data,
+    [Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
 )
 
-# Step 2: Create a check with the operators and the required plots as arguments 
-grammar_check = Check(
-  operators = [grammar_score],
-  plots = LineChart(y = "grammar_score")
-)
-# We can also use prebuilt checks like CheckResponseCompleteness, CheckResponseRelevance, etc.
-response_completeness_check = CheckResponseRelevance()
-
-
-# Step 3: Create a CheckSet with the checks and data source as arguments
-checkset = CheckSet(
-    checks = [grammar_check, response_relevance_check]
-    source = JsonReader(fpath = '...')
-)
-
-# Step 4: Set up and run the CheckSet
-checkset.setup(Settings(openai_api_key = '...'))
-checkset.run(dataset)
+print(json.dumps(res,indent=3))
 ```
 
 ### Running evaluations on UpTrain's hosted platform:
