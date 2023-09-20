@@ -188,7 +188,7 @@ class ContextRelevance(ColumnOp):
 @register_op
 class ResponseRelevance(ColumnOp):
     """
-    Grade how if the generated response has any additional irrelevant information for the question asked.
+    Grades how relevant the generated response is or if it has any additional irrelevant information for the question asked.
 
     Attributes:
         col_question (str): Column name for the stored questions

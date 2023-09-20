@@ -3,23 +3,14 @@ title: "Quickstart"
 description: "Get started with UpTrain in a few simple steps"
 ---
 
-### Choose your style
+### Get your API key
 
-UpTrain can be used in two ways:
-1. **Using the API client:** The UpTrain API client offers many pre-built Operators and Checks that you can use to analyze your data. You can easily run evaluations with settings that we have already configured for you. This is the recommended way to use UpTrain. To learn how to use the API client, check out the [UpTrain API Client Tutorial](/tutorials/uptrain-api-client).
-2. **Using the framework:** The UpTrain framework allows you to create your own Operators and Checks. You can also configure your own settings and run evaluations. This is recommended for advanced users who want to customize their evaluations. To learn how to use this, follow the steps below.
-
-### Define your requirement
-
-There are many ways you can use UpTrain. You can set it up based on your requirements. 
-
-Let's say we asked a Large Language Model like ChatGPT to generate responses for given inputs and stored them in a CSV spreadsheet called [responses.csv](https://docs.google.com/spreadsheets/d/16lln3OWUMCN53IBMytdiZL0uAlKBqgWJn9umpMCeii4/edit?usp=sharing). Now, we want to do the following:
-
-1. Check the grammatical correctness of the generated responses.
-2. Calculate the length of each response.
+[Sign up](https://uptrain.ai/dashboard) for an UpTrain account and get your API key. You will be provided with 500 free credits to get started. You can also [contact us](https://calendly.com/uptrain-sourabh/uptrain-demo) for a demo or to get more credits.
 
 
 ### Install UpTrain with all dependencies
+
+Run the following commands in your terminal to install UpTrain and all its dependencies:
 
 ```bash
 pip install uptrain
@@ -27,124 +18,65 @@ uptrain-add --feature full
 ```
 
 
-### Choose and create Operators
+### Create an UpTrain API Client
 
-An [Operator](/key-components/operator) runs a function on a given column of data and returns the result in a new column.
-
-In our case, we clearly want to use the `GrammarScore` and `TextLength` Operators. So, we will create them by specifying the input and output coloumn names as follows:
+Before we can start using UpTrain, we need to create an API client. You can do this by passing your API key to the `APIClient` constructor.
 
 ```python
-from uptrain.operators import GrammarScore, TextLength
-
-grammar_score = GrammarScore(
-    col_in_text="model_response",
-    col_out="grammar_correctness_score"
-)
-
-text_length = TextLength(
-    col_in_text="model_response",
-    col_out="response_length"
-)
+UPTRAIN_API_KEY = "up-***************"
+client = APIClient(uptrain_api_key=UPTRAIN_API_KEY)
 ```
 
 
-### Create the Checks
+### Create your data
 
-A [Check](https://uptrain-ai.github.io/uptrain/framework/Check) runs the given list of operators in the order in which they are specified by the user. 
+You can define your data as simple dictionary with the following keys:
 
-A `Check` in UpTrain takes three arguments:
-1. **name -** The name of the check
-2. **operators -** The operators that are to be run when the check is executed
-3. **plots -** The plots that are to be generated when the check is executed
+- `question`: The question you want to ask
+- `context`: The context relevant to the question
+- `response`: The response to the question
 
 ```python
-from uptrain.framework import Check
-
-response_analysis = Check(
-    name="response_analysis"
-    operators=[grammar_score, text_length],
-    plots=[Table()]
-)
+data = [{
+    "question": [
+        "Which is the most popular global sport?",
+        "Who created the Python language?",
+    ]
+    "context": [
+        "The popularity of sports can be measured in various ways, including TV viewership, social media presence, number of participants, and economic impact. Football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi, drawing a followership of more than 4 billion people.",
+        "Python, created by Guido van Rossum in the late 1980s, is a high-level general-purpose programming language. Its design philosophy emphasizes code readability, and its language constructs aim to help programmers write clear, logical code for both small and large-scale software projects.",
+    ]
+    "response":[
+        "Football is the most popular sport with around 4 billion followers worldwide",
+        "Python language was created by Guido van Rossum.",
+    ]
+}]
 ```
 
-Here, we show a table with all the columns and a histogram that depicts the relationship between the length of the responses and their grammatical correctness. 
-You can create more than one `Check`, but for the sake of simplicity, we will just create one.
 
+### Log and evaluate your data
 
-### Using pre-built Checks
+Now that we have our data, we can log it and evaluate it using UpTrain. We use the `log_and_evaluate` method to do this. This method takes the following arguments:
 
-UpTrain comes with many pre-built `Check`s that you can use. These have been pre-configured with operators and plots. You can use them as follows:
+- `project_name`: The name of your project
+- `data`: The data you want to log and evaluate
+- `evals`: The evaluations you want to perform on your data
 
-```python
-from uptrain.framework.builtins import CheckResponseCompleteness
-
-response_completeness_check = CheckResponseCompleteness()
-```
-
-To learn more about the pre-built `Check`s, check out their [documentation](/key-components/check#built-in-checks).
-
-### Configure the Settings
-
-We need to tell UpTrain where we want our results to be stored (logs_folder). Since, the `GrammarScore` uses OpenAI's API, we also need to enter the OpenAI API key. 
-
-To learn more about how to get an OpenAI API key and set it as an environment variable, check out this [guide](https://www.immersivelimit.com/tutorials/adding-your-openai-api-key-to-system-environment-variables). It is recommended to store your API key as an environment variable for security reasons.
-
-We configure the settings for our checks as follows:
+You can find the list of all available evaluations [here](/key-components/evals).
 
 ```python
-import os
-from uptrain.framework import Settings
+from uptrain.framework import APIClient, Evals, CritiqueTone
+import json
 
-LOGS_DIR = "/tmp/uptrain_logs"
-OPENAI_API_KEY = os.environ["OPENAI_API_KEY"]
-
-settings = Settings(
-    logs_folder=LOGS_DIR,
-    openai_api_key=OPENAI_API_KEY
+results = client.log_and_evaluate(
+    "Sample-Project",
+    data,
+    [Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
 )
 ```
 
-
-### Create a CheckSet
-
-You can create as many `Check`s as you want and add them to a [CheckSet](https://uptrain-ai.github.io/uptrain/framework/CheckSet). It will run all the `Check`s and you can view them individually. For now, we just add the response_analysis `Check` we created above. 
-
-Here, we use UpTrain's `CsvReader` to read the content from our CSV file containing the responses.
+### Get your results
 
 ```python
-from uptrain.framework import CheckSet
-from uptrain.operators import CsvReader
-
-check_set = CheckSet(
-    checks=[response_analysis, response_completeness_check],
-    source=CsvReader(fpath="responses.csv")
-)
+print(json.dumps(results, indent=3))
 ```
-
-
-### Set up and run the CheckSet
-
-Now, we will set up the `CheckSet` with the settings we created above and run it. 
-
-```python
-check_set.setup(settings)
-check_set.run()
-```
-
-
-### Visualize the results
-
-Finally, we use UpTrain's `StreamlitRunner` to visualize the results. 
-
-```python
-from uptrain.dashboard import StreamlitRunner
-
-st_runner = StreamlitRunner(LOGS_DIR)
-st_runner.start()
-```
-
-This will open a new tab in your browser with the UpTrain dashboard. You can view the results of the `Check` we created above.
-
-Here is a screenshot of the dashboard:
-
-![dashboard.png](https://github.com/uptrain-ai/uptrain/assets/43818888/d2c3436b-e653-47ce-9426-c91153ac3bb5)
