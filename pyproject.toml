@@ -4,7 +4,7 @@ requires = ["setuptools", "wheel"]
 [project]
 name = "uptrain"
 version = "0.3.8"
-description = "UpTrain - ML Observability and Retraining Framework"
+description = "UpTrain - tool to evaluate LLM applications on aspects like factual accuracy, response quality, retrieval quality, tonality, etc."
 readme = "README.md"
 maintainers = [{ name = "UpTrain AI Team", email = "uptrain.ai@gmail.com" }]
 license = {text = "Apache-2.0"}
@@ -18,7 +18,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
 ]
-keywords = ["uptrain", "ai", "retraining", "ML", "observability"]
+keywords = ["uptrain", "ai", "LLM", "evaluation", "hallucinations", "observability", "response quality"]
 dependencies = [
     "tqdm>=4.0",
     "pydantic<1.10.10",
