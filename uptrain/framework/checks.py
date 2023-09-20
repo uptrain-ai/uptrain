@@ -12,7 +12,6 @@ from pydantic import BaseModel
 from uptrain.operators.base import *
 from uptrain.utilities import jsonload, jsondump, to_py_types, clear_directory
 from uptrain.framework.base import OperatorDAG, Settings
-from uptrain.operators import Table, PromptGenerator, TextCompletion, OutputParser
 
 __all__ = ["Check", "CheckSet", "ExperimentArgs"]
 
@@ -230,6 +229,8 @@ class ExperimentArgs(BaseModel):
     col_out_mapping: t.Optional[dict] = None
 
     def _get_preprocessors(self):
+        from uptrain.operators import PromptGenerator, TextCompletion, OutputParser
+
         "Convert experiment args into checkset preprocessors for execution"
         if isinstance(self.context_vars, list):
             self.context_vars = dict(zip(self.context_vars, self.context_vars))
