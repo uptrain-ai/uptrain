@@ -423,6 +423,55 @@ class APIClient:
 
         return results
 
+
+    def evaluate_experiments(
+        self,
+        project_name: str,
+        data: t.Union[list[dict], pl.DataFrame],
+        checks: list[t.Union[str, Evals, ParametricEval]],
+        exp_columns: list[str],
+        schema: t.Union[DataSchema, dict[str, str], None] = None,
+        metadata: t.Optional[dict[str, t.Any]] = None,
+    ):
+        """Evaluate experiments on the server and log the results.
+
+        Args:
+            project_name: Name of the experiment to evaluate on.
+            data: Data to evaluate on. Either a Pandas DataFrame or a list of dicts.
+            checks: List of checks to evaluate on.
+            exp_columns: List of columns/keys which denote different experiment configurations.
+            schema: Schema of the data. Only required if the data attributes aren't typical (question, response, context).
+            metadata: Attributes to attach to this dataset. Useful for filtering and grouping in the UI.
+
+        Returns:
+            results: List of dictionaries with each data point and corresponding evaluation results for all the experiments.
+        """
+        if metadata is None:
+            metadata = {}
+
+        metadata.update({'uptrain_experiment_args': {'exp_columns': exp_columns, 'is_experiment': True}})
+
+        if schema is None:
+            schema = DataSchema()
+        elif isinstance(schema, dict):
+            schema = DataSchema(**schema)
+
+        results = self.log_and_evaluate(
+            project_name=project_name,
+            data=data,
+            checks=checks,
+            schema=schema,
+            metadata=metadata,
+        )
+
+        results = pl.DataFrame(results)
+        all_cols = set(results.columns)
+        value_cols = list(all_cols - set([schema.question] + exp_columns))
+        exp_results = results.pivot(values=value_cols, index=schema.question, columns=exp_columns)
+        exp_results = exp_results.to_dicts()
+        return exp_results
+
+
     def download_project_eval_results(self, project_name: str, fpath: str):
         """Fetch all the evaluation results for a project.
 
