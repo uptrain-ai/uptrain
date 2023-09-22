@@ -67,8 +67,8 @@
       "group": "Key Components 🗝️",
       "version": "v1",
       "pages": [
-        "key-components/evals",
         "key-components/core-idea",
+        "key-components/evals",
         "key-components/operator",
         "key-components/chart",
         "key-components/check",
