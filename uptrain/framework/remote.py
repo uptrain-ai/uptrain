@@ -35,7 +35,7 @@ class APIClient:
     base_url: str
     client: httpx.Client
 
-    def __init__(self, uptrain_api_key: str = None, settings: Settings = None) -> None:
+    def __init__(self, settings: Settings = None, uptrain_api_key: str = None) -> None:
         if (uptrain_api_key is None) and (settings is None):
             raise Exception("Please provide UpTrain API Key")
 

@@ -41,9 +41,11 @@ ANSWER_PROMPTS = {
     "classify_cot": "First, answer by printing a single choice from {choices} (without quotes or punctuation) corresponding to the correct answer. Then, from the next line, explain your reasonings step by step.".strip(),
     # e.g. "Let's think step by step. ...\nYes"
     "cot_classify": """
-First, write out in a step by step manner your reasoning to be sure that your conclusion is correct. Avoid simply stating the correct answer at the outset. Then print only a single choice from {choices} (without quotes or punctuation) on its own line corresponding to the correct answer. At the end, repeat just the answer by itself on a new line. IN THE LAST LINE, YOU SHOULD REPEAT ONLY THE ALPHABET AMONG {choices}, NOT ANYTHING ELSE, NO BRACKETS, NO CHOICE TEXT!!!
+You are also given scores for each choice as {choice_scores}. {choice_scores_text}
 
-Reasoning:""".strip(),
+First, write out in a step by step manner your reasoning to be sure that your conclusion is correct. Avoid simply stating the correct answer at the outset.
+Then print only the score from {scores_text} associated to the correct answer in a separate line. Finally repeat the same score on a new line.
+Reasoning:"""
 }
 
 def get_choice_score(
@@ -158,27 +160,6 @@ def format_prompt(
     return prompt
 
 
-def get_choice(
-    text: str, eval_type: str, match_fn: Union[str, Callable], choice_strings: Iterable[str]
-) -> str:
-    """Clean the answer string to a choice string to one of choice_strings. Return '__invalid__.' if no match."""
-    if isinstance(match_fn, str):
-        match_fn = MATCH_FNS[match_fn]
-    lines = text.strip().split("\n")
-    if eval_type.startswith("cot_classify"):
-        lines = lines[::-1]  # reverse lines
-    for line in lines:
-        line = line.strip()
-        line = "".join(c for c in line if c not in string.punctuation)
-        if not line:
-            continue
-        for choice in choice_strings:
-            if match_fn(line, choice):
-                return choice
-    logging.warn(f"Choices {choice_strings} not parsable for {eval_type}: {text}")
-    return INVALID_STR
-
-
 @register_op
 class OpenAIGradeScore(ColumnOp):
     """
@@ -248,12 +229,28 @@ class ModelGradeScore(ColumnOp):
     grading_prompt_template: str
     eval_type: t.Literal["cot_classify", "classify", "classify_cot"] = "cot_classify"
     choice_strings: list[str]
-    choice_scores: t.Union[dict[str, float], dict[str, list[float]]]
+    choice_scores: dict[str, float]  #t.Union[dict[str, float], dict[str, list[float]]]
     context_vars: dict[str, str]
     col_out: t.Union[str, list[str]] = "model_grade_score"
 
     def setup(self, settings: Settings):
         self._api_client = LLMMulticlient(settings=settings)
+        if self.eval_type != "cot_classify":
+            raise Exception("Only eval_type: cot_classify is supported for model grading check")
+        for choice, score in self.choice_scores.items():
+            score = format(score, ".3f")
+            if score[-1] == "0":
+                score = score[0:-1]
+                if score[-1] == "0":
+                    score = score[0:-1]
+            self.choice_scores[choice] = score
+        choice_scores = "(" + str(self.choice_scores)[1:-1] + ")"
+        choice_scores_text = ""
+        for choice, score in self.choice_scores.items():
+            choice_scores_text += f"If selected choice is {choice}, score should be {score}. "
+        scores_text = "(" + ", ".join(list(self.choice_scores.values())) + ")"
+        answer_prompt = ANSWER_PROMPTS[self.eval_type].format(choice_scores=choice_scores, choice_scores_text=choice_scores_text, scores_text=scores_text)
+        self.grading_prompt_template += answer_prompt
         return self
 
     def _make_payload(self, id: t.Any, messages: list[dict]) -> Payload:
@@ -261,6 +258,87 @@ class ModelGradeScore(ColumnOp):
             data={"model": "gpt-3.5-turbo", "messages": messages, "temperature": 0.2},
             metadata={"index": id},
         )
+
+    def get_choice_via_llm(self, text: str, grading_prompt_template: str) -> str:
+        """Queries LLM to get score from the text"""
+
+        prompt = f"""
+        Extract the score from the given text. The available choices and associated scores is present in the context.
+
+        Context: {grading_prompt_template}
+        Text: {text}
+
+        Score:
+        """
+
+        payload = self._make_payload(0, [{"role": "user", "content": prompt}])
+        output_payload = self._api_client.fetch_responses([payload])[0]
+
+        try:
+            score = output_payload.response["choices"][0]["message"]["content"]
+            float(score)
+            return score
+        except:
+            return str(0.0)
+
+
+    def get_choice(
+        self, text: str, eval_type: str, match_fn: Union[str, Callable], choice_strings: Iterable[str]
+    ) -> str:
+        """Clean the answer string to a choice string to one of choice_strings. Return '__invalid__.' if no match."""
+        is_fn_extract_score = False
+        if match_fn == 'extract_score':
+            is_fn_extract_score = True
+        else:
+            if isinstance(match_fn, str):
+                match_fn = MATCH_FNS[match_fn]
+        lines = text.strip().split("\n")
+        if eval_type.startswith("cot_classify"):
+            lines = lines[::-1]  # reverse lines
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+            if is_fn_extract_score:
+                if "." in line:
+                    part_before_decimal = line.split(".")[0][::-1]
+                    prev_char = ""
+                    for char in part_before_decimal:
+                        new_char = char + prev_char
+                        try:
+                            float(new_char)
+                        except:
+                            break
+                        prev_char = new_char
+                    part_before_decimal = prev_char
+
+                    part_after_decimal = line.split(".")[1]
+                    prev_char = ""
+                    for char in part_after_decimal:
+                        new_char = prev_char + char
+                        try:
+                            float(new_char)
+                        except:
+                            break
+                        prev_char = new_char
+                    part_after_decimal = prev_char
+                    choice = part_before_decimal + "." + part_after_decimal
+                    try:
+                        float(choice)
+                        return str(choice)
+                    except:
+                        return self.get_choice_via_llm(text, self.grading_prompt_template)
+                else:
+                    return self.get_choice_via_llm(text, self.grading_prompt_template)
+            else:
+                line = "".join(c for c in line if c not in string.punctuation)
+                if not line:
+                    continue
+                for choice in choice_strings:
+                    if match_fn(line, choice):
+                        return choice
+        logging.warn(f"Choices {choice_strings} not parsable for {eval_type}: {text}")
+        return INVALID_STR
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         prompts = []
@@ -270,11 +348,12 @@ class ModelGradeScore(ColumnOp):
             _prompt = self.grading_prompt_template.format(**subs)
             # following the `evals` code to create the grading instruction
             #  https://github.com/openai/evals/blob/main/evals/elsuite/modelgraded/classify_utils.py
-            _prompt_chat = append_answer_prompt(
-                prompt=[{"role": "user", "content": _prompt}],
-                eval_type=self.eval_type,
-                choice_strings=self.choice_strings,
-            )
+            _prompt_chat = [{"role": "user", "content": _prompt}]
+            # _prompt_chat = append_answer_prompt(
+            #     prompt=[{"role": "user", "content": _prompt}],
+            #     eval_type=self.eval_type,
+            #     choice_strings=self.choice_strings,
+            # )
             prompts.append(_prompt_chat)
 
         input_payloads = [
@@ -294,15 +373,13 @@ class ModelGradeScore(ColumnOp):
             else:
                 try:
                     resp_text = res.response["choices"][0]["message"]["content"]
-                    choice = get_choice(
+                    choice = self.get_choice(
                         text=resp_text,
                         eval_type=self.eval_type,
-                        match_fn="endswith",
+                        match_fn="extract_score",
                         choice_strings=self.choice_strings,
                     )
-                    score = get_choice_score(
-                        choice, self.choice_strings, self.choice_scores
-                    )
+                    score = float(choice)
                     results.append((idx, score, resp_text))
                 except Exception as e:
                     logger.error(
