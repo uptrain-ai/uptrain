@@ -449,7 +449,7 @@ class APIClient:
         if metadata is None:
             metadata = {}
 
-        metadata.update({'uptrain_experiment_args': {'exp_columns': exp_columns, 'is_experiment': True}})
+        metadata.update({'uptrain_experiment_columns': exp_columns})
 
         if schema is None:
             schema = DataSchema()
