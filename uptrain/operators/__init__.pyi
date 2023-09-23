@@ -53,6 +53,7 @@ __all__ = [
     "ResponseCompletenessWrtContext",
     "LanguageCritique",
     "ToneCritique",
+    "GuidelineAdherenceScore",
     # io - also include all the subimports
     "io",
     "ExcelReader",
@@ -116,6 +117,7 @@ from .language.with_context import (
     ResponseCompletenessWrtContext,
 )
 from .language.critique import LanguageCritique, ToneCritique
+from .language.guideline import GuidelineAdherenceScore
 
 from . import io
 from .io.base import CsvReader, JsonReader, DeltaReader, JsonWriter, DeltaWriter

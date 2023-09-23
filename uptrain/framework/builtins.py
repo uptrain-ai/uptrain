@@ -12,7 +12,8 @@ from uptrain.operators import (
     ContextRelevance,
     LanguageCritique,
     ToneCritique,
-    ResponseCompletenessWrtContext
+    ResponseCompletenessWrtContext,
+    GuidelineAdherenceScore
 )
 
 # -----------------------------------------------------------
@@ -74,4 +75,14 @@ CheckToneQuality = lambda persona: Check(
     name="tone_critique_score",
     operators=[ToneCritique(persona=persona)],
     plots=[Histogram(x="score_tone")],
+)
+
+# -----------------------------------------------------------
+# Guideline related
+# -----------------------------------------------------------
+
+CheckGuidelineAdherence = lambda guideline, guideline_name="guideline", response_schema=None: Check(
+    name = f"{guideline_name}_adherence_score",
+    operators=[GuidelineAdherenceScore(guideline=guideline, guideline_name=guideline_name, response_schema=response_schema)],
+    plots=[Histogram(x=f"score_{guideline_name}_adherence")]
 )
