@@ -23,7 +23,10 @@
     "type": "github",
     "url": "https://github.com/uptrain-ai/uptrain"
   },
-  "versions": ["v1", "v0"],
+  "versions": [
+    "v1",
+    "v0"
+  ],
   "anchors": [
     {
       "name": "Changelog",
@@ -56,7 +59,7 @@
       "group": "Getting Started 🚀",
       "version": "v1",
       "pages": [
-        "getting-started/introduction", 
+        "getting-started/introduction",
         "getting-started/quickstart"
       ]
     },
@@ -65,6 +68,7 @@
       "version": "v1",
       "pages": [
         "key-components/core-idea",
+        "key-components/evals",
         "key-components/operator",
         "key-components/chart",
         "key-components/check",
@@ -83,11 +87,12 @@
       "group": "Tutorials 📑",
       "version": "v1",
       "pages": [
+        "tutorials/customized-evaluations",
         "tutorials/prompt-experiments",
         "tutorials/validation",
         "tutorials/openai-evals",
         "tutorials/custom-operator",
-        "tutorials/uptrain-api-client"        
+        "tutorials/uptrain-api-client"
       ]
     },
     {

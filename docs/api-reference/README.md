@@ -16,21 +16,23 @@
 -
 <!-- <a href="https://docs.uptrain.ai/docs/" rel="nofollow"><strong>Docs</strong></a>
 - -->
-<a href="https://uptrain.ai/#demo" rel="nofollow"><strong>UpTrain in Action</strong></a>
+<a href="https://demo.uptrain.ai/dashboard" rel="nofollow"><strong>Self-serve Console</strong></a>
 -
 <a href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg" rel="nofollow"><strong>Slack Community</strong></a>
 -
 <!-- <a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=bug&template=bug_report.md&title=" rel="nofollow"><strong>Bug Report</strong></a>
 - -->
 <a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=" rel="nofollow"><strong>Feature Request</strong></a>
+-
+<a href="https://uptrain.ai/#demo" rel="nofollow"><strong>UpTrain in Action</strong></a>
 </p>
 
 <h4 align="center">
   <a href="https://demo.uptrain.ai/evals_demo/">
     <img src="https://img.shields.io/badge/Prebuilt-Evaluations-violet.svg?style=shields">
   </a>
-  <a href="https://uptrain.ai/#demo">
-    <img src="https://img.shields.io/badge/UpTrain-Demo-indigo.svg?style=shields">
+  <a href="https://demo.uptrain.ai/dashboard">
+    <img src="https://img.shields.io/badge/Self-Serve-indigo.svg?style=shields">
   </a>
   <a href='https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md'>
     <img alt='PRs Welcome' src='https://img.shields.io/badge/PRs-welcome-blue.svg?style=shields'/>
@@ -103,60 +105,65 @@ uptrain-add --feature full
 
 ### How to use UpTrain:
 
-#### Using UpTrain's builtin evaluation sets:
+#### Using UpTrain's evaluations:
 UpTrain provides a variety of checks like response relevance, response completeness, factual accuracy, retrieved-context quality, etc. which can be accessed using UpTrain's API key. To seem them in action, you can see the [Live Evaluation Demo](https://demo.uptrain.ai/evals_demo/)
-
-To learn how more about these builtin checks, check out the [Built-in Checks Documentation](https://docs.uptrain.ai/key-components/check#built-in-checks).
 
 Get your free UpTrain API Key [here](https://uptrain.ai/dashboard).
 
 ```python
+from uptrain.framework import APIClient, Evals, CritiqueTone
+import json
 
-data = pl.DataFrame({
-  "question": ["What is the meaning of life?"],
-  "response": ["Who knows 🤔"]
-})
+UPTRAIN_API_KEY = "up-***************" 
 
-check = CheckResponseCompleteness()
-output = check.setup(Settings(uptrain_access_token="up-9g....")).run(data)
+data = [{
+    'question': 'Which is the most popular global sport?',
+    'context': "The popularity of sports can be measured in various ways, including TV viewership, social media presence, number of participants, and economic impact. Football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi, drawing a followership of more than 4 billion people. Cricket is particularly popular in countries like India, Pakistan, Australia, and England. The ICC Cricket World Cup and Indian Premier League (IPL) have substantial viewership. The NBA has made basketball popular worldwide, especially in countries like the USA, Canada, China, and the Philippines. Major tennis tournaments like Wimbledon, the US Open, French Open, and Australian Open have large global audiences. Players like Roger Federer, Serena Williams, and Rafael Nadal have boosted the sport's popularity. Field Hockey is very popular in countries like India, Netherlands, and Australia. It has a considerable following in many parts of the world.",
+    'response': 'Football is the most popular sport with around 4 billion followers worldwide'
+}]
+
+client = APIClient(uptrain_api_key=UPTRAIN_API_KEY)
+
+res = client.log_and_evaluate(
+    "Sample-Project",
+    data,
+    [Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
+)
+
+print(json.dumps(res,indent=3))
 ```
 
+### Performing experiments with UpTrain:
 
-#### Configuring your own evaluation sets:
-
-Say we want to plot a line chart showing whether our model's responses contain any grammatical mistakes or not.
+Experiments help you perform A/B testing with prompts, so you can compare and choose the options most suitable for you. 
 
 ```python
+data = pd.DataFrame([{
+    'question': 'Which is the most popular global sport?',
+    'context': "The popularity of sports can be measured in various ways, including TV viewership, social media presence, number of participants, and economic impact. Football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi, drawing a followership of more than 4 billion people. Cricket is particularly popular in countries like India, Pakistan, Australia, and England. The ICC Cricket World Cup and Indian Premier League (IPL) have substantial viewership. The NBA has made basketball popular worldwide, especially in countries like the USA, Canada, China, and the Philippines. Major tennis tournaments like Wimbledon, the US Open, French Open, and Australian Open have large global audiences. Players like Roger Federer, Serena Williams, and Rafael Nadal have boosted the sport's popularity. Field Hockey is very popular in countries like India, Netherlands, and Australia. It has a considerable following in many parts of the world.",
+    'response': "1. The most popular global sport is determined by factors such as TV viewership, social media presence, number of participants, and economic impact. 2. Football is considered the most popular sport in the world, with events like the FIFA World Cup and star players like Ronaldo and Messi attracting over 4 billion followers. 3. Cricket is particularly popular in countries like India, Pakistan, Australia, and England, with events like the ICC Cricket World Cup and the Indian Premier League (IPL) having substantial viewership. 4. Basketball has gained global popularity, especially in the USA, Canada, China, and the Philippines, largely thanks to the NBA. 5. Tennis also has a significant global audience, with major tournaments like Wimbledon, the US Open, French Open, and Australian Open, and notable players like Roger Federer, Serena Williams, and Rafael Nadal. 6. Field Hockey enjoys popularity in countries like India, Netherlands, and Australia and has followers in many other parts of the world. So, the most popular global sport is football, followed by cricket, basketball, tennis, and field hockey, depending on the region and various factors.",
+    'prompt_variation': 'chain-of-thought'
+},
+{
+    'question': 'Which is the most popular global sport?',
+    'context': "The popularity of sports can be measured in various ways, including TV viewership, social media presence, number of participants, and economic impact. Football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi, drawing a followership of more than 4 billion people. Cricket is particularly popular in countries like India, Pakistan, Australia, and England. The ICC Cricket World Cup and Indian Premier League (IPL) have substantial viewership. The NBA has made basketball popular worldwide, especially in countries like the USA, Canada, China, and the Philippines. Major tennis tournaments like Wimbledon, the US Open, French Open, and Australian Open have large global audiences. Players like Roger Federer, Serena Williams, and Rafael Nadal have boosted the sport's popularity. Field Hockey is very popular in countries like India, Netherlands, and Australia. It has a considerable following in many parts of the world.",
+    'response': "- Which is the most popular global sport?  - Popularity of sports can be measured in different ways:    - TV viewership    - Social media presence    - Number of participants    - Economic impact  - Football:    - FIFA World Cup    - Ronaldo and Messi draw over 4 billion followers  - Cricket:    - Popular in India, Pakistan, Australia, and England    - ICC Cricket World Cup    - Indian Premier League (IPL)  - Basketball:    - NBA    - Popularity in the USA, Canada, China, Philippines  - Tennis:    - Major tournaments: Wimbledon, US Open, French Open, Australian Open    - Players: Roger Federer, Serena Williams, Rafael Nadal  - Field Hockey:    - Popular in India, Netherlands, Australia    - Followers in many parts of the world  In summary, football is the most popular global sport, followed by cricket, basketball, tennis, and field hockey, with variations in popularity depending on region and measurement criteria.",
+    'prompt_variation': 'tree-of-thought'
+}])
 
-# Step 1: Choose and create the appropriate operator from UpTrain
-grammar_score = GrammarScore(
-  col_in_text = "model_response",       # input column name (from dataset)
-  col_out = "grammar_score"             # desired output column name
+res = client.evaluate_experiments(
+    "Sample-Experiment",
+    data,
+    [Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone()],
+    ['prompt_variation']
 )
 
-# Step 2: Create a check with the operators and the required plots as arguments 
-grammar_check = Check(
-  operators = [grammar_score],
-  plots = LineChart(y = "grammar_score")
-)
-# We can also use prebuilt checks like CheckResponseCompleteness, CheckResponseRelevance, etc.
-response_completeness_check = CheckResponseRelevance()
-
-
-# Step 3: Create a CheckSet with the checks and data source as arguments
-checkset = CheckSet(
-    checks = [grammar_check, response_relevance_check]
-    source = JsonReader(fpath = '...')
-)
-
-# Step 4: Set up and run the CheckSet
-checkset.setup(Settings(openai_api_key = '...'))
-checkset.run(dataset)
+print(json.dumps(res, indent=3))
 ```
 
 ### Running evaluations on UpTrain's hosted platform:
 
-To learn how to run evaluations on UpTrain's hosted platform, check out the [UpTrain API Client Tutorial](https://docs.uptrain.ai/tutorials/uptrain-api-client).
+To learn how to run evaluations on [UpTrain's hosted platform](https://demo.uptrain.ai/dashboard), check out the [UpTrain API Client Tutorial](https://docs.uptrain.ai/tutorials/uptrain-api-client).
 
 <!-- For a quick walkthrough of how UpTrain works, check out our [quickstart tutorial](https://docs.uptrain.ai/docs/uptrain-examples/quickstart-tutorial). -->
 
@@ -196,13 +203,13 @@ To ensure your LLM applications work reliably and correctly, UpTrain makes it ea
 1) Validate (and correct) the response of the model before showing it to the user
 2) Get quantitative measures to experiment across multiple prompts, model providers, etc.
 3) Do unit testing to ensure no buggy prompt or code gets pushed into your production
-4) Monitor your LLM applications in real time and understand when they are going wrong in order to fix them before users complain.
+4) Monitor your LLM applications in real-time and understand when they are going wrong in order to fix them before users complain.
 
 We are constantly working to make UpTrain better. Want a new feature or need any integrations? Feel free to [create an issue](https://github.com/uptrain-ai/uptrain/issues) or [contribute](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md) directly to the repository.
 
 # License 💻
 
-This repo is published under Apache 2.0 license. We are also working towards adding a hosted offering to make setting off eval runs easier - please fill **[this form](https://docs.google.com/forms/d/e/1FAIpQLSf9h_SXoU0rJP2MUc4NIKOmOCqJ5J0xgephN1xgeoXscSHUSA/viewform?usp=sf_link)** to get a waitlist slot.
+This repo is published under Apache 2.0 license and we are committed to adding more functionalities to the UpTrain open-source repo. Upon popular demand, we have also rolled out a [no-code self-serve console](https://demo.uptrain.ai/dashboard). For customized onboarding, please book a [demo call here](https://calendly.com/uptrain-sourabh/uptrain-demo).
 
 # Stay Updated ☎️
 We are continuously adding tons of features and use cases. Please support us by giving the project a star ⭐!
