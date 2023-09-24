@@ -3,11 +3,13 @@
     <img width="300" src="https://user-images.githubusercontent.com/108270398/214240695-4f958b76-c993-4ddd-8de6-8668f4d0da84.png" alt="uptrain">
   </a>
 </h4>
-<h2>
-  <p align="center">
-    <p align="center">An open-source framework to evaluate and monitor LLM applications</p>
-  </p>
-</h2>
+<h4>
+  <p align="center">An open-source framework to evaluate applications</p>
+</h4>
+
+<h4 align="center">
+  <img width="500" src="https://github.com/uptrain-ai/uptrain/assets/108270398/1da1fbb6-a128-4f53-ae6a-52e69b467ece" alt="Demo of UpTrain's LLM evaluations with scores for hallucinations, retrieved-context quality, response tonality for a customer support chatbot">
+</h4>
 
 <p align="center">
 <!-- -
@@ -16,8 +18,8 @@
 -
 <!-- <a href="https://docs.uptrain.ai/docs/" rel="nofollow"><strong>Docs</strong></a>
 - -->
-<a href="https://demo.uptrain.ai/dashboard" rel="nofollow"><strong>Self-serve Console</strong></a>
--
+<!-- <a href="https://demo.uptrain.ai/dashboard" rel="nofollow"><strong>Self-serve Console</strong></a>
+- -->
 <a href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg" rel="nofollow"><strong>Slack Community</strong></a>
 -
 <!-- <a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=bug&template=bug_report.md&title=" rel="nofollow"><strong>Bug Report</strong></a>
@@ -56,6 +58,7 @@
 
 <!-- https://user-images.githubusercontent.com/43818888/229681912-a1d9733d-0c41-4be1-83cf-408d5271518e.mp4 -->
 
+
 <!-- **Read this in other languages**: 
 <kbd>[<img title="English" alt="English language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/us.svg" width="22">](/README.md)</kbd>
 <kbd>[<img title="German" alt="German language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/de.svg" width="22">](/i18n/README.de.md)</kbd>
@@ -73,19 +76,19 @@
 
 UpTrain framework can be used to experiment across multiple prompts, model providers, chain configurations, etc. and get quantitative scores to compare them. Check out the [experimentation tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/prompt_experiments_tutorial.ipynb) to learn more.
 
-<img width="500" src="https://github.com/uptrain-ai/uptrain/assets/108270398/12c93f96-fe2a-45d0-8394-4faf1b64af0c" alt="uptrain experimentation">
+<!-- <img width="500" src="https://github.com/uptrain-ai/uptrain/assets/108270398/12c93f96-fe2a-45d0-8394-4faf1b64af0c" alt="uptrain experimentation"> -->
 
 ## Validation
 
 You can use the UpTrain Validation Manager to define checks, retry logic and validate your LLM responses before showing it to your users. Check out the [tutorial here](https://github.com/uptrain-ai/uptrain/blob/main/examples/validation_tutorial.ipynb).
 
-<img width="500" src="https://github.com/uptrain-ai/uptrain/assets/108270398/09bcdd2b-28cc-4b39-9cf8-78df47a3b297" alt="uptrain validation">
+<!-- <img width="500" src="https://github.com/uptrain-ai/uptrain/assets/108270398/09bcdd2b-28cc-4b39-9cf8-78df47a3b297" alt="uptrain validation"> -->
 
 ## Monitoring
 
 You can use the UpTrain framework to continuously monitor your model's performance and get real-time insights on how well it is doing on a variety of evaluation metrics. Check out the monitoring tutorial to learn more.
 
-<img width="500" src="https://github.com/uptrain-ai/uptrain/assets/108270398/0ede5648-d1c3-44ff-af65-a1b688792888" alt="uptrain monitoring">
+<!-- <img width="500" src="https://github.com/uptrain-ai/uptrain/assets/108270398/0ede5648-d1c3-44ff-af65-a1b688792888" alt="uptrain monitoring"> -->
 
 # Get started 🙌
 
