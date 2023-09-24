@@ -8,7 +8,7 @@
 </h4>
 
 <h4 align="center">
-  <img width="500" src="https://github.com/uptrain-ai/uptrain/assets/108270398/1da1fbb6-a128-4f53-ae6a-52e69b467ece">
+  <img width="500" src="https://github.com/uptrain-ai/uptrain/assets/108270398/1da1fbb6-a128-4f53-ae6a-52e69b467ece" alt="Demo of UpTrain's LLM evaluations with scores for hallucinations, retrieved context quality, response tonality for a customer support chatbot">
 </h4>
 
 <p align="center">
