@@ -5,7 +5,7 @@
 </h4>
 <h2>
   <p align="center">
-    <p align="center">An open-source framework to evaluate and monitor LLM applications</p>
+    <p align="center">An open-source framework to evaluate applications</p>
   </p>
 </h2>
 
@@ -16,8 +16,8 @@
 -
 <!-- <a href="https://docs.uptrain.ai/docs/" rel="nofollow"><strong>Docs</strong></a>
 - -->
-<a href="https://demo.uptrain.ai/dashboard" rel="nofollow"><strong>Self-serve Console</strong></a>
--
+<!-- <a href="https://demo.uptrain.ai/dashboard" rel="nofollow"><strong>Self-serve Console</strong></a>
+- -->
 <a href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg" rel="nofollow"><strong>Slack Community</strong></a>
 -
 <!-- <a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=bug&template=bug_report.md&title=" rel="nofollow"><strong>Bug Report</strong></a>
