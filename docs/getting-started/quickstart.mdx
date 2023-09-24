@@ -108,7 +108,7 @@ data = pd.DataFrame([{
     'prompt_variation': 'tree-of-thought'
 }])
 
-res = client.log_and_evaluate(
+res = client.evaluate_experiments(
     "Sample-Experiment",
     data,
     [Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone()],
