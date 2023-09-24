@@ -3,11 +3,13 @@
     <img width="300" src="https://user-images.githubusercontent.com/108270398/214240695-4f958b76-c993-4ddd-8de6-8668f4d0da84.png" alt="uptrain">
   </a>
 </h4>
-<h2>
-  <p align="center">
-    <p align="center">An open-source framework to evaluate applications</p>
-  </p>
-</h2>
+<h4>
+  <p align="center">An open-source framework to evaluate applications</p>
+</h4>
+
+<h4 align="center">
+  <img width="500" src="https://github.com/uptrain-ai/uptrain/assets/108270398/1da1fbb6-a128-4f53-ae6a-52e69b467ece">
+</h4>
 
 <p align="center">
 <!-- -
@@ -55,7 +57,7 @@
 </h4>
 
 <!-- https://user-images.githubusercontent.com/43818888/229681912-a1d9733d-0c41-4be1-83cf-408d5271518e.mp4 -->
-<img width="600" src="https://github.com/uptrain-ai/uptrain/assets/108270398/1da1fbb6-a128-4f53-ae6a-52e69b467ece">
+
 
 <!-- **Read this in other languages**: 
 <kbd>[<img title="English" alt="English language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/us.svg" width="22">](/README.md)</kbd>
