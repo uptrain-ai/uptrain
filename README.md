@@ -55,7 +55,7 @@
 </h4>
 
 <!-- https://user-images.githubusercontent.com/43818888/229681912-a1d9733d-0c41-4be1-83cf-408d5271518e.mp4 -->
-![uptrain_demo](https://github.com/uptrain-ai/uptrain/assets/108270398/1da1fbb6-a128-4f53-ae6a-52e69b467ece)
+<img width="600" src="https://github.com/uptrain-ai/uptrain/assets/108270398/1da1fbb6-a128-4f53-ae6a-52e69b467ece">
 
 <!-- **Read this in other languages**: 
 <kbd>[<img title="English" alt="English language" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/us.svg" width="22">](/README.md)</kbd>
