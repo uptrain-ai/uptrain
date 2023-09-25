@@ -31,6 +31,49 @@ def raise_or_return(response: httpx.Response):
         return response.json()
 
 
+class APIClientWithoutAuth:
+    base_url: str
+    client: httpx.Client
+
+    def __init__(self, settings: Settings = None) -> None:
+        if settings is None:
+            settings = Settings()
+
+        server_url = settings.check_and_get("uptrain_server_url")
+        self.base_url = server_url.rstrip("/") + "/api/public"
+        self.client = httpx.Client(
+            timeout=httpx.Timeout(50, connect=5),
+        )
+
+    def evaluate(
+        self,
+        data: list[dict],
+        checks: list[t.Union[Evals, ParametricEval]],
+        metadata: dict,
+    ):
+        """Run an evaluation on the UpTrain server (Doesn't require UpTrain API Key).
+        """
+
+        url = f"{self.base_url}/evaluate_no_auth"
+        response_json = []
+        try:
+            response = self.client.post(
+                url,
+                json={
+                    "data": data,
+                    "checks": checks,
+                    "metadata": metadata
+                },
+            )
+            response_json = raise_or_return(response)
+        except Exception as e:
+            logger.error(f"Evaluation failed with error: {e}")
+            raise e
+
+        return response_json
+
+
+
 class APIClient:
     base_url: str
     client: httpx.Client
