@@ -1,6 +1,6 @@
 import enum
 import pydantic
-
+import typing as t
 
 class Evals(enum.Enum):
     CONTEXT_RELEVANCE = "context_relevance"
@@ -17,3 +17,9 @@ class ParametricEval(pydantic.BaseModel):
 
 class CritiqueTone(ParametricEval):
     persona: str = "helpful-chatbot"
+
+
+class GuidelineAdherence(ParametricEval):
+    guideline: str
+    guideline_name: str = "guideline"  # User-assigned name of the guideline to distinguish between multiple checks
+    response_schema: t.Union[str, None] = None  # Schema of the response in case it is of type JSON, XML, etc.
