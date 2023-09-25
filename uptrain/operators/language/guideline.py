@@ -54,7 +54,7 @@ class GuidelineAdherenceScore(ColumnOp):
         ]
         try:
             results = self._api_client.evaluate(
-                "guideline_adherence", data_send, {
+                "GuidelineAdherence", data_send, {
                     "guideline": self.guideline,
                     "guideline_name": self.guideline_name,
                     "response_schema": self.response_schema

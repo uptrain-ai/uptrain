@@ -3,23 +3,14 @@ title: "Quickstart"
 description: "Get started with UpTrain in a few simple steps"
 ---
 
-### Choose your style
+### Get your API key
 
-UpTrain can be used in two ways:
-1. **Using the API client:** The UpTrain API client offers many pre-built Operators and Checks that you can use to analyze your data. You can easily run evaluations with settings that we have already configured for you. This is the recommended way to use UpTrain. To learn how to use the API client, check out the [UpTrain API Client Tutorial](/tutorials/uptrain-api-client).
-2. **Using the framework:** The UpTrain framework allows you to create your own Operators and Checks. You can also configure your own settings and run evaluations. This is recommended for advanced users who want to customize their evaluations. To learn how to use this, follow the steps below.
-
-### Define your requirement
-
-There are many ways you can use UpTrain. You can set it up based on your requirements. 
-
-Let's say we asked a Large Language Model like ChatGPT to generate responses for given inputs and stored them in a CSV spreadsheet called [responses.csv](https://docs.google.com/spreadsheets/d/16lln3OWUMCN53IBMytdiZL0uAlKBqgWJn9umpMCeii4/edit?usp=sharing). Now, we want to do the following:
-
-1. Check the grammatical correctness of the generated responses.
-2. Calculate the length of each response.
+[Sign up](https://uptrain.ai/dashboard) for an UpTrain account and get your API key. You will be provided with 500 free credits to get started. You can also [contact us](https://calendly.com/uptrain-sourabh/uptrain-demo) for a demo or to get more credits.
 
 
 ### Install UpTrain with all dependencies
+
+Run the following commands in your terminal to install UpTrain and all its dependencies:
 
 ```bash
 pip install uptrain
@@ -27,124 +18,102 @@ uptrain-add --feature full
 ```
 
 
-### Choose and create Operators
+### Create an UpTrain API Client
 
-An [Operator](/key-components/operator) runs a function on a given column of data and returns the result in a new column.
-
-In our case, we clearly want to use the `GrammarScore` and `TextLength` Operators. So, we will create them by specifying the input and output coloumn names as follows:
+Before we can start using UpTrain, we need to create an API client. You can do this by passing your API key to the `APIClient` constructor.
 
 ```python
-from uptrain.operators import GrammarScore, TextLength
+UPTRAIN_API_KEY = "up-***************"
+client = APIClient(uptrain_api_key=UPTRAIN_API_KEY)
+```
 
-grammar_score = GrammarScore(
-    col_in_text="model_response",
-    col_out="grammar_correctness_score"
-)
+Note: Alternatively, if you do not wish to create an UpTrain account, you can pass an OpenAI API key as the `openai_api_key` argument to the `APIClient` constructor. These evaluations are also run on UpTrain's infrastructure.
 
-text_length = TextLength(
-    col_in_text="model_response",
-    col_out="response_length"
-)
+### Create your data
+
+You can define your data as simple dictionary with the following keys:
+
+- `question`: The question you want to ask
+- `context`: The context relevant to the question
+- `response`: The response to the question
+
+```python
+data = [{
+    "question": [
+        "Which is the most popular global sport?",
+        "Who created the Python language?",
+    ]
+    "context": [
+        "The popularity of sports can be measured in various ways, including TV viewership, social media presence, number of participants, and economic impact. Football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi, drawing a followership of more than 4 billion people.",
+        "Python, created by Guido van Rossum in the late 1980s, is a high-level general-purpose programming language. Its design philosophy emphasizes code readability, and its language constructs aim to help programmers write clear, logical code for both small and large-scale software projects.",
+    ]
+    "response":[
+        "Football is the most popular sport with around 4 billion followers worldwide",
+        "Python language was created by Guido van Rossum.",
+    ]
+}]
 ```
 
 
-### Create the Checks
+### Log and evaluate your data
 
-A [Check](https://uptrain-ai.github.io/uptrain/framework/Check) runs the given list of operators in the order in which they are specified by the user. 
+Now that we have our data, we can log it and evaluate it using UpTrain. We use the `log_and_evaluate` method to do this. This method takes the following arguments:
 
-A `Check` in UpTrain takes three arguments:
-1. **name -** The name of the check
-2. **operators -** The operators that are to be run when the check is executed
-3. **plots -** The plots that are to be generated when the check is executed
+- `project_name`: The name of your project
+- `data`: The data you want to log and evaluate
+- `evals`: The evaluations you want to perform on your data
 
-```python
-from uptrain.framework import Check
-
-response_analysis = Check(
-    name="response_analysis"
-    operators=[grammar_score, text_length],
-    plots=[Table()]
-)
-```
-
-Here, we show a table with all the columns and a histogram that depicts the relationship between the length of the responses and their grammatical correctness. 
-You can create more than one `Check`, but for the sake of simplicity, we will just create one.
-
-
-### Using pre-built Checks
-
-UpTrain comes with many pre-built `Check`s that you can use. These have been pre-configured with operators and plots. You can use them as follows:
+You can find the list of all available evaluations [here](/key-components/evals).
 
 ```python
-from uptrain.framework.builtins import CheckResponseCompleteness
+from uptrain.framework import APIClient, Evals, CritiqueTone
+import json
 
-response_completeness_check = CheckResponseCompleteness()
-```
-
-To learn more about the pre-built `Check`s, check out their [documentation](/key-components/check#built-in-checks).
-
-### Configure the Settings
-
-We need to tell UpTrain where we want our results to be stored (logs_folder). Since, the `GrammarScore` uses OpenAI's API, we also need to enter the OpenAI API key. 
-
-To learn more about how to get an OpenAI API key and set it as an environment variable, check out this [guide](https://www.immersivelimit.com/tutorials/adding-your-openai-api-key-to-system-environment-variables). It is recommended to store your API key as an environment variable for security reasons.
-
-We configure the settings for our checks as follows:
-
-```python
-import os
-from uptrain.framework import Settings
-
-LOGS_DIR = "/tmp/uptrain_logs"
-OPENAI_API_KEY = os.environ["OPENAI_API_KEY"]
-
-settings = Settings(
-    logs_folder=LOGS_DIR,
-    openai_api_key=OPENAI_API_KEY
+results = client.log_and_evaluate(
+    "Sample-Project",
+    data,
+    [Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
 )
 ```
 
-
-### Create a CheckSet
-
-You can create as many `Check`s as you want and add them to a [CheckSet](https://uptrain-ai.github.io/uptrain/framework/CheckSet). It will run all the `Check`s and you can view them individually. For now, we just add the response_analysis `Check` we created above. 
-
-Here, we use UpTrain's `CsvReader` to read the content from our CSV file containing the responses.
+### Get your results
 
 ```python
-from uptrain.framework import CheckSet
-from uptrain.operators import CsvReader
+print(json.dumps(results, indent=3))
+```
 
-check_set = CheckSet(
-    checks=[response_analysis, response_completeness_check],
-    source=CsvReader(fpath="responses.csv")
+
+## Experiments
+
+You can also run experiments on your data using the `evaluate_experiments` method. Experiments help you perform A/B testing with prompts, so you can compare and choose the options most suitable for you. 
+
+The `evaluate_experiments` method takes all the same arguments as the `log_and_evaluate` with the addition of the following:
+
+- `exp_columns` - A list of all the columns that act as identifiers to indicate which experiment the row belongs to. You can enter multiple column names here.
+
+
+Let's look at an example with prompt_variation as a column that indicates the experiment.
+
+```python
+data = pd.DataFrame([{
+    'question': 'Which is the most popular global sport?',
+    'context': "The popularity of sports can be measured in various ways, including TV viewership, social media presence, number of participants, and economic impact. Football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi, drawing a followership of more than 4 billion people. Cricket is particularly popular in countries like India, Pakistan, Australia, and England. The ICC Cricket World Cup and Indian Premier League (IPL) have substantial viewership. The NBA has made basketball popular worldwide, especially in countries like the USA, Canada, China, and the Philippines. Major tennis tournaments like Wimbledon, the US Open, French Open, and Australian Open have large global audiences. Players like Roger Federer, Serena Williams, and Rafael Nadal have boosted the sport's popularity. Field Hockey is very popular in countries like India, Netherlands, and Australia. It has a considerable following in many parts of the world.",
+    'response': "1. The most popular global sport is determined by factors such as TV viewership, social media presence, number of participants, and economic impact. 2. Football is considered the most popular sport in the world, with events like the FIFA World Cup and star players like Ronaldo and Messi attracting over 4 billion followers. 3. Cricket is particularly popular in countries like India, Pakistan, Australia, and England, with events like the ICC Cricket World Cup and the Indian Premier League (IPL) having substantial viewership. 4. Basketball has gained global popularity, especially in the USA, Canada, China, and the Philippines, largely thanks to the NBA. 5. Tennis also has a significant global audience, with major tournaments like Wimbledon, the US Open, French Open, and Australian Open, and notable players like Roger Federer, Serena Williams, and Rafael Nadal. 6. Field Hockey enjoys popularity in countries like India, Netherlands, and Australia and has followers in many other parts of the world. So, the most popular global sport is football, followed by cricket, basketball, tennis, and field hockey, depending on the region and various factors.",
+    'prompt_variation': 'chain-of-thought'
+},
+{
+    'question': 'Which is the most popular global sport?',
+    'context': "The popularity of sports can be measured in various ways, including TV viewership, social media presence, number of participants, and economic impact. Football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi, drawing a followership of more than 4 billion people. Cricket is particularly popular in countries like India, Pakistan, Australia, and England. The ICC Cricket World Cup and Indian Premier League (IPL) have substantial viewership. The NBA has made basketball popular worldwide, especially in countries like the USA, Canada, China, and the Philippines. Major tennis tournaments like Wimbledon, the US Open, French Open, and Australian Open have large global audiences. Players like Roger Federer, Serena Williams, and Rafael Nadal have boosted the sport's popularity. Field Hockey is very popular in countries like India, Netherlands, and Australia. It has a considerable following in many parts of the world.",
+    'response': "- Which is the most popular global sport?  - Popularity of sports can be measured in different ways:    - TV viewership    - Social media presence    - Number of participants    - Economic impact  - Football:    - FIFA World Cup    - Ronaldo and Messi draw over 4 billion followers  - Cricket:    - Popular in India, Pakistan, Australia, and England    - ICC Cricket World Cup    - Indian Premier League (IPL)  - Basketball:    - NBA    - Popularity in the USA, Canada, China, Philippines  - Tennis:    - Major tournaments: Wimbledon, US Open, French Open, Australian Open    - Players: Roger Federer, Serena Williams, Rafael Nadal  - Field Hockey:    - Popular in India, Netherlands, Australia    - Followers in many parts of the world  In summary, football is the most popular global sport, followed by cricket, basketball, tennis, and field hockey, with variations in popularity depending on region and measurement criteria.",
+    'prompt_variation': 'tree-of-thought'
+}])
+
+res = client.evaluate_experiments(
+    "Sample-Experiment",
+    data,
+    [Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone()],
+    ['prompt_variation']
 )
+
+print(json.dumps(res, indent=3))
 ```
-
-
-### Set up and run the CheckSet
-
-Now, we will set up the `CheckSet` with the settings we created above and run it. 
-
-```python
-check_set.setup(settings)
-check_set.run()
-```
-
-
-### Visualize the results
-
-Finally, we use UpTrain's `StreamlitRunner` to visualize the results. 
-
-```python
-from uptrain.dashboard import StreamlitRunner
-
-st_runner = StreamlitRunner(LOGS_DIR)
-st_runner.start()
-```
-
-This will open a new tab in your browser with the UpTrain dashboard. You can view the results of the `Check` we created above.
-
-Here is a screenshot of the dashboard:
-
-![dashboard.png](https://github.com/uptrain-ai/uptrain/assets/43818888/d2c3436b-e653-47ce-9426-c91153ac3bb5)

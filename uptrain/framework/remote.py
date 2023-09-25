@@ -8,11 +8,12 @@ import typing as t
 from loguru import logger
 import httpx
 import polars as pl
+import pandas as pd
 import pydantic
 
 from uptrain.framework.checks import CheckSet, ExperimentArgs
 from uptrain.framework.base import Settings
-from uptrain.framework.evals import Evals, ParametricEval, CritiqueTone
+from uptrain.framework.evals import Evals, ParametricEval, CritiqueTone, GuidelineAdherence
 
 
 class DataSchema(pydantic.BaseModel):
@@ -328,7 +329,7 @@ class APIClient:
     def evaluate(
         self,
         eval_name: str,
-        full_dataset: t.Union[list[dict], pl.DataFrame],
+        full_dataset: t.Union[list[dict], pl.DataFrame, pd.DataFrame],
         params: t.Union[dict, None] = None,
     ):
         """Run an evaluation on the server.
@@ -338,6 +339,8 @@ class APIClient:
         url = f"{self.base_url}/evaluate"
         if isinstance(full_dataset, pl.DataFrame):
             full_dataset = full_dataset.to_dicts()
+        elif isinstance(full_dataset, pd.DataFrame):
+            full_dataset = full_dataset.to_dict(orient="records")
 
         # send in chunks of 50, so the connection doesn't time out waiting for the server
         results = []
@@ -373,7 +376,7 @@ class APIClient:
     def log_and_evaluate(
         self,
         project_name: str,
-        data: t.Union[list[dict], pl.DataFrame],
+        data: t.Union[list[dict], pl.DataFrame, pd.DataFrame],
         checks: list[t.Union[str, Evals, ParametricEval]],
         schema: t.Union[DataSchema, dict[str, str], None] = None,
         metadata: t.Optional[dict[str, t.Any]] = None,
@@ -395,6 +398,8 @@ class APIClient:
 
         if isinstance(data, pl.DataFrame):
             data = data.to_dicts()
+        elif isinstance(data, pd.DataFrame):
+            data = data.to_dict(orient="records")
 
         if schema is None:
             schema = DataSchema()
@@ -416,7 +421,7 @@ class APIClient:
                 req_attrs.update([schema.question, schema.response])
             elif m in [Evals.CONTEXT_RELEVANCE]:
                 req_attrs.update([schema.question, schema.context])
-            elif m == Evals.CRITIQUE_LANGUAGE or isinstance(m, CritiqueTone):
+            elif m == Evals.CRITIQUE_LANGUAGE or isinstance(m, CritiqueTone) or isinstance(m, GuidelineAdherence):
                 req_attrs.update([schema.response])
 
             if isinstance(m, ParametricEval):

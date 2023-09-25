@@ -1,0 +1,82 @@
+---
+title: Evals
+description: Quickest way to perform evaluations on your data
+---
+
+UpTrain provides a simple and easy way to perform evaluations on your data. You can pass any of these Evals to the `log_and_evaluate` function and it will automatically perform the evaluation and log the results to the database.
+
+These evals require a combination of the following columns to be present in your data:
+
+- `question`: The question you want to ask
+- `context`: The context relevant to the question
+- `response`: The response to the question
+
+
+### FACTUAL_ACCURACY
+
+Grades how factual the generated response was.
+
+Columns required:
+- `question`
+- `context`
+- `response`
+
+
+### RESPONSE_COMPLETENESS
+
+Grades how complete the generated response was for the question specified.
+
+Columns required:
+- `question`
+- `response`
+
+
+### RESPONSE_COMPLETENESS_WRT_CONTEXT
+
+Grades how complete the generated response was for the question specified given the information provided in the context.
+
+Columns required:
+- `question`
+- `context`
+- `response`
+
+
+### CONTEXT_RELEVANCE
+
+Grades how relevant the context was to the question specified.
+
+Columns required:
+- `question`
+- `context`
+
+
+### RESPONSE_RELEVANCE
+
+Grades how relevant the generated response is or if it has any additional irrelevant information for the question asked.
+
+Columns required:
+- `question`
+- `response`
+
+
+### CRITIQUE_LANGUAGE
+
+Operator to score machine generated responses in a conversation. The response is evaluated on multiple aspects - fluence, politeness, grammar, and coherence. It provides a score for each of the aspects on a scale of 0 to 1, along with an explanation for the score.
+
+Columns required:
+- `response`
+
+
+## Parametric Evals
+
+Parametric evals are evals that require additional parameters to be passed to them. These are used by directly passing an object of the eval class to the `log_and_evaluate` function.
+
+### CritiqueTone
+    
+Operator to assess the tone of machine generated responses.
+
+Columns required:
+- `response`
+
+Parameters:
+- `persona` - The persona the chatbot being assesses was expected to follow
