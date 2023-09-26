@@ -3,18 +3,18 @@ title: "Quickstart"
 description: "Get started with UpTrain in a few simple steps"
 ---
 
-### Get your API key
+### Get your UpTrain API key
 
 [Sign up](https://uptrain.ai/dashboard) for an UpTrain account and get your API key. You will be provided with 100 free credits to get started. You can also [contact us](https://calendly.com/uptrain-sourabh/uptrain-demo) for a demo or to get more credits.
 
+If you do not wish to create an UpTrain account, you can use your OpenAI API key instead. These evaluations are also run on UpTrain's infrastructure. Check out the [Open Source API Client](/tutorials/open-source-api-client) tutorial to learn how to do this.
 
-### Install UpTrain with all dependencies
+### Install UpTrain
 
-Run the following commands in your terminal to install UpTrain and all its dependencies:
+Run the following commands in your terminal to install UpTrain:
 
 ```bash
 pip install uptrain
-uptrain-add --feature full
 ```
 
 
@@ -26,8 +26,6 @@ Before we can start using UpTrain, we need to create an API client. You can do t
 UPTRAIN_API_KEY = "up-***************"
 client = APIClient(uptrain_api_key=UPTRAIN_API_KEY)
 ```
-
-Note: Alternatively, if you do not wish to create an UpTrain account, you can pass an OpenAI API key as the `openai_api_key` argument to the `APIClient` constructor. These evaluations are also run on UpTrain's infrastructure.
 
 ### Create your data
 

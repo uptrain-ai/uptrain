@@ -1,0 +1,78 @@
+---
+title: "Open Source API Client"
+description: "Get started with UpTrain in a few simple steps"
+---
+
+This tutorial will walk you through the process of getting started with UpTrain using our open source API client. You can use this API client to log and evaluate your data, and get results in a few simple steps.
+
+### Get your OpenAI API key
+
+You can get your OpenAI API key [here](https://platform.openai.com/account/api-keys).
+
+### Install UpTrain
+
+Run the following commands in your terminal to install UpTrain:
+
+```bash
+pip install uptrain
+```
+
+### Create an EvalLLM Client
+
+Before we can start using UpTrain, we need to create an API client. You can do this by passing your API key to the `EvalLLM` constructor.
+
+```python
+client = EvalLLM(openai_api_key=OPENAI_API_KEY)
+```
+
+
+### Create your data
+
+You can define your data as simple dictionary with the following keys:
+
+- `question`: The question you want to ask
+- `context`: The context relevant to the question
+- `response`: The response to the question
+
+```python
+data = [{
+    "question": [
+        "Which is the most popular global sport?",
+        "Who created the Python language?",
+    ]
+    "context": [
+        "The popularity of sports can be measured in various ways, including TV viewership, social media presence, number of participants, and economic impact. Football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi, drawing a followership of more than 4 billion people.",
+        "Python, created by Guido van Rossum in the late 1980s, is a high-level general-purpose programming language. Its design philosophy emphasizes code readability, and its language constructs aim to help programmers write clear, logical code for both small and large-scale software projects.",
+    ]
+    "response":[
+        "Football is the most popular sport with around 4 billion followers worldwide",
+        "Python language was created by Guido van Rossum.",
+    ]
+}]
+```
+
+
+### Log and evaluate your data
+
+Now that we have our data, we can log it and evaluate it using UpTrain. We use the `evaluate` method to do this. This method takes the following arguments:
+
+- `data`: The data you want to log and evaluate
+- `checks`: The evaluations you want to perform on your data
+
+You can find the list of all available evaluations [here](/key-components/evals).
+
+```python
+from uptrain.framework import EvalLLM, Evals, CritiqueTone
+import json
+
+results = client.evaluate(
+    data=data,
+    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
+)
+```
+
+### Get your results
+
+```python
+print(json.dumps(results, indent=3))
+```
