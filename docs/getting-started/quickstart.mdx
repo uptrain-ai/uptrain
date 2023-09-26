@@ -5,7 +5,7 @@ description: "Get started with UpTrain in a few simple steps"
 
 ### Get your API key
 
-[Sign up](https://uptrain.ai/dashboard) for an UpTrain account and get your API key. You will be provided with 500 free credits to get started. You can also [contact us](https://calendly.com/uptrain-sourabh/uptrain-demo) for a demo or to get more credits.
+[Sign up](https://uptrain.ai/dashboard) for an UpTrain account and get your API key. You will be provided with 100 free credits to get started. You can also [contact us](https://calendly.com/uptrain-sourabh/uptrain-demo) for a demo or to get more credits.
 
 
 ### Install UpTrain with all dependencies
@@ -70,9 +70,9 @@ from uptrain.framework import APIClient, Evals, CritiqueTone
 import json
 
 results = client.log_and_evaluate(
-    "Sample-Project",
-    data,
-    [Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
+    project_name="Sample-Project",
+    data=data,
+    evals=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
 )
 ```
 
@@ -108,12 +108,14 @@ data = pd.DataFrame([{
     'prompt_variation': 'tree-of-thought'
 }])
 
-res = client.evaluate_experiments(
-    "Sample-Experiment",
-    data,
-    [Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone()],
-    ['prompt_variation']
+results = client.evaluate_experiments(
+    project_name="Sample-Experiment",
+    data=data,
+    evals=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone()],
+    exp_columns=['prompt_variation']
 )
 
-print(json.dumps(res, indent=3))
+print(json.dumps(results, indent=3))
 ```
+
+If you wish to create your own custom evaluations with your own custom graphs, you can follow our [UpTrain API Client tutorial](/tutorials/uptrain-api-client) to learn how to do so.
