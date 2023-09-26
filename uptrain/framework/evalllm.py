@@ -18,8 +18,14 @@ from uptrain.framework.evals import Evals, ParametricEval, CritiqueTone
 
 class EvalLLM:
 
-    def __init__(self) -> None:
-        self.settings = Settings()
+    def __init__(self, settings: Settings = None, openai_api_key: str = None) -> None:
+        if (openai_api_key is None) and (settings is None):
+            raise Exception("Please provide UpTrain API Key")
+
+        if settings is None:
+            self.settings = Settings(openai_api_key=openai_api_key)
+        else:
+            self.settings = settings
         self.executor = APIClientWithoutAuth(self.settings)
 
     def evaluate(
@@ -27,6 +33,7 @@ class EvalLLM:
         data: t.Union[list[dict], pl.DataFrame, pd.DataFrame],
         checks: list[t.Union[str, Evals, ParametricEval]],
         schema: t.Union[DataSchema, dict[str, str], None] = None,
+        metadata: t.Optional[dict[str, str]] = None
     ):
         """Run an evaluation on the UpTrain server using user's openai keys.
         NOTE: This api doesn't log any data.
