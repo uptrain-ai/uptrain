@@ -10,9 +10,10 @@ data = [{
 }]
 
 client = APIClient(uptrain_api_key=UPTRAIN_API_KEY)
-res = client.log_and_evaluate(
-    "Sample-Project",
-    data,
-    [Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
+results = client.log_and_evaluate(
+    project_name="Sample-Project",
+    data=data,
+    evals=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
 )
-print(json.dumps(res,indent=3))
+
+print(json.dumps(results, indent=3))
