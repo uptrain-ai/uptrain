@@ -35,18 +35,19 @@
   <img width="500" src="https://github.com/uptrain-ai/uptrain/assets/108270398/e00b47f7-ca95-40e1-866d-9f662fab944a" alt="Demo of UpTrain's LLM evaluations with scores for hallucinations, retrieved-context quality, response tonality for a customer support chatbot">
 </h4>
 
-**[UpTrain](https://uptrain.ai)** is a Python framework that ensures your LLM applications are performing reliably by allowing users to check aspects such as correctness, structural integrity, bias, hallucination, etc. UpTrain can be used to:
+**[UpTrain](https://uptrain.ai)** is a Python framework that ensures your LLM applications perform reliably by allowing users to check aspects such as correctness, structural integrity, bias, hallucination, etc. UpTrain can be used to:
 
 # Evalulations We Offer 📝
 
 | Evaluation  | Description |
 | ------------- | ------------- |
-| [Factual Accuracy](https://uptrain-ai.github.io/uptrain/operators/language/ResponseFactualScore/) | Checks if the response is factually accurate |
-| [Response Completeness](https://uptrain-ai.github.io/uptrain/operators/language/ResponseCompleteness/) | Grades how complete the response was for the question specified  |
-| [Response Completeness wrt Context](https://uptrain-ai.github.io/uptrain/operators/language/ResponseCompleteness/) | Grades how complete the response was for the question specified with respect to the context |
-| [Context Relevance](https://uptrain-ai.github.io/uptrain/operators/language/ContextRelevance/) | Evaluates how relevant the context is to the question specified |
+| [Factual Accuracy](https://uptrain-ai.github.io/uptrain/operators/language/ResponseFactualScore/) | Checks if the response is grounded by the context provided |
+| [Guideline Adherence](https://uptrain-ai.github.io/uptrain/operators/language/ResponseCompleteness/) | Checks if the response or the LLM adhers to the given guideline or not  |
+| [Response Completeness](https://uptrain-ai.github.io/uptrain/operators/language/ResponseCompleteness/) | Grades how if the response completes the given question  |
+| [Response Completeness wrt Context](https://uptrain-ai.github.io/uptrain/operators/language/ResponseCompleteness/) | Grades how complete the response was for the question specified with respect to the information present in the context |
+| [Context Relevance](https://uptrain-ai.github.io/uptrain/operators/language/ContextRelevance/) | Evaluates if the context has all the information to answer the given question |
 | [Response Relevance](https://uptrain-ai.github.io/uptrain/operators/language/ResponseRelevance/) | Grades how relevant the generated response is or if it has any additional irrelevant information for the question asked. |
-| [Tone Critique](https://uptrain-ai.github.io/uptrain/operators/language/ToneCritique/) | Assesses the tone of machine generated responses. |
+| [Tone Critique](https://uptrain-ai.github.io/uptrain/operators/language/ToneCritique/) | Assesses if the tone of machine-generated responses matches with the desired persona. |
 | [Language Critique](https://uptrain-ai.github.io/uptrain/operators/language/LanguageCritique/) | Scores machine generated responses in a conversation. The response is evaluated on multiple aspects - fluence, politeness, grammar, and coherence. |
 
 # Get started 🙌
