@@ -3,6 +3,7 @@ __all__ = [
     "Check",
     "CheckSet",
     "ExperimentArgs",
+    "EvalLLM",
     "OperatorDAG",
     "Settings",
     "Signal",
@@ -19,3 +20,4 @@ from .signal import Signal
 from .remote import APIClient, DataSchema
 from .builtins import builtins
 from .evals import Evals, CritiqueTone, GuidelineAdherence
+from .evalllm import EvalLLM
