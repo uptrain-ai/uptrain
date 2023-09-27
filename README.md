@@ -3,10 +3,9 @@
     <img width="300" src="https://user-images.githubusercontent.com/108270398/214240695-4f958b76-c993-4ddd-8de6-8668f4d0da84.png" alt="uptrain">
   </a>
 </h4>
-<h4>
-  <h2 align="center">An open-source framework to evaluate applications</h2>
-</h4>
-
+<h2>
+  <p align="center">An open-source framework to evaluate LLM applications</p>
+</h2>
 
 <p align="center">
 <a href="https://demo.uptrain.ai/evals_demo/" rel="nofollow"><strong>Try out Evaluations</strong></a>
