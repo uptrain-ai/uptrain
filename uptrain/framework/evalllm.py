@@ -20,7 +20,7 @@ class EvalLLM:
 
     def __init__(self, settings: Settings = None, openai_api_key: str = None) -> None:
         if (openai_api_key is None) and (settings is None):
-            raise Exception("Please provide UpTrain API Key")
+            raise Exception("Please provide OpenAI API Key")
 
         if settings is None:
             self.settings = Settings(openai_api_key=openai_api_key)
