@@ -1,12 +1,12 @@
 <h4 align="center">
   <a href="https://uptrain.ai">
-    <img width="200" src="https://github.com/uptrain-ai/uptrain/assets/108270398/3471bf57-30d8-450b-8826-f1bf0e9b496b" alt="uptrain">
+    <img alt="uptrain_banner" src="https://github.com/uptrain-ai/uptrain/assets/108270398/ef58dc89-5367-4166-adb2-66ebee381f9a">
   </a>
 </h4>
-<h2>
+<!-- <h2>
   <p align="center">An open-source framework to evaluate LLM applications</p>
 </h2>
-
+ -->
 
 <p align="center">
 <a href="https://demo.uptrain.ai/evals_demo/" rel="nofollow"><strong>Try out Evaluations</strong></a>
