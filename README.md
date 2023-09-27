@@ -1,14 +1,16 @@
 <h4 align="center">
   <a href="https://uptrain.ai">
-    <img alt="uptrain_banner_3" src="https://github.com/uptrain-ai/uptrain/assets/108270398/021eab37-cbdd-4f0e-876b-ffbce765c46f">
+   <img alt="Github banner 006 (1)" src="https://github.com/uptrain-ai/uptrain/assets/108270398/6716437e-4c38-4637-bf2e-f17240b8815c">
   </a>
 </h4>
 <!-- <h2>
+  <img alt="uptrain_banner_3" src="https://github.com/uptrain-ai/uptrain/assets/108270398/021eab37-cbdd-4f0e-876b-ffbce765c46f">
   <p align="center">An open-source framework to evaluate LLM applications</p>
   <img alt="uptrain_banner_1" src="https://github.com/uptrain-ai/uptrain/assets/108270398/9c3202f2-ebc5-4034-a227-b2a0b0b1e11b">
   <img alt="uptrain_banner" src="https://github.com/uptrain-ai/uptrain/assets/108270398/d5a9d1c6-2645-49ac-90c5-788dbf30f3a3">
 </h2>
  -->
+ 
 
 <p align="center">
 <a href="https://demo.uptrain.ai/evals_demo/" rel="nofollow"><strong>Try out Evaluations</strong></a>
