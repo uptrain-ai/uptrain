@@ -1,6 +1,6 @@
 <h4 align="center">
   <a href="https://uptrain.ai">
-    <img alt="uptrain_banner_3" src="https://github.com/uptrain-ai/uptrain/assets/108270398/ff2334c3-d2d6-47c9-aa80-90b2dbbe0380">
+    <img alt="uptrain_banner_3" src="https://github.com/uptrain-ai/uptrain/assets/108270398/021eab37-cbdd-4f0e-876b-ffbce765c46f">
   </a>
 </h4>
 <!-- <h2>
@@ -9,7 +9,6 @@
   <img alt="uptrain_banner" src="https://github.com/uptrain-ai/uptrain/assets/108270398/d5a9d1c6-2645-49ac-90c5-788dbf30f3a3">
 </h2>
  -->
-
 
 <p align="center">
 <a href="https://demo.uptrain.ai/evals_demo/" rel="nofollow"><strong>Try out Evaluations</strong></a>
@@ -37,7 +36,7 @@
 </h4>
 
 <h4 align="center">
-  <img width="500" src="https://github.com/uptrain-ai/uptrain/assets/108270398/e00b47f7-ca95-40e1-866d-9f662fab944a" alt="Demo of UpTrain's LLM evaluations with scores for hallucinations, retrieved-context quality, response tonality for a customer support chatbot">
+  <img width="500" src="https://github.com/uptrain-ai/uptrain/assets/108270398/cf3a3de8-96b6-4fd5-a589-f313cb10bbde" alt="Demo of UpTrain's LLM evaluations with scores for hallucinations, retrieved-context quality, response tonality for a customer support chatbot">
 </h4>
 
 **[UpTrain](https://uptrain.ai)** is an open-source tool to evaluate LLM applications. UpTrain provides pre-built metrics to check LLM responses on aspects such as correctness, hallucination, toxicity, etc. as well as provides an easy-to-use framework to configure custom checks.
