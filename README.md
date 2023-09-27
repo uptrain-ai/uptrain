@@ -98,7 +98,7 @@ If you have any questions, please join our [Slack community](https://join.slack.
 
 #### UpTrain API:
 
-1. Get your free UpTrain API Key [here](https://uptrain.ai/dashboard).
+1. Get your free UpTrain API Key [here](https://uptrain.ai/).
 
 2. Follow the code snippets below to get started with UpTrain.
 ```python
