@@ -59,9 +59,9 @@ pip install uptrain
 ### How to use UpTrain:
 
 There are two ways to use UpTrain:
-1. Open-source framework: If you want to use UpTrain for personal use, you can use this method.
+1. Open-source framework: You can evaluate your responses via the open-source version by providing your OpenAI API key to run evaluations. UpTrain leverages a pipeline comprising GPT-3.5 calls for the same. Note that the evaluation pipeline runs on UpTrain's server but none of the data is logged.
 
-2. UpTrain API: If you want to use UpTrain for commercial use, you can use this method.
+2. UpTrain API: You can use UpTrain's managed service to log and evaluate your LLM responses. Just provide your UpTrain API key (no need for OpenAI keys) and UpTrain manages running evaluations for you with real-time dashboards and deep insights.
 
 #### Open-source framework:
 
