@@ -89,7 +89,7 @@ eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
 
 results = eval_llm.evaluate(
     data=data,
-    evals=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
+    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
 )
 
 print(results)
@@ -118,7 +118,7 @@ client = APIClient(uptrain_api_key=UPTRAIN_API_KEY)
 results = client.log_and_evaluate(
     project_name="Sample-Project",
     data=data,
-    evals=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
+    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
 )
 
 print(results)
@@ -153,7 +153,7 @@ client = APIClient(uptrain_api_key=UPTRAIN_API_KEY)
 results = client.evaluate_experiments(
     project_name="Sample-Experiment",
     data=data,
-    evals=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone()],
+    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone()],
     exp_columns=['prompt_variation']
 )
 
