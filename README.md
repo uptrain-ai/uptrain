@@ -1,6 +1,6 @@
 <h4 align="center">
   <a href="https://uptrain.ai">
-   <img alt="Github banner 006 (1)" src="https://github.com/uptrain-ai/uptrain/assets/108270398/6716437e-4c38-4637-bf2e-f17240b8815c">
+   <img alt="Github banner 006 (1)" src="https://github.com/uptrain-ai/uptrain/assets/108270398/96ac1505-7811-4e12-958e-fce9519542a1">
   </a>
 </h4>
 <!-- <h2>
@@ -10,7 +10,6 @@
   <img alt="uptrain_banner" src="https://github.com/uptrain-ai/uptrain/assets/108270398/d5a9d1c6-2645-49ac-90c5-788dbf30f3a3">
 </h2>
  -->
- 
 
 <p align="center">
 <a href="https://demo.uptrain.ai/evals_demo/" rel="nofollow"><strong>Try out Evaluations</strong></a>
