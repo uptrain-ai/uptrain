@@ -65,9 +65,9 @@ pip install uptrain
 ### How to use UpTrain:
 
 There are two ways to use UpTrain:
-1. Open-source framework: You can evaluate your responses via the open-source version by providing your OpenAI API key to run evaluations. UpTrain leverages a pipeline comprising GPT-3.5 calls for the same. Note that the evaluation pipeline runs on UpTrain's server but none of the data is logged.
+1. **Open-source framework:** You can evaluate your responses via the open-source version by providing your OpenAI API key to run evaluations. UpTrain leverages a pipeline comprising GPT-3.5 calls for the same. Note that the evaluation pipeline runs on UpTrain's server but none of the data is logged.
 
-2. UpTrain API: You can use UpTrain's managed service to log and evaluate your LLM responses. Just provide your UpTrain API key (no need for OpenAI keys) and UpTrain manages running evaluations for you with real-time dashboards and deep insights.
+2. **UpTrain API:** You can use UpTrain's managed service to log and evaluate your LLM responses. Just provide your UpTrain API key (no need for OpenAI keys) and UpTrain manages running evaluations for you with real-time dashboards and deep insights.
 
 #### Open-source framework:
 
@@ -88,7 +88,7 @@ eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
 
 results = eval_llm.evaluate(
     data=data,
-    evals=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
+    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
 )
 
 print(results)
@@ -117,7 +117,7 @@ client = APIClient(uptrain_api_key=UPTRAIN_API_KEY)
 results = client.log_and_evaluate(
     project_name="Sample-Project",
     data=data,
-    evals=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
+    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
 )
 
 print(results)
@@ -152,7 +152,7 @@ client = APIClient(uptrain_api_key=UPTRAIN_API_KEY)
 results = client.evaluate_experiments(
     project_name="Sample-Experiment",
     data=data,
-    evals=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone()],
+    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone()],
     exp_columns=['prompt_variation']
 )
 
