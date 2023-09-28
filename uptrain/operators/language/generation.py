@@ -7,6 +7,7 @@ from __future__ import annotations
 import itertools
 import typing as t
 import json
+import numpy as np 
 
 from loguru import logger
 import polars as pl
@@ -122,6 +123,7 @@ class TextCompletion(TransformOp):
     col_in_model: str = "model"
     col_out_completion: str = "generated"
     temperature: float = 1.0
+    model: str = "gpt-3.5-turbo"
     _api_client: LLMMulticlient
 
     def setup(self, settings: Settings):
@@ -130,8 +132,9 @@ class TextCompletion(TransformOp):
 
     def _make_payload(self, id: t.Any, text: str, model: str) -> Payload:
         return Payload(
+            endpoint="chat.completions",
             data={
-                "model": model,
+                "model": self.model,
                 "messages": [{"role": "user", "content": text}],
                 "temperature": self.temperature,
             },
@@ -168,6 +171,105 @@ class TextCompletion(TransformOp):
         return {
             "output": data.with_columns([output_text.alias(self.col_out_completion)])
         }
+
+
+@register_op
+class TopicGenerator(ColumnOp):
+    """
+    Takes a table of clustered texts and identifies the topic for each cluster 
+
+    Attributes:
+        col_in_cluster_index (str): The name of the column containing the cluster index.
+        col_in_embs (str): The name of the column containing the embeddings.
+        col_in_text (str): The name of the column containing the text where the grouping needs to be performed.
+        col_out_text (str): The name of the column containing the topic for each entry.
+        temperature (float): Temperature for the LLM to generate responses.
+        model (str): which LLM to use for topic generator.
+
+    Returns:
+        TYPE_TABLE_OUTPUT: A dictionary containing the dataset with the output text.
+    """
+    col_in_cluster_index: str = 'cluster_index'
+    col_in_text: str = 'question'
+    col_in_embs: str = 'umap_embedding'
+    col_out_text: str = 'topic'
+    model: str = 'gpt-3.5-turbo'
+    temperature: float = 1.0
+    _api_client: LLMMulticlient
+
+    def setup(self, settings: Settings):
+        self._api_client = LLMMulticlient(settings=settings)
+        return self
+
+    def _make_payload(self, id: t.Any, text: str, model: str) -> Payload:
+        return Payload(
+            endpoint="chat.completions",
+            data={
+                "model": model,
+                "messages": [{"role": "user", "content": text}],
+                "temperature": self.temperature,
+            },
+            metadata={"index": id},
+        )
+
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
+
+        embeddings = np.asarray(list(data[self.col_in_embs]))
+        questions = np.asarray(data[self.col_in_question])
+        n_clusters = max(data[self.cluster_index])
+
+        input_payloads = []
+        outputs = [None] * len(questions)
+        indexes_cluster = []
+        
+        for index in range(n_clusters+1):
+            points = data[self.cluster_index]==index
+            indexes_cluster.append(list(np.where(points)[0]))
+            embeddings_cluster = embeddings[points]
+            questions_cluster = questions[points]
+            centroid = np.mean(embeddings_cluster, axis=0)
+            indexes_sorted = np.argsort(np.linalg.norm(embeddings_cluster - centroid, axis=1))
+            indexes_top5 = indexes_sorted[:min(5, len(embeddings_cluster))]
+            questions_top5 = questions_cluster[indexes_top5]
+
+            text = ''
+            for j in range(len(questions_top5)):
+                text = text + str(j+1) + '. ' + questions_top5[j] + '\n'
+            
+            input = f"""{text}"""
+            prompt = f""" Identify the common topic in the given sentences below.\n {input} """
+            input_payloads.append(self._make_payload(index, prompt, self.model))
+
+    
+        output_payloads = self._api_client.fetch_responses(input_payloads)
+
+        results = []
+        for res in output_payloads:
+            assert (
+                res is not None
+            ), "Response should not be None, we should've handled exceptions beforehand."
+            idx = res.metadata["index"]
+            if res.error is not None:
+                logger.error(
+                    f"Error when processing payload at index {idx}: {res.error}"
+                )
+                results.append((idx, None))
+            else:
+                resp_text = res.response["choices"][0]["message"]["content"]
+                results.append((idx, resp_text))
+        
+        for index, resp_text in results:
+            indexes = indexes_cluster[index]
+            for idx in indexes:
+                outputs[idx]=resp_text
+        
+        output_text = pl.Series(
+            values=outputs
+        )
+        return {
+            "output": data.with_columns([output_text.alias(self.col_out_text)])
+        }
+
 
 
 @register_op

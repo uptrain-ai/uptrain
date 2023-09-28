@@ -28,7 +28,7 @@ class Embedding(ColumnOp):
     Column operation that generates embeddings for text using pre-trained models.
 
     Attributes:
-        model (Literal["MiniLM-L6-v2", "hkunlp/instructor-xl"]): The name of the pre-trained model to use.
+        model (Literal["MiniLM-L6-v2", "hkunlp/instructor-xl", "mpnet-base-v2"]): The name of the pre-trained model to use.
         col_in_text (str): The name of the text column in the DataFrame.
         col_out (str): The name of the output column in the DataFrame.
 
@@ -49,7 +49,7 @@ class Embedding(ColumnOp):
         })
 
         # Create an instance of the Embedding class
-        embedding_op = Embedding(model="MiniLM-L6-v2", col_in_text="text")
+        embedding_op = Embedding(model="MiniLM-L6-v2", col_in_text="text", col_out="embedding")
 
         # Set up the Embedding operator
         embedding_op.setup()
@@ -73,7 +73,7 @@ class Embedding(ColumnOp):
 
     """
 
-    model: t.Literal["MiniLM-L6-v2", "hkunlp/instructor-xl"]
+    model: t.Literal["MiniLM-L6-v2", "hkunlp/instructor-xl", "mpnet-base-v2"]
     col_in_text: str = "text"
     col_out: str = "embedding"
 
@@ -84,6 +84,10 @@ class Embedding(ColumnOp):
             self._model_obj = sentence_transformers.SentenceTransformer(
                 "sentence-transformers/all-MiniLM-L6-v2"
             )  # type: ignore
+        elif self.model == "mpnet-base-v2":
+            self._model_obj = sentence_transformers.SentenceTransformer(
+                "sentence-transformers/all-mpnet-base-v2"
+            ) 
         else:
             raise Exception(f"Embeddings model: {self.model} is not supported yet.")
         return self
@@ -94,7 +98,7 @@ class Embedding(ColumnOp):
             inputs = [
                 ["Represent the developer documentation sentence: ", x] for x in text
             ]
-        elif self.model == "MiniLM-L6-v2":
+        elif self.model == "MiniLM-L6-v2" or self.model == "mpnet-base-v2":
             inputs = list(text)
         else:
             raise Exception("Embeddings model not supported")

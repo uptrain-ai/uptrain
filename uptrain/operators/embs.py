@@ -144,13 +144,14 @@ class Distribution(TransformOp):
 
 
 @register_op
-class UMAP(TransformOp):
+class UMAP(ColumnOp):
     """
     Operator for performing UMAP dimensionality reduction.
 
     Attributes:
-        col_in_embs_1 (str): The first input column containing embeddings.
-        col_in_embs_2 (str): The second input column containing embeddings.
+        col_in_embs (str): The input column containing embeddings.
+        n_components (int): Number of components to keep.
+        col_out (str): The umap column containing embeddings. 
 
     Example:
         ```
@@ -159,8 +160,10 @@ class UMAP(TransformOp):
 
         # Create an instance of the UMAP operator
         op = UMAP(
-                col_in_embs_1="embeddings",
-                col_in_embs_2="embeddings_2"
+                col_in_embs="embedding",
+                n_components=6,
+                col_out= "umap_embedding"
+
             )
 
         # Set up the operator
@@ -176,52 +179,27 @@ class UMAP(TransformOp):
 
     Output:
         ```
-        shape: (180, 4)
-        ┌───────────┬───────────┬────────┬─────────┐
-        │ umap_0    ┆ umap_1    ┆ symbol ┆ cluster │
-        │ ---       ┆ ---       ┆ ---    ┆ ---     │
-        │ f32       ┆ f32       ┆ str    ┆ str     │
-        ╞═══════════╪═══════════╪════════╪═════════╡
-        │ 14.922973 ┆ 4.189351  ┆ star   ┆ default │
-        │ 40.150131 ┆ 8.316374  ┆ star   ┆ default │
-        │ 39.838726 ┆ 8.043911  ┆ star   ┆ default │
-        │ 40.064186 ┆ 8.510321  ┆ star   ┆ default │
-        │ …         ┆ …         ┆ …      ┆ …       │
-        │ 12.529058 ┆ -0.074642 ┆ circle ┆ default │
-        │ 3.296701  ┆ 21.817385 ┆ circle ┆ default │
-        │ 16.352724 ┆ 12.401769 ┆ circle ┆ default │
-        │ 3.858282  ┆ 5.807839  ┆ circle ┆ default │
-        └───────────┴───────────┴────────┴─────────┘
+        shape: (2,)
+        Series: '_col_0' [list[f32]]
+        [
+                [0.098575, 0.056978, … -0.071038]
+                [0.072772, 0.073564, … -0.043947]
+        ]
         ```
 
     """
 
-    col_in_embs_1: str
-    col_in_embs_2: str
+    col_in_embs: str = 'embedding'
+    n_components: int
+    col_out: str = 'umap_embedding' 
 
     def setup(self, settings: Settings):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        embs_1 = np.asarray(data[self.col_in_embs_1].to_list())
-        embs_2 = np.asarray(data[self.col_in_embs_2].to_list())
-
-        embs_list = list(embs_1)
-        embs_list.extend(list(embs_2))
-        combined_embs = np.array(embs_list)
-        symbols = ["star"] * len(embs_1) + ["circle"] * len(embs_2)
-        clusters = ["default"] * len(combined_embs)
-        umap_output = umap.UMAP().fit_transform(combined_embs)  # type: ignore
-        return {
-            "output": pl.DataFrame(
-                [
-                    pl.Series(values=umap_output[:, 0]).alias("umap_0"),
-                    pl.Series(values=umap_output[:, 1]).alias("umap_1"),
-                    pl.Series(values=symbols).alias("symbol"),
-                    pl.Series(values=clusters).alias("cluster"),
-                ]
-            )
-        }
+        combined_embs = np.asarray(data[self.col_in_embs])
+        umap_output = umap.UMAP(n_components=self.n_components, metric='cosine', random_state=42).fit_transform(combined_embs)  # type: ignore
+        return {"output": data.with_columns([pl.Series(umap_output).alias(self.col_out)])}
 
 
 # -----------------------------------------------------------

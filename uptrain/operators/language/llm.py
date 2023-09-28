@@ -50,7 +50,7 @@ async def async_process_payload(
         ):  # failed requests don't count towards rate limit
             try:
                 if payload.data["model"].startswith("gpt"):
-                    payload.response = await openai.ChatCompletion.acreate(
+                    payload.response = await openai.ChatCompletion.create(
                         **payload.data, request_timeout=17
                     )
                 else:
