@@ -34,7 +34,7 @@ class Check:
         self,
         name: str,
         operators: list[Operator],
-        plots: list[Operator] | None = None,
+        plots: t.Union[list[Operator], None] = None,
     ):
         self.name = name
         self.operators = operators
@@ -55,7 +55,7 @@ class Check:
 
         return self
 
-    def run(self, data: pl.DataFrame | None = None) -> pl.DataFrame | None:
+    def run(self, data: t.Union[pl.DataFrame, None] = None) -> t.Union[pl.DataFrame, None]:
         """Run this check on the given data."""
         node_inputs = {"operator_0": data}
 
@@ -98,16 +98,19 @@ class CheckSet:
     source: Operator
     checks: list[Check]
     preprocessors: list[TransformOp]
+    postprocessors: list[Operator]
 
     def __init__(
         self,
         source: Operator,
         checks: list[t.Any],
-        preprocessors: list[TransformOp] | None = None,
+        preprocessors: t.Union[list[TransformOp], None] = None,
+        postprocessors: t.Union[list[Operator], None] = None
     ):
         self.source = source
         self.checks = checks
         self.preprocessors = preprocessors if preprocessors is not None else []
+        self.postprocessors = postprocessors if postprocessors is not None else []
 
         # verify all checks have different names
         check_names = [check.name for check in checks]
@@ -137,6 +140,8 @@ class CheckSet:
             preprocessor.setup(self._settings)
         for check in self.checks:
             check.setup(self._settings)
+        for postprocessor in self.postprocessors:
+            postprocessor.setup(self._settings)
         return self
 
     def run(self):
@@ -161,10 +166,30 @@ class CheckSet:
                 )
             ).setup(self._settings).run(source_output)
 
+        consolidated_output = {}
         for check in self.checks:
             check_output = check.run(source_output)
             assert check_output is not None, f"Output of check {check.name} is None"
             self._get_sink_for_check(self._settings, check).run(check_output)
+
+            if len(self.postprocessors):
+                if not all(isinstance(op, ColumnOp) for op in check.operators):
+                    continue
+                for col in check_output.columns:
+                    consolidated_output[col] = check_output[col]
+
+        if len(self.postprocessors):
+            consolidated_output = pl.DataFrame(consolidated_output)
+            for postprocessor in self.postprocessors:
+                consolidated_output = postprocessor.run(consolidated_output)['output']
+                assert consolidated_output is not None, "Output of postprocessor is None"
+
+            # persist the postprocessed input for debugging
+            JsonWriter(
+                fpath=os.path.join(
+                    self._settings.logs_folder, "postprocessed_input.jsonl"
+                )
+            ).setup(self._settings).run(consolidated_output)
 
     @staticmethod
     def _get_sink_for_check(settings: Settings, check: Check):
@@ -183,6 +208,9 @@ class CheckSet:
                 deserialize_operator(op) for op in data.get("preprocessors", [])
             ],  # type: ignore
             checks=checks,
+            postprocessors=[
+                deserialize_operator(op) for op in data.get("postprocessors", [])
+            ],  # type: ignore
         )
 
     def dict(self) -> dict:
@@ -190,6 +218,7 @@ class CheckSet:
             "source": to_py_types(self.source),
             "preprocessors": [to_py_types(op) for op in self.preprocessors],
             "checks": [check.dict() for check in self.checks],
+            "postprocessors": [to_py_types(op) for op in self.postprocessors],
         }
 
     @classmethod
