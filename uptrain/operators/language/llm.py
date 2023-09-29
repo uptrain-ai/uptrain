@@ -42,63 +42,72 @@ class Payload(BaseModel):
 
 
 async def async_process_payload(
-    payload: Payload, limiter: aiolimiter.AsyncLimiter, max_retries: int
+    payload: Payload,
+    rpm_limiter: aiolimiter.AsyncLimiter,
+    tpm_limiter: aiolimiter.AsyncLimiter,
+    max_retries: int,
 ) -> Payload:
-    async with limiter:
-        for count in range(
-            max_retries
-        ):  # failed requests don't count towards rate limit
-            try:
-                if payload.data["model"].startswith("gpt"):
-                    payload.response = await openai.ChatCompletion.acreate(
-                        **payload.data, request_timeout=17
+    messages = payload.data["messages"]
+    total_chars = sum(len(msg["role"]) + len(msg["content"]) for msg in messages)
+    total_tokens = total_chars // 3  # average token length is 3, conservatively
+
+    await rpm_limiter.acquire(1)
+    # TODO: we should also count the response tokens, but this is a good baseline
+    # since our use-case is evaluations mostly, not generation
+    await tpm_limiter.acquire(total_tokens)
+
+    for count in range(max_retries):  # failed requests don't count towards rate limit
+        try:
+            if payload.data["model"].startswith("gpt"):
+                payload.response = await openai.ChatCompletion.acreate(
+                    **payload.data, request_timeout=17
+                )
+            else:
+                payload.response = await litellm.acompletion(
+                    **payload.data,
+                )
+            break
+        except Exception as exc:
+            logger.error(f"Error when sending request to LLM API: {exc}")
+            if (
+                isinstance(
+                    exc,
+                    (
+                        openai.error.ServiceUnavailableError,
+                        openai.error.APIConnectionError,
+                        openai.error.RateLimitError,
+                        openai.error.APIError,
+                        openai.error.Timeout,
+                        openai.error.TryAgain,
+                    ),
+                )
+                and count < max_retries - 1
+            ):
+                await asyncio.sleep(random.uniform(0.5, 1.5) * count + 1)
+            elif (
+                isinstance(exc, openai.error.InvalidRequestError)
+                and "context_length" in exc.code
+                and count < max_retries - 1
+            ):
+                # refer - https://github.com/BerriAI/reliableGPT/
+                # if required to set token limit - https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/chatgpt?pivots=programming-language-chat-completions#managing-conversations
+
+                fallback = {
+                    "gpt-3.5-turbo": "gpt-3.5-turbo-16k",
+                    "gpt-3.5-turbo-0613": "gpt-3.5-turbo-16k-0613",
+                    "gpt-4": "gpt-4-32k",
+                    "gpt-4-0613": "gpt-4-32k-0613",
+                }
+                if payload.data["model"] in fallback.keys():
+                    payload.data["model"] = fallback[payload.data["model"]]
+                    logger.info(
+                        f"Switching to larger context model for payload {payload.metadata['index']}"
                     )
-                else:
-                    payload.response = await litellm.acompletion(
-                        **payload.data,
-                    )
+            else:
+                payload.error = str(exc)
                 break
-            except Exception as exc:
-                logger.error(f"Error when sending request to LLM API: {exc}")
-                if (
-                    isinstance(
-                        exc,
-                        (
-                            openai.error.ServiceUnavailableError,
-                            openai.error.APIConnectionError,
-                            openai.error.RateLimitError,
-                            openai.error.APIError,
-                            openai.error.Timeout,
-                            openai.error.TryAgain,
-                        ),
-                    )
-                    and count < max_retries - 1
-                ):
-                    await asyncio.sleep(random.uniform(0.5, 1.5) * count + 1)
-                elif (
-                    isinstance(exc, openai.error.InvalidRequestError)
-                    and "context_length" in exc.code
-                    and count < max_retries - 1
-                ):
-                    # refer - https://github.com/BerriAI/reliableGPT/
-                    # if required to set token limit - https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/chatgpt?pivots=programming-language-chat-completions#managing-conversations
 
-                    fallback = {
-                        "gpt-3.5-turbo": "gpt-3.5-turbo-16k",
-                        "gpt-3.5-turbo-0613": "gpt-3.5-turbo-16k-0613",
-                        "gpt-4": "gpt-4-32k",
-                        "gpt-4-0613": "gpt-4-32k-0613",
-                    }
-                    if payload.data["model"] in fallback.keys():
-                        payload.data["model"] = fallback[payload.data["model"]]
-                        logger.info(
-                            f"Switching to larger context model for payload {payload.metadata['index']}"
-                        )
-                else:
-                    payload.error = str(exc)
-                    break
-
-        return payload
+    return payload
 
 
 class LLMMulticlient:
@@ -106,7 +115,9 @@ class LLMMulticlient:
 
     def __init__(self, settings: t.Optional[Settings] = None):
         self._max_tries = 4
-        self._rpm_limit = 10
+        # TODO: consult for accurate limits - https://platform.openai.com/account/rate-limits
+        self._rpm_limit = 200
+        self._tpm_limit = 90_000
         if settings is not None:
             openai.api_key = settings.check_and_get("openai_api_key")  # type: ignore
             self._rpm_limit = settings.check_and_get("openai_rpm_limit")
@@ -131,9 +142,10 @@ class LLMMulticlient:
     async def async_fetch_responses(
         self, input_payloads: list[Payload]
     ) -> list[Payload]:
-        limiter = aiolimiter.AsyncLimiter(self._rpm_limit, time_period=1)
+        rpm_limiter = aiolimiter.AsyncLimiter(self._rpm_limit, time_period=60)
+        tpm_limiter = aiolimiter.AsyncLimiter(self._tpm_limit, time_period=60)
         async_outputs = [
-            async_process_payload(data, limiter, self._max_tries)
+            async_process_payload(data, rpm_limiter, tpm_limiter, self._max_tries)
             for data in input_payloads
         ]
         output_payloads = await tqdm_asyncio.gather(*async_outputs)
