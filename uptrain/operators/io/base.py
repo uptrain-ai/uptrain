@@ -149,7 +149,7 @@ class DeltaWriter(OpBaseModel):
             self.columns = list(data.columns)
         assert set(self.columns) == set(data.columns)
         data.write_delta(self.fpath, mode="append")
-        return {"output": None}
+        return {"output": data}
 
     def to_reader(self):
         return DeltaReader(fpath=self.fpath)  # type: ignore
@@ -172,4 +172,4 @@ class JsonWriter(OpBaseModel):
         assert set(self.columns) == set(data.columns)
         with open(self.fpath, "a") as f:
             f.write(data.write_ndjson())
-        return {"output": None}
+        return {"output": data}

@@ -64,6 +64,7 @@ __all__ = [
     "DeltaWriter",
     "BigQueryReader",
     "DuckDBReader",
+    "BigQueryWriter",
     # code
     "code",
     "ParseCreateStatements",
@@ -122,7 +123,7 @@ from .language.guideline import GuidelineAdherenceScore
 from . import io
 from .io.base import CsvReader, JsonReader, DeltaReader, JsonWriter, DeltaWriter
 from .io.excel import ExcelReader
-from .io.bq import BigQueryReader
+from .io.bq import BigQueryReader, BigQueryWriter
 from .io.duck import DuckDBReader
 
 from . import code
