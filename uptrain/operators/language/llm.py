@@ -49,11 +49,12 @@ async def async_process_payload(
 ) -> Payload:
     messages = payload.data["messages"]
     total_chars = sum(len(msg["role"]) + len(msg["content"]) for msg in messages)
-    total_tokens = total_chars // 4  # average token length is 4, conservatively
+    total_tokens = total_chars // 3  # average token length is 3, conservatively
 
     await rpm_limiter.acquire(1)
-    await tpm_limiter.acquire(total_tokens)
     # TODO: we should also count the response tokens, but this is a good baseline
+    # since our use-case is evaluations mostly, not generation
+    await tpm_limiter.acquire(total_tokens)
 
     for count in range(max_retries):  # failed requests don't count towards rate limit
         try:
@@ -114,7 +115,8 @@ class LLMMulticlient:
 
     def __init__(self, settings: t.Optional[Settings] = None):
         self._max_tries = 4
-        self._rpm_limit = 100
+        # TODO: consult for accurate limits - https://platform.openai.com/account/rate-limits
+        self._rpm_limit = 200
         self._tpm_limit = 90_000
         if settings is not None:
             openai.api_key = settings.check_and_get("openai_api_key")  # type: ignore
