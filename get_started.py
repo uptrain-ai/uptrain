@@ -9,9 +9,9 @@ data = [{
     'response': 'Football is the most popular sport with around 4 billion followers worldwide'
 }]
 
-client = EvalLLM(openai_api_key=OPENAI_API_KEY)
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
 
-results = client.evaluate(
+results = eval_llm.evaluate(
     data=data,
     checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
 )

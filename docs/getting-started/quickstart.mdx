@@ -17,6 +17,12 @@ Run the following commands in your terminal to install UpTrain:
 pip install uptrain
 ```
 
+### Import required libraries
+
+```python
+from uptrain.framework import APIClient, Evals, CritiqueTone
+import json
+```
 
 ### Create an UpTrain API Client
 
@@ -29,7 +35,7 @@ client = APIClient(uptrain_api_key=UPTRAIN_API_KEY)
 
 ### Create your data
 
-You can define your data as simple dictionary with the following keys:
+You can define your data as a simple dictionary with the following keys:
 
 - `question`: The question you want to ask
 - `context`: The context relevant to the question
@@ -64,13 +70,10 @@ Now that we have our data, we can log it and evaluate it using UpTrain. We use t
 You can find the list of all available evaluations [here](/key-components/evals).
 
 ```python
-from uptrain.framework import APIClient, Evals, CritiqueTone
-import json
-
 results = client.log_and_evaluate(
     project_name="Sample-Project",
     data=data,
-    evals=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
+    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
 )
 ```
 
@@ -109,7 +112,7 @@ data = pd.DataFrame([{
 results = client.evaluate_experiments(
     project_name="Sample-Experiment",
     data=data,
-    evals=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone()],
+    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone()],
     exp_columns=['prompt_variation']
 )
 
