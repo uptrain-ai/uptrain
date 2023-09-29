@@ -40,9 +40,9 @@
 | Evaluation  | Description |
 | ------------- | ------------- |
 | [Factual Accuracy](https://uptrain-ai.github.io/uptrain/operators/language/ResponseFactualScore/) | Checks if the response is grounded by the context provided |
-| [Guideline Adherence](https://uptrain-ai.github.io/uptrain/operators/language/ResponseCompleteness/) | Checks if the response or the LLM adhers to the given guideline or not  |
+| [Guideline Adherence](https://uptrain-ai.github.io/uptrain/operators/language/GuidelineAdherenceScore/) | Checks if the response or the LLM adhers to the given guideline or not  |
 | [Response Completeness](https://uptrain-ai.github.io/uptrain/operators/language/ResponseCompleteness/) | Grades how if the response completes the given question  |
-| [Response Completeness wrt Context](https://uptrain-ai.github.io/uptrain/operators/language/ResponseCompleteness/) | Grades how complete the response was for the question specified with respect to the information present in the context |
+| [Response Completeness wrt Context](https://uptrain-ai.github.io/uptrain/operators/language/ResponseCompletenessWrtContext/) | Grades how complete the response was for the question specified with respect to the information present in the context |
 | [Context Relevance](https://uptrain-ai.github.io/uptrain/operators/language/ContextRelevance/) | Evaluates if the context has all the information to answer the given question |
 | [Response Relevance](https://uptrain-ai.github.io/uptrain/operators/language/ResponseRelevance/) | Grades how relevant the generated response is or if it has any additional irrelevant information for the question asked. |
 | [Tone Critique](https://uptrain-ai.github.io/uptrain/operators/language/ToneCritique/) | Assesses if the tone of machine-generated responses matches with the desired persona. |
