@@ -17,12 +17,15 @@ Run the following commands in your terminal to install UpTrain:
 pip install uptrain
 ```
 
-### Create an EvalLLM Client
+### Create an EvalLLM Evaluator
 
-Before we can start using UpTrain, we need to create an API client. You can do this by passing your API key to the `EvalLLM` constructor.
+Before we can start using UpTrain, we need to create an EvalLLM Evaluator. You can do this by passing your API key to the `EvalLLM` constructor.
 
 ```python
-client = EvalLLM(openai_api_key=OPENAI_API_KEY)
+from uptrain.framework import EvalLLM, Evals, CritiqueTone
+import json
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
 ```
 
 
@@ -62,10 +65,7 @@ Now that we have our data, we can log it and evaluate it using UpTrain. We use t
 You can find the list of all available evaluations [here](/key-components/evals).
 
 ```python
-from uptrain.framework import EvalLLM, Evals, CritiqueTone
-import json
-
-results = client.evaluate(
+results = eval_llm.evaluate(
     data=data,
     checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
 )

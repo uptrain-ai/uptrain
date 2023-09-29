@@ -1,15 +1,14 @@
 <h4 align="center">
   <a href="https://uptrain.ai">
-    <img width="300" src="https://user-images.githubusercontent.com/108270398/214240695-4f958b76-c993-4ddd-8de6-8668f4d0da84.png" alt="uptrain">
+   <img alt="Github banner 006 (1)" src="https://github.com/uptrain-ai/uptrain/assets/108270398/96ac1505-7811-4e12-958e-fce9519542a1">
   </a>
-</h4>
-<h4>
-  <h2 align="center">An open-source framework to evaluate applications</h2>
 </h4>
 
 
 <p align="center">
 <a href="https://demo.uptrain.ai/evals_demo/" rel="nofollow"><strong>Try out Evaluations</strong></a>
+-
+<a href="https://docs.uptrain.ai/getting-started/introduction" rel="nofollow"><strong>Read Docs</strong></a>
 -
 <a href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg" rel="nofollow"><strong>Slack Community</strong></a>
 -
@@ -23,8 +22,8 @@
   <a href="https://github.com/uptrain-ai/uptrain/graphs/contributors">
     <img src="https://img.shields.io/github/contributors/uptrain-ai/uptrain">
   </a>
-  <a href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg">
-    <img src="https://img.shields.io/badge/Slack-Community-orange" alt="Community" />
+  <a href="https://docs.uptrain.ai/getting-started/quickstart">
+    <img src="https://img.shields.io/badge/Quickstart-tutorial-orange" alt="Quickstart" />
   </a>
   <a href="https://uptrain.ai/">
     <img src="https://img.shields.io/badge/UpTrain-Website-red" alt="Website" />
@@ -32,21 +31,22 @@
 </h4>
 
 <h4 align="center">
-  <img width="500" src="https://github.com/uptrain-ai/uptrain/assets/108270398/e00b47f7-ca95-40e1-866d-9f662fab944a" alt="Demo of UpTrain's LLM evaluations with scores for hallucinations, retrieved-context quality, response tonality for a customer support chatbot">
+  <img src="https://github.com/uptrain-ai/uptrain/assets/108270398/cf3a3de8-96b6-4fd5-a589-f313cb10bbde" alt="Demo of UpTrain's LLM evaluations with scores for hallucinations, retrieved-context quality, response tonality for a customer support chatbot">
 </h4>
 
-**[UpTrain](https://uptrain.ai)** is a Python framework that ensures your LLM applications are performing reliably by allowing users to check aspects such as correctness, structural integrity, bias, hallucination, etc. UpTrain can be used to:
+**[UpTrain](https://uptrain.ai)** is an open-source tool to evaluate LLM applications. UpTrain provides pre-built metrics to check LLM responses on aspects such as correctness, hallucination, toxicity, etc. as well as provides an easy-to-use framework to configure custom checks.
 
-# Evalulations We Offer 📝
+# Pre-built Evaluations We Offer 📝
 
 | Evaluation  | Description |
 | ------------- | ------------- |
-| [Factual Accuracy](https://uptrain-ai.github.io/uptrain/operators/language/ResponseFactualScore/) | Checks if the response is factually accurate |
-| [Response Completeness](https://uptrain-ai.github.io/uptrain/operators/language/ResponseCompleteness/) | Grades how complete the response was for the question specified  |
-| [Response Completeness wrt Context](https://uptrain-ai.github.io/uptrain/operators/language/ResponseCompleteness/) | Grades how complete the response was for the question specified with respect to the context |
-| [Context Relevance](https://uptrain-ai.github.io/uptrain/operators/language/ContextRelevance/) | Evaluates how relevant the context is to the question specified |
+| [Factual Accuracy](https://uptrain-ai.github.io/uptrain/operators/language/ResponseFactualScore/) | Checks if the response is grounded by the context provided |
+| [Guideline Adherence](https://uptrain-ai.github.io/uptrain/operators/language/ResponseCompleteness/) | Checks if the response or the LLM adhers to the given guideline or not  |
+| [Response Completeness](https://uptrain-ai.github.io/uptrain/operators/language/ResponseCompleteness/) | Grades how if the response completes the given question  |
+| [Response Completeness wrt Context](https://uptrain-ai.github.io/uptrain/operators/language/ResponseCompleteness/) | Grades how complete the response was for the question specified with respect to the information present in the context |
+| [Context Relevance](https://uptrain-ai.github.io/uptrain/operators/language/ContextRelevance/) | Evaluates if the context has all the information to answer the given question |
 | [Response Relevance](https://uptrain-ai.github.io/uptrain/operators/language/ResponseRelevance/) | Grades how relevant the generated response is or if it has any additional irrelevant information for the question asked. |
-| [Tone Critique](https://uptrain-ai.github.io/uptrain/operators/language/ToneCritique/) | Assesses the tone of machine generated responses. |
+| [Tone Critique](https://uptrain-ai.github.io/uptrain/operators/language/ToneCritique/) | Assesses if the tone of machine-generated responses matches with the desired persona. |
 | [Language Critique](https://uptrain-ai.github.io/uptrain/operators/language/LanguageCritique/) | Scores machine generated responses in a conversation. The response is evaluated on multiple aspects - fluence, politeness, grammar, and coherence. |
 
 # Get started 🙌
@@ -58,7 +58,42 @@ pip install uptrain
 
 ### How to use UpTrain:
 
-1. Get your free UpTrain API Key [here](https://uptrain.ai/dashboard).
+There are two ways to use UpTrain:
+1. **Open-source framework:** You can evaluate your responses via the open-source version by providing your OpenAI API key to run evaluations. UpTrain leverages a pipeline comprising GPT-3.5 calls for the same. Note that the evaluation pipeline runs on UpTrain's server but none of the data is logged.
+
+2. **UpTrain API:** You can use UpTrain's managed service to log and evaluate your LLM responses. Just provide your UpTrain API key (no need for OpenAI keys) and UpTrain manages running evaluations for you with real-time dashboards and deep insights.
+
+#### Open-source framework:
+
+Follow the code snippet below to get started with UpTrain.
+
+```python
+from uptrain.framework import EvalLLM, Evals, CritiqueTone
+import json
+
+OPENAI_API_KEY = "sk-***************"
+
+data = [{
+    'question': 'Which is the most popular global sport?',
+    'context': "The popularity of sports can be measured in various ways, including TV viewership, social media presence, number of participants, and economic impact. Football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi, drawing a followership of more than 4 billion people. Cricket is particularly popular in countries like India, Pakistan, Australia, and England. The ICC Cricket World Cup and Indian Premier League (IPL) have substantial viewership. The NBA has made basketball popular worldwide, especially in countries like the USA, Canada, China, and the Philippines. Major tennis tournaments like Wimbledon, the US Open, French Open, and Australian Open have large global audiences. Players like Roger Federer, Serena Williams, and Rafael Nadal have boosted the sport's popularity. Field Hockey is very popular in countries like India, Netherlands, and Australia. It has a considerable following in many parts of the world.",
+    'response': 'Football is the most popular sport with around 4 billion followers worldwide'
+}]
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+
+results = eval_llm.evaluate(
+    data=data,
+    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
+)
+
+print(json.dumps(results, indent=3))
+```
+If you have any questions, please join our [Slack community](https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg)
+
+
+#### UpTrain API:
+
+1. Get your free UpTrain API Key [here](https://uptrain.ai/).
 
 2. Follow the code snippets below to get started with UpTrain.
 ```python
@@ -78,13 +113,11 @@ client = APIClient(uptrain_api_key=UPTRAIN_API_KEY)
 results = client.log_and_evaluate(
     project_name="Sample-Project",
     data=data,
-    evals=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
+    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
 )
 
 print(json.dumps(results, indent=3))
 ```
-
-If you have any questions, please join our [Slack community](https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg)
 
 To have a customized onboarding, please book a [demo call here](https://calendly.com/uptrain-sourabh/uptrain-demo).
 
@@ -93,7 +126,12 @@ To have a customized onboarding, please book a [demo call here](https://calendly
 Experiments help you perform A/B testing with prompts, so you can compare and choose the options most suitable for you. 
 
 ```python
-data = pd.DataFrame([{
+from uptrain.framework import APIClient, Evals, CritiqueTone
+import json
+
+UPTRAIN_API_KEY = "up-***************" 
+
+data = [{
     'question': 'Which is the most popular global sport?',
     'context': "The popularity of sports can be measured in various ways, including TV viewership, social media presence, number of participants, and economic impact. Football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi, drawing a followership of more than 4 billion people. Cricket is particularly popular in countries like India, Pakistan, Australia, and England. The ICC Cricket World Cup and Indian Premier League (IPL) have substantial viewership. The NBA has made basketball popular worldwide, especially in countries like the USA, Canada, China, and the Philippines. Major tennis tournaments like Wimbledon, the US Open, French Open, and Australian Open have large global audiences. Players like Roger Federer, Serena Williams, and Rafael Nadal have boosted the sport's popularity. Field Hockey is very popular in countries like India, Netherlands, and Australia. It has a considerable following in many parts of the world.",
     'response': "1. The most popular global sport is determined by factors such as TV viewership, social media presence, number of participants, and economic impact. 2. Football is considered the most popular sport in the world, with events like the FIFA World Cup and star players like Ronaldo and Messi attracting over 4 billion followers. 3. Cricket is particularly popular in countries like India, Pakistan, Australia, and England, with events like the ICC Cricket World Cup and the Indian Premier League (IPL) having substantial viewership. 4. Basketball has gained global popularity, especially in the USA, Canada, China, and the Philippines, largely thanks to the NBA. 5. Tennis also has a significant global audience, with major tournaments like Wimbledon, the US Open, French Open, and Australian Open, and notable players like Roger Federer, Serena Williams, and Rafael Nadal. 6. Field Hockey enjoys popularity in countries like India, Netherlands, and Australia and has followers in many other parts of the world. So, the most popular global sport is football, followed by cricket, basketball, tennis, and field hockey, depending on the region and various factors.",
@@ -104,12 +142,14 @@ data = pd.DataFrame([{
     'context': "The popularity of sports can be measured in various ways, including TV viewership, social media presence, number of participants, and economic impact. Football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi, drawing a followership of more than 4 billion people. Cricket is particularly popular in countries like India, Pakistan, Australia, and England. The ICC Cricket World Cup and Indian Premier League (IPL) have substantial viewership. The NBA has made basketball popular worldwide, especially in countries like the USA, Canada, China, and the Philippines. Major tennis tournaments like Wimbledon, the US Open, French Open, and Australian Open have large global audiences. Players like Roger Federer, Serena Williams, and Rafael Nadal have boosted the sport's popularity. Field Hockey is very popular in countries like India, Netherlands, and Australia. It has a considerable following in many parts of the world.",
     'response': "- Which is the most popular global sport?  - Popularity of sports can be measured in different ways:    - TV viewership    - Social media presence    - Number of participants    - Economic impact  - Football:    - FIFA World Cup    - Ronaldo and Messi draw over 4 billion followers  - Cricket:    - Popular in India, Pakistan, Australia, and England    - ICC Cricket World Cup    - Indian Premier League (IPL)  - Basketball:    - NBA    - Popularity in the USA, Canada, China, Philippines  - Tennis:    - Major tournaments: Wimbledon, US Open, French Open, Australian Open    - Players: Roger Federer, Serena Williams, Rafael Nadal  - Field Hockey:    - Popular in India, Netherlands, Australia    - Followers in many parts of the world  In summary, football is the most popular global sport, followed by cricket, basketball, tennis, and field hockey, with variations in popularity depending on region and measurement criteria.",
     'prompt_variation': 'tree-of-thought'
-}])
+}]
+
+client = APIClient(uptrain_api_key=UPTRAIN_API_KEY)
 
 results = client.evaluate_experiments(
     project_name="Sample-Experiment",
     data=data,
-    evals=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone()],
+    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone()],
     exp_columns=['prompt_variation']
 )
 
@@ -121,8 +161,8 @@ print(json.dumps(results, indent=3))
 # Key Features 💡
 
 
-- **[Custom Grading Checks](https://uptrain-ai.github.io/uptrain/operators/language/ModelGradeScore/)** - Write your custom grading prompts.
-- **[Embeddings Similarity Check](https://uptrain-ai.github.io/uptrain/operators/CosineSimilarity/)** - Compute cosine similarity between prompt and response embeddings
+- **[Custom Grading Checks](https://uptrain-ai.github.io/uptrain/operators/language/ModelGradeScore/)** - Write your custom grading prompts to use LLM as an evaluator.
+- **[Embeddings Similarity Check](https://uptrain-ai.github.io/uptrain/operators/CosineSimilarity/)** - Compute cosine similarity between prompt-response embeddings
 - **[UMAP Visualization and Clustering](https://uptrain-ai.github.io/uptrain/operators/UMAP/)** - Visualize your embedding space using tools like UMAP and t-SNE.
 - **[Feature Slicing]()** - Built-in pivoting functionalities for data dice and slice to pinpoint low-performing cohorts.
 - **[Realtime Dashboards]()** - Monitor your model's performance in realtime.

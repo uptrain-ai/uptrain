@@ -3,13 +3,6 @@
    <img alt="Github banner 006 (1)" src="https://github.com/uptrain-ai/uptrain/assets/108270398/96ac1505-7811-4e12-958e-fce9519542a1">
   </a>
 </h4>
-<!-- <h2>
-  <img alt="uptrain_banner_3" src="https://github.com/uptrain-ai/uptrain/assets/108270398/021eab37-cbdd-4f0e-876b-ffbce765c46f">
-  <p align="center">An open-source framework to evaluate LLM applications</p>
-  <img alt="uptrain_banner_1" src="https://github.com/uptrain-ai/uptrain/assets/108270398/9c3202f2-ebc5-4034-a227-b2a0b0b1e11b">
-  <img alt="uptrain_banner" src="https://github.com/uptrain-ai/uptrain/assets/108270398/d5a9d1c6-2645-49ac-90c5-788dbf30f3a3">
-</h2>
- -->
 
 <p align="center">
 <a href="https://demo.uptrain.ai/evals_demo/" rel="nofollow"><strong>Try out Evaluations</strong></a>
@@ -75,6 +68,7 @@ Follow the code snippet below to get started with UpTrain.
 
 ```python
 from uptrain.framework import EvalLLM, Evals, CritiqueTone
+import json
 
 OPENAI_API_KEY = "sk-***************"
 
@@ -91,7 +85,7 @@ results = eval_llm.evaluate(
     checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
 )
 
-print(results)
+print(json.dumps(results, indent=3))
 ```
 If you have any questions, please join our [Slack community](https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg)
 
@@ -103,6 +97,7 @@ If you have any questions, please join our [Slack community](https://join.slack.
 2. Follow the code snippets below to get started with UpTrain.
 ```python
 from uptrain.framework import APIClient, Evals, CritiqueTone
+import json
 
 UPTRAIN_API_KEY = "up-***************" 
 
@@ -120,7 +115,7 @@ results = client.log_and_evaluate(
     checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
 )
 
-print(results)
+print(json.dumps(results, indent=3))
 ```
 
 To have a customized onboarding, please book a [demo call here](https://calendly.com/uptrain-sourabh/uptrain-demo).
@@ -131,6 +126,7 @@ Experiments help you perform A/B testing with prompts, so you can compare and ch
 
 ```python
 from uptrain.framework import APIClient, Evals, CritiqueTone
+import json
 
 UPTRAIN_API_KEY = "up-***************" 
 
@@ -156,7 +152,7 @@ results = client.evaluate_experiments(
     exp_columns=['prompt_variation']
 )
 
-print(results)
+print(json.dumps(results, indent=3))
 ```
 
 <h4> </h4>
