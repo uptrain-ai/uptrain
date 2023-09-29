@@ -123,7 +123,6 @@ class TextCompletion(TransformOp):
     col_in_model: str = "model"
     col_out_completion: str = "generated"
     temperature: float = 1.0
-    model: str = "gpt-3.5-turbo"
     _api_client: LLMMulticlient
 
     def setup(self, settings: Settings):
@@ -132,9 +131,8 @@ class TextCompletion(TransformOp):
 
     def _make_payload(self, id: t.Any, text: str, model: str) -> Payload:
         return Payload(
-            endpoint="chat.completions",
             data={
-                "model": self.model,
+                "model": model,
                 "messages": [{"role": "user", "content": text}],
                 "temperature": self.temperature,
             },
@@ -203,7 +201,6 @@ class TopicGenerator(ColumnOp):
 
     def _make_payload(self, id: t.Any, text: str, model: str) -> Payload:
         return Payload(
-            endpoint="chat.completions",
             data={
                 "model": model,
                 "messages": [{"role": "user", "content": text}],
