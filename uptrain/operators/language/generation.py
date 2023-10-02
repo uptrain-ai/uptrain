@@ -178,8 +178,9 @@ class TopicGenerator(ColumnOp):
 
     Attributes:
         col_in_cluster_index (str): The name of the column containing the cluster index.
-        col_in_embs (str): The name of the column containing the embeddings.
+        col_in_dist (str): The name of the column containing the euclidean distance from its cluster centroid.
         col_in_text (str): The name of the column containing the text where the grouping needs to be performed.
+        top_n (int): Number of examples to be considered for each category. 
         col_out_text (str): The name of the column containing the topic for each entry.
         temperature (float): Temperature for the LLM to generate responses.
         model (str): which LLM to use for topic generator.
@@ -188,8 +189,9 @@ class TopicGenerator(ColumnOp):
         TYPE_TABLE_OUTPUT: A dictionary containing the dataset with the output text.
     """
     col_in_cluster_index: str = 'cluster_index'
+    col_in_dist: str = 'cluster_index_distance'
     col_in_text: str = 'question'
-    col_in_embs: str = 'umap_embedding'
+    top_n: int = 5 
     col_out_text: str = 'topic'
     model: str = 'gpt-3.5-turbo'
     temperature: float = 1.0
@@ -211,27 +213,28 @@ class TopicGenerator(ColumnOp):
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
 
-        embeddings = np.asarray(list(data[self.col_in_embs]))
-        questions = np.asarray(data[self.col_in_question])
-        n_clusters = max(data[self.cluster_index])
+        questions = np.asarray(data[self.col_in_text])
+        distances = np.asarray(data[self.col_in_dist])
 
+        n_clusters = max(data[self.col_in_cluster_index])
         input_payloads = []
         outputs = [None] * len(questions)
         indexes_cluster = []
-        
+
         for index in range(n_clusters+1):
-            points = data[self.cluster_index]==index
+            points = data[self.col_in_cluster_index]==index
             indexes_cluster.append(list(np.where(points)[0]))
-            embeddings_cluster = embeddings[points]
+            distances_cluster = distances[points]
             questions_cluster = questions[points]
-            centroid = np.mean(embeddings_cluster, axis=0)
-            indexes_sorted = np.argsort(np.linalg.norm(embeddings_cluster - centroid, axis=1))
-            indexes_top5 = indexes_sorted[:min(5, len(embeddings_cluster))]
-            questions_top5 = questions_cluster[indexes_top5]
+            
+
+            indexes_sorted = np.argsort(distances_cluster)
+            indexes_top_n = indexes_sorted[:min(self.top_n, len(questions_cluster))]
+            questions_top_n = questions_cluster[indexes_top_n]
 
             text = ''
-            for j in range(len(questions_top5)):
-                text = text + str(j+1) + '. ' + questions_top5[j] + '\n'
+            for j in range(len(questions_top_n)):
+                text = text + str(j+1) + '. ' + questions_top_n[j] + '\n'
             
             input = f"""{text}"""
             prompt = f""" Identify the common topic in the given sentences below.\n {input} """

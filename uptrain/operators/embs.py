@@ -190,7 +190,7 @@ class UMAP(ColumnOp):
     """
 
     col_in_embs: str = 'embedding'
-    n_components: int
+    n_components: int = 6
     col_out: str = 'umap_embedding' 
 
     def setup(self, settings: Settings):

@@ -1,11 +1,10 @@
 """
-This module provides the following Distribution and UMAP operators that operate on embeddings:
+This module provides the Clustering operator that operate on embeddings.
 
 Operators:
-- `Distribution`: Computes the distribution of similarity metrics.
-- `UMAP`: Performs UMAP dimensionality reduction.
+- `Clustering`: Performs the clustering on examples in embedding space.
 
-NOTE: The above operators only take embeddings as input. Refer uptrain.operators.language.embedding to learn more.
+NOTE: The above operators take embeddings as input. Refer uptrain.operators.language.embedding and uptrain.operators.embs to learn more.
 
 """
 
@@ -36,6 +35,7 @@ class Clustering(ColumnOp):
         n_clusters (int): number of clusters.
         col_in (str):  The name of the column in the DataFrame where clustering needs to be performed.
         col_out (str):  The name of the column in the DataFrame to output the assigned cluster index.
+        col_out_dist (str): The name of the column in the DataFrame to output the euclidean distance from its cluster centroid.
     Example:
         ```
         import polars as pl
@@ -61,10 +61,11 @@ class Clustering(ColumnOp):
         ```
     """
 
-    algorithm: str
-    n_clusters: int
+    algorithm: str = 'kmeans'
+    n_clusters: int = 40
     col_in: str = 'umap_embedding'
     col_out: str = 'cluster_index'
+    col_out_dist: str = 'cluster_index_distance'
 
     def setup(self, settings: Settings):
         if self.algorithm == "kmeans":
@@ -74,8 +75,17 @@ class Clustering(ColumnOp):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:      
-        embs_1 = np.asarray(data[self.col_in])
-        assigned_clusters = self.algorithm_obj.cluster(embs_1, assign_clusters=True)
-        return {"output": data.with_columns([pl.Series(assigned_clusters).alias(self.col_out)])}
+        embeddings = np.asarray(data[self.col_in])
+        assigned_clusters = self.algorithm_obj.cluster(embeddings, assign_clusters=True)
+        scores = []
+        for index in range(len(embeddings)):
+            scores.append(np.linalg.norm(embeddings[index] - self.algorithm_obj.means()[assigned_clusters[index]]))
+        return {
+            "output": 
+                data.with_columns([
+                        pl.Series(assigned_clusters).alias(self.col_out),
+                        pl.Series(scores).alias(self.col_out_dist) 
+                ])
+        }
 
 
