@@ -166,6 +166,14 @@ print(json.dumps(results, indent=3))
 - **[Feature Slicing]()** - Built-in pivoting functionalities for data dice and slice to pinpoint low-performing cohorts.
 - **[Realtime Dashboards]()** - Monitor your model's performance in realtime.
 
+# Dimensions of LLM Evaluations 💡
+
+<h4 align="left">
+  <img width=600, src="https://github.com/uptrain-ai/uptrain/assets/108270398/6cf080ef-7aec-4609-81e1-25d667401ad4" alt="Different dimensions, metrics or criteria for LLM evaluations">
+</h4>
+
+We recently wrote about different criteria to evaluate LLM applications and explored grouping them into categories. [Read more about it.](https://uptrain.ai/blog/how-to-evaluate-your-llm-applications)
+
 
 # Integrations
 
