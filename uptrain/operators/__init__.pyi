@@ -54,6 +54,7 @@ __all__ = [
     "LanguageCritique",
     "ToneCritique",
     "GuidelineAdherenceScore",
+    "ResponseMatchingScore",
     # io - also include all the subimports
     "io",
     "ExcelReader",
@@ -119,6 +120,7 @@ from .language.with_context import (
 )
 from .language.critique import LanguageCritique, ToneCritique
 from .language.guideline import GuidelineAdherenceScore
+from .language.response_matching import ResponseMatchingScore
 
 from . import io
 from .io.base import CsvReader, JsonReader, DeltaReader, JsonWriter, DeltaWriter
