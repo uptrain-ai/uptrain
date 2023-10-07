@@ -421,8 +421,10 @@ class APIClient:
                 req_attrs.update([schema.question, schema.response])
             elif m in [Evals.CONTEXT_RELEVANCE]:
                 req_attrs.update([schema.question, schema.context])
-            elif m == Evals.CRITIQUE_LANGUAGE or isinstance(m, CritiqueTone) or isinstance(m, GuidelineAdherence) or isinstance(m, ResponseMatching):
+            elif m == Evals.CRITIQUE_LANGUAGE or isinstance(m, CritiqueTone) or isinstance(m, GuidelineAdherence):
                 req_attrs.update([schema.response])
+            elif isinstance(m, ResponseMatching):
+                req_attrs.update([schema.response, schema.ground_truth])
 
             if isinstance(m, ParametricEval):
                 ser_checks.append({"check_name": m.__class__.__name__, **m.dict()})
