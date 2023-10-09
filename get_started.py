@@ -1,4 +1,4 @@
-from uptrain.framework import EvalLLM, Evals, CritiqueTone
+from uptrain import EvalLLM, Evals, CritiqueTone
 import json
 
 OPENAI_API_KEY = "sk-*****************"

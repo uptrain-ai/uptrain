@@ -68,7 +68,7 @@ There are two ways to use UpTrain:
 Follow the code snippet below to get started with UpTrain.
 
 ```python
-from uptrain.framework import EvalLLM, Evals, CritiqueTone
+from uptrain import EvalLLM, Evals, CritiqueTone
 import json
 
 OPENAI_API_KEY = "sk-***************"
@@ -97,7 +97,7 @@ If you have any questions, please join our [Slack community](https://join.slack.
 
 2. Follow the code snippets below to get started with UpTrain.
 ```python
-from uptrain.framework import APIClient, Evals, CritiqueTone
+from uptrain import APIClient, Evals, CritiqueTone
 import json
 
 UPTRAIN_API_KEY = "up-***************" 
@@ -126,7 +126,7 @@ To have a customized onboarding, please book a [demo call here](https://calendly
 Experiments help you perform A/B testing with prompts, so you can compare and choose the options most suitable for you. 
 
 ```python
-from uptrain.framework import APIClient, Evals, CritiqueTone
+from uptrain import APIClient, Evals, CritiqueTone
 import json
 
 UPTRAIN_API_KEY = "up-***************" 
