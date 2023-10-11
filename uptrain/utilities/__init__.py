@@ -12,8 +12,8 @@ from lazy_loader import load as _lazy_load
 from loguru import logger
 import pydantic
 import numpy as np
-import numpy.typing as npt
-import pyarrow as pa
+# import numpy.typing as npt
+# import pyarrow as pa
 import polars as pl
 
 # -----------------------------------------------------------
@@ -90,45 +90,45 @@ def jsonload(fp: t.Any, **kwargs) -> t.Any:
 # -----------------------------------------------------------
 
 
-def array_np_to_arrow(arr: npt.NDArray) -> pa.Array:
-    assert arr.ndim in (1, 2), "Only 1D and 2D arrays are supported."
-    if arr.ndim == 1:
-        return pa.array(arr)
-    else:
-        dim1, dim2 = arr.shape
-        return pa.ListArray.from_arrays(
-            np.arange(0, (dim1 + 1) * dim2, dim2), arr.ravel()
-        )
+# def array_np_to_arrow(arr: npt.NDArray) -> pa.Array:
+#     assert arr.ndim in (1, 2), "Only 1D and 2D arrays are supported."
+#     if arr.ndim == 1:
+#         return pa.array(arr)
+#     else:
+#         dim1, dim2 = arr.shape
+#         return pa.ListArray.from_arrays(
+#             np.arange(0, (dim1 + 1) * dim2, dim2), arr.ravel()
+#         )
 
 
-def array_arrow_to_np(arr: pa.Array) -> npt.NDArray:
-    if isinstance(arr, pa.ChunkedArray):
-        arr = arr.combine_chunks()
+# def array_arrow_to_np(arr: pa.Array) -> npt.NDArray:
+#     if isinstance(arr, pa.ChunkedArray):
+#         arr = arr.combine_chunks()
 
-    if not pa.types.is_list(arr.type):
-        return arr.to_numpy(zero_copy_only=False)  # assume a 1D array
-    else:
-        dim1 = len(arr)  # assume a 2D array
-        return np.asarray(arr.values.to_numpy(zero_copy_only=False)).reshape(dim1, -1)
-
-
-def arrow_batch_to_table(batch_or_tbl: t.Union[pa.Table, pa.RecordBatch]) -> pa.Table:
-    if not isinstance(batch_or_tbl, pa.Table):
-        return pa.Table.from_batches([batch_or_tbl])
-    else:
-        return batch_or_tbl
+#     if not pa.types.is_list(arr.type):
+#         return arr.to_numpy(zero_copy_only=False)  # assume a 1D array
+#     else:
+#         dim1 = len(arr)  # assume a 2D array
+#         return np.asarray(arr.values.to_numpy(zero_copy_only=False)).reshape(dim1, -1)
 
 
-def table_arrow_to_np_arrays(
-    tbl: pa.Table, cols: list[t.Union[str, int]]
-) -> list[np.ndarray]:
-    return [array_arrow_to_np(tbl.column(c)) for c in cols]
+# def arrow_batch_to_table(batch_or_tbl: t.Union[pa.Table, pa.RecordBatch]) -> pa.Table:
+#     if not isinstance(batch_or_tbl, pa.Table):
+#         return pa.Table.from_batches([batch_or_tbl])
+#     else:
+#         return batch_or_tbl
 
 
-def np_arrays_to_arrow_table(arrays: list[npt.NDArray], cols: list[str]) -> pa.Table:
-    return pa.Table.from_pydict(
-        {c: array_np_to_arrow(arr) for c, arr in zip(cols, arrays)}
-    )
+# def table_arrow_to_np_arrays(
+#     tbl: pa.Table, cols: list[t.Union[str, int]]
+# ) -> list[np.ndarray]:
+#     return [array_arrow_to_np(tbl.column(c)) for c in cols]
+
+
+# def np_arrays_to_arrow_table(arrays: list[npt.NDArray], cols: list[str]) -> pa.Table:
+#     return pa.Table.from_pydict(
+#         {c: array_np_to_arrow(arr) for c, arr in zip(cols, arrays)}
+#     )
 
 
 def polars_to_pandas(data: pl.DataFrame):
@@ -243,7 +243,10 @@ def lazy_load_dep(import_name: str, package_name: str):
 
     NOTE: This wrapper adds a warning message at import time.
     """
-    spec = importlib.util.find_spec(import_name)
+    try:
+        spec = importlib.util.find_spec(import_name)
+    except:
+        spec = None
     if spec is None:
         logger.warning(
             f"Optional feature dependent on missing pacakge: {import_name} was initialized.\n"

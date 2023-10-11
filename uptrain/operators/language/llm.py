@@ -8,9 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 import random
 import typing as t
 
-import aiolimiter
 from loguru import logger
-from tqdm.asyncio import tqdm_asyncio
 from pydantic import BaseModel, Field
 
 if t.TYPE_CHECKING:
@@ -20,6 +18,9 @@ from uptrain.utilities import lazy_load_dep
 
 openai = lazy_load_dep("openai", "openai")
 litellm = lazy_load_dep("litellm", "litellm")
+aiolimiter = lazy_load_dep("aiolimiter", "aiolimiter")
+tqdm = lazy_load_dep("tqdm", "tqdm")
+
 if t.TYPE_CHECKING:
     import openai
     import openai.error
@@ -148,5 +149,5 @@ class LLMMulticlient:
             async_process_payload(data, rpm_limiter, tpm_limiter, self._max_tries)
             for data in input_payloads
         ]
-        output_payloads = await tqdm_asyncio.gather(*async_outputs)
+        output_payloads = await tqdm.asyncio.gather(*async_outputs)
         return output_payloads
