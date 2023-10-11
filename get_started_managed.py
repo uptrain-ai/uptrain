@@ -1,4 +1,4 @@
-from uptrain.framework import APIClient, Evals, CritiqueTone
+from uptrain import APIClient, Evals, CritiqueTone
 import json
 
 UPTRAIN_API_KEY = "up-***************" 

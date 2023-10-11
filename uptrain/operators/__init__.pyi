@@ -14,6 +14,8 @@ __all__ = [
     # embs
     "Distribution",
     "UMAP",
+    # clustering
+    "Clustering",    
     # table
     "ColumnExpand",
     "ColumnComparison",
@@ -44,6 +46,7 @@ __all__ = [
     "OpenAIGradeScore",
     "ModelGradeScore",
     "PromptGenerator",
+    "TopicGenerator",
     "TextCompletion",
     "OutputParser",
     "ResponseFactualScore",
@@ -85,6 +88,7 @@ from .base import (
 )
 from .drift import ConceptDrift, ParamsADWIN, ParamsDDM
 from .embs import Distribution, UMAP
+from .clustering import Clustering
 from .table import Table, ColumnExpand, ColumnComparison
 from .metrics import Accuracy
 from .similarity import CosineSimilarity
@@ -110,7 +114,7 @@ from .language.text import (
     WordCount,
 )
 from .language.model_grade import ModelGradeScore, OpenAIGradeScore
-from .language.generation import PromptGenerator, TextCompletion, OutputParser
+from .language.generation import PromptGenerator, TextCompletion, OutputParser, TopicGenerator
 from .language.with_context import (
     ResponseFactualScore,
     ContextRelevance,
@@ -121,6 +125,7 @@ from .language.with_context import (
 from .language.critique import LanguageCritique, ToneCritique
 from .language.guideline import GuidelineAdherenceScore
 from .language.response_matching import ResponseMatchingScore
+
 
 from . import io
 from .io.base import CsvReader, JsonReader, DeltaReader, JsonWriter, DeltaWriter

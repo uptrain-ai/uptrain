@@ -67,7 +67,7 @@ There are two ways to use UpTrain:
 Follow the code snippet below to get started with UpTrain.
 
 ```python
-from uptrain.framework import EvalLLM, Evals, CritiqueTone
+from uptrain import EvalLLM, Evals, CritiqueTone
 import json
 
 OPENAI_API_KEY = "sk-***************"
@@ -96,7 +96,7 @@ If you have any questions, please join our [Slack community](https://join.slack.
 
 2. Follow the code snippets below to get started with UpTrain.
 ```python
-from uptrain.framework import APIClient, Evals, CritiqueTone
+from uptrain import APIClient, Evals, CritiqueTone
 import json
 
 UPTRAIN_API_KEY = "up-***************" 
@@ -125,7 +125,7 @@ To have a customized onboarding, please book a [demo call here](https://calendly
 Experiments help you perform A/B testing with prompts, so you can compare and choose the options most suitable for you. 
 
 ```python
-from uptrain.framework import APIClient, Evals, CritiqueTone
+from uptrain import APIClient, Evals, CritiqueTone
 import json
 
 UPTRAIN_API_KEY = "up-***************" 
@@ -165,6 +165,14 @@ print(json.dumps(results, indent=3))
 - **[UMAP Visualization and Clustering](https://uptrain-ai.github.io/uptrain/operators/UMAP/)** - Visualize your embedding space using tools like UMAP and t-SNE.
 - **[Feature Slicing]()** - Built-in pivoting functionalities for data dice and slice to pinpoint low-performing cohorts.
 - **[Realtime Dashboards]()** - Monitor your model's performance in realtime.
+
+# Dimensions of LLM Evaluations 💡
+
+<h4 align="left">
+  <img width=600, src="https://github.com/uptrain-ai/uptrain/assets/108270398/6cf080ef-7aec-4609-81e1-25d667401ad4" alt="Different dimensions, metrics or criteria for LLM evaluations">
+</h4>
+
+We recently wrote about different criteria to evaluate LLM applications and explored grouping them into categories. [Read more about it.](https://uptrain.ai/blog/how-to-evaluate-your-llm-applications)
 
 
 # Integrations
