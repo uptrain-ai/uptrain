@@ -19,9 +19,9 @@ class ResponseMatchingScore(ColumnOp):
     Operator to compare the llm-generated text with the gold response using the defined score metric.
 
      Attributes:
-        col_response (str): Coloumn name for the llm generated responses
-        col_gold_response (str): Coloumn name for the gold responses
-        method (str):  (Literal["rouge", "exact", "llm"]): method to calculate the score.
+        col_response (str): Column name for the llm generated responses
+        col_gold_response (str): Column name for the gold responses
+        method (str): (Literal["rouge", "exact", "llm"]): Method to calculate the score
 
     Raises:
         Exception: Raises exception for any failed evaluation attempts
