@@ -145,6 +145,9 @@ def polars_to_pandas(data: pl.DataFrame):
         logger.warning(
             "Error converting polars to pandas. Trying to convert to python native types first."
         )
+
+        lazy_load_dep("pyarrow", "pyarrow>=10.0.0")
+
         # We can't iterate over polars as such, since rust panics can't be caught in python
         # convert to pyarrow first
         all_rows = []

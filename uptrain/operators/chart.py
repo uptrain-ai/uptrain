@@ -17,7 +17,7 @@ import polars as pl
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
 from uptrain.operators.base import *
-from uptrain.utilities import lazy_load_dep, polars_to_pandas
+from uptrain.utilities import lazy_load_dep
 
 px = lazy_load_dep("plotly.express", "plotly")
 ps = lazy_load_dep("plotly.subplots", "plotly")
