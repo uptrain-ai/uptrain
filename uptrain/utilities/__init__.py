@@ -252,7 +252,7 @@ def lazy_load_dep(import_name: str, package_name: str):
         spec = None
     if spec is None:
         logger.warning(
-            f"Optional feature dependent on missing pacakge: {import_name} was initialized.\n"
+            f"Optional feature dependent on missing package: {import_name} was initialized.\n"
             f"Use `pip install {package_name}` to install the package if running locally."
         )
 
