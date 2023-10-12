@@ -19,8 +19,8 @@ if t.TYPE_CHECKING:
 from uptrain.operators.base import *
 from uptrain.utilities import lazy_load_dep
 
-px = lazy_load_dep("plotly.express", "plotly")
-ps = lazy_load_dep("plotly.subplots", "plotly")
+px = lazy_load_dep("plotly.express", "plotly>=5.0.0")
+ps = lazy_load_dep("plotly.subplots", "plotly>=5.0.0")
 
 __all__ = [
     "BarChart",

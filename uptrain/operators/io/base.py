@@ -109,8 +109,8 @@ class DeltaReader(TransformOp):
 
     def setup(self, settings: Settings):
 
-        lazy_load_dep("pyarrow", "pyarrow")
-        dl = lazy_load_dep("deltatable", "deltatable")
+        lazy_load_dep("pyarrow", "pyarrow>=10.0.0")
+        dl = lazy_load_dep("deltatable", "deltalake>=0.9")
 
         self._dataset = dl.DeltaTable(self.fpath).to_pyarrow_dataset()
         if self.is_incremental:
@@ -146,7 +146,7 @@ class DeltaWriter(OpBaseModel):
     columns: t.Optional[list[str]] = None
 
     def setup(self, settings: Settings):
-        dl = lazy_load_dep("deltatable", "deltatable")
+        dl = lazy_load_dep("deltatable", "deltalake>=0.9")
 
         return self
 

@@ -9,8 +9,8 @@ import pandas as pd
 
 from uptrain.utilities import lazy_load_dep
 
-px = lazy_load_dep("plotly.express", "plotly")
-st = lazy_load_dep("streamlit", "streamlit")
+px = lazy_load_dep("plotly.express", "plotly>=5.0.0")
+st = lazy_load_dep("streamlit", "streamlit>=1.23")
 
 from uptrain.framework import CheckSet, Check, Settings
 from uptrain.operators import Table

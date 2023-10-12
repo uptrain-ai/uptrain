@@ -17,9 +17,8 @@ from uptrain.operators.base import *
 from uptrain.utilities import lazy_load_dep
 
 openai = lazy_load_dep("openai", "openai")
-litellm = lazy_load_dep("litellm", "litellm")
-aiolimiter = lazy_load_dep("aiolimiter", "aiolimiter")
-tqdm = lazy_load_dep("tqdm", "tqdm")
+aiolimiter = lazy_load_dep("aiolimiter", "aiolimiter>=1.1")
+tqdm = lazy_load_dep("tqdm", "tqdm>=4.0")
 
 if t.TYPE_CHECKING:
     import openai
@@ -64,6 +63,8 @@ async def async_process_payload(
                     **payload.data, request_timeout=17
                 )
             else:
+                litellm = lazy_load_dep("litellm", "litellm")
+
                 payload.response = await litellm.acompletion(
                     **payload.data,
                 )
