@@ -3,10 +3,10 @@ requires = ["setuptools", "wheel"]
 
 [project]
 name = "uptrain"
-version = "0.4.0"
+version = "0.4.1"
 description = "UpTrain - tool to evaluate LLM applications on aspects like factual accuracy, response quality, retrieval quality, tonality, etc."
 readme = "README.md"
-maintainers = [{ name = "UpTrain AI Team", email = "uptrain.ai@gmail.com" }]
+maintainers = [{ name = "UpTrain AI Team", email = "oss@uptrain.ai" }]
 license = {text = "Apache-2.0"}
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -20,18 +20,13 @@ classifiers = [
 ]
 keywords = ["uptrain", "ai", "LLM", "evaluation", "hallucinations", "observability", "response quality"]
 dependencies = [
-    "tqdm>=4.0",
     "pydantic<1.10.10",
-    "aiolimiter>=1.1",
     "loguru",
     "lazy_loader",
     "networkx",
     "polars>=0.18",
-    "deltalake>=0.9",
+    "pandas",
     "numpy>=1.23.0",
-    "pyarrow>=10.0.0",
-    "plotly>=5.0.0",
-    "streamlit>=1.23",
     "httpx>=0.24.1",
 ]
 

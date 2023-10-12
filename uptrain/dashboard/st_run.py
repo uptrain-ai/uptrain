@@ -1,8 +1,9 @@
 import os
 import sys
-
-import streamlit as st
 import polars as pl
+
+from uptrain.utilities import lazy_load_dep
+st = lazy_load_dep("streamlit", "streamlit>=1.23")
 
 from uptrain.operators import ColumnOp
 from uptrain.framework import Settings, CheckSet, Check

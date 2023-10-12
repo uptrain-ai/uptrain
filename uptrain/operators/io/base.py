@@ -4,11 +4,11 @@ from __future__ import annotations
 import typing as t
 
 import polars as pl
-import deltalake as dl
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
 from uptrain.operators.base import *
+from uptrain.utilities import lazy_load_dep
 
 # -----------------------------------------------------------
 # Read from text file formats - csv, json
@@ -108,6 +108,10 @@ class DeltaReader(TransformOp):
     _batch_generator: t.Optional[t.Iterator[t.Any]]  # record batch generator
 
     def setup(self, settings: Settings):
+
+        lazy_load_dep("pyarrow", "pyarrow>=10.0.0")
+        dl = lazy_load_dep("deltatable", "deltalake>=0.9")
+
         self._dataset = dl.DeltaTable(self.fpath).to_pyarrow_dataset()
         if self.is_incremental:
             self._batch_generator = iter(self._dataset.to_batches())
@@ -142,6 +146,8 @@ class DeltaWriter(OpBaseModel):
     columns: t.Optional[list[str]] = None
 
     def setup(self, settings: Settings):
+        dl = lazy_load_dep("deltatable", "deltalake>=0.9")
+
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
