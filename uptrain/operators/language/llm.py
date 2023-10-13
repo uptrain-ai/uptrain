@@ -18,7 +18,7 @@ from uptrain.utilities import lazy_load_dep
 
 openai = lazy_load_dep("openai", "openai")
 aiolimiter = lazy_load_dep("aiolimiter", "aiolimiter>=1.1")
-tqdm = lazy_load_dep("tqdm", "tqdm>=4.0")
+tqdm_asyncio = lazy_load_dep("tqdm.asyncio", "tqdm>=4.0")
 
 if t.TYPE_CHECKING:
     import openai
@@ -150,5 +150,5 @@ class LLMMulticlient:
             async_process_payload(data, rpm_limiter, tpm_limiter, self._max_tries)
             for data in input_payloads
         ]
-        output_payloads = await tqdm.asyncio.gather(*async_outputs)
+        output_payloads = await tqdm_asyncio.tqdm_asyncio.gather(*async_outputs)
         return output_payloads
