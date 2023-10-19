@@ -415,7 +415,7 @@ class APIClient:
 
         req_attrs, ser_checks = set(), []
         for m in checks:
-            if m in [Evals.FACTUAL_ACCURACY, Evals.RESPONSE_COMPLETENESS_WRT_CONTEXT]:
+            if m in [Evals.FACTUAL_ACCURACY, Evals.RESPONSE_COMPLETENESS_WRT_CONTEXT, Evals.CHAOTIC_RESPONSE]:
                 req_attrs.update([schema.question, schema.context, schema.response])
             elif m in [Evals.RESPONSE_RELEVANCE, Evals.RESPONSE_COMPLETENESS]:
                 req_attrs.update([schema.question, schema.response])
