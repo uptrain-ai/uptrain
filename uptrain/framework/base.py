@@ -27,6 +27,9 @@ class Settings(BaseSettings):
     openai_api_key: str = Field(None, env="OPENAI_API_KEY")
     cohere_api_key: str = Field(None, env="COHERE_API_KEY")
     huggingface_api_key: str = Field(None, env="HUGGINGFACE_API_KEY")
+    anthropic_api_key: str = Field(None, env="HUGGINGFACE_API_KEY")
+    replicate_api_token: str = Field(None, env="REPLICATE_API_TOKEN")
+
     openai_rpm_limit: int = 100
 
     # uptrain managed service related

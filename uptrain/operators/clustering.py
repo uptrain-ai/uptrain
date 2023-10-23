@@ -112,7 +112,12 @@ class Clustering(ColumnOp):
                         pl.Series([str(unique_agg_key)] * len(data_subset)).alias("_unique_agg_key_for_clustering")
                 ])
             res_data_arr.append(data_subset)
-            self.cluster_centroids[str(unique_agg_key)] = [list(x.astype(np.float64)) for x in list(algorithm_obj.means())]
+            unique_assigned_clusters = np.unique(np.array(assigned_clusters))
+            all_means = [list(x.astype(np.float64)) for x in list(algorithm_obj.means())]
+            assigned_means = []
+            for clus_idx in unique_assigned_clusters:
+                assigned_means.append(all_means[clus_idx])
+            self.cluster_centroids[str(unique_agg_key)] = assigned_means
 
         return {
             "output": 

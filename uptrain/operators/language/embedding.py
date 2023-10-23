@@ -102,7 +102,7 @@ class Embedding(ColumnOp):
                 raise Exception(f"Embeddings model: {self.model} is not supported yet.")
         else:
             replicate = lazy_load_dep("replicate", "replicate")
-            self._model_obj = replicate
+            self._model_obj = replicate.Client(api_token=settings.replicate_api_token)
             if self.model == "mpnet-base-v2":
                 self._model_url = "replicate/all-mpnet-base-v2:b6b7585c9640cd7a9572c6e129c9549d79c9c31f0d3fdce7baac7c67ca38f305"
             elif self.model == "bge-large-zh-v1.5":

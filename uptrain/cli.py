@@ -23,6 +23,22 @@ EXTRA_PACKAGES = {
         "streamlit>=1.23",
         "pyarrow>=10.0.0"
     ],
+    "self-hosted": [
+        "tqdm>=4.0",
+        "aiolimiter>=1.1",
+        "plotly>=5.0.0",
+        "streamlit>=1.23",
+        "pyarrow>=10.0.0"
+        "river<0.18",
+        "scikit-learn>=1.0.0",
+        "umap-learn",
+        "rouge-score",
+        # "sentence-transformers",
+        # "InstructorEmbedding",
+        # "openai>=0.27",
+        # "evals @ git+https://github.com/openai/evals.git",
+        "replicate"
+    ],
     # Add packages here
     "full": [
         "tqdm>=4.0",
@@ -38,6 +54,7 @@ EXTRA_PACKAGES = {
         "InstructorEmbedding",
         "openai>=0.27",
         "evals @ git+https://github.com/openai/evals.git",
+        "replicate"
     ],
 }
 
