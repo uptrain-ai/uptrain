@@ -19,6 +19,7 @@ __all__ = [
     # table
     "ColumnExpand",
     "ColumnComparison",
+    "ColumnReduce",
     # metrics
     "Accuracy",
     # similarity
@@ -56,6 +57,7 @@ __all__ = [
     "ResponseCompletenessWrtContext",
     "LanguageCritique",
     "ToneCritique",
+    "TopicAssignmentviaCluster",
     # io - also include all the subimports
     "io",
     "ExcelReader",
@@ -87,7 +89,7 @@ from .base import (
 from .drift import ConceptDrift, ParamsADWIN, ParamsDDM
 from .embs import Distribution, UMAP
 from .clustering import Clustering
-from .table import Table, ColumnExpand, ColumnComparison
+from .table import Table, ColumnExpand, ColumnComparison, ColumnReduce
 from .metrics import Accuracy
 from .similarity import CosineSimilarity
 from .chart import (
@@ -121,6 +123,7 @@ from .language.with_context import (
     ResponseCompletenessWrtContext,
 )
 from .language.critique import LanguageCritique, ToneCritique
+from .language.topic import TopicAssignmentviaCluster
 
 from . import io
 from .io.base import CsvReader, JsonReader, DeltaReader, JsonWriter, DeltaWriter

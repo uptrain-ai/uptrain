@@ -255,7 +255,7 @@ class APIClient:
         response = self.client.get(url, params=params)
         return raise_or_return(response)
 
-    def add_daily_schedule(self, checkset: str, start_on: str):
+    def add_daily_schedule(self, checkset: str, start_on: str, assign_topics: int = 0, assign_topics_args: t.Optional[dict] = None):
         """Schedules a periodic evaluation on the server. Specify the checkset to run against it.
 
         Args:
@@ -267,7 +267,13 @@ class APIClient:
         """
         url = f"{self.base_url}/schedule"
         response = self.client.post(
-            url, json={"checkset": checkset, "start_on": start_on}
+            url, 
+            json={
+                "checkset": checkset,
+                "start_on": start_on,
+                "assign_topics": assign_topics,
+                "assign_topics_args": assign_topics_args
+            }
         )
         return raise_or_return(response)
 

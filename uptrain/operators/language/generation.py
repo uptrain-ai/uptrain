@@ -213,63 +213,91 @@ class TopicGenerator(ColumnOp):
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
 
-        questions = np.asarray(data[self.col_in_text])
-        distances = np.asarray(data[self.col_in_dist])
+        res_data_arr = []
 
-        n_clusters = max(data[self.col_in_cluster_index])
-        input_payloads = []
-        outputs = [None] * len(questions)
-        indexes_cluster = []
+        unique_agg_keys = ['default']
+        if '_unique_agg_key_for_clustering' in list(data.columns):
+            # First aggregate by col_aggs
+            agg_data = data.groupby('_unique_agg_key_for_clustering').agg([pl.col(self.col_in_text).count().alias("num_rows_" + self.col_in_text)])
+            agg_data = agg_data.drop("num_rows_" + self.col_in_text)
+            unique_agg_keys = [eval(x) for x in list(agg_data['_unique_agg_key_for_clustering'])]
 
-        for index in range(n_clusters+1):
-            points = data[self.col_in_cluster_index]==index
-            indexes_cluster.append(list(np.where(points)[0]))
-            distances_cluster = distances[points]
-            questions_cluster = questions[points]
-            
+        self.topics = {}
 
-            indexes_sorted = np.argsort(distances_cluster)
-            indexes_top_n = indexes_sorted[:min(self.top_n, len(questions_cluster))]
-            questions_top_n = questions_cluster[indexes_top_n]
+        for unique_agg_key in unique_agg_keys:
+            cond = True
+            if isinstance(unique_agg_key, dict):
+                unique_agg_key = dict([(key, unique_agg_key[key]) for key in sorted(unique_agg_key)])
+                for key,val in unique_agg_key.items():
+                    cond = cond & (data[key] == val)
+            data_subset = data.filter(cond)
 
-            text = ''
-            for j in range(len(questions_top_n)):
-                text = text + str(j+1) + '. ' + questions_top_n[j] + '\n'
-            
-            input = f"""{text}"""
-            prompt = f""" Identify the common topic in the given sentences below.\n {input} """
-            input_payloads.append(self._make_payload(index, prompt, self.model))
+            questions = np.asarray(data_subset[self.col_in_text])
+            distances = np.asarray(data_subset[self.col_in_dist])
 
-    
-        output_payloads = self._api_client.fetch_responses(input_payloads)
+            n_clusters = max(data_subset[self.col_in_cluster_index])
+            input_payloads = []
+            outputs = [None] * len(questions)
+            indexes_cluster = []
 
-        results = []
-        for res in output_payloads:
-            assert (
-                res is not None
-            ), "Response should not be None, we should've handled exceptions beforehand."
-            idx = res.metadata["index"]
-            if res.error is not None:
-                logger.error(
-                    f"Error when processing payload at index {idx}: {res.error}"
-                )
-                results.append((idx, None))
-            else:
-                resp_text = res.response["choices"][0]["message"]["content"]
-                results.append((idx, resp_text))
+            for index in range(n_clusters+1):
+                points = data_subset[self.col_in_cluster_index]==index
+                indexes_cluster.append(list(np.where(points)[0]))
+                distances_cluster = distances[points]
+                questions_cluster = questions[points]
+                
+
+                indexes_sorted = np.argsort(distances_cluster)
+                indexes_top_n = indexes_sorted[:min(self.top_n, len(questions_cluster))]
+                questions_top_n = questions_cluster[indexes_top_n]
+
+                text = ''
+                for j in range(len(questions_top_n)):
+                    text = text + str(j+1) + '. ' + questions_top_n[j] + '\n'
+                
+                input = f"""{text}"""
+                prompt = f""" Identify the common topic in the given sentences below. 
+                {input}
+                
+                You should identify only a single concise topic which should be at max 15 words long. Just print the topic and nothing else. 
+                Topic: """
+                input_payloads.append(self._make_payload(index, prompt, self.model))
         
-        for index, resp_text in results:
-            indexes = indexes_cluster[index]
-            for idx in indexes:
-                outputs[idx]=resp_text
-        
-        output_text = pl.Series(
-            values=outputs
-        )
+
+            output_payloads = self._api_client.fetch_responses(input_payloads)
+
+            results = []
+            for res in output_payloads:
+                assert (
+                    res is not None
+                ), "Response should not be None, we should've handled exceptions beforehand."
+                idx = res.metadata["index"]
+                if res.error is not None:
+                    logger.error(
+                        f"Error when processing payload at index {idx}: {res.error}"
+                    )
+                    results.append((idx, None))
+                else:
+                    resp_text = res.response["choices"][0]["message"]["content"]
+                    results.append((idx, resp_text))
+            
+            for index, resp_text in results:
+                indexes = indexes_cluster[index]
+                for idx in indexes:
+                    outputs[idx]=resp_text
+
+            output_text = pl.Series(
+                values=outputs
+            )
+            data_subset = data_subset.with_columns([output_text.alias(self.col_out_text)])
+            res_data_arr.append(data_subset)
+
+            results.sort(key=lambda x: x[0])
+            self.topics[str(unique_agg_key)] = [x[1] for x in results]
+
         return {
-            "output": data.with_columns([output_text.alias(self.col_out_text)])
+            "output": pl.concat(res_data_arr)
         }
-
 
 
 @register_op
