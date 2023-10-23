@@ -266,7 +266,7 @@ class ChaoticResponse(ColumnOp):
             for row in data.to_dicts()
         ]
         try:
-            results = self._api_client.evaluate("chaotic_response", data_send)
+            results = self._api_client.evaluate("ChaoticResponse", data_send)
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ChaoticResponse`: {e}")
             raise e
