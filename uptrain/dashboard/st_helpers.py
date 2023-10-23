@@ -4,10 +4,13 @@ import typing as t
 import numpy as np
 
 from loguru import logger
-import streamlit as st
 import polars as pl
 import pandas as pd
-import plotly.express as px
+
+from uptrain.utilities import lazy_load_dep
+
+px = lazy_load_dep("plotly.express", "plotly>=5.0.0")
+st = lazy_load_dep("streamlit", "streamlit>=1.23")
 
 from uptrain.framework import CheckSet, Check, Settings
 from uptrain.operators import Table

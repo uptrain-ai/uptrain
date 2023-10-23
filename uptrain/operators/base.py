@@ -9,12 +9,11 @@ import typing as t
 import typing_extensions as te
 
 from loguru import logger
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel
 import polars as pl
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
-from uptrain.utilities import to_py_types
 
 
 __all__ = [
