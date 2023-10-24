@@ -36,6 +36,9 @@ class Settings(BaseSettings):
     uptrain_access_token: str = Field(None, env="UPTRAIN_ACCESS_TOKEN")
     uptrain_server_url: str = Field("https://demo.uptrain.ai/", env="UPTRAIN_SERVER_URL")
 
+    # LLM model to run the evaluations
+    model: str = "gpt-3.5-turbo"
+
     # allow additional fields as needed by different operators
     class Config:
         extra = "allow"
