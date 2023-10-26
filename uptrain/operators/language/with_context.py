@@ -230,7 +230,7 @@ class ResponseRelevance(ColumnOp):
 
 
 @register_op
-class ChaoticResponse(ColumnOp):
+class ResponseConsistency(ColumnOp):
     """
     Gives scores how relevant the generated response is for the question asked along with the context.
 
@@ -266,9 +266,9 @@ class ChaoticResponse(ColumnOp):
             for row in data.to_dicts()
         ]
         try:
-            results = self._api_client.evaluate("ChaoticResponse", data_send)
+            results = self._api_client.evaluate("ResponseConsistency", data_send)
         except Exception as e:
-            logger.error(f"Failed to run evaluation for `ChaoticResponse`: {e}")
+            logger.error(f"Failed to run evaluation for `ResponseConsistency`: {e}")
             raise e
 
         assert results is not None

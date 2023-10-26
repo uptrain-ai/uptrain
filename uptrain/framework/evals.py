@@ -9,7 +9,7 @@ class Evals(enum.Enum):
     CRITIQUE_LANGUAGE = "critique_language"
     RESPONSE_COMPLETENESS = "response_completeness"
     RESPONSE_COMPLETENESS_WRT_CONTEXT = "response_completeness_wrt_context"
-    CHAOTIC_RESPONSE = "chaotic_response"
+    RESPONSE_CONSISTENCY = "response_consistency"
 
 
 class ParametricEval(pydantic.BaseModel):

@@ -9,7 +9,7 @@ from uptrain.operators import (
     ResponseFactualScore,
     ResponseCompleteness,
     ResponseRelevance,
-    ChaoticResponse,
+    ResponseConsistency,
     ContextRelevance,
     LanguageCritique,
     ToneCritique,
@@ -57,10 +57,10 @@ CheckResponseRelevance = lambda: Check(
     plots=[Histogram(x="score_response_relevance")],
 )
 
-CheckChaoticResponse = lambda: Check(
-    name="chaotic_response_score",
-    operators=[ChaoticResponse()],
-    plots=[Histogram(x="score_response_relevance")],
+CheckResponseConsistency = lambda: Check(
+    name="response_consistency_score",
+    operators=[ResponseConsistency()],
+    plots=[Histogram(x="score_response_consistency")],
 )
 # -----------------------------------------------------------
 # Language quality related

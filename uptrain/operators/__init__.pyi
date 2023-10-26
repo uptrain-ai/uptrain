@@ -54,7 +54,7 @@ __all__ = [
     "ResponseRelevance",
     "ResponseCompleteness",
     "ResponseCompletenessWrtContext",
-    "ChaoticResponse",
+    "ResponseConsistency",
     "LanguageCritique",
     "ToneCritique",
     # io - also include all the subimports
@@ -120,7 +120,7 @@ from .language.with_context import (
     ResponseCompleteness,
     ResponseRelevance,
     ResponseCompletenessWrtContext,
-    ChaoticResponse,
+    ResponseConsistency,
 )
 from .language.critique import LanguageCritique, ToneCritique
 
