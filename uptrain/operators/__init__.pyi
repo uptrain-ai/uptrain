@@ -32,6 +32,7 @@ __all__ = [
     "MultiPlot",
     "Table",
     "CustomPlotlyChart",
+    "Scatter3DPlot",
     # language - also include all the subimports
     "language",
     "GrammarScore",
@@ -99,6 +100,7 @@ from .chart import (
     Histogram,
     MultiPlot,
     CustomPlotlyChart,
+    Scatter3DPlot
 )
 
 from . import language

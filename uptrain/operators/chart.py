@@ -17,7 +17,7 @@ import polars as pl
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
 from uptrain.operators.base import *
-from uptrain.utilities import lazy_load_dep
+from uptrain.utilities import lazy_load_dep, polars_to_pandas
 
 px = lazy_load_dep("plotly.express", "plotly>=5.0.0")
 ps = lazy_load_dep("plotly.subplots", "plotly>=5.0.0")
@@ -56,7 +56,7 @@ class Chart(OpBaseModel):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        chart = getattr(px, self.kind)(data.to_pandas(), **self.props)
+        chart = getattr(px, self.kind)(polars_to_pandas(data), **self.props)
 
         # Add annotation based on the description
         if self.description:
@@ -278,6 +278,72 @@ class ScatterPlot(Chart):
 
 
 @register_op
+class Scatter3DPlot(Chart):
+    """
+    Operator to generate a 3D scatter chart.
+
+    Attributes:
+        props (dict): Additional properties to pass to the ScatterPlot constructor.
+        title (str): The title of the chart.
+        x (str): The name of the column to use for the x-axis.
+        y (str): The name of the column to use for the y-axis.
+        z (str): The name of the column to use for the z-axis.
+        color (str): The name of the column to use for the color.
+        description (str): Add a description of the chart being created.
+
+    Returns:
+        dict: A dictionary containing the chart object.
+
+    Example:
+        ```
+        import polars as pl
+        from uptrain.operators import ScatterPlot
+
+        # Create a DataFrame
+        df = pl.DataFrame({
+            "x": [1, 2, 3, 4, 5],
+            "y": [10, 20, 15, 25, 30],
+            "z": [30, 40, 55, 65, 70],
+        })
+
+        # Create a scatter chart using the ScatterPlot class
+        scatter_plot = Scatter3DPlot(x="x", y="y", z="z", title="Scatter 3D Plot")
+
+        # Generate the scatter plot
+        chart = scatter_plot.run(df)["extra"]["chart"]
+
+        # Show the chart
+        chart.show()
+        ```
+
+    """
+
+    props: dict = Field(default_factory=dict)
+    title: str = ""
+    x: str = ""
+    y: str = ""
+    z: str = ""
+    description: str = ""
+    color: str = ""
+    symbol: str = ""
+
+    kind = "scatter_3d"
+
+    def setup(self, settings: Settings = None):
+        super(Scatter3DPlot, self).setup()
+
+        self.props = self.props | {
+            k: v
+            for k, v in [
+                ("z", self.z),
+                ("symbol", self.symbol),
+            ]
+            if v
+        }
+        return self
+
+
+@register_op
 class Histogram(Chart):
     """
     Operator to generate a histogram.
@@ -422,7 +488,7 @@ class MultiPlot(Chart):
         )  # Adjust this value for multiline annotation spacing
 
         for idx, chart in enumerate(self.charts):
-            plot = getattr(px, chart.kind)(data.to_pandas(), **chart.props)
+            plot = getattr(px, chart.kind)(polars_to_pandas(data), **chart.props)
 
             # Use only the first trace from the plot
             trace = plot.data[0]
