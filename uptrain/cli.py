@@ -28,7 +28,7 @@ EXTRA_PACKAGES = {
         "aiolimiter>=1.1",
         "plotly>=5.0.0",
         "streamlit>=1.23",
-        "pyarrow>=10.0.0"
+        "pyarrow>=10.0.0",
         "river<0.18",
         "scikit-learn>=1.0.0",
         "umap-learn",
@@ -45,7 +45,7 @@ EXTRA_PACKAGES = {
         "aiolimiter>=1.1",
         "plotly>=5.0.0",
         "streamlit>=1.23",
-        "pyarrow>=10.0.0"
+        "pyarrow>=10.0.0",
         "river<0.18",
         "scikit-learn>=1.0.0",
         "umap-learn",
