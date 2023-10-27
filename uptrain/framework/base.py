@@ -49,6 +49,7 @@ class Settings(BaseSettings):
 
 
     def __init__(self, **data):
+        super().__init__(**data)
         if "openai_api_key" in data:
             if data['openai_api_key'] is not None:
                 os.environ["OPENAI_API_KEY"] = data["openai_api_key"]
@@ -79,9 +80,6 @@ class Settings(BaseSettings):
         if "uptrain_server_url" in data:
             if data['uptrain_server_url'] is not None:
                 os.environ["UPTRAIN_SERVER_URL"] = data["uptrain_server_url"]
-
-        super().__init__(**data)
-
 
     def check_and_get(self, key: str) -> t.Any:
         """Check if a value is present in the settings and return it."""
