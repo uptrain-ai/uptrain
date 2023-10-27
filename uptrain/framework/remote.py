@@ -88,6 +88,7 @@ class APIClient:
 
         server_url = settings.check_and_get("uptrain_server_url")
         api_key = settings.check_and_get("uptrain_access_token")
+        self.settings = settings
         self.base_url = server_url.rstrip("/") + "/api/public"
         self.client = httpx.Client(
             headers={"uptrain-access-token": api_key},
@@ -461,6 +462,7 @@ class APIClient:
                                 "project": project_name,
                                 "schema": schema.dict(),
                                 **metadata,
+                                "uptrain_settings": self.settings.dict(),
                             },
                         },
                     )
