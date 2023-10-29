@@ -266,7 +266,7 @@ class ResponseConsistency(ColumnOp):
             for row in data.to_dicts()
         ]
         try:
-            results = self._api_client.evaluate("ResponseConsistency", data_send)
+            results = self._api_client.evaluate("response_consistency", data_send)
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ResponseConsistency`: {e}")
             raise e
