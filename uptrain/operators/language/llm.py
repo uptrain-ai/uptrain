@@ -97,8 +97,12 @@ async def async_process_payload(
                 fallback = {
                     "gpt-3.5-turbo": "gpt-3.5-turbo-16k",
                     "gpt-3.5-turbo-0613": "gpt-3.5-turbo-16k-0613",
+                    "gpt-3.5-turbo-16k": "claude-instant-1.2",
+                    "gpt-3.5-turbo-16k-0613": "claude-instant-1.2",
                     "gpt-4": "gpt-4-32k",
                     "gpt-4-0613": "gpt-4-32k-0613",
+                    "gpt-4-32k": "claude-2.0",
+                    "gpt-4-32k-0613": "claude-2.0",
                 }
                 if payload.data["model"] in fallback.keys():
                     payload.data["model"] = fallback[payload.data["model"]]

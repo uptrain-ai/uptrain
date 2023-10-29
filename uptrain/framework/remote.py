@@ -88,6 +88,7 @@ class APIClient:
 
         server_url = settings.check_and_get("uptrain_server_url")
         api_key = settings.check_and_get("uptrain_access_token")
+        self.settings = settings
         self.base_url = server_url.rstrip("/") + "/api/public"
         self.client = httpx.Client(
             headers={"uptrain-access-token": api_key},
@@ -255,7 +256,7 @@ class APIClient:
         response = self.client.get(url, params=params)
         return raise_or_return(response)
 
-    def add_daily_schedule(self, checkset: str, start_on: str):
+    def add_daily_schedule(self, checkset: str, start_on: str, assign_topics: int = 0, assign_topics_args: t.Optional[dict] = None):
         """Schedules a periodic evaluation on the server. Specify the checkset to run against it.
 
         Args:
@@ -267,7 +268,13 @@ class APIClient:
         """
         url = f"{self.base_url}/schedule"
         response = self.client.post(
-            url, json={"checkset": checkset, "start_on": start_on}
+            url, 
+            json={
+                "checkset": checkset,
+                "start_on": start_on,
+                "assign_topics": assign_topics,
+                "assign_topics_args": assign_topics_args
+            }
         )
         return raise_or_return(response)
 
@@ -415,7 +422,7 @@ class APIClient:
 
         req_attrs, ser_checks = set(), []
         for m in checks:
-            if m in [Evals.FACTUAL_ACCURACY, Evals.RESPONSE_COMPLETENESS_WRT_CONTEXT]:
+            if m in [Evals.FACTUAL_ACCURACY, Evals.RESPONSE_COMPLETENESS_WRT_CONTEXT, Evals.RESPONSE_CONSISTENCY]:
                 req_attrs.update([schema.question, schema.context, schema.response])
             elif m in [Evals.RESPONSE_RELEVANCE, Evals.RESPONSE_COMPLETENESS]:
                 req_attrs.update([schema.question, schema.response])
@@ -457,6 +464,7 @@ class APIClient:
                                 "project": project_name,
                                 "schema": schema.dict(),
                                 **metadata,
+                                "uptrain_settings": self.settings.dict(),
                             },
                         },
                     )

@@ -39,8 +39,9 @@ class Table(OpBaseModel):
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         return {"output": None}
 
+
 @register_op
-class ColumnExpand(TransformOp):
+class ColumnExpand(ColumnOp):
     """
     Table operation to return the input DataFrame as it is without any modifications.
 
@@ -169,3 +170,60 @@ class ColumnComparison(ColumnOp):
             pl.col(self.col_in_1) ==
             pl.col(self.col_in_2)
         )['Output'].alias(self.col_out))}
+
+
+@register_op
+class ColumnReduce(ColumnOp):
+    """
+    Operator to drop a list of columns from the input dataframe.
+
+    Attributes:
+        col_drop_names (list[str]): The names of the columns to be dropped.
+
+    Returns:
+        dict: A dictionary containing the input DataFrame.
+
+    Example:
+        ```
+        from uptrain.operators import ColumnReduce
+        df = pl.DataFrame({
+            "column1": [1, 2, 3],
+            "column2": ["A", "B", "C"]
+        })
+
+        # Create an instance of the ColumnReduce class
+        reduce_op = ColumnReduce(
+                        col_drop_names=["column2"],
+                    )
+
+        # Run the reduce operation
+        output_df = reduce_op.run(df)["output"]
+
+        # Print the output DataFrame
+        print(output_df)
+        ```
+
+    Output:
+        ```
+        shape: (3, 2)
+        ┌─────────┐
+        │ column1 ┆
+        │ ---     ┆
+        │ i64     ┆
+        ╞═════════╡
+        │ 1       ┆
+        │ 2       ┆
+        │ 3       ┆
+        └─────────┘
+        ```
+
+    """
+
+    col_drop_names: list[str]
+
+    def setup(self, settings: Settings):
+        return self
+
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
+        out = data.drop(self.col_drop_names)
+        return {"output": out}

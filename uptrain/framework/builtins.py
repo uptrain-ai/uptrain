@@ -9,6 +9,7 @@ from uptrain.operators import (
     ResponseFactualScore,
     ResponseCompleteness,
     ResponseRelevance,
+    ResponseConsistency,
     ContextRelevance,
     LanguageCritique,
     ToneCritique,
@@ -57,6 +58,11 @@ CheckResponseRelevance = lambda: Check(
     plots=[Histogram(x="score_response_relevance")],
 )
 
+CheckResponseConsistency = lambda: Check(
+    name="response_consistency_score",
+    operators=[ResponseConsistency()],
+    plots=[Histogram(x="score_response_consistency")],
+)
 # -----------------------------------------------------------
 # Language quality related
 # -----------------------------------------------------------

@@ -232,6 +232,7 @@ class ModelGradeScore(ColumnOp):
     choice_scores: dict[str, float]  #t.Union[dict[str, float], dict[str, list[float]]]
     context_vars: dict[str, str]
     col_out: t.Union[str, list[str]] = "model_grade_score"
+    model: t.Optional[str] = "gpt-3.5-turbo"
 
     def setup(self, settings: Settings):
         self._api_client = LLMMulticlient(settings=settings)
@@ -255,7 +256,7 @@ class ModelGradeScore(ColumnOp):
 
     def _make_payload(self, id: t.Any, messages: list[dict]) -> Payload:
         return Payload(
-            data={"model": "gpt-3.5-turbo", "messages": messages, "temperature": 0.2},
+            data={"model": self.model, "messages": messages, "temperature": 0.2},
             metadata={"index": id},
         )
 
