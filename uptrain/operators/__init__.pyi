@@ -56,6 +56,7 @@ __all__ = [
     "ResponseRelevance",
     "ResponseCompleteness",
     "ResponseCompletenessWrtContext",
+    "ResponseConsistency",
     "LanguageCritique",
     "ToneCritique",
     "TopicAssignmentviaCluster",
@@ -123,6 +124,7 @@ from .language.with_context import (
     ResponseCompleteness,
     ResponseRelevance,
     ResponseCompletenessWrtContext,
+    ResponseConsistency,
 )
 from .language.critique import LanguageCritique, ToneCritique
 from .language.topic import TopicAssignmentviaCluster

@@ -226,3 +226,50 @@ class ResponseRelevance(ColumnOp):
 
         assert results is not None
         return {"output": data.with_columns(pl.from_dicts(results))}
+
+
+
+@register_op
+class ResponseConsistency(ColumnOp):
+    """
+    Gives scores how relevant the generated response is for the question asked along with the context.
+
+    Attributes:
+        col_question (str): Column name for the stored questions
+        col_response (str): Coloumn name for the stored responses
+        col_context (str): Column name for the stored contexts
+
+    Raises:
+        Exception: Raises exception for any failed evaluation attempts
+
+
+    """
+
+    col_question: str = "question"
+    col_response: str = "response"
+    col_context: str = "context"
+
+    def setup(self, settings: t.Optional[Settings] = None):
+        from uptrain.framework.remote import APIClient
+
+        assert settings is not None
+        self._api_client = APIClient(settings)
+        return self
+
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
+        data_send = [
+            {
+                "question": row[self.col_question],
+                "response": row[self.col_response],
+                "context": row[self.col_context]
+            }
+            for row in data.to_dicts()
+        ]
+        try:
+            results = self._api_client.evaluate("response_consistency", data_send)
+        except Exception as e:
+            logger.error(f"Failed to run evaluation for `ResponseConsistency`: {e}")
+            raise e
+
+        assert results is not None
+        return {"output": data.with_columns(pl.from_dicts(results))}
