@@ -59,6 +59,8 @@ __all__ = [
     "ResponseConsistency",
     "LanguageCritique",
     "ToneCritique",
+    "GuidelineAdherenceScore",
+    "ResponseMatchingScore",
     "TopicAssignmentviaCluster",
     # io - also include all the subimports
     "io",
@@ -127,6 +129,8 @@ from .language.with_context import (
     ResponseConsistency,
 )
 from .language.critique import LanguageCritique, ToneCritique
+from .language.guideline import GuidelineAdherenceScore
+from .language.response_matching import ResponseMatchingScore
 from .language.topic import TopicAssignmentviaCluster
 
 from . import io

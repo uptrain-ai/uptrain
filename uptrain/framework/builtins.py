@@ -14,7 +14,8 @@ from uptrain.operators import (
     LanguageCritique,
     ToneCritique,
     ResponseCompletenessWrtContext,
-    GuidelineAdherenceScore
+    GuidelineAdherenceScore,
+    ResponseMatchingScore
 )
 
 # -----------------------------------------------------------
@@ -91,4 +92,14 @@ CheckGuidelineAdherence = lambda guideline, guideline_name="guideline", response
     name = f"{guideline_name}_adherence_score",
     operators=[GuidelineAdherenceScore(guideline=guideline, guideline_name=guideline_name, response_schema=response_schema)],
     plots=[Histogram(x=f"score_{guideline_name}_adherence")]
+)
+
+# -----------------------------------------------------------
+# Response Matching related
+# -----------------------------------------------------------
+
+CheckResponseMatching = lambda method = "llm": Check(
+    name = f"{method}_score",
+    operators=[ResponseMatchingScore(method=method)],
+    plots=[Histogram(x=f"{method}_score")]
 )
