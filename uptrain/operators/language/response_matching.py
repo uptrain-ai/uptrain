@@ -1,5 +1,5 @@
 """
-Implements operator to calculate the matching score between llm-generated response and gold response.
+Implements operator to calculate the matching score between llm-generated response and ground_truth response.
 """
 
 from __future__ import annotations
@@ -20,7 +20,7 @@ class ResponseMatchingScore(ColumnOp):
 
      Attributes:
         col_response (str): Column name for the llm generated responses
-        col_gold_response (str): Column name for the gold responses
+        col_ground_truth (str): Column name for the ground truth responses
         method (str): (Literal["rouge", "exact", "llm"]): Method to calculate the score
 
     Raises:
@@ -29,7 +29,7 @@ class ResponseMatchingScore(ColumnOp):
     """
 
     col_response: str = "response"
-    col_gold_response: str = "gold_response"
+    col_ground_truth: str = "ground_truth"
     method: str = t.Literal["exact", "rouge", "llm"]
 
     def setup(self, settings: t.Optional[Settings] = None):
@@ -44,7 +44,7 @@ class ResponseMatchingScore(ColumnOp):
         data_send = [
             {
                 "response": row[self.col_response],
-                "gold_response": row[self.col_gold_response],
+                "ground_truth": row[self.col_ground_truth],
             }
             for row in data.to_dicts()
         ]
