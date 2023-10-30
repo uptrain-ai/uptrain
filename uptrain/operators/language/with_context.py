@@ -176,7 +176,7 @@ class ContextRelevance(ColumnOp):
             for row in data.to_dicts()
         ]
         try:
-            results = self._api_client.evaluate("score_context_relevance", data_send)
+            results = self._api_client.evaluate("context_relevance", data_send)
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ContextRelevance`: {e}")
             raise e
@@ -264,7 +264,7 @@ class ResponseConciseness(ColumnOp):
             for row in data.to_dicts()
         ]
         try:
-            results = self._api_client.evaluate("ResponseConciseness", data_send)
+            results = self._api_client.evaluate("response_conciseness", data_send)
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ResponseConciseness`: {e}")
             raise e
@@ -312,7 +312,7 @@ class ResponseConsistency(ColumnOp):
             for row in data.to_dicts()
         ]
         try:
-            results = self._api_client.evaluate("ResponseConsistency", data_send)
+            results = self._api_client.evaluate("response_consistency", data_send)
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ResponseConsistency`: {e}")
             raise e
