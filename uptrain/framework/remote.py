@@ -424,7 +424,7 @@ class APIClient:
         for m in checks:
             if m in [Evals.FACTUAL_ACCURACY, Evals.RESPONSE_COMPLETENESS_WRT_CONTEXT, Evals.RESPONSE_CONSISTENCY]:
                 req_attrs.update([schema.question, schema.context, schema.response])
-            elif m in [Evals.RESPONSE_RELEVANCE, Evals.RESPONSE_COMPLETENESS]:
+            elif m in [Evals.RESPONSE_RELEVANCE, Evals.RESPONSE_COMPLETENESS, Evals.RESPONSE_CONCISENESS]:
                 req_attrs.update([schema.question, schema.response])
             elif m in [Evals.CONTEXT_RELEVANCE]:
                 req_attrs.update([schema.question, schema.context])

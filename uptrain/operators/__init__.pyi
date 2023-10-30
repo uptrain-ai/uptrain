@@ -57,6 +57,7 @@ __all__ = [
     "ResponseCompleteness",
     "ResponseCompletenessWrtContext",
     "ResponseConsistency",
+    "ResponseConciseness",
     "LanguageCritique",
     "ToneCritique",
     "GuidelineAdherenceScore",
@@ -127,6 +128,7 @@ from .language.with_context import (
     ResponseRelevance,
     ResponseCompletenessWrtContext,
     ResponseConsistency,
+    ResponseConciseness
 )
 from .language.critique import LanguageCritique, ToneCritique
 from .language.guideline import GuidelineAdherenceScore

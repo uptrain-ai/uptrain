@@ -10,6 +10,7 @@ class Evals(enum.Enum):
     RESPONSE_COMPLETENESS = "response_completeness"
     RESPONSE_COMPLETENESS_WRT_CONTEXT = "response_completeness_wrt_context"
     RESPONSE_CONSISTENCY = "response_consistency"
+    RESPONSE_CONCISENESS = "response_conciseness"
 
 
 class ParametricEval(pydantic.BaseModel):

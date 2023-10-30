@@ -10,6 +10,7 @@ from uptrain.operators import (
     ResponseCompleteness,
     ResponseRelevance,
     ResponseConsistency,
+    ResponseConciseness,
     ContextRelevance,
     LanguageCritique,
     ToneCritique,
@@ -62,6 +63,12 @@ CheckResponseConsistency = lambda: Check(
     name="response_consistency_score",
     operators=[ResponseConsistency()],
     plots=[Histogram(x="score_response_consistency")],
+)
+
+CheckResponseConciseness = lambda: Check(
+    name="response_conciseness_score",
+    operators=[ResponseConciseness()],
+    plots=[Histogram(x="score_response_conciseness")],
 )
 # -----------------------------------------------------------
 # Language quality related
