@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 
 [project]
 name = "uptrain"
-version = "0.4.1"
+version = "0.4.2"
 description = "UpTrain - tool to evaluate LLM applications on aspects like factual accuracy, response quality, retrieval quality, tonality, etc."
 readme = "README.md"
 maintainers = [{ name = "UpTrain AI Team", email = "oss@uptrain.ai" }]
@@ -28,6 +28,7 @@ dependencies = [
     "pandas",
     "numpy>=1.23.0",
     "httpx>=0.24.1",
+    "plotly>=5.0.0",
 ]
 
 [project.urls]
