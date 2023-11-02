@@ -326,6 +326,8 @@ class ModelGradeScore(ColumnOp):
                     choice = part_before_decimal + "." + part_after_decimal
                     try:
                         float(choice)
+                        if float(choice) > 1.0 or float(choice) < 0.0:
+                            return self.get_choice_via_llm(text, self.grading_prompt_template)
                         return str(choice)
                     except:
                         return self.get_choice_via_llm(text, self.grading_prompt_template)
