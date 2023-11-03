@@ -77,6 +77,7 @@ class Embedding(ColumnOp):
     model: t.Literal["MiniLM-L6-v2", "instructor-xl", "mpnet-base-v2", "bge-large-zh-v1.5"]
     col_in_text: str = "text"
     col_out: str = "embedding"
+    batch_size: int = 128
 
     def setup(self, settings: Settings):
         if self.local_run:
@@ -122,7 +123,12 @@ class Embedding(ColumnOp):
                 inputs = list(text)
             else:
                 raise Exception("Embeddings model not supported")
-            results = self._model_obj.encode(inputs)
+            results = []
+            BATCH_SIZE = self.batch_size
+            for idx in range(int(np.ceil(len(inputs)/BATCH_SIZE))):
+                run_res = self._model_obj.encode(inputs[idx*BATCH_SIZE:(idx+1)*BATCH_SIZE])
+                results.extend(run_res)
+                logger.info(f"Running batch: {idx} out of {int(np.ceil(len(inputs)/BATCH_SIZE))} for operator Embedding")
         else:
             if self.model == "bge-large-zh-v1.5":
                 inputs = [
@@ -133,12 +139,13 @@ class Embedding(ColumnOp):
             else:
                 raise Exception("Embeddings model not supported")
             results = []
-            BATCH_SIZE = 128
+            BATCH_SIZE = self.batch_size
             for idx in range(int(np.ceil(len(inputs)/BATCH_SIZE))):
                 run_res = self._model_obj.run(
                     self._model_url,
                     input = {"text_batch": json.dumps(inputs[idx*BATCH_SIZE:(idx+1)*BATCH_SIZE])}
                 )
                 results.extend([x['embedding'] for x in run_res])
+                logger.info(f"Running batch: {idx} out of {int(np.ceil(len(inputs)/BATCH_SIZE))} for operator Embedding")
 
         return {"output": data.with_columns([pl.Series(results).alias(self.col_out)])}
