@@ -59,6 +59,25 @@ Columns required:
 - `response`
 
 
+### RESPONSE_CONSISTENCY
+
+Grades how consistent the response is with the question asked as well as with the context provided.
+
+Columns required:
+- `question`
+- `context`
+- `response`
+
+
+### RESPONSE_CONCISENESS
+
+Grades how concise the generated response is or if it has any additional irrelevant information for the question asked.
+
+Columns required:
+- `question`
+- `response`
+
+
 ### CRITIQUE_LANGUAGE
 
 Operator to score machine generated responses in a conversation. The response is evaluated on multiple aspects - fluence, politeness, grammar, and coherence. It provides a score for each of the aspects on a scale of 0 to 1, along with an explanation for the score.
@@ -71,6 +90,7 @@ Columns required:
 
 Parametric evals are evals that require additional parameters to be passed to them. These are used by directly passing an object of the eval class to the `log_and_evaluate` function.
 
+
 ### CritiqueTone
     
 Operator to assess the tone of machine generated responses.
@@ -80,3 +100,29 @@ Columns required:
 
 Parameters:
 - `persona` - The persona the chatbot being assesses was expected to follow
+
+
+### GuidelineAdherence
+
+Grades how well the LLM adheres to a provided guideline when giving a response.
+
+Columns required:
+- `question`
+- `response`
+
+Parameters:
+- `guideline` - The guideline to be followed
+- `guideline_name` - User-assigned name of the guideline to distinguish between multiple checks
+- `resopnse_schema` - Schema of the response in case it is of type JSON, XML, etc.
+
+
+### ResponseMatching
+
+Operator to compare the llm-generated text with the gold (ideal) response using the defined score metric.
+
+Columns required:
+- `question`
+- `ground_truth` - The column containing the gold responses
+
+Paramters:
+- `method` - Method to calculate the score ('rouge', 'exact' or 'llm')
