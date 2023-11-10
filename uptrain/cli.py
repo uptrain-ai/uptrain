@@ -23,7 +23,7 @@ EXTRA_PACKAGES = {
         "streamlit>=1.23",
         "pyarrow>=10.0.0"
     ],
-    "self-hosted": [
+    "selfhosted": [
         "tqdm>=4.0",
         "aiolimiter>=1.1",
         "plotly>=5.0.0",
@@ -35,7 +35,7 @@ EXTRA_PACKAGES = {
         "rouge-score",
         # "sentence-transformers",
         # "InstructorEmbedding",
-        # "openai>=0.27",
+        "openai>=0.27",
         # "evals @ git+https://github.com/openai/evals.git",
         "replicate"
     ],
