@@ -116,7 +116,7 @@ class Clustering(ColumnOp):
             all_means = [list(x.astype(np.float64)) for x in list(algorithm_obj.means())]
             assigned_means = []
             for clus_idx in unique_assigned_clusters:
-                assigned_means.append(all_means[clus_idx])
+                assigned_means.append([round(y, 8) for y in all_means[clus_idx]])
             self.cluster_centroids[str(unique_agg_key)] = assigned_means
 
         return {
