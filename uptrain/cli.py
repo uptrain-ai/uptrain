@@ -35,7 +35,7 @@ EXTRA_PACKAGES = {
         "rouge-score",
         # "sentence-transformers",
         # "InstructorEmbedding",
-        # "openai>=0.27",
+        "openai>=0.27",
         # "evals @ git+https://github.com/openai/evals.git",
         "replicate"
     ],
