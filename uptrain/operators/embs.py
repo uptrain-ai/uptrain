@@ -199,6 +199,7 @@ class UMAP(ColumnOp):
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         combined_embs = np.asarray(list(data[self.col_in_embs]))
         umap_output = umap.UMAP(n_components=self.n_components, metric='cosine', random_state=42).fit_transform(combined_embs)  # type: ignore
+        umap_output = [[round(y, 8) for y in list(x)] for x in list(umap_output)]
         output_cols = [pl.Series(umap_output).alias(self.col_out)]
         output_cols.extend([pl.Series(np.array(umap_output)[:,idx]).alias(self.col_out + "_" + str(idx)) for idx in range(self.n_components)])
 
