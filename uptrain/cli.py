@@ -36,7 +36,7 @@ EXTRA_PACKAGES = {
         # "sentence-transformers",
         # "InstructorEmbedding",
         "openai>=0.27",
-        # "evals @ git+https://github.com/openai/evals.git",
+        "evals @ git+https://github.com/openai/evals.git",
         "replicate"
     ],
     # Add packages here
