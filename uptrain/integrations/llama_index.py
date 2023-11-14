@@ -9,15 +9,15 @@ from uptrain.framework.evals import Evals, ParametricEval
 from uptrain.framework.evalllm import EvalLLM
 from uptrain.framework.remote import DataSchema
 
-if t.TYPE_CHECKING:
-    from llama_index.indices.query.base import BaseQueryEngine
+
+from llama_index.indices.query.base import BaseQueryEngine
 
 
 __all__ = [
-    "LlamaEval"
+    "LlamaLLM"
 ]
 
-class LlamaEval:
+class LlamaLLM:
     query_engine: BaseQueryEngine
 
     def __init__(self, query_engine: BaseQueryEngine) -> None: 
@@ -44,7 +44,7 @@ class LlamaEval:
 
         NOTE: This api doesn't log any data.
         Args:
-            client: EvalLLM object using for the evaluation using user's openai keys.
+            client: EvalLLM object used for the evaluation using user's openai keys.
             data: Data to evaluate on. Either a Polars DataFrame or a list of dicts.
             checks: List of checks to evaluate on.
             schema: Schema of the data. Only required if the data attributes aren't typical (question, response, context).

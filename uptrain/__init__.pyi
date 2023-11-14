@@ -6,7 +6,7 @@ __all__ = [
     "GuidelineAdherence",
     "ResponseMatching",
     "Settings",
-    "LlamaEval"
+    "LlamaLLM"
 ]
 
 from .framework.base import Settings
@@ -14,4 +14,4 @@ from .framework.remote import APIClient
 from .framework.evals import Evals, CritiqueTone, GuidelineAdherence, ResponseMatching
 from .framework.evalllm import EvalLLM
 
-from .integrations.llama_index import LlamaEval
+from .integrations.llama_index import LlamaLLM
