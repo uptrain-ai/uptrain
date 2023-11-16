@@ -1,5 +1,5 @@
 __all__ = [
-    "LlamaLLM"
+    "EvalLlamaIndex"
 ]
 
-from .llama_index import LlamaLLM
+from .llama_index import EvalLlamaIndex

@@ -7,6 +7,7 @@ from loguru import logger
 import polars as pl
 from uptrain.framework.evals import Evals, ParametricEval
 from uptrain.framework.evalllm import EvalLLM
+from uptrain.framework.remote import APIClient
 from uptrain.framework.remote import DataSchema
 
 
@@ -14,10 +15,10 @@ from llama_index.indices.query.base import BaseQueryEngine
 
 
 __all__ = [
-    "LlamaLLM"
+    "EvalLlamaIndex"
 ]
 
-class LlamaLLM:
+class EvalLlamaIndex:
     query_engine: BaseQueryEngine
 
     def __init__(self, query_engine: BaseQueryEngine) -> None: 
@@ -26,11 +27,13 @@ class LlamaLLM:
         self.query_engine = query_engine
 
     def evaluate(
-        self, 
-        client : EvalLLM,
-        data: t.Union[list[dict], pl.DataFrame],  
+        self,
+        client : t.Union[EvalLLM, APIClient],
+        data: t.Union[list[dict], pl.DataFrame],
         checks: list[t.Union[str, Evals, ParametricEval]],
-        schema: t.Union[DataSchema, dict[str, str], None] = None
+        project_name: str = None,
+        schema: t.Union[DataSchema, dict[str, str], None] = None,
+        metadata: t.Optional[dict[str, str]] = None,
     ):
         try:
             from llama_index.async_utils import run_async_tasks
@@ -44,11 +47,12 @@ class LlamaLLM:
 
         NOTE: This api doesn't log any data.
         Args:
-            client: EvalLLM object used for the evaluation using user's openai keys.
+            project_name: Name of the project to evaluate on.
+            client: EvalLLM or APIClient object used for the evaluation using user's openai keys or Uptrain API key.
             data: Data to evaluate on. Either a Polars DataFrame or a list of dicts.
             checks: List of checks to evaluate on.
             schema: Schema of the data. Only required if the data attributes aren't typical (question, response, context).
-
+            metadata: Attributes to attach to this dataset. Useful for filtering and grouping in the UI.
         Returns:
             results: List of dictionaries with each data point and corresponding evaluation results.
         """
@@ -56,15 +60,30 @@ class LlamaLLM:
         if isinstance(data, pl.DataFrame):
             data = data.to_dicts()
 
-        responses = run_async_tasks([self.query_engine.aquery(data[i]['question']) for i in range(len(data))])
+        if schema is None:
+            schema = DataSchema()
+        elif isinstance(schema, dict):
+            schema = DataSchema(**schema)
+
+        responses = run_async_tasks([self.query_engine.aquery(data[i][schema.question]) for i in range(len(data))])
 
         for index, r in enumerate(responses):
-            data[index]['response'] = r.response
-            data[index]['context'] = "\n".join([c.node.get_content() for c in r.source_nodes])
-        
-        results = client.evaluate(
-            data=data,
-            checks=checks,
-            schema =schema
-        )
+            data[index][schema.response] = r.response
+            data[index][schema.context] = "\n".join([c.node.get_content() for c in r.source_nodes])
+
+        if isinstance(client, EvalLLM):
+            results = client.evaluate(
+                data = data,
+                checks = checks,
+                schema = schema,
+                metadata = metadata
+            )
+        elif isinstance(client, APIClient):
+            results = client.log_and_evaluate(
+                project_name = project_name,
+                data = data,
+                checks = checks,
+                schema = schema,
+                metadata = metadata
+            )
         return results
