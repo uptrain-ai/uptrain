@@ -38,7 +38,7 @@ EXTRA_PACKAGES = {
         "openai==0.28",
         "evals @ git+https://github.com/openai/evals.git@305b237cdb3884c7ddb6a5d12cb184a83551fcba",
         "replicate",
-        "litellm",
+        "litellm<=0.14",
     ],
     # Add packages here
     "full": [
@@ -56,7 +56,7 @@ EXTRA_PACKAGES = {
         "openai==0.28",
         "evals @ git+https://github.com/openai/evals.git@305b237cdb3884c7ddb6a5d12cb184a83551fcba",
         "replicate",
-        "litellm",
+        "litellm<=0.14",
     ],
 }
 
