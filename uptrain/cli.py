@@ -37,7 +37,8 @@ EXTRA_PACKAGES = {
         # "InstructorEmbedding",
         "openai==0.28",
         "evals @ git+https://github.com/openai/evals.git@305b237cdb3884c7ddb6a5d12cb184a83551fcba",
-        "replicate"
+        "replicate",
+        "litellm",
     ],
     # Add packages here
     "full": [
@@ -54,7 +55,8 @@ EXTRA_PACKAGES = {
         "InstructorEmbedding",
         "openai==0.28",
         "evals @ git+https://github.com/openai/evals.git@305b237cdb3884c7ddb6a5d12cb184a83551fcba",
-        "replicate"
+        "replicate",
+        "litellm",
     ],
 }
 
