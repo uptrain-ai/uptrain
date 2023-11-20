@@ -59,12 +59,14 @@ class EvalLlamaIndex:
         
         if isinstance(data, pl.DataFrame):
             data = data.to_dicts()
-
+        import nest_asyncio
+        nest_asyncio.apply()
+        
         if schema is None:
             schema = DataSchema()
         elif isinstance(schema, dict):
             schema = DataSchema(**schema)
-
+        
         responses = run_async_tasks([self.query_engine.aquery(data[i][schema.question]) for i in range(len(data))])
 
         for index, r in enumerate(responses):
