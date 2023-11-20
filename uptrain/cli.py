@@ -36,6 +36,7 @@ EXTRA_PACKAGES = {
         # "sentence-transformers",
         # "InstructorEmbedding",
         "openai>=0.27",
+        "llama-index>=0.8.0",
         "evals @ git+https://github.com/openai/evals.git",
         "replicate"
     ],
@@ -53,6 +54,7 @@ EXTRA_PACKAGES = {
         "sentence-transformers",
         "InstructorEmbedding",
         "openai>=0.27",
+        "llama-index>=0.8.0",
         "evals @ git+https://github.com/openai/evals.git",
         "replicate"
     ],
