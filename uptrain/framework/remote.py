@@ -43,7 +43,7 @@ class APIClientWithoutAuth:
         server_url = settings.check_and_get("uptrain_server_url")
         self.base_url = server_url.rstrip("/") + "/api/open"
         self.client = httpx.Client(
-            timeout=httpx.Timeout(50, connect=5),
+            timeout=httpx.Timeout(500, connect=5),
         )
 
     def evaluate(
@@ -92,7 +92,7 @@ class APIClient:
         self.base_url = server_url.rstrip("/") + "/api/public"
         self.client = httpx.Client(
             headers={"uptrain-access-token": api_key},
-            timeout=httpx.Timeout(50, connect=5),
+            timeout=httpx.Timeout(500, connect=5),
         )
 
     def check_auth(self):
