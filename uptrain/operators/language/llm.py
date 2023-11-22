@@ -125,7 +125,8 @@ class LLMMulticlient:
         self._rpm_limit = 200
         self._tpm_limit = 90_000
         if settings is not None:
-            openai.api_key = settings.check_and_get("openai_api_key")  # type: ignore
+            if settings.openai_api_key is not None:
+                openai.api_key = settings.check_and_get("openai_api_key")  # type: ignore
             self._rpm_limit = settings.check_and_get("openai_rpm_limit")
 
     def fetch_responses(self, input_payloads: list[Payload]) -> list[Payload]:
