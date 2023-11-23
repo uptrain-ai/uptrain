@@ -16,7 +16,8 @@ from uptrain.operators import (
     ToneCritique,
     ResponseCompletenessWrtContext,
     GuidelineAdherenceScore,
-    ResponseMatchingScore
+    ResponseMatchingScore, 
+    ConversationSatisfactionScore
 )
 
 # -----------------------------------------------------------
@@ -100,6 +101,17 @@ CheckGuidelineAdherence = lambda guideline, guideline_name="guideline", response
     operators=[GuidelineAdherenceScore(guideline=guideline, guideline_name=guideline_name, response_schema=response_schema)],
     plots=[Histogram(x=f"score_{guideline_name}_adherence")]
 )
+
+# -----------------------------------------------------------
+# Conversation related
+# -----------------------------------------------------------
+
+CheckConversationSatisfaction = lambda role = "user" : Check(
+    name = "conversation_satisfaction_score",
+    operators=[ConversationSatisfactionScore(role=role)],
+    plots=[Histogram(x=f"score_conversation_satisfaction")]
+)
+
 
 # -----------------------------------------------------------
 # Response Matching related

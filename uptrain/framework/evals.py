@@ -26,5 +26,9 @@ class GuidelineAdherence(ParametricEval):
     guideline_name: str = "guideline"  # User-assigned name of the guideline to distinguish between multiple checks
     response_schema: t.Union[str, None] = None  # Schema of the response in case it is of type JSON, XML, etc.
 
+class ConversationSatisfaction(ParametricEval):
+    role: str = "user"
+
+
 class ResponseMatching(ParametricEval):
     method: str = "llm"

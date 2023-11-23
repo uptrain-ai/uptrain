@@ -13,7 +13,7 @@ import pydantic
 
 from uptrain.framework.checks import CheckSet, ExperimentArgs
 from uptrain.framework.base import Settings
-from uptrain.framework.evals import Evals, ParametricEval, CritiqueTone, GuidelineAdherence, ResponseMatching
+from uptrain.framework.evals import Evals, ParametricEval, CritiqueTone, GuidelineAdherence, ResponseMatching, ConversationSatisfaction
 
 
 class DataSchema(pydantic.BaseModel):
@@ -22,6 +22,7 @@ class DataSchema(pydantic.BaseModel):
     response: str = "response"
     context: str = "context"
     ground_truth: str = "ground_truth"
+    chat: str = 'chat'
 
 
 def raise_or_return(response: httpx.Response):
@@ -432,6 +433,8 @@ class APIClient:
                 req_attrs.update([schema.response])
             elif isinstance(m, ResponseMatching):
                 req_attrs.update([schema.response, schema.ground_truth])
+            elif isinstance(m, ConversationSatisfaction):
+                req_attrs.update([schema.chat])
 
             if isinstance(m, ParametricEval):
                 ser_checks.append({"check_name": m.__class__.__name__, **m.dict()})
