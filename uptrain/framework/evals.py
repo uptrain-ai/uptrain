@@ -29,6 +29,5 @@ class GuidelineAdherence(ParametricEval):
 class ConversationSatisfaction(ParametricEval):
     role: str = "user"
 
-
 class ResponseMatching(ParametricEval):
     method: str = "llm"
