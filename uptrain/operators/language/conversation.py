@@ -26,7 +26,7 @@ class ConversationSatisfactionScore(ColumnOp):
         Exception: Raises exception for any failed evaluation attempts
 
     """
-    col_conversation: str = "chat"
+    col_conversation: str = "conversation"
     role: str = "user"
 
     def setup(self, settings: t.Optional[Settings] = None):

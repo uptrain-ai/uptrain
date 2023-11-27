@@ -22,7 +22,7 @@ class DataSchema(pydantic.BaseModel):
     response: str = "response"
     context: str = "context"
     ground_truth: str = "ground_truth"
-    chat: str = 'chat'
+    conversation: str = 'conversation'
 
 
 def raise_or_return(response: httpx.Response):
@@ -434,7 +434,7 @@ class APIClient:
             elif isinstance(m, ResponseMatching):
                 req_attrs.update([schema.response, schema.ground_truth])
             elif isinstance(m, ConversationSatisfaction):
-                req_attrs.update([schema.chat])
+                req_attrs.update([schema.conversation])
 
             if isinstance(m, ParametricEval):
                 ser_checks.append({"check_name": m.__class__.__name__, **m.dict()})
