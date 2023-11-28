@@ -14,7 +14,7 @@ import pydantic
 from uptrain.framework.remote import APIClientWithoutAuth, DataSchema
 from uptrain.framework.base import Settings
 
-from uptrain.framework.evals import Evals, ParametricEval, CritiqueTone, GuidelineAdherence, ResponseMatching
+from uptrain.framework.evals import Evals, ParametricEval, CritiqueTone, GuidelineAdherence, ResponseMatching, ConversationSatisfaction
 
 
 class EvalLLM:
@@ -75,6 +75,8 @@ class EvalLLM:
                 req_attrs.update([schema.response])
             elif isinstance(m, ResponseMatching):
                 req_attrs.update([schema.response, schema.ground_truth])
+            elif isinstance(m, ConversationSatisfaction):
+                req_attrs.update([schema.conversation])
 
             if isinstance(m, ParametricEval):
                 ser_checks.append({"check_name": m.__class__.__name__, **m.dict()})
