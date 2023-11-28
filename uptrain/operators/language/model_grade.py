@@ -232,10 +232,10 @@ class ModelGradeScore(ColumnOp):
     choice_scores: dict[str, float]  #t.Union[dict[str, float], dict[str, list[float]]]
     context_vars: dict[str, str]
     col_out: t.Union[str, list[str]] = "model_grade_score"
-    model: t.Optional[str] = "gpt-3.5-turbo"
 
     def setup(self, settings: Settings):
         self._api_client = LLMMulticlient(settings=settings)
+        self.model = settings.model
         if self.eval_type != "cot_classify":
             raise Exception("Only eval_type: cot_classify is supported for model grading check")
         for choice, score in self.choice_scores.items():

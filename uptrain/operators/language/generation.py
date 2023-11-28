@@ -183,7 +183,6 @@ class TopicGenerator(ColumnOp):
         top_n (int): Number of examples to be considered for each category. 
         col_out_text (str): The name of the column containing the topic for each entry.
         temperature (float): Temperature for the LLM to generate responses.
-        model (str): which LLM to use for topic generator.
 
     Returns:
         TYPE_TABLE_OUTPUT: A dictionary containing the dataset with the output text.
@@ -193,12 +192,12 @@ class TopicGenerator(ColumnOp):
     col_in_text: str = 'question'
     top_n: int = 5 
     col_out_text: str = 'topic'
-    model: str = 'gpt-3.5-turbo'
     temperature: float = 1.0
     _api_client: LLMMulticlient
 
     def setup(self, settings: Settings):
         self._api_client = LLMMulticlient(settings=settings)
+        self.model = settings.model
         return self
 
     def _make_payload(self, id: t.Any, text: str, model: str) -> Payload:
