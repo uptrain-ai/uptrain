@@ -35,10 +35,15 @@ class Settings(BaseSettings):
     azure_api_version: str = Field(None, env="AZURE_API_VERSION")
 
     openai_rpm_limit: int = 100
+    embeddings_compute_method: t.Literal['local', 'replicate', 'api'] = 'local'
 
     # uptrain managed service related
     uptrain_access_token: str = Field(None, env="UPTRAIN_ACCESS_TOKEN")
     uptrain_server_url: str = Field("https://demo.uptrain.ai/", env="UPTRAIN_SERVER_URL")
+
+    # Embedding model related, applicable if embeddings_compute_method is api.
+    embedding_model_url: str = Field(None, env="EMBEDDING_MODEL_URL")
+    embedding_model_api_token: str = Field(None, env="EMBEDDING_MODEL_API_TOKEN")
 
     # LLM model to run the evaluations
     model: str = "gpt-3.5-turbo"
@@ -65,6 +70,9 @@ class Settings(BaseSettings):
         if "replicate_api_token" in data:
             if data['replicate_api_token'] is not None:
                 os.environ["REPLICATE_API_TOKEN"] = data["replicate_api_token"]
+        if "embedding_model_api_token" in data:
+            if data['embedding_model_api_token'] is not None:
+                os.environ["EMBEDDING_MODEL_API_TOKEN"] = data["embedding_model_api_token"]
         if "azure_api_key" in data:
             if data['azure_api_key'] is not None:
                 os.environ["AZURE_API_KEY"] = data["azure_api_key"]

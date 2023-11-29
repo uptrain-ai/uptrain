@@ -14,6 +14,7 @@ import numpy as np
 from loguru import logger
 import polars as pl
 import json
+import requests
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
@@ -30,7 +31,6 @@ class Embedding(ColumnOp):
         model (Literal["MiniLM-L6-v2", "instructor-xl", "mpnet-base-v2", "bge-large-zh-v1.5"]): The name of the pre-trained model to use.
         col_in_text (str): The name of the text column in the DataFrame.
         col_out (str): The name of the output column in the DataFrame.
-        local_run (bool): Run clustering locally or via replicate. If set to false, should provide replicate credentials, ie set 'REPLICATE_API_TOKEN' variable in os.environ
 
     Raises:
         Exception: If the specified model is not supported.
@@ -73,14 +73,14 @@ class Embedding(ColumnOp):
 
     """
 
-    local_run: bool = True
-    model: t.Literal["MiniLM-L6-v2", "instructor-xl", "mpnet-base-v2", "bge-large-zh-v1.5"]
+    model: t.Literal["MiniLM-L6-v2", "instructor-xl", "mpnet-base-v2", "bge-large-zh-v1.5", "instructor-large"]
     col_in_text: str = "text"
     col_out: str = "embedding"
     batch_size: int = 128
 
     def setup(self, settings: Settings):
-        if self.local_run:
+        self._compute_method = settings.embeddings_compute_method
+        if settings.embeddings_compute_method == 'local':
             if self.model == "instructor-xl":
                 InstructorEmbedding = lazy_load_dep("InstructorEmbedding", "InstructorEmbedding")
                 self._model_obj = InstructorEmbedding.INSTRUCTOR(self.model)  # type: ignore
@@ -101,7 +101,7 @@ class Embedding(ColumnOp):
                 )
             else:
                 raise Exception(f"Embeddings model: {self.model} is not supported yet.")
-        else:
+        elif settings.embeddings_compute_method == 'replicate':
             replicate = lazy_load_dep("replicate", "replicate")
             self._model_obj = replicate.Client(api_token=settings.replicate_api_token)
             if self.model == "mpnet-base-v2":
@@ -110,42 +110,46 @@ class Embedding(ColumnOp):
                 self._model_url = "nateraw/bge-large-en-v1.5:9cf9f015a9cb9c61d1a2610659cdac4a4ca222f2d3707a68517b18c198a9add1"
             else:
                 raise Exception(f"Embeddings model: {self.model} is not supported yet.")
+        elif settings.embeddings_compute_method == 'api':
+            self._model_obj = {
+                'embedding_model_url': settings.embedding_model_url,
+                'model': self.model,
+                'authorization_key':settings.embedding_model_api_token
+            }
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         text = data.get_column(self.col_in_text)
-        if self.local_run:
-            if self.model == "instructor-xl":
-                inputs = [
-                    ["Represent the sentence: ", x] for x in text
-                ]
-            elif self.model == "MiniLM-L6-v2" or self.model == "mpnet-base-v2":
-                inputs = list(text)
-            else:
-                raise Exception("Embeddings model not supported")
-            results = []
-            BATCH_SIZE = self.batch_size
-            for idx in range(int(np.ceil(len(inputs)/BATCH_SIZE))):
-                run_res = self._model_obj.encode(inputs[idx*BATCH_SIZE:(idx+1)*BATCH_SIZE])
-                results.extend(run_res)
-                logger.info(f"Running batch: {idx} out of {int(np.ceil(len(inputs)/BATCH_SIZE))} for operator Embedding")
+        if self.model in ["instructor-xl", "instructor-large", "bge-large-zh-v1.5"]:
+            inputs = [
+                ["Represent the sentence: ", x] for x in text
+            ]
+        elif self.model == "MiniLM-L6-v2" or self.model == "mpnet-base-v2":
+            inputs = list(text)
         else:
-            if self.model == "bge-large-zh-v1.5":
-                inputs = [
-                    ["Represent the sentence: ", x] for x in text
-                ]
-            elif self.model == "mpnet-base-v2":
-                inputs = list(text)
-            else:
-                raise Exception("Embeddings model not supported")
-            results = []
-            BATCH_SIZE = self.batch_size
-            for idx in range(int(np.ceil(len(inputs)/BATCH_SIZE))):
-                run_res = self._model_obj.run(
-                    self._model_url,
-                    input = {"text_batch": json.dumps(inputs[idx*BATCH_SIZE:(idx+1)*BATCH_SIZE])}
-                )
-                results.extend([x['embedding'] for x in run_res])
-                logger.info(f"Running batch: {idx} out of {int(np.ceil(len(inputs)/BATCH_SIZE))} for operator Embedding")
+            raise Exception("Embeddings model not supported")
 
+        results = []
+        BATCH_SIZE = self.batch_size
+        for idx in range(int(np.ceil(len(inputs)/BATCH_SIZE))):
+            if self._compute_method == "local":
+                run_res = self._model_obj.encode(inputs[idx*BATCH_SIZE:(idx+1)*BATCH_SIZE])
+            elif self._compute_method == "replicate":
+                run_res = [x['embedding'] for x in self._model_obj.run(
+                        self._model_url,
+                        input = {"text_batch": json.dumps(inputs[idx*BATCH_SIZE:(idx+1)*BATCH_SIZE])}
+                    )]
+            elif self._compute_method == "api":
+                run_res = [x['embedding'] for x in requests.post(
+                    self._model_obj['embedding_model_url'],
+                    json={
+                        'model': self.model,
+                        'input': inputs[idx*BATCH_SIZE:(idx+1)*BATCH_SIZE]
+                    },
+                    headers={
+                        'Authorization': f"Bearer {self._model_obj['authorization_key']}"
+                    }
+                ).json()['data']]
+            results.extend(run_res)
+            logger.info(f"Running batch: {idx} out of {int(np.ceil(len(inputs)/BATCH_SIZE))} for operator Embedding")
         return {"output": data.with_columns([pl.Series(results).alias(self.col_out)])}
