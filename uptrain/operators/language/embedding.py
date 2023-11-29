@@ -79,8 +79,8 @@ class Embedding(ColumnOp):
     batch_size: int = 128
 
     def setup(self, settings: Settings):
-        if settings.local_run:
-            self._local_run = True
+        self._compute_method = settings.embeddings_compute_method
+        if settings.embeddings_compute_method == 'local':
             if self.model == "instructor-xl":
                 InstructorEmbedding = lazy_load_dep("InstructorEmbedding", "InstructorEmbedding")
                 self._model_obj = InstructorEmbedding.INSTRUCTOR(self.model)  # type: ignore
@@ -101,70 +101,55 @@ class Embedding(ColumnOp):
                 )
             else:
                 raise Exception(f"Embeddings model: {self.model} is not supported yet.")
-        else:
-            self._local_run = False
-            if settings.embedding_model_url is not None:
-                self._model_obj = {'instructor_url': settings.embedding_model_url, 'model': self.model, 'authorization_key':settings.instructor_api_token}
+        elif settings.embeddings_compute_method == 'replicate':
+            replicate = lazy_load_dep("replicate", "replicate")
+            self._model_obj = replicate.Client(api_token=settings.replicate_api_token)
+            if self.model == "mpnet-base-v2":
+                self._model_url = "replicate/all-mpnet-base-v2:b6b7585c9640cd7a9572c6e129c9549d79c9c31f0d3fdce7baac7c67ca38f305"
+            elif self.model == "bge-large-zh-v1.5":
+                self._model_url = "nateraw/bge-large-en-v1.5:9cf9f015a9cb9c61d1a2610659cdac4a4ca222f2d3707a68517b18c198a9add1"
             else:
-                replicate = lazy_load_dep("replicate", "replicate")
-                self._model_obj = replicate.Client(api_token=settings.replicate_api_token)
-                if self.model == "mpnet-base-v2":
-                    self._model_url = "replicate/all-mpnet-base-v2:b6b7585c9640cd7a9572c6e129c9549d79c9c31f0d3fdce7baac7c67ca38f305"
-                elif self.model == "bge-large-zh-v1.5":
-                    self._model_url = "nateraw/bge-large-en-v1.5:9cf9f015a9cb9c61d1a2610659cdac4a4ca222f2d3707a68517b18c198a9add1"
-                else:
-                    raise Exception(f"Embeddings model: {self.model} is not supported yet.")
+                raise Exception(f"Embeddings model: {self.model} is not supported yet.")
+        elif settings.embeddings_compute_method == 'api':
+            self._model_obj = {
+                'embedding_model_url': settings.embedding_model_url,
+                'model': self.model,
+                'authorization_key':settings.embedding_model_api_token
+            }
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         text = data.get_column(self.col_in_text)
-        if self._local_run:
-            if self.model == "instructor-xl" or self.model == "instructor-large":
-                inputs = [
-                    ["Represent the sentence: ", x] for x in text
-                ]
-            elif self.model == "MiniLM-L6-v2" or self.model == "mpnet-base-v2":
-                inputs = list(text)
-            else:
-                raise Exception("Embeddings model not supported")
-            results = []
-            BATCH_SIZE = self.batch_size
-            for idx in range(int(np.ceil(len(inputs)/BATCH_SIZE))):
-                run_res = self._model_obj.encode(inputs[idx*BATCH_SIZE:(idx+1)*BATCH_SIZE])
-                results.extend(run_res)
-                logger.info(f"Running batch: {idx} out of {int(np.ceil(len(inputs)/BATCH_SIZE))} for operator Embedding")
+        if self.model in ["instructor-xl", "instructor-large", "bge-large-zh-v1.5"]:
+            inputs = [
+                ["Represent the sentence: ", x] for x in text
+            ]
+        elif self.model == "MiniLM-L6-v2" or self.model == "mpnet-base-v2":
+            inputs = list(text)
         else:
-            if self.model == "bge-large-zh-v1.5" or self.model == "instructor-large":
-                inputs = [
-                    ["Represent the sentence: ", x] for x in text
-                ]
-            elif self.model == "mpnet-base-v2":
-                inputs = list(text)
-            else:
-                raise Exception("Embeddings model not supported")
-            results = []
-            BATCH_SIZE = self.batch_size
-            if isinstance(self._model_obj, dict):
-                for idx in range(int(np.ceil(len(inputs)/BATCH_SIZE))):
-                    response = requests.post(
-                                    self._model_obj['instructor_url'],
-                                    json={
-                                        'model': self.model,
-                                        'input': inputs[idx*BATCH_SIZE:(idx+1)*BATCH_SIZE]
-                                    },
-                                    headers={
-                                        'Authorization': f"Bearer {self._model_obj['authorization_key']}"
-                                    }
-                    )
-                    results.extend([x['embedding'] for x in response.json()['data']])
-                    logger.info(f"Running batch: {idx} out of {int(np.ceil(len(inputs)/BATCH_SIZE))} for operator Embedding")
-            else:
-                for idx in range(int(np.ceil(len(inputs)/BATCH_SIZE))):
-                    run_res = self._model_obj.run(
+            raise Exception("Embeddings model not supported")
+
+        results = []
+        BATCH_SIZE = self.batch_size
+        for idx in range(int(np.ceil(len(inputs)/BATCH_SIZE))):
+            if self._compute_method == "local":
+                run_res = self._model_obj.encode(inputs[idx*BATCH_SIZE:(idx+1)*BATCH_SIZE])
+            elif self._compute_method == "replicate":
+                run_res = [x['embedding'] for x in self._model_obj.run(
                         self._model_url,
                         input = {"text_batch": json.dumps(inputs[idx*BATCH_SIZE:(idx+1)*BATCH_SIZE])}
-                    )
-                    results.extend([x['embedding'] for x in run_res])
-                    logger.info(f"Running batch: {idx} out of {int(np.ceil(len(inputs)/BATCH_SIZE))} for operator Embedding")
-
+                    )]
+            elif self._compute_method == "api":
+                run_res = [x['embedding'] for x in requests.post(
+                    self._model_obj['embedding_model_url'],
+                    json={
+                        'model': self.model,
+                        'input': inputs[idx*BATCH_SIZE:(idx+1)*BATCH_SIZE]
+                    },
+                    headers={
+                        'Authorization': f"Bearer {self._model_obj['authorization_key']}"
+                    }
+                ).json()['data']]
+            results.extend(run_res)
+            logger.info(f"Running batch: {idx} out of {int(np.ceil(len(inputs)/BATCH_SIZE))} for operator Embedding")
         return {"output": data.with_columns([pl.Series(results).alias(self.col_out)])}
