@@ -29,16 +29,21 @@ class Settings(BaseSettings):
     huggingface_api_key: str = Field(None, env="HUGGINGFACE_API_KEY")
     anthropic_api_key: str = Field(None, env="ANTHROPIC_API_KEY")
     replicate_api_token: str = Field(None, env="REPLICATE_API_TOKEN")
+    instructor_api_token: str = Field(None, env="INSTRUCTOR_API_TOKEN")
 
     azure_api_key: str = Field(None, env="AZURE_API_KEY")
     azure_api_base: str = Field(None, env="AZURE_API_BASE")
     azure_api_version: str = Field(None, env="AZURE_API_VERSION")
 
     openai_rpm_limit: int = 100
+    local_run: bool = True
 
     # uptrain managed service related
     uptrain_access_token: str = Field(None, env="UPTRAIN_ACCESS_TOKEN")
     uptrain_server_url: str = Field("https://demo.uptrain.ai/", env="UPTRAIN_SERVER_URL")
+
+    # Embedding model url
+    embedding_model_url: str = Field(None, env="EMBEDDING_MODEL_URL")
 
     # LLM model to run the evaluations
     model: str = "gpt-3.5-turbo"
@@ -65,6 +70,9 @@ class Settings(BaseSettings):
         if "replicate_api_token" in data:
             if data['replicate_api_token'] is not None:
                 os.environ["REPLICATE_API_TOKEN"] = data["replicate_api_token"]
+        if "instructor_api_token" in data:
+            if data['instructor_api_token'] is not None:
+                os.environ["instructor_api_token"] = data["instructor_api_token"]
         if "azure_api_key" in data:
             if data['azure_api_key'] is not None:
                 os.environ["AZURE_API_KEY"] = data["azure_api_key"]
