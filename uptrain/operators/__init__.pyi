@@ -73,6 +73,7 @@ __all__ = [
     "DeltaReader",
     "DeltaWriter",
     "BigQueryReader",
+    "MongoDBReader",
     "DuckDBReader",
     "BigQueryWriter",
     # code
@@ -141,6 +142,7 @@ from . import io
 from .io.base import CsvReader, JsonReader, DeltaReader, JsonWriter, DeltaWriter
 from .io.excel import ExcelReader
 from .io.bq import BigQueryReader, BigQueryWriter
+from .io.mongodb import MongoDBReader
 from .io.duck import DuckDBReader
 
 from . import code
