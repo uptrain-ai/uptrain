@@ -35,13 +35,13 @@ class Settings(BaseSettings):
     azure_api_version: str = Field(None, env="AZURE_API_VERSION")
 
     openai_rpm_limit: int = 100
-    embeddings_compute_method: t.Literal['local', 'replicate', 'api'] = 'local'
+    embedding_compute_method: t.Literal['local', 'replicate', 'api'] = 'local'
 
     # uptrain managed service related
     uptrain_access_token: str = Field(None, env="UPTRAIN_ACCESS_TOKEN")
     uptrain_server_url: str = Field("https://demo.uptrain.ai/", env="UPTRAIN_SERVER_URL")
 
-    # Embedding model related, applicable if embeddings_compute_method is api.
+    # Embedding model related, applicable if embedding_compute_method is api.
     embedding_model_url: str = Field(None, env="EMBEDDING_MODEL_URL")
     embedding_model_api_token: str = Field(None, env="EMBEDDING_MODEL_API_TOKEN")
 

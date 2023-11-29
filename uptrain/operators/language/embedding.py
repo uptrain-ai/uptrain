@@ -79,8 +79,8 @@ class Embedding(ColumnOp):
     batch_size: int = 128
 
     def setup(self, settings: Settings):
-        self._compute_method = settings.embeddings_compute_method
-        if settings.embeddings_compute_method == 'local':
+        self._compute_method = settings.embedding_compute_method
+        if settings.embedding_compute_method == 'local':
             if self.model == "instructor-xl":
                 InstructorEmbedding = lazy_load_dep("InstructorEmbedding", "InstructorEmbedding")
                 self._model_obj = InstructorEmbedding.INSTRUCTOR(self.model)  # type: ignore
@@ -101,7 +101,7 @@ class Embedding(ColumnOp):
                 )
             else:
                 raise Exception(f"Embeddings model: {self.model} is not supported yet.")
-        elif settings.embeddings_compute_method == 'replicate':
+        elif settings.embedding_compute_method == 'replicate':
             replicate = lazy_load_dep("replicate", "replicate")
             self._model_obj = replicate.Client(api_token=settings.replicate_api_token)
             if self.model == "mpnet-base-v2":
@@ -110,7 +110,7 @@ class Embedding(ColumnOp):
                 self._model_url = "nateraw/bge-large-en-v1.5:9cf9f015a9cb9c61d1a2610659cdac4a4ca222f2d3707a68517b18c198a9add1"
             else:
                 raise Exception(f"Embeddings model: {self.model} is not supported yet.")
-        elif settings.embeddings_compute_method == 'api':
+        elif settings.embedding_compute_method == 'api':
             self._model_obj = {
                 'embedding_model_url': settings.embedding_model_url,
                 'model': self.model,
@@ -121,9 +121,13 @@ class Embedding(ColumnOp):
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         text = data.get_column(self.col_in_text)
         if self.model in ["instructor-xl", "instructor-large", "bge-large-zh-v1.5"]:
-            inputs = [
-                ["Represent the sentence: ", x] for x in text
-            ]
+            inputs = []
+            for x in text:
+                if len(x.split(' ')) < 500:
+                    inputs.append(["Represent the sentence: ", x])
+                else:
+                    constraint_text = ' '.join(x.split(' ')[:500])
+                    inputs.append(["Represent the sentence: ", constraint_text])
         elif self.model == "MiniLM-L6-v2" or self.model == "mpnet-base-v2":
             inputs = list(text)
         else:
