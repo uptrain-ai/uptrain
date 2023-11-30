@@ -131,6 +131,10 @@ class Embedding(ColumnOp):
 
         results = []
         BATCH_SIZE = self.batch_size
+        if self.model == "bge-large-zh-v1.5":
+            emb_length = 1024
+        elif self.model in ["instructor-xl", "instructor-large"]:
+            emb_length = 768
         for idx in range(int(np.ceil(len(inputs)/BATCH_SIZE))):
             if self._compute_method == "local":
                 run_res = self._model_obj.encode(inputs[idx*BATCH_SIZE:(idx+1)*BATCH_SIZE])
@@ -151,6 +155,7 @@ class Embedding(ColumnOp):
                             'Authorization': f"Bearer {self._model_obj['authorization_key']}"
                         }
                     ).json()['data']]
+                    emb_length = len(run_res[0])
                 except:
                     run_res = []
                     for elem_idx in range(idx*BATCH_SIZE, (idx+1)*BATCH_SIZE):
@@ -167,7 +172,10 @@ class Embedding(ColumnOp):
                                     }
                                 ).json()['data']])
                             except:
-                                run_res.append(run_res[-1])
+                                if len(run_res)!=0:
+                                    run_res.append(run_res[-1])
+                                else:
+                                    run_res.append([0]*emb_length)
             results.extend(run_res)
             logger.info(f"Running batch: {idx} out of {int(np.ceil(len(inputs)/BATCH_SIZE))} for operator Embedding")
         return {"output": data.with_columns([pl.Series(results).alias(self.col_out)])}
