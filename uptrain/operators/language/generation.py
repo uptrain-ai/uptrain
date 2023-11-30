@@ -252,7 +252,7 @@ class TopicGenerator(ColumnOp):
 
                 text = ''
                 for j in range(len(questions_top_n)):
-                    text = text + str(j+1) + '. ' + questions_top_n[j] + '\n'
+                    text = text + str(j+1) + '. ' + str(questions_top_n[j]) + '\n'
                 
                 input = f"""{text}"""
                 prompt = f""" Identify the common topic in the given sentences below. 

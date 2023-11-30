@@ -121,13 +121,9 @@ class Embedding(ColumnOp):
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         text = data.get_column(self.col_in_text)
         if self.model in ["instructor-xl", "instructor-large", "bge-large-zh-v1.5"]:
-            inputs = []
-            for x in text:
-                if len(x.split(' ')) < 500:
-                    inputs.append(["Represent the sentence: ", x])
-                else:
-                    constraint_text = ' '.join(x.split(' ')[:500])
-                    inputs.append(["Represent the sentence: ", constraint_text])
+            inputs = [
+                ["Represent the sentence: ", x] for x in text
+            ]
         elif self.model == "MiniLM-L6-v2" or self.model == "mpnet-base-v2":
             inputs = list(text)
         else:
@@ -144,16 +140,34 @@ class Embedding(ColumnOp):
                         input = {"text_batch": json.dumps(inputs[idx*BATCH_SIZE:(idx+1)*BATCH_SIZE])}
                     )]
             elif self._compute_method == "api":
-                run_res = [x['embedding'] for x in requests.post(
-                    self._model_obj['embedding_model_url'],
-                    json={
-                        'model': self.model,
-                        'input': inputs[idx*BATCH_SIZE:(idx+1)*BATCH_SIZE]
-                    },
-                    headers={
-                        'Authorization': f"Bearer {self._model_obj['authorization_key']}"
-                    }
-                ).json()['data']]
+                try:
+                    run_res = [x['embedding'] for x in requests.post(
+                        self._model_obj['embedding_model_url'],
+                        json={
+                            'model': self.model,
+                            'input': inputs[idx*BATCH_SIZE:(idx+1)*BATCH_SIZE]
+                        },
+                        headers={
+                            'Authorization': f"Bearer {self._model_obj['authorization_key']}"
+                        }
+                    ).json()['data']]
+                except:
+                    run_res = []
+                    for elem_idx in range(idx*BATCH_SIZE, (idx+1)*BATCH_SIZE):
+                        if elem_idx < len(inputs):
+                            try:
+                                run_res.extend([x['embedding'] for x in requests.post(
+                                    self._model_obj['embedding_model_url'],
+                                    json={
+                                        'model': self.model,
+                                        'input': [inputs[elem_idx]]
+                                    },
+                                    headers={
+                                        'Authorization': f"Bearer {self._model_obj['authorization_key']}"
+                                    }
+                                ).json()['data']])
+                            except:
+                                run_res.append(run_res[-1])
             results.extend(run_res)
             logger.info(f"Running batch: {idx} out of {int(np.ceil(len(inputs)/BATCH_SIZE))} for operator Embedding")
         return {"output": data.with_columns([pl.Series(results).alias(self.col_out)])}
