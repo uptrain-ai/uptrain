@@ -148,6 +148,8 @@ class CheckSet:
         """Run all checks in this set."""
         from uptrain.operators import JsonWriter
 
+        logger.info("CheckSet Status: Starting checkset")
+
         source_output = self.source.run()["output"]
         if source_output is None:
             raise RuntimeError("Dataset read from the source is: None")
