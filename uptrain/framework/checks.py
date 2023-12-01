@@ -153,6 +153,7 @@ class CheckSet:
             raise RuntimeError("Dataset read from the source is: None")
         if len(source_output) == 0:
             raise RuntimeError("Dataset read from the source is: empty")
+        logger.info("CheckSet Status: Dataset loaded from source")
 
         if len(self.preprocessors) > 0:
             for preprocessor in self.preprocessors:
@@ -166,17 +167,22 @@ class CheckSet:
                 )
             ).setup(self._settings).run(source_output)
 
+        logger.info("CheckSet Status: Preprocessing Done")
+
         consolidated_output = {}
         for check in self.checks:
+            logger.info(f"CheckSet Status: Check {check.name} Started")
             check_output = check.run(source_output)
             assert check_output is not None, f"Output of check {check.name} is None"
             self._get_sink_for_check(self._settings, check).run(check_output)
+            logger.info(f"CheckSet Status: Check {check.name} Completed")
 
             if len(self.postprocessors):
                 if not all(isinstance(op, ColumnOp) for op in check.operators):
                     continue
                 for col in check_output.columns:
                     consolidated_output[col] = check_output[col]
+        logger.info("CheckSet Status: All Checks Completed")
 
         if len(self.postprocessors):
             consolidated_output = pl.DataFrame(consolidated_output)
@@ -190,6 +196,7 @@ class CheckSet:
                     self._settings.logs_folder, "postprocessed_input.jsonl"
                 )
             ).setup(self._settings).run(consolidated_output)
+        logger.info("CheckSet Status: Postprocessing Done")
 
     @staticmethod
     def _get_sink_for_check(settings: Settings, check: Check):
