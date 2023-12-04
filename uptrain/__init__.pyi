@@ -4,6 +4,7 @@ __all__ = [
     "Evals",
     "CritiqueTone",
     "GuidelineAdherence",
+    "ConversationSatisfaction",
     "ResponseMatching",
     "Settings",
     "EvalLlamaIndex"
@@ -11,7 +12,7 @@ __all__ = [
 
 from .framework.base import Settings
 from .framework.remote import APIClient
-from .framework.evals import Evals, CritiqueTone, GuidelineAdherence, ResponseMatching
+from .framework.evals import Evals, CritiqueTone, GuidelineAdherence, ResponseMatching, ConversationSatisfaction
 from .framework.evalllm import EvalLLM
 
 from .integrations.llama_index import EvalLlamaIndex
