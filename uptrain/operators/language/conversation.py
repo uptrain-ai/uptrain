@@ -37,20 +37,17 @@ class ConversationSatisfactionScore(ColumnOp):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-
-        data_send = []
-        for row in data.to_dicts():
-            chat = row[self.col_conversation]
-            if isinstance(chat, pl.DataFrame):
-                chat = chat.to_dicts()
-            queries = []
-            for dialogue in chat:
-                if dialogue['role']==self.role:
-                    queries.append(dialogue['content'])
-            data_send.append({"conversation" : "Customer Question: " + "\nCustomer Question: ".join(queries)})
-        
+        data_send = [
+            {
+                "conversation": row[self.col_conversation]
+            }
+            for row in data.to_dicts()
+        ]
         try:
-            results = self._api_client.evaluate("ConversationSatisfaction", data_send)
+            results = self._api_client.evaluate(
+                "ConversationSatisfaction", data_send, {
+                    "role": self.role
+                })
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ConversationSatisfactionScore`: {e}")
             raise e
