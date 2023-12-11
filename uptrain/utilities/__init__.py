@@ -15,6 +15,8 @@ import numpy as np
 # import numpy.typing as npt
 # import pyarrow as pa
 import polars as pl
+import datetime 
+
 
 # -----------------------------------------------------------
 # utility routines for JSON serialization - parts picked off
@@ -26,6 +28,8 @@ def to_py_types(obj: t.Any) -> t.Any:
     import inspect
 
     # for nested dataclasses/pydantic models/operators
+    if isinstance(obj, datetime.datetime):
+        return str(obj)
     if isinstance(obj, dict):
         return {k: to_py_types(v) for k, v in obj.items()}
     elif isinstance(obj, list):

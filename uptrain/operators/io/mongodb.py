@@ -12,7 +12,7 @@ from uptrain.operators.base import *
 from uptrain.utilities import lazy_load_dep
 
 
-MongoClient = lazy_load_dep("pymongo.MongoClient", "pymongo")
+Mongo_Client = lazy_load_dep("pymongo.mongo_client", "pymongo")
 
 
 @register_op
@@ -43,13 +43,13 @@ class MongoDBReader(TransformOp):
         ```
     """
     table: str
-    query: t.Optional[dict[str, str]] = dict()
+    query: t.Optional[dict] = dict()
     filter: t.Optional[dict[str, str]] = dict()
     limit_rows: int | None = None
 
     def setup(self, settings: Settings):
         connection_uri = settings.check_and_get("mongo_db_connection_uri")
-        self._client = MongoClient(connection_uri)
+        self._client = Mongo_Client.MongoClient(connection_uri)
         self._db = self._client[settings.check_and_get("mongo_db_database_name")]
         return self
 
