@@ -43,7 +43,7 @@ class MongoDBReader(TransformOp):
         ```
     """
     table: str
-    query = dict()
+    query: t.Optional[dict] = dict()
     filter: t.Optional[dict[str, str]] = dict()
     limit_rows: int | None = None
 
