@@ -52,7 +52,7 @@ class ResponseFactualScore(ColumnOp):
             for row in data.to_dicts()
         ]
         try:
-            results = self._api_client.evaluate("factual_accuracy", data_send)  #{"uptrain_settings": self._settings}
+            results = self._api_client.evaluate("factual_accuracy", data_send)
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ResponseFactualScore`: {e}")
             raise e
