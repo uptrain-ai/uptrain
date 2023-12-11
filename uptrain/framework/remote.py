@@ -352,6 +352,13 @@ class APIClient:
 
         # send in chunks of 50, so the connection doesn't time out waiting for the server
         results = []
+
+        if params is not None:
+            params['uptrain_settings'] = self.settings.dict()
+        else:
+            params = {}
+            params['uptrain_settings'] = self.settings.dict()
+
         NUM_TRIES = 3
         for i in range(0, len(full_dataset), 10):
             response_json = None
@@ -365,7 +372,7 @@ class APIClient:
                         json={
                             "eval_name": eval_name,
                             "dataset": full_dataset[i : i + 10],
-                            "params": params if params is not None else {},
+                            "params": params,
                         },
                     )
                     response_json = raise_or_return(response)
