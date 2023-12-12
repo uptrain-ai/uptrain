@@ -73,6 +73,7 @@ class ToneCritique(ColumnOp):
 
     persona: str = "helpful-chatbot"
     col_response: str = "response"
+    col_out: str = "score_tone"
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
@@ -90,6 +91,9 @@ class ToneCritique(ColumnOp):
             results = self._api_client.evaluate(
                 "critique_tone", data_send, {"persona": self.persona}
             )
+            for row in results:
+                row[self.col_out] = row['score_tone']
+                del row['score_tone']
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ToneCritique`: {e}")
             raise e

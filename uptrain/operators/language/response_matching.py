@@ -31,6 +31,7 @@ class ResponseMatchingScore(ColumnOp):
     col_response: str = "response"
     col_ground_truth: str = "ground_truth"
     method: str = t.Literal["exact", "rouge", "llm"]
+    col_out: str = "score_response_match"
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
@@ -53,6 +54,9 @@ class ResponseMatchingScore(ColumnOp):
                 "ResponseMatching", data_send, {
                     "type": self.method            
                 })
+            for row in results:
+                row[self.col_out] = row['score_response_match']
+                del row['score_response_match']
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ResponseMatchingScore`: {e}")
             raise e

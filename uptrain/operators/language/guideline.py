@@ -36,6 +36,7 @@ class GuidelineAdherenceScore(ColumnOp):
     guideline: str
     guideline_name: str = "guideline"
     response_schema: t.Union[str, None] = None
+    col_out: str  = "score_guideline_adherence"
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
@@ -59,6 +60,10 @@ class GuidelineAdherenceScore(ColumnOp):
                     "guideline_name": self.guideline_name,
                     "response_schema": self.response_schema
                 })
+            for row in results:
+                row[self.col_out] = row[f"score_{self.guideline_name}_adherence"]
+                del row[f"score_{self.guideline_name}_adherence"]
+                
         except Exception as e:
             logger.error(f"Failed to run evaluation for `GuidelineAdherenceScore`: {e}")
             raise e
