@@ -27,7 +27,9 @@ class GuidelineAdherence(ParametricEval):
     response_schema: t.Union[str, None] = None  # Schema of the response in case it is of type JSON, XML, etc.
 
 class ConversationSatisfaction(ParametricEval):
-    role: str = "user"
+    role: t.Union[str, list] = 'user'
+    prompt: t.Union[str, None] = None
+    
 
 class ResponseMatching(ParametricEval):
     method: str = "llm"

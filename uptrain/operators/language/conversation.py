@@ -28,7 +28,8 @@ class ConversationSatisfactionScore(ColumnOp):
     """
     col_conversation: str = "conversation"
     col_out: str = "score_conversation_satisfaction"
-    role: str = "user"
+    prompt: t.Union[str, None] = None
+    role: t.Union[str,list] = 'user'
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
@@ -47,7 +48,8 @@ class ConversationSatisfactionScore(ColumnOp):
         try:
             results = self._api_client.evaluate(
                 "ConversationSatisfaction", data_send, {
-                    "role": self.role
+                    "role": self.role,
+                    "prompt": self.prompt
                 })
             for row in results:
                 row[self.col_out] = row['score_conversation_satisfaction']
