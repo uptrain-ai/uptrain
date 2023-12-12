@@ -60,7 +60,7 @@ Go through the code below to learn how to create a dataset for your evaluation.
 ```python
 import polars as pl
 
-dataset = pl.DataFrame(
+data = pl.DataFrame(
     {
         "context": [
             "Lolita is a 1962 psychological comedy-drama film directed by Stanley Kubrick. The film follows Humbert Humbert, a middle-aged literature lecturer who becomes infatuated with Dolores Haze, a young adolescent girl. It stars Sue Lyon as the titular character.",
@@ -89,28 +89,26 @@ dataset = pl.DataFrame(
 
 
 #### Step 2: Run the evaluation
-To run the evaluation on the dataset you created, you will need to specify the following parameters:
-- `eval_name`: The evaluation you wish to evaluate your model on
-- `full_dataset`: The dataset you created in Step 1
-- `params`: The parameters required by the operator you chose
+Now that we have our data, we can log it and evaluate it using UpTrain. We use the `log_and_evaluate` method to do this. This method takes the following arguments:
 
-You can choose the operator you wish to evaluate your model on from the list of operators [here](https://uptrain-ai.github.io/uptrain/operators/Accuracy/).
+- `project_name`: The name of your project
+- `data`: The data you want to log and evaluate
+- `evals`: The evaluations you want to perform on your data
 
-For example, if you wish to evaluate your model on the `critique_tone` operator, you will need to specify the `persona` parameter.
+You can find the list of all available evaluations [here](/key-components/evals).
 
 ```python
-response = client.evaluate(
-    eval_name="critique_tone",
-    full_dataset=dataset.to_dicts(),
-    params={"persona": "Wikipedia"}
+results = client.log_and_evaluate(
+    project_name="Sample-Project",
+    data=data,
+    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
 )
 ```
 
 #### Step 3: View the results
-You can view the results of your evaluation by printing the response.
 
 ```python
-print(response)
+print(json.dumps(results, indent=3))
 ```
 
 
