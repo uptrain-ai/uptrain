@@ -34,6 +34,7 @@ class ResponseFactualScore(ColumnOp):
     col_question: str = "question"
     col_context: str = "context"
     col_response: str = "response"
+    col_out: str = "score_factual_accuracy"
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
@@ -53,6 +54,9 @@ class ResponseFactualScore(ColumnOp):
         ]
         try:
             results = self._api_client.evaluate("factual_accuracy", data_send)
+            for row in results:
+                row[self.col_out] = row['score_factual_accuracy']
+                del row['score_factual_accuracy']
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ResponseFactualScore`: {e}")
             raise e
@@ -77,6 +81,7 @@ class ResponseCompleteness(ColumnOp):
 
     col_question: str = "question"
     col_response: str = "response"
+    col_out: str = "score_response_completeness"
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
@@ -95,6 +100,9 @@ class ResponseCompleteness(ColumnOp):
         ]
         try:
             results = self._api_client.evaluate("response_completeness", data_send)
+            for row in results:
+                row[self.col_out] = row['score_response_completeness']
+                del row['score_response_completeness']
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ResponseCompleteness`: {e}")
             raise e
@@ -112,6 +120,7 @@ class ResponseCompletenessWrtContext(ColumnOp):
     col_question: str = "question"
     col_response: str = "response"
     col_context: str = "context"
+    col_out: str = "score_response_completeness_wrt_context"
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
@@ -133,6 +142,9 @@ class ResponseCompletenessWrtContext(ColumnOp):
             results = self._api_client.evaluate(
                 "response_completeness_wrt_context", data_send
             )
+            for row in results:
+                row[self.col_out] = row['score_response_completeness_wrt_context']
+                del row['score_response_completeness_wrt_context']
         except Exception as e:
             logger.error(
                 f"Failed to run evaluation for `ResponseCompletenessWrtContext`: {e}"
@@ -159,6 +171,7 @@ class ContextRelevance(ColumnOp):
 
     col_question: str = "question"
     col_context: str = "context"
+    col_out: str = "score_context_relevance"
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
@@ -177,6 +190,9 @@ class ContextRelevance(ColumnOp):
         ]
         try:
             results = self._api_client.evaluate("context_relevance", data_send)
+            for row in results:
+                row[self.col_out] = row['score_context_relevance']
+                del row['score_context_relevance']
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ContextRelevance`: {e}")
             raise e
@@ -202,6 +218,7 @@ class ResponseRelevance(ColumnOp):
 
     col_question: str = "question"
     col_response: str = "response"
+    col_out: str = "score_response_relevance"
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
@@ -220,6 +237,9 @@ class ResponseRelevance(ColumnOp):
         ]
         try:
             results = self._api_client.evaluate("response_relevance", data_send)
+            for row in results:
+                row[self.col_out] = row['score_response_relevance']
+                del row['score_response_relevance']
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ResponseRelevance`: {e}")
             raise e
@@ -247,6 +267,7 @@ class ResponseConciseness(ColumnOp):
 
     col_question: str = "question"
     col_response: str = "response"
+    col_out: str = "score_response_conciseness"
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
@@ -265,6 +286,9 @@ class ResponseConciseness(ColumnOp):
         ]
         try:
             results = self._api_client.evaluate("response_conciseness", data_send)
+            for row in results:
+                row[self.col_out] = row['score_response_conciseness']
+                del row['score_response_conciseness']
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ResponseConciseness`: {e}")
             raise e
@@ -294,6 +318,7 @@ class ResponseConsistency(ColumnOp):
     col_question: str = "question"
     col_response: str = "response"
     col_context: str = "context"
+    col_out: str = "score_response_consistency"
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
@@ -313,6 +338,9 @@ class ResponseConsistency(ColumnOp):
         ]
         try:
             results = self._api_client.evaluate("response_consistency", data_send)
+            for row in results:
+                row[self.col_out] = row['score_response_consistency']
+                del row['score_response_consistency']
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ResponseConsistency`: {e}")
             raise e
