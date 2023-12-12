@@ -29,7 +29,7 @@ class ConversationSatisfactionScore(ColumnOp):
     col_conversation: str = "conversation"
     col_out: str = "score_conversation_satisfaction"
     prompt: t.Union[str, None] = None
-    role: t.Union[str,list] = 'user'
+    role: str = 'user'
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient

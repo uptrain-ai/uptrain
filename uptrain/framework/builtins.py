@@ -106,7 +106,7 @@ CheckGuidelineAdherence = lambda guideline, guideline_name="guideline", response
 # Conversation related
 # -----------------------------------------------------------
 
-CheckConversationSatisfaction = lambda role = ["user"], prompt = None : Check(
+CheckConversationSatisfaction = lambda role = "user", prompt = None : Check(
     name = "conversation_satisfaction_score",
     operators=[ConversationSatisfactionScore(role=role, prompt= prompt)],
     plots=[Histogram(x=f"score_conversation_satisfaction")]
