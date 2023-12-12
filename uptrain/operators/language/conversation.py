@@ -28,7 +28,7 @@ class ConversationSatisfactionScore(ColumnOp):
     """
     col_conversation: str = "conversation"
     col_out: str = "score_conversation_satisfaction"
-    prompt: t.Union[str, None] = None
+    system_prompt: t.Union[str, None] = None
     role: str = 'user'
 
     def setup(self, settings: t.Optional[Settings] = None):
@@ -49,7 +49,7 @@ class ConversationSatisfactionScore(ColumnOp):
             results = self._api_client.evaluate(
                 "ConversationSatisfaction", data_send, {
                     "role": self.role,
-                    "prompt": self.prompt
+                    "system_prompt": self.system_prompt
                 })
             for row in results:
                 row[self.col_out] = row['score_conversation_satisfaction']
