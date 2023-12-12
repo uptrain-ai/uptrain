@@ -28,7 +28,7 @@ class GuidelineAdherence(ParametricEval):
 
 class ConversationSatisfaction(ParametricEval):
     role: str = 'user'
-    prompt: t.Union[str, None] = None
+    system_prompt: t.Union[str, None] = None
     
 
 class ResponseMatching(ParametricEval):
