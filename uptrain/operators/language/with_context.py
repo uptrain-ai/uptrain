@@ -34,6 +34,7 @@ class ResponseFactualScore(ColumnOp):
     col_question: str = "question"
     col_context: str = "context"
     col_response: str = "response"
+    col_out: str = "score_factual_accuracy"
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
@@ -77,6 +78,7 @@ class ResponseCompleteness(ColumnOp):
 
     col_question: str = "question"
     col_response: str = "response"
+    col_out: str = "score_response_completeness"
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
@@ -112,6 +114,7 @@ class ResponseCompletenessWrtContext(ColumnOp):
     col_question: str = "question"
     col_response: str = "response"
     col_context: str = "context"
+    col_out: str = "score_response_completeness_wrt_context"
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
@@ -159,6 +162,7 @@ class ContextRelevance(ColumnOp):
 
     col_question: str = "question"
     col_context: str = "context"
+    col_out: str = "score_context_relevance"
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
@@ -202,6 +206,7 @@ class ResponseRelevance(ColumnOp):
 
     col_question: str = "question"
     col_response: str = "response"
+    col_out: str = "score_response_relevance"
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
@@ -247,6 +252,7 @@ class ResponseConciseness(ColumnOp):
 
     col_question: str = "question"
     col_response: str = "response"
+    col_out: str = "score_response_conciseness"
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
@@ -294,6 +300,7 @@ class ResponseConsistency(ColumnOp):
     col_question: str = "question"
     col_response: str = "response"
     col_context: str = "context"
+    col_out: str = "score_response_consistency"
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
