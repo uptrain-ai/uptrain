@@ -54,15 +54,12 @@ class ResponseFactualScore(ColumnOp):
         ]
         try:
             results = self._api_client.evaluate("factual_accuracy", data_send)
-            for row in results:
-                row[self.col_out] = row['score_factual_accuracy']
-                del row['score_factual_accuracy']
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ResponseFactualScore`: {e}")
             raise e
-
+        
         assert results is not None
-        return {"output": data.with_columns(pl.from_dicts(results))}
+        return {"output": data.with_columns(pl.from_dicts(results).rename({"score_factual_accuracy": self.col_out}))}
 
 
 @register_op
@@ -100,15 +97,12 @@ class ResponseCompleteness(ColumnOp):
         ]
         try:
             results = self._api_client.evaluate("response_completeness", data_send)
-            for row in results:
-                row[self.col_out] = row['score_response_completeness']
-                del row['score_response_completeness']
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ResponseCompleteness`: {e}")
             raise e
 
         assert results is not None
-        return {"output": data.with_columns(pl.from_dicts(results))}
+        return {"output": data.with_columns(pl.from_dicts(results).rename({"score_response_completeness": self.col_out}))}
 
 
 @register_op
@@ -142,9 +136,6 @@ class ResponseCompletenessWrtContext(ColumnOp):
             results = self._api_client.evaluate(
                 "response_completeness_wrt_context", data_send
             )
-            for row in results:
-                row[self.col_out] = row['score_response_completeness_wrt_context']
-                del row['score_response_completeness_wrt_context']
         except Exception as e:
             logger.error(
                 f"Failed to run evaluation for `ResponseCompletenessWrtContext`: {e}"
@@ -152,7 +143,7 @@ class ResponseCompletenessWrtContext(ColumnOp):
             raise e
 
         assert results is not None
-        return {"output": data.with_columns(pl.from_dicts(results))}
+        return {"output": data.with_columns(pl.from_dicts(results).rename({"score_response_completeness_wrt_context": self.col_out}))}
 
 
 @register_op
@@ -190,15 +181,12 @@ class ContextRelevance(ColumnOp):
         ]
         try:
             results = self._api_client.evaluate("context_relevance", data_send)
-            for row in results:
-                row[self.col_out] = row['score_context_relevance']
-                del row['score_context_relevance']
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ContextRelevance`: {e}")
             raise e
 
         assert results is not None
-        return {"output": data.with_columns(pl.from_dicts(results))}
+        return {"output": data.with_columns(pl.from_dicts(results).rename({"score_context_relevance": self.col_out}))}
 
 
 @register_op
@@ -237,15 +225,12 @@ class ResponseRelevance(ColumnOp):
         ]
         try:
             results = self._api_client.evaluate("response_relevance", data_send)
-            for row in results:
-                row[self.col_out] = row['score_response_relevance']
-                del row['score_response_relevance']
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ResponseRelevance`: {e}")
             raise e
 
         assert results is not None
-        return {"output": data.with_columns(pl.from_dicts(results))}
+        return {"output": data.with_columns(pl.from_dicts(results).rename({"score_response_relevance": self.col_out}))}
 
 
 
@@ -286,15 +271,12 @@ class ResponseConciseness(ColumnOp):
         ]
         try:
             results = self._api_client.evaluate("response_conciseness", data_send)
-            for row in results:
-                row[self.col_out] = row['score_response_conciseness']
-                del row['score_response_conciseness']
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ResponseConciseness`: {e}")
             raise e
 
         assert results is not None
-        return {"output": data.with_columns(pl.from_dicts(results))}
+        return {"output": data.with_columns(pl.from_dicts(results).rename({"score_response_conciseness": self.col_out}))}
 
 
 
@@ -338,12 +320,9 @@ class ResponseConsistency(ColumnOp):
         ]
         try:
             results = self._api_client.evaluate("response_consistency", data_send)
-            for row in results:
-                row[self.col_out] = row['score_response_consistency']
-                del row['score_response_consistency']
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ResponseConsistency`: {e}")
             raise e
 
         assert results is not None
-        return {"output": data.with_columns(pl.from_dicts(results))}
+        return {"output": data.with_columns(pl.from_dicts(results).rename({"score_response_consistency": self.col_out}))}
