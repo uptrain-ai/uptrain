@@ -34,7 +34,8 @@ class Settings(BaseSettings):
     azure_api_base: str = Field(None, env="AZURE_API_BASE")
     azure_api_version: str = Field(None, env="AZURE_API_VERSION")
 
-    openai_rpm_limit: int = 100
+    rpm_limit: int = 100
+    tpm_limit: int = 90_000
     embedding_compute_method: t.Literal['local', 'replicate', 'api'] = 'local'
 
     # uptrain managed service related

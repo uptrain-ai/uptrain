@@ -360,7 +360,7 @@ class APIClient:
             params['uptrain_settings'] = self.settings.dict()
 
         NUM_TRIES = 3
-        for i in range(0, len(full_dataset), 10):
+        for i in range(0, len(full_dataset), 100):
             response_json = None
             for try_num in range(NUM_TRIES):
                 try:
@@ -371,7 +371,7 @@ class APIClient:
                         url,
                         json={
                             "eval_name": eval_name,
-                            "dataset": full_dataset[i : i + 10],
+                            "dataset": full_dataset[i : i + 100],
                             "params": params,
                         },
                     )
