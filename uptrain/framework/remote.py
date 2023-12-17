@@ -365,7 +365,7 @@ class APIClient:
             for try_num in range(NUM_TRIES):
                 try:
                     logger.info(
-                        f"Sending evaluation request for rows {i} to <{i+10} to the Uptrain server"
+                        f"Sending evaluation request for rows {i} to <{i+100} to the Uptrain server"
                     )
                     response = self.client.post(
                         url,
