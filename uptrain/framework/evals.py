@@ -18,7 +18,7 @@ class ParametricEval(pydantic.BaseModel):
 
 
 class CritiqueTone(ParametricEval):
-    persona: str = "helpful-chatbot"
+    llm_persona: str = "helpful-chatbot"
 
 
 class GuidelineAdherence(ParametricEval):
@@ -27,8 +27,8 @@ class GuidelineAdherence(ParametricEval):
     response_schema: t.Union[str, None] = None  # Schema of the response in case it is of type JSON, XML, etc.
 
 class ConversationSatisfaction(ParametricEval):
-    role: str = 'user'
-    system_prompt: t.Union[str, None] = None
+    user_persona: str = "user"
+    llm_persona: t.Union[str, None] = None
     
 
 class ResponseMatching(ParametricEval):

@@ -13,7 +13,7 @@ eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
 
 results = eval_llm.evaluate(
     data=data,
-    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
+    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(llm_persona="teacher")]
 )
 
 print(json.dumps(results, indent=3))
