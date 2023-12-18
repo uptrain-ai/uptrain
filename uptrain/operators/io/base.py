@@ -4,7 +4,7 @@ from __future__ import annotations
 import typing as t
 
 import polars as pl
-
+import pandas as pd
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
 from uptrain.operators.base import *
@@ -69,6 +69,13 @@ class TextReaderExecutor:
             self.dataset = pl.read_csv(self.op.fpath)
         elif isinstance(self.op, JsonReader):
             self.dataset = pl.read_ndjson(self.op.fpath)
+            null_count = self.dataset.null_count().to_dicts()[0]
+            for _, value in null_count.items():
+                if value == self.dataset.shape[0]:
+                    ## read from pandas
+                    pd_df = pd.read_json(self.op.fpath, lines=True)
+                    self.dataset = pl.DataFrame(pd_df)
+                    break
 
     @property
     def is_incremental(self) -> bool:
