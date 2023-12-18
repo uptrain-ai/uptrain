@@ -133,5 +133,8 @@ Paramters:
 Measures the user's satisfaction with the conversation with the LLM/AI assistant based on completeness and user's acceptance.
 
 Columns required:
+- `conversation` - The chat between the user and the LLM/AI assistant (in the form of a list of dictionaries with keys 'role' and 'content')
+
+Parameters:
 - `role` - The role of the person whose satisfaction is being measured
-- `chat` - The chat between the user and the LLM/AI assistant
+- `system_prompt` - Prompt sent with every query to the model telling it how to respond 
