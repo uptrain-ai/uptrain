@@ -85,7 +85,7 @@ async def async_process_payload(
                 )
                 and count < max_retries - 1
             ):
-                await asyncio.sleep(random.uniform(0.5, 1.5) * count + 1)
+                await asyncio.sleep(random.uniform(0.5, 1.5) * count + 60)
             elif (
                 isinstance(exc, openai.error.InvalidRequestError)
                 and "context_length" in exc.code
@@ -127,7 +127,8 @@ class LLMMulticlient:
         if settings is not None:
             if settings.openai_api_key is not None:
                 openai.api_key = settings.check_and_get("openai_api_key")  # type: ignore
-            self._rpm_limit = settings.check_and_get("openai_rpm_limit")
+            self._rpm_limit = settings.check_and_get("rpm_limit")
+            self._tpm_limit = settings.check_and_get("tpm_limit")
 
     def fetch_responses(self, input_payloads: list[Payload]) -> list[Payload]:
         try:
