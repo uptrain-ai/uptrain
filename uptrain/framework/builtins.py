@@ -86,9 +86,9 @@ CheckLanguageQuality = lambda: Check(
     ],
 )
 
-CheckToneQuality = lambda persona: Check(
+CheckToneQuality = lambda llm_persona: Check(
     name="tone_critique_score",
-    operators=[ToneCritique(persona=persona)],
+    operators=[ToneCritique(llm_persona=llm_persona)],
     plots=[Histogram(x="score_tone")],
 )
 
@@ -106,9 +106,9 @@ CheckGuidelineAdherence = lambda guideline, guideline_name="guideline", response
 # Conversation related
 # -----------------------------------------------------------
 
-CheckConversationSatisfaction = lambda role = "user", system_prompt = None : Check(
+CheckConversationSatisfaction = lambda user_persona = "user", llm_persona = None : Check(
     name = "conversation_satisfaction_score",
-    operators=[ConversationSatisfactionScore(role=role, system_prompt= system_prompt)],
+    operators=[ConversationSatisfactionScore(user_persona, llm_persona)],
     plots=[Histogram(x=f"score_conversation_satisfaction")]
 )
 

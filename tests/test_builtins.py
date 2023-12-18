@@ -73,6 +73,6 @@ def test_check_response_facts():
 
 
 def test_check_tone_quality():
-    check = CheckToneQuality(persona="wikipedia-bot")
+    check = CheckToneQuality(llm_persona="wikipedia-bot")
     output = check.setup(settings).run(dataset)
     assert isinstance(output, pl.DataFrame)

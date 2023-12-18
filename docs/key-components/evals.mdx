@@ -99,7 +99,7 @@ Columns required:
 - `response`
 
 Parameters:
-- `persona` - The persona the chatbot being assesses was expected to follow
+- `llm_persona` - The persona the chatbot being assessed was expected to follow
 
 
 ### GuidelineAdherence
@@ -112,8 +112,8 @@ Columns required:
 
 Parameters:
 - `guideline` - The guideline to be followed
-- `guideline_name` - User-assigned name of the guideline to distinguish between multiple checks
-- `resopnse_schema` - Schema of the response in case it is of type JSON, XML, etc.
+- `guideline_name` (optional) - User-assigned name of the guideline to distinguish between multiple checks
+- `resopnse_schema` (optional) - Schema of the response in case it is of type JSON, XML, etc.
 
 
 ### ResponseMatching
@@ -136,5 +136,5 @@ Columns required:
 - `conversation` - The chat between the user and the LLM/AI assistant (in the form of a list of dictionaries with keys 'role' and 'content')
 
 Parameters:
-- `role` - The role of the person whose satisfaction is being measured
-- `system_prompt` - Prompt sent with every query to the model telling it how to respond 
+- `user_persona` - The persona of the user asking the queries
+- `llm_persona` - The persona of the LLM/AI assistant

@@ -63,7 +63,7 @@ class ToneCritique(ColumnOp):
     Operator to assess the tone of machine generated responses.
 
     Attributes:
-        persona (str): The persona the chatbot being assesses was expected to follow
+        llm_persona (str): The persona the chatbot being assessed was expected to follow
         col_response (str): The name of the input column containing response text
     
     Raises:
@@ -71,7 +71,7 @@ class ToneCritique(ColumnOp):
     
     """
 
-    persona: str = "helpful-chatbot"
+    llm_persona: str = "helpful-chatbot"
     col_response: str = "response"
     col_out: str = "score_tone"
 
@@ -89,7 +89,7 @@ class ToneCritique(ColumnOp):
         ]
         try:
             results = self._api_client.evaluate(
-                "critique_tone", data_send, {"persona": self.persona}
+                "critique_tone", data_send, {"llm_persona": self.llm_persona}
             )
             for row in results:
                 row[self.col_out] = row['score_tone']

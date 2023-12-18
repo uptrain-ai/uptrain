@@ -21,15 +21,16 @@ class ConversationSatisfactionScore(ColumnOp):
 
      Attributes:
         col_conversation (str): Column name for the stored conversations
-        role (str): Entity name asking the queries.
+        user_perosna (str): The persona of user asking the queries.
+        llm_persona (str): The persona of LLM responding to the queries.
     Raises:
         Exception: Raises exception for any failed evaluation attempts
 
     """
     col_conversation: str = "conversation"
     col_out: str = "score_conversation_satisfaction"
-    system_prompt: t.Union[str, None] = None
-    role: str = 'user'
+    llm_persona: t.Union[str, None] = None
+    user_persona: str = 'user'
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
@@ -48,8 +49,8 @@ class ConversationSatisfactionScore(ColumnOp):
         try:
             results = self._api_client.evaluate(
                 "ConversationSatisfaction", data_send, {
-                    "role": self.role,
-                    "system_prompt": self.system_prompt
+                    "user_persona": self.user_persona,
+                    "llm_persona": self.llm_persona
                 })
             for row in results:
                 row[self.col_out] = row['score_conversation_satisfaction']
