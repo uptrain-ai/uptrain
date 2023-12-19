@@ -40,7 +40,6 @@
 | Evaluation  | Description |
 | ------------- | ------------- |
 | [Factual Accuracy](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/evaluate_factual_accuracy.ipynb) | Checks if the response is grounded by the context provided |
-| [Guideline Adherence](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/evaluate_guideline_adherence.ipynb) | Checks if the response or the LLM adhers to the given guideline or not  |
 | [Response Completeness](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/evaluate_response_completeness.ipynb) | Grades how if the response completes the given question  |
 | [Response Completeness wrt Context](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/evaluate_response_completeness_wrt_context.ipynb) | Grades how complete the response was for the question specified with respect to the information present in the context |
 | [Context Relevance](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/evaluate_context%20relevance.ipynb) | Evaluates if the context has all the information to answer the given question |
@@ -51,7 +50,7 @@
 | [Response Consistency](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/evaluate_response_consistency.ipynb) | Grades how consistent the response is with the question asked as well as with the context provided. |
 | [Guideline Adherence](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/evaluate_guideline_adherence.ipynb) | Grades how well the LLM adheres to a provided guideline when giving a response. |
 | [Conversation Satisfaction](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/evaluate_conversation_satisfaction.ipynb) | Measures the user’s satisfaction with the conversation with the LLM/AI assistant based on completeness and user’s acceptance. |
-
+| Response Matching | Operator to compare the llm-generated text with the gold (ideal) response using the defined score metric. |
 
 # Get started 🙌
 
