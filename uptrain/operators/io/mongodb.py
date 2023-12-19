@@ -56,9 +56,13 @@ class MongoDBReader(TransformOp):
     def run(self) -> TYPE_TABLE_OUTPUT:
         table = self._db[self.table]
         if self.limit_rows is None:
-            rows = table.find(self.query, self.filter)
+            rows = list(table.find(self.query, self.filter))
         else:
-            rows = table.find(self.query, self.filter).limit(self.limit_rows)
-       
+            rows = list(table.find(self.query, self.filter).limit(self.limit_rows))
+
+        all_keys = set().union(*rows)
+        rows = [{key: d.get(key, None) for key in all_keys} for d in rows]
+        rows.reverse()
+
         return {"output": pl.from_dicts(rows)}
 
