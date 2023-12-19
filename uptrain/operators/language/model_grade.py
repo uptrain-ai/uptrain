@@ -6,6 +6,7 @@ from __future__ import annotations
 import typing as t
 import os
 import copy 
+import re
 
 from loguru import logger
 import polars as pl
@@ -245,13 +246,6 @@ class ModelGradeScore(ColumnOp):
                 if score[-1] == "0":
                     score = score[0:-1]
             self.choice_scores[choice] = score
-        choice_scores = "(" + str(self.choice_scores)[1:-1] + ")"
-        choice_scores_text = ""
-        for choice, score in self.choice_scores.items():
-            choice_scores_text += f"If selected choice is {choice}, score should be {score}. "
-        scores_text = "(" + ", ".join(list(self.choice_scores.values())) + ")"
-        answer_prompt = ANSWER_PROMPTS[self.eval_type].format(choice_scores=choice_scores, choice_scores_text=choice_scores_text, scores_text=scores_text)
-        self.grading_prompt_template += answer_prompt
         return self
 
     def _make_payload(self, id: t.Any, messages: list[dict]) -> Payload:
@@ -264,7 +258,7 @@ class ModelGradeScore(ColumnOp):
         """Queries LLM to get score from the text"""
 
         prompt = f"""
-        Extract the score from the given text. The available choices and associated scores is present in the context.
+        Extract the choice from the given text. The available choices and the selected choice is present in the context.
 
         Context: {grading_prompt_template}
         Text: {text}
@@ -277,8 +271,13 @@ class ModelGradeScore(ColumnOp):
 
         try:
             score = output_payload.response["choices"][0]["message"]["content"]
-            float(score)
-            return score
+            if score.upper() in self.choice_scores:
+                score = self.choice_scores[score.upper()]
+            elif score.lower() in self.choice_scores:
+                score = self.choice_scores[score.lower()]
+            #float(score)
+            
+            return float(score)
         except:
             return str(0.0)
 
@@ -376,6 +375,7 @@ class ModelGradeScore(ColumnOp):
             else:
                 try:
                     resp_text = res.response["choices"][0]["message"]["content"]
+                    '''
                     choice = self.get_choice(
                         text=resp_text,
                         eval_type=self.eval_type,
@@ -383,6 +383,22 @@ class ModelGradeScore(ColumnOp):
                         choice_strings=self.choice_strings,
                     )
                     score = float(choice)
+                    '''
+                    scores_matches = re.findall(r"(\[Choice\]\: [a-zA-Z]|Choice: [a-zA-Z]|choice is [a-zA-Z])", resp_text)
+                    if len(scores_matches)!=0:
+                        score = str(scores_matches[0].split(' ')[-1])
+                        if len(score)==1:
+                            if score.upper() in self.choice_scores:
+                                score = self.choice_scores[score.upper()]
+                            elif score.lower() in self.choice_scores:
+                                score = self.choice_scores[score.lower()]
+                            else:
+                                score = self.get_choice_via_llm(resp_text, self.grading_prompt_template)
+                        else:
+                            score = self.get_choice_via_llm(resp_text, self.grading_prompt_template)
+                    else:
+                        score = self.get_choice_via_llm(resp_text, self.grading_prompt_template)
+
                     results.append((idx, score, resp_text))
                 except Exception as e:
                     logger.error(
