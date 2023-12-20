@@ -263,7 +263,7 @@ class ModelGradeScore(ColumnOp):
         Context: {grading_prompt_template}
         Text: {text}
 
-        Score:
+        Choice:
         """
 
         payload = self._make_payload(0, [{"role": "user", "content": prompt}])
