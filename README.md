@@ -39,14 +39,18 @@
 
 | Evaluation  | Description |
 | ------------- | ------------- |
-| [Factual Accuracy](https://uptrain-ai.github.io/uptrain/operators/language/ResponseFactualScore/) | Checks if the response is grounded by the context provided |
-| [Guideline Adherence](https://uptrain-ai.github.io/uptrain/operators/language/GuidelineAdherenceScore/) | Checks if the response or the LLM adhers to the given guideline or not  |
-| [Response Completeness](https://uptrain-ai.github.io/uptrain/operators/language/ResponseCompleteness/) | Grades how if the response completes the given question  |
-| [Response Completeness wrt Context](https://uptrain-ai.github.io/uptrain/operators/language/ResponseCompletenessWrtContext/) | Grades how complete the response was for the question specified with respect to the information present in the context |
-| [Context Relevance](https://uptrain-ai.github.io/uptrain/operators/language/ContextRelevance/) | Evaluates if the context has all the information to answer the given question |
-| [Response Relevance](https://uptrain-ai.github.io/uptrain/operators/language/ResponseRelevance/) | Grades how relevant the generated response is or if it has any additional irrelevant information for the question asked. |
-| [Tone Critique](https://uptrain-ai.github.io/uptrain/operators/language/ToneCritique/) | Assesses if the tone of machine-generated responses matches with the desired persona. |
-| [Language Critique](https://uptrain-ai.github.io/uptrain/operators/language/LanguageCritique/) | Scores machine generated responses in a conversation. The response is evaluated on multiple aspects - fluence, politeness, grammar, and coherence. |
+| [Factual Accuracy](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/evaluate_factual_accuracy.ipynb) | Checks if the response is grounded by the context provided |
+| [Response Completeness](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/evaluate_response_completeness.ipynb) | Grades how if the response completes the given question  |
+| [Response Completeness wrt Context](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/evaluate_response_completeness_wrt_context.ipynb) | Grades how complete the response was for the question specified with respect to the information present in the context |
+| [Context Relevance](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/evaluate_context%20relevance.ipynb) | Evaluates if the context has all the information to answer the given question |
+| [Response Relevance](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/evaluate_response_relevance.ipynb) | Grades how relevant the generated response is or if it has any additional irrelevant information for the question asked. |
+| [Tone Critique](hhttps://github.com/uptrain-ai/uptrain/blob/main/examples/checks/evaluate_tone_critque.ipynb) | Assesses if the tone of machine-generated responses matches with the desired persona. |
+| [Language Critique](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/evaluate_language_critique.ipynb) | Scores machine generated responses in a conversation. The response is evaluated on multiple aspects - fluence, politeness, grammar, and coherence. |
+| [Response Conciseness](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/evaluate_response_conciseness.ipynb) | Grades how concise the generated response is or if it has any additional irrelevant information for the question asked. |
+| [Response Consistency](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/evaluate_response_consistency.ipynb) | Grades how consistent the response is with the question asked as well as with the context provided. |
+| [Guideline Adherence](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/evaluate_guideline_adherence.ipynb) | Grades how well the LLM adheres to a provided guideline when giving a response. |
+| [Conversation Satisfaction](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/evaluate_conversation_satisfaction.ipynb) | Measures the user’s satisfaction with the conversation with the LLM/AI assistant based on completeness and user’s acceptance. |
+| Response Matching | Operator to compare the llm-generated text with the gold (ideal) response using the defined score metric. |
 
 # Get started 🙌
 
