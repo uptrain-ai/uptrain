@@ -60,13 +60,10 @@ class GuidelineAdherenceScore(ColumnOp):
                     "guideline_name": self.guideline_name,
                     "response_schema": self.response_schema
                 })
-            for row in results:
-                row[self.col_out] = row[f"score_{self.guideline_name}_adherence"]
-                del row[f"score_{self.guideline_name}_adherence"]
                 
         except Exception as e:
             logger.error(f"Failed to run evaluation for `GuidelineAdherenceScore`: {e}")
             raise e
 
         assert results is not None
-        return {"output": data.with_columns(pl.from_dicts(results))}
+        return {"output": data.with_columns(pl.from_dicts(results).rename({f"score_{self.guideline_name}_adherence": self.col_out}))}
