@@ -54,12 +54,10 @@ class ResponseMatchingScore(ColumnOp):
                 "ResponseMatching", data_send, {
                     "type": self.method            
                 })
-            for row in results:
-                row[self.col_out] = row['score_response_match']
-                del row['score_response_match']
+
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ResponseMatchingScore`: {e}")
             raise e
 
         assert results is not None
-        return {"output": data.with_columns(pl.from_dicts(results))}
+        return {"output": data.with_columns(pl.from_dicts(results).rename({"score_response_match": self.col_out}))}
