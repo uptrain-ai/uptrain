@@ -7,6 +7,7 @@ from .checks import Check
 from uptrain.operators import Histogram
 from uptrain.operators import (
     ResponseFactualScore,
+    ValidResponseScore,
     ResponseCompleteness,
     ResponseRelevance,
     ResponseConsistency,
@@ -65,6 +66,13 @@ CheckResponseConsistency = lambda: Check(
     operators=[ResponseConsistency()],
     plots=[Histogram(x="score_response_consistency")],
 )
+
+CheckValidResponse = lambda: Check(
+    name="valid_response_score",
+    operators=[ValidResponseScore()],
+    plots=[Histogram(x="score_valid_response")],
+)
+
 
 CheckResponseConciseness = lambda: Check(
     name="response_conciseness_score",
