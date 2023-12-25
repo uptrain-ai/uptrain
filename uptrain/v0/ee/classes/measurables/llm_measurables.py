@@ -22,6 +22,7 @@ class GrammerScoreMeasurable(Measurable):
             openai.api_key = openai_key
         else:
             raise Exception("OpenAI key not found in config")
+        self.client = openai.OpenAI()
 
     def _compute(self, inputs=None, outputs=None, gts=None, extra=None):
         if self.feature_name:
@@ -44,8 +45,7 @@ class GrammerScoreMeasurable(Measurable):
         return vals
     
     def getGrammaticalCorrectnessScore(self, summary):
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+        response = self.client.chat.completions.create(model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are a grammatical correctnes evaluator who only gives only a number and no explanation."},
                 {"role": "user", "content": "Score following sentence on grammatical correctness on a scale of 0 to 100: \n\n {statement}".format(statement=summary)},

@@ -48,6 +48,7 @@ class Settings(BaseSettings):
 
     # LLM model to run the evaluations
     model: str = "gpt-3.5-turbo"
+    seed:  t.Union[int, None] = None
 
     # allow additional fields as needed by different operators
     class Config:

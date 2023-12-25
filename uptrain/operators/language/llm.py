@@ -20,9 +20,10 @@ openai = lazy_load_dep("openai", "openai")
 aiolimiter = lazy_load_dep("aiolimiter", "aiolimiter>=1.1")
 tqdm_asyncio = lazy_load_dep("tqdm.asyncio", "tqdm>=4.0")
 
-if t.TYPE_CHECKING:
-    import openai
-    import openai.error
+
+from openai import AsyncOpenAI
+import openai
+#import openai.error
 
 
 # -----------------------------------------------------------
@@ -50,7 +51,6 @@ async def async_process_payload(
     messages = payload.data["messages"]
     total_chars = sum(len(msg["role"]) + len(msg["content"]) for msg in messages)
     total_tokens = total_chars // 3  # average token length is 3, conservatively
-
     await rpm_limiter.acquire(1)
     # TODO: we should also count the response tokens, but this is a good baseline
     # since our use-case is evaluations mostly, not generation
@@ -59,9 +59,8 @@ async def async_process_payload(
     for count in range(max_retries):  # failed requests don't count towards rate limit
         try:
             if payload.data["model"].startswith("gpt"):
-                payload.response = await openai.ChatCompletion.acreate(
-                    **payload.data, request_timeout=17
-                )
+                aclient = AsyncOpenAI()
+                payload.response = await aclient.chat.completions.create(**payload.data, timeout=17) 
             else:
                 litellm = lazy_load_dep("litellm", "litellm")
 
@@ -76,19 +75,19 @@ async def async_process_payload(
                     exc,
                     (   
                         litellm.llms.azure.AzureOpenAIError,
-                        openai.error.ServiceUnavailableError,
-                        openai.error.APIConnectionError,
-                        openai.error.RateLimitError,
-                        openai.error.APIError,
-                        openai.error.Timeout,
-                        openai.error.TryAgain,
+                        openai.ServiceUnavailableError,
+                        openai.APIConnectionError,
+                        openai.RateLimitError,
+                        openai.APIError,
+                        openai.Timeout,
+                        openai.TryAgain,
                     ),
                 )
                 and count < max_retries - 1
             ):
                 await asyncio.sleep(random.uniform(5, 30) * count + 60)
             elif (
-                isinstance(exc, openai.error.InvalidRequestError)
+                isinstance(exc, openai.InvalidRequestError)
                 and "context_length" in exc.code
                 and count < max_retries - 1
             ):

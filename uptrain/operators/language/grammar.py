@@ -40,11 +40,11 @@ class GrammarScore(ColumnOp):
 
     def setup(self, settings: t.Optional[Settings] = None):
         self._api_client = LLMMulticlient(settings=settings)
+        self._settings = settings
         return self
 
     def _make_payload(self, id: t.Any, text: str) -> Payload:
-        return Payload(
-            data={
+        data={
                 "model": "gpt-3.5-turbo",
                 "messages": [
                     {
@@ -58,7 +58,12 @@ class GrammarScore(ColumnOp):
                         ),
                     },
                 ],
-            },
+        }
+        if self._settings.seed is not None:
+            data["seed"] = self._settings.seed
+            
+        return Payload(
+            data = data,
             metadata={"index": id},
         )
 
@@ -81,7 +86,7 @@ class GrammarScore(ColumnOp):
                 )
                 results.append((idx, None))
             else:
-                resp_text = res.response["choices"][0]["message"]["content"]
+                resp_text = res.response.choices[0].message.content
                 number = int(re.findall(r"\d+", resp_text)[0])
                 results.append((idx, number))
 
