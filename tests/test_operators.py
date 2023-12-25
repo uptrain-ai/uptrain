@@ -196,42 +196,25 @@ def test_table_operator():
 # uptrain.operators.chart
 def test_chart_operators():
     import polars as pl
-    from uptrain.operators import LineChart, ScatterPlot, BarChart, Histogram, MultiPlot, CustomPlotlyChart
+    from uptrain.operators import (
+        LineChart,
+        ScatterPlot,
+        BarChart,
+        Histogram,
+        MultiPlot,
+        CustomPlotlyChart,
+    )
 
     # Create a DataFrame
     df = pl.DataFrame({"x": [1, 2, 3, 4, 5], "y": [10, 20, 15, 25, 30]})
 
     multiplot = MultiPlot(
         charts=[
-            LineChart(
-                x="x",
-                y="y",
-                title="Line Chart",
-                description ="Line Chart"
-            ),
-            ScatterPlot(
-                x="x",
-                y="y",
-                title="Scatter Plot",
-                description ="Scatter Plot"
-            ),
-            BarChart(
-                x="x",
-                y="y",
-                title="Bar Chart",
-                description ="Bar Chart"
-            ),
-            Histogram(
-                x="x",
-                title="Histogram",
-                description = "Histogram"
-            ),
-            CustomPlotlyChart(
-                kind="funnel",
-                x="x",
-                y="y",
-                title="Funnel Chart"
-            )
+            LineChart(x="x", y="y", title="Line Chart", description="Line Chart"),
+            ScatterPlot(x="x", y="y", title="Scatter Plot", description="Scatter Plot"),
+            BarChart(x="x", y="y", title="Bar Chart", description="Bar Chart"),
+            Histogram(x="x", title="Histogram", description="Histogram"),
+            CustomPlotlyChart(kind="funnel", x="x", y="y", title="Funnel Chart"),
         ],
         title="MultiPlot",
     )
@@ -269,6 +252,35 @@ def test_rouge_operator():
     scores = rouge_op.run(df)["output"]
 
     # Print the Rouge-L scores
+    print(scores)
+
+
+# uptrain.operators.language.bleu
+def test_bleu_operator():
+    import polars as pl
+    from uptrain.operators import BLEUScore
+
+    # Create a DataFrame
+    df = pl.DataFrame(
+        {
+            "text_generated": [
+                "This is the generated text.",
+                "Another generated sentence.",
+            ],
+            "text_source": [
+                "This is the original source text.",
+                "This is a different source text.",
+            ],
+        }
+    )
+
+    # Create an instance of the RougeScore class
+    bleu_op = BLEUScore()
+
+    # Calculate the BLEU scores
+    scores = bleu_op.run(df)["output"]
+
+    # Print the BLEU scores
     print(scores)
 
 
@@ -350,4 +362,3 @@ def test_text_comparison_operator():
 
     # Print the comparison results
     print(comparison)
-
