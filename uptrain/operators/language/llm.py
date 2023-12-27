@@ -71,7 +71,7 @@ async def async_process_payload(
                 )
             break
         except Exception as exc:
-            logger.error(f"Error when sending request to LLM API: {type(exc)} {exc}")
+            logger.error(f"Error when sending request to LLM API: {exc}")
             if (
                 isinstance(
                     exc,
