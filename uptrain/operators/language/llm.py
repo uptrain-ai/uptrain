@@ -46,6 +46,7 @@ async def async_process_payload(
     payload: Payload,
     rpm_limiter: aiolimiter.AsyncLimiter,
     tpm_limiter: aiolimiter.AsyncLimiter,
+    aclient: AsyncOpenAI,
     max_retries: int,
 ) -> Payload:
     messages = payload.data["messages"]
@@ -59,7 +60,6 @@ async def async_process_payload(
     for count in range(max_retries):  # failed requests don't count towards rate limit
         try:
             if payload.data["model"].startswith("gpt"):
-                aclient = AsyncOpenAI()
                 payload.response = await aclient.chat.completions.create(**payload.data, timeout=17) 
             else:
                 litellm = lazy_load_dep("litellm", "litellm")
@@ -129,6 +129,7 @@ class LLMMulticlient:
                 openai.api_key = settings.check_and_get("openai_api_key")  # type: ignore
             self._rpm_limit = settings.check_and_get("rpm_limit")
             self._tpm_limit = settings.check_and_get("tpm_limit")
+        self.aclient = AsyncOpenAI()
 
     def fetch_responses(self, input_payloads: list[Payload]) -> list[Payload]:
         try:
@@ -153,7 +154,7 @@ class LLMMulticlient:
         rpm_limiter = aiolimiter.AsyncLimiter(self._rpm_limit, time_period=60)
         tpm_limiter = aiolimiter.AsyncLimiter(self._tpm_limit, time_period=60)
         async_outputs = [
-            async_process_payload(data, rpm_limiter, tpm_limiter, self._max_tries)
+            async_process_payload(data, rpm_limiter, tpm_limiter, self.aclient, self._max_tries)
             for data in input_payloads
         ]
         output_payloads = await tqdm_asyncio.tqdm_asyncio.gather(*async_outputs)
