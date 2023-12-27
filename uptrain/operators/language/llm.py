@@ -7,6 +7,7 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 import random
 import typing as t
+import litellm
 
 from loguru import logger
 from pydantic import BaseModel, Field
@@ -70,11 +71,12 @@ async def async_process_payload(
                 )
             break
         except Exception as exc:
-            logger.error(f"Error when sending request to LLM API: {exc}")
+            logger.error(f"Error when sending request to LLM API: {type(exc)} {exc}")
             if (
                 isinstance(
                     exc,
                     (
+                        litellm.RateLimitError,
                         openai.error.ServiceUnavailableError,
                         openai.error.APIConnectionError,
                         openai.error.RateLimitError,
