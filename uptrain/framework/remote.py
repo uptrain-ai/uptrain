@@ -93,7 +93,7 @@ class APIClient:
         self.base_url = server_url.rstrip("/") + "/api/public"
         self.client = httpx.Client(
             headers={"uptrain-access-token": api_key},
-            timeout=httpx.Timeout(500, connect=5),
+            timeout=httpx.Timeout(1500, connect=5),
         )
 
     def check_auth(self):
@@ -360,18 +360,18 @@ class APIClient:
             params['uptrain_settings'] = self.settings.dict()
 
         NUM_TRIES = 3
-        for i in range(0, len(full_dataset), 100):
+        for i in range(0, len(full_dataset), 20):
             response_json = None
             for try_num in range(NUM_TRIES):
                 try:
                     logger.info(
-                        f"Sending evaluation request for rows {i} to <{i+100} to the Uptrain server"
+                        f"Sending evaluation request for rows {i} to <{i+20} to the Uptrain server"
                     )
                     response = self.client.post(
                         url,
                         json={
                             "eval_name": eval_name,
-                            "dataset": full_dataset[i : i + 100],
+                            "dataset": full_dataset[i : i + 20],
                             "params": params,
                         },
                     )
@@ -436,7 +436,7 @@ class APIClient:
                 req_attrs.update([schema.question, schema.response])
             elif m in [Evals.CONTEXT_RELEVANCE]:
                 req_attrs.update([schema.question, schema.context])
-            elif m == Evals.CRITIQUE_LANGUAGE or isinstance(m, CritiqueTone) or isinstance(m, GuidelineAdherence):
+            elif m in [Evals.VALID_RESPONSE, Evals.CRITIQUE_LANGUAGE] or isinstance(m, CritiqueTone) or isinstance(m, GuidelineAdherence):
                 req_attrs.update([schema.response])
             elif isinstance(m, ResponseMatching):
                 req_attrs.update([schema.response, schema.ground_truth])

@@ -91,12 +91,9 @@ class ToneCritique(ColumnOp):
             results = self._api_client.evaluate(
                 "critique_tone", data_send, {"llm_persona": self.llm_persona}
             )
-            for row in results:
-                row[self.col_out] = row['score_tone']
-                del row['score_tone']
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ToneCritique`: {e}")
             raise e
 
         assert results is not None
-        return {"output": data.with_columns(pl.from_dicts(results))}
+        return {"output": data.with_columns(pl.from_dicts(results).rename({"score_tone": self.col_out}))}

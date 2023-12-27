@@ -77,6 +77,7 @@ async def async_process_payload(
                     exc,
                     (
                         litellm.RateLimitError,
+                        litellm.llms.azure.AzureOpenAIError,
                         openai.error.ServiceUnavailableError,
                         openai.error.APIConnectionError,
                         openai.error.RateLimitError,

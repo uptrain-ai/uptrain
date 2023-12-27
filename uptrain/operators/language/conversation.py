@@ -52,12 +52,10 @@ class ConversationSatisfactionScore(ColumnOp):
                     "user_persona": self.user_persona,
                     "llm_persona": self.llm_persona
                 })
-            for row in results:
-                row[self.col_out] = row['score_conversation_satisfaction']
-                del row['score_conversation_satisfaction']
+    
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ConversationSatisfactionScore`: {e}")
             raise e
 
         assert results is not None
-        return {"output": data.with_columns(pl.from_dicts(results))}
+        return {"output": data.with_columns(pl.from_dicts(results).rename({"score_conversation_satisfaction": self.col_out}))}
