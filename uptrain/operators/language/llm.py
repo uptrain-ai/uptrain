@@ -129,7 +129,7 @@ class LLMMulticlient:
                 openai.api_key = settings.check_and_get("openai_api_key")  # type: ignore
             self._rpm_limit = settings.check_and_get("rpm_limit")
             self._tpm_limit = settings.check_and_get("tpm_limit")
-        self.aclient = AsyncOpenAI()
+            self.aclient = AsyncOpenAI()
 
     def fetch_responses(self, input_payloads: list[Payload]) -> list[Payload]:
         try:
