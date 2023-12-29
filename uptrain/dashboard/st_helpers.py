@@ -29,13 +29,18 @@ CONSOLIDATED_CHECK = Check(
 )
 
 
-def st_setup_layout(title: str = "UpTrain Dashboard"):
+def st_setup_layout(title: str="UpTrain Dashboard", page_icon: str="https://github.com/uptrain-ai/uptrain/raw/dashboard/uptrain/core/classes/logging/uptrain_logo_icon.png"):
     st.set_page_config(
-        page_title="UpTrain Dashboard",
+        page_title=title,
         layout="wide",
-        page_icon="https://github.com/uptrain-ai/uptrain/raw/dashboard/uptrain/core/classes/logging/uptrain_logo_icon.png",
+        page_icon=page_icon,
     )  # TODO: find another source for the icon
-    st.title(title)
+    # Display icon
+    st.markdown(
+        f'<div style="float: left;"><img src="{page_icon}" width="100" height="100"></div>'
+        f'<div style="margin-left: 120px;"><h1>{title}</h1></div>',
+        unsafe_allow_html=True,
+    )
     st_style = """<style> footer {visibility: hidden;} </style>"""
     st.markdown(st_style, unsafe_allow_html=True)
 
