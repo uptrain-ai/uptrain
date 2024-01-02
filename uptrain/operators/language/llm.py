@@ -22,6 +22,7 @@ tqdm_asyncio = lazy_load_dep("tqdm.asyncio", "tqdm>=4.0")
 
 
 from openai import AsyncOpenAI
+from openai import AsyncAzureOpenAI
 import openai
 #import openai.error
 
@@ -46,7 +47,7 @@ async def async_process_payload(
     payload: Payload,
     rpm_limiter: aiolimiter.AsyncLimiter,
     tpm_limiter: aiolimiter.AsyncLimiter,
-    aclient: AsyncOpenAI,
+    aclient: t.Union[AsyncOpenAI, AsyncAzureOpenAI, None],
     max_retries: int,
 ) -> Payload:
     messages = payload.data["messages"]
@@ -59,7 +60,7 @@ async def async_process_payload(
 
     for count in range(max_retries):  # failed requests don't count towards rate limit
         try:
-            if payload.data["model"].startswith("gpt"):
+            if aclient is not None:
                 payload.response = await aclient.chat.completions.create(**payload.data, timeout=17) 
             else:
                 litellm = lazy_load_dep("litellm", "litellm")
@@ -75,12 +76,11 @@ async def async_process_payload(
                     exc,
                     (   
                         litellm.llms.azure.AzureOpenAIError,
-                        openai.ServiceUnavailableError,
                         openai.APIConnectionError,
+                        openai.APITimeoutError,
                         openai.RateLimitError,
                         openai.APIError,
-                        openai.Timeout,
-                        openai.TryAgain,
+                        openai.Timeout
                     ),
                 )
                 and count < max_retries - 1
@@ -124,10 +124,19 @@ class LLMMulticlient:
         # TODO: consult for accurate limits - https://platform.openai.com/account/rate-limits
         self._rpm_limit = 200
         self._tpm_limit = 90_000
+        self.aclient = None
         if settings is not None:
             if settings.openai_api_key is not None:
                 openai.api_key = settings.check_and_get("openai_api_key")  # type: ignore
                 self.aclient = AsyncOpenAI()
+            elif settings.check_and_get("azure_api_key") is not None:
+                self.aclient = AsyncAzureOpenAI(
+                    api_key = settings.azure_api_key,  
+                    api_version=settings.azure_api_version,
+                    azure_endpoint = settings.azure_api_base
+                )
+
+
             self._rpm_limit = settings.check_and_get("rpm_limit")
             self._tpm_limit = settings.check_and_get("tpm_limit")
 
