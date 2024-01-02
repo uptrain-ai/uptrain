@@ -14,7 +14,6 @@ from uptrain.framework import Settings
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
 from uptrain.operators.base import *
-from uptrain.operators.language.openai_evals import OpenaiEval
 from uptrain.operators.language.llm import LLMMulticlient, Payload
 # from evals.elsuite.modelgraded.classify_utils import (
 #     # append_answer_prompt,
@@ -192,6 +191,7 @@ class OpenAIGradeScore(ColumnOp):
                 pl.col(self.col_in_completion).alias("completion"),
             ]
         )
+        from uptrain.operators.language.openai_evals import OpenaiEval
         grading_op = OpenaiEval(
             bundle_path="",
             completion_name="gpt-3.5-turbo",
@@ -235,6 +235,7 @@ class ModelGradeScore(ColumnOp):
 
     def setup(self, settings: Settings):
         self._api_client = LLMMulticlient(settings=settings)
+        self._settings = settings
         self.model = settings.model
         if self.eval_type != "cot_classify":
             raise Exception("Only eval_type: cot_classify is supported for model grading check")
@@ -255,10 +256,16 @@ class ModelGradeScore(ColumnOp):
         return self
 
     def _make_payload(self, id: t.Any, messages: list[dict]) -> Payload:
-        return Payload(
-            data={"model": self.model, "messages": messages, "temperature": 0.2},
-            metadata={"index": id},
-        )
+        if self._settings.seed is None:
+            return Payload(
+                data={"model": self.model, "messages": messages, "temperature": 0.2},
+                metadata={"index": id},
+            )
+        else:
+            return Payload(
+                data={"model": self.model, "messages": messages, "temperature": 0.2, "seed": self._settings.seed},
+                metadata={"index": id},
+            )
 
     def get_choice_via_llm(self, text: str, grading_prompt_template: str) -> str:
         """Queries LLM to get score from the text"""
@@ -276,7 +283,7 @@ class ModelGradeScore(ColumnOp):
         output_payload = self._api_client.fetch_responses([payload])[0]
 
         try:
-            score = output_payload.response["choices"][0]["message"]["content"]
+            score = output_payload.response.choices[0].message.content
             float(score)
             return score
         except:
@@ -375,7 +382,7 @@ class ModelGradeScore(ColumnOp):
                 results.append((idx, None, None))
             else:
                 try:
-                    resp_text = res.response["choices"][0]["message"]["content"]
+                    resp_text = res.response.choices[0].message.content
                     choice = self.get_choice(
                         text=resp_text,
                         eval_type=self.eval_type,

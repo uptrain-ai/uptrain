@@ -127,17 +127,29 @@ class TextCompletion(TransformOp):
 
     def setup(self, settings: Settings):
         self._api_client = LLMMulticlient(settings=settings)
+        self._settings = settings
         return self
 
     def _make_payload(self, id: t.Any, text: str, model: str) -> Payload:
-        return Payload(
-            data={
-                "model": model,
-                "messages": [{"role": "user", "content": text}],
-                "temperature": self.temperature,
-            },
-            metadata={"index": id},
-        )
+        if self._settings.seed is not None:
+            return Payload(
+                data={
+                    "model": model,
+                    "messages": [{"role": "user", "content": text}],
+                    "temperature": self.temperature,
+                    "seed" : self._settings.seed
+                },
+                metadata={"index": id},
+            )
+        else:
+            return Payload(
+                data={
+                    "model": model,
+                    "messages": [{"role": "user", "content": text}],
+                    "temperature": self.temperature
+                },
+                metadata={"index": id},
+            )
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         prompt_ser = data.get_column(self.col_in_prompt)
@@ -160,7 +172,7 @@ class TextCompletion(TransformOp):
                 )
                 results.append((idx, None))
             else:
-                resp_text = res.response["choices"][0]["message"]["content"]
+                resp_text = res.response.choices[0].message.content
                 results.append((idx, resp_text))
 
         output_text = pl.Series(
@@ -197,18 +209,30 @@ class TopicGenerator(ColumnOp):
 
     def setup(self, settings: Settings):
         self._api_client = LLMMulticlient(settings=settings)
+        self._settings = settings
         self.model = settings.model
         return self
 
     def _make_payload(self, id: t.Any, text: str, model: str) -> Payload:
-        return Payload(
-            data={
-                "model": model,
-                "messages": [{"role": "user", "content": text}],
-                "temperature": self.temperature,
-            },
-            metadata={"index": id},
-        )
+        if self._settings.seed is not None:
+            return Payload(
+                data={
+                    "model": model,
+                    "messages": [{"role": "user", "content": text}],
+                    "temperature": self.temperature,
+                    "seed" : self._settings.seed
+                },
+                metadata={"index": id},
+            )
+        else:
+            return Payload(
+                data={
+                    "model": model,
+                    "messages": [{"role": "user", "content": text}],
+                    "temperature": self.temperature
+                },
+                metadata={"index": id},
+            )
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
 
@@ -277,7 +301,7 @@ class TopicGenerator(ColumnOp):
                     )
                     results.append((idx, None))
                 else:
-                    resp_text = res.response["choices"][0]["message"]["content"]
+                    resp_text = res.response.choices[0].message.content
                     results.append((idx, resp_text))
             
             for index, resp_text in results:

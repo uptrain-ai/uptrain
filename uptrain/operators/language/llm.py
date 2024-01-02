@@ -21,9 +21,11 @@ litellm = lazy_load_dep("litellm", "litellm")
 aiolimiter = lazy_load_dep("aiolimiter", "aiolimiter>=1.1")
 tqdm_asyncio = lazy_load_dep("tqdm.asyncio", "tqdm>=4.0")
 
-if t.TYPE_CHECKING:
-    import openai
-    import openai.error
+
+from openai import AsyncOpenAI
+from openai import AsyncAzureOpenAI
+import openai
+#import openai.error
 
 
 # -----------------------------------------------------------
@@ -46,12 +48,12 @@ async def async_process_payload(
     payload: Payload,
     rpm_limiter: aiolimiter.AsyncLimiter,
     tpm_limiter: aiolimiter.AsyncLimiter,
+    aclient: t.Union[AsyncOpenAI, AsyncAzureOpenAI, None],
     max_retries: int,
 ) -> Payload:
     messages = payload.data["messages"]
     total_chars = sum(len(msg["role"]) + len(msg["content"]) for msg in messages)
     total_tokens = total_chars // 3  # average token length is 3, conservatively
-
     await rpm_limiter.acquire(1)
     # TODO: we should also count the response tokens, but this is a good baseline
     # since our use-case is evaluations mostly, not generation
@@ -59,10 +61,8 @@ async def async_process_payload(
 
     for count in range(max_retries):  # failed requests don't count towards rate limit
         try:
-            if payload.data["model"].startswith("gpt"):
-                payload.response = await openai.ChatCompletion.acreate(
-                    **payload.data, request_timeout=17
-                )
+            if aclient is not None:
+                payload.response = await aclient.chat.completions.create(**payload.data, timeout=17) 
             else:
                 payload.response = await litellm.acompletion(
                     **payload.data,
@@ -76,19 +76,18 @@ async def async_process_payload(
                     (
                         litellm.RateLimitError,
                         litellm.llms.azure.AzureOpenAIError,
-                        openai.error.ServiceUnavailableError,
-                        openai.error.APIConnectionError,
-                        openai.error.RateLimitError,
-                        openai.error.APIError,
-                        openai.error.Timeout,
-                        openai.error.TryAgain,
+                        openai.APIConnectionError,
+                        openai.APITimeoutError,
+                        openai.RateLimitError,
+                        openai.APIError,
+                        openai.Timeout
                     ),
                 )
                 and count < max_retries - 1
             ):
                 await asyncio.sleep(random.uniform(5, 30) * count + 60)
             elif (
-                isinstance(exc, openai.error.InvalidRequestError)
+                isinstance(exc, openai.InvalidRequestError)
                 and "context_length" in exc.code
                 and count < max_retries - 1
             ):
@@ -125,9 +124,19 @@ class LLMMulticlient:
         # TODO: consult for accurate limits - https://platform.openai.com/account/rate-limits
         self._rpm_limit = 200
         self._tpm_limit = 90_000
+        self.aclient = None
         if settings is not None:
             if settings.openai_api_key is not None:
                 openai.api_key = settings.check_and_get("openai_api_key")  # type: ignore
+                self.aclient = AsyncOpenAI()
+            elif settings.check_and_get("azure_api_key") is not None:
+                self.aclient = AsyncAzureOpenAI(
+                    api_key = settings.azure_api_key,  
+                    api_version=settings.azure_api_version,
+                    azure_endpoint = settings.azure_api_base
+                )
+
+
             self._rpm_limit = settings.check_and_get("rpm_limit")
             self._tpm_limit = settings.check_and_get("tpm_limit")
 
@@ -154,7 +163,7 @@ class LLMMulticlient:
         rpm_limiter = aiolimiter.AsyncLimiter(self._rpm_limit, time_period=60)
         tpm_limiter = aiolimiter.AsyncLimiter(self._tpm_limit, time_period=60)
         async_outputs = [
-            async_process_payload(data, rpm_limiter, tpm_limiter, self._max_tries)
+            async_process_payload(data, rpm_limiter, tpm_limiter, self.aclient, self._max_tries)
             for data in input_payloads
         ]
         output_payloads = await tqdm_asyncio.tqdm_asyncio.gather(*async_outputs)

@@ -35,11 +35,11 @@ EXTRA_PACKAGES = {
         "rouge-score",
         # "sentence-transformers",
         # "InstructorEmbedding",
-        "openai==0.28",
+        "openai==1.6.1",
         "llama-index>=0.8.0",
-        "evals @ git+https://github.com/openai/evals.git@305b237cdb3884c7ddb6a5d12cb184a83551fcba",
+        "evals @ git+https://github.com/openai/evals.git@main",
         "replicate",
-        "litellm<=0.14",
+        "litellm==1.15.7",
     ],
     # Add packages here
     "full": [
@@ -54,11 +54,11 @@ EXTRA_PACKAGES = {
         "rouge-score",
         "sentence-transformers",
         "InstructorEmbedding",
-        "openai==0.28",
+        "openai==1.6.1",
         "llama-index>=0.8.0",
-        "evals @ git+https://github.com/openai/evals.git@305b237cdb3884c7ddb6a5d12cb184a83551fcba",
+        "evals @ git+https://github.com/openai/evals.git@main",
         "replicate",
-        "litellm<=0.14",
+        "litellm==1.15.7",
     ],
 }
 
