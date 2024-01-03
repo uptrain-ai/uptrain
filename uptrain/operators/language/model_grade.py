@@ -258,29 +258,41 @@ class ModelGradeScore(ColumnOp):
         """Queries LLM to get score from the text"""
 
         prompt = f"""
-        Extract the choice from the given text. The available choices and the selected choice is present in the context.
+        You are given a set of choices, context explaining the meaning of these choices, and a response where a single choice is selected from the given set.
+        Extract the selected choice from the given set.
 
+        Example. 
+        Set of choices: ['A', 'B', 'C']
+        Context: You are an analytical LLM which evaluates the language quality of given text.
+            Please select among the three choices:
+            A. Language quality is great
+            B. Language quality is average.
+            C. Language quality is poor.
+        Response: The given text is poorly written with a lot of grammatical mistakes. Hence, the selected choice is C. language quality is poor.
+        [Choice]: C
+
+        Task Data:
+        Set of choices: {self.choice_strings}
         Context: {grading_prompt_template}
-        Text: {text}
+        Response: {text}
 
-        Score:
+        OUTPUT THE SELECTED CHOICE IN THE NEW LINE as [Choice]: 'selected choice' 
         """
 
         payload = self._make_payload(0, [{"role": "user", "content": prompt}])
         output_payload = self._api_client.fetch_responses([payload])[0]
+        print(output_payload.response["choices"][0]["message"]["content"])
 
-        try:
-            score = output_payload.response["choices"][0]["message"]["content"]
-            if score.upper() in self.choice_scores:
-                score = self.choice_scores[score.upper()]
-            elif score.lower() in self.choice_scores:
-                score = self.choice_scores[score.lower()]
-            #float(score)
-            
-            return float(score)
-        except:
-            return str(0.0)
-
+        score = 1.0
+        scores_matches = re.findall(r"(\[Choice\]\: [a-zA-Z]|Choice: [a-zA-Z]|Choice is [a-zA-Z]|\[Choice\]\: \'[a-zA-Z]|Choice: \'[a-zA-Z]|Choice is \'[a-zA-Z]|\[choice\]\: [a-zA-Z]|choice: [a-zA-Z]|choice is [a-zA-Z]|\[choice\]\: \'[a-zA-Z]|choice: \'[a-zA-Z]|choice is \'[a-zA-Z])", output_payload.response["choices"][0]["message"]["content"])
+        if len(scores_matches)!=0:
+            score = str(scores_matches[0].split(' ')[-1])
+            if len(score)==1:
+                if score.upper() in self.choice_scores:
+                    score = self.choice_scores[score.upper()]
+                elif score.lower() in self.choice_scores:
+                    score = self.choice_scores[score.lower()]
+        return score
 
     def get_choice(
         self, text: str, eval_type: str, match_fn: Union[str, Callable], choice_strings: Iterable[str]
@@ -384,7 +396,8 @@ class ModelGradeScore(ColumnOp):
                     )
                     score = float(choice)
                     '''
-                    scores_matches = re.findall(r"(\[Choice\]\: [a-zA-Z]|Choice: [a-zA-Z]|choice is [a-zA-Z])", resp_text)
+
+                    scores_matches = re.findall(r"(\[Choice\]\: [a-zA-Z]|Choice: [a-zA-Z]|Choice is [a-zA-Z]|\[Choice\]\: \'[a-zA-Z]|Choice: \'[a-zA-Z]|Choice is \'[a-zA-Z]|\[choice\]\: [a-zA-Z]|choice: [a-zA-Z]|choice is [a-zA-Z]|\[choice\]\: \'[a-zA-Z]|choice: \'[a-zA-Z]|choice is \'[a-zA-Z])", resp_text)
                     if len(scores_matches)!=0:
                         score = str(scores_matches[0].split(' ')[-1])
                         if len(score)==1:
@@ -399,6 +412,11 @@ class ModelGradeScore(ColumnOp):
                     else:
                         score = self.get_choice_via_llm(resp_text, self.grading_prompt_template)
 
+                    try:
+                        float(score)
+                    except:
+                        score = 1.0
+                
                     results.append((idx, score, resp_text))
                 except Exception as e:
                     logger.error(
