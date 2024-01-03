@@ -129,7 +129,9 @@ class LLMMulticlient:
             if settings.openai_api_key is not None:
                 openai.api_key = settings.check_and_get("openai_api_key")  # type: ignore
                 self.aclient = AsyncOpenAI()
-            elif settings.check_and_get("azure_api_key") is not None:
+
+            if settings.model.startswith("azure") and settings.check_and_get("azure_api_key") is not None:
+                settings.model = settings.model.replace("azure/", "")
                 self.aclient = AsyncAzureOpenAI(
                     api_key = settings.azure_api_key,  
                     api_version=settings.azure_api_version,
