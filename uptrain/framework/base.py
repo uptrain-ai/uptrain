@@ -47,7 +47,7 @@ class Settings(BaseSettings):
     embedding_model_api_token: str = Field(None, env="EMBEDDING_MODEL_API_TOKEN")
 
     # LLM model to run the evaluations
-    model: str = "gpt-3.5-turbo"
+    model: str = "gpt-3.5-turbo-1106"
     seed:  t.Union[int, None] = None
 
     # allow additional fields as needed by different operators
