@@ -80,8 +80,8 @@ async def async_process_payload(
                         openai.APITimeoutError,
                         openai.RateLimitError,
                         openai.InternalServerError,
-                        # openai.APIError,
-                        # openai.Timeout
+                        openai.APIError,
+                        openai.Timeout
                     ),
                 )
                 and count < max_retries - 1
