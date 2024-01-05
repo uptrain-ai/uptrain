@@ -6,6 +6,8 @@ from __future__ import annotations
 import typing as t
 import os
 import copy 
+import re
+
 
 from loguru import logger
 import polars as pl
@@ -44,7 +46,8 @@ You are also given scores for each choice as {choice_scores}. {choice_scores_tex
 
 First, write out in a step by step manner your reasoning to be sure that your conclusion is correct. Avoid simply stating the correct answer at the outset.
 Then print only the score from {scores_text} associated to the correct answer in a separate line. Finally repeat the same score on a new line.
-Reasoning:"""
+Reasoning:""",
+    "tot_classify": ""
 }
 
 def get_choice_score(
@@ -227,7 +230,7 @@ class ModelGradeScore(ColumnOp):
     """
 
     grading_prompt_template: str
-    eval_type: t.Literal["cot_classify", "classify", "classify_cot"] = "cot_classify"
+    eval_type: t.Literal["cot_classify", "classify", "classify_cot", 'tot_classify'] = "cot_classify"
     choice_strings: list[str]
     choice_scores: dict[str, float]  #t.Union[dict[str, float], dict[str, list[float]]]
     context_vars: dict[str, str]
@@ -237,8 +240,8 @@ class ModelGradeScore(ColumnOp):
         self._api_client = LLMMulticlient(settings=settings)
         self._settings = settings
         self.model = settings.model
-        if self.eval_type != "cot_classify":
-            raise Exception("Only eval_type: cot_classify is supported for model grading check")
+        if not (self.eval_type in ["cot_classify", "tot_classify"]):
+            raise Exception("Only eval_type: cot_classify and tot_classify is supported for model grading check")
         for choice, score in self.choice_scores.items():
             score = format(score, ".3f")
             if score[-1] == "0":
@@ -291,64 +294,90 @@ class ModelGradeScore(ColumnOp):
 
 
     def get_choice(
-        self, text: str, eval_type: str, match_fn: Union[str, Callable], choice_strings: Iterable[str]
+        self, text: str, eval_type: str, match_fn: Union[str, Callable], choice_strings: Iterable[str], choice_scores: dict = {}
     ) -> str:
         """Clean the answer string to a choice string to one of choice_strings. Return '__invalid__.' if no match."""
-        is_fn_extract_score = False
-        if match_fn == 'extract_score':
-            is_fn_extract_score = True
-        else:
-            if isinstance(match_fn, str):
-                match_fn = MATCH_FNS[match_fn]
-        lines = text.strip().split("\n")
-        if eval_type.startswith("cot_classify"):
-            lines = lines[::-1]  # reverse lines
-        for line in lines:
-            line = line.strip()
-            if not line:
-                continue
-            if is_fn_extract_score:
-                if "." in line:
-                    part_before_decimal = line.split(".")[0][::-1]
-                    prev_char = ""
-                    for char in part_before_decimal:
-                        new_char = char + prev_char
-                        try:
-                            float(new_char)
-                        except:
-                            break
-                        prev_char = new_char
-                    part_before_decimal = prev_char
+        if eval_type == "tot_classify":
+            score = ''
+            if len(score) == 0:
+                scores_matches = re.findall(r"(\[Choice\]\: [a-zA-Z]|Choice: [a-zA-Z]|choice is [a-zA-Z])", text)
+                if len(scores_matches)!=0:
+                    score = str(scores_matches[0].split(' ')[-1])
 
-                    part_after_decimal = line.split(".")[1]
-                    prev_char = ""
-                    for char in part_after_decimal:
-                        new_char = prev_char + char
-                        try:
-                            float(new_char)
-                        except:
-                            break
-                        prev_char = new_char
-                    part_after_decimal = prev_char
-                    choice = part_before_decimal + "." + part_after_decimal
-                    try:
-                        float(choice)
-                        if float(choice) > 1.0 or float(choice) < 0.0:
-                            return self.get_choice_via_llm(text, self.grading_prompt_template)
-                        return str(choice)
-                    except:
-                        return self.get_choice_via_llm(text, self.grading_prompt_template)
-                else:
-                    return self.get_choice_via_llm(text, self.grading_prompt_template)
+            if len(score) == 0:
+                scores_matches = re.findall(r"(\[Choice\]\: \([a-zA-Z]|Choice: \([a-zA-Z]|choice is \([a-zA-Z])", text)
+                if len(scores_matches)!=0:
+                    score = str(scores_matches[0].split(' (')[-1])
+
+            if len(score) == 0:
+                scores_matches = re.findall(r"(\[Argument\]\: \([a-zA-Z]|Argument: \([a-zA-Z]|argument is \([a-zA-Z])", text)
+                if len(scores_matches)!=0:
+                    score = str(scores_matches[0].split(' (')[-1])
+
+            if len(score) == 1:
+                if score.upper() in choice_scores:
+                    return choice_scores[score.upper()]
+                elif score.lower() in choice_scores:
+                    return choice_scores[score.lower()]
+
+            logging.warn(f"Choices {choice_strings} not parsable for {eval_type}: {text}")
+            return INVALID_STR
+        else:
+            is_fn_extract_score = False
+            if match_fn == 'extract_score':
+                is_fn_extract_score = True
             else:
-                line = "".join(c for c in line if c not in string.punctuation)
+                if isinstance(match_fn, str):
+                    match_fn = MATCH_FNS[match_fn]
+            lines = text.strip().split("\n")
+            if eval_type.startswith("cot_classify"):
+                lines = lines[::-1]  # reverse lines
+            for line in lines:
+                line = line.strip()
                 if not line:
                     continue
-                for choice in choice_strings:
-                    if match_fn(line, choice):
-                        return choice
-        logging.warn(f"Choices {choice_strings} not parsable for {eval_type}: {text}")
-        return INVALID_STR
+                if is_fn_extract_score:
+                    if "." in line:
+                        part_before_decimal = line.split(".")[0][::-1]
+                        prev_char = ""
+                        for char in part_before_decimal:
+                            new_char = char + prev_char
+                            try:
+                                float(new_char)
+                            except:
+                                break
+                            prev_char = new_char
+                        part_before_decimal = prev_char
+
+                        part_after_decimal = line.split(".")[1]
+                        prev_char = ""
+                        for char in part_after_decimal:
+                            new_char = prev_char + char
+                            try:
+                                float(new_char)
+                            except:
+                                break
+                            prev_char = new_char
+                        part_after_decimal = prev_char
+                        choice = part_before_decimal + "." + part_after_decimal
+                        try:
+                            float(choice)
+                            if float(choice) > 1.0 or float(choice) < 0.0:
+                                return self.get_choice_via_llm(text, self.grading_prompt_template)
+                            return str(choice)
+                        except:
+                            return self.get_choice_via_llm(text, self.grading_prompt_template)
+                    else:
+                        return self.get_choice_via_llm(text, self.grading_prompt_template)
+                else:
+                    line = "".join(c for c in line if c not in string.punctuation)
+                    if not line:
+                        continue
+                    for choice in choice_strings:
+                        if match_fn(line, choice):
+                            return choice
+            logging.warn(f"Choices {choice_strings} not parsable for {eval_type}: {text}")
+            return INVALID_STR
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         prompts = []
@@ -388,6 +417,7 @@ class ModelGradeScore(ColumnOp):
                         eval_type=self.eval_type,
                         match_fn="extract_score",
                         choice_strings=self.choice_strings,
+                        choice_scores = self.choice_scores
                     )
                     score = float(choice)
                     results.append((idx, score, resp_text))

@@ -12,6 +12,8 @@ class Evals(enum.Enum):
     RESPONSE_CONSISTENCY = "response_consistency"
     RESPONSE_CONCISENESS = "response_conciseness"
     VALID_RESPONSE = "valid_response"
+    RESPONSE_ALIGNMENT_WITH_SCENARIO = "response_alignment_with_scenario"
+    RESPONSE_SINCERITY_WITH_SCENARIO = "response_sincerity_with_scenario"
 
 
 class ParametricEval(pydantic.BaseModel):
