@@ -23,6 +23,8 @@ class DataSchema(pydantic.BaseModel):
     context: str = "context"
     ground_truth: str = "ground_truth"
     conversation: str = 'conversation'
+    scenario: str = "scenario"
+    objective: str = "objective"
 
 
 def raise_or_return(response: httpx.Response):
@@ -438,6 +440,8 @@ class APIClient:
                 req_attrs.update([schema.question, schema.context])
             elif m in [Evals.VALID_RESPONSE, Evals.CRITIQUE_LANGUAGE] or isinstance(m, CritiqueTone) or isinstance(m, GuidelineAdherence):
                 req_attrs.update([schema.response])
+            elif m in [Evals.RESPONSE_ALIGNMENT_WITH_SCENARIO, Evals.RESPONSE_SINCERITY_WITH_SCENARIO]:
+                req_attrs.update([schema.question, schema.response, schema.scenario, schema.objective])
             elif isinstance(m, ResponseMatching):
                 req_attrs.update([schema.response, schema.ground_truth])
             elif isinstance(m, ConversationSatisfaction):
