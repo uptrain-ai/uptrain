@@ -274,7 +274,7 @@ def test_bleu_operator():
         }
     )
 
-    # Create an instance of the RougeScore class
+    # Create an instance of the BleuScore class
     bleu_op = BLEUScore()
 
     # Calculate the BLEU scores
