@@ -61,6 +61,7 @@ __all__ = [
     "LanguageCritique",
     "ToneCritique",
     "GuidelineAdherenceScore",
+    "PromptInjectionScore",
     "ConversationSatisfactionScore",
     "ResponseMatchingScore",
     "ValidResponseScore",
@@ -134,7 +135,7 @@ from .language.with_context import (
     ResponseConciseness
 )
 from .language.critique import LanguageCritique, ToneCritique
-from .language.guideline import GuidelineAdherenceScore
+from .language.guideline import GuidelineAdherenceScore, PromptInjectionScore
 from .language.conversation import ConversationSatisfactionScore
 from .language.response_matching import ResponseMatchingScore, ValidResponseScore
 from .language.topic import TopicAssignmentviaCluster
