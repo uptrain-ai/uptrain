@@ -14,6 +14,7 @@ class Evals(enum.Enum):
     VALID_RESPONSE = "valid_response"
     RESPONSE_ALIGNMENT_WITH_SCENARIO = "response_alignment_with_scenario"
     RESPONSE_SINCERITY_WITH_SCENARIO = "response_sincerity_with_scenario"
+    PROMPT_INJECTION = "prompt_injection"
 
 
 class ParametricEval(pydantic.BaseModel):

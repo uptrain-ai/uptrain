@@ -13,6 +13,7 @@ from uptrain.operators import (
     ResponseConsistency,
     ResponseConciseness,
     ContextRelevance,
+    PromptInjectionScore,
     LanguageCritique,
     ToneCritique,
     ResponseCompletenessWrtContext,
@@ -108,6 +109,16 @@ CheckGuidelineAdherence = lambda guideline, guideline_name="guideline", response
     name = f"{guideline_name}_adherence_score",
     operators=[GuidelineAdherenceScore(guideline=guideline, guideline_name=guideline_name, response_schema=response_schema)],
     plots=[Histogram(x=f"score_{guideline_name}_adherence")]
+)
+
+# -----------------------------------------------------------
+# Prompt Injection related
+# -----------------------------------------------------------
+
+CheckPromptInjection = lambda: Check(
+    name = "prompt_injection_score",
+    operators=[PromptInjectionScore()],
+    plots=[Histogram(x="score_prompt_injection")]
 )
 
 # -----------------------------------------------------------
