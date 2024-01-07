@@ -15,7 +15,7 @@ __all__ = [
     "Distribution",
     "UMAP",
     # clustering
-    "Clustering",    
+    "Clustering",
     # table
     "ColumnExpand",
     "ColumnComparison",
@@ -40,6 +40,7 @@ __all__ = [
     "PromptEval",
     "Embedding",
     "RougeScore",
+    "BLEUScore",
     "DocsLinkVersion",
     "TextLength",
     "WordCount",
@@ -108,7 +109,7 @@ from .chart import (
     Histogram,
     MultiPlot,
     CustomPlotlyChart,
-    Scatter3DPlot
+    Scatter3DPlot,
 )
 
 from . import language
@@ -116,6 +117,7 @@ from .language.grammar import GrammarScore
 from .language.openai_evals import OpenaiEval, PromptEval
 from .language.embedding import Embedding
 from .language.rouge import RougeScore
+from .language.bleu import BLEUScore
 from .language.text import (
     DocsLinkVersion,
     TextLength,
@@ -124,7 +126,12 @@ from .language.text import (
     WordCount,
 )
 from .language.model_grade import ModelGradeScore, OpenAIGradeScore
-from .language.generation import PromptGenerator, TextCompletion, OutputParser, TopicGenerator
+from .language.generation import (
+    PromptGenerator,
+    TextCompletion,
+    OutputParser,
+    TopicGenerator,
+)
 from .language.with_context import (
     ResponseFactualScore,
     ContextRelevance,
@@ -132,7 +139,7 @@ from .language.with_context import (
     ResponseRelevance,
     ResponseCompletenessWrtContext,
     ResponseConsistency,
-    ResponseConciseness
+    ResponseConciseness,
 )
 from .language.critique import LanguageCritique, ToneCritique
 from .language.guideline import GuidelineAdherenceScore, PromptInjectionScore
