@@ -104,7 +104,7 @@ class PromptInjectionScore(ColumnOp):
         ]
         try:
             results = self._api_client.evaluate(
-                "PromptInjection", data_send)
+                "prompt_injection", data_send)
                 
         except Exception as e:
             logger.error(f"Failed to run evaluation for `PromptInjectionScore`: {e}")
