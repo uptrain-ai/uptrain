@@ -228,8 +228,27 @@ class APIClient:
         response = self.client.get(url)
         return raise_or_return(response)
 
-    def download_run_result(self, run_id: str, check_name: str, fpath: str) -> None:
+    def get_run_results(self, run_id: str, check_name: str) -> list[dict]:
         """Get the results of a run.
+
+        Args:
+            run_id: unique identifier for the run.
+            check_name: name of the check to get results for.
+
+        Returns:
+            run: information about the run along with a unique identifier.
+        """
+        url = f"{self.base_url}/run/{run_id}/results"
+        params: dict = {"check_name": check_name}
+        response = self.client.get(url, params=params)
+        if not response.is_success:
+            logger.error(response.text)
+            response.raise_for_status()
+        else:
+            return pl.read_ndjson(response.content).to_dicts()
+
+    def download_run_result(self, run_id: str, check_name: str, fpath: str) -> None:
+        """Download the results of a run.
 
         Args:
             run_id: unique identifier for the run.
