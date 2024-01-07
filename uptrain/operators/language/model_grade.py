@@ -47,7 +47,8 @@ You are also given scores for each choice as {choice_scores}. {choice_scores_tex
 First, write out in a step by step manner your reasoning to be sure that your conclusion is correct. Avoid simply stating the correct answer at the outset.
 Then print only the score from {scores_text} associated to the correct answer in a separate line. Finally repeat the same score on a new line.
 Reasoning:""",
-    "tot_classify": ""
+    "tot_classify": "",
+    "tot_score": "",
 }
 
 def get_choice_score(
@@ -230,7 +231,7 @@ class ModelGradeScore(ColumnOp):
     """
 
     grading_prompt_template: str
-    eval_type: t.Literal["cot_classify", "classify", "classify_cot", 'tot_classify'] = "cot_classify"
+    eval_type: t.Literal["cot_classify", "classify", "classify_cot", 'tot_classify', 'tot_score'] = "cot_classify"
     choice_strings: list[str]
     choice_scores: dict[str, float]  #t.Union[dict[str, float], dict[str, list[float]]]
     context_vars: dict[str, str]
@@ -240,7 +241,7 @@ class ModelGradeScore(ColumnOp):
         self._api_client = LLMMulticlient(settings=settings)
         self._settings = settings
         self.model = settings.model
-        if not (self.eval_type in ["cot_classify", "tot_classify"]):
+        if not (self.eval_type in ["cot_classify", "tot_classify", 'tot_score']):
             raise Exception("Only eval_type: cot_classify and tot_classify is supported for model grading check")
         for choice, score in self.choice_scores.items():
             score = format(score, ".3f")
@@ -297,7 +298,24 @@ class ModelGradeScore(ColumnOp):
         self, text: str, eval_type: str, match_fn: Union[str, Callable], choice_strings: Iterable[str], choice_scores: dict = {}
     ) -> str:
         """Clean the answer string to a choice string to one of choice_strings. Return '__invalid__.' if no match."""
-        if eval_type == "tot_classify":
+        if eval_type == "tot_score":
+            score = ''
+            if len(score) == 0:
+                scores_matches = re.findall(r"(\[Score\]\: [1-5]|Score: [1-5]|Score is [1-5])", text)
+                if len(scores_matches)!=0:
+                    score = str(scores_matches[0].split(' ')[-1])
+
+            if len(score) == 0:
+                scores_matches = re.findall(r"(\[score\]\: [1-5]|score: [1-5]|score is [1-5])", text)
+                if len(scores_matches)!=0:
+                    score = str(scores_matches[0].split(' (')[-1])
+
+            if len(score) == 1:
+                return float(score)
+
+            logging.warn(f"Choices {choice_strings} not parsable for {eval_type}: {text}")
+            return -5
+        elif eval_type == "tot_classify":
             score = ''
             if len(score) == 0:
                 scores_matches = re.findall(r"(\[Choice\]\: [a-zA-Z]|Choice: [a-zA-Z]|choice is [a-zA-Z])", text)
@@ -321,7 +339,7 @@ class ModelGradeScore(ColumnOp):
                     return choice_scores[score.lower()]
 
             logging.warn(f"Choices {choice_strings} not parsable for {eval_type}: {text}")
-            return INVALID_STR
+            return -1
         else:
             is_fn_extract_score = False
             if match_fn == 'extract_score':
