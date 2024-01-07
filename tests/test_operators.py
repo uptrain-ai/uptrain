@@ -284,6 +284,35 @@ def test_bleu_operator():
     print(scores)
 
 
+# uptrain.operators.language.meteor
+def test_meteor_operator():
+    import polars as pl
+    from uptrain.operators import METEORScore
+
+    # Create a DataFrame
+    df = pl.DataFrame(
+        {
+            "text_generated": [
+                "This is the generated text.",
+                "Another generated sentence.",
+            ],
+            "text_source": [
+                "This is the original source text.",
+                "This is a different source text.",
+            ],
+        }
+    )
+
+    # Create an instance of the METEORScore class
+    meteor_op = METEORScore()
+
+    # Calculate the METEOR scores
+    scores = meteor_op.run(df)["output"]
+
+    # Print the METEOR scores
+    print(scores)
+
+
 # uptrain.operators.language.text
 def test_docs_link_version_operator():
     import polars as pl
