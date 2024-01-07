@@ -355,6 +355,25 @@ class APIClient:
         response = self.client.put(url, params=params)
         return raise_or_return(response)
 
+    def get_schedule_results_all_dates(self, schedule_id: str, check_name: str) -> list[dict]:
+        """Get the results of a schedule.
+
+        Args:
+            schedule_id: unique identifier for the schedule.
+            check_name: name of the check to get results for.
+
+        Returns:
+            run: information about the schedule along with a unique identifier.
+        """
+        url = f"{self.base_url}/schedule/{schedule_id}/results"
+        params: dict = {"check_name": check_name}
+        response = self.client.get(url, params=params)
+        if not response.is_success:
+            logger.error(response.text)
+            response.raise_for_status()
+        else:
+            return pl.read_ndjson(response.content).to_dicts()
+
     def evaluate(
         self,
         eval_name: str,
