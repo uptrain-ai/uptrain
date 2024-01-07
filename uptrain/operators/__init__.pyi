@@ -41,6 +41,7 @@ __all__ = [
     "Embedding",
     "RougeScore",
     "BLEUScore",
+    "METEORScore",
     "DocsLinkVersion",
     "TextLength",
     "WordCount",
@@ -118,6 +119,7 @@ from .language.openai_evals import OpenaiEval, PromptEval
 from .language.embedding import Embedding
 from .language.rouge import RougeScore
 from .language.bleu import BLEUScore
+from .language.meteor import METEORScore
 from .language.text import (
     DocsLinkVersion,
     TextLength,
