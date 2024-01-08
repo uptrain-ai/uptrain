@@ -132,13 +132,11 @@ class LLMMulticlient:
                 self.aclient = AsyncOpenAI()
 
             if settings.model.startswith("azure") and settings.check_and_get("azure_api_key") is not None:
-                settings.model = settings.model.replace("azure/", "")
                 self.aclient = AsyncAzureOpenAI(
                     api_key = settings.azure_api_key,  
                     api_version=settings.azure_api_version,
                     azure_endpoint = settings.azure_api_base
                 )
-
 
             self._rpm_limit = settings.check_and_get("rpm_limit")
             self._tpm_limit = settings.check_and_get("tpm_limit")

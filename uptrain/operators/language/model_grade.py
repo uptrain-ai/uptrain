@@ -240,7 +240,7 @@ class ModelGradeScore(ColumnOp):
     def setup(self, settings: Settings):
         self._api_client = LLMMulticlient(settings=settings)
         self._settings = settings
-        self.model = settings.model
+        self.model = settings.model.replace("azure/", "")
         if not (self.eval_type in ["cot_classify", "tot_classify", 'tot_score']):
             raise Exception("Only eval_type: cot_classify and tot_classify is supported for model grading check")
         for choice, score in self.choice_scores.items():
