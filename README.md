@@ -134,26 +134,28 @@ import json
 
 UPTRAIN_API_KEY = "up-***************" 
 
-data = [{
-    'question': 'Which is the most popular global sport?',
-    'context': "The popularity of sports can be measured in various ways, including TV viewership, social media presence, number of participants, and economic impact. Football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi, drawing a followership of more than 4 billion people. Cricket is particularly popular in countries like India, Pakistan, Australia, and England. The ICC Cricket World Cup and Indian Premier League (IPL) have substantial viewership. The NBA has made basketball popular worldwide, especially in countries like the USA, Canada, China, and the Philippines. Major tennis tournaments like Wimbledon, the US Open, French Open, and Australian Open have large global audiences. Players like Roger Federer, Serena Williams, and Rafael Nadal have boosted the sport's popularity. Field Hockey is very popular in countries like India, Netherlands, and Australia. It has a considerable following in many parts of the world.",
-    'response': "1. The most popular global sport is determined by factors such as TV viewership, social media presence, number of participants, and economic impact. 2. Football is considered the most popular sport in the world, with events like the FIFA World Cup and star players like Ronaldo and Messi attracting over 4 billion followers. 3. Cricket is particularly popular in countries like India, Pakistan, Australia, and England, with events like the ICC Cricket World Cup and the Indian Premier League (IPL) having substantial viewership. 4. Basketball has gained global popularity, especially in the USA, Canada, China, and the Philippines, largely thanks to the NBA. 5. Tennis also has a significant global audience, with major tournaments like Wimbledon, the US Open, French Open, and Australian Open, and notable players like Roger Federer, Serena Williams, and Rafael Nadal. 6. Field Hockey enjoys popularity in countries like India, Netherlands, and Australia and has followers in many other parts of the world. So, the most popular global sport is football, followed by cricket, basketball, tennis, and field hockey, depending on the region and various factors.",
-    'prompt_variation': 'chain-of-thought'
-},
-{
-    'question': 'Which is the most popular global sport?',
-    'context': "The popularity of sports can be measured in various ways, including TV viewership, social media presence, number of participants, and economic impact. Football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi, drawing a followership of more than 4 billion people. Cricket is particularly popular in countries like India, Pakistan, Australia, and England. The ICC Cricket World Cup and Indian Premier League (IPL) have substantial viewership. The NBA has made basketball popular worldwide, especially in countries like the USA, Canada, China, and the Philippines. Major tennis tournaments like Wimbledon, the US Open, French Open, and Australian Open have large global audiences. Players like Roger Federer, Serena Williams, and Rafael Nadal have boosted the sport's popularity. Field Hockey is very popular in countries like India, Netherlands, and Australia. It has a considerable following in many parts of the world.",
-    'response': "- Which is the most popular global sport?  - Popularity of sports can be measured in different ways:    - TV viewership    - Social media presence    - Number of participants    - Economic impact  - Football:    - FIFA World Cup    - Ronaldo and Messi draw over 4 billion followers  - Cricket:    - Popular in India, Pakistan, Australia, and England    - ICC Cricket World Cup    - Indian Premier League (IPL)  - Basketball:    - NBA    - Popularity in the USA, Canada, China, Philippines  - Tennis:    - Major tournaments: Wimbledon, US Open, French Open, Australian Open    - Players: Roger Federer, Serena Williams, Rafael Nadal  - Field Hockey:    - Popular in India, Netherlands, Australia    - Followers in many parts of the world  In summary, football is the most popular global sport, followed by cricket, basketball, tennis, and field hockey, with variations in popularity depending on region and measurement criteria.",
-    'prompt_variation': 'tree-of-thought'
-}]
+data = [
+    {
+        "question": "How can you ensure that a designed prompt elicits the desired response from a language model?",
+        "context": "nudge the model to generate a desired result. Prompt design can be an efficient\nway to experiment with adapting a language model for a specific use case.",
+        "response": "To ensure that a designed prompt elicits the desired response from a language model, you can experiment with different prompt designs that nudge the model towards generating the desired result. This can be an efficient way to adapt the language model for a specific use case.",
+        "chunk_size": 200
+    },
+    {
+        "question": "How can you ensure that a designed prompt elicits the desired response from a language model?",
+        "context": "Design and save your own prompts\nPrompt design is the process of manually creating prompts that elicit the\ndesired response from a language model. By carefully crafting prompts, you can\nnudge the model to generate a desired result. Prompt design can be an efficient\nway to experiment with adapting a language model for a specific use case.\nYou can create and save your own prompts in Vertex AI Studio. When\ncreating a new prompt, you enter the prompt text, specify the model to use,\nconfigure parameter values, and test the prompt by generating a response. You\ncan iterate on the prompt and its configurations until you get the desired\nresults. When you are done designing the prompt, you can save it in\nVertex AI Studio.\nResponse citations\nIf you are using a text model in Vertex AI Studio like text-bison, you\nreceive text responses based on your input. Our features are intended to produce\noriginal content and not replicate existing content at length. If",
+        "response": "To ensure that a designed prompt elicits the desired response from a language model, you can manually create prompts that carefully craft the desired result. By iterating on the prompt and its configurations in Vertex AI Studio, you can experiment and adjust until you achieve the desired results. Additionally, it is important to note that the text models in Vertex AI Studio are designed to produce original content and not replicate existing content at length.",
+        "chunk_size": 1000
+    }
+]
 
 client = APIClient(uptrain_api_key=UPTRAIN_API_KEY)
 
 results = client.evaluate_experiments(
-    project_name="Sample-Experiment",
+    project_name="Chunk-Size-Experiment",
     data=data,
-    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone()],
-    exp_columns=['prompt_variation']
+    checks=[Evals.CONTEXT_RELEVANCE, Evals.RESPONSE_RELEVANCE, Evals.FACTUAL_ACCURACY],
+    exp_columns=["chunk_size"]
 )
 
 print(json.dumps(results, indent=3))
