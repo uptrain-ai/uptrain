@@ -62,7 +62,7 @@ async def async_process_payload(
     for count in range(max_retries):  # failed requests don't count towards rate limit
         try:
             if aclient is not None:
-                payload.response = await aclient.chat.completions.create(**payload.data, timeout=17) 
+                payload.response = await aclient.chat.completions.create(**payload.data, timeout=180)
             else:
                 payload.response = await litellm.acompletion(
                     **payload.data,
