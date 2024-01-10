@@ -42,7 +42,7 @@ UPTRAIN_LOGS_DIR = os.path.join(TEMP_DIR, "uptrain_logs_openai_eval")
 Let's now load our dataset and see how that looks
 
 ```python
-url = "https://oodles-dev-training-data.s3.us-west-1.amazonaws.com/qna-streamlit-docs.jsonl"
+url = "https://uptrain-assets.s3.ap-south-1.amazonaws.com/data/qna-streamlit-docs.jsonl"
 dataset_path = os.path.join(TEMP_DIR, "qna-notebook-data.jsonl")
 
 if not os.path.exists(dataset_path):
