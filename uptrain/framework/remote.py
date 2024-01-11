@@ -46,7 +46,7 @@ class APIClientWithoutAuth:
         server_url = settings.check_and_get("uptrain_server_url")
         self.base_url = server_url.rstrip("/") + "/api/open"
         self.client = httpx.Client(
-            timeout=httpx.Timeout(500, connect=5),
+            timeout=httpx.Timeout(1500, connect=5),
         )
 
     def evaluate(

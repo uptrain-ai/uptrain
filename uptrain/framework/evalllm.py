@@ -108,7 +108,7 @@ class EvalLLM:
                             "uptrain_settings": self.settings.dict()
                         }
                     )
-
+                    break
                 except Exception as e:
                     logger.info("Retrying evaluation request")
                     if try_num == NUM_TRIES - 1:
