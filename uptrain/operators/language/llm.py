@@ -127,7 +127,7 @@ class LLMMulticlient:
         self._tpm_limit = 90_000
         self.aclient = None
         if settings is not None:
-            if settings.openai_api_key is not None:
+            if settings.model.startswith("gpt") and settings.check_and_get("openai_api_key") is not None:
                 openai.api_key = settings.check_and_get("openai_api_key")  # type: ignore
                 self.aclient = AsyncOpenAI()
 
