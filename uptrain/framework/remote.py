@@ -13,7 +13,7 @@ import pydantic
 
 from uptrain.framework.checks import CheckSet, ExperimentArgs
 from uptrain.framework.base import Settings
-from uptrain.framework.evals import Evals, ParametricEval, CritiqueTone, GuidelineAdherence, ResponseMatching, ConversationSatisfaction, CustomPromptEval
+from uptrain.framework.evals import Evals, ParametricEval, CritiqueTone, GuidelineAdherence, ResponseMatching, ConversationSatisfaction
 
 
 class DataSchema(pydantic.BaseModel):
@@ -480,7 +480,7 @@ class APIClient:
                 req_attrs.update([schema.response])
             elif m in [Evals.RESPONSE_ALIGNMENT_WITH_SCENARIO, Evals.RESPONSE_SINCERITY_WITH_SCENARIO]:
                 req_attrs.update([schema.question, schema.response, schema.scenario, schema.objective])
-            elif isinstance(m, ResponseMatching) or isinstance(m, CustomPromptEval):
+            elif isinstance(m, ResponseMatching):
                 req_attrs.update([schema.question, schema.response, schema.ground_truth])
             elif isinstance(m, ConversationSatisfaction):
                 req_attrs.update([schema.conversation])
