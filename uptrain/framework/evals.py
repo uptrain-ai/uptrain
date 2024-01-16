@@ -37,8 +37,8 @@ class ConversationSatisfaction(ParametricEval):
 class CustomPromptEval(ParametricEval):
     choice_strings: dict
     prompt: str
-    output_vars: dict[str, str]
-    context_vars: dict[str, str]
+    eval_type: str
+    context_vars: t.Union[dict[str, str], None] = None
     
 class ResponseMatching(ParametricEval):
     method: str = "llm"
