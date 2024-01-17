@@ -74,7 +74,7 @@ class EvalLLM:
             elif m in [Evals.CRITIQUE_LANGUAGE, Evals.VALID_RESPONSE] or isinstance(m, CritiqueTone) or isinstance(m, GuidelineAdherence):
                 req_attrs.update([schema.response])
             elif isinstance(m, ResponseMatching):
-                req_attrs.update([schema.response, schema.ground_truth])
+                req_attrs.update([schema.question, schema.response, schema.ground_truth])
             elif isinstance(m, ConversationSatisfaction):
                 req_attrs.update([schema.conversation])
 
