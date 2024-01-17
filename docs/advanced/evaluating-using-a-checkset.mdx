@@ -1,0 +1,150 @@
+
+---
+title: Uptrain Checkset Evaluations
+description: How to run evalutions in UpTrain using checksets
+---
+
+### Create an API Key
+
+To get started, you will first need to get your API key from the [Uptrain Dashboard](https://uptrain.ai/dashboard).
+
+1. Login with Google
+2. Click on "Create API Key"
+3. Copy the API key and save it somewhere safe
+
+
+### Install the Uptrain Python Package
+
+```bash
+pip install uptrain
+```
+
+
+### Create an API Client
+
+```python
+from uptrain import APIClient, Settings
+
+settings = Settings(
+    uptrain_access_token=YOUR_API_KEY,
+    uptrain_server_url="https://demo.uptrain.ai"
+)
+
+client = APIClient(settings)
+```
+
+
+### Check if you are authenticated
+
+```python
+client.check_auth()
+```
+
+
+## Running Evaluations
+
+#### Step 1: Add dataset
+Upload a file containing your dataset. The supported file formats are:
+
+- .csv
+- .json
+- .jsonl
+- .xlsx
+
+You can add the dataset file to the UpTrain platform using the `add_dataset` method.
+
+To upload your dataset file, you will need to specify the following parameters:
+- `name`: The name of your dataset
+- `fpath`: The path to your dataset file
+
+Let's say you have a dataset file called `qna-notebook-data.jsonl` in your current directory. You can upload it using the code below.
+
+```python
+client.add_dataset(name="qna-dataset", fpath="qna-notebook-data.jsonl")
+```
+
+
+#### Step 2: Add checksets
+A checkset contains the operators you wish to evaluate your model on. You can learn more about checksets [here](/key-components/checkset).
+
+You can add a checkset using the `add_checkset` method.
+
+To add a checkset, you will need to specify the following parameters:
+- `name`: The name of your checkset
+- `checkset`: The checkset you wish to add
+- `settings`: The settings you defined while creating the API client
+
+```python
+from uptrain.framework import Check, CheckSet
+from uptrain.operators import CosineSimilarity, JsonReader, Histogram, RougeScore
+
+rouge_score = RougeScore(
+    score_type="precision",
+    col_in_generated="response",
+    col_in_source="document_text",
+    col_out="hallucination-score",
+)
+
+cosine_similarity = CosineSimilarity(
+    col_in_vector_1="question_embeddings",
+    col_in_vector_2="context_embeddings",
+    col_out="similarity-question-context",
+)
+
+list_checks = [
+    Check(
+        name="hallucination_check",
+        operators=[rouge_score],
+        plots=[
+            Histogram(props=dict(x="hallucination-score", nbins=20)),
+        ],
+    ),
+    Check(
+        name="similarity_check"",
+        operators=[cosine_similarity],
+        plots=[
+                Histogram(
+                props=dict(x="similarity-question-context", nbins=20)
+            ),
+        ],
+    ),
+]
+
+check_set = CheckSet(
+    source=JsonReader(fpath=dataset_path),
+    checks=list_checks
+)
+
+client.add_checkset(
+    name="qna-checkset",
+    checkset=check_set,
+    settings=settings
+)
+```
+
+
+#### Step 3: Add run
+A run is a combination of a dataset and a checkset. You can learn more about runs [here](/key-components/run).
+
+You can add a run using the `add_run` method.
+
+To add a run, you will need to specify the following parameters:
+- `dataset`: The name of the dataset you wish to add
+- `checkset`: The name of the checkset you wish to add
+
+```python
+respoonse = client.add_run(
+    dataset="qna-dataset",
+    checkset="qna-checkset"
+)
+```
+
+
+#### Step 4: View the results
+You can view the results of your evaluation by using the `get_run` method.
+
+```python
+client.get_run(response["run_id"])
+```
+
+You can also view the results on the [UpTrain Dashboard](https://demo.uptrain.ai/dashboard/) by entering your API key as password.
