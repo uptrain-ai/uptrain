@@ -481,7 +481,7 @@ class APIClient:
             elif m in [Evals.RESPONSE_ALIGNMENT_WITH_SCENARIO, Evals.RESPONSE_SINCERITY_WITH_SCENARIO]:
                 req_attrs.update([schema.question, schema.response, schema.scenario, schema.objective])
             elif isinstance(m, ResponseMatching):
-                req_attrs.update([schema.response, schema.ground_truth])
+                req_attrs.update([schema.question, schema.response, schema.ground_truth])
             elif isinstance(m, ConversationSatisfaction):
                 req_attrs.update([schema.conversation])
 
