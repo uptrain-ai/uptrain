@@ -89,6 +89,7 @@ async def async_process_payload(
                 await asyncio.sleep(random.uniform(5, 30) * count + 60)
             elif (
                 isinstance(exc, openai.BadRequestError)
+                and exc.code is not None 
                 and "context_length" in exc.code
                 and count < max_retries - 1
             ):
