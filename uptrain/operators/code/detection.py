@@ -18,6 +18,7 @@ class CodeIdentificationScore(ColumnOp):
     """
     
     Go through the response and identify if there is any code in it.
+    If found, it returns the code snippet.
 
     Attributes:
         col_response (str): Column name for the stored responses
