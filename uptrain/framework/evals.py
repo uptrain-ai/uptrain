@@ -34,7 +34,12 @@ class GuidelineAdherence(ParametricEval):
 class ConversationSatisfaction(ParametricEval):
     user_persona: str = "user"
     llm_persona: t.Union[str, None] = None
-    
 
+class CustomPromptEval(ParametricEval):
+    choice_strings: dict
+    prompt: str
+    eval_type: str
+    context_vars: t.Union[dict[str, str], None] = None
+    
 class ResponseMatching(ParametricEval):
     method: str = "llm"

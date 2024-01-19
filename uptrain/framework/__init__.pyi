@@ -13,7 +13,8 @@ __all__ = [
     "CritiqueTone",
     "GuidelineAdherence",
     "ResponseMatching",
-    "ConversationSatisfaction"
+    "ConversationSatisfaction",
+    "CustomPromptEval"
 ]
 
 from .base import OperatorDAG, Settings
@@ -21,5 +22,5 @@ from .checks import CheckSet, Check, ExperimentArgs
 from .signal import Signal
 from .remote import APIClient, DataSchema
 from .builtins import builtins
-from .evals import Evals, CritiqueTone, GuidelineAdherence, ResponseMatching, ConversationSatisfaction
+from .evals import Evals, CritiqueTone, GuidelineAdherence, ResponseMatching, ConversationSatisfaction, CustomPromptEval
 from .evalllm import EvalLLM
