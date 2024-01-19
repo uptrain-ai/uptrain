@@ -82,6 +82,7 @@ __all__ = [
     "BigQueryWriter",
     # code
     "code",
+    "CodeIdentificationScore",
     "ParseCreateStatements",
     "ParseSQL",
     "ValidateTables",
@@ -157,6 +158,7 @@ from .io.mongodb import MongoDBReader
 from .io.duck import DuckDBReader
 
 from . import code
+from .code.detection import CodeIdentificationScore
 from .code.sql import (
     ParseCreateStatements,
     ParseSQL,

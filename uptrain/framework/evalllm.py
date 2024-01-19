@@ -71,7 +71,7 @@ class EvalLLM:
                 req_attrs.update([schema.question, schema.response])
             elif m in [Evals.CONTEXT_RELEVANCE]:
                 req_attrs.update([schema.question, schema.context])
-            elif m in [Evals.CRITIQUE_LANGUAGE, Evals.VALID_RESPONSE] or isinstance(m, CritiqueTone) or isinstance(m, GuidelineAdherence):
+            elif m in [Evals.CRITIQUE_LANGUAGE, Evals.VALID_RESPONSE, Evals.CODE_IDENTIFICATION] or isinstance(m, CritiqueTone) or isinstance(m, GuidelineAdherence):
                 req_attrs.update([schema.response])
             elif isinstance(m, ResponseMatching):
                 req_attrs.update([schema.question, schema.response, schema.ground_truth])

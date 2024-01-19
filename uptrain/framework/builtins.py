@@ -19,7 +19,8 @@ from uptrain.operators import (
     ResponseCompletenessWrtContext,
     GuidelineAdherenceScore,
     ResponseMatchingScore, 
-    ConversationSatisfactionScore
+    ConversationSatisfactionScore,
+    CodeIdentificationScore,
 )
 
 # -----------------------------------------------------------
@@ -140,4 +141,15 @@ CheckResponseMatching = lambda method = "llm": Check(
     name = f"{method}_score",
     operators=[ResponseMatchingScore(method=method)],
     plots=[Histogram(x=f"{method}_score")]
+)
+
+
+# -----------------------------------------------------------
+# Code related
+# -----------------------------------------------------------
+
+CheckCodeIdentification = lambda: Check(
+    name = "code_identification_score",
+    operators=[CodeIdentificationScore()],
+    plots=[Histogram(x="score_code_identification")]
 )
