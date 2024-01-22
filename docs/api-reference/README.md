@@ -1,6 +1,6 @@
 <h4 align="center">
   <a href="https://uptrain.ai">
-   <img alt="Github banner 006 (1)" src="https://github.com/uptrain-ai/uptrain/assets/108270398/96ac1505-7811-4e12-958e-fce9519542a1">
+   <img alt="Github banner 006 (1)" src="https://github.com/uptrain-ai/uptrain/assets/108270398/96ac1505-7811-4e12-958e-fce9519542a1"/>
   </a>
 </h4>
 
@@ -19,7 +19,7 @@
     <img alt='PRs Welcome' src='https://img.shields.io/badge/PRs-welcome-blue.svg?style=shields'/>
   </a>
   <a href="https://github.com/uptrain-ai/uptrain/graphs/contributors">
-    <img src="https://img.shields.io/github/contributors/uptrain-ai/uptrain">
+    <img src="https://img.shields.io/github/contributors/uptrain-ai/uptrain" />
   </a>
   <a href="https://docs.uptrain.ai/getting-started/quickstart">
     <img src="https://img.shields.io/badge/Quickstart-tutorial-orange" alt="Quickstart" />
@@ -30,7 +30,7 @@
 </h4>
 
 <h4 align="center">
-  <img src="https://github.com/uptrain-ai/uptrain/assets/108270398/cf3a3de8-96b6-4fd5-a589-f313cb10bbde" alt="Demo of UpTrain's LLM evaluations with scores for hallucinations, retrieved-context quality, response tonality for a customer support chatbot">
+  <img src="https://github.com/uptrain-ai/uptrain/assets/108270398/cf3a3de8-96b6-4fd5-a589-f313cb10bbde" alt="Demo of UpTrain's LLM evaluations with scores for hallucinations, retrieved-context quality, response tonality for a customer support chatbot"/>
 </h4>
 
 **[UpTrain](https://uptrain.ai)** is an open-source tool to evaluate LLM applications. UpTrain provides pre-built metrics to check LLM responses on aspects such as correctness, hallucination, toxicity, etc. as well as provides an easy-to-use framework to configure custom checks.
@@ -174,7 +174,7 @@ print(json.dumps(results, indent=3))
 # Dimensions of LLM Evaluations 💡
 
 <h4 align="left">
-  <img width=600, src="https://github.com/uptrain-ai/uptrain/assets/108270398/6cf080ef-7aec-4609-81e1-25d667401ad4" alt="Different dimensions, metrics or criteria for LLM evaluations">
+  <img width="600" src="https://github.com/uptrain-ai/uptrain/assets/108270398/6cf080ef-7aec-4609-81e1-25d667401ad4" alt="Different dimensions, metrics or criteria for LLM evaluations"/>
 </h4>
 
 We recently wrote about different criteria to evaluate LLM applications and explored grouping them into categories. [Read more about it.](https://uptrain.ai/blog/how-to-evaluate-your-llm-applications)
