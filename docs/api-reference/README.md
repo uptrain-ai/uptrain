@@ -71,7 +71,7 @@ There are two ways to use UpTrain:
 Follow the code snippet below to get started with UpTrain.
 
 ```python
-from uptrain import EvalLLM, Evals, CritiqueTone
+from uptrain import EvalLLM, Evals
 import json
 
 OPENAI_API_KEY = "sk-***************"
@@ -86,7 +86,7 @@ eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
 
 results = eval_llm.evaluate(
     data=data,
-    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
+    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_COMPLETENESS]
 )
 
 print(json.dumps(results, indent=3))
@@ -100,7 +100,7 @@ If you have any questions, please join our [Slack community](https://join.slack.
 
 2. Follow the code snippets below to get started with UpTrain.
 ```python
-from uptrain import APIClient, Evals, CritiqueTone
+from uptrain import APIClient, Evals
 import json
 
 UPTRAIN_API_KEY = "up-***************" 
@@ -116,7 +116,7 @@ client = APIClient(uptrain_api_key=UPTRAIN_API_KEY)
 results = client.log_and_evaluate(
     project_name="Sample-Project",
     data=data,
-    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
+    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_COMPLETENESS]
 )
 
 print(json.dumps(results, indent=3))
@@ -129,10 +129,11 @@ To have a customized onboarding, please book a [demo call here](https://calendly
 Experiments help you perform A/B testing with prompts, so you can compare and choose the options most suitable for you. 
 
 ```python
-from uptrain import APIClient, Evals, CritiqueTone
+from uptrain import APIClient, Evals
 import json
 
 UPTRAIN_API_KEY = "up-***************" 
+
 data = [
     {
         "question": "How can you ensure that a designed prompt elicits the desired response from a language model?",
