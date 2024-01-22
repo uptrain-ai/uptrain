@@ -67,12 +67,8 @@
       "group": "Key Components 🗝️",
       "version": "v1",
       "pages": [
-        "key-components/core-idea",
-        "key-components/evals",
-        "key-components/operator",
-        "key-components/chart",
-        "key-components/check",
-        "key-components/checkset"
+        "key-components/settings",
+        "key-components/evals"
       ]
     },
     {
@@ -87,12 +83,9 @@
       "group": "Tutorials 📑",
       "version": "v1",
       "pages": [
-        "tutorials/customized-evaluations",
-        "tutorials/prompt-experiments",
-        "tutorials/validation",
-        "tutorials/openai-evals",
-        "tutorials/custom-operator",
-        "tutorials/uptrain-api-client"
+        "tutorials/uptrain-api-client",
+        "tutorials/open-source-evaluator",
+        "tutorials/experiments-evaluation-tutorial"
       ]
     },
     {

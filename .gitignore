@@ -29,6 +29,11 @@ evaluation_logs*
 .DS_Store
 *.pickle
 
+# NPM
+node_modules
+package-lock.json
+package.json
+
 # Allow json files for docs
 !/docs/*.json
 

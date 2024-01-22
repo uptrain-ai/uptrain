@@ -1,6 +1,6 @@
 <h4 align="center">
   <a href="https://uptrain.ai">
-   <img alt="Github banner 006 (1)" src="https://github.com/uptrain-ai/uptrain/assets/108270398/96ac1505-7811-4e12-958e-fce9519542a1">
+   <img alt="Github banner 006 (1)" src="https://github.com/uptrain-ai/uptrain/assets/108270398/96ac1505-7811-4e12-958e-fce9519542a1"/>
   </a>
 </h4>
 
@@ -19,7 +19,7 @@
     <img alt='PRs Welcome' src='https://img.shields.io/badge/PRs-welcome-blue.svg?style=shields'/>
   </a>
   <a href="https://github.com/uptrain-ai/uptrain/graphs/contributors">
-    <img src="https://img.shields.io/github/contributors/uptrain-ai/uptrain">
+    <img src="https://img.shields.io/github/contributors/uptrain-ai/uptrain" />
   </a>
   <a href="https://docs.uptrain.ai/getting-started/quickstart">
     <img src="https://img.shields.io/badge/Quickstart-tutorial-orange" alt="Quickstart" />
@@ -30,7 +30,7 @@
 </h4>
 
 <h4 align="center">
-  <img src="https://github.com/uptrain-ai/uptrain/assets/108270398/cf3a3de8-96b6-4fd5-a589-f313cb10bbde" alt="Demo of UpTrain's LLM evaluations with scores for hallucinations, retrieved-context quality, response tonality for a customer support chatbot">
+  <img src="https://github.com/uptrain-ai/uptrain/assets/108270398/cf3a3de8-96b6-4fd5-a589-f313cb10bbde" alt="Demo of UpTrain's LLM evaluations with scores for hallucinations, retrieved-context quality, response tonality for a customer support chatbot"/>
 </h4>
 
 **[UpTrain](https://uptrain.ai)** is an open-source tool to evaluate LLM applications. UpTrain provides pre-built metrics to check LLM responses on aspects such as correctness, hallucination, toxicity, etc. as well as provides an easy-to-use framework to configure custom checks.
@@ -71,7 +71,7 @@ There are two ways to use UpTrain:
 Follow the code snippet below to get started with UpTrain.
 
 ```python
-from uptrain import EvalLLM, Evals, CritiqueTone
+from uptrain import EvalLLM, Evals
 import json
 
 OPENAI_API_KEY = "sk-***************"
@@ -86,7 +86,7 @@ eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
 
 results = eval_llm.evaluate(
     data=data,
-    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
+    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_COMPLETENESS]
 )
 
 print(json.dumps(results, indent=3))
@@ -100,7 +100,7 @@ If you have any questions, please join our [Slack community](https://join.slack.
 
 2. Follow the code snippets below to get started with UpTrain.
 ```python
-from uptrain import APIClient, Evals, CritiqueTone
+from uptrain import APIClient, Evals
 import json
 
 UPTRAIN_API_KEY = "up-***************" 
@@ -116,7 +116,7 @@ client = APIClient(uptrain_api_key=UPTRAIN_API_KEY)
 results = client.log_and_evaluate(
     project_name="Sample-Project",
     data=data,
-    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
+    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_COMPLETENESS]
 )
 
 print(json.dumps(results, indent=3))
@@ -129,10 +129,11 @@ To have a customized onboarding, please book a [demo call here](https://calendly
 Experiments help you perform A/B testing with prompts, so you can compare and choose the options most suitable for you. 
 
 ```python
-from uptrain import APIClient, Evals, CritiqueTone
+from uptrain import APIClient, Evals
 import json
 
 UPTRAIN_API_KEY = "up-***************" 
+
 data = [
     {
         "question": "How can you ensure that a designed prompt elicits the desired response from a language model?",
@@ -174,7 +175,7 @@ print(json.dumps(results, indent=3))
 # Dimensions of LLM Evaluations 💡
 
 <h4 align="left">
-  <img width=600, src="https://github.com/uptrain-ai/uptrain/assets/108270398/6cf080ef-7aec-4609-81e1-25d667401ad4" alt="Different dimensions, metrics or criteria for LLM evaluations">
+  <img width="600" src="https://github.com/uptrain-ai/uptrain/assets/108270398/6cf080ef-7aec-4609-81e1-25d667401ad4" alt="Different dimensions, metrics or criteria for LLM evaluations"/>
 </h4>
 
 We recently wrote about different criteria to evaluate LLM applications and explored grouping them into categories. [Read more about it.](https://uptrain.ai/blog/how-to-evaluate-your-llm-applications)

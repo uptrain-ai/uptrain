@@ -1,0 +1,161 @@
+---
+title: "Experiments Evaluation Demo"
+description: "Perform A/B testing on your data with UpTrain"
+---
+
+# Perform Experiments with UpTrain
+
+Experiments help you perform A/B testing, so you can compare and choose the options most suitable for you. This notebook shows you how to perform experiments with UpTrain. 
+
+The experiment we will be demonstrating is to compare the responses given by a model when passed contexts of different lengths. This is done by using a `chunk_size` parameter that limits the number of tokens in the `context` passed to the model.
+
+We will only look at the code that is specific to performing experiments. We will not be looking at the entire process of extracting the context and generating the response. To learn more about that, please refer to the [Data Driven Experimentation Demo](https://github.com/uptrain-ai/uptrain/blob/main/examples/experiments/data_driven_experimentation_demo.ipynb).
+
+## Install UpTrain
+
+Run the following commands in your terminal to install UpTrain:
+```bash
+pip install uptrain
+```
+
+## Import Libraries
+
+```python
+from uptrain import APIClient, Evals
+import json
+```
+
+### Create an UpTrain API Client
+
+Before we can start using UpTrain, we need to create an API client. You can do this by passing your API key to the `APIClient` constructor.
+
+```python
+UPTRAIN_API_KEY = "up-***************"
+import os
+UPTRAIN_API_KEY = os.environ.get("UPTRAIN_API_KEY")
+client = APIClient(uptrain_api_key=UPTRAIN_API_KEY)
+```
+
+### Create your data
+
+You can define your data as a simple dictionary with the following keys:
+
+- `question`: The question you want to ask
+- `context`: The context relevant to the question
+- `response`: The response to the question
+
+Here, we will perform A/B testing based on chunk size.  This value is also passed as a key in the data dictionary.
+
+- `chunk_size`: The limit on the number of tokens in the context
+
+```python
+data = [
+    {
+        "question": "How can you ensure that a designed prompt elicits the desired response from a language model?",
+        "context": "nudge the model to generate a desired result. Prompt design can be an efficient\nway to experiment with adapting a language model for a specific use case.",
+        "response": "To ensure that a designed prompt elicits the desired response from a language model, you can experiment with different prompt designs that nudge the model towards generating the desired result. This can be an efficient way to adapt the language model for a specific use case.",
+        "chunk_size": 200
+    },
+    {
+        "question": "How can you ensure that a designed prompt elicits the desired response from a language model?",
+        "context": "Design and save your own prompts\nPrompt design is the process of manually creating prompts that elicit the\ndesired response from a language model. By carefully crafting prompts, you can\nnudge the model to generate a desired result. Prompt design can be an efficient\nway to experiment with adapting a language model for a specific use case.\nYou can create and save your own prompts in Vertex AI Studio. When\ncreating a new prompt, you enter the prompt text, specify the model to use,\nconfigure parameter values, and test the prompt by generating a response. You\ncan iterate on the prompt and its configurations until you get the desired\nresults. When you are done designing the prompt, you can save it in\nVertex AI Studio.\nResponse citations\nIf you are using a text model in Vertex AI Studio like text-bison, you\nreceive text responses based on your input. Our features are intended to produce\noriginal content and not replicate existing content at length. If",
+        "response": "To ensure that a designed prompt elicits the desired response from a language model, you can manually create prompts that carefully craft the desired result. By iterating on the prompt and its configurations in Vertex AI Studio, you can experiment and adjust until you achieve the desired results. Additionally, it is important to note that the text models in Vertex AI Studio are designed to produce original content and not replicate existing content at length.",
+        "chunk_size": 1000
+    }
+]
+```
+
+## Experiments
+
+Now that we have our data, we can perform experiments on it using UpTrain. We use the `evaluate_experiments` method to do this. This method takes the following arguments:
+
+- `project_name`: The name of your project
+- `data`: The data you want to log and evaluate
+- `evals`: The evaluations you want to perform on your data
+- `exp_columns` - A list of all the columns that act as identifiers to indicate which experiment the row belongs to. You can enter multiple column names here.
+
+You can find the list of all available evaluations [here](https://docs.uptrain.ai/key-components/evals).
+
+
+```python
+results = client.evaluate_experiments(
+    project_name="Chunk-Size-Experiment",
+    data=data,
+    checks=[Evals.CONTEXT_RELEVANCE, Evals.RESPONSE_RELEVANCE, Evals.FACTUAL_ACCURACY],
+    exp_columns=["chunk_size"]
+)
+```
+
+### Get your results
+
+
+```python
+print(json.dumps(results, indent=3))
+```
+
+```
+    [
+       {
+          "question": "How can you ensure that a designed prompt elicits the desired response from a language model?",
+          "score_factual_accuracy_chunk_size_200": 1.0,
+          "score_factual_accuracy_chunk_size_1000": 1.0,
+          "score_context_relevance_chunk_size_200": 0.5,
+          "score_context_relevance_chunk_size_1000": 1.0,
+          "response_chunk_size_200": "To ensure that a designed prompt elicits the desired response from a language model, you can experiment with different prompt designs that nudge the model towards generating the desired result. This can be an efficient way to adapt the language model for a specific use case.",
+          "response_chunk_size_1000": "To ensure that a designed prompt elicits the desired response from a language model, you can manually create prompts that carefully craft the desired result. By iterating on the prompt and its configurations in Vertex AI Studio, you can experiment and adjust until you achieve the desired results. Additionally, it is important to note that the text models in Vertex AI Studio are designed to produce original content and not replicate existing content at length.",
+          "explanation_response_relevance_chunk_size_200": "The question asks specifically about ensuring that a designed prompt elicits the desired response from a language model. The response provides a direct answer to the question by suggesting experimenting with different prompt designs to nudge the model towards generating the desired result. This directly addresses the question without providing any additional irrelevant information. Therefore, the generated answer has no additional irrelevant information.\n\n1.0\n1.0\nThe machine-generated response adequately answers the user query by providing a relevant and comprehensive explanation of how to ensure that a designed prompt elicits the desired response from a language model. It mentions experimenting with different prompt designs to nudge the model towards generating the desired result, which directly addresses the question.\n\n1.0\n1.0",
+          "explanation_response_relevance_chunk_size_1000": "The question asks specifically about ensuring that a designed prompt elicits the desired response from a language model. The response provides information on manually creating prompts, iterating on the prompt and its configurations, and experimenting in Vertex AI Studio. While this information is related to the topic, it goes beyond the scope of the question and provides additional irrelevant information. Additionally, the statement about text models in Vertex AI Studio producing original content is not directly relevant to the question.\n\nThe generated answer has a lot of additional irrelevant information.\n\n0.0\n0.0\nThe response provided addresses the question by explaining how to ensure that a designed prompt elicits the desired response from a language model. It mentions the manual creation of prompts and the use of Vertex AI Studio to experiment and adjust until the desired results are achieved. It also adds a note about the purpose of text models in Vertex AI Studio. Therefore, the response adequately answers the given question.\n\n1. The response explains how to ensure that a designed prompt elicits the desired response from a language model.\n2. It provides specific steps such as manual creation of prompts and using Vertex AI Studio to experiment and adjust.\n3. It also includes additional information about the purpose of text models in Vertex AI Studio.\n\nThe correct answer is:\n(C) The generated answer answers the given question adequately.\n\n1.0\n1.0",
+          "explanation_factual_accuracy_chunk_size_200": "1. You can experiment with different prompt designs to elicit the desired response from a language model.\nArgument for yes: The context mentions that prompt design can be an efficient way to experiment with adapting a language model for a specific use case, implying that different prompt designs can be used to elicit the desired response.\nArgument for no: No arguments.\nJudgement: yes. Argument for yes looks stronger.\n\n2. Nudging the model towards generating the desired result can ensure the designed prompt elicits the desired response.\nArgument for yes: The context explicitly states that nudging the model towards generating the desired result can ensure the designed prompt elicits the desired response.\nArgument for no: No arguments.\nJudgement: yes. Argument for yes looks stronger.\n\n3. Adapting the language model for a specific use case can be an efficient way to ensure the designed prompt elicits the desired response.\nArgument for yes: The context explicitly states that adapting the language model for a specific use case can be an efficient way to ensure the designed prompt elicits the desired response.\nArgument for no: No arguments.\nJudgement: yes. Argument for yes looks stronger.\n\n",
+          "explanation_factual_accuracy_chunk_size_1000": "1. You can manually create prompts that carefully craft the desired result.\nArgument for yes: The context mentions that prompt design is the process of manually creating prompts that elicit the desired response from a language model.\nArgument for no: No arguments.\nJudgement: yes. Argument for yes looks stronger.\n\n2. The text models in Vertex AI Studio are designed to produce original content.\nArgument for yes: The context states that if you are using a text model in Vertex AI Studio, you receive text responses based on your input, and the features are intended to produce original content.\nArgument for no: No arguments.\nJudgement: yes. Argument for yes looks stronger.\n\n3. The text models in Vertex AI Studio are not designed to replicate existing content at length.\nArgument for yes: The context explicitly mentions that the features are intended to produce original content and not replicate existing content at length.\nArgument for no: No arguments.\nJudgement: yes. Argument for yes looks stronger.\n\n",
+          "context_chunk_size_200": "nudge the model to generate a desired result. Prompt design can be an efficient\nway to experiment with adapting a language model for a specific use case.",
+          "context_chunk_size_1000": "Design and save your own prompts\nPrompt design is the process of manually creating prompts that elicit the\ndesired response from a language model. By carefully crafting prompts, you can\nnudge the model to generate a desired result. Prompt design can be an efficient\nway to experiment with adapting a language model for a specific use case.\nYou can create and save your own prompts in Vertex AI Studio. When\ncreating a new prompt, you enter the prompt text, specify the model to use,\nconfigure parameter values, and test the prompt by generating a response. You\ncan iterate on the prompt and its configurations until you get the desired\nresults. When you are done designing the prompt, you can save it in\nVertex AI Studio.\nResponse citations\nIf you are using a text model in Vertex AI Studio like text-bison, you\nreceive text responses based on your input. Our features are intended to produce\noriginal content and not replicate existing content at length. If",
+          "explanation_context_relevance_chunk_size_200": "The question asks about ensuring that a designed prompt elicits the desired response from a language model. The extracted context mentions that prompt design can be an efficient way to experiment with adapting a language model for a specific use case. This suggests that prompt design can indeed ensure that a designed prompt elicits the desired response from a language model. However, the context does not provide specific methods or techniques to ensure this, so it only gives some relevant information but cannot answer the question completely.\n\n0.5\n0.5",
+          "explanation_context_relevance_chunk_size_1000": "The question asks how to ensure that a designed prompt elicits the desired response from a language model. The extracted context discusses the process of prompt design, including manually creating prompts, specifying the model to use, configuring parameter values, testing the prompt, and iterating on the prompt and its configurations until the desired results are achieved. It also mentions saving the designed prompt in Vertex AI Studio. This information directly addresses the question and provides a complete answer to it. Therefore, the correct choice is (A) The extracted context can answer the given question completely.\n\n1.0\n1.0",
+          "score_response_relevance_chunk_size_200": 1.0,
+          "score_response_relevance_chunk_size_1000": 0.0
+       }
+    ]
+```
+
+We can use these results to compare the changes in the model's response when the context length is changed. This would be more clear when done with a larger dataset. However, the process is the same.
+
+Factual Accuracy Score:
+
+
+```python
+print("Factual Accuracy for chunk size 200: ", results[0]["score_factual_accuracy_chunk_size_200"])
+print("Factual Accuracy for chunk size 1000: ", results[0]["score_factual_accuracy_chunk_size_1000"])
+```
+```
+    Factual Accuracy for chunk size 200:  1.0
+    Factual Accuracy for chunk size 1000:  1.0
+```
+
+Context Relevance Score:
+
+
+```python
+print("Context Relevance for chunk size 200: ", results[0]["score_context_relevance_chunk_size_200"])
+print("Context Relevance for chunk size 1000: ", results[0]["score_context_relevance_chunk_size_1000"])
+```
+```
+    Context Relevance for chunk size 200:  0.5
+    Context Relevance for chunk size 1000:  0.5
+```
+
+Response Relevance Score:
+
+
+```python
+print("Response Relevance for chunk size 200: ", results[0]["score_response_relevance_chunk_size_200"])
+print("Response Relevance for chunk size 1000: ", results[0]["score_response_relevance_chunk_size_1000"])
+```
+```
+    Response Relevance for chunk size 200:  1.0
+    Response Relevance for chunk size 1000:  0.6666666666666666
+```
+
+**Access UpTrain Dashboards**: We can access the evaluation results at https://demo.uptrain.ai/dashboard/ - the same API key can be used to access the dashboards. Here's a sample screenshot of the above evaluation performed on a larger dataset in the [Data Driven Experimentation Demo](https://github.com/uptrain-ai/uptrain/blob/main/examples/experiments/data_driven_experimentation_demo.ipynb).
+
+
+<img width="600" src="https://uptrain-assets.s3.ap-south-1.amazonaws.com/images/github-assets/Screenshot+2023-11-08+at+12.10.08+AM.png"/>
