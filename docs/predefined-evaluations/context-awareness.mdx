@@ -1,0 +1,32 @@
+---
+title: Context Awareness
+description: Grade how good the retrieved context is and how well the LLM is able to use it.
+---
+
+### FACTUAL_ACCURACY  ([Tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/factual_accuracy.ipynb))
+
+Grades how factual the generated response was.
+
+Columns required:
+- `question`
+- `context`
+- `response`
+
+
+### CONTEXT_RELEVANCE  ([Tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/context_relevance.ipynb))
+
+Grades how relevant the context was to the question specified.
+
+Columns required:
+- `question`
+- `context`
+
+
+### RESPONSE_COMPLETENESS_WRT_CONTEXT  ([Tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/response_completeness_wrt_context.ipynb))
+
+Grades how complete the generated response was for the question specified given the information provided in the context.
+
+Columns required:
+- `question`
+- `context`
+- `response`

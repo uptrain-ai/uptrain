@@ -45,8 +45,8 @@
     },
     {
       "name": "Community",
-      "icon": "discord",
-      "url": "https://discord.gg/zYXDMktp9P"
+      "icon": "slack",
+      "url": "https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
     },
     {
       "name": "API Reference",
@@ -64,27 +64,25 @@
       ]
     },
     {
-      "group": "Key Components 🗝️",
+      "group": "Predefined Evaluations 🗝️",
       "version": "v1",
       "pages": [
-        "key-components/settings",
-        "key-components/evals"
-      ]
-    },
-    {
-      "group": "Managed Services ☁️",
-      "version": "v1",
-      "pages": [
-        "managed-services/overview",
-        "managed-services/pricing"
+        "predefined-evaluations/evals",
+        "predefined-evaluations/response-quality",
+        "predefined-evaluations/context-awareness",
+        "predefined-evaluations/language-features",
+        "predefined-evaluations/conversation",
+        "predefined-evaluations/safeguarding",
+        "predefined-evaluations/code",
+        "predefined-evaluations/custom"
       ]
     },
     {
       "group": "Tutorials 📑",
       "version": "v1",
       "pages": [
-        "tutorials/uptrain-api-client",
         "tutorials/open-source-evaluator",
+        "tutorials/uptrain-api-client",
         "tutorials/experiments-evaluation-tutorial"
       ]
     },
