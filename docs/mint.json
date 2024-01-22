@@ -45,8 +45,8 @@
     },
     {
       "name": "Community",
-      "icon": "discord",
-      "url": "https://discord.gg/zYXDMktp9P"
+      "icon": "slack",
+      "url": "https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
     },
     {
       "name": "API Reference",
@@ -72,19 +72,11 @@
       ]
     },
     {
-      "group": "Managed Services ☁️",
-      "version": "v1",
-      "pages": [
-        "managed-services/overview",
-        "managed-services/pricing"
-      ]
-    },
-    {
       "group": "Tutorials 📑",
       "version": "v1",
       "pages": [
-        "tutorials/uptrain-api-client",
         "tutorials/open-source-evaluator",
+        "tutorials/uptrain-api-client",
         "tutorials/experiments-evaluation-tutorial"
       ]
     },
