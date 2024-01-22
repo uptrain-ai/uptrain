@@ -1,0 +1,15 @@
+---
+title: Conversation
+description: Grade the conversations between the user and the LLM/AI assistant.
+---
+
+### ConversationSatisfaction  ([Tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/language_features/conversation_satisfaction.ipynb))
+
+Measures the user's satisfaction with the conversation with the LLM/AI assistant based on completeness and user's acceptance.
+
+Columns required:
+- `conversation` - The chat between the user and the LLM/AI assistant (in the form of a list of dictionaries with keys 'role' and 'content')
+
+Parameters:
+- `user_persona` - The persona of the user asking the queries
+- `llm_persona` - The persona of the LLM/AI assistant

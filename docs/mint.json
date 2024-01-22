@@ -64,11 +64,17 @@
       ]
     },
     {
-      "group": "Key Components 🗝️",
+      "group": "Predefined Evaluations 🗝️",
       "version": "v1",
       "pages": [
-        "key-components/settings",
-        "key-components/evals"
+        "predefined-evaluations/evals",
+        "predefined-evaluations/response-quality",
+        "predefined-evaluations/context-awareness",
+        "predefined-evaluations/language-features",
+        "predefined-evaluations/conversation",
+        "predefined-evaluations/safeguarding",
+        "predefined-evaluations/code",
+        "predefined-evaluations/custom"
       ]
     },
     {
