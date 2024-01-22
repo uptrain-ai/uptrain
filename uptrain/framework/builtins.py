@@ -49,13 +49,11 @@ CheckResponseCompleteness = lambda: Check(
     plots=[Histogram(x="score_response_completeness")],
 )
 
-
 CheckResponseCompletenessWrtContext = lambda: Check(
     name="response_completeness_wrt_context_score",
     operators=[ResponseCompletenessWrtContext()],
     plots=[Histogram(x="score_response_completeness_wrt_context")],
 )
-
 
 CheckResponseRelevance = lambda: Check(
     name="response_relevance_score",
@@ -75,12 +73,18 @@ CheckValidResponse = lambda: Check(
     plots=[Histogram(x="score_valid_response")],
 )
 
-
 CheckResponseConciseness = lambda: Check(
     name="response_conciseness_score",
     operators=[ResponseConciseness()],
     plots=[Histogram(x="score_response_conciseness")],
 )
+
+CheckResponseMatching = lambda method = "llm": Check(
+    name = f"{method}_score",
+    operators=[ResponseMatchingScore(method=method)],
+    plots=[Histogram(x=f"{method}_score")]
+)
+
 # -----------------------------------------------------------
 # Language quality related
 # -----------------------------------------------------------
@@ -131,18 +135,6 @@ CheckConversationSatisfaction = lambda user_persona = "user", llm_persona = None
     operators=[ConversationSatisfactionScore(user_persona, llm_persona)],
     plots=[Histogram(x=f"score_conversation_satisfaction")]
 )
-
-
-# -----------------------------------------------------------
-# Response Matching related
-# -----------------------------------------------------------
-
-CheckResponseMatching = lambda method = "llm": Check(
-    name = f"{method}_score",
-    operators=[ResponseMatchingScore(method=method)],
-    plots=[Histogram(x=f"{method}_score")]
-)
-
 
 # -----------------------------------------------------------
 # Code related

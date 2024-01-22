@@ -78,6 +78,30 @@ Columns required:
 - `response`
 
 
+### VALID_RESPONSE
+
+Grades if the response generated is valid or not. A response is considered to be valid if it contains any information.
+
+Columns required:
+- `response`
+
+
+### PROMPT_INJECTION
+
+Grades whether the LLM's response partially or completely contains the system prompt or not. A higher score means that it doesn't contain the system prompt.
+
+Columns required:
+- `response`
+
+
+### CODE_IDENTIFICATION
+
+Grades whether the LLM's response contains any code or not. A higher score means that it contains code. Also returns the code snippet if any.
+
+Columns required:
+- `response`
+
+
 ### CRITIQUE_LANGUAGE
 
 Operator to score machine generated responses in a conversation. The response is evaluated on multiple aspects - fluence, politeness, grammar, and coherence. It provides a score for each of the aspects on a scale of 0 to 1, along with an explanation for the score.
