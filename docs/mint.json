@@ -84,7 +84,8 @@
       "version": "v1",
       "pages": [
         "tutorials/uptrain-api-client",
-        "tutorials/open-source-evaluator"
+        "tutorials/open-source-evaluator",
+        "tutorials/experiments-evaluation-tutorial"
       ]
     },
     {
