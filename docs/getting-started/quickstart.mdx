@@ -3,11 +3,6 @@ title: "Quickstart"
 description: "Get started with UpTrain in a few simple steps"
 ---
 
-### Get your UpTrain API key
-
-[Sign up](https://uptrain.ai/dashboard) for an UpTrain account and get your API key. You will be provided with 100 free credits to get started. You can also [contact us](https://calendly.com/uptrain-sourabh/uptrain-demo) for a demo or to get more credits.
-
-If you do not wish to create an UpTrain account, you can use your OpenAI API key instead. These evaluations are also run on UpTrain's infrastructure. Check out the [Open Source API Client](/tutorials/open-source-api-client) tutorial to learn how to do this.
 
 ### Install UpTrain
 
@@ -24,14 +19,6 @@ from uptrain import APIClient, Evals, CritiqueTone
 import json
 ```
 
-### Create an UpTrain API Client
-
-Before we can start using UpTrain, we need to create an API client. You can do this by passing your API key to the `APIClient` constructor.
-
-```python
-UPTRAIN_API_KEY = "up-***************"
-client = APIClient(uptrain_api_key=UPTRAIN_API_KEY)
-```
 
 ### Create your data
 
@@ -58,6 +45,18 @@ data = [{
 }]
 ```
 
+## Run evaluations using UpTrain's Open-Source Software (OSS)
+
+You can run evaluations on your data using UpTrain's OSS. This is a great way to get started with UpTrain and see how it works. You can also use this to run evaluations on your local machine.
+
+Create an instance of the `EvalLLM` class and pass your OpenAI API key to the constructor. You can find your OpenAI API key [here](https://beta.openai.com/account/api-keys).
+
+```python
+OPENAI_API_KEY = "sk-********************"  # Insert your OpenAI key here
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+```
+
 
 ### Log and evaluate your data
 
@@ -81,6 +80,33 @@ results = client.log_and_evaluate(
 
 ```python
 print(json.dumps(results, indent=3))
+```
+
+You can create a free UpTrain account [here](https://uptrain.ai/) and get free trial credits. If you want more trial credits, [book a call with the maintainers of UpTrain here](https://calendly.com/uptrain-sourabh/30min).
+
+## [Optional] UpTrain Managed Service and Dashboards
+
+UpTrain Managed service provides:
+1. Dashboards with advanced drill-down and filtering options
+2. Insights and common topics among failing cases
+3. Observability and real-time monitoring of production data
+4. Regression testing via seamless integration with your CI/CD pipelines
+
+```python
+from uptrain import APIClient, Evals
+import json
+
+UPTRAIN_API_KEY = "up-********************"  # Insert your UpTrain key here
+
+uptrain_client = APIClient(uptrain_api_key=UPTRAIN_API_KEY)
+
+res = uptrain_client.log_and_evaluate(
+    "Sample-context-relevance-evals",
+    data,
+    [Evals.CONTEXT_RELEVANCE]
+)
+
+print(json.dumps(res,indent=3))
 ```
 
 
@@ -122,5 +148,3 @@ results = client.evaluate_experiments(
 
 print(json.dumps(results, indent=3))
 ```
-
-If you wish to create your own custom evaluations with your own custom graphs, you can follow our [UpTrain API Client tutorial](/tutorials/uptrain-api-client) to learn how to do so.
