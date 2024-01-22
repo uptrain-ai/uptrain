@@ -60,10 +60,10 @@
 #### Defining custom evaluations and others:
 1. [Guideline Adherence](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/custom/guideline_adherence.ipynb): Grades how well the LLM adheres to a given custom guideline.
 2. [Custom Prompt Evaluation](): Evaluate by defining your custom grading prompt.
-3. [Cosine Similarity](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/other/cosine_similarity.ipynb): Calculate cosine similarity between embeddings of two texts.
+3. [Cosine Similarity](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/custom/cosine_similarity.ipynb): Calculate cosine similarity between embeddings of two texts.
 
 #### Evaluate the conversation as a whole:
-1. [Conversation Satisfaction](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/evaluate_conversation_satisfaction.ipynb): Measures the user’s satisfaction with the conversation with the LLM/AI assistant based on completeness and user’s acceptance.
+1. [Conversation Satisfaction](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/conversation/conversation_satisfaction.ipynb): Measures the user’s satisfaction with the conversation with the LLM/AI assistant based on completeness and user’s acceptance.
 
 
 # Get started 🙌
