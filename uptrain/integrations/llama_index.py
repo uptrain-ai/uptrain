@@ -5,6 +5,7 @@ import typing as t
 
 from loguru import logger
 import polars as pl
+from uptrain import Settings
 from uptrain.framework.evals import Evals, ParametricEval
 from uptrain.framework.evalllm import EvalLLM
 from uptrain.framework.remote import APIClient
@@ -20,15 +21,22 @@ __all__ = [
 
 class EvalLlamaIndex:
     query_engine: BaseQueryEngine
+    client: t.Union[EvalLLM, APIClient]
 
-    def __init__(self, query_engine: BaseQueryEngine) -> None: 
+    def __init__(self, settings: Settings, query_engine: BaseQueryEngine) -> None:
+        if settings is None:
+            raise Exception("Please provide OpenAI API Key or Uptrain API Key in settings")
         if not isinstance(query_engine, BaseQueryEngine):
             raise Exception("Please provide Query Engine for the evaluation")
         self.query_engine = query_engine
 
+        if settings.uptrain_access_token is not None:
+            self.client = APIClient(settings)
+        elif settings.check_and_get("openai_api_key"):
+            self.client = EvalLLM(settings)
+
     def evaluate(
         self,
-        client : t.Union[EvalLLM, APIClient],
         data: t.Union[list[dict], pl.DataFrame],
         checks: list[t.Union[str, Evals, ParametricEval]],
         project_name: str = None,
@@ -73,15 +81,15 @@ class EvalLlamaIndex:
             data[index][schema.response] = r.response
             data[index][schema.context] = "\n".join([c.node.get_content() for c in r.source_nodes])
 
-        if isinstance(client, EvalLLM):
-            results = client.evaluate(
+        if isinstance(self.client, EvalLLM):
+            results = self.client.evaluate(
                 data = data,
                 checks = checks,
                 schema = schema,
                 metadata = metadata
             )
-        elif isinstance(client, APIClient):
-            results = client.log_and_evaluate(
+        elif isinstance(self.client, APIClient):
+            results = self.client.log_and_evaluate(
                 project_name = project_name,
                 data = data,
                 checks = checks,
