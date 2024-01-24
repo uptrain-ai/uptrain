@@ -38,16 +38,16 @@
 # Pre-built Evaluations We Offer 📝
 
 #### Evaluate the quality of your responses:
-1. [Response Completeness](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/response_completeness.ipynb): Grades how if the response completely resolves the given user query.
-2. [Response Relevance](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/response_relevance.ipynb): Grades how relevant the generated response is for the given question.
-3. [Response Conciseness](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/response_conciseness.ipynb): Grades how concise the generated response is i.e. the extent of additional irrelevant information in the response.
+1. [Response Completeness](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/completeness.ipynb): Grades how if the response completely resolves the given user query.
+2. [Response Relevance](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/relevance.ipynb): Grades how relevant the generated response is for the given question.
+3. [Response Conciseness](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/conciseness.ipynb): Grades how concise the generated response is i.e. the extent of additional irrelevant information in the response.
 4. [Response Matching](): Operator to compare the llm-generated text with the gold (ideal) response using the defined score metric.
-5. [Response Consistency](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/response_consistency.ipynb): Grades how consistent the response is with the question asked as well as with the context provided.
+5. [Response Consistency](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/consistency.ipynb): Grades how consistent the response is with the question asked as well as with the context provided.
 
 #### Evaluate the quality of retrieved context and response groundedness:
 1. [Factual Accuracy](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/factual_accuracy.ipynb): Checks if the facts present in the response can be verified by the retrieved context
 2. [Response Completeness wrt Context](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/response_completeness_wrt_context.ipynb): Grades how complete the response was for the question specified with respect to the information present in the context
-3. [Context Relevance](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/context_relevance.ipynb): Evaluates if the retrieved context contain sufficient information to answer the given question
+3. [Context Relevance](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/relevance.ipynb): Evaluates if the retrieved context contain sufficient information to answer the given question
 
 #### Evaluations to safeguard system prompts and avoid LLM mis-use:
 1. [Prompt Injection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/system_prompt_injection.ipynb): Identifys prompt leakage attacks
@@ -136,7 +136,7 @@ results = client.log_and_evaluate(
 print(json.dumps(results, indent=3))
 ```
 
-To have a customized onboarding, please book a [demo call here](https://calendly.com/uptrain-sourabh/uptrain-demo).
+To have a customized onboarding, please book a [demo call here](https://calendly.com/uptrain-sourabh/30min).
 
 ### Performing experiments with UpTrain:
 
@@ -231,7 +231,7 @@ We are constantly working to make UpTrain better. Want a new feature or need any
 
 # License 💻
 
-This repo is published under Apache 2.0 license and we are committed to adding more functionalities to the UpTrain open-source repo. Upon popular demand, we have also rolled out a [no-code self-serve console](https://demo.uptrain.ai/dashboard). For customized onboarding, please book a [demo call here](https://calendly.com/uptrain-sourabh/uptrain-demo).
+This repo is published under Apache 2.0 license and we are committed to adding more functionalities to the UpTrain open-source repo. Upon popular demand, we have also rolled out a [no-code self-serve console](https://demo.uptrain.ai/dashboard). For customized onboarding, please book a [demo call here](https://calendly.com/uptrain-sourabh/30min).
 
 # Stay Updated ☎️
 We are continuously adding tons of features and use cases. Please support us by giving the project a star ⭐!
