@@ -20,3 +20,15 @@ Columns required:
 
 Parameters:
 - `llm_persona` - The persona the chatbot being assessed was expected to follow
+
+
+### RougeScore  ([Tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/language_features/rouge_score.ipynb))
+    
+Operator to measure the similarity between two pieces of text
+
+Columns required:
+- `text-generated`
+- `text-source`
+
+Parameters:
+- `source_type` - e.g., "f1", "precision", "recall"
