@@ -136,7 +136,7 @@ class ConceptDrift(ColumnOp):
             )
         return values
 
-    def setup(self, settings: Settings):
+    def setup(self):
         if self.algorithm == "DDM":
             self._algo_obj = drift.binary.DDM(**self.params.dict())  # type: ignore
         elif self.algorithm == "ADWIN":
