@@ -33,6 +33,7 @@ class EvalLLM:
         self,
         data: t.Union[list[dict], pl.DataFrame, pd.DataFrame],
         checks: list[t.Union[str, Evals, ParametricEval]],
+        scenario_description: t.Union[str, list[str], None] = None,
         schema: t.Union[DataSchema, dict[str, str], None] = None,
         metadata: t.Optional[dict[str, str]] = None
     ):
@@ -79,9 +80,12 @@ class EvalLLM:
                 req_attrs.update([schema.conversation])
 
             if isinstance(m, ParametricEval):
-                ser_checks.append({"check_name": m.__class__.__name__, **m.dict()})
+                dictm = m.dict()
+                dictm.update({"scenario_description": scenario_description})
+                ser_checks.append({"check_name": m.__class__.__name__, **dictm})
             elif isinstance(m, Evals):
-                ser_checks.append(m.value)
+                dictm = {"scenario_description": scenario_description}
+                ser_checks.append({"check_name": m.value, **dictm})
             else:
                 raise ValueError(f"Invalid metric: {m}")
         for idx, row in enumerate(data):

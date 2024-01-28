@@ -38,6 +38,7 @@ class GuidelineAdherenceScore(ColumnOp):
     guideline_name: str = "guideline"
     response_schema: t.Union[str, None] = None
     col_out: str  = "score_guideline_adherence"
+    scenario_description: t.Union[str, list[str], None] = None
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
@@ -59,7 +60,8 @@ class GuidelineAdherenceScore(ColumnOp):
                 "GuidelineAdherence", data_send, {
                     "guideline": self.guideline,
                     "guideline_name": self.guideline_name,
-                    "response_schema": self.response_schema
+                    "response_schema": self.response_schema,
+                    "scenario_description": self.scenario_description
                 })
                 
         except Exception as e:
