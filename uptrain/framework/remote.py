@@ -52,7 +52,7 @@ class APIClientWithoutAuth:
     def evaluate(
         self,
         data: list[dict],
-        checks: list[t.Union[Evals, ParametricEval]],
+        checks: list[t.Union[Evals, ParametricEval, dict]],
         metadata: dict,
     ):
         """Run an evaluation on the UpTrain server (Doesn't require UpTrain API Key).
@@ -433,6 +433,7 @@ class APIClient:
         project_name: str,
         data: t.Union[list[dict], pl.DataFrame, pd.DataFrame],
         checks: list[t.Union[str, Evals, ParametricEval]],
+        scenario_description: t.Union[str, list[str], None] = None,
         schema: t.Union[DataSchema, dict[str, str], None] = None,
         metadata: t.Optional[dict[str, t.Any]] = None,
     ):
@@ -486,9 +487,9 @@ class APIClient:
                 req_attrs.update([schema.conversation])
 
             if isinstance(m, ParametricEval):
-                ser_checks.append({"check_name": m.__class__.__name__, **m.dict()})
+                ser_checks.append({"check_name": m.__class__.__name__, **m.dict(), "scenario_description": scenario_description})
             elif isinstance(m, Evals):
-                ser_checks.append(m.value)
+                ser_checks.append({"scenario_description": scenario_description, "check_name": m.value})
             else:
                 raise ValueError(f"Invalid metric: {m}")
         for idx, row in enumerate(data):
