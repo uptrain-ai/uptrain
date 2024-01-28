@@ -32,6 +32,7 @@ class ResponseMatchingScore(ColumnOp):
     col_ground_truth: str = "ground_truth"
     method: str = t.Literal["exact", "rouge", "llm"]
     col_out: str = "score_response_match"
+    scenario_description: t.Union[str, list[str], None] = None
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
@@ -52,7 +53,8 @@ class ResponseMatchingScore(ColumnOp):
         try:
             results = self._api_client.evaluate(
                 "ResponseMatching", data_send, {
-                    "type": self.method            
+                    "type": self.method,
+                    "scenario_description": self.scenario_description            
                 })
 
         except Exception as e:
@@ -79,6 +81,7 @@ class ValidResponseScore(ColumnOp):
 
     col_response: str = "response"
     col_out: str = "score_valid_response"
+    scenario_description: t.Union[str, list[str], None] = None
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
@@ -94,7 +97,7 @@ class ValidResponseScore(ColumnOp):
             for row in data.to_dicts()
         ]
         try:
-            results = self._api_client.evaluate("valid_response", data_send)
+            results = self._api_client.evaluate("valid_response", data_send, {"scenario_description": self.scenario_description})
 
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ResponseMatchingScore`: {e}")
