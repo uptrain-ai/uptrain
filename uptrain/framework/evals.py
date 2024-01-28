@@ -36,10 +36,11 @@ class ConversationSatisfaction(ParametricEval):
     llm_persona: t.Union[str, None] = None
 
 class CustomPromptEval(ParametricEval):
-    choice_strings: dict
-    prompt: str
-    eval_type: str
-    context_vars: t.Union[dict[str, str], None] = None
-    
+    prompt: str   # Evaluation prompt for the LLM
+    choices: list[str]   # We only support Grading evals, list of choices for the LLM to select from. ex: [Correct, Incorrect]
+    choice_scores: t.Union[list[float], list[int]]   # Scores associated for each choice. ex: [1.0, 0.0]
+    eval_type: t.Literal["classify", "cot_classify"] = "cot_classify"
+    prompt_var_to_column_mapping: t.Union[dict[str, str], None] = None   # Specify matching between variables in the evaluation prompt and keys in your data 
+
 class ResponseMatching(ParametricEval):
     method: str = "llm"

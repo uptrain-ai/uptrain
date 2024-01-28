@@ -15,3 +15,15 @@ Parameters:
 - `guideline` - The guideline to be followed
 - `guideline_name` (optional) - User-assigned name of the guideline to distinguish between multiple checks
 - `resopnse_schema` (optional) - Schema of the response in case it is of type JSON, XML, etc.
+
+
+### CustomPromptEval  ([Tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/custom/writing_custom_evals.ipynb))
+
+Specify any custom prompt used for grading among a list of choices.
+
+Parameters:
+- `prompt` - Evaluation prompt used to generate the grade
+- `choices` - List of choices/grades to choose from
+- `choice_scores` - Scores associated with each choice
+- `eval_type` (optional) - One of ["classify", "cot_classify"], determining if chain-of-thought prompting is to be applied or not
+- `prompt_var_to_column_mapping` (optional) - Mapping between variables defined in the prompt vs column names in the data
