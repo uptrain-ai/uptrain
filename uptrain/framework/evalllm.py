@@ -80,9 +80,12 @@ class EvalLLM:
                 req_attrs.update([schema.conversation])
 
             if isinstance(m, ParametricEval):
-                ser_checks.append({"check_name": m.__class__.__name__, **m.dict(), "scenario_description": scenario_description})
+                dictm = m.dict()
+                dictm.update({"scenario_description": scenario_description})
+                ser_checks.append({"check_name": m.__class__.__name__, **dictm})
             elif isinstance(m, Evals):
-                ser_checks.append({"check_name": m.value, "scenario_description": scenario_description})
+                dictm = {"scenario_description": scenario_description}
+                ser_checks.append({"check_name": m.value, **dictm})
             else:
                 raise ValueError(f"Invalid metric: {m}")
         for idx, row in enumerate(data):
