@@ -474,6 +474,7 @@ class APIClient:
 
         if metadata is None:
             metadata = {}
+        metadata["internal_call"] = metadata.get("internal_call", False)
 
         req_attrs, ser_templates = set(), []
         if rca_template == RcaTemplate.RAG_WITH_CITATION:
