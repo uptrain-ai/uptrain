@@ -14,7 +14,7 @@ import pydantic
 from uptrain.framework.checks import CheckSet, ExperimentArgs
 from uptrain.framework.base import Settings
 from uptrain.framework.evals import Evals, ParametricEval, CritiqueTone, GuidelineAdherence, ResponseMatching, ConversationSatisfaction
-
+from uptrain.framework.rca_templates import RcaTemplate
 
 class DataSchema(pydantic.BaseModel):
     id_: str = "id"
@@ -22,9 +22,18 @@ class DataSchema(pydantic.BaseModel):
     response: str = "response"
     context: str = "context"
     ground_truth: str = "ground_truth"
+
+    # Used for conversation evals
     conversation: str = 'conversation'
+
+    # Used for RcaTemplate: RAG_WITH_CITATION
+    cited_context: str = "cited_context"
+
+    # TODO: Remove
     scenario: str = "scenario"
     objective: str = "objective"
+
+
 
 
 def raise_or_return(response: httpx.Response):
@@ -427,6 +436,96 @@ class APIClient:
                 results.extend(response_json)
 
         return results
+
+
+    def perform_root_cause_analysis(
+        self,
+        project_name: str,
+        data: t.Union[list[dict], pl.DataFrame, pd.DataFrame],
+        rca_template: RcaTemplate,
+        scenario_description: t.Optional[str] = None,
+        schema: t.Union[DataSchema, dict[str, str], None] = None,
+        metadata: t.Optional[dict[str, t.Any]] = None,
+    ):
+        """Perform root cause analysis on the server.
+
+        Args:
+            project_name: Name of the project to run root cause analysis on.
+            data: Data to do rca on. Either a Pandas DataFrame or a list of dicts.
+            rca_template: rca template to run.
+            schema: Schema of the data. Only required if the data attributes aren't typical (question, response, context).
+            metadata: Attributes to attach to this dataset. Useful for filtering and grouping in the UI.
+
+        Returns:
+            results: List of dictionaries with each data point and corresponding error modes.
+        """
+
+        url = f"{self.base_url}/perform_root_cause_analysis"
+
+        if isinstance(data, pl.DataFrame):
+            data = data.to_dicts()
+        elif isinstance(data, pd.DataFrame):
+            data = data.to_dict(orient="records")
+
+        if schema is None:
+            schema = DataSchema()
+        elif isinstance(schema, dict):
+            schema = DataSchema(**schema)
+
+        if metadata is None:
+            metadata = {}
+
+        req_attrs, ser_templates = set(), []
+        if rca_template == RcaTemplate.RAG_WITH_CITATION:
+            req_attrs.update([schema.question, schema.response, schema.context, schema.cited_context])
+        else:
+            raise Exception("RCA Template not supported yet")
+
+        dictn = {"scenario_description": scenario_description}
+        ser_templates.append({"rca_template_name": rca_template.value, **dictn})
+
+        for idx, row in enumerate(data):
+            if not req_attrs.issubset(row.keys()):
+                raise ValueError(
+                    f"Row {idx} is missing required all required attributes for evaluation: {req_attrs}"
+                )
+
+        # send in chunks of 50, so the connection doesn't time out waiting for the server
+        results = []
+        NUM_TRIES, BATCH_SIZE = 3, 50
+        for i in range(0, len(data), BATCH_SIZE):
+            response_json = None
+            for try_num in range(NUM_TRIES):
+                try:
+                    logger.info(
+                        f"Sending root cause analysis request for rows {i} to <{i+BATCH_SIZE} to the Uptrain server"
+                    )
+                    response = self.client.post(
+                        url,
+                        json={
+                            "data": data[i : i + BATCH_SIZE],
+                            "rca_templates": ser_templates,
+                            "metadata": {
+                                "project": project_name,
+                                "schema": schema.dict(),
+                                **metadata,
+                                "uptrain_settings": self.settings.dict(),
+                            },
+                        },
+                    )
+                    response_json = raise_or_return(response)
+                    break
+                except Exception as e:
+                    logger.info("Retrying root cause analysis request")
+                    if try_num == NUM_TRIES - 1:
+                        logger.error(f"Evaluation failed with error: {e}")
+                        raise e
+
+            if response_json is not None:
+                results.extend(response_json)
+
+        return results
+
 
     def log_and_evaluate(
         self,
