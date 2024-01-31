@@ -14,7 +14,8 @@ __all__ = [
     "GuidelineAdherence",
     "ResponseMatching",
     "ConversationSatisfaction",
-    "CustomPromptEval"
+    "CustomPromptEval",
+    "RcaTemplate"
 ]
 
 from .base import OperatorDAG, Settings
@@ -23,4 +24,5 @@ from .signal import Signal
 from .remote import APIClient, DataSchema
 from .builtins import builtins
 from .evals import Evals, CritiqueTone, GuidelineAdherence, ResponseMatching, ConversationSatisfaction, CustomPromptEval
+from .rca_templates import RcaTemplate
 from .evalllm import EvalLLM

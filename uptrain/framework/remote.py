@@ -444,6 +444,7 @@ class APIClient:
         data: t.Union[list[dict], pl.DataFrame, pd.DataFrame],
         rca_template: RcaTemplate,
         scenario_description: t.Optional[str] = None,
+        schema: t.Union[DataSchema, dict[str, str], None] = None,
         metadata: t.Optional[dict[str, t.Any]] = None,
     ):
         """Perform root cause analysis on the server.
@@ -452,6 +453,7 @@ class APIClient:
             project_name: Name of the project to run root cause analysis on.
             data: Data to do rca on. Either a Pandas DataFrame or a list of dicts.
             rca_template: rca template to run.
+            schema: Schema of the data. Only required if the data attributes aren't typical (question, response, context).
             metadata: Attributes to attach to this dataset. Useful for filtering and grouping in the UI.
 
         Returns:
@@ -465,12 +467,17 @@ class APIClient:
         elif isinstance(data, pd.DataFrame):
             data = data.to_dict(orient="records")
 
+        if schema is None:
+            schema = DataSchema()
+        elif isinstance(schema, dict):
+            schema = DataSchema(**schema)
+
         if metadata is None:
             metadata = {}
 
         req_attrs, ser_templates = set(), []
         if rca_template == RcaTemplate.RAG_WITH_CITATION:
-            req_attrs.update([DataSchema.question, DataSchema.response, DataSchema.context, DataSchema.cited_context])
+            req_attrs.update([schema.question, schema.response, schema.context, schema.cited_context])
         else:
             raise Exception("RCA Template not supported yet")
 
@@ -500,6 +507,7 @@ class APIClient:
                             "rca_templates": ser_templates,
                             "metadata": {
                                 "project": project_name,
+                                "schema": schema.dict(),
                                 **metadata,
                                 "uptrain_settings": self.settings.dict(),
                             },
