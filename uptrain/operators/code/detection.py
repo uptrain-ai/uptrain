@@ -22,6 +22,8 @@ class CodeIdentificationScore(ColumnOp):
 
     Attributes:
         col_response (str): Column name for the stored responses
+        col_question (str): Column name for the stored questions
+        col_context (str): Column name for the stored contexts
         col_out (str): Column name to output scores
     Raises:
         Exception: Raises exception for any failed evaluation attempts
@@ -29,6 +31,8 @@ class CodeIdentificationScore(ColumnOp):
     """
 
     col_response: str = "response"
+    col_question: str = "question"
+    col_context: str = "context"
     col_out: str = "score_code_identification"
 
     def setup(self, settings: t.Optional[Settings] = None):
@@ -42,6 +46,8 @@ class CodeIdentificationScore(ColumnOp):
         data_send = [
             {
                 "response": row[self.col_response],
+                "question": row[self.col_question],
+                "context": row[self.col_context]
             }
             for row in data.to_dicts()
         ]
