@@ -35,6 +35,7 @@ class RagWithCitation(ColumnOp):
     col_context: str = "context"
     col_response: str = "response"
     col_cited_context: str = "cited_context"
+    col_out: str = "score_context_relevance"
     scenario_description: t.Union[str, list[str], None] = None
 
     def setup(self, settings: t.Optional[Settings] = None):
