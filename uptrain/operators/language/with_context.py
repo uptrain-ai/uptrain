@@ -12,6 +12,7 @@ import polars as pl
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
 from uptrain.operators.base import *
+from uptrain.utilities import polars_to_json_serializable_dict
 
 
 @register_op
@@ -45,14 +46,12 @@ class ResponseFactualScore(ColumnOp):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        data_send = [
-            {
-                "question": row[self.col_question],
-                "response": row[self.col_response],
-                "context": row[self.col_context],
-            }
-            for row in data.to_dicts()
-        ]
+        data_send = polars_to_json_serializable_dict(data)
+        for row in data_send:
+            row["question"] = row.pop(self.col_question)
+            row["response"] = row.pop(self.col_response)
+            row["context"] = row.pop(self.col_context)
+
         try:
             results = self._api_client.evaluate("factual_accuracy", data_send, {"scenario_description" : self.scenario_description})
         except Exception as e:
@@ -90,13 +89,11 @@ class ResponseCompleteness(ColumnOp):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        data_send = [
-            {
-                "question": row[self.col_question],
-                "response": row[self.col_response],
-            }
-            for row in data.to_dicts()
-        ]
+        data_send = polars_to_json_serializable_dict(data)
+        for row in data_send:
+            row["question"] = row.pop(self.col_question)
+            row["response"] = row.pop(self.col_response)
+
         try:
             results = self._api_client.evaluate("response_completeness", data_send, {'scenario_description': self.scenario_description})
         except Exception as e:
@@ -127,14 +124,12 @@ class ResponseCompletenessWrtContext(ColumnOp):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        data_send = [
-            {
-                "question": row[self.col_question],
-                "response": row[self.col_response],
-                "context": row[self.col_context],
-            }
-            for row in data.to_dicts()
-        ]
+        data_send = polars_to_json_serializable_dict(data)
+        for row in data_send:
+            row["question"] = row.pop(self.col_question)
+            row["response"] = row.pop(self.col_response)
+            row["context"] = row.pop(self.col_context)
+
         try:
             results = self._api_client.evaluate(
                 "response_completeness_wrt_context", data_send, {"scenario_description": self.scenario_description}
@@ -176,13 +171,11 @@ class ContextRelevance(ColumnOp):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        data_send = [
-            {
-                "question": row[self.col_question],
-                "context": row[self.col_context],
-            }
-            for row in data.to_dicts()
-        ]
+        data_send = polars_to_json_serializable_dict(data)
+        for row in data_send:
+            row["question"] = row.pop(self.col_question)
+            row["context"] = row.pop(self.col_context)
+
         try:
             results = self._api_client.evaluate("context_relevance", data_send, {"scenario_description":self.scenario_description})
         except Exception as e:
@@ -221,13 +214,11 @@ class ResponseRelevance(ColumnOp):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        data_send = [
-            {
-                "question": row[self.col_question],
-                "response": row[self.col_response],
-            }
-            for row in data.to_dicts()
-        ]
+        data_send = polars_to_json_serializable_dict(data)
+        for row in data_send:
+            row["question"] = row.pop(self.col_question)
+            row["response"] = row.pop(self.col_response)
+
         try:
             results = self._api_client.evaluate("response_relevance", data_send, {"scenario_description": self.scenario_description})
         except Exception as e:
@@ -268,13 +259,11 @@ class ResponseConciseness(ColumnOp):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        data_send = [
-            {
-                "question": row[self.col_question],
-                "response": row[self.col_response],
-            }
-            for row in data.to_dicts()
-        ]
+        data_send = polars_to_json_serializable_dict(data)
+        for row in data_send:
+            row["question"] = row.pop(self.col_question)
+            row["response"] = row.pop(self.col_response)
+
         try:
             results = self._api_client.evaluate("response_conciseness", data_send, {"scenario_description": self.scenario_description})
         except Exception as e:
@@ -317,14 +306,12 @@ class ResponseConsistency(ColumnOp):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        data_send = [
-            {
-                "question": row[self.col_question],
-                "response": row[self.col_response],
-                "context": row[self.col_context]
-            }
-            for row in data.to_dicts()
-        ]
+        data_send = polars_to_json_serializable_dict(data)
+        for row in data_send:
+            row["question"] = row.pop(self.col_question)
+            row["response"] = row.pop(self.col_response)
+            row["context"] = row.pop(self.col_context)
+
         try:
             results = self._api_client.evaluate("response_consistency", data_send, {"scenario_description" : self.scenario_description})
         except Exception as e:

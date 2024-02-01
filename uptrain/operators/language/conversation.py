@@ -13,6 +13,7 @@ if t.TYPE_CHECKING:
     from uptrain.framework import Settings
 from uptrain.operators.base import *
 
+from uptrain.utilities import polars_to_json_serializable_dict
 
 @register_op
 class ConversationSatisfactionScore(ColumnOp):
@@ -40,12 +41,10 @@ class ConversationSatisfactionScore(ColumnOp):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        data_send = [
-            {
-                "conversation": row[self.col_conversation]
-            }
-            for row in data.to_dicts()
-        ]
+        data_send = polars_to_json_serializable_dict(data)
+        for row in data_send:
+            row["conversation"] = row.pop(self.col_conversation)
+
         try:
             results = self._api_client.evaluate(
                 "ConversationSatisfaction", data_send, {

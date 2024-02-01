@@ -75,13 +75,11 @@ async def async_process_payload(
                     exc,
                     (
                         litellm.RateLimitError,
-                        litellm.llms.azure.AzureOpenAIError,
                         openai.APIConnectionError,
                         openai.APITimeoutError,
-                        openai.RateLimitError,
                         openai.InternalServerError,
-                        openai.APIError,
-                        openai.Timeout
+                        openai.RateLimitError,
+                        openai.UnprocessableEntityError
                     ),
                 )
                 and count < max_retries - 1
@@ -111,6 +109,9 @@ async def async_process_payload(
                     logger.info(
                         f"Switching to larger context model for payload {payload.metadata['index']}"
                     )
+                else:
+                    payload.error = str(exc)
+                    break
             else:
                 payload.error = str(exc)
                 break
