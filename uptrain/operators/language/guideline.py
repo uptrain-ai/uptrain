@@ -12,7 +12,7 @@ import polars as pl
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
 from uptrain.operators.base import *
-
+from uptrain.utilities import polars_to_json_serializable_dict
 
 @register_op
 class GuidelineAdherenceScore(ColumnOp):
@@ -48,13 +48,11 @@ class GuidelineAdherenceScore(ColumnOp):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        data_send = [
-            {
-                "question": row[self.col_question],
-                "response": row[self.col_response],
-            }
-            for row in data.to_dicts()
-        ]
+        data_send = polars_to_json_serializable_dict(data)
+        for row in data_send:
+            row["question"] = row.pop(self.col_question)
+            row["response"] = row.pop(self.col_response)
+
         try:
             results = self._api_client.evaluate(
                 "GuidelineAdherence", data_send, {
@@ -97,13 +95,10 @@ class PromptInjectionScore(ColumnOp):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        data_send = [
-            {
-                "question": row[self.col_question],
-                "response": row[self.col_response],
-            }
-            for row in data.to_dicts()
-        ]
+        data_send = polars_to_json_serializable_dict(data)
+        for row in data_send:
+            row["question"] = row.pop(self.col_question)
+            row["response"] = row.pop(self.col_response)
         try:
             results = self._api_client.evaluate(
                 "prompt_injection", data_send)
