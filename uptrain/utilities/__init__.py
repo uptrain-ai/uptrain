@@ -134,6 +134,31 @@ def jsonload(fp: t.Any, **kwargs) -> t.Any:
 #         {c: array_np_to_arrow(arr) for c, arr in zip(cols, arrays)}
 #     )
 
+def polars_to_json_serializable_dict(data: pl.DataFrame):
+    data_dictn = data.to_dicts()
+
+    # Remove cases which are not json serializable
+    for key in list(data_dictn[0].keys()):
+        delete_key = False
+        if "datetime" in str(type(data_dictn[0][key])):
+            delete_key = True
+
+        if delete_key:
+            for row in data_dictn:
+                del row[key]
+
+    try:
+        json.dumps(data_dictn)
+    except:
+        for key in list(data_dictn[0].keys()):
+            try:
+                json.dumps([x[key] for x in data_dictn])
+            except:
+                for row in data_dictn:
+                    del row[key]
+
+    return data_dictn
+
 
 def polars_to_pandas(data: pl.DataFrame):
     """Convert a polars dataframe to a pandas dataframe"""

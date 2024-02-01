@@ -11,7 +11,7 @@ import polars as pl
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
 from uptrain.operators.base import *
-
+from uptrain.utilities import polars_to_json_serializable_dict
 
 @register_op
 class ResponseMatchingScore(ColumnOp):
@@ -28,6 +28,7 @@ class ResponseMatchingScore(ColumnOp):
 
     """
 
+    col_question: str = "question"
     col_response: str = "response"
     col_ground_truth: str = "ground_truth"
     method: str = t.Literal["exact", "rouge", "llm"]
@@ -43,13 +44,12 @@ class ResponseMatchingScore(ColumnOp):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        data_send = [
-            {
-                "response": row[self.col_response],
-                "ground_truth": row[self.col_ground_truth],
-            }
-            for row in data.to_dicts()
-        ]
+        data_send = polars_to_json_serializable_dict(data)
+        for row in data_send:
+            row["question"] = row.pop(self.col_question)
+            row["response"] = row.pop(self.col_response)
+            row["ground_truth"] = row.pop(self.col_ground_truth)
+
         try:
             results = self._api_client.evaluate(
                 "ResponseMatching", data_send, {
@@ -90,12 +90,10 @@ class ValidResponseScore(ColumnOp):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        data_send = [
-            {
-                "response": row[self.col_response],
-            }
-            for row in data.to_dicts()
-        ]
+        data_send = polars_to_json_serializable_dict(data)
+        for row in data_send:
+            row["response"] = row.pop(self.col_response)
+
         try:
             results = self._api_client.evaluate("valid_response", data_send, {"scenario_description": self.scenario_description})
 

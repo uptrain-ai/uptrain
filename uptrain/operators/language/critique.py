@@ -16,6 +16,7 @@ if t.TYPE_CHECKING:
     from uptrain.framework import Settings
 from uptrain.operators.base import *
 
+from uptrain.utilities import polars_to_json_serializable_dict
 
 @register_op
 class LanguageCritique(ColumnOp):
@@ -43,10 +44,10 @@ class LanguageCritique(ColumnOp):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        data_send = [
-            {"text": row[self.col_response]}
-            for row in data.to_dicts()
-        ]
+        data_send = polars_to_json_serializable_dict(data)
+        for row in data_send:
+            row["text"] = row.pop(self.col_response)
+
         try:
             results = self._api_client.evaluate("critique_language", data_send)
         except Exception as e:
@@ -83,10 +84,10 @@ class ToneCritique(ColumnOp):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        data_send = [
-            {"response": row[self.col_response]}
-            for row in data.to_dicts()
-        ]
+        data_send = polars_to_json_serializable_dict(data)
+        for row in data_send:
+            row["response"] = row.pop(self.col_response)
+
         try:
             results = self._api_client.evaluate(
                 "critique_tone", data_send, {"llm_persona": self.llm_persona}

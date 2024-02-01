@@ -58,7 +58,7 @@ class APIClientWithoutAuth:
         server_url = settings.check_and_get("uptrain_server_url")
         self.base_url = server_url.rstrip("/") + "/api/open"
         self.client = httpx.Client(
-            timeout=httpx.Timeout(1500, connect=5),
+            timeout=httpx.Timeout(7200, connect=5),
         )
 
     def evaluate(
@@ -107,7 +107,7 @@ class APIClient:
         self.base_url = server_url.rstrip("/") + "/api/public"
         self.client = httpx.Client(
             headers={"uptrain-access-token": api_key},
-            timeout=httpx.Timeout(1500, connect=5),
+            timeout=httpx.Timeout(7200, connect=5),
         )
 
     def check_auth(self):
@@ -290,7 +290,7 @@ class APIClient:
         response = self.client.get(url, params=params)
         return raise_or_return(response)
 
-    def add_daily_schedule(self, checkset: str, start_on: str, assign_topics: int = 0, assign_topics_args: t.Optional[dict] = None):
+    def add_daily_schedule(self, checkset: str, start_on: str, assign_topics: int = 0, assign_topics_args: t.Optional[dict] = None, extra_args: t.Optional[dict] = None):
         """Schedules a periodic evaluation on the server. Specify the checkset to run against it.
 
         Args:
@@ -307,7 +307,8 @@ class APIClient:
                 "checkset": checkset,
                 "start_on": start_on,
                 "assign_topics": assign_topics,
-                "assign_topics_args": assign_topics_args
+                "assign_topics_args": assign_topics_args,
+                "extra_args": extra_args,
             }
         )
         return raise_or_return(response)
@@ -477,6 +478,7 @@ class APIClient:
 
         if metadata is None:
             metadata = {}
+        metadata["internal_call"] = metadata.get("internal_call", False)
 
         req_attrs, ser_templates = set(), []
         if rca_template == RcaTemplate.RAG_WITH_CITATION:
