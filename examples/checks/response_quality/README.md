@@ -30,7 +30,7 @@
 </h4>
 
 
-# Pre-built Evaluations We Offer 📝
+# Evaluations based on response quality 📝
 
 #### Evaluate the quality of your responses: 
 

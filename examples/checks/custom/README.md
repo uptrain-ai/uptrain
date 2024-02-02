@@ -30,7 +30,7 @@
 </h4>
 
 
-# Pre-built Evaluations We Offer 📝
+# Other Custom Evaluations 📝
 
 #### Evaluate the quality of your responses: 
 
@@ -43,7 +43,7 @@
 | [Response Consistency](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/consistency.ipynb)   | Evaluate how consistent the response is with the question asked as well as with the context provided.  |
 
 
-#### Evaluate the quality of retrieved context and response groundedness:
+#### Evaluate based on langauge features:
 
 | Metrics  | Usage | 
 |------------|----------|

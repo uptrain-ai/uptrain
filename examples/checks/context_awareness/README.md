@@ -30,7 +30,7 @@
 </h4>
 
 
-# Pre-built Evaluations We Offer 📝
+# Context Awareness Evaluations 📝
 
 #### Evaluate the quality of retrieved context and response groundedness:
 

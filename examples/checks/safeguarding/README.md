@@ -30,7 +30,7 @@
 </h4>
 
 
-# Pre-built Evaluations We Offer 📝
+# Evaluations to ensure better safety 📝
 
 #### Evaluations to safeguard system prompts and avoid LLM mis-use:
 
