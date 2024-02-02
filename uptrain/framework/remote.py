@@ -581,7 +581,7 @@ class APIClient:
                 req_attrs.update([schema.question, schema.context, schema.concise_context])
             elif m in [Evals.CONTEXT_RERANKING]:
                 req_attrs.update([schema.question, schema.context, schema.reranked_context])
-            elif m in [Evals.FACTUAL_ACCURACY, Evals.RESPONSE_COMPLETENESS_WRT_CONTEXT, Evals.RESPONSE_CONSISTENCY, Evals.CODE_IDENTIFICATION]:
+            elif m in [Evals.FACTUAL_ACCURACY, Evals.RESPONSE_COMPLETENESS_WRT_CONTEXT, Evals.RESPONSE_CONSISTENCY, Evals.CODE_HALLUCINATION]:
                 req_attrs.update([schema.question, schema.context, schema.response])
             elif m in [Evals.RESPONSE_RELEVANCE, Evals.RESPONSE_COMPLETENESS, Evals.RESPONSE_CONCISENESS, Evals.PROMPT_INJECTION]:
                 req_attrs.update([schema.question, schema.response])
