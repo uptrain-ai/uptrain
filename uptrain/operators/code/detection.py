@@ -14,14 +14,16 @@ from uptrain.operators.base import *
 
 
 @register_op
-class CodeIdentificationScore(ColumnOp):
+class CodeHallucinationScore(ColumnOp):
     """
     
-    Go through the response and identify if there is any code in it.
+    Go through the response and identify if the code part in it is hallucinating or not.
     If found, it returns the code snippet.
 
     Attributes:
         col_response (str): Column name for the stored responses
+        col_question (str): Column name for the stored questions
+        col_context (str): Column name for the stored contexts
         col_out (str): Column name to output scores
     Raises:
         Exception: Raises exception for any failed evaluation attempts
@@ -29,7 +31,9 @@ class CodeIdentificationScore(ColumnOp):
     """
 
     col_response: str = "response"
-    col_out: str = "score_code_identification"
+    col_question: str = "question"
+    col_context: str = "context"
+    col_out: str = "score_code_hallucination"
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
@@ -42,17 +46,19 @@ class CodeIdentificationScore(ColumnOp):
         data_send = [
             {
                 "response": row[self.col_response],
+                "question": row[self.col_question],
+                "context": row[self.col_context]
             }
             for row in data.to_dicts()
         ]
         try:
             results = self._api_client.evaluate(
-                "code_identification", data_send
+                "code_hallucination", data_send
             )
 
         except Exception as e:
-            logger.error(f"Failed to evaluate `CodeIdentification`: {e}")
+            logger.error(f"Failed to evaluate `CodeHallucination`: {e}")
             raise e
         
         assert results is not None
-        return {"output": data.with_columns(pl.from_dicts(results).rename({f"score_code_identification": self.col_out}))}
+        return {"output": data.with_columns(pl.from_dicts(results).rename({f"score_code_hallucination": self.col_out}))}

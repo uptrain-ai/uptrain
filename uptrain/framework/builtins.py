@@ -20,7 +20,7 @@ from uptrain.operators import (
     GuidelineAdherenceScore,
     ResponseMatchingScore, 
     ConversationSatisfactionScore,
-    CodeIdentificationScore,
+    CodeHallucinationScore,
 )
 
 # -----------------------------------------------------------
@@ -140,8 +140,8 @@ CheckConversationSatisfaction = lambda user_persona = "user", llm_persona = None
 # Code related
 # -----------------------------------------------------------
 
-CheckCodeIdentification = lambda: Check(
-    name = "code_identification_score",
-    operators=[CodeIdentificationScore()],
-    plots=[Histogram(x="score_code_identification")]
+CheckCodeHallucination = lambda: Check(
+    name = "code_hallucination_score",
+    operators=[CodeHallucinationScore()],
+    plots=[Histogram(x="score_code_hallucination")]
 )
