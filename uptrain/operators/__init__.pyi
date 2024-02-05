@@ -68,6 +68,7 @@ __all__ = [
     "ResponseMatchingScore",
     "ValidResponseScore",
     "TopicAssignmentviaCluster",
+    "JailbreakDetectionScore",
     # io - also include all the subimports
     "io",
     "ExcelReader",
@@ -151,6 +152,7 @@ from .language.guideline import GuidelineAdherenceScore, PromptInjectionScore
 from .language.conversation import ConversationSatisfactionScore
 from .language.response_matching import ResponseMatchingScore, ValidResponseScore
 from .language.topic import TopicAssignmentviaCluster
+from .language.jailbreak import JailbreakDetectionScore
 
 from . import io
 from .io.base import CsvReader, JsonReader, DeltaReader, JsonWriter, DeltaWriter

@@ -19,6 +19,7 @@ class Evals(enum.Enum):
     SUB_QUERY_COMPLETENESS = "sub_query_completeness"
     CONTEXT_RERANKING = "context_reranking"
     CONTEXT_CONCISENESS =  "context_conciseness"
+    JAILBREAK_DETECTION = "jailbreak_detection"
 
 
 class ParametricEval(pydantic.BaseModel):
@@ -47,3 +48,6 @@ class CustomPromptEval(ParametricEval):
 
 class ResponseMatching(ParametricEval):
     method: str = "llm"
+
+class JailbreakDetection(ParametricEval):
+    model_purpose: str = "To help the user with its queries while preventing responses for any illegal, immoral or abusive requests."
