@@ -47,3 +47,6 @@ class CustomPromptEval(ParametricEval):
 
 class ResponseMatching(ParametricEval):
     method: str = "llm"
+
+class JailbreakDetection(ParametricEval):
+    model_purpose: str = "To help the user with its queries while preventing responses for any illegal, immoral or abusive requests."

@@ -21,6 +21,7 @@ from uptrain.operators import (
     ResponseMatchingScore, 
     ConversationSatisfactionScore,
     CodeHallucinationScore,
+    JailbreakDetectionScore,
 )
 
 # -----------------------------------------------------------
@@ -144,4 +145,15 @@ CheckCodeHallucination = lambda: Check(
     name = "code_hallucination_score",
     operators=[CodeHallucinationScore()],
     plots=[Histogram(x="score_code_hallucination")]
+)
+
+
+# -----------------------------------------------------------
+# Jailbreak related
+# -----------------------------------------------------------
+
+CheckJailbreakDetection = lambda: Check(
+    name = "jailbreak_detection_score",
+    operators=[JailbreakDetectionScore()],
+    plots=[Histogram(x="score_jailbreak_attempted")]
 )
