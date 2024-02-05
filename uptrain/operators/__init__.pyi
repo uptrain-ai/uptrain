@@ -82,11 +82,13 @@ __all__ = [
     "BigQueryWriter",
     # code
     "code",
-    "CodeIdentificationScore",
+    "CodeHallucinationScore",
     "ParseCreateStatements",
     "ParseSQL",
     "ValidateTables",
     "ExecuteAndCompareSQL",
+    # rca
+    "RagWithCitation"
 ]
 
 from .base import (
@@ -157,8 +159,9 @@ from .io.bq import BigQueryReader, BigQueryWriter
 from .io.mongodb import MongoDBReader
 from .io.duck import DuckDBReader
 
+from .rca.rag_with_citation import RagWithCitation
 from . import code
-from .code.detection import CodeIdentificationScore
+from .code.detection import CodeHallucinationScore
 from .code.sql import (
     ParseCreateStatements,
     ParseSQL,
