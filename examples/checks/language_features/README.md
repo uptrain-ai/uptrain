@@ -38,6 +38,7 @@
 |------------|----------|
 | [Tone Critique](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/language_features/tone_critique.ipynb)       | Assess if the tone of machine-generated responses matches with the desired persona.| 
 | [Language Critique](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/language_features/language_critique.ipynb)       | Evaluate LLM generated responses on multiple aspects - fluence, politeness, grammar, and coherence.| 
+| [Rouge Score](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/language_features/rouge_score.ipynb)       | Measure the similarity between two pieces of text. | 
 
 If you face any difficulties, need some help with using UpTrain or want to brainstorm on custom evaluations for your use-case, [speak to the maintainers of UpTrain here](https://calendly.com/uptrain-sourabh/30min).
 
