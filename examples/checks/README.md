@@ -57,7 +57,7 @@
 | Metrics  | Usage | 
 |------------|----------|
 | [Prompt Injection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/system_prompt_injection.ipynb)       | Identify prompt leakage attacks| 
-
+| [Jailbreak Detection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/jailbreak_detection.ipynb)       | Detect prompts with potentially harmful or illegal behaviour|
 
 #### Evaluate the language quality of the response:
 
