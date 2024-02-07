@@ -36,7 +36,8 @@
 
 | Metrics  | Usage | 
 |------------|----------|
-| [Prompt Injection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/system_prompt_injection.ipynb)       | Identify prompt leakage attacks| 
+| [Prompt Injection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/system_prompt_injection.ipynb)       | Identify prompt leakage attacks|
+| [Jailbreak Detection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/jailbreak_detection.ipynb)       | Detect prompts with potentially harmful or illegal behaviour| 
 
 If you face any difficulties, need some help with using UpTrain or want to brainstorm on custom evaluations for your use-case, [speak to the maintainers of UpTrain here](https://calendly.com/uptrain-sourabh/30min).
 
