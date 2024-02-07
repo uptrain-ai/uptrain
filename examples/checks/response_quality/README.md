@@ -39,7 +39,7 @@
 | [Response Completeness](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/completeness.ipynb)        | Evaluate if the response completely resolves the given user query.      | 
 | [Response Relevance](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/relevance.ipynb)      | Evaluate whether the generated response for the given question, is relevant or not.    | 
 | [Response Conciseness](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/conciseness.ipynb) | Evaluate how concise the generated response is i.e. the extent of additional irrelevant information in the response.    | 
-| [Response Matching ](https://github.com/uptrain-ai/uptrain/blob/main)  | Compare the LLM-generated text with the gold (ideal) response using the defined score metric.  |
+| [Response Matching ](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/matching.ipynb)  | Compare the LLM-generated text with the gold (ideal) response using the defined score metric.  |
 | [Response Consistency](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/consistency.ipynb)   | Evaluate how consistent the response is with the question asked as well as with the context provided.  |
 
 If you face any difficulties, need some help with using UpTrain or want to brainstorm on custom evaluations for your use-case, [speak to the maintainers of UpTrain here](https://calendly.com/uptrain-sourabh/30min).
