@@ -197,11 +197,11 @@ We recently wrote about different criteria to evaluate LLM applications and expl
 
 # Integrations
 
-| Eval Frameworks  | LLM Providers | LLM Packages | Serving frameworks | 
-| ------------- | ------------- | ------------- | ------------- | 
-| OpenAI Evals ✅ | GPT-3.5-turbo ✅ | Langchain 🔜 | HuggingFace ✅ |
-| EleutherAI LM Eval 🔜 | GPT-4 ✅  | Llama Index 🔜 |  Replicate ✅ |
-| BIG-Bench 🔜 | Claude ✅ | AutoGPT 🔜 |  AnyScale ✅ |
+| Eval Frameworks  | LLM Providers | LLM Packages | Serving frameworks | LLM Observability | Vector DBs |
+| ------------- | ------------- | ------------- | ------------- | ------------- |  ------------- |
+| OpenAI Evals ✅ | GPT-3.5-turbo ✅ | Langchain 🔜 | HuggingFace ✅ | Langfuse 🔜 | Qdrant ✅ |
+| EleutherAI LM Eval 🔜 | GPT-4 ✅  | Llama Index 🔜 |  Replicate ✅ | Helicone 🔜 | Pinecone 🔜 |
+| BIG-Bench 🔜 | Claude ✅ | AutoGPT 🔜 |  AnyScale ✅ | | Chroma ✅ |
 | | Cohere ✅ | 
 | | Llama2 ✅ |
 | | Mistral ✅ |
