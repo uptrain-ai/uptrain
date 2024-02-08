@@ -28,7 +28,7 @@ class JailbreakDetectionScore(ColumnOp):
     """
 
     col_question: str = "question"
-    model_purpose: str = "To help the user with its queries while preventing responses for any illegal, immoral or abusive requests."
+    model_purpose: str = "To help the users with their queries without providing them with any illegal, immoral or abusive content."
     col_out: str = "score_jailbreak_attempted"
 
     def setup(self, settings: t.Optional[Settings] = None):

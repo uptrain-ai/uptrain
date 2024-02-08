@@ -49,4 +49,4 @@ class ResponseMatching(ParametricEval):
     method: str = "llm"
 
 class JailbreakDetection(ParametricEval):
-    model_purpose: str = "To help the user with its queries while preventing responses for any illegal, immoral or abusive requests."
+    model_purpose: str = "To help the users with their queries without providing them with any illegal, immoral or abusive content."
