@@ -199,10 +199,12 @@ We recently wrote about different criteria to evaluate LLM applications and expl
 
 | Eval Frameworks  | LLM Providers | LLM Packages | Serving frameworks | 
 | ------------- | ------------- | ------------- | ------------- | 
-| OpenAI Evals ✅ | GPT-3.5-turbo ✅ | Langchain 🔜 | HuggingFace 🔜 |
-| EleutherAI LM Eval 🔜 | GPT-4 ✅  | Llama Index 🔜 |  Replicate 🔜 |
-| BIG-Bench 🔜 | Claude ✅ | AutoGPT 🔜 |
+| OpenAI Evals ✅ | GPT-3.5-turbo ✅ | Langchain 🔜 | HuggingFace ✅ |
+| EleutherAI LM Eval 🔜 | GPT-4 ✅  | Llama Index 🔜 |  Replicate ✅ |
+| BIG-Bench 🔜 | Claude ✅ | AutoGPT 🔜 |  AnyScale ✅ |
 | | Cohere ✅ | 
+| | Llama2 ✅ |
+| | Mistral ✅ |
 
 
 # Why UpTrain 🤔?
