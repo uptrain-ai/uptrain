@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     huggingface_api_key: str = Field(None, env="HUGGINGFACE_API_KEY")
     anthropic_api_key: str = Field(None, env="ANTHROPIC_API_KEY")
     replicate_api_token: str = Field(None, env="REPLICATE_API_TOKEN")
+    anyscale_api_key: str = Field(None, env="ANYSCALE_API_KEY")
 
     azure_api_key: str = Field(None, env="AZURE_API_KEY")
     azure_api_base: str = Field(None, env="AZURE_API_BASE")
@@ -73,6 +74,9 @@ class Settings(BaseSettings):
         if "replicate_api_token" in data:
             if data['replicate_api_token'] is not None:
                 os.environ["REPLICATE_API_TOKEN"] = data["replicate_api_token"]
+        if "anyscale_api_key" in data:
+            if data['anyscale_api_key'] is not None:
+                os.environ["ANYSCALE_API_KEY"] = data["anyscale_api_key"]
         if "embedding_model_api_token" in data:
             if data['embedding_model_api_token'] is not None:
                 os.environ["EMBEDDING_MODEL_API_TOKEN"] = data["embedding_model_api_token"]
