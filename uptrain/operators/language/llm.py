@@ -140,6 +140,12 @@ class LLMMulticlient:
                     azure_endpoint = settings.azure_api_base
                 )
 
+            if settings.model.startswith("anyscale") and settings.check_and_get("anyscale_api_key") is not None:
+                self.aclient=AsyncOpenAI(
+                    api_key=settings.anyscale_api_key,
+                    base_url="https://api.endpoints.anyscale.com/v1"
+                )
+
             self._rpm_limit = settings.check_and_get("rpm_limit")
             self._tpm_limit = settings.check_and_get("tpm_limit")
 
