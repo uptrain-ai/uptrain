@@ -51,6 +51,7 @@
 
 #### Evaluations to safeguard system prompts and avoid LLM mis-use:
 1. [Prompt Injection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/system_prompt_injection.ipynb): Identifys prompt leakage attacks
+2. [Jailbreak Detection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/jailbreak_detection.ipynb): Measures if the user prompts to generate a response over potentially harmful or illegal behaviour.
 
 
 #### Evaluate the language quality of the response:
