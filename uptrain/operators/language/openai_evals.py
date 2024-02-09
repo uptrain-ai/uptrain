@@ -117,8 +117,10 @@ class OpenaiEval(ColumnOp):
 
         eval_class = registry.get_class(eval_spec)
         extra_eval_params = {}
+        # eval_class for classify is ModelBasedClassify
         eval = eval_class(
             completion_fns=completion_fn_instances,
+            eval_registry_path=registry_path,
             seed=42,
             name=eval_name,
             registry=registry,
