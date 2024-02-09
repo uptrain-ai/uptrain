@@ -49,19 +49,7 @@ print("Number of test cases: ", len(dataset))
 print("Couple of samples: ", dataset[0:2])
 ```
 
-    Number of test cases:  90
-    Couple of samples:  shape: (2, 3)
-    ┌─────────────────────────────┬─────────────────────────┬───────────────────────────────────┐
-    │ question                    ┆ document_text           ┆ answer                            │
-    │ ---                         ┆ ---                     ┆ ---                               │
-    │ str                         ┆ str                     ┆ str                               │
-    ╞═════════════════════════════╪═════════════════════════╪═══════════════════════════════════╡
-    │ How to use the sessionstate ┆ ## Serializable Session ┆ erialization refers to the proce… │
-    │ feat…                       ┆ State\n\…               ┆                                   │
-    │ How can I create histograms ┆ ader(\"Define a custom  ┆ EMPTY MESSAGE                     │
-    │ with…                       ┆ colorscal…              ┆                                   │
-    └─────────────────────────────┴─────────────────────────┴───────────────────────────────────┘
-
+![sample_dataset.png](https://github.com/uptrain-ai/uptrain/assets/43818888/6081b07a-4dbb-449f-b9ed-97260a9c86d2)
 
 So, we have a bunch of questions, retrieved documents and final answers (i.e. LLM responses) for them. Let's evaluate the correctness of these answers using OpenAI evals.
 
