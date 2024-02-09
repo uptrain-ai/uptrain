@@ -83,7 +83,8 @@
       "pages": [
         "tutorials/open-source-evaluator",
         "tutorials/uptrain-api-client",
-        "tutorials/experiments-evaluation-tutorial"
+        "tutorials/experiments-evaluation-tutorial",
+        "tutorials/openai-evals"
       ]
     },
     {
