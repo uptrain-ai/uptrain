@@ -6,6 +6,7 @@ except:
     umap = None
 import numpy as np
 from sklearn.manifold import TSNE
+from sklearn.decomposition import PCA
 
 from uptrain.v0.core.lib.helper_funcs import cluster_and_plot_data
 from uptrain.v0.core.classes.visuals import AbstractVisual, ClusteringResolver
@@ -29,12 +30,6 @@ class DimensionalityReduction(AbstractVisual):
     def base_init(self, fw, check):
         self.visual_type = check["type"]
         self.dashboard_name = check.get("dashboard_name", "visual")
-        if self.visual_type == Visual.UMAP:
-            self.umap_init(check)
-        elif self.visual_type == Visual.TSNE:
-            self.tsne_init(check)
-        else:
-            raise Exception("Dimensionality reduction type undefined.")
         self.framework = fw
         self.clustering_algorithm = ClusteringResolver(
             check.get("clustering_algorithm", ClusteringAlgorithm.HDBSCAN)
@@ -63,22 +58,12 @@ class DimensionalityReduction(AbstractVisual):
         self.vals = []
         self.hover_texts = []
         self.feature_dictn = {}
-
-        # get handles to the log writer object
-        if hasattr(self.log_handler, "make_logger"):
-            self.log_writer = self.log_handler.make_logger(
-                self.dashboard_name, self.visual_type, fmt="json"
-            )
-        else:
-            self.log_writer = None
-
         self.initial_dataset = check.get("initial_dataset", None)
         if self.initial_dataset is not None:
             data = read_json(self.initial_dataset)
             self.vals.extend(
                 [self.measurable.extract_val_from_training_data(x) for x in data]
             )
-
             for label_measurable in self.label_measurables:
                 label_data = [
                     label_measurable.extract_val_from_training_data(x) for x in data
@@ -117,6 +102,23 @@ class DimensionalityReduction(AbstractVisual):
                     else:
                         self.feature_dictn.update({key: list(this_dict[key])})
 
+        if self.visual_type == Visual.UMAP:
+            self.umap_init(check)
+        elif self.visual_type == Visual.TSNE:
+            self.tsne_init(check)
+        elif self.visual_type == Visual.PCA:
+            self.pca_init(check)
+        else:
+            raise Exception("Dimensionality reduction type undefined.")
+
+        # get handles to the log writer object
+        if hasattr(self.log_handler, "make_logger"):
+            self.log_writer = self.log_handler.make_logger(
+                self.dashboard_name, self.visual_type, fmt="json"
+            )
+        else:
+            self.log_writer = None
+
     def umap_init(self, check):
         self.min_dist = check.get("min_dist", 0.01)
         self.n_neighbors = check.get("n_neighbors", 20)
@@ -137,6 +139,36 @@ class DimensionalityReduction(AbstractVisual):
         self.method = check.get("method", "barnes_hut")
         self.angle = check.get("angle", 0.5)
         self.n_jobs = check.get("n_jobs", None)
+
+    def pca_init(self, check):
+        self.whiten = check.get("whiten", False)
+        self.svd_solver = check.get("svd_solver", "auto")
+        self.tol = check.get("tol", 0.0)
+        self.iterated_power = check.get("iterated_power", "auto")
+        self.n_oversamples = check.get("n_oversamples", 10)
+        self.power_iteration_normalizer = check.get(
+            "power_iteration_normalizer", "auto"
+        )
+        self.random_state = check.get("random_state", None)
+        if self.initial_dataset is not None:
+            if self.dim == "2D":
+                n_components = 2
+            elif self.dim == "3D":
+                n_components = 3
+
+            # Initialising pca model with reference dataset
+            self.pca_model = PCA(
+                n_components=n_components,
+                whiten=self.whiten,
+                svd_solver=self.svd_solver,
+                tol=self.tol,
+                iterated_power=self.iterated_power,
+                n_oversamples=self.n_oversamples,
+                power_iteration_normalizer=self.power_iteration_normalizer,
+                random_state=self.random_state,
+            ).fit(self.vals)
+        else:
+            self.pca_model = None
 
     def base_check(self, inputs, outputs, gts=None, extra_args={}):
         if self.measurable is not None:
@@ -316,6 +348,21 @@ class DimensionalityReduction(AbstractVisual):
                 angle=self.angle,
                 n_jobs=self.n_jobs,
             ).fit_transform(emb_list)
+        elif self.visual_type == Visual.PCA:
+            if self.pca_model is None:
+                # Initialising pca model if it is not initialised with reference dataset.
+                self.pca_model = PCA(
+                    n_components=n_components,
+                    whiten=self.whiten,
+                    svd_solver=self.svd_solver,
+                    tol=self.tol,
+                    iterated_power=self.iterated_power,
+                    n_oversamples=self.n_oversamples,
+                    power_iteration_normalizer=self.power_iteration_normalizer,
+                    random_state=self.random_state,
+                ).fit(emb_list)
+
+            compressed_embeddings = self.pca_model.transform(emb_list)
 
         clustering = self.clustering_algorithm.fit(compressed_embeddings)
         labels = np.squeeze(np.array(clustering.labels_))
