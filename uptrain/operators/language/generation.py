@@ -214,25 +214,18 @@ class TopicGenerator(ColumnOp):
         return self
 
     def _make_payload(self, id: t.Any, text: str, model: str) -> Payload:
+        messages = [{"role": "user", "content": text}]
+
+        model = model.replace("azure/", "")
+        data = {"model": model, "messages": messages, "temperature": self.temperature}
         if self._settings.seed is not None:
-            return Payload(
-                data={
-                    "model": model,
-                    "messages": [{"role": "user", "content": text}],
-                    "temperature": self.temperature,
-                    "seed" : self._settings.seed
-                },
-                metadata={"index": id},
-            )
-        else:
-            return Payload(
-                data={
-                    "model": model,
-                    "messages": [{"role": "user", "content": text}],
-                    "temperature": self.temperature
-                },
-                metadata={"index": id},
-            )
+            data["seed"] = self._settings.seed
+        return Payload(
+            endpoint="chat.completions",
+            data=data,
+            metadata={"index": id},
+        )
+
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
 
@@ -284,7 +277,9 @@ class TopicGenerator(ColumnOp):
                 
                 You should identify only a single concise topic which should be at max 15 words long. Just print the topic and nothing else. 
                 Topic: """
-                input_payloads.append(self._make_payload(index, prompt, self.model))
+
+                if len(text) > 0:
+                    input_payloads.append(self._make_payload(index, prompt, self.model))
         
 
             output_payloads = self._api_client.fetch_responses(input_payloads)

@@ -89,7 +89,9 @@ __all__ = [
     "ValidateTables",
     "ExecuteAndCompareSQL",
     # rca
-    "RagWithCitation"
+    "RagWithCitation",
+    # embedding
+    "VectorSearch"
 ]
 
 from .base import (
@@ -170,3 +172,5 @@ from .code.sql import (
     ValidateTables,
     ExecuteAndCompareSQL,
 )
+
+from .embedding.vector_search import VectorSearch
