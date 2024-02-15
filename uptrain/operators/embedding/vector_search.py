@@ -30,6 +30,7 @@ class VectorSearch(TransformOp):
         embeddings_model (str): Name of the embeddings model
         col_out (str): Column name for the retrieved_context
         top_k (int): Top K documents will be retrieved.
+        distance_metric (str): One of ['cosine_similarity', 'l2_distance']
     Raises:
         Exception: Raises exception for any failed evaluation attempts
 
@@ -41,6 +42,7 @@ class VectorSearch(TransformOp):
     col_out: str = "context"
     top_k: int = 1
     col_in_document: str = ""
+    distance_metric: str = t.Literal['cosine_similarity', 'l2_distance']
 
     def setup(self, settings: t.Optional[Settings] = None):
 
@@ -50,16 +52,20 @@ class VectorSearch(TransformOp):
         elif isinstance(self.documents, str):
             if self.documents[-5:] == ".json":
                 read_op = JsonReader(fpath = self.documents)
+            elif self.documents[-6:] == ".jsonl":
+                read_op = JsonReader(fpath = self.documents)
             elif self.documents[-4:] == ".csv":
                 read_op = CsvReader(fpath = self.documents)
             else:
-                raise Exception("File formats other than jsonl and csv are not supported")
+                read_op = JsonReader(fpath = self.documents)
+                # raise Exception("File formats other than jsonl and csv are not supported")
         elif isinstance(self.documents, JsonReader) or isinstance(self.documents, CsvReader):
             read_op = self.documents
         else:
             raise Exception(f"{type(self.documents)} is not supported")
+
         if read_op is not None:
-            documents_table = pl.DataFrame({'document': list(read_op.setup(settings).run()['output'][self.col_in_document])[0:1000]})
+            documents_table = pl.DataFrame({'document': read_op.setup(settings).run()['output'][self.col_in_document][0:1000]})
 
         emb_op = Embedding(
             model = self.embeddings_model,
@@ -69,7 +75,13 @@ class VectorSearch(TransformOp):
         doc_embeddings = np.array(list(emb_op.setup(settings).run(documents_table)['output']['document_embeddings']))
 
         self.documents_list = np.array(list(documents_table['document']))
-        self.vectorstore = faiss.IndexFlatL2(len(doc_embeddings[0]))
+
+        if self.distance_metric == "cosine_similarity":
+            self.vectorstore = faiss.IndexFlatIP(len(doc_embeddings[0]))
+        elif self.distance_metric == "l2_distance":
+            self.vectorstore = faiss.IndexFlatL2(len(doc_embeddings[0]))
+        else:
+            raise Exception(f"{self.distance_metric} is not allowed")
         self.vectorstore.add(doc_embeddings)
 
         self._settings = settings

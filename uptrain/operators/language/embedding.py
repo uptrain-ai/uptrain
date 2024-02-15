@@ -73,7 +73,7 @@ class Embedding(ColumnOp):
 
     """
 
-    model: t.Literal["MiniLM-L6-v2", "instructor-xl", "mpnet-base-v2", "bge-large-zh-v1.5", "instructor-large"]
+    model: str = "" #t.Literal["MiniLM-L6-v2", "instructor-xl", "mpnet-base-v2", "bge-large-zh-v1.5", "instructor-large"]
     col_in_text: str = "text"
     col_out: str = "embedding"
     batch_size: int = 128
@@ -100,7 +100,11 @@ class Embedding(ColumnOp):
                     "BAAI/bge-large-zh-v1.5"
                 )
             else:
-                raise Exception(f"Embeddings model: {self.model} is not supported yet.")
+                sentence_transformers = lazy_load_dep("sentence_transformers", "sentence-transformers")
+                self._model_obj = sentence_transformers.SentenceTransformer(
+                    self.model
+                )
+                # raise Exception(f"Embeddings model: {self.model} is not supported yet.")
         elif settings.embedding_compute_method == 'replicate':
             replicate = lazy_load_dep("replicate", "replicate")
             self._model_obj = replicate.Client(api_token=settings.replicate_api_token)
@@ -171,7 +175,8 @@ class Embedding(ColumnOp):
                                         'Authorization': f"Bearer {self._model_obj['authorization_key']}"
                                     }
                                 ).json()['data']])
-                            except:
+                            except Exception as e:
+                                logger.error(f"Error while computing embeddings: {e}")
                                 if len(run_res)!=0:
                                     run_res.append(run_res[-1])
                                 else:
