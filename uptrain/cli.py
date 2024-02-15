@@ -41,6 +41,7 @@ EXTRA_PACKAGES = {
         "evals @ git+https://github.com/openai/evals.git@main",
         "replicate",
         "litellm==1.15.7",
+        "faiss-cpu"
     ],
     # Add packages here
     "full": [
@@ -61,6 +62,7 @@ EXTRA_PACKAGES = {
         "evals @ git+https://github.com/openai/evals.git@main",
         "replicate",
         "litellm==1.15.7",
+        "faiss-cpu"
     ],
 }
 

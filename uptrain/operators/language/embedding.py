@@ -131,7 +131,8 @@ class Embedding(ColumnOp):
         elif self.model == "MiniLM-L6-v2" or self.model == "mpnet-base-v2":
             inputs = list(text)
         else:
-            raise Exception("Embeddings model not supported")
+            #raise Exception("Embeddings model not supported")
+            inputs = list(text)
 
         results = []
         BATCH_SIZE = self.batch_size
