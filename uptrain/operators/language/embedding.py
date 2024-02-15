@@ -102,7 +102,7 @@ class Embedding(ColumnOp):
             else:
                 sentence_transformers = lazy_load_dep("sentence_transformers", "sentence-transformers")
                 self._model_obj = sentence_transformers.SentenceTransformer(
-                    self.model
+                    "sentence-transformers/" + self.model
                 )
                 # raise Exception(f"Embeddings model: {self.model} is not supported yet.")
         elif settings.embedding_compute_method == 'replicate':
