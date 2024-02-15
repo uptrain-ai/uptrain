@@ -52,6 +52,12 @@ class Settings(BaseSettings):
     seed:  t.Union[int, None] = None
     response_format: t.Union[dict, None] = None
 
+    evaluate_locally: bool = True
+
+    # Cot -> We will use chain of thought prompting to evaluate and get the grade
+    # basic -> We will simply prompt the LLM to return the grade without any reasoning
+    eval_type: t.Literal["basic", "cot"] = "cot" 
+
     # allow additional fields as needed by different operators
     class Config:
         extra = "allow"

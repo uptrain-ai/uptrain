@@ -10,11 +10,19 @@ import httpx
 import polars as pl
 import pandas as pd
 import pydantic
+import copy
 
 from uptrain.framework.remote import APIClientWithoutAuth, DataSchema
 from uptrain.framework.base import Settings
 
 from uptrain.framework.evals import Evals, JailbreakDetection, ParametricEval, CritiqueTone, GuidelineAdherence, ResponseMatching, ConversationSatisfaction
+from uptrain.operators import ResponseFactualScore, ContextRelevance
+
+
+EVAL_TO_OPERATOR_MAPPING = {
+    Evals.FACTUAL_ACCURACY: ResponseFactualScore(),
+    Evals.CONTEXT_RELEVANCE: ContextRelevance()
+}
 
 
 class EvalLLM:
@@ -65,7 +73,7 @@ class EvalLLM:
             assert isinstance(m, (Evals, ParametricEval))
 
         req_attrs, ser_checks = set(), []
-        for m in checks:
+        for idx, m in enumerate(checks):
             if m in [Evals.SUB_QUERY_COMPLETENESS]:
                 req_attrs.update([schema.sub_questions, schema.question])
             elif m in [Evals.CONTEXT_CONCISENESS]:
@@ -87,21 +95,41 @@ class EvalLLM:
             elif isinstance(m, JailbreakDetection):
                 req_attrs.update([schema.question])    
 
+            this_scenario_description = scenario_description if not isinstance(scenario_description, list) else scenario_description[idx]                
 
             if isinstance(m, ParametricEval):
                 dictm = m.dict()
-                dictm.update({"scenario_description": scenario_description})
+                dictm.update({"scenario_description": this_scenario_description})
                 ser_checks.append({"check_name": m.__class__.__name__, **dictm})
             elif isinstance(m, Evals):
-                dictm = {"scenario_description": scenario_description}
+                dictm = {"scenario_description": this_scenario_description}
                 ser_checks.append({"check_name": m.value, **dictm})
             else:
                 raise ValueError(f"Invalid metric: {m}")
+
         for idx, row in enumerate(data):
             if not req_attrs.issubset(row.keys()):
                 raise ValueError(
                     f"Row {idx} is missing required all required attributes for evaluation: {req_attrs}"
                 )
+
+        if self.settings.evaluate_locally:
+            results = copy.deepcopy(data)
+            for idx, check in enumerate(checks):
+                if check in EVAL_TO_OPERATOR_MAPPING:
+                    op = EVAL_TO_OPERATOR_MAPPING[check]
+                    op.scenario_description = scenario_description if not isinstance(scenario_description, list) else scenario_description[idx]
+                    res = op.setup(self.settings).run(pl.DataFrame(data))['output'].to_dicts()
+                else:
+                    res = self.evaluate_on_server(data, [ser_checks[idx]], schema)
+                for idx, row in enumerate(res):
+                    results[idx].update(row)
+        else:
+            results = self.evaluate_on_server(data, ser_checks, schema)
+        return results
+
+
+    def evaluate_on_server(self, data, ser_checks, schema):
 
         # send in chunks of 50, so the connection doesn't time out waiting for the server
         results = []
@@ -129,5 +157,4 @@ class EvalLLM:
                         raise e
 
             results.extend(batch_results)
-
         return results
