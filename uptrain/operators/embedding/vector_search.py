@@ -65,7 +65,7 @@ class VectorSearch(TransformOp):
             raise Exception(f"{type(self.documents)} is not supported")
 
         if read_op is not None:
-            documents_table = pl.DataFrame({'document': read_op.setup(settings).run()['output'][self.col_in_document][0:1000]})
+            documents_table = pl.DataFrame({'document': read_op.setup(settings).run()['output'][self.col_in_document]})
 
         emb_op = Embedding(
             model = self.embeddings_model,
