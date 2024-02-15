@@ -116,37 +116,45 @@ class EvalLLM:
         if self.settings.evaluate_locally:
             results = copy.deepcopy(data)
             for idx, check in enumerate(checks):
-                op = EVAL_TO_OPERATOR_MAPPING[check]
-                op.scenario_description = scenario_description if not isinstance(scenario_description, list) else scenario_description[idx]
-                res = op.setup(self.settings).run(pl.DataFrame(data))['output'].to_dicts()
+                if check in EVAL_TO_OPERATOR_MAPPING:
+                    op = EVAL_TO_OPERATOR_MAPPING[check]
+                    op.scenario_description = scenario_description if not isinstance(scenario_description, list) else scenario_description[idx]
+                    res = op.setup(self.settings).run(pl.DataFrame(data))['output'].to_dicts()
+                else:
+                    res = self.evaluate_on_server(data, [ser_checks[idx]], schema)
                 for idx, row in enumerate(res):
                     results[idx].update(row)
         else:
-            # send in chunks of 50, so the connection doesn't time out waiting for the server
-            results = []
-            NUM_TRIES, BATCH_SIZE = 3, 50
-            for i in range(0, len(data), BATCH_SIZE):
-                batch_results = []
-                for try_num in range(NUM_TRIES):
-                    try:
-                        logger.info(
-                            f"Sending evaluation request for rows {i} to <{i+BATCH_SIZE} to the Uptrain"
-                        )
-                        batch_results = self.executor.evaluate(
-                            data=data[i : i + BATCH_SIZE],
-                            checks=ser_checks,
-                            metadata={
-                                "schema": schema.dict(),
-                                "uptrain_settings": self.settings.dict()
-                            }
-                        )
-                        break
-                    except Exception as e:
-                        logger.info("Retrying evaluation request")
-                        if try_num == NUM_TRIES - 1:
-                            logger.error(f"Evaluation failed with error: {e}")
-                            raise e
+            results = self.evaluate_on_server(data, ser_checks, schema)
+        return results
 
-                results.extend(batch_results)
 
+    def evaluate_on_server(self, data, ser_checks, schema):
+
+        # send in chunks of 50, so the connection doesn't time out waiting for the server
+        results = []
+        NUM_TRIES, BATCH_SIZE = 3, 50
+        for i in range(0, len(data), BATCH_SIZE):
+            batch_results = []
+            for try_num in range(NUM_TRIES):
+                try:
+                    logger.info(
+                        f"Sending evaluation request for rows {i} to <{i+BATCH_SIZE} to the Uptrain"
+                    )
+                    batch_results = self.executor.evaluate(
+                        data=data[i : i + BATCH_SIZE],
+                        checks=ser_checks,
+                        metadata={
+                            "schema": schema.dict(),
+                            "uptrain_settings": self.settings.dict()
+                        }
+                    )
+                    break
+                except Exception as e:
+                    logger.info("Retrying evaluation request")
+                    if try_num == NUM_TRIES - 1:
+                        logger.error(f"Evaluation failed with error: {e}")
+                        raise e
+
+            results.extend(batch_results)
         return results

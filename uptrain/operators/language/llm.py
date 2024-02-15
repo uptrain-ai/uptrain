@@ -133,7 +133,6 @@ async def async_process_payload(
                     f"Retrying for payload {payload.metadata['index']}"
                 )
             else:
-                import pdb; pdb.set_trace()
                 payload.error = str(exc)
                 break
 
