@@ -138,19 +138,18 @@ Speak directly with the maintainers of UpTrain by [booking a call here](https://
 | Eval Frameworks  | LLM Providers | LLM Packages | Serving frameworks | LLM Observability | Vector DBs |
 | ------------- | ------------- | ------------- | ------------- | ------------- |  ------------- |
 | OpenAI Evals ✅ | GPT-3.5-turbo ✅ | Langchain 🔜 | HuggingFace ✅ | Langfuse 🔜 | Qdrant ✅ |
-| EleutherAI LM Eval 🔜 | GPT-4 ✅  | Llama Index 🔜 |  Replicate ✅ | Helicone 🔜 | Pinecone 🔜 |
+| EleutherAI LM Eval 🔜 | GPT-4 ✅  | Llama Index ✅ |  Replicate ✅ | Helicone 🔜 | Pinecone 🔜 |
 | BIG-Bench 🔜 | Claude ✅ | AutoGPT 🔜 |  AnyScale ✅ | | Chroma ✅ |
-| | Cohere ✅ | 
-| | Llama2 ✅ |
+| | Cohere ✅ | | Together ai 🔜 |
+| | Llama2 ✅ | | Ollama 🔜 |
 | | Mistral ✅ |
 
 # Resources 💡
 
-<h4 align="left">
-  <img width="600" src="https://github.com/uptrain-ai/uptrain/assets/108270398/6cf080ef-7aec-4609-81e1-25d667401ad4" alt="Different dimensions, metrics or criteria for LLM evaluations"/>
-</h4>
+1. [How to evaluate your LLM application](https://uptrain.ai/blog/how-to-evaluate-your-llm-applications)
+2. [How to detect jailbreaks](https://blog.uptrain.ai/llm-jailbreak/)
+3. [Dealing with hallucinations](https://blog.uptrain.ai/dealing-with-hallucinations-in-llms-a-deep-dive/)
 
-We recently wrote about different criteria to evaluate LLM applications and explored grouping them into categories. [Read more about it.](https://uptrain.ai/blog/how-to-evaluate-your-llm-applications)
 
 # Why we are building UpTrain 🤔?
 
@@ -166,7 +165,9 @@ So, come today, UpTrain is our attempt to bring order to LLM chaos and contribut
 
 2. It helps you understand where your systems are going wrong, find root cause and fix them - long before your end users complain and potentially churn out.
 
-3. Evaluations like prompt injection, jailbreak are essential to maintain safety and security of your LLM applications
+3. Evaluations like prompt injection, jailbreak are essential to maintain safety and security of your LLM applications.
+
+4. Evaluations help you to provide transparency and build trust with your end-users - especially relevant if you are selling to enterprises.
 
 # How you can help?
 
