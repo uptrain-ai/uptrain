@@ -40,28 +40,28 @@
 
 # Key Features:
 
-1. Data-secure: All the evaluations and analysis run locally on your system, ensuring that the data never leaves your secure environment (except for LLM calls while using model grading checks)
+1. **Data-secure**: All the evaluations and analysis run locally on your system, ensuring that the data never leaves your secure environment (except for LLM calls while using model grading checks)
 
-2. Configure your own evaluation LLM. We allow you to use any of OpenAI, Anthropic, Mistral, Azure's Openai endpoints or open-source LLMs hosted on Anyscale to be used as evaluator.
+2. **Experiment with different embedding models** like text-embedding-3-large/small, text-embedding-3-ada, baai/bge-large, etc. UpTrain supports HuggingFace models, Replicate endpoints, or custom models hosted on your endpoint.
 
-3. Cost-effective: By leveraging model grading and introducing an 'Unclear' grade, we are able to leverage GPT-3.5-turbo-1106 as the default evaluator and get high quality yet cost effective scores.
+3. **Cost-effective**: By leveraging model grading and introducing an 'Unclear' grade, we are able to leverage GPT-3.5-turbo-1106 as the default evaluator and get high quality yet cost effective scores.
 
-4. Experiment with different embedding models like text-embedding-3-large/small, text-embedding-3-ada, baai/bge-large, etc. UpTrain supports HuggingFace models, Replicate endpoints, or custom models hosted on your endpoint.
+4. You can **perform root cause analysis** on cases with either negative user feedback or low evaluation scores to understand which part of your LLM pipeline is giving suboptimal results. Check out the supported RCA templates.
 
-5. UpTrain provides tons of ways to customize evaluations. You can customize evaluation method (chain of thought vs classify), few shot examples, add scenario description, as well as create custom evaluators.
+5. **Configure your own evaluation LLM**: We allow you to use any of OpenAI, Anthropic, Mistral, Azure's Openai endpoints or open-source LLMs hosted on Anyscale to be used as evaluator.
 
-6. You can perform root cause analysis on cases with either negative user feedback or low evaluation scores to understand which part of your LLM pipeline is giving suboptimal results. Check out the supported RCA templates.
+6. UpTrain provides tons of ways to **customize evaluations**. You can customize evaluation method (chain of thought vs classify), few shot examples, add scenario description, as well as create custom evaluators.
 
-7. Support for 100+ operators such as BLEU, ROUGE, Embeddings Similarity, 
+7. Support for **50+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact match, etc.
 
 
 ### Coming Soon:
 
-1. Experiment Dashboards: Coming soon
-2. Collaborate with your team: Coming soon
-3. Embedding visualization via UMAP and Clustering: Coming soon
-4. Pattern recognition among failure cases: Coming soon
-5. Automated improvement suggestions: Coming soon
+1. Experiment Dashboards
+2. Collaborate with your team
+3. Embedding visualization via UMAP and Clustering
+4. Pattern recognition among failure cases
+5. Prompt improvement suggestions
 
 # Pre-built Evaluations We Offer 📝
 
