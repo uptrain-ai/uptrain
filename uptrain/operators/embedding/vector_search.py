@@ -15,7 +15,7 @@ if t.TYPE_CHECKING:
 from uptrain.operators.base import *
 from uptrain.operators.language.embedding import Embedding
 from uptrain.operators.io.base import JsonReader, CsvReader
-from uptrain.utilities import lazy_load_dep
+from uptrain.utilities import lazy_load_dep, polars_to_pandas
 
 faiss = lazy_load_dep("faiss", "faiss")
 
@@ -67,6 +67,8 @@ class VectorSearch(TransformOp):
         if read_op is not None:
             documents_table = pl.DataFrame({'document': read_op.setup(settings).run()['output'][self.col_in_document]})
 
+        documents_table = pl.DataFrame(polars_to_pandas(documents_table))
+
         emb_op = Embedding(
             model = self.embeddings_model,
             col_in_text = 'document',
@@ -74,7 +76,7 @@ class VectorSearch(TransformOp):
         )
         doc_embeddings = np.array(list(emb_op.setup(settings).run(documents_table)['output']['document_embeddings']))
 
-        self.documents_list = np.array(list(documents_table['document']))
+        self.documents_list = documents_table['document']
 
         if self.distance_metric == "cosine_similarity":
             self.vectorstore = faiss.IndexFlatIP(len(doc_embeddings[0]))
@@ -101,7 +103,7 @@ class VectorSearch(TransformOp):
             this_retrieved_scores, this_retrieved_idxs = self.vectorstore.search(
                 np.array([emb_res[self.col_in_query + "_embeddings"]]), self.top_k
             )
-            this_retrieved_documents = self.documents_list[this_retrieved_idxs[0]]
+            this_retrieved_documents = [self.documents_list[int(x)] for x in this_retrieved_idxs[0]]
 
             del emb_res[self.col_in_query + "_embeddings"]
 
