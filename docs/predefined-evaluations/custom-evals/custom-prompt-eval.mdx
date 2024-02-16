@@ -1,20 +1,8 @@
 ---
 title: Custom
-description: Grade the performance of the LLM based on a custom metric. 
+description: Specify any custom prompt used for grading among a list of choices.
+
 ---
-
-### GuidelineAdherence  ([Tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/custom/guideline_adherence.ipynb))
-
-Grades how well the LLM adheres to a provided guideline when giving a response.
-
-Columns required:
-- `question`
-- `response`
-
-Parameters:
-- `guideline` - The guideline to be followed
-- `guideline_name` (optional) - User-assigned name of the guideline to distinguish between multiple checks
-- `resopnse_schema` (optional) - Schema of the response in case it is of type JSON, XML, etc.
 
 
 ### CustomPromptEval  ([Tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/custom/writing_custom_evals.ipynb))
