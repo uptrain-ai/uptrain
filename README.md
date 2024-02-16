@@ -169,6 +169,13 @@ So, come today, UpTrain is our attempt to bring order to LLM chaos and contribut
 
 4. Evaluations help you to provide transparency and build trust with your end-users - especially relevant if you are selling to enterprises.
 
+# Why open-source? 
+
+1. We understand there is **no one-size-fits-all solution** when it come to evaluations. We are increasingly seeing the desire from developers to modify the evaluation prompt or set of choices or the few shot examples, etc. We believe the best developer experience lies in open-source, instead of exposing 20 different variables.
+
+2. **Foster innovation**: The field of LLM evaluations and using LLM-as-a-judge is still pretty nascent. We see a lot of exciting research happening, almost on a daily basis and being open-source provides the right platform to us and our community to implement those techniques and innovate faster.
+
+
 # How you can help 🙏
 
 We are constantly working to make UpTrain better. Few ways you can help:
