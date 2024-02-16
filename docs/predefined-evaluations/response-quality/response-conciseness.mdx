@@ -1,0 +1,33 @@
+---
+title: Response Conciseness
+description: Grades how concise the generated response is or if it has any additional irrelevant information for the question asked.
+
+---
+
+### RESPONSE_CONCISENESS  ([Tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/conciseness.ipynb))
+
+Grades how concise the generated response is or if it has any additional irrelevant information for the question asked.
+
+Columns required:
+- `question`
+- `response`
+
+
+### VALID_RESPONSE
+
+Grades if the response generated is valid or not. A response is considered to be valid if it contains any information.
+
+Columns required:
+- `response`
+
+
+### ResponseMatching
+
+Operator to compare the llm-generated text with the gold (ideal) response using the defined score metric.
+
+Columns required:
+- `question`
+- `ground_truth` - The column containing the gold responses
+
+Paramters:
+- `method` - Method to calculate the score ('rouge', 'exact' or 'llm')

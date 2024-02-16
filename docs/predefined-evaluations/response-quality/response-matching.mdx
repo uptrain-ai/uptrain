@@ -1,0 +1,16 @@
+---
+title: Response Matching
+description: Operator to compare the llm-generated text with the gold (ideal) response using the defined score metric.
+
+---
+
+### ResponseMatching
+
+Operator to compare the llm-generated text with the gold (ideal) response using the defined score metric.
+
+Columns required:
+- `question`
+- `ground_truth` - The column containing the gold responses
+
+Paramters:
+- `method` - Method to calculate the score ('rouge', 'exact' or 'llm')

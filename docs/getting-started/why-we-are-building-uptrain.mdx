@@ -1,0 +1,14 @@
+---
+title: "Why we are building UpTrain"
+description: "UpTrain's origination story"
+---
+
+Having worked with ML and NLP models for the last 8 years, we were continuosly frustated with numerous hidden failures in our models which led to us building UpTrain. UpTrain was initially started as an ML observability tool with checks to identify regression in accuracy.
+However we soon released that LLM developers face an even bigger problem -- there is no good way to measure accuracy of their LLM applications, let alone identify regression.
+We also saw release of OpenAI evals, where they proposed the use of LLMs to grade the model responses. Further more we gained more confidence to approach this after reading how Anthropic leverages RLAIF and dived right into the LLM evaluations research (We are soon releasing a repository of awesome Eval research).
+So, come today, UpTrain is our attempt to bring order to LLM chaos and contribute back to the community. While a majority of developers still go with the vibes and productionise prompt changes by reviewing a couple of cases, we have heard enough regression stories to believe "evaluations and improvement" will be a key part of LLM ecosystem as the space matures.
+
+1. Robust evaluations allows you to systematically experiment with different configurations and prevent any regressions by helping objectively select the best choice.
+2. It helps you understand where your systems are going wrong, find root cause and fix them - long before your end users complain and potentially churn out.
+3. Evaluations like prompt injection, jailbreak are essential to maintain safety and security of your LLM applications.
+4. Evaluations help you to provide transparency and build trust with your end-users - especially relevant if you are selling to enterprises.

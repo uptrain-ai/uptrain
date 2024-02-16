@@ -15,7 +15,7 @@ pip install uptrain
 ### Import required libraries
 
 ```python
-from uptrain import APIClient, Evals, CritiqueTone
+from uptrain import EvalLLM, Evals
 import json
 ```
 
@@ -45,9 +45,7 @@ data = [{
 }]
 ```
 
-## Run evaluations using UpTrain's Open-Source Software (OSS)
-
-You can run evaluations on your data using UpTrain's OSS. This is a great way to get started with UpTrain and see how it works. You can also use this to run evaluations on your local machine.
+## Run evaluations
 
 Create an instance of the `EvalLLM` class and pass your OpenAI API key to the constructor. You can find your OpenAI API key [here](https://beta.openai.com/account/api-keys).
 
@@ -58,107 +56,24 @@ eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
 ```
 
 
-### Log and evaluate your data
+### Evaluate your data
 
-Now that we have our data, we can log it and evaluate it using UpTrain. We use the `log_and_evaluate` method to do this. This method takes the following arguments:
+Now that we have our data, we can evaluate it using UpTrain. We use the `evaluate` method to do this. This method takes the following arguments:
 
-- `project_name`: The name of your project
-- `data`: The data you want to log and evaluate
+- `data`: The data you want to evaluate upon
 - `evals`: The evaluations you want to perform on your data
 
 You can find the list of all available evaluations [here](/key-components/evals).
 
 ```python
-results = client.log_and_evaluate(
-    project_name="Sample-Project",
+results = eval_llm.evaluate(
     data=data,
-    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
+    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_COMPLETENESS]
 )
 ```
 
 ### Get your results
 
 ```python
-print(json.dumps(results, indent=3))
-```
-
-
-## UpTrain Managed Service and Dashboards (Optional)
-
-You can create a free UpTrain account [here](https://uptrain.ai/) and get free trial credits. If you want more trial credits, [book a call with the maintainers of UpTrain here](https://calendly.com/uptrain-sourabh/30min).
-
-UpTrain Managed service provides:
-1. Dashboards with advanced drill-down and filtering options
-2. Insights and common topics among failing cases
-3. Observability and real-time monitoring of production data
-4. Regression testing via seamless integration with your CI/CD pipelines
-
-```python
-from uptrain import APIClient, Evals
-import json
-
-UPTRAIN_API_KEY = "up-********************"  # Insert your UpTrain key here
-
-uptrain_client = APIClient(uptrain_api_key=UPTRAIN_API_KEY)
-
-res = uptrain_client.log_and_evaluate(
-    "Sample-context-relevance-evals",
-    data,
-    [Evals.CONTEXT_RELEVANCE]
-)
-
-print(json.dumps(res,indent=3))
-```
-
-### Dashboard
-
-The UpTrain API client gives you exclusive access to our dashboard.
-
-![image](https://github.com/uptrain-ai/uptrain/assets/43818888/b84a76eb-6777-4290-b532-7e0038eded5a)
-
-
-### Insights
-
-You can filter failure cases and generate common topics among them. This can help identify the core issue and help fix it
-
-![image](https://github.com/uptrain-ai/uptrain/assets/43818888/7c24afcb-94b2-4c9a-a48f-23d86bbfdab0)
-
-
-## Experiments
-
-You can also run experiments on your data using the `evaluate_experiments` method. Experiments help you perform A/B testing with prompts, so you can compare and choose the options most suitable for you. 
-
-The `evaluate_experiments` method takes all the same arguments as the `log_and_evaluate` with the addition of the following:
-
-- `exp_columns` - A list of all the columns that act as identifiers to indicate which experiment the row belongs to. You can enter multiple column names here.
-
-
-Let's look at an example with prompt_variation as a column that indicates the experiment.
-
-```python
-data = [
-    {
-        "question": "How can you ensure that a designed prompt elicits the desired response from a language model?",
-        "context": "nudge the model to generate a desired result. Prompt design can be an efficient\nway to experiment with adapting a language model for a specific use case.",
-        "response": "To ensure that a designed prompt elicits the desired response from a language model, you can experiment with different prompt designs that nudge the model towards generating the desired result. This can be an efficient way to adapt the language model for a specific use case.",
-        "chunk_size": 200
-    },
-    {
-        "question": "How can you ensure that a designed prompt elicits the desired response from a language model?",
-        "context": "Design and save your own prompts\nPrompt design is the process of manually creating prompts that elicit the\ndesired response from a language model. By carefully crafting prompts, you can\nnudge the model to generate a desired result. Prompt design can be an efficient\nway to experiment with adapting a language model for a specific use case.\nYou can create and save your own prompts in Vertex AI Studio. When\ncreating a new prompt, you enter the prompt text, specify the model to use,\nconfigure parameter values, and test the prompt by generating a response. You\ncan iterate on the prompt and its configurations until you get the desired\nresults. When you are done designing the prompt, you can save it in\nVertex AI Studio.\nResponse citations\nIf you are using a text model in Vertex AI Studio like text-bison, you\nreceive text responses based on your input. Our features are intended to produce\noriginal content and not replicate existing content at length. If",
-        "response": "To ensure that a designed prompt elicits the desired response from a language model, you can manually create prompts that carefully craft the desired result. By iterating on the prompt and its configurations in Vertex AI Studio, you can experiment and adjust until you achieve the desired results. Additionally, it is important to note that the text models in Vertex AI Studio are designed to produce original content and not replicate existing content at length.",
-        "chunk_size": 1000
-    }
-]
-
-client = APIClient(uptrain_api_key=UPTRAIN_API_KEY)
-
-results = client.evaluate_experiments(
-    project_name="Chunk-Size-Experiment",
-    data=data,
-    checks=[Evals.CONTEXT_RELEVANCE, Evals.RESPONSE_RELEVANCE, Evals.FACTUAL_ACCURACY],
-    exp_columns=["chunk_size"]
-)
-
 print(json.dumps(results, indent=3))
 ```
