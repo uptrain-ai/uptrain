@@ -1,0 +1,117 @@
+---
+title: ChromaDB
+---
+[ChromaDB](https://www.trychroma.com/) is an open-source embedding database. While working on RAG based applications, you can use Chroma to retrieve information from your context documents.
+
+### How will this help?
+
+Vector databases store data as high-dimensional vectors, enabling fast and efficient similarity search and retrieval of data based on their vector representations.
+You can use UpTrain along with vector databases such as ChromaDB for evaluations such as the relevance of the retrieved context ensuring a good retrieval quality.
+
+### How to integrate?
+
+First let's import the necessary packages
+
+```python
+from uptrain import EvalLLM, Evals, APIClient
+import chromadb
+import json
+```
+
+Let's define a dataset
+
+<Info>In this example we have used SciQ dataset</Info>
+
+```python
+from datasets import load_dataset
+
+dataset = load_dataset("sciq", split="train")     # Get the SciQ dataset from HuggingFace
+
+dataset = dataset.filter(lambda x: x["support"] != "")    # Filter the dataset to only include questions with a support
+```
+
+Embedding the data in ChromaDB:
+
+```python
+client = chromadb.Client()
+
+collection = client.get_or_create_collection("sciq_supports")     # Get or create a new Chroma collection to store the supporting evidence.
+
+collection.add(     # Embed and store the first 100 supports for this demo
+    ids=[str(i) for i in range(0, 2)],  
+    documents=dataset["support"][:2],
+    metadatas=[{"type": "support"} for _ in range(0, 2)
+    ]
+)
+```
+
+Using ChromaDB to find supporting evidence(context) for the questions in the dataset:
+
+```python
+results = collection.query(
+    query_texts=dataset["question"][:10],
+    n_results=1)
+
+data = []
+for i, q in enumerate(dataset['question'][:10]):      # Retrieving the corresponding support document wrt question
+    retrieved_data = {'question': q,'context': results['documents'][i][0]}
+    data.append(retrieved_data)
+```
+
+Evaluate the retrieval quality using UpTrain
+
+```python
+OPENAI_API_KEY = "sk-*****************"  # Insert your OpenAI key here
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+
+res = eval_llm.evaluate(
+                        data=data,
+                        checks=[Evals.CONTEXT_RELEVANCE]
+)
+
+print(json.dumps(res, indent=3))
+```
+
+
+Let's look at the retrieval quality of the context documents
+```json
+[
+   {
+      "question": "What is the least dangerous radioactive decay?",
+      "context": "All radioactive decay is dangerous to living things, but alpha decay is the least dangerous.",
+      "score_context_relevance": 1.0,
+      "explanation_context_relevance": "The extracted context directly addresses the question by stating that alpha decay is the least dangerous form of radioactive decay. Therefore, the selected choice is (A)"
+   },
+   {
+      "question": "What type of organism is commonly used in preparation of foods such as cheese and yogurt?",
+      "context": "Agents of Decomposition The fungus-like protist saprobes are specialized to absorb nutrients from nonliving organic matter, such as dead organisms or their wastes. For instance, many types of oomycetes grow on dead animals or algae. Saprobic protists have the essential function of returning inorganic nutrients to the soil and water. This process allows for new plant growth, which in turn generates sustenance for other organisms along the food chain. Indeed, without saprobe species, such as protists, fungi, and bacteria, life would cease to exist as all organic carbon became \u201ctied up\u201d in dead organisms.",
+      "score_context_relevance": 0.5,
+      "explanation_context_relevance": "The extracted context discusses saprobe species, including protists, fungi, and bacteria, which are specialized to absorb nutrients from nonliving organic matter. While the context does not directly mention the use of these organisms in food preparation, it provides relevant information about the types of organisms involved in nutrient absorption from nonliving organic matter. Therefore, the extracted context can give some relevant answer for the given question but can't answer it completely. Hence, the selected choice is (B)"
+   }
+]
+```
+
+According to these evaluations:
+1. The first document has context relevant to the question, as it contains information about the least dangerous radioactice decay, thus resulting in a good context relevance score.
+2. The second document contains information about the agents used in preparation of foods like cheese and yogurt, but does not specifically talks about their use to make yougurt and cheese. Thus, resulting in a lower context relevance score. 
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/integrations/vector_db/chroma.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>
+

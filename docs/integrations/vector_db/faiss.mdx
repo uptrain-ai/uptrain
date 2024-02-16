@@ -1,0 +1,150 @@
+---
+title: FAISS
+---
+[FAISS](https://github.com/facebookresearch/faiss) is a powerful library designed for efficient similarity search and clustering of dense vectors. It offers various algorithms for searching in sets of vectors, even when the data size exceeds the available RAM. Developed primarily at Meta’s Fundamental AI Research group, Faiss provides complete wrappers for Python/numpy and supports GPU implementations for faster performance.
+
+### How will this help?
+
+FAISS can be used to store data as high-dimensional vectors, enabling fast and efficient similarity search and retrieval of data based on their vector representations.
+You can use UpTrain along with FAISS for evaluations such as the relevance of the retrieved context ensuring a good retrieval quality.
+
+### How to integrate?
+
+First let's import the necessary packages
+
+```python
+from uptrain import EvalLLM, Evals
+import faiss
+import numpy as np
+import torch
+from transformers import BertModel, BertTokenizer
+```
+
+Let's define a dataset
+
+```python
+documents = [
+    {
+        "name": "A Gift From The Stars",
+        "description": "This is the true story of an abduction and a rescue by benevolent extraterrestrials, various direct contacts Elena Danaan had throughout the years with UFOs and visitors from other worlds.",
+        "author": "Elena Dannan",
+        "year": 2020,
+    },
+    {
+        "name": "The Royal Abduction",
+        "description": "Shreya Singh, a princess from Rajasthan, has been abducted! A woman of beauty and substance, she is living a lavish life. But while there are abundant riches in her palace, there are also dark secrets about her family buried in the past.",
+        "author": "Vikram Singh",
+        "year": 2023,
+    }
+]
+```
+
+Choose an embedding model:
+
+```python
+model_name = 'bert-base-uncased'
+
+tokenizer = BertTokenizer.from_pretrained(model_name)
+
+model = BertModel.from_pretrained(model_name)
+```
+
+Generate embedding and vectorise from the defined text
+
+```python
+def encode_text(text):
+    input_ids = tokenizer.encode(text, return_tensors='pt')
+    with torch.no_grad():
+        output = model(input_ids)
+    return output.pooler_output.numpy()
+
+embeddings = np.vstack([encode_text(doc['description']) for doc in documents])
+
+index = faiss.IndexFlatL2(embeddings.shape[1])
+index.add(embeddings)
+```
+
+Define question and fetch relevant information from FAISS
+
+```python
+def query_index(question, k=3):
+    question_embedding = encode_text(question)
+    _, indices = index.search(question_embedding, k)
+    return [documents[i] for i in indices[0]]
+question = "What are some books that talk about alien abductions?"
+results = query_index(question)
+
+for result in results:
+    print(result['name'])
+    print(result['description'])
+
+data = []
+for hit in results:
+    data.append(
+        {
+            "question": question,
+            "context": "Book Description for "
+            + hit.get("name", "")
+            + " : "
+            + hit.get("description", ""),
+        }
+    )
+```
+
+Evaluate the retrieval quality using UpTrain
+
+```python
+OPENAI_API_KEY = "sk-*****************"  # Insert your OpenAI key here
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+
+res = eval_llm.evaluate(
+                        data=data,
+                        checks=[Evals.CONTEXT_RELEVANCE]
+)
+
+print(json.dumps(res, indent=3))
+```
+
+
+Let's look at the retrieval quality of the context documents
+```json
+[
+   {
+      "question": "What are some books that talk about alien abductions?",
+      "context": "Book Description for A Gift From The Stars : This is the true story of an abduction and a rescue by benevolent extraterrestrials, various direct contacts Elena Danaan had throughout the years with UFOs and visitors from other worlds.",
+      "score_context_relevance": 1.0,
+      "explanation_context_relevance": "The extracted context provides a specific book description that directly addresses the question about books on alien abductions. Hence, the selected choice is (A)"
+   },
+   {
+      "question": "What are some books that talk about alien abductions?",
+      "context": "Book Description for The Royal Abduction : Shreya Singh, a princess from Rajasthan, has been abducted! A woman of beauty and substance, she is living a lavish life. But while there are abundant riches in her palace, there are also dark secrets about her family buried in the past.",
+      "score_context_relevance": 0.0,
+      "explanation_context_relevance": "The extracted context does not contain any information about books that talk about alien abductions. It discusses a book called 'The Royal Abduction' which is about a princess being abducted, but it does not relate to alien abductions. Therefore, the selected choice is (C)"
+   }
+]
+```
+
+According to these evaluations:
+1. The first document has context relevant to the question, as it contains information about a book which is related to alien abductions, thus resulting in a good context relevance score.
+2. The second document contains information about a book which is related to abduction of a princess but not related to alien abductions, thus resulting in a good context relevance score. 
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/integrations/vector_db/qdrant.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>
+

@@ -1,0 +1,165 @@
+---
+title: Qdrant
+---
+[Qdrant](https://qdrant.tech/) is a vector similarity search engine and vector database. While working on RAG based applications, you can use QDrant to retrieve information from your context documents.
+
+### How will this help?
+
+Vector databases store data as high-dimensional vectors, enabling fast and efficient similarity search and retrieval of data based on their vector representations.
+You can use UpTrain along with vector databases such as QDrant for evaluations such as the relevance of the retrieved context ensuring a good retrieval quality.
+
+### How to integrate?
+
+First let's import the necessary packages
+
+```python
+from uptrain import EvalLLM, Evals, APIClient
+from qdrant_client import models, QdrantClient
+from sentence_transformers import SentenceTransformer
+import json
+```
+
+Let's define a dataset to create embeddings
+
+```python
+texts = [
+    {
+        "name": "A Gift From The Stars",
+        "description": "This is the true story of an abduction and a rescue by benevolent extraterrestrials, various direct contacts Elena Danaan had throughout the years with UFOs and visitors from other worlds.",
+        "author": "Elena Dannan",
+        "year": 2020,
+    },
+    {
+        "name": "The Royal Abduction",
+        "description": "Shreya Singh, a princess from Rajasthan, has been abducted! A woman of beauty and substance, she is living a lavish life. But while there are abundant riches in her palace, there are also dark secrets about her family buried in the past.",
+        "author": "Vikram Singh",
+        "year": 2023,
+    }
+]
+```
+
+Creating a memory instance using QDrant:
+
+```python
+encoder = SentenceTransformer("all-MiniLM-L6-v2")     # Create sentence transformer model to generate embeddings
+
+qdrant = QdrantClient(":memory:")     # Create in-memory Qdrant instance
+
+
+qdrant.recreate_collection(     # Create collection to store books
+    collection_name="my_books",
+    vectors_config=models.VectorParams(
+        size=encoder.get_sentence_embedding_dimension(),
+        distance=models.Distance.COSINE,
+    )
+)
+```
+
+Generate embedding and vectorise from the defined text
+
+```python
+embeddings = encoder.encode(texts)      # Generate embeddings for the texts
+
+qdrant.upload_points(     # Upload embeddings to the specified collection
+    collection_name="my_books",
+    points=[
+        models.Record(id=idx, vector=embedding.tolist())
+        for idx, embedding in enumerate(embeddings)
+    ],
+)
+
+qdrant.upload_points(     # Vectorize descriptions and upload to qdrant
+    collection_name="my_books",
+    points=[
+        models.Record(
+            id=idx, vector=encoder.encode(doc["description"]).tolist(), payload=doc
+        )
+        for idx, doc in enumerate(texts)
+    ],
+)
+```
+
+Define question and fetch relevant information from Qdrant
+
+```python
+question = "What are some books that talk about alien abductions?"
+
+hits = qdrant.search(
+    collection_name="my_books", query_vector=encoder.encode(question).tolist()
+)
+
+```
+
+Create a list with the fetched information to perform evaluations
+
+```python
+data = []
+for hit in hits:
+    data.append(
+        {
+            "question": question,
+            "context": "Book Description for "
+            + hit.payload.get("name", "")
+            + " : "
+            + hit.payload.get("description", ""),
+        }
+    )
+```
+
+Evaluate the retrieval quality using UpTrain
+
+```python
+OPENAI_API_KEY = "sk-*****************"  # Insert your OpenAI key here
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+
+res = eval_llm.evaluate(
+                        data=data,
+                        checks=[Evals.CONTEXT_RELEVANCE]
+)
+
+print(json.dumps(res, indent=3))
+```
+
+
+Let's look at the retrieval quality of the context documents
+```json
+[
+   {
+      "question": "What are some books that talk about alien abductions?",
+      "context": "Book Description for A Gift From The Stars : This is the true story of an abduction and a rescue by benevolent extraterrestrials, various direct contacts Elena Danaan had throughout the years with UFOs and visitors from other worlds.",
+      "score_context_relevance": 1.0,
+      "explanation_context_relevance": "The extracted context provides a specific book description that directly addresses the question about books on alien abductions. Hence, the selected choice is (A)"
+   },
+   {
+      "question": "What are some books that talk about alien abductions?",
+      "context": "Book Description for The Royal Abduction : Shreya Singh, a princess from Rajasthan, has been abducted! A woman of beauty and substance, she is living a lavish life. But while there are abundant riches in her palace, there are also dark secrets about her family buried in the past.",
+      "score_context_relevance": 0.0,
+      "explanation_context_relevance": "The extracted context does not contain any information about books that talk about alien abductions. It discusses a book called 'The Royal Abduction' which is about a princess being abducted, but it does not relate to alien abductions. Therefore, the selected choice is (C)"
+   }
+]
+```
+
+According to these evaluations:
+1. The first document has context relevant to the question, as it contains information about a book which is related to alien abductions, thus resulting in a good context relevance score.
+2. The second document contains information about a book which is related to abduction of a princess but not related to alien abductions, thus resulting in a good context relevance score. 
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/integrations/vector_db/qdrant.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>
+
