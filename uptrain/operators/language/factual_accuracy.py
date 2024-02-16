@@ -117,7 +117,6 @@ class ResponseFactualScore(ColumnOp):
                 'few_shot_examples': FACT_GENERATE_FEW_SHOT,
             })
             grading_prompt_template = FACT_GENERATE_PROMPT_TEMPLATE.replace("{scenario_description}", self.scenario_description).format(**kwargs)
-            print(grading_prompt_template)
             input_payloads.append(self._api_client.make_payload(idx, grading_prompt_template))
         output_payloads = self._api_client.fetch_responses(input_payloads, self.fact_generate_validate_func)
 
@@ -154,7 +153,6 @@ class ResponseFactualScore(ColumnOp):
                 "few_shot_examples": few_shot_examples,
             })
             grading_prompt_template = FACT_EVAL_PROMPT_TEMPLATE.replace("{scenario_description}", self.scenario_description).format(**kwargs)
-            print(grading_prompt_template)
             input_payloads.append(self._api_client.make_payload(idx, grading_prompt_template))
         output_payloads = self._api_client.fetch_responses(input_payloads, validation_func)
 
