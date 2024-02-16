@@ -133,7 +133,7 @@ Speak directly with the maintainers of UpTrain by [booking a call here](https://
 
 <h4> </h4>
 
-# Integrations
+# Integrations 🤝
 
 | Eval Frameworks  | LLM Providers | LLM Packages | Serving frameworks | LLM Observability | Vector DBs |
 | ------------- | ------------- | ------------- | ------------- | ------------- |  ------------- |
@@ -169,7 +169,7 @@ So, come today, UpTrain is our attempt to bring order to LLM chaos and contribut
 
 4. Evaluations help you to provide transparency and build trust with your end-users - especially relevant if you are selling to enterprises.
 
-# How you can help?
+# How you can help 🙏?
 
 We are constantly working to make UpTrain better. Few ways you can help:
 
