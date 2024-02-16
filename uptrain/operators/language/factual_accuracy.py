@@ -10,6 +10,8 @@ from loguru import logger
 import polars as pl
 import numpy as np
 
+from uptrain.utilities.prompt_utils import parse_scenario_description
+
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
 from uptrain.operators.base import *
@@ -103,6 +105,9 @@ class ResponseFactualScore(ColumnOp):
         FActScore: Fine-grained Atomic Evaluation of Factual Precision in Long Form Text Generation
         """
 
+        # Step 0: Parse the scenario description
+        self.scenario_description, scenario_vars = parse_scenario_description(self.scenario_description)
+        
         # Step 1: Extract facts from the response
         input_payloads = []
         for idx, row in enumerate(data):
@@ -110,9 +115,10 @@ class ResponseFactualScore(ColumnOp):
             kwargs.update({
                 'output_format': FACT_GENERATE_OUTPUT_FORMAT,
                 'few_shot_examples': FACT_GENERATE_FEW_SHOT,
-                'scenario_description': self.scenario_description,
             })
-            input_payloads.append(self._api_client.make_payload(idx, FACT_GENERATE_PROMPT_TEMPLATE.format(**kwargs)))
+            grading_prompt_template = FACT_GENERATE_PROMPT_TEMPLATE.replace("{scenario_description}", self.scenario_description).format(**kwargs)
+            print(grading_prompt_template)
+            input_payloads.append(self._api_client.make_payload(idx, grading_prompt_template))
         output_payloads = self._api_client.fetch_responses(input_payloads, self.fact_generate_validate_func)
 
         fact_results = []
@@ -146,9 +152,10 @@ class ResponseFactualScore(ColumnOp):
                 'output_format': output_format,
                 "prompting_instructions": self.settings.eval_type,
                 "few_shot_examples": few_shot_examples,
-                'scenario_description': self.scenario_description,
             })
-            input_payloads.append(self._api_client.make_payload(idx, FACT_EVAL_PROMPT_TEMPLATE.format(**kwargs)))
+            grading_prompt_template = FACT_EVAL_PROMPT_TEMPLATE.replace("{scenario_description}", self.scenario_description).format(**kwargs)
+            print(grading_prompt_template)
+            input_payloads.append(self._api_client.make_payload(idx, grading_prompt_template))
         output_payloads = self._api_client.fetch_responses(input_payloads, validation_func)
 
 

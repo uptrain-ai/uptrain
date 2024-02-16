@@ -10,6 +10,8 @@ from loguru import logger
 import polars as pl
 import numpy as np
 
+from uptrain.utilities.prompt_utils import parse_scenario_description
+
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
 from uptrain.operators.base import *
@@ -93,6 +95,7 @@ class ContextRelevance(ColumnOp):
         Our methodology is based on the model grade evaluation introduced by openai evals.
         """
 
+        self.scenario_description, scenario_vars = parse_scenario_description(self.scenario_description)
         input_payloads = []
         if self.settings.eval_type == "basic":
             few_shot_examples = CONTEXT_RELEVANCE_FEW_SHOT__CLASSIFY
@@ -111,9 +114,9 @@ class ContextRelevance(ColumnOp):
                 'output_format': output_format,
                 "prompting_instructions": self.settings.eval_type,
                 "few_shot_examples": few_shot_examples,
-                'scenario_description': self.scenario_description,
             })
-            input_payloads.append(self._api_client.make_payload(idx, CONTEXT_RELEVANCE_PROMPT_TEMPLATE.format(**kwargs)))
+            grading_prompt_template = CONTEXT_RELEVANCE_PROMPT_TEMPLATE.replace("{scenario_description}", self.scenario_description).format(**kwargs)
+            input_payloads.append(self._api_client.make_payload(idx, grading_prompt_template))
         output_payloads = self._api_client.fetch_responses(input_payloads, validation_func)
 
 
