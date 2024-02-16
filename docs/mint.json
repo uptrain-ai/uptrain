@@ -36,22 +36,17 @@
     {
       "name": "Blog",
       "icon": "newspaper",
-      "url": "https://uptrain.ai/blog"
+      "url": "https://blog.uptrain.ai/"
     },
     {
       "name": "Contributing",
       "icon": "code",
-      "url": "contributing"
+      "url": "https://github.com/uptrain-ai/uptrain/blob/emb_model_compare/CONTRIBUTING.md"
     },
     {
       "name": "Community",
       "icon": "slack",
       "url": "https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
-    },
-    {
-      "name": "API Reference",
-      "icon": "terminal",
-      "url": "https://uptrain-ai.github.io/uptrain"
     }
   ],
   "navigation": [
@@ -64,7 +59,7 @@
       ]
     },
     {
-      "group": "Predefined Evaluations 🗝️",
+      "group": "Pre-configured Evaluations 🗝️",
       "version": "v1",
       "pages": [
         "predefined-evaluations/evals",
