@@ -38,7 +38,7 @@
 
 **[UpTrain](https://uptrain.ai)** is an open-source platform to evaluate and improve your LLM applications. We provide grades for 20+ preconfigured checks, perform root cause analysis on failure cases and give insights on how to resolve them.
 
-# Key Features:
+# Key Features 🔑:
 
 1. **Data-secure**: All the evaluations and analysis run locally on your system, ensuring that the data never leaves your secure environment (except for LLM calls while using model grading checks)
 
@@ -151,7 +151,7 @@ Speak directly with the maintainers of UpTrain by [booking a call here](https://
 3. [Dealing with hallucinations](https://blog.uptrain.ai/dealing-with-hallucinations-in-llms-a-deep-dive/)
 
 
-# Why we are building UpTrain 🤔?
+# Why we are building UpTrain 🤔
 
 Having worked with ML and NLP models for the last 8 years, we were continuosly frustated with numerous hidden failures in our models which led to us building UpTrain. UpTrain was initially started as an ML observability tool with checks to identify regression in accuracy. 
 
@@ -169,7 +169,7 @@ So, come today, UpTrain is our attempt to bring order to LLM chaos and contribut
 
 4. Evaluations help you to provide transparency and build trust with your end-users - especially relevant if you are selling to enterprises.
 
-# How you can help 🙏?
+# How you can help 🙏
 
 We are constantly working to make UpTrain better. Few ways you can help:
 
