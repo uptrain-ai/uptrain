@@ -70,3 +70,61 @@ RESPONSE_COMPLETENESS_OUTPUT_FORMAT__COT = """
 """
 
 
+# Response Conciseness
+RESPONSE_CONCISENESS_OUTPUT_FORMAT__CLASSIFY = """
+{{
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+}}
+"""
+
+RESPONSE_CONCISENESS_OUTPUT_FORMAT__COT = """
+{{
+    "Reasoning": [Reasoning],  # Reasoning to determine the conciseness of the response for answering the query,
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+}}
+"""
+
+
+# Response Completeness wrt Context
+RESPONSE_COMPLETENESS_WRT_CONTEXT_OUTPUT_FORMAT__CLASSIFY = """
+{{
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+}}
+"""
+
+RESPONSE_COMPLETENESS_WRT_CONTEXT_OUTPUT_FORMAT__COT = """
+{{
+    "Reasoning": [Reasoning],  # Reasoning to determine the completeness of the response for answering the query with respect to the context,
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+}}
+"""
+
+
+# Response Consistency
+RESPONSE_CONSISTENCY_OUTPUT_FORMAT__CLASSIFY = """
+{{
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B")
+}}
+"""
+
+RESPONSE_CONSISTENCY_OUTPUT_FORMAT__COT = """
+{{
+    "Reasoning": [Reasoning],  # Reasoning to determine the consistency of the response for answering the query with respect to the context,
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B")
+}}
+"""
+
+
+# Valid Response
+VALID_RESPONSE_OUTPUT_FORMAT__CLASSIFY = """
+{{
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B")
+}}
+"""
+
+VALID_RESPONSE_OUTPUT_FORMAT__COT = """
+{{
+    "Reasoning": [Reasoning],  # Reasoning to determine the validity of the response for answering the query,
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B")
+}}
+"""
