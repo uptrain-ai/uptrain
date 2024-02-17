@@ -141,7 +141,6 @@ from .language.generation import (
     TopicGenerator,
 )
 from .language.with_context import (
-    ResponseCompleteness,
     ResponseRelevance,
     ResponseCompletenessWrtContext,
     ResponseConsistency,
@@ -149,6 +148,7 @@ from .language.with_context import (
 )
 from .language.factual_accuracy import ResponseFactualScore
 from .language.context_quality import ContextRelevance
+from .language.response_quality import ResponseCompleteness
 from .language.critique import LanguageCritique, ToneCritique
 from .language.guideline import GuidelineAdherenceScore, PromptInjectionScore
 from .language.conversation import ConversationSatisfactionScore

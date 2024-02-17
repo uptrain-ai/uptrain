@@ -82,3 +82,24 @@ CONTEXT_RELEVANCE_FEW_SHOT__CLASSIFY = """
     "Choice": "A"
 }}
 """
+
+
+RESPONSE_COMPLETENESS_FEW_SHOT__CLASSIFY = """
+[Question]: Who is Lionel Messi?
+[Response]: Lionel Andrés Messi (born 24 June 1987), also known as Leo Messi, is an Argentine professional footballer who plays as a forward for and captains both Major League Soccer club Inter Miami and the Argentina national team. Widely regarded as one of the greatest players of all time, Messi has won a record seven Ballon d'Or awards] and a record six European Golden Shoes, and in 2020 he was named to the Ballon d'Or Dream Team. Until leaving the club in 2021, he had spent his entire professional career with Barcelona, where he won a club-record 34 trophies, including ten La Liga titles, seven Copa del Rey titles and the UEFA Champions League four times.
+[Output]:
+{{
+    "Choice": "A"
+}}
+"""
+
+RESPONSE_COMPLETENESS_FEW_SHOT__COT = """
+[Question]: Who is Lionel Messi?
+[Response]: Lionel Andrés Messi (born 24 June 1987), also known as Leo Messi, is an Argentine professional footballer who plays as a forward for and captains both Major League Soccer club Inter Miami and the Argentina national team. Widely regarded as one of the greatest players of all time, Messi has won a record seven Ballon d'Or awards] and a record six European Golden Shoes, and in 2020 he was named to the Ballon d'Or Dream Team. Until leaving the club in 2021, he had spent his entire professional career with Barcelona, where he won a club-record 34 trophies, including ten La Liga titles, seven Copa del Rey titles and the UEFA Champions League four times.
+[Output]:
+{{
+    "Reasoning": "The given response is complete for the given question because it provides relevant information about Lionel Messi. The response includes his birth date, nationality and his recogniton in the world of football. This information directly addresses the question about Lionel Messi.",
+    "Choice": "A"
+}}
+"""
+

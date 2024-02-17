@@ -16,12 +16,13 @@ from uptrain.framework.remote import APIClientWithoutAuth, DataSchema
 from uptrain.framework.base import Settings
 
 from uptrain.framework.evals import Evals, JailbreakDetection, ParametricEval, CritiqueTone, GuidelineAdherence, ResponseMatching, ConversationSatisfaction
-from uptrain.operators import ResponseFactualScore, ContextRelevance
+from uptrain.operators import ResponseFactualScore, ContextRelevance, ResponseCompleteness
 
 
 EVAL_TO_OPERATOR_MAPPING = {
     Evals.FACTUAL_ACCURACY: ResponseFactualScore(),
-    Evals.CONTEXT_RELEVANCE: ContextRelevance()
+    Evals.CONTEXT_RELEVANCE: ContextRelevance(),
+    Evals.RESPONSE_COMPLETENESS: ResponseCompleteness(),
 }
 
 

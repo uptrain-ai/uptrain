@@ -73,3 +73,33 @@ Task Data.
 [Extracted Context]: {context}
 [Output]:
 """
+
+
+RESPONSE_COMPLETENESS_PROMPT_TEMPLATE = """
+You are a detail-oriented LLM which pays close attention to the details, checks for consistency, and is adept at identifying logical fallacies, incorrect assumptions, or other errors in reasoning.
+Your task is to determine if the given response is able to answer the given query completely.
+
+{prompting_instructions}
+
+{scenario_description}
+
+Example Data.
+{few_shot_examples}
+
+
+For the provided question-answer pair, please assess if the machine-generated response is relevant and answers the user query adequately. Don't focus on aspects like style, grammar, or punctuation. 
+Please form your response by selecting one of the following options. 
+(A) The generated answer doesn't answer the given question at all.
+(B) The generated answer only partially answers the given question.
+(C) The generated answer adequately answers the given question. 
+
+
+Return the output only in the corresponding JSON format. Do not output anything other than this JSON object:
+{output_format}
+
+
+Task Data.
+[Question]: {question}
+[Response]: {response}
+[Output]:
+"""

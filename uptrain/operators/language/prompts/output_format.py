@@ -1,3 +1,4 @@
+# Factual Accuracy
 FACT_GENERATE_OUTPUT_FORMAT = """
 [ # A list of numerically-ordered facts
     "1. 1st Fact",
@@ -21,7 +22,6 @@ FACT_EVALUATE_OUTPUT_FORMAT__CLASSIFY = """
 ]
 """
 
-
 FACT_EVALUATE_OUTPUT_FORMAT__COT = """
 [   # List containing data for all the facts
     {
@@ -39,6 +39,7 @@ FACT_EVALUATE_OUTPUT_FORMAT__COT = """
 """
 
 
+# Context Relevance
 CONTEXT_RELEVANCE_OUTPUT_FORMAT__CLASSIFY = """
 {{
     "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
@@ -51,3 +52,21 @@ CONTEXT_RELEVANCE_OUTPUT_FORMAT__COT = """
     "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
 }}
 """
+
+
+# Response Completeness
+# Same as the one for context_relevance, but kept separate to maintain consistency and allow for future changes
+RESPONSE_COMPLETENESS_OUTPUT_FORMAT__CLASSIFY = """
+{{
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+}}
+"""
+
+RESPONSE_COMPLETENESS_OUTPUT_FORMAT__COT = """
+{{
+    "Reasoning": [Reasoning],  # Reasoning to determine the completeness of the response for answering the query,
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+}}
+"""
+
+
