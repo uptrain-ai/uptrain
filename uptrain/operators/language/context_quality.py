@@ -8,20 +8,28 @@ import json
 
 from loguru import logger
 import polars as pl
-import numpy as np
 
 from uptrain.utilities.prompt_utils import parse_scenario_description
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
-from uptrain.operators.base import *
+from uptrain.operators.base import register_op, ColumnOp, TYPE_TABLE_OUTPUT
 from uptrain.utilities import polars_to_json_serializable_dict
 from uptrain.operators.language.llm import LLMMulticlient
 
 from uptrain.operators.language.prompts.classic import CONTEXT_RELEVANCE_PROMPT_TEMPLATE
-from uptrain.operators.language.prompts.few_shots import *
-from uptrain.operators.language.prompts.instructions import *
-from uptrain.operators.language.prompts.output_format import *
+from uptrain.operators.language.prompts.few_shots import (
+    CONTEXT_RELEVANCE_FEW_SHOT__CLASSIFY,
+    CONTEXT_RELEVANCE_FEW_SHOT__COT,
+)
+from uptrain.operators.language.prompts.instructions import (
+    CLASSIFY,
+    CHAIN_OF_THOUGHT,
+)
+from uptrain.operators.language.prompts.output_format import (
+    CONTEXT_RELEVANCE_OUTPUT_FORMAT__CLASSIFY,
+    CONTEXT_RELEVANCE_OUTPUT_FORMAT__COT,
+)
 
 
 @register_op
@@ -101,18 +109,20 @@ class ContextRelevance(ColumnOp):
             few_shot_examples = CONTEXT_RELEVANCE_FEW_SHOT__CLASSIFY
             output_format = CONTEXT_RELEVANCE_OUTPUT_FORMAT__CLASSIFY
             validation_func = self.context_relevance_classify_validate_func
+            prompting_instructions = CLASSIFY
         elif self.settings.eval_type == "cot":
             few_shot_examples = CONTEXT_RELEVANCE_FEW_SHOT__COT
             output_format = CONTEXT_RELEVANCE_OUTPUT_FORMAT__COT
             validation_func = self.context_relevance_cot_validate_func
+            prompting_instructions = CHAIN_OF_THOUGHT
         else:
-            raise Exception("Unknown Eval Type")
+            raise Exception("Unknown Eval Type: Choose from 'basic' or 'cot'")
 
         for idx, row in enumerate(data):
             kwargs = row
             kwargs.update({
                 'output_format': output_format,
-                "prompting_instructions": self.settings.eval_type,
+                "prompting_instructions": prompting_instructions,
                 "few_shot_examples": few_shot_examples,
             })
             grading_prompt_template = CONTEXT_RELEVANCE_PROMPT_TEMPLATE.replace("{scenario_description}", self.scenario_description).format(**kwargs)
@@ -128,7 +138,7 @@ class ContextRelevance(ColumnOp):
                 score = self.score_mapping[json.loads(res.response.choices[0].message.content)['Choice']]
                 output['score_context_relevance'] = float(score)
                 output['explanation_context_relevance'] = res.response.choices[0].message.content
-            except:
+            except Exception:
                 logger.error(f"Error when processing payload at index {idx}: {res.error}")
             results.append((idx, output))
         results = [val for _, val in sorted(results, key=lambda x: x[0])]
