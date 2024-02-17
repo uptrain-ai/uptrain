@@ -1,20 +1,19 @@
 ---
 title: Context Relevance
-description: Grades how relevant the context was to the question specified. ([Tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/relevance.ipynb))
+description: Grades how relevant the context was to the question specified.
 ---
 
+Context relevance score measures if the retrieved context has enough information to answer the question being asked.
 
-The context relevance check evaluates if the 
+This check is important since a bad context reduces the chances of the model giving a relevant response to the question asked, as well as leads to hallucinations.
 
-Context relevance score measures if the retrieved context has enough information to answer the question being asked. 
-This check is important as a bad context reduces the chances of the model giving a relevant response to the question asked, as well as leads to hallucinations.
-
-You can read our [blog](https://blog.uptrain.ai/decoding-perplexity-and-its-significance-in-llms/) to learn more about why context relevance is important.
+You can read our [blog](https://blog.uptrain.ai/a-comprehensive-guide-to-context-retrieval-in-llms-2/) to learn more about why context relevance is important.
 
 Columns required:
 - `question`: The question asked by the user
 - `context`: Information retrieved to answer the question
 
+### How to use it?
 
 ```python
 from uptrain import EvalLLM, Evals
@@ -22,8 +21,8 @@ from uptrain import EvalLLM, Evals
 OPENAI_API_KEY = "sk-********************"  # Insert your OpenAI key here
 
 data = [{
-    'question': 'What is the capital of France?',
-    'context': 'Paris, the City of Lights, is the capital of France and a global center for art, fashion, gastronomy, and culture. Its 19th-century cityscape is crisscrossed by wide boulevards and the Seine River. Beyond such iconic landmarks as the Eiffel Tower and the 12th-century Notre Dame Cathedral, the city is known for its charming cafes, trendy boutiques, and rich history. '
+    "question": "What is the capital city of France?",
+    "context": "France is a global center for art, fashion, gastronomy, and culture. Its 19th-century cityscape is crisscrossed by wide boulevards and the Seine River. The country is also known for its charming cafes, trendy boutiques, and rich history."
 }]
 
 eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
@@ -32,14 +31,27 @@ res = eval_llm.evaluate(
     data = data,
     checks = [Evals.CONTEXT_RELEVANCE]
 )
-
-{
-    "score_context_relevance": 1.0,
-    "explanation_context_relevance": "The question is \"What is the capital of France?\" The extracted context mentions that \"Paris, the City of Lights, is the capital of France.\" This directly answers the given question completely. Therefore, the correct choice is (A) The extracted context can answer the given question completely.\n\n1.0\n1.0"
-}
 ```
+<Info>By Default we are using GPT 3.5 Turbo. If you want to use some other model check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb)</Info>
 
-## How it works
+Sample Response:
+```json
+[
+   {
+      "score_context_relevance": 0.0,
+      "explanation_context_relevance": "The extracted context does not contain any information related to the capital city of France. It only provides information about France being a global center for art, fashion, gastronomy, and culture, its 19th-century cityscape, wide boulevards, the Seine River, charming cafes, trendy boutiques, and rich history. There is no mention of the capital city of France in the given context, so it cannot answer the user query."
+   }
+]
+```
+<Note>A higher context relevance score reflects that retrieved context is relevant to the question asked.</Note>
+
+The question is asking about "the capital city of France".
+
+The context though contains some information about France, there is no refeence to the capital city of France i.e. Paris.
+
+Which makes the context irrelevant for the given question, ultimately resulting in a low context relevance score.
+
+## How it works?
 
 We evaluate context relevance by determining which of the following three cases apply for the given task data:
 
@@ -49,3 +61,22 @@ B. The extracted context can give some relevant answer for the given query but c
 
 C. The extracted context doesn't contain any information to answer the given query.
 
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/relevance.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>

@@ -3,13 +3,75 @@ title: Conversation
 description: Grade the conversations between the user and the LLM/AI assistant.
 ---
 
-### ConversationSatisfaction  ([Tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/language_features/conversation_satisfaction.ipynb))
+Conversation Satisfaction measures how well a model/LLM answers the query asked by the user. 
+
+It determines the user's satisfaction based on the conversation with the LLM/AI assistant.
 
 Measures the user's satisfaction with the conversation with the LLM/AI assistant based on completeness and user's acceptance.
 
 Columns required:
-- `conversation` - The chat between the user and the LLM/AI assistant (in the form of a list of dictionaries with keys 'role' and 'content')
+- `user_persona`: The persona of the user asking the queries
+- `llm_persona`: The persona of the LLM/AI assistant
+- `role`: The identifier for persona within a conversation
+- `content`: The user/llm argument in a particular conversation
 
-Parameters:
-- `user_persona` - The persona of the user asking the queries
-- `llm_persona` - The persona of the LLM/AI assistant
+### How to use it?
+
+```python
+from uptrain import EvalLLM, Evals
+
+OPENAI_API_KEY = "sk-********************"  # Insert your OpenAI key here
+
+data = [{
+    'conversation' : [
+        {"role": "patient", "content": "Help"}, 
+        {"role": "nurse", "content": "what do you need"}, 
+        {"role": "patient", "content": "Having chest pain"}, 
+        {"role": "nurse", "content": "Sorry, I am not sure what that means"},
+        {"role": "patient", "content": "You don't understand. Do something! I am having severe pain in my chest"}
+    ]  
+}]
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+
+res = eval_llm.evaluate(
+    data = data,
+    checks = [ConversationSatisfaction(user_persona="patient", llm_persona="nurse")]
+)
+```
+<Info>By Default we are using GPT 3.5 Turbo. If you want to use some other model check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb)</Info>
+
+Sample Response:
+```json
+[
+   {
+      "score_conversation_satisfaction": 0.0,
+      "explanation_conversation_satisfaction": "1. The patient starts the conversation with a simple \"Help\" which indicates urgency and distress.\n2. The nurse responds by asking what the patient needs, showing willingness to help.\n3. The patient then explains that they are having chest pain, which is a serious medical concern.\n4. The nurse responds by saying they are not sure what that means, which could be perceived as dismissive or unhelpful.\n5. The patient then expresses frustration and urgency by saying \"Do something! I am having severe pain in my chest.\"\n\nBased on the conversation, it is clear that the patient is not at all satisfied in the conversation. The nurse's response did not address the patient's urgent medical concern, and the patient's frustration is evident in their final statement.\n\n0.0\n0.0"
+   }
+]
+```
+<Note>A higher conversation satisfaction score reflects that the user seems to be satisfied with the conversation.</Note>
+
+The conversation that the agent was not able to address the user's query, also indicated by the user's response: "You don't understand".
+
+Resulting in a low conversation satisfaction score.
+
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/conversation/conversation_satisfaction.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>

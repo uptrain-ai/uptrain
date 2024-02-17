@@ -1,16 +1,72 @@
 ---
 title: Response Consistency
 description: Grades how consistent the response is with the question asked as well as with the context provided.
-
 ---
 
+Response Consistency is the measure of how well the generated response aligns with both the question asked and the context provided. 
 
-### RESPONSE_CONSISTENCY  ([Tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/consistency.ipynb))
-
-Grades how consistent the response is with the question asked as well as with the context provided.
+In evaluating response consistency, it is important to assess whether the information provided in the response directly addresses the query posed by the user and is coherent with any additional context given.
 
 Columns required:
-- `question`
-- `context`
-- `response`
+- `question`: The question asked by the user
+- `context`: Information retrieved to answer the question
+- `response`: The response given by the model
 
+### How to use it?
+
+```python
+from uptrain import EvalLLM, Evals
+
+OPENAI_API_KEY = "sk-********************"  # Insert your OpenAI key here
+
+data = [{
+    "question": "How is pneumonia treated?",
+    "context": "Pneumonia is an infection that inflames the air sacs in one or both lungs. It is typically treated with antibiotics, rest, and supportive care. The choice of antibiotics depends on the type of pneumonia and its severity."
+    "response": "Pneumonia can be treated with over-the-counter painkillers, and rest is not necessary for recovery."
+}]
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+
+res = eval_llm.evaluate(
+    data = data,
+    checks = [Evals.RESPONSE_CONSISTENCY]
+)
+```
+<Info>By Default we are using GPT 3.5 Turbo. If you want to use some other model check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb)</Info>
+
+Sample Response:
+```json
+[
+   {
+      "score_response_consistency": 0.0,
+      "explanation_response_consistency": " \"The given LLM response doesn't answer the user query at all because it fails to provide any information on how pneumonia is actually treated. The response only mentions over-the-counter painkillers and dismisses the need for rest, which is not a comprehensive or accurate representation of pneumonia treatment. The user will be highly dissatisfied with this answer as it lacks crucial information on antibiotics, hospitalization, oxygen therapy, and other essential treatments for pneumonia.\"\n"
+   }
+]
+
+```
+<Note>A higher response consistency score reflects that the generated response aligns with both the question asked and the context provided.</Note>
+
+The response states the use of painkillers for the treatment of pneumonia.
+
+This contradicts the context which states that pneumonia is typically treated with antibiotics, rest, and supportive care
+
+Resulting in a low response consistency score.
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/consistency.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>

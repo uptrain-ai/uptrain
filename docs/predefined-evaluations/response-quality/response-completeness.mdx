@@ -1,15 +1,74 @@
 ---
 title: Response Completeness
-description: Grades how complete the generated response was for the question specified.
-
+description: Grades whether the response has answered all the aspects of the question specified
 ---
 
+Response completeness score measures if the generated response has adequately answered all aspects to the question being asked.
 
-### RESPONSE_COMPLETENESS  ([Tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/completeness.ipynb))
+This check is important to ensure that the model is not generating incomplete responses.
 
-Grades how complete the generated response was for the question specified.
 
 Columns required:
-- `question`
-- `response`
+- `question`: The question asked by the user
+- `response`: The response given by the model
 
+### How to use it?
+
+```python
+from uptrain import EvalLLM, Evals
+
+OPENAI_API_KEY = "sk-********************"  # Insert your OpenAI key here
+
+data = [{
+    "question": "Where is the Taj Mahal located? Also, when was it built?",
+    "response": "The Taj Mahal is located in Agra, Uttar Pradesh, India"
+}]
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+
+res = eval_llm.evaluate(
+    data = data,
+    checks = [Evals.RESPONSE_COMPLETENESS]
+)
+```
+<Info>By Default we are using GPT 3.5 Turbo. If you want to use some other model check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb)</Info>
+
+Sample Response:
+```json
+[
+   {
+      "score_response_completeness": 0.5,
+      "explanation_response_completeness": "The LLM response answers a few aspects by providing the location of the Taj Mahal (Agra, Uttar Pradesh, India) but fails to answer all the critical aspects of the user query as it completely ignores the second part of the query which asks for the construction date of the Taj Mahal. The user will not be highly satisfied with this answer as it only addresses one part of the query and leaves out important information."
+   }
+]
+```
+<Note>A higher response completeness score reflects that the response has answered to all of the user's questions.</Note>
+
+The question can be divided in following 2 parts:
+1. Where is the Taj Mahal located?
+2. When was the Taj Mahal built?
+
+
+Though the response provides answer to "Where is the Taj Mahal located?", it does not state when was it built.
+
+Ultimately, resulting in a low response completeness score.
+
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/completeness.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>

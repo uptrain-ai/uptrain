@@ -4,9 +4,59 @@ description: Grades if the response generated is valid or not. A response is con
 
 ---
 
-### VALID_RESPONSE
+In some cases, an LLM might fail to generate a response due to reasons like limited knowledge or the asked question not being clear.
 
-Grades if the response generated is valid or not. A response is considered to be valid if it contains any information.
+Response Validity score can be used to identify these cases, where a model is not generating an informative response.
 
 Columns required:
-- `response`
+- `question`: The question asked by the user
+- `response`: The response given by the model
+
+### How to use it?
+
+```python
+from uptrain import EvalLLM, Evals
+
+OPENAI_API_KEY = "sk-********************"  # Insert your OpenAI key here
+
+data = [{
+    "question": "What is the chemical formula of chlorophyll?",
+    "response": "Sorry, I don't have information about that."
+}]
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+
+res = eval_llm.evaluate(
+    data = data,
+    checks = [Evals.VALID_RESPONSE]
+)
+```
+<Info>By Default we are using GPT 3.5 Turbo. If you want to use some other model check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb)</Info>
+
+Sample Response:
+```json
+[
+   {
+      "score_valid_response": 0.0,
+      "explanation_valid_response": "Step 1: Identify the question and response.\nQuestion: What is the chemical formula of chlorophyll?\nResponse: Sorry, I don't have information about that.\n\nStep 2: Analyze the response.\nThe response states that the AI assistant does not have information about the chemical formula of chlorophyll. It does not provide any specific information about the chemical formula.\n\nStep 3: Evaluate the response based on the given criteria.\nThe response does not contain any information about the chemical formula of chlorophyll. It simply states the lack of information.\n\nConclusion:\nThe given response does not contain any information.\n\n[Choice]: B\n[Explanation]: The response does not contain any information about the chemical formula of chlorophyll. Therefore, the selected choice is B."
+   }
+]
+```
+<Note>A higher response validity score reflects that the generated response is valid.</Note>
+
+The response generated is not considered to be a valid response as the model has not generated any information on the quesktion asked i.e. "What is the formula of chlorophyll"
+
+Rather the generated response is an argument reflecting the model's inability to generate information.
+
+Resulting in a low response validity score.
+
+<CardGroup cols={1}>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>

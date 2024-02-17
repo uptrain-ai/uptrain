@@ -1,33 +1,68 @@
 ---
 title: Response Conciseness
 description: Grades how concise the generated response is or if it has any additional irrelevant information for the question asked.
-
 ---
 
-### RESPONSE_CONCISENESS  ([Tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/conciseness.ipynb))
-
-Grades how concise the generated response is or if it has any additional irrelevant information for the question asked.
+Response conciseness score measures whether the generated response contains any additional information irrelevant to the question asked.
 
 Columns required:
-- `question`
-- `response`
+- `question`: The question asked by the user
+- `response`: The response given by the model
 
+### How to use it?
 
-### VALID_RESPONSE
+```python
+from uptrain import EvalLLM, Evals
 
-Grades if the response generated is valid or not. A response is considered to be valid if it contains any information.
+OPENAI_API_KEY = "sk-********************"  # Insert your OpenAI key here
 
-Columns required:
-- `response`
+data = [{
+    "question": "What are the primary components of a cell?",
+    "response": "The primary components of a cell are crucial for its function. Speaking of components, the integration of software components in modern applications is a key challenge for developers. It requires careful consideration of architectural patterns and design principles."
+}]
 
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
 
-### ResponseMatching
+res = eval_llm.evaluate(
+    data = data,
+    checks = [Evals.RESPONSE_CONCISENESS]
+)
+```
+<Info>By Default we are using GPT 3.5 Turbo. If you want to use some other model check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb)</Info>
 
-Operator to compare the llm-generated text with the gold (ideal) response using the defined score metric.
+Sample Response:
+```json
+[
+   {
+      "score_response_conciseness": 0.0,
+      "explanation_response_conciseness": "The LLM response contains a lot of additional irrelevant information because it completely deviates from the user query about the primary components of a cell. Instead of providing relevant information about cell components, the response talks about software integration, architectural patterns, and design principles, which are not related to the user query at all. This additional information is not needed to answer the user's question and only serves to confuse and distract from the main topic."
+   }
+]
 
-Columns required:
-- `question`
-- `ground_truth` - The column containing the gold responses
+```
+<Note>A higher response conciseness score reflects that the response is concise and does not contain any irrelevant information.</Note>
 
-Paramters:
-- `method` - Method to calculate the score ('rouge', 'exact' or 'llm')
+The response has information about software integration, architectural patterns, and design principles.
+
+This information is not relevant to the user's question, "What are the primary components of a cell?"
+
+Resulting in a low response conciseness score.
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/conciseness.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>

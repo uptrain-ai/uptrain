@@ -1,14 +1,68 @@
 ---
 title: Response Relevance
-description: Grades how relevant the generated response is or if it has any additional irrelevant information for the question asked.
-
+description: Grades how relevant the generated context was to the question specified.
 ---
 
-### RESPONSE_RELEVANCE  ([Tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/relevance.ipynb))
-
-Grades how relevant the generated response is or if it has any additional irrelevant information for the question asked.
+Response relevance is the measure of how relevant the generated response is to the question asked. It is a measure of how well the response addresses the question asked and if it contains any additional information that is not relevant to the question asked.
 
 Columns required:
-- `question`
-- `response`
+- `question`: The question asked by the user
+- `response`: The response given by the model
 
+### How to use it?
+
+```python
+from uptrain import EvalLLM, Evals
+
+OPENAI_API_KEY = "sk-********************"  # Insert your OpenAI key here
+
+data = [{
+    "question": "What are the benefits of regular exercise?",
+    "response": "Regular exercise has well-documented health benefits. On a related note, the importance of routine health check-ups in preventive healthcare cannot be emphasized enough. It allows for early detection of potential health issues and facilitates proactive management for individuals."
+}]
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+
+res = eval_llm.evaluate(
+    data = data,
+    checks = [Evals.RESPONSE_RELEVANCE]
+)
+```
+<Info>By Default we are using GPT 3.5 Turbo. If you want to use some other model check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb)</Info>
+
+Sample Response:
+```json
+[
+   {
+      "score_response_relevance": 0.0,
+      "explanation_response_relevance": "The LLM response contains a lot of additional irrelevant information because it goes off on a tangent about routine health check-ups and preventive healthcare, which is not directly related to the benefits of regular exercise. This additional information distracts from the main topic and does not directly address the user query.\"\n\n \"The LLM response doesn't answer the user query at all because it completely ignores the specific benefits of regular exercise. Instead, it focuses on the importance of routine health check-ups in preventive healthcare. The user asked about the benefits of regular exercise, and the response fails to address this aspect, leading to potential dissatisfaction."
+   }
+]
+
+```
+<Note>A higher response relevance score reflects that the generated response is relevant to the question asked.</Note>
+
+The question asked was "The benefits of regular exercise"
+
+The response does not answer the question being asked and contains irrelevant information about the benefits of regular health check-ups.
+
+Resulting in a low response relevance score.
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/relevance.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>

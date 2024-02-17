@@ -99,6 +99,14 @@
           ]
         },
         {
+          "group": "Language Quality Evals",
+          "version": "v1",
+          "pages": [
+            "predefined-evaluations/language-quality/fluency-and-coherence",
+            "predefined-evaluations/language-quality/tonality"
+          ]
+        },
+        {
           "group": "Code Related Evals",
           "version": "v1",
           "pages": [
@@ -128,19 +136,33 @@
           ]
         },
         {
-          "group": "Language Quality Evals",
-          "version": "v1",
-          "pages": [
-            "predefined-evaluations/language-quality/fluency-and-coherence",
-            "predefined-evaluations/language-quality/tonality"
-          ]
-        },
-        {
           "group": "Safety Evals",
           "version": "v1",
           "pages": [
-            "predefined-evaluations/safety/prompt-injection",
-            "predefined-evaluations/safety/jailbreak"
+            "predefined-evaluations/safeguarding/prompt-injection",
+            "predefined-evaluations/safeguarding/jailbreak"
+          ]
+        }
+      ]
+    },
+    {
+      "group": "Integrations 🔗",
+      "version": "v1",
+      "pages": [
+        {
+          "group": "LLM Providers",
+          "version": "v1",
+          "pages": [
+            "integrations/llm_providers/anyscale"
+          ]
+        },
+        {
+          "group": "Vector Database",
+          "version": "v1",
+          "pages": [
+            "integrations/vector_db/chroma",
+            "integrations/vector_db/qdrant",
+            "integrations/vector_db/faiss"
           ]
         }
       ]
