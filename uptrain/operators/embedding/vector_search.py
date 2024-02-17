@@ -43,6 +43,7 @@ class VectorSearch(TransformOp):
     top_k: int = 1
     col_in_document: str = ""
     distance_metric: str = t.Literal['cosine_similarity', 'l2_distance']
+    embedding_batch_size: int = 128
 
     def setup(self, settings: t.Optional[Settings] = None):
 
@@ -73,6 +74,7 @@ class VectorSearch(TransformOp):
             model = self.embeddings_model,
             col_in_text = 'document',
             col_out = "document_embeddings",
+            batch_size = self.embedding_batch_size
         )
         doc_embeddings = np.array(list(emb_op.setup(settings).run(documents_table)['output']['document_embeddings']))
 
