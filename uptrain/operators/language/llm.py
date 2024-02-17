@@ -20,6 +20,11 @@ openai = lazy_load_dep("openai", "openai")
 litellm = lazy_load_dep("litellm", "litellm")
 aiolimiter = lazy_load_dep("aiolimiter", "aiolimiter>=1.1")
 tqdm_asyncio = lazy_load_dep("tqdm.asyncio", "tqdm>=4.0")
+nestasyncio = lazy_load_dep("nest_asyncio", "nest_asyncio")
+
+
+# Handle the "RuntimeError: This event loop is already running" error
+nestasyncio.apply()
 
 
 from openai import AsyncOpenAI
@@ -47,7 +52,8 @@ class Payload(BaseModel):
 def run_validation(llm_output, validation_func):
     try:
         return validation_func(llm_output)
-    except:
+    except Exception as e:
+        logger.error(f"Error when running validation function: {e}")
         return False
 
 
