@@ -125,7 +125,10 @@ class ContextRelevance(ColumnOp):
                 "prompting_instructions": prompting_instructions,
                 "few_shot_examples": few_shot_examples,
             })
-            grading_prompt_template = CONTEXT_RELEVANCE_PROMPT_TEMPLATE.replace("{scenario_description}", self.scenario_description).format(**kwargs)
+            try:
+                grading_prompt_template = CONTEXT_RELEVANCE_PROMPT_TEMPLATE.replace("{scenario_description}", self.scenario_description).format(**kwargs)
+            except KeyError as e:
+                raise KeyError(f"Missing required attribute(s) for scenario description: {e}")
             input_payloads.append(self._api_client.make_payload(idx, grading_prompt_template))
         output_payloads = self._api_client.fetch_responses(input_payloads, validation_func)
 
