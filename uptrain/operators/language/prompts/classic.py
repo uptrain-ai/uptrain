@@ -4,7 +4,6 @@ Each fact is separated by the following symbol: ", ". Go over each fact sentence
 {prompting_instructions}
 
 
-Here is a brief description of the scenario under which the given context and facts were generated.
 {scenario_description}
 
 
@@ -26,7 +25,6 @@ Task Data.
 FACT_GENERATE_PROMPT_TEMPLATE = """
 You are given a response along with its question. Please breakdown the following response into independent facts. A fact is a sentence that is true and can only be stated from the response. Facts should not depend on each another and must not convey the same information. Limit to 5 facts in the output. 
 
-Here is a brief description of the scenario under which the given response was generated.
 {scenario_description}
 
 
@@ -51,7 +49,6 @@ Your task is to determine if the given context has enough information to answer 
 {prompting_instructions}
 
 
-Here is a brief description of the scenario under which the given context and query were generated.
 {scenario_description}
 
 

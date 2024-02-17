@@ -1,3 +1,7 @@
+SCENARIO_DESCRIPTION_TEMPLATE = """Here is a brief description of the scenario under which the given response was generated.
+{scenario_description}
+"""
+
 def parse_scenario_description(scenario_description):
     """
     Parses a scenario description and extracts variables enclosed within '{{' and '}}' or '{' and '}'.
@@ -12,6 +16,7 @@ def parse_scenario_description(scenario_description):
     """
     scenario_vars = []
     if scenario_description is not None and len(scenario_description):
+        scenario_description = SCENARIO_DESCRIPTION_TEMPLATE.format(scenario_description=scenario_description)
         if '{{' in scenario_description:
             scenario_vars = [x.split("}}")[0] for x in scenario_description.split("{{")[1:]]
             for var in scenario_vars:
