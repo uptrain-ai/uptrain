@@ -47,6 +47,11 @@
       "name": "Community",
       "icon": "slack",
       "url": "https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    },
+    {
+      "name": "Contact Us",
+      "icon": "phone",
+      "url": "https://calendly.com/uptrain-sourabh/30min"
     }
   ],
   "navigation": [
@@ -144,6 +149,13 @@
           ]
         }
       ]
+    },
+    {
+      "group": "Failure Analysis 🤯",
+      "version": "v1",
+      "pages": [
+            "root-cause-analysis/templates/rag-with-citation"
+          ]
     },
     {
       "group": "Integrations 🔗",

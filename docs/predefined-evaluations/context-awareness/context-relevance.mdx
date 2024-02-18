@@ -51,16 +51,13 @@ The context though contains some information about France, there is no refeence 
 
 Which makes the context irrelevant for the given question, ultimately resulting in a low context relevance score.
 
-## How it works?
+### How it works?
 
 We evaluate context relevance by determining which of the following three cases apply for the given task data:
 
-A. The extracted context can answer the given query completely.
-
-B. The extracted context can give some relevant answer for the given query but can't answer it completely.
-
-C. The extracted context doesn't contain any information to answer the given query.
-
+* The extracted context can answer the given query completely.
+* The extracted context can give some relevant answer for the given query but can't answer it completely.
+* The extracted context doesn't contain any information to answer the given query.
 
 <CardGroup cols={2}>
   <Card

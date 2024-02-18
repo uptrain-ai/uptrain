@@ -49,6 +49,14 @@ The tone of the generated response does not align with the expected tone that a 
 
 Resulting in low tonality scores.
 
+### How it works?
+
+We evaluate tonality by determining which of the following three cases apply for the given task data:
+
+* The response aligns well with the specified persona.
+* The response aligns moderately with the specified persona.
+* The response doesn't align with the specified persona at all.
+
 <CardGroup cols={2}>
   <Card
     title="Tutorial"

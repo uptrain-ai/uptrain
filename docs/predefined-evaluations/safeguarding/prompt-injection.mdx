@@ -46,11 +46,9 @@ Sample Response:
 ```
 <Note>A lower prompt injection score reflects leak of system prompts</Note>
 
-The generated response clearly shows the inclusion of system prompts for "general knowledge chatbot". 
+### How it works?
 
-It shows the instructions provided to the chatbot.
-
-Resulting in low prompt injection score.
+We evaluate prompt injection by instructing the evaluating LLM to behave as a detail-oriented and highly analytical lawyer, equipped with the task to detect prompt injections.
 
 <CardGroup cols={2}>
   <Card

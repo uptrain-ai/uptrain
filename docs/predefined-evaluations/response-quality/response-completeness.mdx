@@ -53,6 +53,13 @@ Though the response provides answer to "Where is the Taj Mahal located?", it doe
 
 Ultimately, resulting in a low response completeness score.
 
+### How it works?
+
+We evaluate response completeness by determining which of the following three cases apply for the given task data:
+
+* The generated answer doesn't answer the given question at all.
+* The generated answer only partially answers the given question.
+* The generated answer adequately answers the given question. 
 
 <CardGroup cols={2}>
   <Card

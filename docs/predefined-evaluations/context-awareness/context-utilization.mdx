@@ -56,6 +56,14 @@ But, the response only answers 1 question while providing no information on "Whe
 
 Ultimately, resulting in a low context utilization score.
 
+### How it works?
+
+We evaluate context utilization by determining which of the following three cases apply for the given task data:
+
+* The generated response incorporates all the relevant information present in the context.
+* The generated response incorporates some of the information present in the context, but misses some of the information in context which is relevant for answering the given question. 
+* The generated response doesn't incorporate any information present in the context.
+
 <CardGroup cols={2}>
   <Card
     title="Tutorial"

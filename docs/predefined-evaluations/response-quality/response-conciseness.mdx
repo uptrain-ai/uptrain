@@ -48,6 +48,14 @@ This information is not relevant to the user's question, "What are the primary c
 
 Resulting in a low response conciseness score.
 
+### How it works?
+
+We evaluate response conciseness by determining which of the following three cases apply for the given task data:
+
+* The generated answer has a lot of additional irrelevant information.
+* The generated answer has a little additional irrelevant information.
+* The generated answer has no additional irrelevant information.
+
 <CardGroup cols={2}>
   <Card
     title="Tutorial"

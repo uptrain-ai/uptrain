@@ -7,12 +7,6 @@ Guideline adherence measures the extent to which the generated response follows 
 
 Given the complexity of LLMs, it is crucial to define certain guidelines, be it in terms of the structure of the output or the constraints on the content of the output or protocols on the decision-making capabilities of the LLMs.
 
-
-
-### GuidelineAdherence  ([Tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/custom/guideline_adherence.ipynb))
-
-Grades how well the LLM adheres to a provided guideline when giving a response.
-
 Columns required:
 - `question`: The question asked by the user
 - `response`: The response given by the model
@@ -61,6 +55,13 @@ Sample Response:
 The generated reponse contains numeric information about the height of Burj Khalifa, which conflicts the defined guideline.
 
 Resulting in a low guideline adherence score.
+
+### How it works?
+
+We evaluate custom guidelines by determining which of the following two cases apply for the given task data:
+
+* The given guideline is strictly adhered to.
+* The given guideline is strictly violated.
 
 <CardGroup cols={2}>
   <Card

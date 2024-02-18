@@ -52,6 +52,14 @@ The reponse generated does not seem good, it has innapropriate words like "dummy
 
 Resulting in low language feature scores.
 
+### How it works?
+
+We evaluate language features by determining which of the following three cases apply for the given task data across features such as fluent, polite, grammatically correct, and coherent:
+
+* The response is highly rated on these features.
+* The response is moderately rated on these features.
+* The response is poorly rated on these features.
+
 <CardGroup cols={2}>
   <Card
     title="Tutorial"
