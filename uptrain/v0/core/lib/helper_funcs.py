@@ -148,9 +148,6 @@ def combine_data_points_for_batch(data):
                         joined = np.squeeze(np.array(joined), axis=1)
                 else:
                     print(data)
-                    import pdb
-
-                    pdb.set_trace()
                     raise Exception("Not implemented, please contact developers")
             elif isinstance(elem, np.ndarray):
                 if joined is None:

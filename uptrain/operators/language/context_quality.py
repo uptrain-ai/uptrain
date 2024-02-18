@@ -40,6 +40,7 @@ class ContextRelevance(ColumnOp):
     Attributes:
         col_question: (str) Column Name for the stored questions
         col_context: (str) Coloumn name for stored context
+        col_out (str): Column name to output scores
         scenario_description (str): Optional scenario description to incorporate in the evaluation prompt
         score_mapping (dict): Mapping of different grades to float scores
 
@@ -65,7 +66,6 @@ class ContextRelevance(ColumnOp):
             self._api_client = APIClient(settings)
         return self
 
-
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         data_send = polars_to_json_serializable_dict(data)
         for row in data_send:
@@ -76,34 +76,41 @@ class ContextRelevance(ColumnOp):
             if self.settings.evaluate_locally:
                 results = self.evaluate_local(data_send)
             else:
-                results = self._api_client.evaluate("context_relevance", data_send, {"scenario_description":self.scenario_description})
+                results = self._api_client.evaluate(
+                    "context_relevance",
+                    data_send,
+                    {"scenario_description": self.scenario_description},
+                )
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ContextRelevance`: {e}")
             raise e
 
         assert results is not None
-        return {"output": data.with_columns(pl.from_dicts(results).rename({"score_context_relevance": self.col_out}))}
-
+        return {
+            "output": data.with_columns(
+                pl.from_dicts(results).rename({"score_context_relevance": self.col_out})
+            )
+        }
 
     def context_relevance_classify_validate_func(self, llm_output):
         is_correct = True
         is_correct = is_correct and ("Choice" in json.loads(llm_output))
-        is_correct = is_correct and json.loads(llm_output)['Choice'] in ['A', 'B', 'C']
+        is_correct = is_correct and json.loads(llm_output)["Choice"] in ["A", "B", "C"]
         return is_correct
-
 
     def context_relevance_cot_validate_func(self, llm_output):
         is_correct = self.context_relevance_classify_validate_func(llm_output)
         is_correct = is_correct and ("Reasoning" in json.loads(llm_output))
         return is_correct
 
-
     def evaluate_local(self, data):
         """
         Our methodology is based on the model grade evaluation introduced by openai evals.
         """
 
-        self.scenario_description, scenario_vars = parse_scenario_description(self.scenario_description)
+        self.scenario_description, scenario_vars = parse_scenario_description(
+            self.scenario_description
+        )
         input_payloads = []
         if self.settings.eval_type == "basic":
             few_shot_examples = CONTEXT_RELEVANCE_FEW_SHOT__CLASSIFY
@@ -116,35 +123,54 @@ class ContextRelevance(ColumnOp):
             validation_func = self.context_relevance_cot_validate_func
             prompting_instructions = CHAIN_OF_THOUGHT
         else:
-            raise Exception("Unknown Eval Type: Choose from 'basic' or 'cot'")
+            raise ValueError(
+                f"Invalid eval_type: {self.settings.eval_type}. Must be either 'basic' or 'cot'"
+            )
 
         for idx, row in enumerate(data):
             kwargs = row
-            kwargs.update({
-                'output_format': output_format,
-                "prompting_instructions": prompting_instructions,
-                "few_shot_examples": few_shot_examples,
-            })
+            kwargs.update(
+                {
+                    "output_format": output_format,
+                    "prompting_instructions": prompting_instructions,
+                    "few_shot_examples": few_shot_examples,
+                }
+            )
             try:
-                grading_prompt_template = CONTEXT_RELEVANCE_PROMPT_TEMPLATE.replace("{scenario_description}", self.scenario_description).format(**kwargs)
+                grading_prompt_template = CONTEXT_RELEVANCE_PROMPT_TEMPLATE.replace(
+                    "{scenario_description}", self.scenario_description
+                ).format(**kwargs)
             except KeyError as e:
-                raise KeyError(f"Missing required attribute(s) for scenario description: {e}")
-            input_payloads.append(self._api_client.make_payload(idx, grading_prompt_template))
-        output_payloads = self._api_client.fetch_responses(input_payloads, validation_func)
-
+                raise KeyError(
+                    f"Missing required attribute(s) for scenario description: {e}"
+                )
+            input_payloads.append(
+                self._api_client.make_payload(idx, grading_prompt_template)
+            )
+        output_payloads = self._api_client.fetch_responses(
+            input_payloads, validation_func
+        )
 
         results = []
         for res in output_payloads:
             idx = res.metadata["index"]
-            output = {'score_context_relevance': None, 'explanation_context_relevance': None}
+            output = {
+                "score_context_relevance": None,
+                "explanation_context_relevance": None,
+            }
             try:
-                score = self.score_mapping[json.loads(res.response.choices[0].message.content)['Choice']]
-                output['score_context_relevance'] = float(score)
-                output['explanation_context_relevance'] = res.response.choices[0].message.content
+                score = self.score_mapping[
+                    json.loads(res.response.choices[0].message.content)["Choice"]
+                ]
+                output["score_context_relevance"] = float(score)
+                output["explanation_context_relevance"] = res.response.choices[
+                    0
+                ].message.content
             except Exception:
-                logger.error(f"Error when processing payload at index {idx}: {res.error}")
+                logger.error(
+                    f"Error when processing payload at index {idx}: {res.error}"
+                )
             results.append((idx, output))
         results = [val for _, val in sorted(results, key=lambda x: x[0])]
 
         return results
-

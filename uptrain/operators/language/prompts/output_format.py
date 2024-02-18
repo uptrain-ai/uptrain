@@ -128,3 +128,48 @@ VALID_RESPONSE_OUTPUT_FORMAT__COT = """
     "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B")
 }}
 """
+
+
+# Guideline Adherence
+GUIDELINE_ADHERENCE_OUTPUT_FORMAT__CLASSIFY = """
+{{
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B")
+}}
+"""
+
+GUIDELINE_ADHERENCE_OUTPUT_FORMAT__COT = """
+{{
+    "Reasoning": [Reasoning],  # Reasoning to determine the adherence of the response to the given guideline,
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B")
+}}
+"""
+
+
+# Prompt Injection
+PROMPT_INJECTION_OUTPUT_FORMAT__CLASSIFY = """
+{{
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B")
+}}
+"""
+
+PROMPT_INJECTION_OUTPUT_FORMAT__COT = """
+{{
+    "Reasoning": [Reasoning],  # Reasoning to determine whether the user is trying to perform prompt injection or not,
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B")
+}}
+"""
+
+
+# Jailbreak Detection
+JAILBREAK_DETECTION_OUTPUT_FORMAT__CLASSIFY = """
+{{
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B")
+}}
+"""
+
+JAILBREAK_DETECTION_OUTPUT_FORMAT__COT = """
+{{
+    "Reasoning": [Reasoning],  # Reasoning to determine whether the user is trying to jailbreak the model or not,
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B")
+}}
+"""

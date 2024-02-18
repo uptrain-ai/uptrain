@@ -16,7 +16,7 @@ from uptrain.framework.remote import APIClientWithoutAuth, DataSchema
 from uptrain.framework.base import Settings
 
 from uptrain.framework.evals import Evals, JailbreakDetection, ParametricEval, CritiqueTone, GuidelineAdherence, ResponseMatching, ConversationSatisfaction
-from uptrain.operators import ResponseFactualScore, ContextRelevance, ResponseCompleteness, ResponseCompletenessWrtContext, ResponseConciseness, ResponseConsistency, ValidResponseScore
+from uptrain.operators import ResponseFactualScore, ContextRelevance, ResponseCompleteness, ResponseCompletenessWrtContext, ResponseConciseness, ResponseConsistency, ValidResponseScore, JailbreakDetectionScore, PromptInjectionScore, GuidelineAdherenceScore
 
 
 EVAL_TO_OPERATOR_MAPPING = {
@@ -27,8 +27,13 @@ EVAL_TO_OPERATOR_MAPPING = {
     Evals.RESPONSE_COMPLETENESS_WRT_CONTEXT: ResponseCompletenessWrtContext(),
     Evals.RESPONSE_CONSISTENCY: ResponseConsistency(),
     Evals.VALID_RESPONSE: ValidResponseScore(),
+    Evals.PROMPT_INJECTION: PromptInjectionScore(),
 }
 
+PARAMETRIC_EVAL_TO_OPERATOR_MAPPING = {
+    "JailbreakDetection": JailbreakDetectionScore,
+    "GuidelineAdherence": GuidelineAdherenceScore,
+}
 
 class EvalLLM:
 
@@ -121,7 +126,11 @@ class EvalLLM:
         if self.settings.evaluate_locally:
             results = copy.deepcopy(data)
             for idx, check in enumerate(checks):
-                if check in EVAL_TO_OPERATOR_MAPPING:
+                if isinstance(check, ParametricEval):
+                    # Use the check_name field to get the operator and remove it from ser_checks
+                    op = PARAMETRIC_EVAL_TO_OPERATOR_MAPPING[ser_checks[idx].pop("check_name")](**ser_checks[idx])
+                    res = op.setup(self.settings).run(pl.DataFrame(data))['output'].to_dicts()
+                elif check in EVAL_TO_OPERATOR_MAPPING:
                     op = EVAL_TO_OPERATOR_MAPPING[check]
                     op.scenario_description = scenario_description if not isinstance(scenario_description, list) else scenario_description[idx]
                     res = op.setup(self.settings).run(pl.DataFrame(data))['output'].to_dicts()

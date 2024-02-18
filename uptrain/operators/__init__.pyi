@@ -69,6 +69,7 @@ __all__ = [
     "ValidResponseScore",
     "TopicAssignmentviaCluster",
     "JailbreakDetectionScore",
+    "PromptInjectionScore",
     # io - also include all the subimports
     "io",
     "ExcelReader",
@@ -151,11 +152,14 @@ from .language.response_quality import (
     ValidResponseScore,
 )
 from .language.critique import LanguageCritique, ToneCritique
-from .language.guideline import GuidelineAdherenceScore, PromptInjectionScore
+from .language.guideline import GuidelineAdherenceScore
 from .language.conversation import ConversationSatisfactionScore
 from .language.response_matching import ResponseMatchingScore
 from .language.topic import TopicAssignmentviaCluster
-from .language.jailbreak import JailbreakDetectionScore
+from .language.jailbreak import (
+    PromptInjectionScore,
+    JailbreakDetectionScore
+)
 
 from . import io
 from .io.base import CsvReader, JsonReader, DeltaReader, JsonWriter, DeltaWriter
