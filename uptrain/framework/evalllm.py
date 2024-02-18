@@ -37,6 +37,7 @@ from uptrain.operators import (
     ConversationSatisfactionScore,
     LanguageCritique,
     ToneCritique,
+    ResponseRelevance,
 )
 
 EVAL_TO_OPERATOR_MAPPING = {
@@ -46,6 +47,7 @@ EVAL_TO_OPERATOR_MAPPING = {
     Evals.RESPONSE_CONCISENESS: ResponseConciseness(),
     Evals.RESPONSE_COMPLETENESS_WRT_CONTEXT: ResponseCompletenessWrtContext(),
     Evals.RESPONSE_CONSISTENCY: ResponseConsistency(),
+    Evals.RESPONSE_RELEVANCE: ResponseRelevance(),
     Evals.VALID_RESPONSE: ValidResponseScore(),
     Evals.PROMPT_INJECTION: PromptInjectionScore(),
     Evals.CRITIQUE_LANGUAGE: LanguageCritique(),

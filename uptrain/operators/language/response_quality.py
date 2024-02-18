@@ -60,6 +60,7 @@ class ResponseCompleteness(ColumnOp):
     Attributes:
         col_question: (str) Column Name for the stored questions
         col_response: (str) Coloumn name for stored response
+        col_out: (str) Column name for the output score
         scenario_description (str): Optional scenario description to incorporate in the evaluation prompt
         score_mapping (dict): Mapping of different grades to float scores
 
@@ -203,6 +204,7 @@ class ResponseConciseness(ColumnOp):
     Grades if the response is concise or not.
 
     Attributes:
+        col_question: (str) Column Name for the stored questions
         col_response: (str) Coloumn name for stored response
         col_out: (str) Column name for the output score
         scenario_description (str): Optional scenario description to incorporate in the evaluation prompt
@@ -213,6 +215,7 @@ class ResponseConciseness(ColumnOp):
 
     """
 
+    col_question: str = "question"
     col_response: str = "response"
     col_out: str = "score_response_conciseness"
     scenario_description: t.Optional[str] = None
@@ -232,6 +235,7 @@ class ResponseConciseness(ColumnOp):
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         data_send = polars_to_json_serializable_dict(data)
         for row in data_send:
+            row["question"] = row.pop(self.col_question)
             row["response"] = row.pop(self.col_response)
 
         try:
@@ -264,7 +268,8 @@ class ResponseConciseness(ColumnOp):
 
     def response_conciseness_cot_validate_func(self, llm_output):
         is_correct = self.response_conciseness_classify_validate_func(llm_output)
-        is_correct
+        is_correct = is_correct and ("Reasoning" in json.loads(llm_output))
+        return is_correct
 
     def evaluate_local(self, data):
         """
@@ -776,4 +781,124 @@ class ValidResponseScore(ColumnOp):
             results.append((idx, output))
 
         results = [val for _, val in sorted(results, key=lambda x: x[0])]
+        return results
+
+
+@register_op
+class ResponseRelevance(ColumnOp):
+    """
+    Grades if the response is relevant or not.
+
+    Attributes:
+        col_question: (str) Column Name for the stored questions
+        col_response: (str) Coloumn name for stored response
+        col_out: (str) Column name for the output score
+        scenario_description (str): Optional scenario description to incorporate in the evaluation prompt
+
+    Raises:
+        Exception: Raises exception for any failed evaluation attempts
+
+    """
+
+    col_question: str = "question"
+    col_response: str = "response"
+    col_out: str = "score_response_relevance"
+    scenario_description: t.Optional[str] = None
+
+    def setup(self, settings: t.Optional[Settings] = None):
+        from uptrain.framework.remote import APIClient
+
+        assert settings is not None
+        self.settings = settings
+        if self.settings.evaluate_locally:
+            self._api_client = LLMMulticlient(settings)
+        else:
+            self._api_client = APIClient(settings)
+        return self
+
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
+        data_send = polars_to_json_serializable_dict(data)
+        for row in data_send:
+            row["response"] = row.pop(self.col_response)
+
+        try:
+            if self.settings.evaluate_locally:
+                results = self.evaluate_local(data_send)
+            else:
+                results = self._api_client.evaluate(
+                    "response_relevance",
+                    data_send,
+                    {"scenario_description": self.scenario_description},
+                )
+        except Exception as e:
+            logger.error(f"Failed to run evaluation for `ResponseRelevance`: {e}")
+            raise e
+
+        assert results is not None
+        return {
+            "output": data.with_columns(
+                pl.from_dicts(results).rename(
+                    {"score_response_relevance": self.col_out}
+                )
+            )
+        }
+
+    def response_relevance_classify_validate_func(self, llm_output):
+        pass
+
+    def response_relevance_cot_validate_func(self, llm_output):
+        pass
+
+    def evaluate_local(self, data):
+        """
+        Our methodology is based on the model grade evaluation introduced by openai evals.
+        """
+
+        # Works by calling evaluate_local on ResponseCompleteness and ResponseConciseness and taking the f1 score of the two
+        response_completeness = ResponseCompleteness(
+            col_question=self.col_question,
+            col_response=self.col_response,
+            scenario_description=self.scenario_description,
+        )
+        output_completeness = (
+            response_completeness.setup(settings=self.settings)
+            .run(pl.DataFrame(data))["output"]
+            .to_dicts()
+        )
+
+        response_conciseness = ResponseConciseness(
+            col_response=self.col_response,
+            scenario_description=self.scenario_description,
+        )
+
+        output_conciseness = (
+            response_conciseness.setup(settings=self.settings)
+            .run(pl.DataFrame(data))["output"]
+            .to_dicts()
+        )
+
+        results = []
+        for combined_row in zip(output_conciseness, output_completeness):
+            precision = combined_row[0]["score_response_conciseness"]
+            recall = combined_row[1]["score_response_completeness"]
+            output = {
+                "score_response_relevance": 0.0,
+                "explanation_response_relevance": None,
+            }
+            explanation = (
+                str(combined_row[0]["explanation_response_conciseness"])
+                + "\n"
+                + str(combined_row[1]["explanation_response_completeness"])
+            )
+            output["explanation_response_relevance"] = explanation
+            if (
+                precision is not None
+                and recall is not None
+                and precision != 0
+                and recall != 0
+            ):
+                output["score_response_relevance"] = 2 * (
+                    (precision * recall) / (precision + recall)
+                )
+            results.append(output)
         return results

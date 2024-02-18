@@ -143,13 +143,13 @@ from .language.generation import (
 )
 from .language.factual_accuracy import ResponseFactualScore
 from .language.context_quality import ContextRelevance
-from .language.with_context import ResponseRelevance
 from .language.response_quality import (
     ResponseCompleteness,
     ResponseCompletenessWrtContext,
     ResponseConsistency,
     ResponseConciseness,
     ValidResponseScore,
+    ResponseRelevance,
 )
 from .language.critique import LanguageCritique, ToneCritique
 from .language.guideline import GuidelineAdherenceScore
@@ -158,7 +158,7 @@ from .language.response_matching import ResponseMatchingScore
 from .language.topic import TopicAssignmentviaCluster
 from .language.jailbreak import (
     PromptInjectionScore,
-    JailbreakDetectionScore
+    JailbreakDetectionScore,
 )
 
 from . import io

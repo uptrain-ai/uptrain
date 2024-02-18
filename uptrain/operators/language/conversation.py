@@ -74,7 +74,7 @@ class ConversationSatisfactionScore(ColumnOp):
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         data_send = polars_to_json_serializable_dict(data)
         for row in data_send:
-            row["question"] = row.pop(self.col_question)
+            row["conversation"] = row[self.col_conversation]
 
         try:
             if self.settings.evaluate_locally:
@@ -146,6 +146,8 @@ class ConversationSatisfactionScore(ColumnOp):
                     "output_format": output_format,
                     "prompting_instructions": prompting_instructions,
                     "few_shot_examples": few_shot_examples,
+                    "llm_persona": self.llm_persona,
+                    "user_persona": self.user_persona,
                 }
             )
             try:
