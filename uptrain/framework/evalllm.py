@@ -14,10 +14,30 @@ import copy
 
 from uptrain.framework.remote import APIClientWithoutAuth, DataSchema
 from uptrain.framework.base import Settings
-
-from uptrain.framework.evals import Evals, JailbreakDetection, ParametricEval, CritiqueTone, GuidelineAdherence, ResponseMatching, ConversationSatisfaction
-from uptrain.operators import ResponseFactualScore, ContextRelevance, ResponseCompleteness, ResponseCompletenessWrtContext, ResponseConciseness, ResponseConsistency, ValidResponseScore, JailbreakDetectionScore, PromptInjectionScore, GuidelineAdherenceScore
-
+from uptrain.framework.evals import (
+    Evals,
+    JailbreakDetection,
+    ParametricEval,
+    CritiqueTone,
+    GuidelineAdherence,
+    ResponseMatching,
+    ConversationSatisfaction,
+)
+from uptrain.operators import (
+    ResponseFactualScore,
+    ContextRelevance,
+    ResponseCompleteness,
+    ResponseCompletenessWrtContext,
+    ResponseConciseness,
+    ResponseConsistency,
+    ValidResponseScore,
+    JailbreakDetectionScore,
+    PromptInjectionScore,
+    GuidelineAdherenceScore,
+    ConversationSatisfactionScore,
+    LanguageCritique,
+    ToneCritique,
+)
 
 EVAL_TO_OPERATOR_MAPPING = {
     Evals.FACTUAL_ACCURACY: ResponseFactualScore(),
@@ -28,11 +48,14 @@ EVAL_TO_OPERATOR_MAPPING = {
     Evals.RESPONSE_CONSISTENCY: ResponseConsistency(),
     Evals.VALID_RESPONSE: ValidResponseScore(),
     Evals.PROMPT_INJECTION: PromptInjectionScore(),
+    Evals.CRITIQUE_LANGUAGE: LanguageCritique(),
 }
 
 PARAMETRIC_EVAL_TO_OPERATOR_MAPPING = {
     "JailbreakDetection": JailbreakDetectionScore,
     "GuidelineAdherence": GuidelineAdherenceScore,
+    "ConversationSatisfaction": ConversationSatisfactionScore,
+    "CritiqueTone": ToneCritique,
 }
 
 class EvalLLM:

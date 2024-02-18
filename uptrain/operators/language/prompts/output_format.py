@@ -173,3 +173,48 @@ JAILBREAK_DETECTION_OUTPUT_FORMAT__COT = """
     "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B")
 }}
 """
+
+
+# Conversation Satisfaction
+CONVERSATION_SATISFACTION_OUTPUT_FORMAT__CLASSIFY = """
+{{
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+}}
+"""
+
+CONVERSATION_SATISFACTION_OUTPUT_FORMAT__COT = """
+{{
+    "Reasoning": [Reasoning],  # Reasoning to determine the satisfaction level of the user with the conversation,
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+}}
+"""
+
+
+# Critique Tone
+CRITIQUE_TONE_OUTPUT_FORMAT__CLASSIFY = """
+{{
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+}}
+"""
+
+CRITIQUE_TONE_OUTPUT_FORMAT__COT = """
+{{
+    "Reasoning": [Reasoning],  # Reasoning to critique the tone of the AI model's responses,
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+}}
+"""
+
+
+# Critique Language
+CRITIQUE_LANGUAGE_OUTPUT_FORMAT__CLASSIFY = """
+{{
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+}}
+"""
+
+CRITIQUE_LANGUAGE_OUTPUT_FORMAT__COT = """
+{{
+    "Reasoning": [Reasoning],  # Reasoning to critique the fluency, politeness, coherence and grammar of the AI model's responses,
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+}}
+"""
