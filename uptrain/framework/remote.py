@@ -15,6 +15,7 @@ from uptrain.framework.checks import CheckSet, ExperimentArgs
 from uptrain.framework.base import Settings
 from uptrain.framework.evals import Evals, JailbreakDetection, ParametricEval, CritiqueTone, GuidelineAdherence, ResponseMatching, ConversationSatisfaction
 from uptrain.framework.rca_templates import RcaTemplate
+from uptrain.utilities import polars_to_pandas
 
 class DataSchema(pydantic.BaseModel):
     id_: str = "id"
@@ -257,7 +258,7 @@ class APIClient:
             logger.error(response.text)
             response.raise_for_status()
         else:
-            return pl.read_ndjson(response.content).to_dicts()
+            return pl.DataFrame(polars_to_pandas(pl.read_ndjson(response.content))).to_dicts()
 
     def download_run_result(self, run_id: str, check_name: str, fpath: str) -> None:
         """Download the results of a run.
@@ -693,7 +694,8 @@ class APIClient:
         results = pl.DataFrame(results)
         all_cols = set(results.columns)
         value_cols = list(all_cols - set([schema.question] + exp_columns))
-        exp_results = results.pivot(values=value_cols, index=schema.question, columns=exp_columns)
+        index_cols = metadata.get("uptrain_index_columns", [schema.question])
+        exp_results = results.pivot(values=value_cols, index=index_cols, columns=exp_columns)
         exp_results = exp_results.to_dicts()
         return exp_results
 
