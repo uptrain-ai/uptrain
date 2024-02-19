@@ -29,7 +29,7 @@ from uptrain.framework.builtins import (
     CheckJailbreakDetection,
 )
 
-settings = Settings()
+settings = Settings(openai_api_key="sk-************************")
 dataset = pl.DataFrame(
     {
         "response": [
