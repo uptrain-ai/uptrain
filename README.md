@@ -63,31 +63,23 @@ Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact 
 5. Prompt improvement suggestions
 
 # Pre-built Evaluations We Offer 📝
-<img width="1088" alt="quality of your responses" src="https://github.com/uptrain-ai/uptrain/assets/43818888/654b2289-2799-4310-84be-fcdd071f3e2e">
+<img width="1088" alt="quality of your responses" src="https://github.com/uptrain-ai/uptrain/assets/36454110/2a6ea4b8-8ef3-40b9-a5dc-4746d246f3ab">
 
 | Eval | Description |
 | ---- | ----------- |
 |[Reponse Completeness](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/completeness.ipynb) | Grades whether the response has answered all the aspects of the question specified. |
-|[Reponse Conciseness]((https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/conciseness.ipynb) | Grades how concise the generated response is or if it has any additional irrelevant information for the question asked. |
+|[Reponse Conciseness](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/conciseness.ipynb) | Grades how concise the generated response is or if it has any additional irrelevant information for the question asked. |
 |[Reponse Relevance](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/relevance.ipynb)| Grades how relevant the generated context was to the question specified.|
-|[Reponse Validity]()| Grades if the response generated is valid or not. A response is considered to be valid if it contains any information.|
+|Reponse Validity| Grades if the response generated is valid or not. A response is considered to be valid if it contains any information.|
 |[Reponse Consistency](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/consistency.ipynb)| Grades how consistent the response is with the question asked as well as with the context provided.|
 
 <img width="1088" alt="quality of retrieved context and response groundedness" src="https://github.com/uptrain-ai/uptrain/assets/43818888/a7e384a3-c857-4a71-a938-7a2a70f8db1e">
 
 | Eval | Description |
 | ---- | ----------- |
-|[Context Relevance](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/relevance.ipynb)) | Grades how relevant the context was to the question specified. |
+|[Context Relevance](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/relevance.ipynb) | Grades how relevant the context was to the question specified. |
 |[Context Utilization](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/response_completeness_wrt_context.ipynb) | Grades how complete the generated response was for the question specified given the information provided in the context. |
 |[Factual Accuracy](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/factual_accuracy.ipynb)| Grades whether the response generated is factually correct and grounded by the provided context.|
-
-
-<img width="1088" alt="safeguard system prompts and avoid LLM mis-use" src="https://github.com/uptrain-ai/uptrain/assets/43818888/4fcdb1e8-f356-443b-88f0-94146e08829e">
-
-| Eval | Description |
-| ---- | ----------- |
-|[Prompt Injection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/system_prompt_injection.ipynb) | Grades whether the generated response is leaking any system prompt. |
-|[Jailbreak Detection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/jailbreak_detection.ipynb) | Grades whether the user's prompt is an attempt to jailbreak (i.e. generate illegal or harmful responses). |
 
 <img width="1088" alt="language quality of the response" src="https://github.com/uptrain-ai/uptrain/assets/43818888/776cbc6d-bb4c-4ed1-a892-7a1df38d12d5">
 
@@ -96,6 +88,18 @@ Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact 
 |[Language Features](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/language_features/language_critique.ipynb) | Grades whether the response has answered all the aspects of the question specified. |
 |[Tonality](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/language_features/tone_critique.ipynb) | Grades whether the generated response matches the required persona's tone  |
 
+<img width="1088" alt="language quality of the response" src="https://github.com/uptrain-ai/uptrain/assets/36454110/2fba9f0b-71b3-4d90-90f8-16ef38cef3ab">
+
+| Eval | Description |
+| ---- | ----------- |
+|Code Hallucination | Grades whether the code present in the generated response is grounded by the context. |
+
+<img width="1088" alt="conversation as a whole" src="https://github.com/uptrain-ai/uptrain/assets/43818888/194f8dd7-26ca-48eb-bdff-028212db9e25">
+
+| Eval | Description |
+| ---- | ----------- |
+|[User Satisfaction](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/conversation/conversation_satisfaction.ipynb) | Grade the conversations between the user and the LLM/AI assistant. |
+
 <img width="1088" alt="custom evaluations and others" src="https://github.com/uptrain-ai/uptrain/assets/43818888/0bbc2d82-0f96-49ab-969c-4eec29fef988">
 
  Eval | Description |
@@ -103,11 +107,20 @@ Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact 
 |[Custom Guideline](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/custom/guideline_adherence.ipynb) | Grades how well the LLM adheres to a provided guideline when giving a response. |
 |[Custom Prompts](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/custom/writing_custom_evals.ipynb) | Allows you to create your own set of evaluations. |
 
-<img width="1088" alt="conversation as a whole" src="https://github.com/uptrain-ai/uptrain/assets/43818888/194f8dd7-26ca-48eb-bdff-028212db9e25">
+<img width="1088" alt="compare responses with ground truth" src="https://github.com/uptrain-ai/uptrain/assets/36454110/e3ee22f4-9984-47a5-a7d2-9d8688a090fb">
 
 | Eval | Description |
 | ---- | ----------- |
-|[User Satisfaction](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/conversation/conversation_satisfaction.ipynb) | Grade the conversations between the user and the LLM/AI assistant. |
+|[Prompt Injection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/system_prompt_injection.ipynb) | Grades whether the generated response is leaking any system prompt. |
+
+<img width="1088" alt="safeguard system prompts and avoid LLM mis-use" src="https://github.com/uptrain-ai/uptrain/assets/43818888/4fcdb1e8-f356-443b-88f0-94146e08829e">
+
+| Eval | Description |
+| ---- | ----------- |
+|[Prompt Injection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/system_prompt_injection.ipynb) | Grades whether the generated response is leaking any system prompt. |
+|[Jailbreak Detection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/jailbreak_detection.ipynb) | Grades whether the user's prompt is an attempt to jailbreak (i.e. generate illegal or harmful responses). |
+
+
 
 # Get started 🙌
 
