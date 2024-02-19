@@ -152,30 +152,42 @@ So, come today, UpTrain is our attempt to bring order to LLM chaos and contribut
 
 1. Robust evaluations allows you to systematically experiment with different configurations and prevent any regressions by helping objectively select the best choice.
 
-2. It helps you understand where your systems are going wrong, find the root cause(s) and fix them - long before your end users complain and potentially churn out.
+1. It helps you understand where your systems are going wrong, find the root cause(s) and fix them - long before your end users complain and potentially churn out.
 
-3. Evaluations like prompt injection and jailbreak detection are essential to maintain safety and security of your LLM applications.
+1. Evaluations like prompt injection and jailbreak detection are essential to maintain safety and security of your LLM applications.
 
-4. Evaluations help you provide transparency and build trust with your end-users - especially relevant if you are selling to enterprises.
+1. Evaluations help you provide transparency and build trust with your end-users - especially relevant if you are selling to enterprises.
 
 # Why open-source? 
 
 1. We understand that there is **no one-size-fits-all solution** when it come to evaluations. We are increasingly seeing the desire from developers to modify the evaluation prompt or set of choices or the few shot examples, etc. We believe the best developer experience lies in open-source, instead of exposing 20 different parameters.
 
-2. **Foster innovation**: The field of LLM evaluations and using LLM-as-a-judge is still pretty nascent. We see a lot of exciting research happening, almost on a daily basis and being open-source provides the right platform to us and our community to implement those techniques and innovate faster.
+1. **Foster innovation**: The field of LLM evaluations and using LLM-as-a-judge is still pretty nascent. We see a lot of exciting research happening, almost on a daily basis and being open-source provides the right platform to us and our community to implement those techniques and innovate faster.
 
 
-# How you can help 🙏
+Here's a refined version of your text:
 
-We are constantly working to make UpTrain better. Few ways you can help:
+---
 
-1. Your application needs a custom eval - let us know and we will add it to the repo
-2. Want us to integrate with your existing tools - let us know and we will do it
-3. Notice an issue with UpTrain - post in on our Slack channel and we will resolve it asap
-4. Star us ⭐ to track our progress
-5. Like something which we have built - give us a shoutout on Twitter
+## How You Can Help 🙏
 
-Feel free to [create an issue](https://github.com/uptrain-ai/uptrain/issues) or [contribute](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md) directly to the repository.
+We are continuously striving to enhance UpTrain, and there are several ways you can contribute:
+
+1. **Notice any issues or areas for improvement:** If you spot anything wrong or have ideas for enhancements, please [create an issue](https://github.com/uptrain-ai/uptrain/issues) on our GitHub repository.
+
+2. **Contribute directly:** If you see an issue you can fix or have code improvements to suggest, feel free to contribute directly to the [repository](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md).
+
+3. **Request custom evaluations:** If your application requires a tailored evaluation, [let us know]((https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg)), and we'll add it to the repository.
+
+4. **Integrate with your tools:** Need integration with your existing tools? [Reach out]((https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg)), and we'll work on it.
+
+5. **Assistance with evaluations:** If you need assistance with evaluations, post your query on our [Slack channel](https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg), and we'll resolve it promptly.
+
+6. **Show your support:** Show your support by starring us ⭐ on GitHub to track our progress.
+
+7. **Spread the word:** If you like what we've built, give us a shoutout on Twitter!
+
+Your contributions and support are greatly appreciated! Thank you for being a part of UpTrain's journey.
 
 # License 💻
 
