@@ -25,19 +25,26 @@
 
 # Key Features 🔑
 
-1. **Data-secure**: All the evaluations and analysis run locally on your system, ensuring that the data never leaves your secure environment (except for LLM calls while using model grading checks)
+<img width="1088" alt="Data Security" src="https://github.com/uptrain-ai/uptrain/assets/43818888/7b737bfc-b061-4f87-b51e-5bad67879332">
+All the evaluations and analysis run locally on your system, ensuring that the data never leaves your secure environment (except for LLM calls while using model grading checks)
 
-2. **Experiment with different embedding models** like text-embedding-3-large/small, text-embedding-3-ada, baai/bge-large, etc. UpTrain supports HuggingFace models, Replicate endpoints, or custom models hosted on your endpoint.
+<img width="1088" alt="Experimentation" src="https://github.com/uptrain-ai/uptrain/assets/43818888/fd9c5c7f-3951-4d69-9b77-4fece6ff0830">
+**Experiment with different embedding models** like text-embedding-3-large/small, text-embedding-3-ada, baai/bge-large, etc. UpTrain supports HuggingFace models, Replicate endpoints, or custom models hosted on your endpoint.
 
-3. **Cost-effective**: By leveraging model grading and introducing an 'Unclear' grade, we are able to leverage GPT-3.5-turbo-1106 as the default evaluator and get high quality yet cost effective scores.
+<img width="1088" alt="Cost Effective" src="https://github.com/uptrain-ai/uptrain/assets/43818888/8b9bc91b-389a-4664-88f6-11b9c91e1e0f">
+By leveraging model grading and introducing an 'Unclear' grade, we are able to leverage GPT-3.5-turbo-1106 as the default evaluator and get high quality yet cost effective scores.
 
-4. You can **perform root cause analysis** on cases with either negative user feedback or low evaluation scores to understand which part of your LLM pipeline is giving suboptimal results. Check out the supported RCA templates.
+<img width="1088" alt="Root Cause Analysis" src="https://github.com/uptrain-ai/uptrain/assets/43818888/32df049c-c0a4-4377-a807-f74e2efa57b5">
+You can **perform root cause analysis** on cases with either negative user feedback or low evaluation scores to understand which part of your LLM pipeline is giving suboptimal results. Check out the supported RCA templates.
 
-5. **Configure your own evaluation LLM**: We allow you to use any of OpenAI, Anthropic, Mistral, Azure's Openai endpoints or open-source LLMs hosted on Anyscale to be used as evaluator.
+<img width="1088" alt="Configure your own evaluation LLM" src="https://github.com/uptrain-ai/uptrain/assets/43818888/b87c75b1-b86d-4770-8d37-e8428d5f17c2">
+We allow you to use any of OpenAI, Anthropic, Mistral, Azure's Openai endpoints or open-source LLMs hosted on Anyscale to be used as evaluator.
 
-6. UpTrain provides tons of ways to **customize evaluations**. You can customize evaluation method (chain of thought vs classify), few shot examples, add scenario description, as well as create custom evaluators.
+<img width="1088" alt="Customize Evaluations" src="https://github.com/uptrain-ai/uptrain/assets/43818888/167488ec-9feb-48a7-9659-7bb9478584f9">
+UpTrain provides tons of ways to **customize evaluations**. You can customize evaluation method (chain of thought vs classify), few shot examples, add scenario description, as well as create custom evaluators.
 
-7. Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact match, etc.
+<img width="1088" alt="40+ Operators Supported" src="https://github.com/uptrain-ai/uptrain/assets/43818888/55d99fb9-ce0a-409f-b898-acb550fa0804">
+Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact match, etc.
 
 
 ### Coming Soon:
@@ -49,7 +56,7 @@
 5. Prompt improvement suggestions
 
 # Pre-built Evaluations We Offer 📝
-<img width="1088" alt="quality of your responses" src="https://github.com/uptrain-ai/uptrain/assets/108270398/2cbff61d-a571-404e-bc7c-a8cd712dc854">
+<img width="1088" alt="quality of your responses" src="https://github.com/uptrain-ai/uptrain/assets/43818888/654b2289-2799-4310-84be-fcdd071f3e2e">
 
 1. [Response Completeness](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/completeness.ipynb): Evaluates the extent to which the response fully addresses the user's query.
 2. [Response Relevance](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/relevance.ipynb): Assesses how relevant the generated response is for the given question.
@@ -57,29 +64,29 @@
 4. [Response Matching](https://github.com/uptrain-ai/uptrain/blob/emb_model_compare/examples/checks/response_quality/matching.ipynb): Operator to compare the LLM-generated text with the gold (ideal) response using the defined score metric.
 5. [Response Consistency](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/consistency.ipynb): Assesses how consistent the response is with the question asked as well as with the context provided.
 
-<img width="1088" alt="quality of retrieved context and response groundedness" src="https://github.com/uptrain-ai/uptrain/assets/108270398/0866a939-5bde-4723-b7bf-e72b9b154041">
+<img width="1088" alt="quality of retrieved context and response groundedness" src="https://github.com/uptrain-ai/uptrain/assets/43818888/a7e384a3-c857-4a71-a938-7a2a70f8db1e">
 
 1. [Factual Accuracy](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/factual_accuracy.ipynb): Checks if the facts present in the response can be verified by the retrieved context
 2. [Response Completeness wrt Context](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/response_completeness_wrt_context.ipynb): Grades how complete the response was for the question specified with respect to the information present in the context
 3. [Context Relevance](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/relevance.ipynb): Evaluates if the retrieved context contain sufficient information to answer the given question
 
-<img width="1088" alt="safeguard system prompts and avoid LLM mis-use" src="https://github.com/uptrain-ai/uptrain/assets/108270398/a66868ca-e6d5-40ba-b433-3001324862fd">
+<img width="1088" alt="safeguard system prompts and avoid LLM mis-use" src="https://github.com/uptrain-ai/uptrain/assets/43818888/4fcdb1e8-f356-443b-88f0-94146e08829e">
 
 1. [Prompt Injection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/system_prompt_injection.ipynb): Checks if the user query prompts the LLM to reveal its system prompt.
 2. [Jailbreak Detection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/jailbreak_detection.ipynb): Measures if the user prompts to generate a response over potentially harmful or illegal behaviour.
 
-<img width="1088" alt="language quality of the response" src="https://github.com/uptrain-ai/uptrain/assets/108270398/2a2748e7-c137-4d70-8845-731878d5d39a">
+<img width="1088" alt="language quality of the response" src="https://github.com/uptrain-ai/uptrain/assets/43818888/776cbc6d-bb4c-4ed1-a892-7a1df38d12d5">
 
 1. [Tone Critique](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/language_features/tone_critique.ipynb): Assesses if the tone of machine-generated responses matches with the desired persona.
 2. [Language Critique](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/language_features/language_critique.ipynb): Scores machine-generated responses on multiple aspects - fluency, politeness, grammar, and coherence.
 
-<img width="1088" alt="custom evaluations and others" src="https://github.com/uptrain-ai/uptrain/assets/108270398/3d843449-6624-4433-8f6e-acfebda92eb3">
+<img width="1088" alt="custom evaluations and others" src="https://github.com/uptrain-ai/uptrain/assets/43818888/0bbc2d82-0f96-49ab-969c-4eec29fef988">
 
 1. [Guideline Adherence](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/custom/guideline_adherence.ipynb): Grades how well the LLM adheres to a given custom guideline.
 2. [Custom Prompt Evaluation](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/custom/writing_custom_evals.ipynb): Evaluate by defining your custom grading prompt.
 3. [Cosine Similarity](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/custom/cosine_similarity.ipynb): Calculates cosine similarity between embeddings of two texts.
 
-<img width="1088" alt="conversation as a whole" src="https://github.com/uptrain-ai/uptrain/assets/108270398/a4c5d746-2867-4299-91e0-4efdfa76aedf">
+<img width="1088" alt="conversation as a whole" src="https://github.com/uptrain-ai/uptrain/assets/43818888/194f8dd7-26ca-48eb-bdff-028212db9e25">
 
 1. [Conversation Satisfaction](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/conversation/conversation_satisfaction.ipynb): Measures the user’s satisfaction with the conversation with the LLM/AI assistant based on completeness and user’s acceptance.
 
