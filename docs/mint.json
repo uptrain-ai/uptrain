@@ -54,35 +54,30 @@
       "url": "https://calendly.com/uptrain-sourabh/30min"
     }
   ],
+  "tabs": [
+    {
+      "name": "Pre-configured Evaluations",
+      "url": "predefined-evaluations"
+    },
+    {
+      "name": "Integrations",
+      "url": "integrations"
+    }
+  ],
+  "primaryTab": {
+    "name": "Documentation"
+  },
   "navigation": [
     {
-      "group": "Getting Started 🚀",
+      "group": "Getting Started",
       "version": "v1",
       "pages": [
         "getting-started/introduction",
         "getting-started/quickstart",
         "getting-started/why-we-are-building-uptrain",
-        "getting-started/why-open-source",
-        {
-          "group": "Key Features",
-          "version": "v1",
-          "pages": [
-            "predefined-evaluations/key-features/compare-embedding-models",
-            "predefined-evaluations/key-features/configure-checks",
-            "predefined-evaluations/key-features/cost-effective",
-            "predefined-evaluations/key-features/custom-evaluator",
-            "predefined-evaluations/key-features/data-security",
-            "predefined-evaluations/key-features/operators",
-            "predefined-evaluations/key-features/root-cause-analysis"
-          ]
-        }
+        "getting-started/why-open-source"
       ]
     },
-    {
-      "group": "Pre-configured Evaluations 🗝️",
-      "version": "v1",
-      "pages": [
-        "predefined-evaluations/overview",
         {
           "group": "Response Quality Evals",
           "version": "v1",
@@ -147,13 +142,7 @@
             "predefined-evaluations/safeguarding/prompt-injection",
             "predefined-evaluations/safeguarding/jailbreak"
           ]
-        }
-      ]
-    },
-    {
-      "group": "Integrations 🔗",
-      "version": "v1",
-      "pages": [
+        },
         {
           "group": "LLM Providers",
           "version": "v1",
@@ -169,11 +158,9 @@
             "integrations/vector_db/qdrant",
             "integrations/vector_db/faiss"
           ]
-        }
-      ]
-    },
+        },
     {
-      "group": "Tutorials 📑",
+      "group": "Tutorials",
       "version": "v1",
       "pages": [
         "tutorials/open-source-evaluator",
