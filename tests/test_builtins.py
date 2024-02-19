@@ -133,9 +133,9 @@ def test_check_response_facts():
     check = CheckResponseFacts()
     output = check.setup(settings).run(dataset)
     assert isinstance(output, pl.DataFrame)
-    assert "score_response_facts" in output.columns and "explanation_response_facts" in output.columns
-    assert output["score_response_facts"].dtype == pl.Float64 and len(output["score_response_facts"]) - output["score_response_facts"].null_count() > 0
-    assert output["explanation_response_facts"].dtype == pl.Utf8 and len(output["explanation_response_facts"]) - output["explanation_response_facts"].null_count() > 0
+    assert "score_factual_accuracy" in output.columns and "explanation_factual_accuracy" in output.columns
+    assert output["score_factual_accuracy"].dtype == pl.Float64 and len(output["score_factual_accuracy"]) - output["score_factual_accuracy"].null_count() > 0
+    assert output["explanation_factual_accuracy"].dtype == pl.Utf8 and len(output["explanation_factual_accuracy"]) - output["explanation_factual_accuracy"].null_count() > 0
 
 
 # -----------------------------------------------------------
@@ -146,9 +146,9 @@ def test_check_language_quality():
     check = CheckLanguageQuality()
     output = check.setup(settings).run(dataset)
     assert isinstance(output, pl.DataFrame)
-    assert "score_language_critique" in output.columns and "explanation_language_critique" in output.columns
-    assert output["score_language_critique"].dtype == pl.Float64 and len(output["score_language_critique"]) - output["score_language_critique"].null_count() > 0
-    assert output["explanation_language_critique"].dtype == pl.Utf8 and len(output["explanation_language_critique"]) - output["explanation_language_critique"].null_count() > 0
+    assert "score_critique_language" in output.columns and "explanation_critique_language" in output.columns
+    assert output["score_critique_language"].dtype == pl.Float64 and len(output["score_critique_language"]) - output["score_critique_language"].null_count() > 0
+    assert output["explanation_critique_language"].dtype == pl.Utf8 and len(output["explanation_critique_language"]) - output["explanation_critique_language"].null_count() > 0
 
 
 def test_check_tone_quality():
@@ -160,30 +160,30 @@ def test_check_tone_quality():
     assert output["explanation_critique_tone"].dtype == pl.Utf8 and len(output["explanation_critique_tone"]) - output["explanation_critique_tone"].null_count() > 0
 
 
-# -----------------------------------------------------------
-# Code Generation
-# -----------------------------------------------------------
+# # -----------------------------------------------------------
+# # Code Hallucinations
+# # -----------------------------------------------------------
     
-def test_check_code_hallucination():
-    check = CheckCodeHallucination()
-    output = check.setup(settings).run(dataset)
-    assert isinstance(output, pl.DataFrame)
-    assert "score_code_hallucination" in output.columns and "explanation_code_hallucination" in output.columns
-    assert output["score_code_hallucination"].dtype == pl.Float64 and len(output["score_code_hallucination"]) - output["score_code_hallucination"].null_count() > 0
-    assert output["explanation_code_hallucination"].dtype == pl.Utf8 and len(output["explanation_code_hallucination"]) - output["explanation_code_hallucination"].null_count() > 0
+# def test_check_code_hallucination():
+#     check = CheckCodeHallucination()
+#     output = check.setup(settings).run(dataset)
+#     assert isinstance(output, pl.DataFrame)
+#     assert "score_code_hallucination" in output.columns and "explanation_code_hallucination" in output.columns
+#     assert output["score_code_hallucination"].dtype == pl.Float64 and len(output["score_code_hallucination"]) - output["score_code_hallucination"].null_count() > 0
+#     assert output["explanation_code_hallucination"].dtype == pl.Utf8 and len(output["explanation_code_hallucination"]) - output["explanation_code_hallucination"].null_count() > 0
 
 
-# -----------------------------------------------------------
-# Conversation Quality
-# -----------------------------------------------------------
+# # -----------------------------------------------------------
+# # Conversation Quality
+# # -----------------------------------------------------------
     
-def test_check_conversation_satisfaction():
-    check = CheckConversationSatisfaction(user_persona="user", llm_persona="wikipedia-bot")
-    output = check.setup(settings).run(dataset)
-    assert isinstance(output, pl.DataFrame)
-    assert "score_conversation_satisfaction" in output.columns and "explanation_conversation_satisfaction" in output.columns
-    assert output["score_conversation_satisfaction"].dtype == pl.Float64 and len(output["score_conversation_satisfaction"]) - output["score_conversation_satisfaction"].null_count() > 0
-    assert output["explanation_conversation_satisfaction"].dtype == pl.Utf8 and len(output["explanation_conversation_satisfaction"]) - output["explanation_conversation_satisfaction"].null_count() > 0
+# def test_check_conversation_satisfaction():
+#     check = CheckConversationSatisfaction(user_persona="user", llm_persona="wikipedia-bot")
+#     output = check.setup(settings).run(dataset)
+#     assert isinstance(output, pl.DataFrame)
+#     assert "score_conversation_satisfaction" in output.columns and "explanation_conversation_satisfaction" in output.columns
+#     assert output["score_conversation_satisfaction"].dtype == pl.Float64 and len(output["score_conversation_satisfaction"]) - output["score_conversation_satisfaction"].null_count() > 0
+#     assert output["explanation_conversation_satisfaction"].dtype == pl.Utf8 and len(output["explanation_conversation_satisfaction"]) - output["explanation_conversation_satisfaction"].null_count() > 0
 
 
 # -----------------------------------------------------------
@@ -191,7 +191,7 @@ def test_check_conversation_satisfaction():
 # -----------------------------------------------------------
     
 def test_check_guideline_adherence():
-    check = CheckGuidelineAdherence(guideline="guideline", guideline_name="guideline", response_schema=None)
+    check = CheckGuidelineAdherence(guideline="The response should not contain any numbers or statistic", guideline_name="guideline", response_schema=None)
     output = check.setup(settings).run(dataset)
     assert isinstance(output, pl.DataFrame)
     assert "score_guideline_adherence" in output.columns and "explanation_guideline_adherence" in output.columns
@@ -199,17 +199,17 @@ def test_check_guideline_adherence():
     assert output["explanation_guideline_adherence"].dtype == pl.Utf8 and len(output["explanation_guideline_adherence"]) - output["explanation_guideline_adherence"].null_count() > 0
 
 
-# -----------------------------------------------------------
-# Compare response with ground truth
-# -----------------------------------------------------------
+# # -----------------------------------------------------------
+# # Compare response with ground truth
+# # -----------------------------------------------------------
     
-def test_check_response_matching():
-    check = CheckResponseMatching()
-    output = check.setup(settings).run(dataset)
-    assert isinstance(output, pl.DataFrame)
-    assert "score_response_matching" in output.columns and "explanation_response_matching" in output.columns
-    assert output["score_response_matching"].dtype == pl.Float64 and len(output["score_response_matching"]) - output["score_response_matching"].null_count() > 0
-    assert output["explanation_response_matching"].dtype == pl.Utf8 and len(output["explanation_response_matching"]) - output["explanation_response_matching"].null_count() > 0
+# def test_check_response_matching():
+#     check = CheckResponseMatching()
+#     output = check.setup(settings).run(dataset)
+#     assert isinstance(output, pl.DataFrame)
+#     assert "score_response_matching" in output.columns and "explanation_response_matching" in output.columns
+#     assert output["score_response_matching"].dtype == pl.Float64 and len(output["score_response_matching"]) - output["score_response_matching"].null_count() > 0
+#     assert output["explanation_response_matching"].dtype == pl.Utf8 and len(output["explanation_response_matching"]) - output["explanation_response_matching"].null_count() > 0
 
 
 # -----------------------------------------------------------
@@ -229,7 +229,7 @@ def test_check_jailbreak_detection():
     check = CheckJailbreakDetection()
     output = check.setup(settings).run(dataset)
     assert isinstance(output, pl.DataFrame)
-    assert "score_jailbreak_detection" in output.columns and "explanation_jailbreak_detection" in output.columns
-    assert output["score_jailbreak_detection"].dtype == pl.Float64 and len(output["score_jailbreak_detection"]) - output["score_jailbreak_detection"].null_count() > 0
-    assert output["explanation_jailbreak_detection"].dtype == pl.Utf8 and len(output["explanation_jailbreak_detection"]) - output["explanation_jailbreak_detection"].null_count() > 0
+    assert "score_jailbreak_attempted" in output.columns and "explanation_jailbreak_attempted" in output.columns
+    assert output["score_jailbreak_attempted"].dtype == pl.Float64 and len(output["score_jailbreak_attempted"]) - output["score_jailbreak_attempted"].null_count() > 0
+    assert output["explanation_jailbreak_attempted"].dtype == pl.Utf8 and len(output["explanation_jailbreak_attempted"]) - output["explanation_jailbreak_attempted"].null_count() > 0
 

@@ -75,9 +75,9 @@ Example Data.
 
 For the given task data, carefully examine the information present in the response and assess if it answers the given question adequately. Don't focus on aspects like style, grammar, or punctuation. 
 Determine which case applies by selecting one of the following options:
-A. The generated answer doesn't answer the given question at all.
+A. The generated answer adequately answers the given question. 
 B. The generated answer only partially answers the given question.
-C. The generated answer adequately answers the given question. 
+C. The generated answer doesn't answer the given question at all.
 {prompting_instructions}
 
 Return the output only in the corresponding JSON format. Do not output anything other than this JSON object:
@@ -102,9 +102,9 @@ Example Data.
 
 For the given task data, carefully examine the response and assess if it has any additional irrelevant information or not. Don't focus on aspects like style, grammar, or punctuation. 
 Determine which case applies by selecting one of the following options:
-A. The generated answer has a lot of additional irrelevant information.
+A. The generated answer has no additional irrelevant information.
 B. The generated answer has a little additional irrelevant information.
-C. The generated answer has no additional irrelevant information.
+C. The generated answer has a lot of additional irrelevant information.
 {prompting_instructions}
 
 Return the output only in the corresponding JSON format. Do not output anything other than this JSON object:
