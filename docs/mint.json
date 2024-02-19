@@ -141,7 +141,7 @@
           ]
         },
         {
-          "group": "Safety Evals",
+          "group": "Safeguarding Evals",
           "version": "v1",
           "pages": [
             "predefined-evaluations/safeguarding/prompt-injection",
