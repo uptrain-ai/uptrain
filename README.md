@@ -37,7 +37,7 @@
 
 6. UpTrain provides tons of ways to **customize evaluations**. You can customize evaluation method (chain of thought vs classify), few shot examples, add scenario description, as well as create custom evaluators.
 
-7. Support for **50+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact match, etc.
+7. Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact match, etc.
 
 
 ### Coming Soon:
