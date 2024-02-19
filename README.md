@@ -21,7 +21,9 @@
   <img src="https://github.com/uptrain-ai/uptrain/assets/108270398/10d0faeb-c4f8-422f-a01e-49a891fa7ada" alt="Demo of UpTrain's LLM evaluations with scores for hallucinations, retrieved-context quality, response tonality for a customer support chatbot"/>
 </h4>
 
-**[UpTrain](https://uptrain.ai)** is an open-source unified platform to evaluate and improve Generative AI applications. We provide grades for 20+ preconfigured checks (covering language, code, embedding use-cases), perform root cause analysis on failure cases and give insights on how to resolve them.
+**[UpTrain](https://uptrain.ai)** is an open-source unified platform to evaluate and improve Generative AI applications. We provide grades for 20+ preconfigured checks (covering language, code, embedding use-cases), perform root cause analysis on failure cases and give insights on how to resolve them.    
+
+<br />
 
 # Key Features 🔑
 
@@ -62,6 +64,8 @@ Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact 
 4. Pattern recognition among failure cases
 5. Prompt improvement suggestions
 
+<br />
+
 # Pre-built Evaluations We Offer 📝
 <img width="1088" alt="quality of your responses" src="https://github.com/uptrain-ai/uptrain/assets/36454110/2a6ea4b8-8ef3-40b9-a5dc-4746d246f3ab">
 
@@ -70,7 +74,7 @@ Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact 
 |[Reponse Completeness](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/completeness.ipynb) | Grades whether the response has answered all the aspects of the question specified. |
 |[Reponse Conciseness](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/conciseness.ipynb) | Grades how concise the generated response is or if it has any additional irrelevant information for the question asked. |
 |[Reponse Relevance](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/relevance.ipynb)| Grades how relevant the generated context was to the question specified.|
-|Reponse Validity| Grades if the response generated is valid or not. A response is considered to be valid if it contains any information.|
+|[Reponse Validity](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/validity.ipynb)| Grades if the response generated is valid or not. A response is considered to be valid if it contains any information.|
 |[Reponse Consistency](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/consistency.ipynb)| Grades how consistent the response is with the question asked as well as with the context provided.|
 
 <img width="1088" alt="quality of retrieved context and response groundedness" src="https://github.com/uptrain-ai/uptrain/assets/43818888/a7e384a3-c857-4a71-a938-7a2a70f8db1e">
@@ -92,7 +96,7 @@ Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact 
 
 | Eval | Description |
 | ---- | ----------- |
-|Code Hallucination | Grades whether the code present in the generated response is grounded by the context. |
+|[Code Hallucination](https://github.com/uptrain-ai/uptrain/blob/main/examples/code_eval/code_hallucination.ipynb) | Grades whether the code present in the generated response is grounded by the context. |
 
 <img width="1088" alt="conversation as a whole" src="https://github.com/uptrain-ai/uptrain/assets/43818888/194f8dd7-26ca-48eb-bdff-028212db9e25">
 
@@ -111,7 +115,7 @@ Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact 
 
 | Eval | Description |
 | ---- | ----------- |
-|[Prompt Injection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/system_prompt_injection.ipynb) | Grades whether the generated response is leaking any system prompt. |
+|[Response Matching](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/compare_ground_truth/matching.ipynb) | Grades whether the generated response is leaking any system prompt. |
 
 <img width="1088" alt="safeguard system prompts and avoid LLM mis-use" src="https://github.com/uptrain-ai/uptrain/assets/43818888/4fcdb1e8-f356-443b-88f0-94146e08829e">
 
@@ -120,7 +124,7 @@ Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact 
 |[Prompt Injection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/system_prompt_injection.ipynb) | Grades whether the generated response is leaking any system prompt. |
 |[Jailbreak Detection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/jailbreak_detection.ipynb) | Grades whether the user's prompt is an attempt to jailbreak (i.e. generate illegal or harmful responses). |
 
-
+<br />
 
 # Get started 🙌
 
@@ -158,7 +162,7 @@ If you have any questions, please join our [Slack community](https://join.slack.
 
 Speak directly with the maintainers of UpTrain by [booking a call here](https://calendly.com/uptrain-sourabh/30min).
 
-<h4> </h4>
+<br />
 
 # Integrations 🤝
 
@@ -171,12 +175,15 @@ Speak directly with the maintainers of UpTrain by [booking a call here](https://
 | | Llama2 ✅ | | Ollama 🔜 |
 | | Mistral ✅ |
 
+<br />
+
 # Resources 💡
 
 1. [How to evaluate your LLM application](https://uptrain.ai/blog/how-to-evaluate-your-llm-applications)
 1. [How to detect jailbreaks](https://blog.uptrain.ai/llm-jailbreak/)
 1. [Dealing with hallucinations](https://blog.uptrain.ai/dealing-with-hallucinations-in-llms-a-deep-dive/)
 
+<br />
 
 # Why we are building UpTrain 🤔
 
@@ -196,12 +203,15 @@ So, come today, UpTrain is our attempt to bring order to LLM chaos and contribut
 
 1. Evaluations help you provide transparency and build trust with your end-users - especially relevant if you are selling to enterprises.
 
+<br />
+
 # Why open-source? 
 
 1. We understand that there is **no one-size-fits-all solution** when it come to evaluations. We are increasingly seeing the desire from developers to modify the evaluation prompt or set of choices or the few shot examples, etc. We believe the best developer experience lies in open-source, instead of exposing 20 different parameters.
 
 1. **Foster innovation**: The field of LLM evaluations and using LLM-as-a-judge is still pretty nascent. We see a lot of exciting research happening, almost on a daily basis and being open-source provides the right platform to us and our community to implement those techniques and innovate faster.
 
+<br />
 
 ## How You Can Help 🙏
 
@@ -223,13 +233,19 @@ We are continuously striving to enhance UpTrain, and there are several ways you 
 
 Your contributions and support are greatly appreciated! Thank you for being a part of UpTrain's journey.
 
+<br />
+
 # License 💻
 
 This repo is published under Apache 2.0 license and we are committed to adding more functionalities to the UpTrain open-source repo. We also have a managed version if you just want a more hands-off experience. Please book a [demo call here](https://calendly.com/uptrain-sourabh/30min).
 
+<br />
+
 # Provide feedback (Harsher the better 😉) 
 
 We are building UpTrain in public. Help us improve by giving your feedback **[here](https://docs.google.com/forms/d/e/1FAIpQLSezGUkkC0JoEvx-0gCrRSmGutA-jqyb7kl2lomXv302_C3MnQ/viewform?usp=sf_link)**.
+
+<br />
 
 # Contributors 🖥️
 
