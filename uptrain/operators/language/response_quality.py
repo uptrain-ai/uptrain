@@ -719,23 +719,30 @@ class ResponseRelevance(ColumnOp):
             precision = combined_row[0]["score_response_conciseness"]
             recall = combined_row[1]["score_response_completeness"]
             output = {
-                "score_response_relevance": 0.0,
+                "score_response_relevance": None,
                 "explanation_response_relevance": None,
             }
-            explanation = (
-                str(combined_row[0]["explanation_response_conciseness"])
-                + "\n"
-                + str(combined_row[1]["explanation_response_completeness"])
-            )
-            output["explanation_response_relevance"] = explanation
             if (
                 precision is not None
                 and recall is not None
-                and precision != 0
-                and recall != 0
             ):
-                output["score_response_relevance"] = 2 * (
-                    (precision * recall) / (precision + recall)
+                explanation = (
+                    "Response Precision: " + str(precision)
+                    + str(combined_row[0]["explanation_response_conciseness"])
+                    + "\n"
+                    + "Response Recall: " + str(recall)
+                    + str(combined_row[1]["explanation_response_completeness"])
                 )
+                output["explanation_response_relevance"] = explanation
+
+                if (
+                    precision != 0
+                    and recall != 0
+                ):
+                    output["score_response_relevance"] = 2 * (
+                        (precision * recall) / (precision + recall)
+                    )
+                else:
+                    output['score_response_relevance'] = 0
             results.append(output)
         return results

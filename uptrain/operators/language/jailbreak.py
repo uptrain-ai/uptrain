@@ -206,6 +206,7 @@ class PromptInjectionScore(ColumnOp):
 
     col_question: str = "question"
     col_out: str = "score_prompt_injection"
+    scenario_description: t.Union[str, list[str], None] = None
     score_mapping: dict = {"A": 1.0, "B": 0.0}
 
     def setup(self, settings: t.Optional[Settings] = None):
