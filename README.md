@@ -26,24 +26,31 @@
 # Key Features 🔑
 
 <img width="1088" alt="Data Security" src="https://github.com/uptrain-ai/uptrain/assets/43818888/7b737bfc-b061-4f87-b51e-5bad67879332">
+
 All the evaluations and analysis run locally on your system, ensuring that the data never leaves your secure environment (except for LLM calls while using model grading checks)
 
 <img width="1088" alt="Experimentation" src="https://github.com/uptrain-ai/uptrain/assets/43818888/fd9c5c7f-3951-4d69-9b77-4fece6ff0830">
+
 **Experiment with different embedding models** like text-embedding-3-large/small, text-embedding-3-ada, baai/bge-large, etc. UpTrain supports HuggingFace models, Replicate endpoints, or custom models hosted on your endpoint.
 
 <img width="1088" alt="Cost Effective" src="https://github.com/uptrain-ai/uptrain/assets/43818888/8b9bc91b-389a-4664-88f6-11b9c91e1e0f">
+
 By leveraging model grading and introducing an 'Unclear' grade, we are able to leverage GPT-3.5-turbo-1106 as the default evaluator and get high quality yet cost effective scores.
 
 <img width="1088" alt="Root Cause Analysis" src="https://github.com/uptrain-ai/uptrain/assets/43818888/32df049c-c0a4-4377-a807-f74e2efa57b5">
+
 You can **perform root cause analysis** on cases with either negative user feedback or low evaluation scores to understand which part of your LLM pipeline is giving suboptimal results. Check out the supported RCA templates.
 
 <img width="1088" alt="Configure your own evaluation LLM" src="https://github.com/uptrain-ai/uptrain/assets/43818888/b87c75b1-b86d-4770-8d37-e8428d5f17c2">
+
 We allow you to use any of OpenAI, Anthropic, Mistral, Azure's Openai endpoints or open-source LLMs hosted on Anyscale to be used as evaluator.
 
 <img width="1088" alt="Customize Evaluations" src="https://github.com/uptrain-ai/uptrain/assets/43818888/167488ec-9feb-48a7-9659-7bb9478584f9">
+
 UpTrain provides tons of ways to **customize evaluations**. You can customize evaluation method (chain of thought vs classify), few shot examples, add scenario description, as well as create custom evaluators.
 
 <img width="1088" alt="40+ Operators Supported" src="https://github.com/uptrain-ai/uptrain/assets/43818888/55d99fb9-ce0a-409f-b898-acb550fa0804">
+
 Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact match, etc.
 
 
