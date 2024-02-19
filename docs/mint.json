@@ -54,126 +54,113 @@
       "url": "https://calendly.com/uptrain-sourabh/30min"
     }
   ],
+  "tabs": [
+    {
+      "name": "Pre-configured Evaluations",
+      "url": "predefined-evaluations"
+    },
+    {
+      "name": "Integrations",
+      "url": "integrations"
+    }
+  ],
+  "primaryTab": {
+    "name": "Documentation"
+  },
   "navigation": [
     {
-      "group": "Getting Started 🚀",
+      "group": "Getting Started",
       "version": "v1",
       "pages": [
         "getting-started/introduction",
         "getting-started/quickstart",
         "getting-started/why-we-are-building-uptrain",
-        "getting-started/why-open-source",
-        {
-          "group": "Key Features",
-          "version": "v1",
-          "pages": [
-            "predefined-evaluations/key-features/compare-embedding-models",
-            "predefined-evaluations/key-features/configure-checks",
-            "predefined-evaluations/key-features/cost-effective",
-            "predefined-evaluations/key-features/custom-evaluator",
-            "predefined-evaluations/key-features/data-security",
-            "predefined-evaluations/key-features/operators",
-            "predefined-evaluations/key-features/root-cause-analysis"
-          ]
-        }
+        "getting-started/why-open-source"
       ]
     },
     {
-      "group": "Pre-configured Evaluations 🗝️",
+      "group": "Response Quality Evals",
       "version": "v1",
       "pages": [
-        "predefined-evaluations/overview",
-        {
-          "group": "Response Quality Evals",
-          "version": "v1",
-          "pages": [
-            "predefined-evaluations/response-quality/response-completeness",
-            "predefined-evaluations/response-quality/response-conciseness",
-            "predefined-evaluations/response-quality/response-relevance",
-            "predefined-evaluations/response-quality/response-validity",
-            "predefined-evaluations/response-quality/response-consistency"
-          ]
-        },
-        {
-          "group": "Context Awareness Evals",
-          "version": "v1",
-          "pages": [
-            "predefined-evaluations/context-awareness/context-relevance",
-            "predefined-evaluations/context-awareness/context-utilization",
-            "predefined-evaluations/context-awareness/factual-accuracy"
-          ]
-        },
-        {
-          "group": "Language Quality Evals",
-          "version": "v1",
-          "pages": [
-            "predefined-evaluations/language-quality/fluency-and-coherence",
-            "predefined-evaluations/language-quality/tonality"
-          ]
-        },
-        {
-          "group": "Code Related Evals",
-          "version": "v1",
-          "pages": [
-            "predefined-evaluations/code-evals/code-hallucination"
-          ]
-        },
-        {
-          "group": "Conversation Evals",
-          "version": "v1",
-          "pages": [
-            "predefined-evaluations/conversation-evals/user-satisfaction"
-          ]
-        },
-        {
-          "group": "Creating Custom Evals",
-          "version": "v1",
-          "pages": [
-            "predefined-evaluations/custom-evals/custom-guideline",
-            "predefined-evaluations/custom-evals/custom-prompt-eval"
-          ]
-        },
-        {
-          "group": "Ground Truth Comparison Evals",
-          "version": "v1",
-          "pages": [
-            "predefined-evaluations/ground-truth-comparison/response-matching"
-          ]
-        },
-        {
-          "group": "Safeguarding Evals",
-          "version": "v1",
-          "pages": [
-            "predefined-evaluations/safeguarding/prompt-injection",
-            "predefined-evaluations/safeguarding/jailbreak"
-          ]
-        }
+        "predefined-evaluations/response-quality/response-completeness",
+        "predefined-evaluations/response-quality/response-conciseness",
+        "predefined-evaluations/response-quality/response-relevance",
+        "predefined-evaluations/response-quality/response-validity",
+        "predefined-evaluations/response-quality/response-consistency"
       ]
     },
     {
-      "group": "Integrations 🔗",
+      "group": "Context Awareness Evals",
       "version": "v1",
       "pages": [
-        {
-          "group": "LLM Providers",
-          "version": "v1",
-          "pages": [
-            "integrations/llm_providers/anyscale"
-          ]
-        },
-        {
-          "group": "Vector Database",
-          "version": "v1",
-          "pages": [
-            "integrations/vector_db/chroma",
-            "integrations/vector_db/qdrant",
-            "integrations/vector_db/faiss"
-          ]
-        }
+        "predefined-evaluations/context-awareness/context-relevance",
+        "predefined-evaluations/context-awareness/context-utilization",
+        "predefined-evaluations/context-awareness/factual-accuracy"
       ]
     },
     {
-      "group": "Tutorials 📑",
+      "group": "Language Quality Evals",
+      "version": "v1",
+      "pages": [
+        "predefined-evaluations/language-quality/fluency-and-coherence",
+        "predefined-evaluations/language-quality/tonality"
+      ]
+    },
+    {
+      "group": "Code Related Evals",
+      "version": "v1",
+      "pages": [
+        "predefined-evaluations/code-evals/code-hallucination"
+      ]
+    },
+    {
+      "group": "Conversation Evals",
+      "version": "v1",
+      "pages": [
+        "predefined-evaluations/conversation-evals/user-satisfaction"
+      ]
+    },
+    {
+      "group": "Creating Custom Evals",
+      "version": "v1",
+      "pages": [
+        "predefined-evaluations/custom-evals/custom-guideline",
+        "predefined-evaluations/custom-evals/custom-prompt-eval"
+      ]
+    },
+    {
+      "group": "Ground Truth Comparison Evals",
+      "version": "v1",
+      "pages": [
+        "predefined-evaluations/ground-truth-comparison/response-matching"
+      ]
+    },
+    {
+      "group": "Safeguarding Evals",
+      "version": "v1",
+      "pages": [
+        "predefined-evaluations/safeguarding/prompt-injection",
+        "predefined-evaluations/safeguarding/jailbreak"
+      ]
+    },
+    {
+      "group": "LLM Providers",
+      "version": "v1",
+      "pages": [
+        "integrations/llm_providers/anyscale"
+      ]
+    },
+    {
+      "group": "Vector Database",
+      "version": "v1",
+      "pages": [
+        "integrations/vector_db/chroma",
+        "integrations/vector_db/qdrant",
+        "integrations/vector_db/faiss"
+      ]
+    },
+    {
+      "group": "Tutorials",
       "version": "v1",
       "pages": [
         "tutorials/open-source-evaluator",
