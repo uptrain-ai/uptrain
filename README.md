@@ -21,7 +21,9 @@
   <img src="https://github.com/uptrain-ai/uptrain/assets/108270398/10d0faeb-c4f8-422f-a01e-49a891fa7ada" alt="Demo of UpTrain's LLM evaluations with scores for hallucinations, retrieved-context quality, response tonality for a customer support chatbot"/>
 </h4>
 
-**[UpTrain](https://uptrain.ai)** is an open-source unified platform to evaluate and improve Generative AI applications. We provide grades for 20+ preconfigured checks (covering language, code, embedding use-cases), perform root cause analysis on failure cases and give insights on how to resolve them.
+**[UpTrain](https://uptrain.ai)** is an open-source unified platform to evaluate and improve Generative AI applications. We provide grades for 20+ preconfigured checks (covering language, code, embedding use-cases), perform root cause analysis on failure cases and give insights on how to resolve them.    
+
+<br />
 
 # Key Features 🔑
 
@@ -62,41 +64,67 @@ Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact 
 4. Pattern recognition among failure cases
 5. Prompt improvement suggestions
 
-# Pre-built Evaluations We Offer 📝
-<img width="1088" alt="quality of your responses" src="https://github.com/uptrain-ai/uptrain/assets/43818888/654b2289-2799-4310-84be-fcdd071f3e2e">
+<br />
 
-1. [Response Completeness](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/completeness.ipynb): Evaluates the extent to which the response fully addresses the user's query.
-2. [Response Relevance](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/relevance.ipynb): Assesses how relevant the generated response is for the given question.
-3. [Response Conciseness](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/conciseness.ipynb): Measures how concise the generated response is, i.e., the extent of additional irrelevant information present in the response.
-4. [Response Matching](https://github.com/uptrain-ai/uptrain/blob/emb_model_compare/examples/checks/response_quality/matching.ipynb): Operator to compare the LLM-generated text with the gold (ideal) response using the defined score metric.
-5. [Response Consistency](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/consistency.ipynb): Assesses how consistent the response is with the question asked as well as with the context provided.
+# Pre-built Evaluations We Offer 📝
+<img width="1088" alt="quality of your responses" src="https://github.com/uptrain-ai/uptrain/assets/36454110/2a6ea4b8-8ef3-40b9-a5dc-4746d246f3ab">
+
+| Eval | Description |
+| ---- | ----------- |
+|[Reponse Completeness](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/completeness.ipynb) | Grades whether the response has answered all the aspects of the question specified. |
+|[Reponse Conciseness](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/conciseness.ipynb) | Grades how concise the generated response is or if it has any additional irrelevant information for the question asked. |
+|[Reponse Relevance](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/relevance.ipynb)| Grades how relevant the generated context was to the question specified.|
+|[Reponse Validity](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/validity.ipynb)| Grades if the response generated is valid or not. A response is considered to be valid if it contains any information.|
+|[Reponse Consistency](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/consistency.ipynb)| Grades how consistent the response is with the question asked as well as with the context provided.|
 
 <img width="1088" alt="quality of retrieved context and response groundedness" src="https://github.com/uptrain-ai/uptrain/assets/43818888/a7e384a3-c857-4a71-a938-7a2a70f8db1e">
 
-1. [Factual Accuracy](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/factual_accuracy.ipynb): Checks if the facts present in the response can be verified by the retrieved context
-2. [Response Completeness wrt Context](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/response_completeness_wrt_context.ipynb): Grades how complete the response was for the question specified with respect to the information present in the context
-3. [Context Relevance](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/relevance.ipynb): Evaluates if the retrieved context contain sufficient information to answer the given question
-
-<img width="1088" alt="safeguard system prompts and avoid LLM mis-use" src="https://github.com/uptrain-ai/uptrain/assets/43818888/4fcdb1e8-f356-443b-88f0-94146e08829e">
-
-1. [Prompt Injection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/system_prompt_injection.ipynb): Checks if the user query prompts the LLM to reveal its system prompt.
-2. [Jailbreak Detection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/jailbreak_detection.ipynb): Measures if the user prompts to generate a response over potentially harmful or illegal behaviour.
+| Eval | Description |
+| ---- | ----------- |
+|[Context Relevance](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/relevance.ipynb) | Grades how relevant the context was to the question specified. |
+|[Context Utilization](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/response_completeness_wrt_context.ipynb) | Grades how complete the generated response was for the question specified given the information provided in the context. |
+|[Factual Accuracy](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/factual_accuracy.ipynb)| Grades whether the response generated is factually correct and grounded by the provided context.|
 
 <img width="1088" alt="language quality of the response" src="https://github.com/uptrain-ai/uptrain/assets/43818888/776cbc6d-bb4c-4ed1-a892-7a1df38d12d5">
 
-1. [Tone Critique](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/language_features/tone_critique.ipynb): Assesses if the tone of machine-generated responses matches with the desired persona.
-2. [Language Critique](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/language_features/language_critique.ipynb): Scores machine-generated responses on multiple aspects - fluency, politeness, grammar, and coherence.
+| Eval | Description |
+| ---- | ----------- |
+|[Language Features](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/language_features/language_critique.ipynb) | Grades whether the response has answered all the aspects of the question specified. |
+|[Tonality](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/language_features/tone_critique.ipynb) | Grades whether the generated response matches the required persona's tone  |
 
-<img width="1088" alt="custom evaluations and others" src="https://github.com/uptrain-ai/uptrain/assets/43818888/0bbc2d82-0f96-49ab-969c-4eec29fef988">
+<img width="1088" alt="language quality of the response" src="https://github.com/uptrain-ai/uptrain/assets/36454110/2fba9f0b-71b3-4d90-90f8-16ef38cef3ab">
 
-1. [Guideline Adherence](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/custom/guideline_adherence.ipynb): Grades how well the LLM adheres to a given custom guideline.
-2. [Custom Prompt Evaluation](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/custom/writing_custom_evals.ipynb): Evaluate by defining your custom grading prompt.
-3. [Cosine Similarity](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/custom/cosine_similarity.ipynb): Calculates cosine similarity between embeddings of two texts.
+| Eval | Description |
+| ---- | ----------- |
+|[Code Hallucination](https://github.com/uptrain-ai/uptrain/blob/main/examples/code_eval/code_hallucination.ipynb) | Grades whether the code present in the generated response is grounded by the context. |
 
 <img width="1088" alt="conversation as a whole" src="https://github.com/uptrain-ai/uptrain/assets/43818888/194f8dd7-26ca-48eb-bdff-028212db9e25">
 
-1. [Conversation Satisfaction](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/conversation/conversation_satisfaction.ipynb): Measures the user’s satisfaction with the conversation with the LLM/AI assistant based on completeness and user’s acceptance.
+| Eval | Description |
+| ---- | ----------- |
+|[User Satisfaction](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/conversation/conversation_satisfaction.ipynb) | Grade the conversations between the user and the LLM/AI assistant. |
 
+<img width="1088" alt="custom evaluations and others" src="https://github.com/uptrain-ai/uptrain/assets/43818888/0bbc2d82-0f96-49ab-969c-4eec29fef988">
+
+ Eval | Description |
+| ---- | ----------- |
+|[Custom Guideline](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/custom/guideline_adherence.ipynb) | Grades how well the LLM adheres to a provided guideline when giving a response. |
+|[Custom Prompts](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/custom/writing_custom_evals.ipynb) | Allows you to create your own set of evaluations. |
+
+<img width="1088" alt="compare responses with ground truth" src="https://github.com/uptrain-ai/uptrain/assets/36454110/e3ee22f4-9984-47a5-a7d2-9d8688a090fb">
+
+| Eval | Description |
+| ---- | ----------- |
+|[Response Matching](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/compare_ground_truth/matching.ipynb) | Grades whether the generated response is leaking any system prompt. |
+
+<img width="1088" alt="safeguard system prompts and avoid LLM mis-use" src="https://github.com/uptrain-ai/uptrain/assets/43818888/4fcdb1e8-f356-443b-88f0-94146e08829e">
+
+| Eval | Description |
+| ---- | ----------- |
+|[Prompt Injection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/system_prompt_injection.ipynb) | Grades whether the generated response is leaking any system prompt. |
+|[Jailbreak Detection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/jailbreak_detection.ipynb) | Grades whether the user's prompt is an attempt to jailbreak (i.e. generate illegal or harmful responses). |
+
+<br />
 
 # Get started 🙌
 
@@ -134,7 +162,7 @@ If you have any questions, please join our [Slack community](https://join.slack.
 
 Speak directly with the maintainers of UpTrain by [booking a call here](https://calendly.com/uptrain-sourabh/30min).
 
-<h4> </h4>
+<br />
 
 # Integrations 🤝
 
@@ -147,12 +175,15 @@ Speak directly with the maintainers of UpTrain by [booking a call here](https://
 | | Llama2 ✅ | | Ollama 🔜 |
 | | Mistral ✅ |
 
+<br />
+
 # Resources 💡
 
 1. [How to evaluate your LLM application](https://uptrain.ai/blog/how-to-evaluate-your-llm-applications)
 1. [How to detect jailbreaks](https://blog.uptrain.ai/llm-jailbreak/)
 1. [Dealing with hallucinations](https://blog.uptrain.ai/dealing-with-hallucinations-in-llms-a-deep-dive/)
 
+<br />
 
 # Why we are building UpTrain 🤔
 
@@ -172,12 +203,15 @@ So, come today, UpTrain is our attempt to bring order to LLM chaos and contribut
 
 1. Evaluations help you provide transparency and build trust with your end-users - especially relevant if you are selling to enterprises.
 
+<br />
+
 # Why open-source? 
 
 1. We understand that there is **no one-size-fits-all solution** when it come to evaluations. We are increasingly seeing the desire from developers to modify the evaluation prompt or set of choices or the few shot examples, etc. We believe the best developer experience lies in open-source, instead of exposing 20 different parameters.
 
 1. **Foster innovation**: The field of LLM evaluations and using LLM-as-a-judge is still pretty nascent. We see a lot of exciting research happening, almost on a daily basis and being open-source provides the right platform to us and our community to implement those techniques and innovate faster.
 
+<br />
 
 ## How You Can Help 🙏
 
@@ -199,13 +233,19 @@ We are continuously striving to enhance UpTrain, and there are several ways you 
 
 Your contributions and support are greatly appreciated! Thank you for being a part of UpTrain's journey.
 
+<br />
+
 # License 💻
 
 This repo is published under Apache 2.0 license and we are committed to adding more functionalities to the UpTrain open-source repo. We also have a managed version if you just want a more hands-off experience. Please book a [demo call here](https://calendly.com/uptrain-sourabh/30min).
 
+<br />
+
 # Provide feedback (Harsher the better 😉) 
 
 We are building UpTrain in public. Help us improve by giving your feedback **[here](https://docs.google.com/forms/d/e/1FAIpQLSezGUkkC0JoEvx-0gCrRSmGutA-jqyb7kl2lomXv302_C3MnQ/viewform?usp=sf_link)**.
+
+<br />
 
 # Contributors 🖥️
 

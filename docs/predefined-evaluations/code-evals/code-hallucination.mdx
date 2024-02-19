@@ -19,7 +19,7 @@ OPENAI_API_KEY = "sk-********************"  # Insert your OpenAI key here
 
 data = [{
     "question": "How can I install the Pandas package in Python?",
-    "context": "The Pandas package can easily be installed on Python by using: ```pip install pandas```"
+    "context": "The Pandas package can easily be installed on Python by using: ```pip install pandas```",
     "response": "To install the Pandas package on Python use : ```import pandas as pd```"
 }]
 
@@ -53,7 +53,15 @@ While the generated response mentions `import pandas as pd` which is not mention
 Resulting in a low code hallucination score.
 
 
-<CardGroup cols={1}>
+<CardGroup cols={2}>
+ <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/code_eval/code_hallucination.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
   <Card
     title="Have Questions?"
     href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
