@@ -1,55 +1,60 @@
 """
-Implement operators to evaluate retrieval quality i.e. quality of the extracted context.
+Implement checks to test language quality on different aspects. 
+
+This module provides the `Critique` class, which evaluates a text generation on multiple 
+aspects - fluence, politeness, grammar, and coherence,. It provides a score for each of the 
+aspects on a scale of 0 to 1, along with an explanation for the score. 
 """
 
 from __future__ import annotations
-import typing as t
 import json
+import typing as t
 
 from loguru import logger
 import polars as pl
 
+from uptrain.operators.language.llm import LLMMulticlient
+from uptrain.operators.language.prompts.classic import (
+    LANGUAGE_FLUENCY_PROMPT_TEMPLATE,
+    LANGUAGE_COHERENCE_PROMPT_TEMPLATE
+)
+from uptrain.operators.language.prompts.few_shots import (
+    LANGUAGE_FLUENCY_FEW_SHOT__CLASSIFY,
+    LANGUAGE_FLUENCY_FEW_SHOT__COT,
+    LANGUAGE_COHERENCE_FEW_SHOT__CLASSIFY,
+    LANGUAGE_COHERENCE_FEW_SHOT__COT,
+)
+from uptrain.operators.language.prompts.instructions import CHAIN_OF_THOUGHT, CLASSIFY
+from uptrain.operators.language.prompts.output_format import (
+    LANGUAGE_FLUENCY_OUTPUT_FORMAT__CLASSIFY,
+    LANGUAGE_FLUENCY_OUTPUT_FORMAT__COT,
+    LANGUAGE_COHERENCE_OUTPUT_FORMAT__CLASSIFY,
+    LANGUAGE_COHERENCE_OUTPUT_FORMAT__COT,
+)
 from uptrain.utilities.prompt_utils import parse_scenario_description
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
-from uptrain.operators.base import register_op, ColumnOp, TYPE_TABLE_OUTPUT
+from uptrain.operators.base import (
+    register_op,
+    ColumnOp,
+    TYPE_TABLE_OUTPUT,
+)
+
 from uptrain.utilities import polars_to_json_serializable_dict
-from uptrain.operators.language.llm import LLMMulticlient
-
-from uptrain.operators.language.prompts.classic import (
-    CONTEXT_RELEVANCE_PROMPT_TEMPLATE,
-    RESPONSE_COMPLETENESS_WRT_CONTEXT_PROMPT_TEMPLATE,
-)
-
-from uptrain.operators.language.prompts.few_shots import (
-    CONTEXT_RELEVANCE_FEW_SHOT__CLASSIFY,
-    CONTEXT_RELEVANCE_FEW_SHOT__COT,
-    RESPONSE_COMPLETENESS_WRT_CONTEXT_FEW_SHOT__CLASSIFY,
-    RESPONSE_COMPLETENESS_WRT_CONTEXT_FEW_SHOT__COT,
-)
-from uptrain.operators.language.prompts.instructions import (
-    CLASSIFY,
-    CHAIN_OF_THOUGHT,
-)
-from uptrain.operators.language.prompts.output_format import (
-    CONTEXT_RELEVANCE_OUTPUT_FORMAT__CLASSIFY,
-    CONTEXT_RELEVANCE_OUTPUT_FORMAT__COT,
-    RESPONSE_COMPLETENESS_WRT_CONTEXT_OUTPUT_FORMAT__CLASSIFY,
-    RESPONSE_COMPLETENESS_WRT_CONTEXT_OUTPUT_FORMAT__COT,
-)
 
 
 @register_op
-class ContextRelevance(ColumnOp):
+class LanguageCritique(ColumnOp):
     """
-    Grade how relevant the context was to the question asked.
+    Operator to score the fluency of machine generated responses.
+    It provides a score for each of the aspects on a scale of 0 to 1, along with an
+    explanation for the score.
 
     Attributes:
-        col_question: (str) Column Name for the stored questions
-        col_context: (str) Coloumn name for stored context
-        col_out (str): Column name to output scores
-        scenario_description (str): Optional scenario description to incorporate in the evaluation prompt
+        col_response (str): The name of the input column containing response text
+        col_out (str): The name of the output column containing the scores
+        scenario_description (str | None): Optional scenario description to incorporate in the evaluation prompt
         score_mapping (dict): Mapping of different grades to float scores
 
     Raises:
@@ -57,9 +62,8 @@ class ContextRelevance(ColumnOp):
 
     """
 
-    col_question: str = "question"
-    col_context: str = "context"
-    col_out: str = "score_context_relevance"
+    col_response: str = "response"
+    col_out: str = "score_language_critique"
     scenario_description: t.Optional[str] = None
     score_mapping: dict = {"A": 1.0, "B": 0.5, "C": 0.0}
 
@@ -77,37 +81,32 @@ class ContextRelevance(ColumnOp):
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         data_send = polars_to_json_serializable_dict(data)
         for row in data_send:
-            row["question"] = row.pop(self.col_question)
-            row["context"] = row.pop(self.col_context)
+            row["response"] = row.pop(self.col_response)
 
         try:
             if self.settings.evaluate_locally:
                 results = self.evaluate_local(data_send)
             else:
-                results = self._api_client.evaluate(
-                    "context_relevance",
-                    data_send,
-                    {"scenario_description": self.scenario_description},
-                )
+                results = self._api_client.evaluate("critique_language", data_send)
         except Exception as e:
-            logger.error(f"Failed to run evaluation for `ContextRelevance`: {e}")
+            logger.error(f"Failed to run evaluation for `LanguageCritique`: {e}")
             raise e
 
         assert results is not None
         return {
             "output": data.with_columns(
-                pl.from_dicts(results).rename({"score_context_relevance": self.col_out})
+                pl.from_dicts(results).rename({"score_language_critique": self.col_out})
             )
         }
 
-    def context_relevance_classify_validate_func(self, llm_output):
+    def critique_language_classify_validate_func(self, llm_output):
         is_correct = True
         is_correct = is_correct and ("Choice" in json.loads(llm_output))
         is_correct = is_correct and json.loads(llm_output)["Choice"] in ["A", "B", "C"]
         return is_correct
 
-    def context_relevance_cot_validate_func(self, llm_output):
-        is_correct = self.context_relevance_classify_validate_func(llm_output)
+    def critique_language_cot_validate_func(self, llm_output):
+        is_correct = self.critique_language_classify_validate_func(llm_output)
         is_correct = is_correct and ("Reasoning" in json.loads(llm_output))
         return is_correct
 
@@ -121,14 +120,14 @@ class ContextRelevance(ColumnOp):
         )
         input_payloads = []
         if self.settings.eval_type == "basic":
-            few_shot_examples = CONTEXT_RELEVANCE_FEW_SHOT__CLASSIFY
-            output_format = CONTEXT_RELEVANCE_OUTPUT_FORMAT__CLASSIFY
-            validation_func = self.context_relevance_classify_validate_func
+            few_shot_examples = LANGUAGE_FLUENCY_FEW_SHOT__CLASSIFY
+            output_format = LANGUAGE_FLUENCY_OUTPUT_FORMAT__CLASSIFY
+            validation_func = self.critique_language_classify_validate_func
             prompting_instructions = CLASSIFY
         elif self.settings.eval_type == "cot":
-            few_shot_examples = CONTEXT_RELEVANCE_FEW_SHOT__COT
-            output_format = CONTEXT_RELEVANCE_OUTPUT_FORMAT__COT
-            validation_func = self.context_relevance_cot_validate_func
+            few_shot_examples = LANGUAGE_FLUENCY_FEW_SHOT__COT
+            output_format = LANGUAGE_FLUENCY_OUTPUT_FORMAT__COT
+            validation_func = self.critique_language_cot_validate_func
             prompting_instructions = CHAIN_OF_THOUGHT
         else:
             raise ValueError(
@@ -145,7 +144,7 @@ class ContextRelevance(ColumnOp):
                 }
             )
             try:
-                grading_prompt_template = CONTEXT_RELEVANCE_PROMPT_TEMPLATE.replace(
+                grading_prompt_template = LANGUAGE_FLUENCY_PROMPT_TEMPLATE.replace(
                     "{scenario_description}", self.scenario_description
                 ).format(**kwargs)
             except KeyError as e:
@@ -163,15 +162,15 @@ class ContextRelevance(ColumnOp):
         for res in output_payloads:
             idx = res.metadata["index"]
             output = {
-                "score_context_relevance": None,
-                "explanation_context_relevance": None,
+                "score_critique_language": None,
+                "explanation_critique_language": None,
             }
             try:
                 score = self.score_mapping[
                     json.loads(res.response.choices[0].message.content)["Choice"]
                 ]
-                output["score_context_relevance"] = float(score)
-                output["explanation_context_relevance"] = res.response.choices[
+                output["score_critique_language"] = float(score)
+                output["explanation_critique_language"] = res.response.choices[
                     0
                 ].message.content
             except Exception:
@@ -179,22 +178,23 @@ class ContextRelevance(ColumnOp):
                     f"Error when processing payload at index {idx}: {res.error}"
                 )
             results.append((idx, output))
+
         results = [val for _, val in sorted(results, key=lambda x: x[0])]
 
         return results
 
 
 @register_op
-class ResponseCompletenessWrtContext(ColumnOp):
+class ResponseCoherence(ColumnOp):
     """
-    Grades if the response is able to answer the question asked completely with respect to the context or not.
+    Operator to score the coherence of machine generated responses.
+    It provides a score for each of the aspects on a scale of 0 to 1, along with an
+    explanation for the score.
 
     Attributes:
-        col_question: (str) Column Name for the stored questions
-        col_response: (str) Coloumn name for stored response
-        col_context: (str) Column name for stored context
-        col_out: (str) Column name for the output score
-        scenario_description (str): Optional scenario description to incorporate in the evaluation prompt
+        col_response (str): The name of the input column containing response text
+        col_out (str): The name of the output column containing the scores
+        scenario_description (str | None): Optional scenario description to incorporate in the evaluation prompt
         score_mapping (dict): Mapping of different grades to float scores
 
     Raises:
@@ -202,10 +202,8 @@ class ResponseCompletenessWrtContext(ColumnOp):
 
     """
 
-    col_question: str = "question"
     col_response: str = "response"
-    col_context: str = "context"
-    col_out: str = "score_response_completeness_wrt_context"
+    col_out: str = "score_response_coherence"
     scenario_description: t.Optional[str] = None
     score_mapping: dict = {"A": 1.0, "B": 0.5, "C": 0.0}
 
@@ -223,44 +221,32 @@ class ResponseCompletenessWrtContext(ColumnOp):
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         data_send = polars_to_json_serializable_dict(data)
         for row in data_send:
-            row["question"] = row.pop(self.col_question)
             row["response"] = row.pop(self.col_response)
-            row["context"] = row.pop(self.col_context)
 
         try:
             if self.settings.evaluate_locally:
                 results = self.evaluate_local(data_send)
             else:
-                results = self._api_client.evaluate(
-                    "response_completeness_wrt_context",
-                    data_send,
-                    {"scenario_description": self.scenario_description},
-                )
+                results = self._api_client.evaluate("critique_language", data_send)
         except Exception as e:
-            logger.error(
-                f"Failed to run evaluation for `ResponseCompletenessWrtContext`: {e}"
-            )
+            logger.error(f"Failed to run evaluation for `LanguageCritique`: {e}")
             raise e
 
         assert results is not None
         return {
             "output": data.with_columns(
-                pl.from_dicts(results).rename(
-                    {"score_response_completeness_wrt_context": self.col_out}
-                )
+                pl.from_dicts(results).rename({"score_response_coherence": self.col_out})
             )
         }
 
-    def response_completeness_wrt_context_classify_validate_func(self, llm_output):
+    def critique_language_classify_validate_func(self, llm_output):
         is_correct = True
         is_correct = is_correct and ("Choice" in json.loads(llm_output))
         is_correct = is_correct and json.loads(llm_output)["Choice"] in ["A", "B", "C"]
         return is_correct
 
-    def response_completeness_wrt_context_cot_validate_func(self, llm_output):
-        is_correct = self.response_completeness_wrt_context_classify_validate_func(
-            llm_output
-        )
+    def critique_language_cot_validate_func(self, llm_output):
+        is_correct = self.critique_language_classify_validate_func(llm_output)
         is_correct = is_correct and ("Reasoning" in json.loads(llm_output))
         return is_correct
 
@@ -274,16 +260,14 @@ class ResponseCompletenessWrtContext(ColumnOp):
         )
         input_payloads = []
         if self.settings.eval_type == "basic":
-            few_shot_examples = RESPONSE_COMPLETENESS_WRT_CONTEXT_FEW_SHOT__CLASSIFY
-            output_format = RESPONSE_COMPLETENESS_WRT_CONTEXT_OUTPUT_FORMAT__CLASSIFY
-            validation_func = (
-                self.response_completeness_wrt_context_classify_validate_func
-            )
+            few_shot_examples = LANGUAGE_COHERENCE_FEW_SHOT__CLASSIFY
+            output_format = LANGUAGE_COHERENCE_OUTPUT_FORMAT__CLASSIFY
+            validation_func = self.critique_language_classify_validate_func
             prompting_instructions = CLASSIFY
         elif self.settings.eval_type == "cot":
-            few_shot_examples = RESPONSE_COMPLETENESS_WRT_CONTEXT_FEW_SHOT__COT
-            output_format = RESPONSE_COMPLETENESS_WRT_CONTEXT_OUTPUT_FORMAT__COT
-            validation_func = self.response_completeness_wrt_context_cot_validate_func
+            few_shot_examples = LANGUAGE_COHERENCE_FEW_SHOT__COT
+            output_format = LANGUAGE_COHERENCE_OUTPUT_FORMAT__COT
+            validation_func = self.critique_language_cot_validate_func
             prompting_instructions = CHAIN_OF_THOUGHT
         else:
             raise ValueError(
@@ -300,11 +284,9 @@ class ResponseCompletenessWrtContext(ColumnOp):
                 }
             )
             try:
-                grading_prompt_template = (
-                    RESPONSE_COMPLETENESS_WRT_CONTEXT_PROMPT_TEMPLATE.replace(
-                        "{scenario_description}", self.scenario_description
-                    ).format(**kwargs)
-                )
+                grading_prompt_template = LANGUAGE_COHERENCE_PROMPT_TEMPLATE.replace(
+                    "{scenario_description}", self.scenario_description
+                ).format(**kwargs)
             except KeyError as e:
                 raise KeyError(
                     f"Missing required attribute(s) for scenario description: {e}"
@@ -320,17 +302,17 @@ class ResponseCompletenessWrtContext(ColumnOp):
         for res in output_payloads:
             idx = res.metadata["index"]
             output = {
-                "score_response_completeness_wrt_context": None,
-                "explanation_response_completeness_wrt_context": None,
+                "score_response_coherence": None,
+                "explanation_response_coherence": None,
             }
             try:
                 score = self.score_mapping[
                     json.loads(res.response.choices[0].message.content)["Choice"]
                 ]
-                output["score_response_completeness_wrt_context"] = float(score)
-                output[
-                    "explanation_response_completeness_wrt_context"
-                ] = res.response.choices[0].message.content
+                output["score_response_coherence"] = float(score)
+                output["explanation_response_coherence"] = res.response.choices[
+                    0
+                ].message.content
             except Exception:
                 logger.error(
                     f"Error when processing payload at index {idx}: {res.error}"

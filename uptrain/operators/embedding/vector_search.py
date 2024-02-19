@@ -13,7 +13,7 @@ import polars as pl
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
 from uptrain.operators.base import *
-from uptrain.operators.language.embedding import Embedding
+from uptrain.operators.embedding.embedding import Embedding
 from uptrain.operators.io.base import JsonReader, CsvReader
 from uptrain.utilities import lazy_load_dep, polars_to_pandas
 

@@ -120,9 +120,18 @@ RESPONSE_CONCISENESS_FEW_SHOT__COT = """
 [Response]: Lionel Andrés Messi (born 24 June 1987), also known as Leo Messi, is an Argentine professional footballer who plays as a forward for and captains both Major League Soccer club Inter Miami and the Argentina national team. Widely regarded as one of the greatest players of all time, Messi has won a record seven Ballon d'Or awards] and a record six European Golden Shoes, and in 2020 he was named to the Ballon d'Or Dream Team. Until leaving the club in 2021, he had spent his entire professional career with Barcelona, where he won a club-record 34 trophies, including ten La Liga titles, seven Copa del Rey titles and the UEFA Champions League four times.
 [Output]:
 {{ 
-    "Reasoning": "The given response is appropriate for the given question because it provides relevant information about Lionel Messi. The response includes his birth date, nationality and his recogniton in the world of football. This information directly addresses the question about Lionel Messi.",
+    "Reasoning": "While the given response provides information about the birth data, nationality and occupation of Lionel Messi, it includes some irrelevant details about Messi's career such as association to multiple clubs and trophies won.
+    "Choice": "B"
+}}
+
+[Question]: Who is Lionel Messi?
+[Response]: Lionel Andrés Messi (born 24 June 1987), also known as Leo Messi, is an Argentine professional footballer who plays as a forward for and captains both Major League Soccer club Inter Miami and the Argentina national team. Widely regarded as one of the greatest players of all time, Messi has won a record seven Ballon d'Or awards] and a record six European Golden Shoes, and in 2020 he was named to the Ballon d'Or Dream Team. Until leaving the club in 2021, he had spent his entire professional career with Barcelona, where he won a club-record 34 trophies, including ten La Liga titles, seven Copa del Rey titles and the UEFA Champions League four times. During his time with Barcelona, Barcelona featured star players like Neymar, Andres Iniesta and was managed by Luis Enrique.
+[Output]:
+{{ 
+    "Reasoning": "While the given response provides information about the birth data, nationality and occupation of Lionel Messi, it includes a lot of irrelevant inforamtion such as details about Messi's career and Barcelona club.
     "Choice": "C"
 }}
+
 """
 
 
@@ -149,6 +158,7 @@ RESPONSE_COMPLETENESS_WRT_CONTEXT_FEW_SHOT__COT = """
 """
 
 
+# TODO: Improve the quality of response consistency few shot examples
 # Response Consistency
 RESPONSE_CONSISTENCY_FEW_SHOT__CLASSIFY = """
 [Question]: What is postgres?
@@ -160,6 +170,7 @@ RESPONSE_CONSISTENCY_FEW_SHOT__CLASSIFY = """
 }}
 """
 
+# TODO: Improve the quality of response consistency few shot examples
 RESPONSE_CONSISTENCY_FEW_SHOT__COT = """
 [Question]: What is postgres?
 [Context]: PostgreSQL is a powerful, open source object-relational database system that uses and extends the SQL language combined with many features that safely store and scale the most complicated data workloads. The origins of PostgreSQL date back to 1986 as part of the POSTGRES project at the University of California at Berkeley and has more than 35 years of active development on the core platform.
@@ -310,20 +321,95 @@ CRITIQUE_TONE_FEW_SHOT__COT = """
 """
 
 
-# Critique Language
-CRITIQUE_LANGUAGE_FEW_SHOT__CLASSIFY = """
-[Response]: Yo, imma explain photosynthesis to you. So, like, plants take in carbon dioxide and water and use sunlight to make glucose and oxygen. It's like, super cool, right?
+# Critique Language Fluency
+LANGUAGE_FLUENCY_FEW_SHOT__CLASSIFY = """
+[Response]: Exercise is good  health. It makes body strong and helps the mind too. Many benefits gained.
+[Output]:
+{{
+    "Choice": "B"
+}}
+
+[Response]: Exercises are very good for your health as they make the body physically strong as well as promote mental well-being.
+[Output]:
+{{
+    "Choice": "A"
+}}
+
+
+[Response]: Exercise good  health your. It maken strong strong body, fit, mind and.
 [Output]:
 {{
     "Choice": "C"
 }}
 """
 
-CRITIQUE_LANGUAGE_FEW_SHOT__COT = """
-[Response]: Yo, imma explain photosynthesis to you. So, like, plants take in carbon dioxide and water and use sunlight to make glucose and oxygen. It's like, super cool, right?
+LANGUAGE_FLUENCY_FEW_SHOT__COT = """
+[Response]: Exercise is good  health. It makes body strong and helps the mind too. Many benefits gained.
 [Output]:
 {{
-    "Reasoning": "The response is not appropriate for the given question because it uses informal language and slang, which is not suitable for explaining a scientific concept like photosynthesis.",
+    "Reasoning": "The text is somewhat fluent but lacks variety in sentence structure and uses repetitive language.",
+    "Choice": "B"
+}}
+
+[Response]: Exercises are very good for your health as they make the body physically strong as well as promote mental well-being.
+[Output]:
+{{
+    "Reasoning": "The text is completely fluent and natural sounding.",
+    "Choice": "A"
+}}
+
+
+[Response]: Exercise good  health your. It maken strong strong body, fit, mind and.
+[Output]:
+{{
+    "Reasoning": "The text is not fluent at all and has awkward phrasing, making it difficult to understand.",
+    "Choice": "C"
+}}
+"""
+
+
+# Critique Language Fluency
+LANGUAGE_COHERENCE_FEW_SHOT__CLASSIFY = """
+[Response]: Exercise is good  health. It makes body strong and helps the mind too. Many benefits gained.
+[Output]:
+{{
+    "Choice": "B"
+}}
+
+[Response]: Exercises are very good for your health as they make the body physically strong as well as promote mental well-being.
+[Output]:
+{{
+    "Choice": "A"
+}}
+
+
+[Response]: Exercise good  health your. It maken strong strong body, fit, mind and.
+[Output]:
+{{
+    "Choice": "C"
+}}
+"""
+
+LANGUAGE_COHERENCE_FEW_SHOT__COT = """
+[Response]: Exercise is good  health. It makes body strong and helps the mind too. Many benefits gained.
+[Output]:
+{{
+    "Reasoning": "The text is somewhat fluent but lacks variety in sentence structure and uses repetitive language.",
+    "Choice": "B"
+}}
+
+[Response]: Exercises are very good for your health as they make the body physically strong as well as promote mental well-being.
+[Output]:
+{{
+    "Reasoning": "The text is completely fluent and natural sounding.",
+    "Choice": "A"
+}}
+
+
+[Response]: Exercise good  health your. It maken strong strong body, fit, mind and.
+[Output]:
+{{
+    "Reasoning": "The text is not fluent at all and has awkward phrasing, making it difficult to understand.",
     "Choice": "C"
 }}
 """

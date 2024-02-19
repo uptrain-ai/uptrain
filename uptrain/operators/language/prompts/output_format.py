@@ -94,7 +94,7 @@ RESPONSE_COMPLETENESS_WRT_CONTEXT_OUTPUT_FORMAT__CLASSIFY = """
 
 RESPONSE_COMPLETENESS_WRT_CONTEXT_OUTPUT_FORMAT__COT = """
 {{
-    "Reasoning": [Reasoning],  # Reasoning to determine the completeness of the response for answering the query with respect to the context,
+    "Reasoning": [Reasoning],  # Reasoning to determine if all the relevant information in context is utilized in the response,
     "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
 }}
 """
@@ -109,7 +109,7 @@ RESPONSE_CONSISTENCY_OUTPUT_FORMAT__CLASSIFY = """
 
 RESPONSE_CONSISTENCY_OUTPUT_FORMAT__COT = """
 {{
-    "Reasoning": [Reasoning],  # Reasoning to determine the consistency of the response for answering the query with respect to the context,
+    "Reasoning": [Reasoning],  # Reasoning to determine the quality of reasoning generated to justify the given response for answering the given query,
     "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B")
 }}
 """
@@ -124,7 +124,7 @@ VALID_RESPONSE_OUTPUT_FORMAT__CLASSIFY = """
 
 VALID_RESPONSE_OUTPUT_FORMAT__COT = """
 {{
-    "Reasoning": [Reasoning],  # Reasoning to determine the validity of the response for answering the query,
+    "Reasoning": [Reasoning],  # Reasoning to determine the validity of the response,
     "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B")
 }}
 """
@@ -139,7 +139,7 @@ GUIDELINE_ADHERENCE_OUTPUT_FORMAT__CLASSIFY = """
 
 GUIDELINE_ADHERENCE_OUTPUT_FORMAT__COT = """
 {{
-    "Reasoning": [Reasoning],  # Reasoning to determine the adherence of the response to the given guideline,
+    "Reasoning": [Reasoning],  # Reasoning to determine if the given guideline is followed or not,
     "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B")
 }}
 """
@@ -184,7 +184,7 @@ CONVERSATION_SATISFACTION_OUTPUT_FORMAT__CLASSIFY = """
 
 CONVERSATION_SATISFACTION_OUTPUT_FORMAT__COT = """
 {{
-    "Reasoning": [Reasoning],  # Reasoning to determine the satisfaction level of the user with the conversation,
+    "Reasoning": [Reasoning],  # Reasoning to determine if the user seems frustated during the conversation,
     "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
 }}
 """
@@ -199,22 +199,35 @@ CRITIQUE_TONE_OUTPUT_FORMAT__CLASSIFY = """
 
 CRITIQUE_TONE_OUTPUT_FORMAT__COT = """
 {{
-    "Reasoning": [Reasoning],  # Reasoning to critique the tone of the AI model's responses,
+    "Reasoning": [Reasoning],  # Reasoning to determine if the response tone matches the given persona,
     "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
 }}
 """
 
-
-# Critique Language
-CRITIQUE_LANGUAGE_OUTPUT_FORMAT__CLASSIFY = """
+# Critique Language Fluency
+LANGUAGE_FLUENCY_OUTPUT_FORMAT__CLASSIFY = """
 {{
     "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
 }}
 """
 
-CRITIQUE_LANGUAGE_OUTPUT_FORMAT__COT = """
+LANGUAGE_FLUENCY_OUTPUT_FORMAT__COT = """
 {{
-    "Reasoning": [Reasoning],  # Reasoning to critique the fluency, politeness, coherence and grammar of the AI model's responses,
+    "Reasoning": [Reasoning],  # Reasoning to critique the fluency of the response,
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+}}
+"""
+
+# Critique Language Coherence
+LANGUAGE_COHERENCE_OUTPUT_FORMAT__CLASSIFY = """
+{{
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+}}
+"""
+
+LANGUAGE_COHERENCE_OUTPUT_FORMAT__COT = """
+{{
+    "Reasoning": [Reasoning],  # Reasoning to critique the coherence of the response,
     "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
 }}
 """
