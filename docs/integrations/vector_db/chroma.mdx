@@ -25,9 +25,11 @@ Let's define a dataset
 ```python
 from datasets import load_dataset
 
-dataset = load_dataset("sciq", split="train")     # Get the SciQ dataset from HuggingFace
+# Get the SciQ dataset from HuggingFace
+dataset = load_dataset("sciq", split="train")     
 
-dataset = dataset.filter(lambda x: x["support"] != "")    # Filter the dataset to only include questions with a support
+# Filter the dataset to only include questions with a support
+dataset = dataset.filter(lambda x: x["support"] != "")    
 ```
 
 Embedding the data in ChromaDB:
@@ -35,9 +37,11 @@ Embedding the data in ChromaDB:
 ```python
 client = chromadb.Client()
 
-collection = client.get_or_create_collection("sciq_supports")     # Get or create a new Chroma collection to store the supporting evidence.
+# Get or create a new Chroma collection to store the supporting documets.
+collection = client.get_or_create_collection("sciq_supports")     
 
-collection.add(     # Embed and store the first 100 supports for this demo
+# Embed and store the first 100 supports for this demo
+collection.add(     
     ids=[str(i) for i in range(0, 2)],  
     documents=dataset["support"][:2],
     metadatas=[{"type": "support"} for _ in range(0, 2)
@@ -52,8 +56,9 @@ results = collection.query(
     query_texts=dataset["question"][:10],
     n_results=1)
 
+# Retrieving the corresponding support document wrt question
 data = []
-for i, q in enumerate(dataset['question'][:10]):      # Retrieving the corresponding support document wrt question
+for i, q in enumerate(dataset['question'][:10]):      
     retrieved_data = {'question': q,'context': results['documents'][i][0]}
     data.append(retrieved_data)
 ```
@@ -61,7 +66,8 @@ for i, q in enumerate(dataset['question'][:10]):      # Retrieving the correspon
 Evaluate the retrieval quality using UpTrain
 
 ```python
-OPENAI_API_KEY = "sk-*****************"  # Insert your OpenAI key here
+# Insert your OpenAI key here
+OPENAI_API_KEY = "sk-*****************"  
 
 eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
 
@@ -93,8 +99,8 @@ Let's look at the retrieval quality of the context documents
 ```
 
 According to these evaluations:
-1. The first document has context relevant to the question, as it contains information about the least dangerous radioactice decay, thus resulting in a good context relevance score.
-2. The second document contains information about the agents used in preparation of foods like cheese and yogurt, but does not specifically talks about their use to make yougurt and cheese. Thus, resulting in a lower context relevance score. 
+* **Example 1**: The context clearly states alpha decay to be the least dangerous radioactive decay, making the context sufficient to answer the question. Hence, the context is highly relevant to the question asked.
+* **Example 2**: The context contains information about the agents used in preparation of foods like cheese and yogurt, but does not specifically talks about their use to make yougurt and cheese. Thus, even though the context is related to the question it's not sufficient to answer it.
 
 <CardGroup cols={2}>
   <Card

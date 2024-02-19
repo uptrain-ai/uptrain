@@ -41,12 +41,14 @@ texts = [
 Creating a memory instance using QDrant:
 
 ```python
-encoder = SentenceTransformer("all-MiniLM-L6-v2")     # Create sentence transformer model to generate embeddings
+# Create sentence transformer model to generate embeddings
+encoder = SentenceTransformer("all-MiniLM-L6-v2")     
 
-qdrant = QdrantClient(":memory:")     # Create in-memory Qdrant instance
+# Create in-memory Qdrant instance
+qdrant = QdrantClient(":memory:")     
 
-
-qdrant.recreate_collection(     # Create collection to store books
+# Create collection to store books
+qdrant.recreate_collection(     
     collection_name="my_books",
     vectors_config=models.VectorParams(
         size=encoder.get_sentence_embedding_dimension(),
@@ -58,9 +60,11 @@ qdrant.recreate_collection(     # Create collection to store books
 Generate embedding and vectorise from the defined text
 
 ```python
-embeddings = encoder.encode(texts)      # Generate embeddings for the texts
+# Generate embeddings for the texts
+embeddings = encoder.encode(texts)      
 
-qdrant.upload_points(     # Upload embeddings to the specified collection
+# Upload embeddings to the specified collection
+qdrant.upload_points(     
     collection_name="my_books",
     points=[
         models.Record(id=idx, vector=embedding.tolist())
@@ -68,7 +72,8 @@ qdrant.upload_points(     # Upload embeddings to the specified collection
     ],
 )
 
-qdrant.upload_points(     # Vectorize descriptions and upload to qdrant
+# Vectorize descriptions and upload to qdrant
+qdrant.upload_points(     
     collection_name="my_books",
     points=[
         models.Record(
@@ -141,8 +146,8 @@ Let's look at the retrieval quality of the context documents
 ```
 
 According to these evaluations:
-1. The first document has context relevant to the question, as it contains information about a book which is related to alien abductions, thus resulting in a good context relevance score.
-2. The second document contains information about a book which is related to abduction of a princess but not related to alien abductions, thus resulting in a good context relevance score. 
+* **Example 1**: The context contains information about a book "A Gift From The Stars", which is related to the question asked i.e. books about alien abductions.
+* **Example 2**: The context contains information about a book "The Royal Abduction", which is related to a abduction but there is no reference specific to alien abduction, making the context irrelevant.
 
 <CardGroup cols={2}>
   <Card
