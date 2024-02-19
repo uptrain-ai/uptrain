@@ -57,7 +57,7 @@ class ToneCritique(ColumnOp):
 
     llm_persona: str = "helpful-chatbot"
     col_response: str = "response"
-    col_out: str = "score_tone"
+    col_out: str = "score_critique_tone"
     scenario_description: t.Optional[str] = None
     score_mapping: dict = {"A": 1.0, "B": 0.5, "C": 0.0}
 
@@ -91,7 +91,7 @@ class ToneCritique(ColumnOp):
         assert results is not None
         return {
             "output": data.with_columns(
-                pl.from_dicts(results).rename({"score_tone": self.col_out})
+                pl.from_dicts(results).rename({"score_critique_tone": self.col_out})
             )
         }
 

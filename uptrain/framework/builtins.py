@@ -22,69 +22,16 @@ from uptrain.operators import (
     JailbreakDetectionScore,
 )
 
-# -----------------------------------------------------------
-# Context related
-# -----------------------------------------------------------
-
-
-def CheckContextRelevance():
-    return Check(
-        name="score_context_relevance",
-        operators=[ContextRelevance()],
-        plots=[Histogram(x="score_context_relevance")],
-    )
-
-
-def CheckResponseFacts():
-    return Check(
-        name="score_factual_accuracy",
-        operators=[ResponseFactualScore()],
-        plots=[Histogram(x="score_factual_accuracy")],
-    )
-
 
 # -----------------------------------------------------------
-# Response related
+# Response Quality
 # -----------------------------------------------------------
-
 
 def CheckResponseCompleteness():
     return Check(
         name="response_completeness_score",
         operators=[ResponseCompleteness()],
         plots=[Histogram(x="score_response_completeness")],
-    )
-
-
-def CheckResponseCompletenessWrtContext():
-    return Check(
-        name="response_completeness_wrt_context_score",
-        operators=[ResponseCompletenessWrtContext()],
-        plots=[Histogram(x="score_response_completeness_wrt_context")],
-    )
-
-
-def CheckResponseRelevance():
-    return Check(
-        name="response_relevance_score",
-        operators=[ResponseRelevance()],
-        plots=[Histogram(x="score_response_relevance")],
-    )
-
-
-def CheckResponseConsistency():
-    return Check(
-        name="response_consistency_score",
-        operators=[ResponseConsistency()],
-        plots=[Histogram(x="score_response_consistency")],
-    )
-
-
-def CheckValidResponse():
-    return Check(
-        name="valid_response_score",
-        operators=[ValidResponseScore()],
-        plots=[Histogram(x="score_valid_response")],
     )
 
 
@@ -96,28 +43,69 @@ def CheckResponseConciseness():
     )
 
 
-def CheckResponseMatching(method="llm"):
+def CheckResponseRelevance():
     return Check(
-        name=f"{method}_score",
-        operators=[ResponseMatchingScore(method=method)],
-        plots=[Histogram(x=f"{method}_score")],
+        name="response_relevance_score",
+        operators=[ResponseRelevance()],
+        plots=[Histogram(x="score_response_relevance")],
+    )
+
+
+def CheckValidResponse():
+    return Check(
+        name="valid_response_score",
+        operators=[ValidResponseScore()],
+        plots=[Histogram(x="score_valid_response")],
+    )
+
+
+def CheckResponseConsistency():
+    return Check(
+        name="response_consistency_score",
+        operators=[ResponseConsistency()],
+        plots=[Histogram(x="score_response_consistency")],
     )
 
 
 # -----------------------------------------------------------
-# Language quality related
+# Context Quality
 # -----------------------------------------------------------
 
+def CheckContextRelevance():
+    return Check(
+        name="score_context_relevance",
+        operators=[ContextRelevance()],
+        plots=[Histogram(x="score_context_relevance")],
+    )
+
+
+def CheckResponseCompletenessWrtContext():
+    return Check(
+        name="response_completeness_wrt_context_score",
+        operators=[ResponseCompletenessWrtContext()],
+        plots=[Histogram(x="score_response_completeness_wrt_context")],
+    )
+
+
+def CheckResponseFacts():
+    return Check(
+        name="score_factual_accuracy",
+        operators=[ResponseFactualScore()],
+        plots=[Histogram(x="score_factual_accuracy")],
+    )
+
+
+
+# -----------------------------------------------------------
+# Language Proficiency
+# -----------------------------------------------------------
 
 def CheckLanguageQuality():
     return Check(
         name="language_critique_score",
         operators=[LanguageCritique()],
         plots=[
-            Histogram(x="score_fluency"),
-            Histogram(x="score_coherence"),
-            Histogram(x="score_politeness"),
-            Histogram(x="score_grammar"),
+            Histogram(x="score_language_critique"),
         ],
     )
 
@@ -126,14 +114,37 @@ def CheckToneQuality(llm_persona):
     return Check(
         name="tone_critique_score",
         operators=[ToneCritique(llm_persona=llm_persona)],
-        plots=[Histogram(x="score_tone")],
+        plots=[Histogram(x="score_critique_tone")],
     )
 
 
 # -----------------------------------------------------------
-# Guideline related
+# Code generation
 # -----------------------------------------------------------
 
+def CheckCodeHallucination():
+    return Check(
+        name="code_hallucination_score",
+        operators=[CodeHallucinationScore()],
+        plots=[Histogram(x="score_code_hallucination")],
+    )
+
+
+# -----------------------------------------------------------
+# Conversation Quality
+# -----------------------------------------------------------
+
+def CheckConversationSatisfaction(user_persona="user", llm_persona=None):
+    return Check(
+        name="conversation_satisfaction_score",
+        operators=[ConversationSatisfactionScore(user_persona, llm_persona)],
+        plots=[Histogram(x="score_conversation_satisfaction")],
+    )
+
+
+# -----------------------------------------------------------
+# Custom Evaluations
+# -----------------------------------------------------------
 
 def CheckGuidelineAdherence(
     guideline, guideline_name="guideline", response_schema=None
@@ -152,9 +163,20 @@ def CheckGuidelineAdherence(
 
 
 # -----------------------------------------------------------
-# Prompt Injection related
+# Compare response with ground truth
 # -----------------------------------------------------------
 
+def CheckResponseMatching(method="llm"):
+    return Check(
+        name=f"{method}_score",
+        operators=[ResponseMatchingScore(method=method)],
+        plots=[Histogram(x=f"{method}_score")],
+    )
+
+
+# -----------------------------------------------------------
+# Security
+# -----------------------------------------------------------
 
 def CheckPromptInjection():
     return Check(
@@ -162,37 +184,6 @@ def CheckPromptInjection():
         operators=[PromptInjectionScore()],
         plots=[Histogram(x="score_prompt_injection")],
     )
-
-
-# -----------------------------------------------------------
-# Conversation related
-# -----------------------------------------------------------
-
-
-def CheckConversationSatisfaction(user_persona="user", llm_persona=None):
-    return Check(
-        name="conversation_satisfaction_score",
-        operators=[ConversationSatisfactionScore(user_persona, llm_persona)],
-        plots=[Histogram(x="score_conversation_satisfaction")],
-    )
-
-
-# -----------------------------------------------------------
-# Code related
-# -----------------------------------------------------------
-
-
-def CheckCodeHallucination():
-    return Check(
-        name="code_hallucination_score",
-        operators=[CodeHallucinationScore()],
-        plots=[Histogram(x="score_code_hallucination")],
-    )
-
-
-# -----------------------------------------------------------
-# Jailbreak related
-# -----------------------------------------------------------
 
 
 def CheckJailbreakDetection():
