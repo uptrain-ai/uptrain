@@ -10,25 +10,12 @@
 -
 <a href="https://docs.uptrain.ai/getting-started/introduction" rel="nofollow"><strong>Read Docs</strong></a>
 -
+<a href="https://docs.uptrain.ai/getting-started/quickstart" rel="nofollow"><strong>Quickstart Tutorials</strong>
+-
 <a href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg" rel="nofollow"><strong>Slack Community</strong></a>
 -
 <a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=" rel="nofollow"><strong>Feature Request</strong></a>
 </p>
-
-<h4 align="center">
-<a href='https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md'>
-    <img alt='PRs Welcome' src='https://img.shields.io/badge/PRs-welcome-blue.svg?style=shields'/>
-  </a>
-  <a href="https://github.com/uptrain-ai/uptrain/graphs/contributors">
-    <img src="https://img.shields.io/github/contributors/uptrain-ai/uptrain" />
-  </a>
-  <a href="https://docs.uptrain.ai/getting-started/quickstart">
-    <img src="https://img.shields.io/badge/Quickstart-tutorial-orange" alt="Quickstart" />
-  </a>
-  <a href="https://uptrain.ai/">
-    <img src="https://img.shields.io/badge/UpTrain-Website-red" alt="Website" />
-  </a>
-</h4>
 
 <h4 align="center">
   <img src="https://github.com/uptrain-ai/uptrain/assets/108270398/10d0faeb-c4f8-422f-a01e-49a891fa7ada" alt="Demo of UpTrain's LLM evaluations with scores for hallucinations, retrieved-context quality, response tonality for a customer support chatbot"/>
@@ -36,7 +23,7 @@
 
 **[UpTrain](https://uptrain.ai)** is an open-source unified platform to evaluate and improve Generative AI applications. We provide grades for 20+ preconfigured checks (covering language, code, embedding use-cases), perform root cause analysis on failure cases and give insights on how to resolve them.
 
-# Key Features 🔑:
+# Key Features 🔑
 
 1. **Data-secure**: All the evaluations and analysis run locally on your system, ensuring that the data never leaves your secure environment (except for LLM calls while using model grading checks)
 
