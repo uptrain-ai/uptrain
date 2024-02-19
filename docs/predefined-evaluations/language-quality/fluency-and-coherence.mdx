@@ -1,11 +1,11 @@
 ---
 title: Language Features
-description: Grades whether the response has answered all the aspects of the question specified
+description: Checks whether the response has answered all the aspects of the question specified
 ---
 
 Critique tone evaluation involves assessing the language model's output in terms of the tone used when following or deviating from guidelines. 
 
-It aims to ensure that the language model not only adheres to guidelines but also communicates its adherence or deviations in an appropriate and respectful manner.
+It aims to ensure that the language model not only adheres to guidelines but also communicates its adherence to or deviation from the guideline in an appropriate and respectful manner.
 
 Columns required:
 - `response`: The response given by the model
@@ -14,7 +14,7 @@ Columns required:
 ### How to use it?
 
 ```python
-from uptrain import EvalLLM, CritiqueTone
+from uptrain import EvalLLM
 
 OPENAI_API_KEY = "sk-********************"  # Insert your OpenAI key here
 
@@ -29,7 +29,7 @@ res = eval_llm.evaluate(
     checks = [Evals.CRITIQUE_LANGUAGE]    
 )
 ```
-<Info>By Default we are using GPT 3.5 Turbo. If you want to use some other model check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb)</Info>
+<Info>By default, we are using GPT 3.5 Turbo for evaluations. If you want to use a different model, check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb).</Info>
 
 Sample Response:
 ```json

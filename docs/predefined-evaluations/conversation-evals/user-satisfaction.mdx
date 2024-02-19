@@ -1,6 +1,6 @@
 ---
-title: Conversation
-description: Grade the conversations between the user and the LLM/AI assistant.
+title: User Satisfaction
+description: Asseses the user satisfaction with the conversation
 ---
 
 Conversation Satisfaction measures how well a model/LLM answers the query asked by the user. 
@@ -39,7 +39,7 @@ res = eval_llm.evaluate(
     checks = [ConversationSatisfaction(user_persona="patient", llm_persona="nurse")]
 )
 ```
-<Info>By Default we are using GPT 3.5 Turbo. If you want to use some other model check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb)</Info>
+<Info>By default, we are using GPT 3.5 Turbo. If you want to use a different model, check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb).</Info>
 
 Sample Response:
 ```json

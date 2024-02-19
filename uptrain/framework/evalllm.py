@@ -117,7 +117,7 @@ class EvalLLM:
                 req_attrs.update([schema.question, schema.context, schema.reranked_context])
             elif m in [Evals.FACTUAL_ACCURACY, Evals.RESPONSE_COMPLETENESS_WRT_CONTEXT, Evals.RESPONSE_CONSISTENCY, Evals.CODE_HALLUCINATION]:
                 req_attrs.update([schema.question, schema.context, schema.response])
-            elif m in [Evals.RESPONSE_RELEVANCE, Evals.VALID_RESPONSE, Evals.RESPONSE_COMPLETENESS, Evals.RESPONSE_CONCISENESS, Evals.PROMPT_INJECTION]:
+            elif m in [Evals.RESPONSE_RELEVANCE, Evals.VALID_RESPONSE, Evals.RESPONSE_COMPLETENESS, Evals.RESPONSE_CONCISENESS]:
                 req_attrs.update([schema.question, schema.response])
             elif m in [Evals.CONTEXT_RELEVANCE]:
                 req_attrs.update([schema.question, schema.context])
@@ -127,7 +127,7 @@ class EvalLLM:
                 req_attrs.update([schema.question, schema.response, schema.ground_truth])
             elif isinstance(m, ConversationSatisfaction):
                 req_attrs.update([schema.conversation])
-            elif isinstance(m, JailbreakDetection):
+            elif m in [Evals.PROMPT_INJECTION] or isinstance(m, JailbreakDetection):
                 req_attrs.update([schema.question])    
 
             this_scenario_description = scenario_description if not isinstance(scenario_description, list) else scenario_description[idx]                

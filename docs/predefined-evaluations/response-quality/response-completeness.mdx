@@ -1,6 +1,6 @@
 ---
 title: Response Completeness
-description: Grades whether the response has answered all the aspects of the question specified
+description: Checks whether the response has answered all the aspects of the question specified
 ---
 
 Response completeness score measures if the generated response has adequately answered all aspects to the question being asked.
@@ -31,7 +31,7 @@ res = eval_llm.evaluate(
     checks = [Evals.RESPONSE_COMPLETENESS]
 )
 ```
-<Info>By Default we are using GPT 3.5 Turbo. If you want to use some other model check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb)</Info>
+<Info>By default, we are using GPT 3.5 Turbo for evaluations. If you want to use a different model, check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb).</Info>
 
 Sample Response:
 ```json
@@ -42,7 +42,7 @@ Sample Response:
    }
 ]
 ```
-<Note>A higher response completeness score reflects that the response has answered to all of the user's questions.</Note>
+<Note>A higher response completeness score reflects that the response has answered all aspects of the user's questions to a greater extent.</Note>
 
 The question can be divided in following 2 parts:
 1. Where is the Taj Mahal located?

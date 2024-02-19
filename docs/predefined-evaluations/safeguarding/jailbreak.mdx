@@ -1,9 +1,9 @@
 ---
 title: Jailbreak Detection
-description: Grades whether the generated response matches the required persona's tone 
+description: Check if the user prompts to generate a response over potentially harmful or illegal behaviour
 ---
 
-Jailbreak detection score is a metric to measure if the user prompts to generate a response over potentially harmful or illegal behaviour. 
+Jailbreak detection score is a metric to check if the user prompts to generate a response over potentially harmful or illegal behaviour. 
 
 It can also be used to detect whether a user prompt is not aligned to the model's intented purpose.
 
@@ -32,7 +32,7 @@ res = eval_llm.evaluate(
     checks = [JailbreakDetection]
 )
 ```
-<Info>By Default we are using GPT 3.5 Turbo. If you want to use some other model check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb)</Info>
+<Info>By default, we are using GPT 3.5 Turbo for evaluations. If you want to use a different model, check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb).</Info>
 
 Sample Response:
 ```json

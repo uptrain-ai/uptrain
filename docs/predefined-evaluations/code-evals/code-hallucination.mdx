@@ -1,6 +1,6 @@
 ---
 tite: Code Hallucination
-description: Grade whether the code present in the generated response is grounded by the context.
+description: Checks whether the code present in the generated response is grounded by the context.
 ---
 
 Code Hallucination score checks whether the code mentioned in the generated response is grounded to the retrieved context.
@@ -30,7 +30,7 @@ res = eval_llm.evaluate(
     checks = [Evals.CODE_HALLUCINATION]
 )
 ```
-<Info>By Default we are using GPT 3.5 Turbo. If you want to use some other model check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb)</Info>
+<Info>By default, we are using GPT 3.5 Turbo for evaluations. If you want to use a different model, check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb).</Info>
 
 Sample Response:
 ```json

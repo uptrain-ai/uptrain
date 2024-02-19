@@ -1,6 +1,6 @@
 ---
 title: Context Relevance
-description: Grades how relevant the context was to the question specified.
+description: Evaluates how relevant the retrieved context is to the question specified.
 ---
 
 Context relevance score measures if the retrieved context has enough information to answer the question being asked.
@@ -32,7 +32,7 @@ res = eval_llm.evaluate(
     checks = [Evals.CONTEXT_RELEVANCE]
 )
 ```
-<Info>By Default we are using GPT 3.5 Turbo. If you want to use some other model check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb)</Info>
+<Info>By default, we are using GPT 3.5 Turbo for evaluations. If you want to use a different model, check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb).</Info>
 
 Sample Response:
 ```json
@@ -56,7 +56,7 @@ Which makes the context irrelevant for the given question, ultimately resulting 
 We evaluate context relevance by determining which of the following three cases apply for the given task data:
 
 * The extracted context can answer the given query completely.
-* The extracted context can give some relevant answer for the given query but can't answer it completely.
+* The extracted context can give some relevant answer for the given query, but can't answer it completely.
 * The extracted context doesn't contain any information to answer the given query.
 
 <CardGroup cols={2}>

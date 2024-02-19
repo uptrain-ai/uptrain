@@ -1,6 +1,6 @@
 ---
 title: Context Utilization
-description: Grades how complete the generated response was for the question specified given the information provided in the context.
+description: Measures how complete the generated response is for the question specified given the information provided in the context.
 ---
 
 Context Utilization score measures if the generated response has sufficiently used the retrieved context to answer the question being asked.
@@ -33,7 +33,7 @@ res = eval_llm.evaluate(
     checks = [Evals.RESPONSE_COMPLETENESS_WRT_CONTEXT]
 )
 ```
-<Info>By Default we are using GPT 3.5 Turbo. If you want to use some other model check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb)</Info>
+<Info>By default, we are using GPT 3.5 Turbo for evaluations. If you want to use a different model, check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb).</Info>
 
 Sample Response:
 ```json

@@ -1,6 +1,6 @@
 ---
 title: Response Relevance
-description: Grades how relevant the generated context was to the question specified.
+description: Measures how relevant the generated context was to the question specified.
 ---
 
 Response relevance is the measure of how relevant the generated response is to the question asked. It is a measure of how well the response addresses the question asked and if it contains any additional information that is not relevant to the question asked.
@@ -28,7 +28,7 @@ res = eval_llm.evaluate(
     checks = [Evals.RESPONSE_RELEVANCE]
 )
 ```
-<Info>By Default we are using GPT 3.5 Turbo. If you want to use some other model check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb)</Info>
+<Info>By default, we are using GPT 3.5 Turbo for evaluations. If you want to use a different model, check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb).</Info>
 
 Sample Response:
 ```json

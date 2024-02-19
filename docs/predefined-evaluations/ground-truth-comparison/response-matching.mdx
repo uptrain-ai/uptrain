@@ -15,7 +15,7 @@ Columns required:
 Optional Parameters:
 - `method`: Different methods to check for response matching
     * `llm (default)`: Uses LLM to check if the response matches the ground truth 
-    * `exact`: Checks is the response is exactly the same as the ground_truth
+    * `exact`: Checks if the response is exactly the same as the ground_truth
     * `rouge`: Uses ROUGE SCORE to check if the response matches the ground truth
 
 ### How to use it?
@@ -38,7 +38,7 @@ res = eval_llm.evaluate(
     checks = [ResponseMatching(method = 'llm')]    # method: llm/exact/rouge
 )
 ```
-<Info>By Default we are using GPT 3.5 Turbo. If you want to use some other model check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb)</Info>
+<Info>By default, we are using GPT 3.5 Turbo for evaluations. If you want to use a different model, check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb).</Info>
 
 Sample Response:
 ```json

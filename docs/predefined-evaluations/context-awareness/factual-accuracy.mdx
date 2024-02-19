@@ -1,6 +1,6 @@
 ---
 title: Factual Accuracy
-description: Grades whether the response generated is factually correct and grounded by the provided context.
+description: Checks whether the response generated is factually correct and grounded by the provided context.
 ---
 
  Factual accuracy score measures the degree to which a claim made in the response is true according to the context provided.
@@ -35,7 +35,7 @@ res = eval_llm.evaluate(
     checks = [Evals.FACTUAL_ACCURACY]
 )
 ```
-<Info>By Default we are using GPT 3.5 Turbo. If you want to use some other model check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb)</Info>
+<Info>By default, we are using GPT 3.5 Turbo for evaluations. If you want to use a different model, check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb).</Info>
 
 Sample Response:
 ```json
