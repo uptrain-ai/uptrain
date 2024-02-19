@@ -1,10 +1,8 @@
 <h4 align="center">
   <a href="https://uptrain.ai">
-   <img alt="Github banner 006 (1)" src="https://github.com/uptrain-ai/uptrain/assets/108270398/96ac1505-7811-4e12-958e-fce9519542a1"/>
+   <img alt="Logo of UpTrain - an open-source platform to evaluate and improve LLM applications" src="https://github.com/uptrain-ai/uptrain/assets/108270398/b6a4905f-63fd-47ab-a894-1026a6669c86"/>
   </a>
 </h4>
-
-<!-- ## New Image with Tagline:  Evaluate - Iterate - Improve -->
 
 
 <p align="center">
@@ -32,9 +30,9 @@
   </a>
 </h4>
 
-<!-- <h4 align="center">
-  <img src="https://github.com/uptrain-ai/uptrain/assets/108270398/cf3a3de8-96b6-4fd5-a589-f313cb10bbde" alt="Demo of UpTrain's LLM evaluations with scores for hallucinations, retrieved-context quality, response tonality for a customer support chatbot"/>
-</h4> -->
+<h4 align="center">
+  <img src="https://github.com/uptrain-ai/uptrain/assets/108270398/10d0faeb-c4f8-422f-a01e-49a891fa7ada" alt="Demo of UpTrain's LLM evaluations with scores for hallucinations, retrieved-context quality, response tonality for a customer support chatbot"/>
+</h4>
 
 **[UpTrain](https://uptrain.ai)** is an open-source platform to evaluate and improve your LLM applications. We provide grades for 20+ preconfigured checks, perform root cause analysis on failure cases and give insights on how to resolve them.
 
@@ -64,34 +62,32 @@
 5. Prompt improvement suggestions
 
 # Pre-built Evaluations We Offer 📝
-
-#### Evaluate the quality of your responses:
+<img width="1088" alt="quality of your responses" src="https://github.com/uptrain-ai/uptrain/assets/108270398/2cbff61d-a571-404e-bc7c-a8cd712dc854">
 1. [Response Completeness](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/completeness.ipynb): Grades how if the response completely resolves the given user query.
 2. [Response Relevance](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/relevance.ipynb): Grades how relevant the generated response is for the given question.
 3. [Response Conciseness](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/conciseness.ipynb): Grades how concise the generated response is i.e. the extent of additional irrelevant information in the response.
 4. [Response Matching](): Operator to compare the llm-generated text with the gold (ideal) response using the defined score metric.
 5. [Response Consistency](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/consistency.ipynb): Grades how consistent the response is with the question asked as well as with the context provided.
 
-#### Evaluate the quality of retrieved context and response groundedness:
+<img width="1088" alt="quality of retrieved context and response groundedness" src="https://github.com/uptrain-ai/uptrain/assets/108270398/0866a939-5bde-4723-b7bf-e72b9b154041">
 1. [Factual Accuracy](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/factual_accuracy.ipynb): Checks if the facts present in the response can be verified by the retrieved context
 2. [Response Completeness wrt Context](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/response_completeness_wrt_context.ipynb): Grades how complete the response was for the question specified with respect to the information present in the context
 3. [Context Relevance](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/relevance.ipynb): Evaluates if the retrieved context contain sufficient information to answer the given question
 
-#### Evaluations to safeguard system prompts and avoid LLM mis-use:
+<img width="1088" alt="safeguard system prompts and avoid LLM mis-use" src="https://github.com/uptrain-ai/uptrain/assets/108270398/a66868ca-e6d5-40ba-b433-3001324862fd">
 1. [Prompt Injection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/system_prompt_injection.ipynb): Identifys prompt leakage attacks
 2. [Jailbreak Detection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/jailbreak_detection.ipynb): Measures if the user prompts to generate a response over potentially harmful or illegal behaviour.
 
-
-#### Evaluate the language quality of the response:
+<img width="1088" alt="language quality of the response" src="https://github.com/uptrain-ai/uptrain/assets/108270398/2a2748e7-c137-4d70-8845-731878d5d39a">
 1. [Tone Critique](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/language_features/tone_critique.ipynb): Assesses if the tone of machine-generated responses matches with the desired persona.
 2. [Language Critique](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/language_features/language_critique.ipynb): Scores machine generated responses on multiple aspects - fluence, politeness, grammar, and coherence.
 
-#### Defining custom evaluations and others:
+<img width="1088" alt="custom evaluations and others" src="https://github.com/uptrain-ai/uptrain/assets/108270398/3d843449-6624-4433-8f6e-acfebda92eb3">
 1. [Guideline Adherence](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/custom/guideline_adherence.ipynb): Grades how well the LLM adheres to a given custom guideline.
 2. [Custom Prompt Evaluation](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/custom/writing_custom_evals.ipynb): Evaluate by defining your custom grading prompt.
 3. [Cosine Similarity](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/custom/cosine_similarity.ipynb): Calculate cosine similarity between embeddings of two texts.
 
-#### Evaluate the conversation as a whole:
+<img width="1088" alt="conversation as a whole" src="https://github.com/uptrain-ai/uptrain/assets/108270398/a4c5d746-2867-4299-91e0-4efdfa76aedf">
 1. [Conversation Satisfaction](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/conversation/conversation_satisfaction.ipynb): Measures the user’s satisfaction with the conversation with the LLM/AI assistant based on completeness and user’s acceptance.
 
 
