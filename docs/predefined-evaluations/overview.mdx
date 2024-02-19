@@ -1,0 +1,77 @@
+---
+title: Evals
+description: Quickest way to perform evaluations on your data
+---
+
+UpTrain provides a simple and easy way to perform evaluations on your data. You can pass any of these Evals to the `evaluate` function in `EvalLLM` class and it will automatically perform the evaluation.
+
+These evals require a combination of the following columns to be present in your data:
+
+- `question`: The question you want to ask
+- `context`: The context relevant to the question
+- `response`: The response to the question
+
+Some evals may require additional parameters to be passed to them. These are called parametric evals. Any eval below that has a `Parameters` section is a parametric eval.
+
+You can choose evals as per your needs. We have divided them into a few categories for your convenience:
+
+<AccordionGroup>
+  <Accordion title="Response Quality Evals">
+| Eval | Description |
+| ---- | ----------- |
+|[Reponse Completeness](predefined-evaluations/response-quality/response-completeness) | Grades whether the response has answered all the aspects of the question specified. |
+|[Reponse Conciseness](predefined-evaluations/response-quality/response-conciseness) | Grades how concise the generated response is or if it has any additional irrelevant information for the question asked. |
+|[Reponse Relevance](predefined-evaluations/response-quality/response-relevance)| Grades how relevant the generated context was to the question specified.|
+|[Reponse Validity](predefined-evaluations/response-quality/response-validity)| Grades if the response generated is valid or not. A response is considered to be valid if it contains any information.|
+|[Reponse Consistency](predefined-evaluations/response-quality/response-consistency)| Grades how consistent the response is with the question asked as well as with the context provided.|
+  </Accordion>
+
+  <Accordion title="Context Awareness Evals">
+| Eval | Description |
+| ---- | ----------- |
+|[Context Relevance](predefined-evaluations/context-awareness/context-relevance) | Grades how relevant the context was to the question specified. |
+|[Context Utilization](predefined-evaluations/context-awareness/context-utilization) | Grades how complete the generated response was for the question specified given the information provided in the context. |
+|[Factual Accuracy](predefined-evaluations/context-awareness/factual-accuracy)| Grades whether the response generated is factually correct and grounded by the provided context.|
+  </Accordion>
+
+  <Accordion title="Language Quality Evals">
+| Eval | Description |
+| ---- | ----------- |
+|[Language Features](predefined-evaluations/language-quality/fluency-and-coherence) | Grades whether the response has answered all the aspects of the question specified. |
+|[Tonality](predefined-evaluations/language-quality/tonality) | Grades whether the generated response matches the required persona's tone  |
+  </Accordion>
+
+  <Accordion title="Code Related Evals">
+| Eval | Description |
+| ---- | ----------- |
+|[Code Hallucination](predefined-evaluations/code-evals/code-hallucination) | Grade whether the code present in the generated response is grounded by the context. |
+  </Accordion>
+
+  <Accordion title="Conversation Evals">
+| Eval | Description |
+| ---- | ----------- |
+|[User Satisfaction](predefined-evaluations/conversation-evals/user-satisfaction) | Grade the conversations between the user and the LLM/AI assistant. |
+  </Accordion>
+
+  <Accordion title="Creating Custom Evals">
+| Eval | Description |
+| ---- | ----------- |
+|[Custom Guideline](predefined-evaluations/custom-evals/custom-guideline) | Grades how well the LLM adheres to a provided guideline when giving a response. |
+|[Custom Prompts](predefined-evaluations/custom-evals/custom-prompt-eval) | Allows you to create your own set of evaluations. |
+  </Accordion>
+
+  <Accordion title="Ground Truth Comparison Evals">
+| Eval | Description |
+| ---- | ----------- |
+|[Response Matching](predefined-evaluations/ground-truth-comparison/response-matching) | Grades how relevant the generated context was to the question specified. |
+  </Accordion>
+
+  <Accordion title="Safeguarding Evals">
+| Eval | Description |
+| ---- | ----------- |
+|[Prompt Injection](predefined-evaluations/safeguarding/prompt-injection) | Grades whether the generated response is leaking any system prompt. |
+|[Jailbreak Detection](predefined-evaluations/safeguarding/jailbreak) | Grades whether the user's prompt is an attempt to jailbreak (i.e. generate illegal or harmful responses). |
+  </Accordion>
+
+  
+</AccordionGroup>

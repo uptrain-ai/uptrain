@@ -1,0 +1,65 @@
+---
+tite: Code Hallucination
+description: Checks whether the code present in the generated response is grounded by the context.
+---
+
+Code Hallucination score checks whether the code mentioned in the generated response is grounded to the retrieved context.
+
+Columns required:
+- `question`: The question asked by the user
+- `context`: Information retrieved to answer the question
+- `response`: The response given by the model
+
+### How to use it?
+
+```python
+from uptrain import EvalLLM, Evals
+
+OPENAI_API_KEY = "sk-********************"  # Insert your OpenAI key here
+
+data = [{
+    "question": "How can I install the Pandas package in Python?",
+    "context": "The Pandas package can easily be installed on Python by using: ```pip install pandas```"
+    "response": "To install the Pandas package on Python use : ```import pandas as pd```"
+}]
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+
+res = eval_llm.evaluate(
+    data = data,
+    checks = [Evals.CODE_HALLUCINATION]
+)
+```
+<Info>By default, we are using GPT 3.5 Turbo for evaluations. If you want to use a different model, check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb).</Info>
+
+Sample Response:
+```json
+[
+   {
+      "code_snippet": "import pandas as pd",
+      "code_overlap_with_context": 0.25,
+      "explanation_code_snippet": "['1. The given text provides an instruction for installing the Pandas package in Python.', \"2. The text includes the specific command 'import pandas as pd' which is used in Python to import the Pandas package.\", '3. The provided content is a Python command, which is a part of the source code after processing by the Python interpreter.', '4. The text does not just mention a function or method but includes an actual code example in Python.']",
+      "score_code_hallucination": 1.0,
+      "explanation_code_hallucination": "It looks like the code snippet in the response is hallucinating. The code snippet does not contain any variables derived from the question. The code simply imports the pandas package using the alias 'pd', which is a common convention when working with the Pandas library in Python. The variable names used in the code snippet are not derived from the question."
+   }
+]
+```
+<Note>A higher code hallucination score reflects that the generated response contains code that is not grounded by the context.</Note>
+
+The context mentioned `pip install pandas` as the code required to install Pandas package on Python. 
+
+While the generated response mentions `import pandas as pd` which is not mentioned in the context. 
+
+Resulting in a low code hallucination score.
+
+
+<CardGroup cols={1}>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>

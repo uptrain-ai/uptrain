@@ -1,0 +1,90 @@
+---
+title: Anyscale
+---
+[Anyscale Endpoints](https://www.anyscale.com/) provides fully managed API endpoints for open-source LLMs, allowing developers to seamlessly integrate these powerful models into their applications without managing underlying infrastructure.
+
+### How will this help?
+
+Anyscale offers API endpoints for models like Llama-2, Mistral-7B, CodeLlama, and more.
+You can use these endpoints to evaluate the performance of these models using UpTrain.
+
+Before we start you will need an Anyscale API key. You can get it [here](https://app.endpoints.anyscale.com/credentials)
+
+### How to integrate?
+
+First, let's import the necessary packages and define Anyscale API Key
+
+```python
+from uptrain import EvalLLM, Evals, Settings
+import json
+
+# Insert your Anyscale API key here
+ANYSCALE_API_KEY = "esecret_***********************"  
+
+settings = Settings(model='anyscale/mistralai/Mistral-7B-Instruct-v0.1', anyscale_api_key=ANYSCALE_API_KEY)
+```
+
+We have used Mistral-7B-Instruct-v0.1 for this example. You can find a full list of available models [here](https://docs.endpoints.anyscale.com/category/supported-models).
+
+<Info>Remember to add "anyscale/" at the beginning of the model name to let UpTrain know that you are using an AnyScale model.</Info>
+
+Let's define a dataset on which we want to perform the evaluations
+
+```python
+data = [{
+    'question': 'Which is the most popular global sport?',
+    'context': "The popularity of sports can be measured in various ways, including TV viewership, social media presence, number of participants, and economic impact. Football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi, drawing a followership of more than 4 billion people. Cricket is particularly popular in countries like India, Pakistan, Australia, and England. The ICC Cricket World Cup and Indian Premier League (IPL) have substantial viewership. The NBA has made basketball popular worldwide, especially in countries like the USA, Canada, China, and the Philippines. Major tennis tournaments like Wimbledon, the US Open, French Open, and Australian Open have large global audiences. Players like Roger Federer, Serena Williams, and Rafael Nadal have boosted the sport's popularity. Field Hockey is very popular in countries like India, Netherlands, and Australia. It has a considerable following in many parts of the world.",
+    'response': 'Football is the most popular sport with around 4 billion followers worldwide'
+}]
+```
+
+Now, let's use UpTrain to evaluate for [Context Relevance](/predefined-evaluations/context-awareness/context-relevance) and [Factual Accuracy](/predefined-evaluations/context-awareness/factual-accuracy). 
+You can find the complete list of metrics supported by UpTrain [here](/predefined-evaluations)
+
+```python
+eval_llm = EvalLLM(settings)
+
+results = eval_llm.evaluate(
+    data=data,
+    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY]
+)
+
+print(json.dumps(results, indent=3))
+```
+
+Let's look at the output of the above code:
+
+```json
+[
+   {
+      "score_context_relevance": 1.0,
+      "explanation_context_relevance": "The extracted context can answer the given user query completely. The context mentions that football is undoubtedly the world's most popular sport, with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi drawing a followership of more than 4 billion people. The context also provides data and statistics to support this claim, such as the number of TV viewers and social media followers for these events and personalities. Furthermore, the context mentions that cricket is particularly popular in countries like India, Pakistan, Australia, and England, and the NBA has made basketball popular worldwide. However, it doesn't provide any data or statistics to determine the global popularity of these sports or compare them with football.",
+      "score_factual_accuracy": 1.0,
+      "explanation_factual_accuracy": " 1. Football is the most popular sport.\nReasoning for yes: The context explicitly states that football is the world's most popular sport.\nReasoning for no: No arguments.\nJudgement: yes. as the context explicitly supports the fact.\n2. Around 4 billion people follow football worldwide.\nReasoning for yes: The context states that football has a followership of more than 4 billion people.\nReasoning for no: No arguments.\nJudgement: yes. as the context explicitly supports the fact.\n"
+   }
+]
+```
+
+According to these evaluations:
+1. **Context Relevance:** Since the context has information on the most popular sport globally, UpTrain has rated the context to be relevant to the question.
+2. **Factual Accuracy:** Since the facts mentioned in the response are grounded to the context, UpTrain has rated the response as factually accurate. 
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/integrations/llm_providers/anyscale.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>
+

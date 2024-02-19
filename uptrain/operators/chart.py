@@ -90,7 +90,7 @@ class CustomPlotlyChart(Chart):
         color (str): The name of the column to use for the color.
         kind (str): The type of chart to generate.
         description (str): Add a description of the chart being created.
-        
+
     Returns:
         dict: A dictionary containing the chart object.
 
@@ -139,7 +139,7 @@ class BarChart(Chart):
         barmode (str): The type of bar chart to generate.
         title (str): The title of the chart.
         description (str): Add a description of the chart being created.
-        
+
     Returns:
         dict: A dictionary containing the chart object.
 
@@ -190,7 +190,7 @@ class LineChart(Chart):
         color (str): The name of the column to use for the color.
         title (str): The title of the chart.
         description (str): Add a description of the chart being created.
-         
+
     Returns:
         dict: A dictionary containing the chart object.
 
@@ -239,7 +239,7 @@ class ScatterPlot(Chart):
         y (str): The name of the column to use for the y-axis.
         color (str): The name of the column to use for the color.
         description (str): Add a description of the chart being created.
-        
+
     Returns:
         dict: A dictionary containing the chart object.
 
@@ -356,7 +356,7 @@ class Histogram(Chart):
         color (str): The name of the column to use for the color.
         nbins (int): The maximum number of bins to use for the histogram.
         description (str): Add a description of the chart being created.
-        
+
     Returns:
         dict: A dictionary containing the chart object.
 
@@ -404,7 +404,7 @@ class MultiPlot(Chart):
         title (str): The title of the chart.
         charts (list): A list of charts to display in the subplot.
         description (str): Add a description of the chart being created. (supports upto 70 characters without overlapping on graph)
-        
+
     Returns:
         dict: A dictionary containing the chart object.
 

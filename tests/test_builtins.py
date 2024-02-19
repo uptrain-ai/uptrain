@@ -11,7 +11,7 @@ from uptrain.framework.builtins import (
     CheckResponseCompleteness,
     CheckResponseFacts,
     CheckToneQuality,
-    CheckResponseRelevance
+    CheckResponseRelevance,
 )
 
 settings = Settings()

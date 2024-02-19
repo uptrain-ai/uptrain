@@ -38,7 +38,6 @@ __all__ = [
     "GrammarScore",
     "OpenaiEval",
     "PromptEval",
-    "Embedding",
     "RougeScore",
     "BLEUScore",
     "METEORScore",
@@ -69,6 +68,8 @@ __all__ = [
     "ValidResponseScore",
     "TopicAssignmentviaCluster",
     "JailbreakDetectionScore",
+    "PromptInjectionScore",
+    "ResponseCoherence",
     # io - also include all the subimports
     "io",
     "ExcelReader",
@@ -89,7 +90,10 @@ __all__ = [
     "ValidateTables",
     "ExecuteAndCompareSQL",
     # rca
-    "RagWithCitation"
+    "RagWithCitation",
+    # embedding
+    "VectorSearch",
+    "Embedding",
 ]
 
 from .base import (
@@ -120,7 +124,6 @@ from .chart import (
 from . import language
 from .language.grammar import GrammarScore
 from .language.openai_evals import OpenaiEval, PromptEval
-from .language.embedding import Embedding
 from .language.rouge import RougeScore
 from .language.bleu import BLEUScore
 from .language.meteor import METEORScore
@@ -138,21 +141,26 @@ from .language.generation import (
     OutputParser,
     TopicGenerator,
 )
-from .language.with_context import (
-    ResponseFactualScore,
-    ContextRelevance,
+from .language.factual_accuracy import ResponseFactualScore
+from .language.context_quality import ContextRelevance, ResponseCompletenessWrtContext
+
+from .language.response_quality import (
     ResponseCompleteness,
-    ResponseRelevance,
-    ResponseCompletenessWrtContext,
     ResponseConsistency,
     ResponseConciseness,
+    ValidResponseScore,
+    ResponseRelevance,
 )
-from .language.critique import LanguageCritique, ToneCritique
-from .language.guideline import GuidelineAdherenceScore, PromptInjectionScore
+from .language.language_quality import LanguageCritique, ResponseCoherence
+from .language.tone import ToneCritique
+from .language.guideline import GuidelineAdherenceScore
 from .language.conversation import ConversationSatisfactionScore
-from .language.response_matching import ResponseMatchingScore, ValidResponseScore
+from .language.response_matching import ResponseMatchingScore
 from .language.topic import TopicAssignmentviaCluster
-from .language.jailbreak import JailbreakDetectionScore
+from .language.jailbreak import (
+    PromptInjectionScore,
+    JailbreakDetectionScore,
+)
 
 from . import io
 from .io.base import CsvReader, JsonReader, DeltaReader, JsonWriter, DeltaWriter
@@ -170,3 +178,6 @@ from .code.sql import (
     ValidateTables,
     ExecuteAndCompareSQL,
 )
+
+from .embedding.embedding import Embedding
+from .embedding.vector_search import VectorSearch

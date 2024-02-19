@@ -11,7 +11,7 @@ class Plot(AbstractVisual):
 
     def base_init(self, framework, check: Dict[str, Any]) -> None:
         """Base init for the Plot class.
-        
+
         Parameters
         ----------
         framework
@@ -25,15 +25,15 @@ class Plot(AbstractVisual):
                     uptrain.PlotType.HISTOGRAM
                 plot_name: The name of the plot. Defaults to the plot type.
                 dashboard_name: The name of the dashboard. Defaults to "Plot".
-            
+
             If the plot type is uptrain.PlotType.BAR_CHART:
                 x_feature_name: The name of the feature to use for the x-axis.
                 y_feature_name: The name of the feature to use for the y-axis.
-            
+
             If the plot type is uptrain.PlotType.LINE_CHART:
                 x_feature_name: The name of the feature to use for the x-axis.
                 y_feature_name: The name of the feature to use for the y-axis.
-            
+
             If the plot type is uptrain.PlotType.HISTOGRAM:
                 feature_name: The name of the feature to use for the histogram.
         """
@@ -83,13 +83,13 @@ class Plot(AbstractVisual):
             self.x_feature_name in inputs.keys() or self.y_feature_name in inputs.keys()
         ):
             return
-        
+
         length = (
             len(inputs[self.x_feature_name])
             if self.x_feature_name is not None
             else len(inputs[self.y_feature_name])
         )
-        
+
         if self.x_feature_name is None:
             x_features = list(range(self.count, self.count + length))
             self.count += length
@@ -100,10 +100,10 @@ class Plot(AbstractVisual):
             self.count += length
         else:
             y_features = inputs[self.y_feature_name]
-        
+
         bars = inputs["bars"]
         data = {bar: {} for bar in set(bars)}
-        
+
         for i in range(length):
             data[bars[i]].update({x_features[i]: y_features[i]})
         self.framework.log_handler.add_bar_graphs(
@@ -126,20 +126,20 @@ class Plot(AbstractVisual):
 
     def _line_chart(self, inputs, outputs, gts=None, extra_args={}) -> None:
         """Function to plot a line chart."""
-        
+
         # Check if the provided inputs were for the line chart
         # TODO: refactor and make the checks better
         if not (
             self.x_feature_name in inputs.keys() or self.y_feature_name in inputs.keys()
         ):
             return
-        
+
         length = (
             len(inputs[self.y_feature_name])
             if self.x_feature_name is None
             else len(inputs[self.x_feature_name])
         )
-        
+
         if self.x_feature_name is None:
             x_features = list(range(self.count, self.count + length))
             self.count += length
@@ -150,11 +150,11 @@ class Plot(AbstractVisual):
             self.count += length
         else:
             y_features = inputs[self.y_feature_name]
-        
+
         y_feature_name = (
             f"y_{self.y_feature_name}" if self.y_feature_name is not None else "y_value"
         )
-        
+
         for i in range(length):
             self.framework.log_handler.add_scalars(
                 plot_name=self.plot_name,

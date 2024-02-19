@@ -20,12 +20,18 @@ openai = lazy_load_dep("openai", "openai")
 litellm = lazy_load_dep("litellm", "litellm")
 aiolimiter = lazy_load_dep("aiolimiter", "aiolimiter>=1.1")
 tqdm_asyncio = lazy_load_dep("tqdm.asyncio", "tqdm>=4.0")
+nestasyncio = lazy_load_dep("nest_asyncio", "nest_asyncio")
+
+
+# Handle the "RuntimeError: This event loop is already running" error
+nestasyncio.apply()
 
 
 from openai import AsyncOpenAI
 from openai import AsyncAzureOpenAI
 import openai
-#import openai.error
+
+# import openai.error
 
 
 # -----------------------------------------------------------
@@ -44,12 +50,21 @@ class Payload(BaseModel):
     error: t.Optional[str] = None
 
 
+def run_validation(llm_output, validation_func):
+    try:
+        return validation_func(llm_output)
+    except Exception as e:
+        logger.error(f"Error when running validation function: {e}")
+        return False
+
+
 async def async_process_payload(
     payload: Payload,
     rpm_limiter: aiolimiter.AsyncLimiter,
     tpm_limiter: aiolimiter.AsyncLimiter,
     aclient: t.Union[AsyncOpenAI, AsyncAzureOpenAI, None],
     max_retries: int,
+    validate_func: function = None,
 ) -> Payload:
     messages = payload.data["messages"]
     total_chars = sum(len(msg["role"]) + len(msg["content"]) for msg in messages)
@@ -62,11 +77,20 @@ async def async_process_payload(
     for count in range(max_retries):  # failed requests don't count towards rate limit
         try:
             if aclient is not None:
-                payload.response = await aclient.chat.completions.create(**payload.data, timeout=180)
+                payload.response = await aclient.chat.completions.create(
+                    **payload.data, timeout=180
+                )
             else:
                 payload.response = await litellm.acompletion(
                     **payload.data,
                 )
+            if validate_func is not None:
+                if not run_validation(
+                    payload.response.choices[0].message.content, validate_func
+                ):
+                    raise Exception(
+                        f"Response doesn't pass the validation func.\nResponse: {payload.response.choices[0].message.content}"
+                    )
             break
         except Exception as exc:
             logger.error(f"Error when sending request to LLM API: {exc}")
@@ -79,15 +103,18 @@ async def async_process_payload(
                         openai.APITimeoutError,
                         openai.InternalServerError,
                         openai.RateLimitError,
-                        openai.UnprocessableEntityError
+                        openai.UnprocessableEntityError,
                     ),
                 )
                 and count < max_retries - 1
             ):
+                logger.info(
+                    f"Going to sleep before retrying for payload {payload.metadata['index']}"
+                )
                 await asyncio.sleep(random.uniform(5, 30) * count + 60)
             elif (
                 isinstance(exc, openai.BadRequestError)
-                and exc.code is not None 
+                and exc.code is not None
                 and "context_length" in exc.code
                 and count < max_retries - 1
             ):
@@ -112,6 +139,8 @@ async def async_process_payload(
                 else:
                     payload.error = str(exc)
                     break
+            elif "Response doesn't pass the validation func" in str(exc):
+                logger.info(f"Retrying for payload {payload.metadata['index']}")
             else:
                 payload.error = str(exc)
                 break
@@ -128,28 +157,67 @@ class LLMMulticlient:
         self._rpm_limit = 200
         self._tpm_limit = 90_000
         self.aclient = None
+        self.settings = settings
         if settings is not None:
-            if settings.model.startswith("gpt") and settings.check_and_get("openai_api_key") is not None:
+            if (
+                settings.model.startswith("gpt")
+                and settings.check_and_get("openai_api_key") is not None
+            ):
                 openai.api_key = settings.check_and_get("openai_api_key")  # type: ignore
                 self.aclient = AsyncOpenAI()
 
-            if settings.model.startswith("azure") and settings.check_and_get("azure_api_key") is not None:
+            if (
+                settings.model.startswith("azure")
+                and settings.check_and_get("azure_api_key") is not None
+            ):
                 self.aclient = AsyncAzureOpenAI(
-                    api_key = settings.azure_api_key,  
+                    api_key=settings.azure_api_key,
                     api_version=settings.azure_api_version,
-                    azure_endpoint = settings.azure_api_base
+                    azure_endpoint=settings.azure_api_base,
                 )
 
-            if settings.model.startswith("anyscale") and settings.check_and_get("anyscale_api_key") is not None:
-                self.aclient=AsyncOpenAI(
+            if (
+                settings.model.startswith("anyscale")
+                and settings.check_and_get("anyscale_api_key") is not None
+            ):
+                self.aclient = AsyncOpenAI(
                     api_key=settings.anyscale_api_key,
-                    base_url="https://api.endpoints.anyscale.com/v1"
+                    base_url="https://api.endpoints.anyscale.com/v1",
                 )
 
             self._rpm_limit = settings.check_and_get("rpm_limit")
             self._tpm_limit = settings.check_and_get("tpm_limit")
 
-    def fetch_responses(self, input_payloads: list[Payload]) -> list[Payload]:
+    def make_payload(
+        self,
+        index: int,
+        prompt: str,
+        temperature: float = 0.1,
+    ) -> Payload:
+        model = self.settings.model
+        seed = self.settings.seed
+        response_format = self.settings.response_format
+
+        prefixes = ["anyscale/", "azure/"]
+        for prefix in prefixes:
+            model = model.replace(prefix, "")
+
+        messages = [{"role": "user", "content": prompt}]
+
+        data = {"model": model, "messages": messages, "temperature": temperature}
+        if seed is not None:
+            data["seed"] = seed
+        if response_format is not None:
+            data["response_format"] = response_format
+        return Payload(
+            endpoint="chat.completions",
+            data=data,
+            metadata={"index": index},
+        )
+
+    def fetch_responses(
+        self, input_payloads: list[Payload], validate_func: function = None
+    ) -> list[Payload]:
         try:
             loop = asyncio.get_running_loop()
         except RuntimeError:
@@ -161,18 +229,32 @@ class LLMMulticlient:
             )
             with ThreadPoolExecutor(max_workers=1) as executor:
                 return executor.submit(
-                    asyncio.run, self.async_fetch_responses(input_payloads)
+                    asyncio.run,
+                    self.async_fetch_responses(
+                        input_payloads, validate_func=validate_func
+                    ),
                 ).result()
         else:
-            return asyncio.run(self.async_fetch_responses(input_payloads))
+            return asyncio.run(
+                self.async_fetch_responses(input_payloads, validate_func=validate_func)
+            )
 
     async def async_fetch_responses(
-        self, input_payloads: list[Payload]
+        self,
+        input_payloads: list[Payload],
+        validate_func: function = None,
     ) -> list[Payload]:
         rpm_limiter = aiolimiter.AsyncLimiter(self._rpm_limit, time_period=60)
         tpm_limiter = aiolimiter.AsyncLimiter(self._tpm_limit, time_period=60)
         async_outputs = [
-            async_process_payload(data, rpm_limiter, tpm_limiter, self.aclient, self._max_tries)
+            async_process_payload(
+                data,
+                rpm_limiter,
+                tpm_limiter,
+                self.aclient,
+                self._max_tries,
+                validate_func=validate_func,
+            )
             for data in input_payloads
         ]
         output_payloads = await tqdm_asyncio.tqdm_asyncio.gather(*async_outputs)

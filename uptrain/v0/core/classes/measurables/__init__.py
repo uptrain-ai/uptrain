@@ -13,4 +13,3 @@ from .recommendation_hit_rate import RecHitRateMeasurable
 
 
 from .measurable_resolver import MeasurableResolver
-

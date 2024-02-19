@@ -1,0 +1,77 @@
+---
+title: Response Matching
+description: Grades how relevant the generated context was to the question specified.
+---
+
+Response relevance is the measure of how relevant the generated response is to the question asked. 
+
+It helps evaluate how well the response addresses the question asked and if it contains any additional information that is not relevant to the question asked.
+
+Columns required:
+- `question`: The question asked by the user
+- `response`: The response given by the model
+- `ground_truth`: The ideal response
+
+Optional Parameters:
+- `method`: Different methods to check for response matching
+    * `llm (default)`: Uses LLM to check if the response matches the ground truth 
+    * `exact`: Checks if the response is exactly the same as the ground_truth
+    * `rouge`: Uses ROUGE SCORE to check if the response matches the ground truth
+
+### How to use it?
+
+```python
+from uptrain import EvalLLM, ResponseMatching
+
+OPENAI_API_KEY = "sk-********************"  # Insert your OpenAI key here
+
+data = [{
+    "question": "Who were the two finalists of the 2023 ICC Cricket World Cup?",
+    "ground_truth": "The finalists of the 2023 ICC Cricket World Cup were India and Australia.",
+    "response": "Australia was a finalist in the 2023 ICC Cricket World Cup."
+}]
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+
+res = eval_llm.evaluate(
+    data = data,
+    checks = [ResponseMatching(method = 'llm')]    # method: llm/exact/rouge
+)
+```
+<Info>By default, we are using GPT 3.5 Turbo for evaluations. If you want to use a different model, check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb).</Info>
+
+Sample Response:
+```json
+[
+   {
+      "response_match_precision": 1.0,
+      "response_match_recall": 0.5,
+      "score_response_match": 0.57,
+      "response_match_method": "llm"
+   }
+]
+```
+<Note>A higher response matching score reflects that the generated response matches the ground truth.</Note>
+
+The response generated contains information on Australia being a finalist and does not match the ground truth about both the finalists of the 2023 ICC Cricket World Cup.
+
+Hence, resulting in a low response matching score.
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/matching.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>

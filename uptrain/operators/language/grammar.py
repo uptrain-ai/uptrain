@@ -44,26 +44,26 @@ class GrammarScore(ColumnOp):
         return self
 
     def _make_payload(self, id: t.Any, text: str) -> Payload:
-        data={
-                "model": "gpt-3.5-turbo",
-                "messages": [
-                    {
-                        "role": "system",
-                        "content": "You are a grammatical correctness evaluator who produces only a number and no explanation.",
-                    },
-                    {
-                        "role": "user",
-                        "content": "Score following sentence on grammatical correctness on a scale of 0 to 100: \n\n {statement}".format(
-                            statement=text
-                        ),
-                    },
-                ],
+        data = {
+            "model": "gpt-3.5-turbo",
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "You are a grammatical correctness evaluator who produces only a number and no explanation.",
+                },
+                {
+                    "role": "user",
+                    "content": "Score following sentence on grammatical correctness on a scale of 0 to 100: \n\n {statement}".format(
+                        statement=text
+                    ),
+                },
+            ],
         }
         if self._settings.seed is not None:
             data["seed"] = self._settings.seed
-            
+
         return Payload(
-            data = data,
+            data=data,
             metadata={"index": id},
         )
 

@@ -1,0 +1,83 @@
+---
+title: Custom Guideline
+description: Grades how well the LLM adheres to a provided guideline when giving a response.
+---
+
+Guideline adherence measures the extent to which the generated response follows a given guideline, rule, or protocol. 
+
+Given the complexity of LLMs, it is crucial to define certain guidelines, be it in terms of the structure of the output or the constraints on the content of the output or protocols on the decision-making capabilities of the LLMs.
+
+Columns required:
+- `question`: The question asked by the user
+- `response`: The response given by the model
+
+Parameters:
+- `guideline`: The guideline to be followed
+- `guideline_name (optional)`: User-assigned name of the guideline to distinguish between multiple checks
+- `resopnse_schema (optional)`: Schema of the response in case it is of type JSON, XML, etc.
+
+### How to use it?
+
+```python
+from uptrain import EvalLLM, GuidelineAdherence
+
+OPENAI_API_KEY = "sk-********************"  # Insert your OpenAI key here
+
+data = [{
+    'question': 'How tall is the Burj Khalifa?',
+    'response': 'Burj Khalifa in Dubai is the tallest building in the world. It stands at a height of 828 meters (2,717 feet).'
+}]
+
+guideline = "Response shouldn't contain any specifc numbers or pricing-related information."
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+
+res = eval_llm.evaluate(
+    data = data,
+    checks = [GuidelineAdherence(guideline=guideline, guideline_name="No Numbers")]
+)
+```
+<Info>By default, we are using GPT 3.5 Turbo for evaluations. If you want to use a different model, check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb).</Info>
+
+Sample Response:
+```json
+[
+   {
+      "question": "How tall is the Burj Khalifa?",
+      "response": "Burj Khalifa in Dubai is the tallest building in the world. It stands at a height of 828 meters (2,717 feet).",
+      "score_No Numbers_adherence": 0.0,
+      "explanation_No Numbers_adherence": " \"The given LLM response strictly violates the given guideline because it contains specific numerical information about the height of Burj Khalifa in Dubai. The response states that the building stands at a height of 828 meters (2,717 feet), which directly contradicts the guideline's instruction to avoid including specific numbers. Therefore, the response fails to adhere to the guideline by including pricing-related information.\""
+   }
+]
+```
+<Note>A higher guideline adherence score reflects that the generated response contains adheres to defined guideline.</Note>
+
+The generated reponse contains numeric information about the height of Burj Khalifa, which conflicts the defined guideline.
+
+Resulting in a low guideline adherence score.
+
+### How it works?
+
+We evaluate custom guidelines by determining which of the following two cases apply for the given task data:
+
+* The given guideline is strictly adhered to.
+* The given guideline is strictly violated.
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/custom/guideline_adherence.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>

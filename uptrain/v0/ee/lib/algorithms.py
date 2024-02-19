@@ -11,6 +11,7 @@ try:
 except:
     rouge = None
 
+
 @fn_dependency_required(faster_whisper, "faster-whisper")
 def faster_whisper_speech_to_text(audio_files):
     model_size = "large-v2"
@@ -18,14 +19,15 @@ def faster_whisper_speech_to_text(audio_files):
     prescribed_texts = []
     for audio_file in audio_files:
         segments, _ = model.transcribe(audio_file, beam_size=5)
-        prescribed_text = ''
+        prescribed_text = ""
         for segment in segments:
             prescribed_text += segment.text
         prescribed_texts.append(prescribed_text)
     return prescribed_texts
 
+
 @fn_dependency_required(rouge, "rouge")
 def rogue_l_similarity(text1_list, text2_list):
     r = rouge.Rouge()
-    res = r.get_scores([x.lower() for x in text1_list],[x.lower() for x in text2_list])
-    return np.array([x['rouge-l']['f'] for x in res])
+    res = r.get_scores([x.lower() for x in text1_list], [x.lower() for x in text2_list])
+    return np.array([x["rouge-l"]["f"] for x in res])

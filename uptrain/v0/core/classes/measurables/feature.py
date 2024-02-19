@@ -12,7 +12,7 @@ class FeatureMeasurable(Measurable):
 
     def __init__(self, framework, feature_name, dictn_type: str) -> None:
         """Constructor for FeatureMeasurable class.
-        
+
         Parameters
         ----------
         feature_name

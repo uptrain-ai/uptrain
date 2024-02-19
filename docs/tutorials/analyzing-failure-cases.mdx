@@ -1,0 +1,94 @@
+---
+title: Analyzing Failure Cases
+description: Helps analyse failure causes in a RAG pipeline.
+---
+
+UpTrain helps analyze failure causes in a RAG pipeline. Using it you can highlight failure causes such as:
+- `Poor Retrieval`: The context does not have information relevant to the question asked.
+- `Hallucinations`: The generated response is not factually correct.
+- `Poor Citation`: The cited information is not factually correct.
+- `Poor Context Utilization`: The cited information is not relevant to the question asked.
+
+Columns required:
+- `question`: The question asked by the user
+- `context`: Additional information provided that can be used to answer the question
+- `cited_context`: Information retieved from the context
+- `response`: The response given by the model
+
+### How to use it?
+
+```python
+from uptrain import APIClient, RcaTemplate
+import json
+
+uptrain_client = APIClient(uptrain_api_key=UPTRAIN_API_KEY)  # Insert your UpTrain key here
+
+data = [{
+        'question': 'Which team won the 2023 ICC Cricket World Cup?',
+        'context': 'Argentina won the 2022 FIFA World Cup. The 2022 FIFA World Cup took place in Qatar from 20 November to 18 December 2022. The previous FIFA World Cup was held in Russia.',
+        'cited_context': 'The 2022 FIFA World Cup took place in Qatar from 20 November to 18 December 2022',
+        'response': 'The 2023 ICC Cricket World Cup was won by Qatar.'        
+    }]
+
+res = uptrain_client.perform_root_cause_analysis(
+    'Sample-RCA',       # Enter a project name
+    data = data,
+    rca_template = RcaTemplate.RAG_WITH_CITATION
+)
+
+print(json.dumps(res,indent=3))
+```
+<Info>You can get your UpTrain key [here](https://uptrain.ai/).</Info>
+
+Sample Response:
+```json
+[
+   {
+   "question": "Which team won the 2023 ICC Cricket World Cup?",
+   "context": "Argentina won the 2022 FIFA World Cup. The 2022 FIFA World Cup took place in Qatar from 20 November to 18 December 2022. The previous FIFA World Cup was held in Russia.",
+   "cited_context": "The 2022 FIFA World Cup took place in Qatar from 20 November to 18 December 2022",
+   "response": "The 2023 ICC Cricket World Cup was won by Qatar.",
+   "error_mode": "Poor Retrieval",
+   "error_resolution_suggestion": "Context Retrieval Pipeline needs improvement",
+   "score_question_completeness": 1,
+   "score_valid_response": 1.0,
+   "explanation_valid_response": "Step by step reasoning:\n\n1. The question asks for the team that won the 2023 ICC Cricket World Cup.\n2. The response states \"The 2023 ICC Cricket World Cup was won by Qatar.\"\n\nConclusion:\nThe given response does contain some information.\n\n[Choice]: A",
+   "score_context_relevance": 0.0,
+   "explanation_context_relevance": " \"The extracted context is about the 2022 FIFA World Cup and does not contain any information about the 2023 ICC Cricket World Cup. Therefore, it cannot answer the user query about the winner of the 2023 ICC Cricket World Cup.\"\n",
+   "score_factual_accuracy": 0.5,
+   "explanation_factual_accuracy": "The 2023 ICC Cricket World Cup was won by Qatar.\nReasoning for yes: The context does not mention anything about the winner of the 2023 ICC Cricket World Cup, so it cannot be determined if Qatar won or not.\nReasoning for no: The context only provides information about the FIFA World Cup, not the ICC Cricket World Cup.\nJudgement: unclear.",
+   "score_cited_context_relevance": 0.0,
+   "explanation_cited_context_relevance": " \"The extracted context is about the 2022 FIFA World Cup in Qatar, which took place from 20 November to 18 December 2022. There is no mention of the 2023 ICC Cricket World Cup, so the extracted context doesn't contain any information to answer the given user query about the winner of the 2023 ICC Cricket World Cup.\"\n",
+   "score_factual_accuracy_wrt_cited": 0.5,
+   "explanation_factual_accuracy_wrt_cited": "The 2023 ICC Cricket World Cup was won by Qatar.\nReasoning for yes: The context explicitly states that the 2022 FIFA World Cup took place in Qatar, but it does not mention anything about the 2023 ICC Cricket World Cup.\nReasoning for no: The context does not provide any information about the winner of the 2023 ICC Cricket World Cup.\nJudgement: unclear. The context does not support or contradict the fact, and the fact cannot be logically derived from the context."
+}
+]
+```
+
+The question asked is "Which team won the 2023 ICC Cricket World Cup?".
+
+The context has information about FIFA World Cup, but it has no information on ICC Cricket World Cup.
+
+Thus, the context is not relevant for the question being asked.
+
+Hence, the error mode in this example is `Poor Retrieval`
+
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/root_cause_analysis/rag_with_citation.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>

@@ -37,11 +37,13 @@ class Settings(BaseSettings):
 
     rpm_limit: int = 100
     tpm_limit: int = 90_000
-    embedding_compute_method: t.Literal['local', 'replicate', 'api'] = 'local'
+    embedding_compute_method: t.Literal["local", "replicate", "api"] = "local"
 
     # uptrain managed service related
     uptrain_access_token: str = Field(None, env="UPTRAIN_ACCESS_TOKEN")
-    uptrain_server_url: str = Field("https://demo.uptrain.ai/", env="UPTRAIN_SERVER_URL")
+    uptrain_server_url: str = Field(
+        "https://demo.uptrain.ai/", env="UPTRAIN_SERVER_URL"
+    )
 
     # Embedding model related, applicable if embedding_compute_method is api.
     embedding_model_url: str = Field(None, env="EMBEDDING_MODEL_URL")
@@ -49,51 +51,58 @@ class Settings(BaseSettings):
 
     # LLM model to run the evaluations
     model: str = "gpt-3.5-turbo-1106"
-    seed:  t.Union[int, None] = None
+    seed: t.Union[int, None] = None
     response_format: t.Union[dict, None] = None
+
+    evaluate_locally: bool = True
+
+    # Cot -> We will use chain of thought prompting to evaluate and get the grade
+    # basic -> We will simply prompt the LLM to return the grade without any reasoning
+    eval_type: t.Literal["basic", "cot"] = "cot"
 
     # allow additional fields as needed by different operators
     class Config:
         extra = "allow"
 
-
     def __init__(self, **data):
         super().__init__(**data)
         if "openai_api_key" in data:
-            if data['openai_api_key'] is not None:
+            if data["openai_api_key"] is not None:
                 os.environ["OPENAI_API_KEY"] = data["openai_api_key"]
         if "cohere_api_key" in data:
-            if data['cohere_api_key'] is not None:
+            if data["cohere_api_key"] is not None:
                 os.environ["COHERE_API_KEY"] = data["cohere_api_key"]
         if "huggingface_api_key" in data:
-            if data['huggingface_api_key'] is not None:
+            if data["huggingface_api_key"] is not None:
                 os.environ["HUGGINGFACE_API_KEY"] = data["huggingface_api_key"]
         if "anthropic_api_key" in data:
-            if data['anthropic_api_key'] is not None:
+            if data["anthropic_api_key"] is not None:
                 os.environ["ANTHROPIC_API_KEY"] = data["anthropic_api_key"]
         if "replicate_api_token" in data:
-            if data['replicate_api_token'] is not None:
+            if data["replicate_api_token"] is not None:
                 os.environ["REPLICATE_API_TOKEN"] = data["replicate_api_token"]
         if "anyscale_api_key" in data:
-            if data['anyscale_api_key'] is not None:
+            if data["anyscale_api_key"] is not None:
                 os.environ["ANYSCALE_API_KEY"] = data["anyscale_api_key"]
         if "embedding_model_api_token" in data:
-            if data['embedding_model_api_token'] is not None:
-                os.environ["EMBEDDING_MODEL_API_TOKEN"] = data["embedding_model_api_token"]
+            if data["embedding_model_api_token"] is not None:
+                os.environ["EMBEDDING_MODEL_API_TOKEN"] = data[
+                    "embedding_model_api_token"
+                ]
         if "azure_api_key" in data:
-            if data['azure_api_key'] is not None:
+            if data["azure_api_key"] is not None:
                 os.environ["AZURE_API_KEY"] = data["azure_api_key"]
         if "azure_api_base" in data:
-            if data['azure_api_base'] is not None:
+            if data["azure_api_base"] is not None:
                 os.environ["AZURE_API_BASE"] = data["azure_api_base"]
         if "azure_api_version" in data:
-            if data['azure_api_version'] is not None:
+            if data["azure_api_version"] is not None:
                 os.environ["AZURE_API_VERSION"] = data["azure_api_version"]
         if "uptrain_access_token" in data:
-            if data['uptrain_access_token'] is not None:
+            if data["uptrain_access_token"] is not None:
                 os.environ["UPTRAIN_ACCESS_TOKEN"] = data["uptrain_access_token"]
         if "uptrain_server_url" in data:
-            if data['uptrain_server_url'] is not None:
+            if data["uptrain_server_url"] is not None:
                 os.environ["UPTRAIN_SERVER_URL"] = data["uptrain_server_url"]
 
     def check_and_get(self, key: str) -> t.Any:

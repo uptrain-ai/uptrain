@@ -1,0 +1,100 @@
+---
+title: Custom Prompts
+description: Allows you to create your own set of evaluations
+---
+
+Each LLM application has its unique needs and it is not possible to have a one-size-fits-all evaluation tool. 
+
+A sales assistant bot needs to be evaluated differently as compared to a calendar automation bot. 
+
+Custom prompts help you grade your model the way you want it.
+
+
+Parameters:
+- `prompt`:	Evaluation prompt used to generate the grade
+- `choices`:	List of choices/grades to choose from
+- `choices_scores`:	Scores associated with each choice
+- `eval_type`:	One of ["classify", "cot_classify"], determines if chain-of-thought prompting is to be applied or not
+- `prompt_var_to_column_mapping (optional)`: mapping between variables defined in the prompt vs column names in the data
+
+### How to use it?
+
+```python
+prompt = """
+You are an expert medical school professor specializing in grading students' answers to questions.
+You are grading the following question:
+{question}
+Here is the real answer:
+{ground_truth}
+You are grading the following predicted answer:
+{response}
+"""
+
+# Create a list of choices
+choices = ["Correct", "Correct but Incomplete", "Incorrect"]
+
+# Create scores for the choices
+choice_scores = [1.0, 0.5, 0.0]
+
+data = [{
+      "user_question": "What causes diabetes?",
+      "ground_truth_response": "Diabetes is a metabolic disorder characterized by high blood sugar levels. It is primarily caused by a combination of genetic and environmental factors, including obesity and lack of physical activity.",
+      "user_response": "Diabetes is primarily caused by a combination of genetic and environmental factors, including obesity and lack of physical activity."
+}]
+
+prompt_var_to_column_mapping = {
+    "question": "user_question",
+    "ground_truth": "ground_truth_response",
+    "response": "user_response"
+}
+
+from uptrain import CustomPromptEval, EvalLLM, Settings
+import json
+
+OPENAI_API_KEY = "sk-*****************"  # Insert your OpenAI key here
+eval_llm = EvalLLM(settings=Settings(openai_api_key=OPENAI_API_KEY, response_format={"type":"json_object"}))
+
+results = eval_llm.evaluate(
+    data = data,
+    checks = [CustomPromptEval(
+        prompt = prompt,
+        choices = choices,
+        choice_scores = choice_scores,
+        prompt_var_to_column_mapping = prompt_var_to_column_mapping
+    )]
+)    
+```
+<Info>By Default we are using GPT 3.5 Turbo. If you want to use some other model check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb)</Info>
+
+Sample Response:
+```json
+[
+   {
+      "Choice": "CORRECT BUT INCOMPLETE",
+      "Explanation": "The predicted answer correctly identifies the primary causes of diabetes as genetic and environmental factors, including obesity and lack of physical activity. However, it does not mention that diabetes is a metabolic disorder characterized by high blood sugar levels, which is an important aspect of the real answer.",
+      "score_custom_prompt": 0.5
+   }
+]
+```
+Here, we have evaluated the data according to the above mentioned prompt.
+
+The response though seems correct, does not answers the question completely according to the information provided in the context. 
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/custom/writing_custom_evals.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>

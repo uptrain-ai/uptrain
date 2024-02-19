@@ -1,0 +1,76 @@
+---
+title: Response Conciseness
+description: Grades how concise the generated response is or if it has any additional irrelevant information for the question asked.
+---
+
+Response conciseness score measures whether the generated response contains any additional information irrelevant to the question asked.
+
+Columns required:
+- `question`: The question asked by the user
+- `response`: The response given by the model
+
+### How to use it?
+
+```python
+from uptrain import EvalLLM, Evals
+
+OPENAI_API_KEY = "sk-********************"  # Insert your OpenAI key here
+
+data = [{
+    "question": "What are the primary components of a cell?",
+    "response": "The primary components of a cell are crucial for its function. Speaking of components, the integration of software components in modern applications is a key challenge for developers. It requires careful consideration of architectural patterns and design principles."
+}]
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+
+res = eval_llm.evaluate(
+    data = data,
+    checks = [Evals.RESPONSE_CONCISENESS]
+)
+```
+<Info>By default, we are using GPT 3.5 Turbo for evaluations. If you want to use a different model, check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb).</Info>
+
+Sample Response:
+```json
+[
+   {
+      "score_response_conciseness": 0.0,
+      "explanation_response_conciseness": "The LLM response contains a lot of additional irrelevant information because it completely deviates from the user query about the primary components of a cell. Instead of providing relevant information about cell components, the response talks about software integration, architectural patterns, and design principles, which are not related to the user query at all. This additional information is not needed to answer the user's question and only serves to confuse and distract from the main topic."
+   }
+]
+
+```
+<Note>A higher response conciseness score reflects that the response is concise and does not contain any irrelevant information.</Note>
+
+The response has information about software integration, architectural patterns, and design principles.
+
+This information is not relevant to the user's question, "What are the primary components of a cell?"
+
+Resulting in a low response conciseness score.
+
+### How it works?
+
+We evaluate response conciseness by determining which of the following three cases apply for the given task data:
+
+* The generated answer has a lot of additional irrelevant information.
+* The generated answer has a little additional irrelevant information.
+* The generated answer has no additional irrelevant information.
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/conciseness.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>

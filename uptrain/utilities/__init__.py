@@ -12,10 +12,11 @@ from lazy_loader import load as _lazy_load
 from loguru import logger
 import pydantic
 import numpy as np
+
 # import numpy.typing as npt
 # import pyarrow as pa
 import polars as pl
-import datetime 
+import datetime
 
 
 # -----------------------------------------------------------
@@ -133,6 +134,7 @@ def jsonload(fp: t.Any, **kwargs) -> t.Any:
 #     return pa.Table.from_pydict(
 #         {c: array_np_to_arrow(arr) for c, arr in zip(cols, arrays)}
 #     )
+
 
 def polars_to_json_serializable_dict(data: pl.DataFrame):
     data_dictn = data.to_dicts()

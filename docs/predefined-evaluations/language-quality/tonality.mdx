@@ -1,0 +1,77 @@
+---
+title: Tonality
+description: Evaluates whether the generated response matches the required persona's tone 
+---
+
+Tonality Score evaluates the response in terms of the tone used when following or deviating from standard guidelines. 
+
+It aims to ensure that the generated response not only adheres to guidelines but also communicates its adherence or deviations in an appropriate and respectful manner.
+
+Columns required:
+- `response`: The response given by the model
+- `llm_persona`: The persona the LLM being assessed was exposed to follow
+
+### How to use it?
+
+```python
+from uptrain import EvalLLM, CritiqueTone
+
+OPENAI_API_KEY = "sk-********************"  # Insert your OpenAI key here
+
+data = [{
+    "response": "Balancing a chemical equation is like creating a chemical masterpiece! Just sprinkle some coefficients here and there until you've got the perfect formula dance. It's a choreography of atoms."
+}]
+
+persona = "methodical teacher"  # Define LLM persona
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+
+res = eval_llm.evaluate(
+    data = data,
+    checks = [CritiqueTone(llm_persona=persona)]
+)
+```
+<Info>By default, we are using GPT 3.5 Turbo for evaluations. If you want to use a different model, check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb).</Info>
+
+Sample Response:
+```json
+[
+   {
+      "response": "Balancing a chemical equation is like creating a chemical masterpiece! Just sprinkle some coefficients here and there until you've got the perfect formula dance. It's a choreography of atoms.",
+      "score_tone": 0.4,
+      "explanation_tone": "The provided response does not align with the specified persona of a methodical teacher. The use of metaphor and casual language does not reflect the methodical and systematic approach expected from a teacher in this persona.\n\n[Score]: 2"
+   }
+]
+```
+<Note>A higher tonality score reflects that the generated response aligns with intended persona.</Note>
+
+The tone of the generated response does not align with the expected tone that a "methodical teacher" would follow. 
+
+Resulting in low tonality scores.
+
+### How it works?
+
+We evaluate tonality by determining which of the following three cases apply for the given task data:
+
+* The response aligns well with the specified persona.
+* The response aligns moderately with the specified persona.
+* The response doesn't align with the specified persona at all.
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/language_features/tone_critique.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>

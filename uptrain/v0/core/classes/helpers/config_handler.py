@@ -43,13 +43,14 @@ class LicenseArgs(BaseModel):
 
 
 class ReaderArgs(BaseModel):
-    mode: str = 'default'
+    mode: str = "default"
     frequency_in_seconds: typing.Optional[typing.Union[float, int]] = None
     num_backlog: typing.Optional[int] = 1
     type: str = None
     sql_query: str = None
     sql_variables_dictn: typing.Optional[dict] = None
     database: str = None
+
 
 class Config(BaseModel):
     training_args: TrainingArgs = TrainingArgs()

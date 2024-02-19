@@ -39,6 +39,6 @@ class AbstractMeasurable(ABC):
         """
         raise Exception("Should be defined for each individual class")
 
-    def col_name (self) -> str:
+    def col_name(self) -> str:
         """Returns the column name of the Measurable"""
         raise Exception("Should be defined for each individual class")

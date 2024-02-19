@@ -1,0 +1,75 @@
+---
+title: Factual Accuracy
+description: Checks whether the response generated is factually correct and grounded by the provided context.
+---
+
+ Factual accuracy score measures the degree to which a claim made in the response is true according to the context provided.
+
+ This check is important since unvalidated facts can reduce the credibility of the generated response.
+
+ It is crucial in fields like Healthcare, Finance, and Law, where decisions are made based on the accuracy of the information provided.
+
+Columns required:
+- `question`: The question asked by the user
+- `context`: Information retrieved to answer the question
+- `response`: The response given by the model
+
+### How to use it?
+
+```python
+from uptrain import EvalLLM, Evals
+import json
+
+OPENAI_API_KEY = "sk-********************"  # Insert your OpenAI key here
+
+data = [{
+    "question": "What are the symptoms of heart attack?",
+    "context": "Heart attacks are often characterized by a combination of symptoms, including chest pain or discomfort, upper body pain or discomfort in the arms, back, neck, jaw, or upper stomach, shortness of breath, and cold sweats, nausea, or lightheadedness.",
+    "response": "Heart attacks are typically marked by a sharp, shooting pain in the arm. Other symptoms may include a feeling of indigestion or heartburn, along with general fatigue and headache."
+}]
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+
+res = eval_llm.evaluate(
+    data = data,
+    checks = [Evals.FACTUAL_ACCURACY]
+)
+```
+<Info>By default, we are using GPT 3.5 Turbo for evaluations. If you want to use a different model, check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb).</Info>
+
+Sample Response:
+```json
+[
+   {
+      "score_factual_accuracy": 0.25,
+      "explanation_factual_accuracy": "1. Heart attacks are typically marked by a sharp, shooting pain in the arm.\nReasoning for yes: The context mentions upper body pain or discomfort in the arms as a symptom of heart attack, which can be interpreted as a sharp, shooting pain in the arm.\nReasoning for no: The context does not explicitly mention a sharp, shooting pain in the arm as a typical symptom of heart attack.\nJudgement: unclear. The context does not explicitly support the fact, but the symptom mentioned can be interpreted as similar to the fact.\n\n2. Other symptoms may include a feeling of indigestion or heartburn.\nReasoning for yes: The context mentions chest pain or discomfort as a symptom of heart attack, which can be interpreted as a feeling of indigestion or heartburn.\nReasoning for no: The context does not explicitly mention indigestion or heartburn as symptoms of heart attack.\nJudgement: unclear. The context does not explicitly support the fact, but the symptom mentioned can be interpreted as similar to the fact.\n\n3. Other symptoms may include general fatigue.\nReasoning for yes: No arguments.\nReasoning for no: The context does not mention general fatigue as a symptom of heart attack.\nJudgement: no. The context does not verify the fact nor the fact can be logically derived from the context.\n\n4. Other symptoms may include headache.\nReasoning for yes: The context does not mention headache as a symptom of heart attack.\nReasoning for no: No arguments.\nJudgement: no. The context does not verify the fact nor the fact can be logically derived from the context.\n\n"
+   }
+]
+```
+<Note>A higher factual accuracy score reflects that the generated response is factually correct.</Note>
+
+The response provided states the following symptoms of a heart attack:
+sharp, shooting pain in the arm, indigestion or heartburn, general fatigue and headache.
+
+Most of these claims can not be validated by the context document.
+
+Ultimately, resulting in a low factual accuracy score.
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/factual_accuracy.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>

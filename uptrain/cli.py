@@ -18,11 +18,7 @@ EXTRA_PACKAGES = {
         "tqdm>=4.0",
         "aiolimiter>=1.1",
     ],
-    "dashboard": [
-        "plotly>=5.0.0",
-        "streamlit>=1.23",
-        "pyarrow>=10.0.0"
-    ],
+    "dashboard": ["plotly>=5.0.0", "streamlit>=1.23", "pyarrow>=10.0.0"],
     "selfhosted": [
         "tqdm>=4.0",
         "aiolimiter>=1.1",
@@ -41,6 +37,7 @@ EXTRA_PACKAGES = {
         "evals @ git+https://github.com/openai/evals.git@main",
         "replicate",
         "litellm==1.15.7",
+        "faiss-cpu",
     ],
     # Add packages here
     "full": [
@@ -61,6 +58,7 @@ EXTRA_PACKAGES = {
         "evals @ git+https://github.com/openai/evals.git@main",
         "replicate",
         "litellm==1.15.7",
+        "faiss-cpu",
     ],
 }
 

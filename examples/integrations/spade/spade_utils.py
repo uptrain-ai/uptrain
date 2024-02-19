@@ -24,16 +24,13 @@ For example, if the prompt template is "I am a still-life artist. Give me a bull
 Your answer should be a JSON list of objects within ```json ``` markers, where each object has the following fields: "concept", "category", and "source". Choose the most relevant assertion concepts and limit your choice to 5. Be specific and reasonable. MAKE SURE TO AVOID SIMILAR ASSERTIONS"""
 
 
-def generate_evaluations(
-    prompt_template: str,
-    llm: str
-) -> dict:
+def generate_evaluations(prompt_template: str, llm: str) -> dict:
     """
     Generate assertion concepts to check for in the prompt template.
 
     Args:
     - prompt_template: the template for the prompt
-    - llm: which LLM to use for generating evals 
+    - llm: which LLM to use for generating evals
 
     Returns:
     - concepts: the assertion concepts to check for in the prompt template
@@ -68,12 +65,7 @@ def generate_evaluations(
         return None
 
 
-def generate_response(
-    prompt_template: str,
-    llm: str,
-    task_data: dict
-) -> str:
-    
+def generate_response(prompt_template: str, llm: str, task_data: dict) -> str:
     """
     Generate responses for the given task data.
 
@@ -87,11 +79,13 @@ def generate_response(
     """
 
     # Construct prompt to LLM
-    messages = [{
-        "content": prompt_template.format(**task_data),
-        "role": "user",
-    }]
-    
+    messages = [
+        {
+            "content": prompt_template.format(**task_data),
+            "role": "user",
+        }
+    ]
+
     try:
         response = completion(model=llm, messages=messages)
         reply = response["choices"][0]["message"]["content"]
@@ -149,6 +143,5 @@ EXAMPLES = [
     {
         "topic": "Ensuring Code Quality with Automated Code Review Tools",
         "context": "Code quality is paramount in software development. Our automated code review tools analyze codebase, identify issues, and ensure adherence to coding standards. Elevate your development process and deliver high-quality code with our efficient code review solution.",
-    }
+    },
 ]
-

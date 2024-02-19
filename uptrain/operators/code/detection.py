@@ -17,7 +17,7 @@ from uptrain.utilities import polars_to_json_serializable_dict
 @register_op
 class CodeHallucinationScore(ColumnOp):
     """
-    
+
     Go through the response and identify if the code part in it is hallucinating or not.
     If found, it returns the code snippet.
 
@@ -28,7 +28,7 @@ class CodeHallucinationScore(ColumnOp):
         col_out (str): Column name to output scores
     Raises:
         Exception: Raises exception for any failed evaluation attempts
-    
+
     """
 
     col_response: str = "response"
@@ -50,13 +50,17 @@ class CodeHallucinationScore(ColumnOp):
             row["response"] = row.pop(self.col_response)
             row["context"] = row.pop(self.col_context)
         try:
-            results = self._api_client.evaluate(
-                "code_hallucination", data_send
-            )
+            results = self._api_client.evaluate("code_hallucination", data_send)
 
         except Exception as e:
             logger.error(f"Failed to evaluate `CodeHallucination`: {e}")
             raise e
-        
+
         assert results is not None
-        return {"output": data.with_columns(pl.from_dicts(results).rename({f"score_code_hallucination": self.col_out}))}
+        return {
+            "output": data.with_columns(
+                pl.from_dicts(results).rename(
+                    {f"score_code_hallucination": self.col_out}
+                )
+            )
+        }

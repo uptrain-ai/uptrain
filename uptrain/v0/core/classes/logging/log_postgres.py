@@ -12,11 +12,13 @@ from uptrain.v0.core.lib.helper_funcs import dependency_required
 class PostgresLogs:
     def __init__(self, db_name):
         self.conn = psycopg2.connect(
-            database=db_name, user=os.environ['POSTGRES_USERNAME'], password=os.environ['POSTGRES_PASSWORD'])
+            database=db_name,
+            user=os.environ["POSTGRES_USERNAME"],
+            password=os.environ["POSTGRES_PASSWORD"],
+        )
         self.conn.autocommit = True
         self.cursor = self.conn.cursor()
         self.tables_created = {}
-
 
     def add_scalars(self, dict, table_name, update_val=False):
         if self.tables_created.get(table_name, 0) == 0:
@@ -29,7 +31,7 @@ class PostgresLogs:
                 elif isinstance(val, float):
                     type = "float"
                 else:
-                    raise Exception(f'{type(val)} not mapped to postgres')
+                    raise Exception(f"{type(val)} not mapped to postgres")
                 schema += key + " " + type + " NOT NULL, "
             schema = schema[0:-2] + ")"
             self.cursor.execute(f"""CREATE TABLE {table_name} {schema}""")
@@ -39,15 +41,17 @@ class PostgresLogs:
         if update_val:
             raise Exception("Not supported")
         else:
-            keys = ', '.join(list(dict.keys()))
+            keys = ", ".join(list(dict.keys()))
             vals = []
             for val in list(dict.values()):
                 if isinstance(val, str):
                     vals.append(f"'{val}'")
                 else:
                     vals.append(str(val))
-            vals = ', '.join(vals)
-            self.cursor.execute(f"""INSERT INTO {table_name} ({keys}) VALUES ({vals});""")
+            vals = ", ".join(vals)
+            self.cursor.execute(
+                f"""INSERT INTO {table_name} ({keys}) VALUES ({vals});"""
+            )
             # self.cursor.execute(f"SELECT * FROM {table_name}")
             # rows = self.cursor.fetchall()
             # for row in rows:

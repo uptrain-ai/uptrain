@@ -95,7 +95,7 @@ class Measurable(AbstractMeasurable):
             try:
                 self._log(extra["id"], vals)
             except:
-                raise("Error in logging")
+                raise ("Error in logging")
         else:
             vals = self._compute(inputs=inputs, outputs=outputs, gts=gts, extra=extra)
         return vals

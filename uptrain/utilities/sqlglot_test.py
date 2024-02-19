@@ -1,6 +1,10 @@
 from sqlglot import parse_one, exp, parse
 
-from uptrain.utilities.sql_utils import extract_tables_and_columns, extract_tables_and_columns_from_create
+from uptrain.utilities.sql_utils import (
+    extract_tables_and_columns,
+    extract_tables_and_columns_from_create,
+)
+
 # TODO: convert this into unit test
 # print all column references (a and b)
 for column in parse_one("SELECT *, b + 1 AS c FROM d").find_all(exp.Column):
@@ -16,10 +20,14 @@ for table in parse_one("SELECT * FROM x JOIN y JOIN z").find_all(exp.Table):
     print(table)
     print(table.name)
 
-for table in parse_one("SELECT x.a, y.c FROM x JOIN y ON x.a = y.b").find_all(exp.Table):
+for table in parse_one("SELECT x.a, y.c FROM x JOIN y ON x.a = y.b").find_all(
+    exp.Table
+):
     print(table.name)
 
-for table in parse_one("SELECT x.a, y.c FROM x JOIN y ON x.a = y.b").find_all(exp.Column):
+for table in parse_one("SELECT x.a, y.c FROM x JOIN y ON x.a = y.b").find_all(
+    exp.Column
+):
     print(table.name)
 
 query = "SELECT name as n FROM stadium EXCEPT SELECT T2.name FROM concert AS T1 JOIN stadium AS T2 ON T1.stadium_id  =  T2.stadium_id WHERE T1.year  =  2014"

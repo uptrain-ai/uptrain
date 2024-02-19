@@ -17,6 +17,7 @@ if t.TYPE_CHECKING:
     from uptrain.framework import Settings
 from uptrain.operators.base import *
 
+
 @register_op
 class Table(OpBaseModel):
     """
@@ -114,7 +115,7 @@ class ColumnComparison(ColumnOp):
     Attributes:
         col_in_1 (str): The name of the 1st input column to be compared row-wise.
         col_in_2 (str): The name of the 2nd input column to be compared row-wise.
-        col_out (str): The name of the output boolean column 
+        col_out (str): The name of the output boolean column
 
     Returns:
         dict: A dictionary containing the input DataFrame.
@@ -166,10 +167,13 @@ class ColumnComparison(ColumnOp):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        return {"output": data.with_columns(data.select(
-            pl.col(self.col_in_1) ==
-            pl.col(self.col_in_2)
-        )['Output'].alias(self.col_out))}
+        return {
+            "output": data.with_columns(
+                data.select(pl.col(self.col_in_1) == pl.col(self.col_in_2))[
+                    "Output"
+                ].alias(self.col_out)
+            )
+        }
 
 
 @register_op

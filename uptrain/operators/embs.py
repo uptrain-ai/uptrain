@@ -87,7 +87,7 @@ class Distribution(TransformOp):
 
     """
 
-    kind: t.Literal["cosine_similarity", "rouge"]
+    kind: t.Literal["cosine_similarity", "rouge", "norm_ratio"]
     col_in_embs: list[str]
     col_in_groupby: list[str]
     col_out: list[str] | None = None
@@ -118,6 +118,8 @@ class Distribution(TransformOp):
             self._agg_func = get_cosine_sim_dist
         elif self.kind == "rouge":
             self._agg_func = get_rouge_score
+        elif self.kind == "norm_ratio":
+            self._agg_func = get_norm_ratio_dist
         else:
             raise NotImplementedError(
                 f"Similarity metric: {self.kind} not supported for now."
@@ -151,7 +153,7 @@ class UMAP(ColumnOp):
     Attributes:
         col_in_embs (str): The input column containing embeddings.
         n_components (int): Number of components to keep.
-        col_out (str): The umap column containing embeddings. 
+        col_out (str): The umap column containing embeddings.
 
     Example:
         ```
@@ -189,23 +191,28 @@ class UMAP(ColumnOp):
 
     """
 
-    col_in_embs: str = 'embedding'
+    col_in_embs: str = "embedding"
     n_components: int = 6
-    col_out: str = 'umap_embedding' 
+    col_out: str = "umap_embedding"
 
     def setup(self, settings: Settings):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         combined_embs = np.asarray(list(data[self.col_in_embs]))
-        umap_output = umap.UMAP(n_components=self.n_components, metric='cosine', random_state=42).fit_transform(combined_embs)  # type: ignore
+        umap_output = umap.UMAP(n_components=self.n_components, metric="cosine", random_state=42).fit_transform(combined_embs)  # type: ignore
         umap_output = [[round(y, 8) for y in list(x)] for x in list(umap_output)]
         output_cols = [pl.Series(umap_output).alias(self.col_out)]
-        output_cols.extend([pl.Series(np.array(umap_output)[:,idx]).alias(self.col_out + "_" + str(idx)) for idx in range(self.n_components)])
+        output_cols.extend(
+            [
+                pl.Series(np.array(umap_output)[:, idx]).alias(
+                    self.col_out + "_" + str(idx)
+                )
+                for idx in range(self.n_components)
+            ]
+        )
 
-        return {
-            "output": data.with_columns(output_cols)
-        }
+        return {"output": data.with_columns(output_cols)}
 
 
 # -----------------------------------------------------------
@@ -232,7 +239,7 @@ def sample_pairs_from_values(n_values: int, n_pairs: int):
     return indices_1, indices_2
 
 
-def get_cosine_sim_dist(col_vectors: pl.Series, num_pairs_per_group: int = 10):
+def get_cosine_sim_dist(col_vectors: pl.Series, num_pairs_per_group: int = 1000):
     """
     Compute cosine similarity distances between pairs of vectors.
 
@@ -245,6 +252,11 @@ def get_cosine_sim_dist(col_vectors: pl.Series, num_pairs_per_group: int = 10):
 
     """
     array_vectors = col_vectors.to_numpy()
+    num_pairs_per_group = min(
+        num_pairs_per_group,
+        len(array_vectors),
+        int((len(array_vectors) * (len(array_vectors) - 1)) / 2),
+    )
     indices_1, indices_2 = sample_pairs_from_values(
         len(array_vectors), num_pairs_per_group
     )
@@ -253,6 +265,38 @@ def get_cosine_sim_dist(col_vectors: pl.Series, num_pairs_per_group: int = 10):
         v1 = array_vectors[i1]
         v2 = array_vectors[i2]
         values.append(np.dot(v1, v2) / np.linalg.norm(v1) * np.linalg.norm(v2))
+    return values
+
+
+def get_norm_ratio_dist(col_vectors: pl.Series, num_pairs_per_group: int = 1000):
+    """
+    Compute norm ratio between pairs of vectors.
+
+    Args:
+        col_vectors (pl.Series): The column containing the vectors.
+        num_pairs_per_group (int): The number of pairs to sample per group.
+
+    Returns:
+        List[float]: The computed ratio of norms.
+
+    """
+    array_vectors = col_vectors.to_numpy()
+    num_pairs_per_group = min(
+        num_pairs_per_group,
+        len(array_vectors),
+        int((len(array_vectors) * (len(array_vectors) - 1)) / 2),
+    )
+    indices_1, indices_2 = sample_pairs_from_values(
+        len(array_vectors), num_pairs_per_group
+    )
+    values = []
+    for i1, i2 in zip(indices_1, indices_2):
+        v1 = array_vectors[i1]
+        v2 = array_vectors[i2]
+        this_val = np.linalg.norm(v1) / np.linalg.norm(v2)
+        if this_val < 1:
+            this_val = 1 / this_val
+        values.append(this_val)
     return values
 
 

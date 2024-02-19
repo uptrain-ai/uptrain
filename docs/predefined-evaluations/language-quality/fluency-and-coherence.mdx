@@ -1,0 +1,80 @@
+---
+title: Language Features
+description: Checks whether the response has answered all the aspects of the question specified
+---
+
+Critique tone evaluation involves assessing the language model's output in terms of the tone used when following or deviating from guidelines. 
+
+It aims to ensure that the language model not only adheres to guidelines but also communicates its adherence to or deviation from the guideline in an appropriate and respectful manner.
+
+Columns required:
+- `response`: The response given by the model
+- `llm_persona`: The persona the LLM being assessed was exposed to follow
+
+### How to use it?
+
+```python
+from uptrain import EvalLLM
+
+OPENAI_API_KEY = "sk-********************"  # Insert your OpenAI key here
+
+data = [{
+    "response": "hey, so quadratic equation solving, I will guide you! just refer to any book on basic algebra it is pretty straightforward, even a dummy can understand."
+}]
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+
+res = eval_llm.evaluate(
+    data = data,
+    checks = [Evals.CRITIQUE_LANGUAGE]    
+)
+```
+<Info>By default, we are using GPT 3.5 Turbo for evaluations. If you want to use a different model, check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb).</Info>
+
+Sample Response:
+```json
+[
+   {
+      "score_fluency": 0.4,
+      "score_coherence": 0.4,
+      "score_grammar": 0.4,
+      "score_politeness": 0.2,
+      "explanation_fluency": "The text is not fluent and sounds awkward due to the informal language and lack of proper structure.",
+      "explanation_coherence": "The text lacks coherence as it jumps between different topics without a clear connection.",
+      "explanation_grammar": "The text contains grammatical errors and informal language that is not suitable for a professional or academic setting.",
+      "explanation_politeness": "The tone is impolite and condescending, using the term \"dummy\" which is inappropriate."
+   }
+]
+```
+<Note>Higher language features scores reflects a good response.</Note>
+
+The reponse generated does not seem good, it has innapropriate words like "dummy", there are some grammatical errors and uses unnecessary slangs like: "I will guide you", "it is pretty straightforward"
+
+Resulting in low language feature scores.
+
+### How it works?
+
+We evaluate language features by determining which of the following three cases apply for the given task data across features such as fluent, polite, grammatically correct, and coherent:
+
+* The response is highly rated on these features.
+* The response is moderately rated on these features.
+* The response is poorly rated on these features.
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/language_features/language_critique.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>

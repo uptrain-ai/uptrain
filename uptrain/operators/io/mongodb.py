@@ -24,8 +24,8 @@ class MongoDBReader(TransformOp):
 
     Attributes:
         table (str): Table name from where the data needs to be fetched
-        query (dict): Conditons on different columns 
-        filter (dict): Choosing the relevant columns       
+        query (dict): Conditons on different columns
+        filter (dict): Choosing the relevant columns
 
     Example:
         ```python
@@ -42,6 +42,7 @@ class MongoDBReader(TransformOp):
         output = reader.setup().run()["output"]
         ```
     """
+
     table: str
     query: t.Optional[dict] = dict()
     filter: t.Optional[dict[str, str]] = dict()
@@ -65,4 +66,3 @@ class MongoDBReader(TransformOp):
         rows.reverse()
 
         return {"output": pl.from_dicts(rows)}
-

@@ -39,6 +39,6 @@ class ModelRun(evals.Eval):
         self.eval_all_samples(recorder, samples)
         model_outputs = []
         for x in recorder._events:
-            if 'prompt' in x.data:
+            if "prompt" in x.data:
                 model_outputs.append(x.data)
         return model_outputs

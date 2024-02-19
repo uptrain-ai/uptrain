@@ -1,0 +1,84 @@
+---
+title: Context Utilization
+description: Measures how complete the generated response is for the question specified given the information provided in the context.
+---
+
+Context Utilization score measures if the generated response has sufficiently used the retrieved context to answer the question being asked.
+
+This check is important since a bad utilization of context reduces the effectiveness to answer all aspects of the question asked.
+
+Columns required:
+- `question`: The question asked by the user
+- `context`: Information retrieved to answer the question
+- `response`: The response given by the model
+
+### How to use it?
+
+```python
+from uptrain import EvalLLM, Evals
+import json
+
+OPENAI_API_KEY = "sk-********************"  # Insert your OpenAI key here
+
+data = [{
+    "question": "Where is the Taj Mahal and when was it built?",
+    "context": "The Taj Mahal is an ivory-white marble mausoleum located in Agra, Uttar Pradesh, India. It was built in 1631 by the fifth Mughal emperor, Shah Jahan to house the tomb of his beloved wife, Mumtaz Mahal.",
+    "response": "The Taj Mahal is located in Agra, Uttar Pradesh, India"
+}]
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+
+res = eval_llm.evaluate(
+    data = data,
+    checks = [Evals.RESPONSE_COMPLETENESS_WRT_CONTEXT]
+)
+```
+<Info>By default, we are using GPT 3.5 Turbo for evaluations. If you want to use a different model, check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb).</Info>
+
+Sample Response:
+```json
+[
+   {
+      "score_response_completeness_wrt_context": 0.5,
+      "explanation_response_completeness_wrt_context": "Key points present in the context relevant to the given question:\n1. The Taj Mahal is located in Agra, Uttar Pradesh, India.\n2. It was built in 1631 by the fifth Mughal emperor, Shah Jahan.\n\nKey points present in the response relevant to the given question:\n1. The Taj Mahal is located in Agra, Uttar Pradesh, India.\n\nReasoning:\nThe question asks for the location and the construction date of the Taj Mahal. The context provides both pieces of information, stating that it is located in Agra, Uttar Pradesh, India and was built in 1631 by the fifth Mughal emperor, Shah Jahan. The response only includes the location information and does not mention the construction date, which is relevant for answering the question. Therefore, the response does not incorporate all the relevant information present in the context.\n\n[Choice]: (B) The generated response incorporates some of the information present in the context, but misses some of the information in context which is relevant for answering the given question."
+   }
+]
+```
+<Note>A higher context utilization score reflects that the generated response has completely utilized the retrieved context.</Note>
+
+The question can be divided in following 2 parts:
+1. Where is the Taj Mahal located?
+2. When was the Taj Mahal built?
+
+The context contains information about both the questions.
+
+But, the response only answers 1 question while providing no information on "When was the Taj Mahal built?"
+
+Ultimately, resulting in a low context utilization score.
+
+### How it works?
+
+We evaluate context utilization by determining which of the following three cases apply for the given task data:
+
+* The generated response incorporates all the relevant information present in the context.
+* The generated response incorporates some of the information present in the context, but misses some of the information in context which is relevant for answering the given question. 
+* The generated response doesn't incorporate any information present in the context.
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/response_completeness_wrt_context.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>

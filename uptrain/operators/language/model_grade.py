@@ -5,7 +5,7 @@ Implement checks to test if a piece of text has been taken from a source.
 from __future__ import annotations
 import typing as t
 import os
-import copy 
+import copy
 import re
 
 
@@ -17,6 +17,7 @@ if t.TYPE_CHECKING:
     from uptrain.framework import Settings
 from uptrain.operators.base import *
 from uptrain.operators.language.llm import LLMMulticlient, Payload
+
 # from evals.elsuite.modelgraded.classify_utils import (
 #     # append_answer_prompt,
 #     # get_choice,
@@ -51,6 +52,7 @@ Reasoning:""",
     "tot_score": "",
 }
 
+
 def get_choice_score(
     choice: str,
     choice_strings: Iterable[str],
@@ -65,9 +67,11 @@ def get_choice_score(
         return min(choice_scores.values())
     return choice_scores[choice]
 
+
 def choice_to_str(choice_strings: Iterable[str]) -> str:
     """Return a string of choices, e.g. '"Yes" or "No" or "Maybe"'."""
     return " or ".join(f'"{choice}"' for choice in choice_strings)
+
 
 def append_answer_prompt(
     prompt: list,
@@ -77,21 +81,30 @@ def append_answer_prompt(
     choice_strings: Optional[Iterable[str]] = None,
 ) -> list:
     """Append answer prompt to prompt."""
-    answer_prompt = answer_prompt or ANSWER_PROMPTS[eval_type] #.format(**{"choice_strings": ','.join(choice_strings)})
+    answer_prompt = (
+        answer_prompt or ANSWER_PROMPTS[eval_type]
+    )  # .format(**{"choice_strings": ','.join(choice_strings)})
     answer_prompt = format_prompt(answer_prompt, choices=choice_to_str(choice_strings))
     if append_type == "as_content":
-        assert isinstance(answer_prompt, str), f"prompt must be str, not {type(answer_prompt)}"
+        assert isinstance(
+            answer_prompt, str
+        ), f"prompt must be str, not {type(answer_prompt)}"
         prompt[-1]["content"] += "\n\n" + answer_prompt
     elif append_type == "as_message":
-        assert is_chat_prompt(answer_prompt), f"prompt must be chat prompt, not {answer_prompt}"
+        assert is_chat_prompt(
+            answer_prompt
+        ), f"prompt must be chat prompt, not {answer_prompt}"
         prompt += answer_prompt
     else:
-        raise ValueError(f"append_type must be 'as_content' or 'as_message', not {append_type}")
+        raise ValueError(
+            f"append_type must be 'as_content' or 'as_message', not {append_type}"
+        )
     return prompt
 
 
 def is_chat_prompt(prompt) -> bool:
     return isinstance(prompt, list) and all(isinstance(msg, dict) for msg in prompt)
+
 
 def chat_prompt_to_text_prompt(prompt: list, for_completion: bool = True) -> str:
     """
@@ -122,7 +135,10 @@ def chat_prompt_to_text_prompt(prompt: list, for_completion: bool = True) -> str
         text += "Assistant: "
     return text.lstrip()
 
-def format_necessary(template: str, allow_missing: bool = False, **kwargs: dict[str, str]) -> str:
+
+def format_necessary(
+    template: str, allow_missing: bool = False, **kwargs: dict[str, str]
+) -> str:
     """Format a template string with only necessary kwargs."""
     keys = [k[1] for k in string.Formatter().parse(template) if k[1]]
     if allow_missing:
@@ -144,7 +160,9 @@ def format_prompt(
     """Format a prompt with only necessary kwargs."""
     # if any input kwargs is chat prompt, convert to text prompt
     kwargs = {
-        k: chat_prompt_to_text_prompt(v, for_completion=False) if is_chat_prompt(v) else v
+        k: chat_prompt_to_text_prompt(v, for_completion=False)
+        if is_chat_prompt(v)
+        else v
         for k, v in kwargs.items()
     }
     if is_chat_prompt(prompt):
@@ -196,6 +214,7 @@ class OpenAIGradeScore(ColumnOp):
             ]
         )
         from uptrain.operators.language.openai_evals import OpenaiEval
+
         grading_op = OpenaiEval(
             bundle_path="",
             completion_name="gpt-3.5-turbo",
@@ -231,9 +250,11 @@ class ModelGradeScore(ColumnOp):
     """
 
     grading_prompt_template: str
-    eval_type: t.Literal["cot_classify", "classify", "classify_cot", 'tot_classify', 'tot_score'] = "cot_classify"
+    eval_type: t.Literal[
+        "cot_classify", "classify", "classify_cot", "tot_classify", "tot_score"
+    ] = "cot_classify"
     choice_strings: list[str]
-    choice_scores: dict[str, float]  #t.Union[dict[str, float], dict[str, list[float]]]
+    choice_scores: dict[str, float]  # t.Union[dict[str, float], dict[str, list[float]]]
     context_vars: dict[str, str]
     col_out: t.Union[str, list[str]] = "model_grade_score"
 
@@ -241,8 +262,10 @@ class ModelGradeScore(ColumnOp):
         self._api_client = LLMMulticlient(settings=settings)
         self._settings = settings
         self.model = settings.model.replace("azure/", "")
-        if not (self.eval_type in ["cot_classify", "tot_classify", 'tot_score']):
-            raise Exception("Only eval_type: cot_classify and tot_classify is supported for model grading check")
+        if not (self.eval_type in ["cot_classify", "tot_classify", "tot_score"]):
+            raise Exception(
+                "Only eval_type: cot_classify and tot_classify is supported for model grading check"
+            )
         for choice, score in self.choice_scores.items():
             score = format(score, ".3f")
             if score[-1] == "0":
@@ -253,9 +276,15 @@ class ModelGradeScore(ColumnOp):
         choice_scores = "(" + str(self.choice_scores)[1:-1] + ")"
         choice_scores_text = ""
         for choice, score in self.choice_scores.items():
-            choice_scores_text += f"If selected choice is {choice}, score should be {score}. "
+            choice_scores_text += (
+                f"If selected choice is {choice}, score should be {score}. "
+            )
         scores_text = "(" + ", ".join(list(self.choice_scores.values())) + ")"
-        answer_prompt = ANSWER_PROMPTS[self.eval_type].format(choice_scores=choice_scores, choice_scores_text=choice_scores_text, scores_text=scores_text)
+        answer_prompt = ANSWER_PROMPTS[self.eval_type].format(
+            choice_scores=choice_scores,
+            choice_scores_text=choice_scores_text,
+            scores_text=scores_text,
+        )
         self.grading_prompt_template += answer_prompt
         return self
 
@@ -267,7 +296,12 @@ class ModelGradeScore(ColumnOp):
             )
         else:
             return Payload(
-                data={"model": self.model, "messages": messages, "temperature": 0.2, "seed": self._settings.seed},
+                data={
+                    "model": self.model,
+                    "messages": messages,
+                    "temperature": 0.2,
+                    "seed": self._settings.seed,
+                },
                 metadata={"index": id},
             )
 
@@ -293,44 +327,62 @@ class ModelGradeScore(ColumnOp):
         except:
             return str(0.0)
 
-
     def get_choice(
-        self, text: str, eval_type: str, match_fn: Union[str, Callable], choice_strings: Iterable[str], choice_scores: dict = {}
+        self,
+        text: str,
+        eval_type: str,
+        match_fn: Union[str, Callable],
+        choice_strings: Iterable[str],
+        choice_scores: dict = {},
     ) -> str:
         """Clean the answer string to a choice string to one of choice_strings. Return '__invalid__.' if no match."""
         if eval_type == "tot_score":
-            score = ''
+            score = ""
             if len(score) == 0:
-                scores_matches = re.findall(r"(\[Score\]\: [1-5]|Score: [1-5]|Score is [1-5])", text)
-                if len(scores_matches)!=0:
-                    score = str(scores_matches[0].split(' ')[-1])
+                scores_matches = re.findall(
+                    r"(\[Score\]\: [1-5]|Score: [1-5]|Score is [1-5])", text
+                )
+                if len(scores_matches) != 0:
+                    score = str(scores_matches[0].split(" ")[-1])
 
             if len(score) == 0:
-                scores_matches = re.findall(r"(\[score\]\: [1-5]|score: [1-5]|score is [1-5])", text)
-                if len(scores_matches)!=0:
-                    score = str(scores_matches[0].split(' (')[-1])
+                scores_matches = re.findall(
+                    r"(\[score\]\: [1-5]|score: [1-5]|score is [1-5])", text
+                )
+                if len(scores_matches) != 0:
+                    score = str(scores_matches[0].split(" (")[-1])
 
             if len(score) == 1:
                 return float(score)
 
-            logging.warn(f"Choices {choice_strings} not parsable for {eval_type}: {text}")
+            logging.warn(
+                f"Choices {choice_strings} not parsable for {eval_type}: {text}"
+            )
             return -5
         elif eval_type == "tot_classify":
-            score = ''
+            score = ""
             if len(score) == 0:
-                scores_matches = re.findall(r"(\[Choice\]\: [a-zA-Z]|Choice: [a-zA-Z]|choice is [a-zA-Z])", text)
-                if len(scores_matches)!=0:
-                    score = str(scores_matches[0].split(' ')[-1])
+                scores_matches = re.findall(
+                    r"(\[Choice\]\: [a-zA-Z]|Choice: [a-zA-Z]|choice is [a-zA-Z])", text
+                )
+                if len(scores_matches) != 0:
+                    score = str(scores_matches[0].split(" ")[-1])
 
             if len(score) == 0:
-                scores_matches = re.findall(r"(\[Choice\]\: \([a-zA-Z]|Choice: \([a-zA-Z]|choice is \([a-zA-Z])", text)
-                if len(scores_matches)!=0:
-                    score = str(scores_matches[0].split(' (')[-1])
+                scores_matches = re.findall(
+                    r"(\[Choice\]\: \([a-zA-Z]|Choice: \([a-zA-Z]|choice is \([a-zA-Z])",
+                    text,
+                )
+                if len(scores_matches) != 0:
+                    score = str(scores_matches[0].split(" (")[-1])
 
             if len(score) == 0:
-                scores_matches = re.findall(r"(\[Argument\]\: \([a-zA-Z]|Argument: \([a-zA-Z]|argument is \([a-zA-Z])", text)
-                if len(scores_matches)!=0:
-                    score = str(scores_matches[0].split(' (')[-1])
+                scores_matches = re.findall(
+                    r"(\[Argument\]\: \([a-zA-Z]|Argument: \([a-zA-Z]|argument is \([a-zA-Z])",
+                    text,
+                )
+                if len(scores_matches) != 0:
+                    score = str(scores_matches[0].split(" (")[-1])
 
             if len(score) == 1:
                 if score.upper() in choice_scores:
@@ -338,11 +390,13 @@ class ModelGradeScore(ColumnOp):
                 elif score.lower() in choice_scores:
                     return choice_scores[score.lower()]
 
-            logging.warn(f"Choices {choice_strings} not parsable for {eval_type}: {text}")
+            logging.warn(
+                f"Choices {choice_strings} not parsable for {eval_type}: {text}"
+            )
             return -1
         else:
             is_fn_extract_score = False
-            if match_fn == 'extract_score':
+            if match_fn == "extract_score":
                 is_fn_extract_score = True
             else:
                 if isinstance(match_fn, str):
@@ -381,12 +435,18 @@ class ModelGradeScore(ColumnOp):
                         try:
                             float(choice)
                             if float(choice) > 1.0 or float(choice) < 0.0:
-                                return self.get_choice_via_llm(text, self.grading_prompt_template)
+                                return self.get_choice_via_llm(
+                                    text, self.grading_prompt_template
+                                )
                             return str(choice)
                         except:
-                            return self.get_choice_via_llm(text, self.grading_prompt_template)
+                            return self.get_choice_via_llm(
+                                text, self.grading_prompt_template
+                            )
                     else:
-                        return self.get_choice_via_llm(text, self.grading_prompt_template)
+                        return self.get_choice_via_llm(
+                            text, self.grading_prompt_template
+                        )
                 else:
                     line = "".join(c for c in line if c not in string.punctuation)
                     if not line:
@@ -394,7 +454,9 @@ class ModelGradeScore(ColumnOp):
                     for choice in choice_strings:
                         if match_fn(line, choice):
                             return choice
-            logging.warn(f"Choices {choice_strings} not parsable for {eval_type}: {text}")
+            logging.warn(
+                f"Choices {choice_strings} not parsable for {eval_type}: {text}"
+            )
             return INVALID_STR
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
@@ -435,7 +497,7 @@ class ModelGradeScore(ColumnOp):
                         eval_type=self.eval_type,
                         match_fn="extract_score",
                         choice_strings=self.choice_strings,
-                        choice_scores = self.choice_scores
+                        choice_scores=self.choice_scores,
                     )
                     score = float(choice)
                     results.append((idx, score, resp_text))

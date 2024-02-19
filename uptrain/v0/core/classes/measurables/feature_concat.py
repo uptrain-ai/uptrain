@@ -17,7 +17,7 @@ class FeatureConcatMeasurable(Measurable):
         return vals
 
     def col_name(self) -> str:
-        name = 'concat_' + '_'.join(self.feat_name_list)
+        name = "concat_" + "_".join(self.feat_name_list)
         return name
 
     # TODO: Decommission and find a generic way

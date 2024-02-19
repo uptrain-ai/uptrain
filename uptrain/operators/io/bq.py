@@ -57,7 +57,9 @@ class BigQueryReader(TransformOp):
         if self.limit_rows is None:
             query_job = self._client.query(self.query)
         else:
-            query_job = self._client.query(self.query + " LIMIT " + str(self.limit_rows))
+            query_job = self._client.query(
+                self.query + " LIMIT " + str(self.limit_rows)
+            )
         rows = query_job.result()
         return {"output": pl.from_arrow(rows.to_arrow())}
 
@@ -105,7 +107,6 @@ class BigQueryWriter(TransformOp):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-
         with io.BytesIO() as stream:
             data.write_parquet(stream)
             stream.seek(0)
