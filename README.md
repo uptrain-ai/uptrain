@@ -136,8 +136,8 @@ Speak directly with the maintainers of UpTrain by [booking a call here](https://
 # Resources 💡
 
 1. [How to evaluate your LLM application](https://uptrain.ai/blog/how-to-evaluate-your-llm-applications)
-2. [How to detect jailbreaks](https://blog.uptrain.ai/llm-jailbreak/)
-3. [Dealing with hallucinations](https://blog.uptrain.ai/dealing-with-hallucinations-in-llms-a-deep-dive/)
+1. [How to detect jailbreaks](https://blog.uptrain.ai/llm-jailbreak/)
+1. [Dealing with hallucinations](https://blog.uptrain.ai/dealing-with-hallucinations-in-llms-a-deep-dive/)
 
 
 # Why we are building UpTrain 🤔
@@ -165,27 +165,23 @@ So, come today, UpTrain is our attempt to bring order to LLM chaos and contribut
 1. **Foster innovation**: The field of LLM evaluations and using LLM-as-a-judge is still pretty nascent. We see a lot of exciting research happening, almost on a daily basis and being open-source provides the right platform to us and our community to implement those techniques and innovate faster.
 
 
-Here's a refined version of your text:
-
----
-
 ## How You Can Help 🙏
 
 We are continuously striving to enhance UpTrain, and there are several ways you can contribute:
 
 1. **Notice any issues or areas for improvement:** If you spot anything wrong or have ideas for enhancements, please [create an issue](https://github.com/uptrain-ai/uptrain/issues) on our GitHub repository.
 
-2. **Contribute directly:** If you see an issue you can fix or have code improvements to suggest, feel free to contribute directly to the [repository](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md).
+1. **Contribute directly:** If you see an issue you can fix or have code improvements to suggest, feel free to contribute directly to the [repository](https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md).
 
-3. **Request custom evaluations:** If your application requires a tailored evaluation, [let us know]((https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg)), and we'll add it to the repository.
+1. **Request custom evaluations:** If your application requires a tailored evaluation, [let us know]((https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg)), and we'll add it to the repository.
 
-4. **Integrate with your tools:** Need integration with your existing tools? [Reach out]((https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg)), and we'll work on it.
+1. **Integrate with your tools:** Need integration with your existing tools? [Reach out]((https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg)), and we'll work on it.
 
-5. **Assistance with evaluations:** If you need assistance with evaluations, post your query on our [Slack channel](https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg), and we'll resolve it promptly.
+1. **Assistance with evaluations:** If you need assistance with evaluations, post your query on our [Slack channel](https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg), and we'll resolve it promptly.
 
-6. **Show your support:** Show your support by starring us ⭐ on GitHub to track our progress.
+1. **Show your support:** Show your support by starring us ⭐ on GitHub to track our progress.
 
-7. **Spread the word:** If you like what we've built, give us a shoutout on Twitter!
+1. **Spread the word:** If you like what we've built, give us a shoutout on Twitter!
 
 Your contributions and support are greatly appreciated! Thank you for being a part of UpTrain's journey.
 

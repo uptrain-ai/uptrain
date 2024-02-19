@@ -12,7 +12,7 @@ Before we start you will need an Anyscale API key. You can get it [here](https:/
 
 ### How to integrate?
 
-First let's import the necessary packages and define Anyscale API Key
+First, let's import the necessary packages and define Anyscale API Key
 
 ```python
 from uptrain import EvalLLM, Evals, Settings
@@ -27,7 +27,7 @@ We have used Mistral-7B-Instruct-v0.1 for this example. You can find a full list
 
 <Info>Remember to add "anyscale/" at the beginning of the model name to let UpTrain know that you are using an AnyScale model.</Info>
 
-Let's define a dataset to perform evaluation
+Let's define a dataset on which we want to perform the evaluations
 
 ```python
 data = [{
@@ -38,7 +38,7 @@ data = [{
 ```
 
 Now, let's use UpTrain to evaluate for [Context Relevance](/predefined-evaluations/context-awareness/context-relevance) and [Factual Accuracy](/predefined-evaluations/context-awareness/factual-accuracy). 
-You can also find the complete list of metrics UpTrain supports [here](/predefined-evaluations)
+You can find the complete list of metrics supported by UpTrain [here](/predefined-evaluations)
 
 ```python
 eval_llm = EvalLLM(settings)
@@ -51,7 +51,7 @@ results = eval_llm.evaluate(
 print(json.dumps(results, indent=3))
 ```
 
-Let's look at the evaluations performed by UpTrain
+Let's look at the output of the above code:
 
 ```json
 [
@@ -65,8 +65,8 @@ Let's look at the evaluations performed by UpTrain
 ```
 
 According to these evaluations:
-1. Context Relevance: Since the context has information on the most popular sport globally, UpTrain has rated the context to be relevant to the question.
-2. Factual Accuracy: Since the facts mentioned in the response are grounded to the context, UpTrain has rated the response as factually accurate. 
+1. **Context Relevance:** Since the context has information on the most popular sport globally, UpTrain has rated the context to be relevant to the question.
+2. **Factual Accuracy:** Since the facts mentioned in the response are grounded to the context, UpTrain has rated the response as factually accurate. 
 
 <CardGroup cols={2}>
   <Card
