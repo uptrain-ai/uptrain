@@ -7,7 +7,7 @@ from __future__ import annotations
 import itertools
 import typing as t
 import json
-import numpy as np 
+import numpy as np
 
 from loguru import logger
 import polars as pl
@@ -137,7 +137,7 @@ class TextCompletion(TransformOp):
                     "model": model,
                     "messages": [{"role": "user", "content": text}],
                     "temperature": self.temperature,
-                    "seed" : self._settings.seed
+                    "seed": self._settings.seed,
                 },
                 metadata={"index": id},
             )
@@ -146,7 +146,7 @@ class TextCompletion(TransformOp):
                 data={
                     "model": model,
                     "messages": [{"role": "user", "content": text}],
-                    "temperature": self.temperature
+                    "temperature": self.temperature,
                 },
                 metadata={"index": id},
             )
@@ -186,24 +186,25 @@ class TextCompletion(TransformOp):
 @register_op
 class TopicGenerator(ColumnOp):
     """
-    Takes a table of clustered texts and identifies the topic for each cluster 
+    Takes a table of clustered texts and identifies the topic for each cluster
 
     Attributes:
         col_in_cluster_index (str): The name of the column containing the cluster index.
         col_in_dist (str): The name of the column containing the euclidean distance from its cluster centroid.
         col_in_text (str): The name of the column containing the text where the grouping needs to be performed.
-        top_n (int): Number of examples to be considered for each category. 
+        top_n (int): Number of examples to be considered for each category.
         col_out_text (str): The name of the column containing the topic for each entry.
         temperature (float): Temperature for the LLM to generate responses.
 
     Returns:
         TYPE_TABLE_OUTPUT: A dictionary containing the dataset with the output text.
     """
-    col_in_cluster_index: str = 'cluster_index'
-    col_in_dist: str = 'cluster_index_distance'
-    col_in_text: str = 'question'
-    top_n: int = 5 
-    col_out_text: str = 'topic'
+
+    col_in_cluster_index: str = "cluster_index"
+    col_in_dist: str = "cluster_index_distance"
+    col_in_text: str = "question"
+    top_n: int = 5
+    col_out_text: str = "topic"
     temperature: float = 1.0
     _api_client: LLMMulticlient
 
@@ -226,25 +227,29 @@ class TopicGenerator(ColumnOp):
             metadata={"index": id},
         )
 
-
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-
         res_data_arr = []
 
-        unique_agg_keys = ['default']
-        if '_unique_agg_key_for_clustering' in list(data.columns):
+        unique_agg_keys = ["default"]
+        if "_unique_agg_key_for_clustering" in list(data.columns):
             # First aggregate by col_aggs
-            agg_data = data.groupby('_unique_agg_key_for_clustering').agg([pl.col(self.col_in_text).count().alias("num_rows_" + self.col_in_text)])
+            agg_data = data.groupby("_unique_agg_key_for_clustering").agg(
+                [pl.col(self.col_in_text).count().alias("num_rows_" + self.col_in_text)]
+            )
             agg_data = agg_data.drop("num_rows_" + self.col_in_text)
-            unique_agg_keys = [eval(x) for x in list(agg_data['_unique_agg_key_for_clustering'])]
+            unique_agg_keys = [
+                eval(x) for x in list(agg_data["_unique_agg_key_for_clustering"])
+            ]
 
         self.topics = {}
 
         for unique_agg_key in unique_agg_keys:
             cond = True
             if isinstance(unique_agg_key, dict):
-                unique_agg_key = dict([(key, unique_agg_key[key]) for key in sorted(unique_agg_key)])
-                for key,val in unique_agg_key.items():
+                unique_agg_key = dict(
+                    [(key, unique_agg_key[key]) for key in sorted(unique_agg_key)]
+                )
+                for key, val in unique_agg_key.items():
                     cond = cond & (data[key] == val)
             data_subset = data.filter(cond)
 
@@ -256,21 +261,22 @@ class TopicGenerator(ColumnOp):
             outputs = [None] * len(questions)
             indexes_cluster = []
 
-            for index in range(n_clusters+1):
-                points = data_subset[self.col_in_cluster_index]==index
+            for index in range(n_clusters + 1):
+                points = data_subset[self.col_in_cluster_index] == index
                 indexes_cluster.append(list(np.where(points)[0]))
                 distances_cluster = distances[points]
                 questions_cluster = questions[points]
-                
 
                 indexes_sorted = np.argsort(distances_cluster)
-                indexes_top_n = indexes_sorted[:min(self.top_n, len(questions_cluster))]
+                indexes_top_n = indexes_sorted[
+                    : min(self.top_n, len(questions_cluster))
+                ]
                 questions_top_n = questions_cluster[indexes_top_n]
 
-                text = ''
+                text = ""
                 for j in range(len(questions_top_n)):
-                    text = text + str(j+1) + '. ' + str(questions_top_n[j]) + '\n'
-                
+                    text = text + str(j + 1) + ". " + str(questions_top_n[j]) + "\n"
+
                 input = f"""{text}"""
                 prompt = f""" Identify the common topic in the given sentences below. 
                 {input}
@@ -280,7 +286,6 @@ class TopicGenerator(ColumnOp):
 
                 if len(text) > 0:
                     input_payloads.append(self._make_payload(index, prompt, self.model))
-        
 
             output_payloads = self._api_client.fetch_responses(input_payloads)
 
@@ -298,24 +303,22 @@ class TopicGenerator(ColumnOp):
                 else:
                     resp_text = res.response.choices[0].message.content
                     results.append((idx, resp_text))
-            
+
             for index, resp_text in results:
                 indexes = indexes_cluster[index]
                 for idx in indexes:
-                    outputs[idx]=resp_text
+                    outputs[idx] = resp_text
 
-            output_text = pl.Series(
-                values=outputs
+            output_text = pl.Series(values=outputs)
+            data_subset = data_subset.with_columns(
+                [output_text.alias(self.col_out_text)]
             )
-            data_subset = data_subset.with_columns([output_text.alias(self.col_out_text)])
             res_data_arr.append(data_subset)
 
             results.sort(key=lambda x: x[0])
             self.topics[str(unique_agg_key)] = [x[1] for x in results]
 
-        return {
-            "output": pl.concat(res_data_arr)
-        }
+        return {"output": pl.concat(res_data_arr)}
 
 
 @register_op

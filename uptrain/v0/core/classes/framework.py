@@ -129,9 +129,8 @@ class Framework:
             if evaluation_args.inference_func:
                 self.set_inference_func(evaluation_args.inference_func)
 
-            if self.reader_args.mode == 'continuous':
+            if self.reader_args.mode == "continuous":
                 self.runtime_manager = RunTimeManager(self.reader_args, self)
-
 
     def reset_retraining(self):
         self.version += 1
@@ -435,10 +434,8 @@ class Framework:
             data.update({key: np.array(value)})
         return data
 
-
     def run_endlessly(self):
         self.runtime_manager.run_endlessly()
-
 
     def log(
         self,

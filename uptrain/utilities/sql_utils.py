@@ -31,7 +31,9 @@ def extract_tables_and_columns(expression: Expression, alias_mapping=None):
 
     # Handle tables and table aliases
     if isinstance(expression, Table):
-        table_key = f"{expression.db}.{expression.name}" if expression.db else expression.name
+        table_key = (
+            f"{expression.db}.{expression.name}" if expression.db else expression.name
+        )
         if table_key not in tables:
             tables[table_key] = set([])
         if expression.alias:
@@ -42,7 +44,9 @@ def extract_tables_and_columns(expression: Expression, alias_mapping=None):
 
     # Handle columns and their associated tables or table aliases
     if isinstance(expression, Column):
-        table = f"{expression.db}.{expression.table}" if expression.db else expression.table
+        table = (
+            f"{expression.db}.{expression.table}" if expression.db else expression.table
+        )
         if table and table in alias_mapping:
             table = alias_mapping[table]
         table = table or PLACEHOLDER_TABLE
@@ -89,7 +93,13 @@ def run_query(query, connection):
 
 # Execute predicted SQL, ground truth and compute execution accuracy of the predicted sql. We assume these queries to be
 # read queries.
-def execute_and_compare_sql(predicted_sql, ground_truth, db_path, ignore_column_order=True, ignore_row_order=True):
+def execute_and_compare_sql(
+    predicted_sql,
+    ground_truth,
+    db_path,
+    ignore_column_order=True,
+    ignore_row_order=True,
+):
     conn = sqlite3.connect(db_path)
     res = False
     try:
@@ -115,4 +125,3 @@ def execute_and_compare_sql(predicted_sql, ground_truth, db_path, ignore_column_
         logger.warning(f"Error executing: {e}")
         pass
     return res
-

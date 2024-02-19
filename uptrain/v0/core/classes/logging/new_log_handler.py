@@ -104,7 +104,9 @@ class LogHandler:
             f.write(cfg.json())
 
         # initialize the streamlit dashboard
-        self.st_runner = StreamlitRunner(self.log_folder, cfg.logging_args.dashboard_port)
+        self.st_runner = StreamlitRunner(
+            self.log_folder, cfg.logging_args.dashboard_port
+        )
         if cfg.logging_args.run_background_streamlit:
             self.st_runner.start()
         else:

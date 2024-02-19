@@ -30,9 +30,7 @@ class LogHandler:
             from uptrain.v0.core.classes.logging.log_postgres import PostgresLogs
 
             self.postgres_database = cfg.logging_args.database
-            self.postgres_writer = PostgresLogs(
-                self.postgres_database
-            )
+            self.postgres_writer = PostgresLogs(self.postgres_database)
 
         # Get Webhook URL for alerting on slack
         self.webhook_url = cfg.logging_args.slack_webhook_url

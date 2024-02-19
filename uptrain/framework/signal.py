@@ -1,17 +1,18 @@
 import numpy as np
 import polars as pl
 
+
 class Signal:
     """
     Signal Class wrapper for any dataframe column
 
     Attributes:
         col_name (str): Column Name
-        identifier (str): Used as an identifier for printing 
+        identifier (str): Used as an identifier for printing
 
     Methods:
         run(self, data): Evaluates on given data
-        
+
     """
 
     def __init__(self, col_name=""):
@@ -82,7 +83,6 @@ class InvertSignal(Signal):
 
 
 class OperatorSignal(Signal):
-
     def __init__(self, base, other):
         self.base = base
         self.other = other

@@ -18,7 +18,6 @@ class DummyCompletionFn(CompletionFn):
     def __init__(self, **kwargs) -> None:
         self.output_dictn = {}
 
-
     def __call__(self, prompt, **kwargs) -> DummyCompletionResult:
         prompt = CompletionPrompt(prompt).to_formatted_prompt()
         response = self.output_dictn[prompt]

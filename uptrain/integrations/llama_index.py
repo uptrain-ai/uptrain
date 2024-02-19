@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 import os
 import typing as t
@@ -15,9 +14,8 @@ from uptrain.framework.remote import DataSchema
 from llama_index.indices.query.base import BaseQueryEngine
 
 
-__all__ = [
-    "EvalLlamaIndex"
-]
+__all__ = ["EvalLlamaIndex"]
+
 
 class EvalLlamaIndex:
     query_engine: BaseQueryEngine
@@ -25,7 +23,9 @@ class EvalLlamaIndex:
 
     def __init__(self, settings: Settings, query_engine: BaseQueryEngine) -> None:
         if settings is None:
-            raise Exception("Please provide OpenAI API Key or Uptrain API Key in settings")
+            raise Exception(
+                "Please provide OpenAI API Key or Uptrain API Key in settings"
+            )
         if not isinstance(query_engine, BaseQueryEngine):
             raise Exception("Please provide Query Engine for the evaluation")
         self.query_engine = query_engine
@@ -64,36 +64,41 @@ class EvalLlamaIndex:
         Returns:
             results: List of dictionaries with each data point and corresponding evaluation results.
         """
-        
+
         if isinstance(data, pl.DataFrame):
             data = data.to_dicts()
         import nest_asyncio
+
         nest_asyncio.apply()
-        
+
         if schema is None:
             schema = DataSchema()
         elif isinstance(schema, dict):
             schema = DataSchema(**schema)
-        
-        responses = run_async_tasks([self.query_engine.aquery(data[i][schema.question]) for i in range(len(data))])
+
+        responses = run_async_tasks(
+            [
+                self.query_engine.aquery(data[i][schema.question])
+                for i in range(len(data))
+            ]
+        )
 
         for index, r in enumerate(responses):
             data[index][schema.response] = r.response
-            data[index][schema.context] = "\n".join([c.node.get_content() for c in r.source_nodes])
+            data[index][schema.context] = "\n".join(
+                [c.node.get_content() for c in r.source_nodes]
+            )
 
         if isinstance(self.client, EvalLLM):
             results = self.client.evaluate(
-                data = data,
-                checks = checks,
-                schema = schema,
-                metadata = metadata
+                data=data, checks=checks, schema=schema, metadata=metadata
             )
         elif isinstance(self.client, APIClient):
             results = self.client.log_and_evaluate(
-                project_name = project_name,
-                data = data,
-                checks = checks,
-                schema = schema,
-                metadata = metadata
+                project_name=project_name,
+                data=data,
+                checks=checks,
+                schema=schema,
+                metadata=metadata,
             )
         return results

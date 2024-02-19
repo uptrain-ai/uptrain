@@ -49,7 +49,7 @@ class MAPEMeasurable(Measurable):
     difference between corresponding prediction and ground truth,
     multiplied by 100 to express the result as a percentage.
     """
-    
+
     def __init__(self, framework) -> None:
         super().__init__(framework)
 

@@ -37,44 +37,58 @@ class TopicAssignmentviaCluster(ColumnOp):
 
     cluster_centroids: dict
     topics: dict
-    col_embeddings: str = 'embedding'
-    col_out: str = 'topic'
+    col_embeddings: str = "embedding"
+    col_out: str = "topic"
     col_out_cluster: str = "cluster_index"
-    col_out_dist: str = 'cluster_index_distance'
+    col_out_dist: str = "cluster_index_distance"
     col_aggs: list[str] = []
 
     def setup(self, settings: Settings):
         assert len(self.topics) > 0, "Topic list should not be empty"
-        assert len(self.topics) == len(self.cluster_centroids), "Each group should have a topic"
+        assert len(self.topics) == len(
+            self.cluster_centroids
+        ), "Each group should have a topic"
         for key in self.topics.keys():
-            assert len(self.topics[key]) == len(self.cluster_centroids[key]), "Each cluster should have a topic"
+            assert len(self.topics[key]) == len(
+                self.cluster_centroids[key]
+            ), "Each cluster should have a topic"
             self.cluster_centroids[key] = np.array(self.cluster_centroids[key])
         return self
 
-    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:      
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         res_data_arr = []
 
-        unique_agg_keys = ['default']
+        unique_agg_keys = ["default"]
         if len(self.col_aggs):
             # First aggregate by col_aggs
-            agg_data = data.groupby(self.col_aggs).agg([pl.col(self.col_embeddings).count().alias("num_rows_" + self.col_embeddings)])
+            agg_data = data.groupby(self.col_aggs).agg(
+                [
+                    pl.col(self.col_embeddings)
+                    .count()
+                    .alias("num_rows_" + self.col_embeddings)
+                ]
+            )
             agg_data = agg_data.drop("num_rows_" + self.col_embeddings)
             unique_agg_keys = agg_data.to_dicts()
 
         for unique_agg_key in unique_agg_keys:
             cond = True
             if isinstance(unique_agg_key, dict):
-                unique_agg_key = dict([(key, unique_agg_key[key]) for key in sorted(unique_agg_key)])
-                for key,val in unique_agg_key.items():
+                unique_agg_key = dict(
+                    [(key, unique_agg_key[key]) for key in sorted(unique_agg_key)]
+                )
+                for key, val in unique_agg_key.items():
                     cond = cond & (data[key] == val)
             data_subset = data.filter(cond)
             embeddings = np.asarray(data_subset[self.col_embeddings])
 
             if str(unique_agg_key) not in self.cluster_centroids:
                 cluster_centroids = None
-                topics = ['Not Defined']
+                topics = ["Not Defined"]
             else:
-                cluster_centroids = np.array(self.cluster_centroids[str(unique_agg_key)])
+                cluster_centroids = np.array(
+                    self.cluster_centroids[str(unique_agg_key)]
+                )
                 topics = self.topics[str(unique_agg_key)]
 
             assigned_topics = []
@@ -86,20 +100,21 @@ class TopicAssignmentviaCluster(ColumnOp):
                     assigned_topics.append(topics[0])
                     assigned_clusters.append(-1)
                 else:
-                    dists = np.linalg.norm(embeddings[index] - cluster_centroids, axis=1)
+                    dists = np.linalg.norm(
+                        embeddings[index] - cluster_centroids, axis=1
+                    )
                     assigned_cluster = np.argmin(dists)
                     cluster_index_distances.append(np.min(dists))
                     assigned_topics.append(topics[assigned_cluster])
                     assigned_clusters.append(assigned_cluster)
 
-            data_subset = data_subset.with_columns([
+            data_subset = data_subset.with_columns(
+                [
                     pl.Series(assigned_topics).alias(self.col_out),
                     pl.Series(assigned_clusters).alias(self.col_out_cluster),
                     pl.Series(cluster_index_distances).alias(self.col_out_dist),
-            ])
+                ]
+            )
             res_data_arr.append(data_subset)
 
-        return {
-            "output": pl.concat(res_data_arr)
-        }
-
+        return {"output": pl.concat(res_data_arr)}

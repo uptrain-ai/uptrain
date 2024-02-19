@@ -13,6 +13,7 @@ if t.TYPE_CHECKING:
 from uptrain.operators.base import *
 from uptrain.utilities import polars_to_json_serializable_dict
 
+
 @register_op
 class ResponseMatchingScore(ColumnOp):
     """
@@ -37,6 +38,7 @@ class ResponseMatchingScore(ColumnOp):
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
+
         assert settings is not None
         if self.method not in ["exact", "rouge", "llm"]:
             raise Exception(f"Metric: {self.method} is not supported yet.")
@@ -52,15 +54,21 @@ class ResponseMatchingScore(ColumnOp):
 
         try:
             results = self._api_client.evaluate(
-                "ResponseMatching", data_send, {
+                "ResponseMatching",
+                data_send,
+                {
                     "type": self.method,
-                    "scenario_description": self.scenario_description            
-                })
+                    "scenario_description": self.scenario_description,
+                },
+            )
 
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ResponseMatchingScore`: {e}")
             raise e
 
         assert results is not None
-        return {"output": data.with_columns(pl.from_dicts(results).rename({"score_response_match": self.col_out}))}
-
+        return {
+            "output": data.with_columns(
+                pl.from_dicts(results).rename({"score_response_match": self.col_out})
+            )
+        }

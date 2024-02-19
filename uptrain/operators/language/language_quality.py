@@ -16,7 +16,7 @@ import polars as pl
 from uptrain.operators.language.llm import LLMMulticlient
 from uptrain.operators.language.prompts.classic import (
     LANGUAGE_FLUENCY_PROMPT_TEMPLATE,
-    LANGUAGE_COHERENCE_PROMPT_TEMPLATE
+    LANGUAGE_COHERENCE_PROMPT_TEMPLATE,
 )
 from uptrain.operators.language.prompts.few_shots import (
     LANGUAGE_FLUENCY_FEW_SHOT__CLASSIFY,
@@ -235,7 +235,9 @@ class ResponseCoherence(ColumnOp):
         assert results is not None
         return {
             "output": data.with_columns(
-                pl.from_dicts(results).rename({"score_response_coherence": self.col_out})
+                pl.from_dicts(results).rename(
+                    {"score_response_coherence": self.col_out}
+                )
             )
         }
 

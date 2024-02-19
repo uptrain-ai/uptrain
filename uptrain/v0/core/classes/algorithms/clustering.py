@@ -169,9 +169,8 @@ class Clustering:
             cluster_plot_func=self.cluster_plot_func,
             plot_save_name=self.plot_save_name,
             normalisation=self.max_along_axis,
-            compute_point_density=self.find_low_density_regions
+            compute_point_density=self.find_low_density_regions,
         )
-
 
         self.clusters = np.array([all_clusters])
         self.cluster_vars = np.array([cluster_vars])

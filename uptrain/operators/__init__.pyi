@@ -93,7 +93,7 @@ __all__ = [
     "RagWithCitation",
     # embedding
     "VectorSearch",
-    "Embedding"
+    "Embedding",
 ]
 
 from .base import (

@@ -13,9 +13,18 @@ import pydantic
 
 from uptrain.framework.checks import CheckSet, ExperimentArgs
 from uptrain.framework.base import Settings
-from uptrain.framework.evals import Evals, JailbreakDetection, ParametricEval, CritiqueTone, GuidelineAdherence, ResponseMatching, ConversationSatisfaction
+from uptrain.framework.evals import (
+    Evals,
+    JailbreakDetection,
+    ParametricEval,
+    CritiqueTone,
+    GuidelineAdherence,
+    ResponseMatching,
+    ConversationSatisfaction,
+)
 from uptrain.framework.rca_templates import RcaTemplate
 from uptrain.utilities import polars_to_pandas
+
 
 class DataSchema(pydantic.BaseModel):
     id_: str = "id"
@@ -25,7 +34,7 @@ class DataSchema(pydantic.BaseModel):
     ground_truth: str = "ground_truth"
 
     # Used for conversation evals
-    conversation: str = 'conversation'
+    conversation: str = "conversation"
 
     # Used for RcaTemplate: RAG_WITH_CITATION
     cited_context: str = "cited_context"
@@ -68,19 +77,14 @@ class APIClientWithoutAuth:
         checks: list[t.Union[Evals, ParametricEval, dict]],
         metadata: dict,
     ):
-        """Run an evaluation on the UpTrain server (Doesn't require UpTrain API Key).
-        """
+        """Run an evaluation on the UpTrain server (Doesn't require UpTrain API Key)."""
 
         url = f"{self.base_url}/evaluate_no_auth"
         response_json = []
         try:
             response = self.client.post(
                 url,
-                json={
-                    "data": data,
-                    "checks": checks,
-                    "metadata": metadata
-                },
+                json={"data": data, "checks": checks, "metadata": metadata},
             )
             response_json = raise_or_return(response)
         except Exception as e:
@@ -88,7 +92,6 @@ class APIClientWithoutAuth:
             raise e
 
         return response_json
-
 
 
 class APIClient:
@@ -258,7 +261,9 @@ class APIClient:
             logger.error(response.text)
             response.raise_for_status()
         else:
-            return pl.DataFrame(polars_to_pandas(pl.read_ndjson(response.content))).to_dicts()
+            return pl.DataFrame(
+                polars_to_pandas(pl.read_ndjson(response.content))
+            ).to_dicts()
 
     def download_run_result(self, run_id: str, check_name: str, fpath: str) -> None:
         """Download the results of a run.
@@ -291,7 +296,14 @@ class APIClient:
         response = self.client.get(url, params=params)
         return raise_or_return(response)
 
-    def add_daily_schedule(self, checkset: str, start_on: str, assign_topics: int = 0, assign_topics_args: t.Optional[dict] = None, extra_args: t.Optional[dict] = None):
+    def add_daily_schedule(
+        self,
+        checkset: str,
+        start_on: str,
+        assign_topics: int = 0,
+        assign_topics_args: t.Optional[dict] = None,
+        extra_args: t.Optional[dict] = None,
+    ):
         """Schedules a periodic evaluation on the server. Specify the checkset to run against it.
 
         Args:
@@ -303,14 +315,14 @@ class APIClient:
         """
         url = f"{self.base_url}/schedule"
         response = self.client.post(
-            url, 
+            url,
             json={
                 "checkset": checkset,
                 "start_on": start_on,
                 "assign_topics": assign_topics,
                 "assign_topics_args": assign_topics_args,
                 "extra_args": extra_args,
-            }
+            },
         )
         return raise_or_return(response)
 
@@ -369,7 +381,9 @@ class APIClient:
         response = self.client.put(url, params=params)
         return raise_or_return(response)
 
-    def get_schedule_results_all_dates(self, schedule_id: str, check_name: str) -> list[dict]:
+    def get_schedule_results_all_dates(
+        self, schedule_id: str, check_name: str
+    ) -> list[dict]:
         """Get the results of a schedule.
 
         Args:
@@ -408,10 +422,10 @@ class APIClient:
         results = []
 
         if params is not None:
-            params['uptrain_settings'] = self.settings.dict()
+            params["uptrain_settings"] = self.settings.dict()
         else:
             params = {}
-            params['uptrain_settings'] = self.settings.dict()
+            params["uptrain_settings"] = self.settings.dict()
 
         NUM_TRIES = 3
         for i in range(0, len(full_dataset), 100):
@@ -441,7 +455,6 @@ class APIClient:
                 results.extend(response_json)
 
         return results
-
 
     def perform_root_cause_analysis(
         self,
@@ -483,7 +496,9 @@ class APIClient:
 
         req_attrs, ser_templates = set(), []
         if rca_template == RcaTemplate.RAG_WITH_CITATION:
-            req_attrs.update([schema.question, schema.response, schema.context, schema.cited_context])
+            req_attrs.update(
+                [schema.question, schema.response, schema.context, schema.cited_context]
+            )
         else:
             raise Exception("RCA Template not supported yet")
 
@@ -532,7 +547,6 @@ class APIClient:
 
         return results
 
-
     def log_and_evaluate(
         self,
         project_name: str,
@@ -579,25 +593,56 @@ class APIClient:
             if m in [Evals.SUB_QUERY_COMPLETENESS]:
                 req_attrs.update([schema.sub_questions, schema.question])
             elif m in [Evals.CONTEXT_CONCISENESS]:
-                req_attrs.update([schema.question, schema.context, schema.concise_context])
+                req_attrs.update(
+                    [schema.question, schema.context, schema.concise_context]
+                )
             elif m in [Evals.CONTEXT_RERANKING]:
-                req_attrs.update([schema.question, schema.context, schema.reranked_context])
-            elif m in [Evals.FACTUAL_ACCURACY, Evals.RESPONSE_COMPLETENESS_WRT_CONTEXT, Evals.RESPONSE_CONSISTENCY, Evals.CODE_HALLUCINATION]:
+                req_attrs.update(
+                    [schema.question, schema.context, schema.reranked_context]
+                )
+            elif m in [
+                Evals.FACTUAL_ACCURACY,
+                Evals.RESPONSE_COMPLETENESS_WRT_CONTEXT,
+                Evals.RESPONSE_CONSISTENCY,
+                Evals.CODE_HALLUCINATION,
+            ]:
                 req_attrs.update([schema.question, schema.context, schema.response])
-            elif m in [Evals.VALID_RESPONSE, Evals.RESPONSE_RELEVANCE, Evals.RESPONSE_COMPLETENESS, Evals.RESPONSE_CONCISENESS, Evals.PROMPT_INJECTION]:
+            elif m in [
+                Evals.VALID_RESPONSE,
+                Evals.RESPONSE_RELEVANCE,
+                Evals.RESPONSE_COMPLETENESS,
+                Evals.RESPONSE_CONCISENESS,
+                Evals.PROMPT_INJECTION,
+            ]:
                 req_attrs.update([schema.question, schema.response])
             elif m in [Evals.CONTEXT_RELEVANCE]:
                 req_attrs.update([schema.question, schema.context])
-            elif m in [Evals.CRITIQUE_LANGUAGE] or isinstance(m, CritiqueTone) or isinstance(m, GuidelineAdherence):
+            elif (
+                m in [Evals.CRITIQUE_LANGUAGE]
+                or isinstance(m, CritiqueTone)
+                or isinstance(m, GuidelineAdherence)
+            ):
                 req_attrs.update([schema.response])
-            elif m in [Evals.RESPONSE_ALIGNMENT_WITH_SCENARIO, Evals.RESPONSE_SINCERITY_WITH_SCENARIO]:
-                req_attrs.update([schema.question, schema.response, schema.scenario, schema.objective])
+            elif m in [
+                Evals.RESPONSE_ALIGNMENT_WITH_SCENARIO,
+                Evals.RESPONSE_SINCERITY_WITH_SCENARIO,
+            ]:
+                req_attrs.update(
+                    [
+                        schema.question,
+                        schema.response,
+                        schema.scenario,
+                        schema.objective,
+                    ]
+                )
             elif isinstance(m, ResponseMatching):
-                req_attrs.update([schema.question, schema.response, schema.ground_truth])
+                req_attrs.update(
+                    [schema.question, schema.response, schema.ground_truth]
+                )
             elif isinstance(m, ConversationSatisfaction):
                 req_attrs.update([schema.conversation])
             elif isinstance(m, JailbreakDetection):
-                req_attrs.update([schema.question])    
+                req_attrs.update([schema.question])
 
             if isinstance(m, ParametricEval):
                 dictm = m.dict()
@@ -650,7 +695,6 @@ class APIClient:
 
         return results
 
-
     def evaluate_experiments(
         self,
         project_name: str,
@@ -676,7 +720,7 @@ class APIClient:
         if metadata is None:
             metadata = {}
 
-        metadata.update({'uptrain_experiment_columns': exp_columns})
+        metadata.update({"uptrain_experiment_columns": exp_columns})
 
         if schema is None:
             schema = DataSchema()
@@ -695,10 +739,11 @@ class APIClient:
         all_cols = set(results.columns)
         value_cols = list(all_cols - set([schema.question] + exp_columns))
         index_cols = metadata.get("uptrain_index_columns", [schema.question])
-        exp_results = results.pivot(values=value_cols, index=index_cols, columns=exp_columns)
+        exp_results = results.pivot(
+            values=value_cols, index=index_cols, columns=exp_columns
+        )
         exp_results = exp_results.to_dicts()
         return exp_results
-
 
     def download_project_eval_results(self, project_name: str, fpath: str):
         """Fetch all the evaluation results for a project.

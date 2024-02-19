@@ -22,11 +22,14 @@ from uptrain.operators.base import (
 from uptrain.utilities import polars_to_json_serializable_dict
 from uptrain.operators.language.llm import LLMMulticlient
 
-from uptrain.operators.language.prompts.classic import FACT_EVAL_PROMPT_TEMPLATE, FACT_GENERATE_PROMPT_TEMPLATE
+from uptrain.operators.language.prompts.classic import (
+    FACT_EVAL_PROMPT_TEMPLATE,
+    FACT_GENERATE_PROMPT_TEMPLATE,
+)
 from uptrain.operators.language.prompts.few_shots import (
     FACT_EVAL_FEW_SHOT__CLASSIFY,
     FACT_EVAL_FEW_SHOT__COT,
-    FACT_GENERATE_FEW_SHOT
+    FACT_GENERATE_FEW_SHOT,
 )
 from uptrain.operators.language.prompts.instructions import (
     CLASSIFY,
@@ -62,7 +65,6 @@ class ResponseFactualScore(ColumnOp):
     scenario_description: t.Optional[str] = None
     score_mapping: dict = {"yes": 1.0, "unclear": 0.5, "no": 0.0}
 
-
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
 
@@ -85,34 +87,44 @@ class ResponseFactualScore(ColumnOp):
             if self.settings.evaluate_locally:
                 results = self.evaluate_local(data_send)
             else:
-                results = self._api_client.evaluate("factual_accuracy", data_send, {"scenario_description" : self.scenario_description})
+                results = self._api_client.evaluate(
+                    "factual_accuracy",
+                    data_send,
+                    {"scenario_description": self.scenario_description},
+                )
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ResponseFactualScore`: {e}")
             raise e
-        
-        assert results is not None
-        return {"output": data.with_columns(pl.from_dicts(results).rename({"score_factual_accuracy": self.col_out}))}
 
+        assert results is not None
+        return {
+            "output": data.with_columns(
+                pl.from_dicts(results).rename({"score_factual_accuracy": self.col_out})
+            )
+        }
 
     def fact_generate_validate_func(self, llm_output):
         return isinstance(json.loads(llm_output), list)
-
 
     def fact_eval_classify_validate_func(self, llm_output):
         is_correct = True
         is_correct = is_correct and isinstance(json.loads(llm_output), list)
         for row in json.loads(llm_output):
-            is_correct = is_correct and min([x in row for x in ["Judgement", "Fact"]]) > 0
-            is_correct = is_correct and row['Judgement'].lower() in ["yes", "no", "unclear"]
+            is_correct = (
+                is_correct and min([x in row for x in ["Judgement", "Fact"]]) > 0
+            )
+            is_correct = is_correct and row["Judgement"].lower() in [
+                "yes",
+                "no",
+                "unclear",
+            ]
         return is_correct
-
 
     def fact_eval_cot_validate_func(self, llm_output):
         is_correct = self.fact_eval_classify_validate_func(llm_output)
         for row in json.loads(llm_output):
             is_correct = is_correct and min([x in row for x in ["Reasoning"]]) > 0
         return is_correct
-
 
     def evaluate_local(self, data):
         """
@@ -121,22 +133,34 @@ class ResponseFactualScore(ColumnOp):
         """
 
         # Step 0: Parse the scenario description
-        self.scenario_description, scenario_vars = parse_scenario_description(self.scenario_description)
-        
+        self.scenario_description, scenario_vars = parse_scenario_description(
+            self.scenario_description
+        )
+
         # Step 1: Extract facts from the response
         input_payloads = []
         for idx, row in enumerate(data):
             kwargs = row
-            kwargs.update({
-                'output_format': FACT_GENERATE_OUTPUT_FORMAT,
-                'few_shot_examples': FACT_GENERATE_FEW_SHOT,
-            })
+            kwargs.update(
+                {
+                    "output_format": FACT_GENERATE_OUTPUT_FORMAT,
+                    "few_shot_examples": FACT_GENERATE_FEW_SHOT,
+                }
+            )
             try:
-                grading_prompt_template = FACT_GENERATE_PROMPT_TEMPLATE.replace("{scenario_description}", self.scenario_description).format(**kwargs)
+                grading_prompt_template = FACT_GENERATE_PROMPT_TEMPLATE.replace(
+                    "{scenario_description}", self.scenario_description
+                ).format(**kwargs)
             except KeyError as e:
-                raise KeyError(f"Missing required attribute(s) for scenario description: {e}")
-            input_payloads.append(self._api_client.make_payload(idx, grading_prompt_template))
-        output_payloads = self._api_client.fetch_responses(input_payloads, self.fact_generate_validate_func)
+                raise KeyError(
+                    f"Missing required attribute(s) for scenario description: {e}"
+                )
+            input_payloads.append(
+                self._api_client.make_payload(idx, grading_prompt_template)
+            )
+        output_payloads = self._api_client.fetch_responses(
+            input_payloads, self.fact_generate_validate_func
+        )
 
         fact_results = []
         for res in output_payloads:
@@ -145,7 +169,9 @@ class ResponseFactualScore(ColumnOp):
                 facts = json.loads(res.response.choices[0].message.content)
                 fact_results.append((idx, facts))
             except Exception:
-                logger.error(f"Error when processing payload at index {idx}: {res.error}")
+                logger.error(
+                    f"Error when processing payload at index {idx}: {res.error}"
+                )
                 fact_results.append((idx, []))
         fact_results = [val for _, val in sorted(fact_results, key=lambda x: x[0])]
 
@@ -166,31 +192,50 @@ class ResponseFactualScore(ColumnOp):
 
         for idx, row in enumerate(data):
             kwargs = row
-            kwargs.update({
-                'facts': fact_results[idx],
-                'output_format': output_format,
-                "prompting_instructions": prompting_instructions,
-                "few_shot_examples": few_shot_examples,
-            })
+            kwargs.update(
+                {
+                    "facts": fact_results[idx],
+                    "output_format": output_format,
+                    "prompting_instructions": prompting_instructions,
+                    "few_shot_examples": few_shot_examples,
+                }
+            )
             try:
-                grading_prompt_template = FACT_EVAL_PROMPT_TEMPLATE.replace("{scenario_description}", self.scenario_description).format(**kwargs)
+                grading_prompt_template = FACT_EVAL_PROMPT_TEMPLATE.replace(
+                    "{scenario_description}", self.scenario_description
+                ).format(**kwargs)
             except KeyError as e:
-                raise KeyError(f"Missing required attribute(s) for scenario description: {e}")
-            input_payloads.append(self._api_client.make_payload(idx, grading_prompt_template))
-        output_payloads = self._api_client.fetch_responses(input_payloads, validation_func)
-
+                raise KeyError(
+                    f"Missing required attribute(s) for scenario description: {e}"
+                )
+            input_payloads.append(
+                self._api_client.make_payload(idx, grading_prompt_template)
+            )
+        output_payloads = self._api_client.fetch_responses(
+            input_payloads, validation_func
+        )
 
         results = []
         for res in output_payloads:
             idx = res.metadata["index"]
-            output = {'score_factual_accuracy': None, 'explanation_factual_accuracy': None}
+            output = {
+                "score_factual_accuracy": None,
+                "explanation_factual_accuracy": None,
+            }
             try:
-                judgements = [x['Judgement'] for x in json.loads(res.response.choices[0].message.content)]
+                judgements = [
+                    x["Judgement"]
+                    for x in json.loads(res.response.choices[0].message.content)
+                ]
                 score = np.mean([self.score_mapping[x.lower()] for x in judgements])
-                output['score_factual_accuracy'] = float(score)
-                output['explanation_factual_accuracy'] = res.response.choices[0].message.content
+                output["score_factual_accuracy"] = float(score)
+                output["explanation_factual_accuracy"] = res.response.choices[
+                    0
+                ].message.content
             except Exception:
-                logger.error(f"Error when processing payload at index {idx}: {res.error}")
+                logger.error(
+                    f"Error when processing payload at index {idx}: {res.error}"
+                )
             results.append((idx, output))
         results = [val for _, val in sorted(results, key=lambda x: x[0])]
 

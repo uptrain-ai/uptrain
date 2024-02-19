@@ -268,15 +268,16 @@ class TextComparison(ColumnOp):
 class KeywordDetector(ColumnOp):
     """
     Detect keywords in given text.
-    
+
     Attributes:
         col_in_text: (str) The input text.
         keyword: (str) The keywords to be checked.
         col_out: str = "keyword_detector"
 
 
-    
+
     """
+
     col_in_text: str
     keyword: str
     col_out: str = "keyword_detector"

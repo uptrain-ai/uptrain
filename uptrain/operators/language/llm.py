@@ -30,7 +30,8 @@ nestasyncio.apply()
 from openai import AsyncOpenAI
 from openai import AsyncAzureOpenAI
 import openai
-#import openai.error
+
+# import openai.error
 
 
 # -----------------------------------------------------------
@@ -76,14 +77,20 @@ async def async_process_payload(
     for count in range(max_retries):  # failed requests don't count towards rate limit
         try:
             if aclient is not None:
-                payload.response = await aclient.chat.completions.create(**payload.data, timeout=180)
+                payload.response = await aclient.chat.completions.create(
+                    **payload.data, timeout=180
+                )
             else:
                 payload.response = await litellm.acompletion(
                     **payload.data,
                 )
             if validate_func is not None:
-                if not run_validation(payload.response.choices[0].message.content, validate_func):
-                    raise Exception(f"Response doesn't pass the validation func.\nResponse: {payload.response.choices[0].message.content}")
+                if not run_validation(
+                    payload.response.choices[0].message.content, validate_func
+                ):
+                    raise Exception(
+                        f"Response doesn't pass the validation func.\nResponse: {payload.response.choices[0].message.content}"
+                    )
             break
         except Exception as exc:
             logger.error(f"Error when sending request to LLM API: {exc}")
@@ -96,18 +103,18 @@ async def async_process_payload(
                         openai.APITimeoutError,
                         openai.InternalServerError,
                         openai.RateLimitError,
-                        openai.UnprocessableEntityError
+                        openai.UnprocessableEntityError,
                     ),
                 )
                 and count < max_retries - 1
             ):
                 logger.info(
                     f"Going to sleep before retrying for payload {payload.metadata['index']}"
-                )                
+                )
                 await asyncio.sleep(random.uniform(5, 30) * count + 60)
             elif (
                 isinstance(exc, openai.BadRequestError)
-                and exc.code is not None 
+                and exc.code is not None
                 and "context_length" in exc.code
                 and count < max_retries - 1
             ):
@@ -132,12 +139,8 @@ async def async_process_payload(
                 else:
                     payload.error = str(exc)
                     break
-            elif (
-                "Response doesn't pass the validation func" in str(exc)
-            ):
-                logger.info(
-                    f"Retrying for payload {payload.metadata['index']}"
-                )
+            elif "Response doesn't pass the validation func" in str(exc):
+                logger.info(f"Retrying for payload {payload.metadata['index']}")
             else:
                 payload.error = str(exc)
                 break
@@ -156,34 +159,41 @@ class LLMMulticlient:
         self.aclient = None
         self.settings = settings
         if settings is not None:
-            if settings.model.startswith("gpt") and settings.check_and_get("openai_api_key") is not None:
+            if (
+                settings.model.startswith("gpt")
+                and settings.check_and_get("openai_api_key") is not None
+            ):
                 openai.api_key = settings.check_and_get("openai_api_key")  # type: ignore
                 self.aclient = AsyncOpenAI()
 
-            if settings.model.startswith("azure") and settings.check_and_get("azure_api_key") is not None:
+            if (
+                settings.model.startswith("azure")
+                and settings.check_and_get("azure_api_key") is not None
+            ):
                 self.aclient = AsyncAzureOpenAI(
-                    api_key = settings.azure_api_key,  
+                    api_key=settings.azure_api_key,
                     api_version=settings.azure_api_version,
-                    azure_endpoint = settings.azure_api_base
+                    azure_endpoint=settings.azure_api_base,
                 )
 
-            if settings.model.startswith("anyscale") and settings.check_and_get("anyscale_api_key") is not None:
-                self.aclient=AsyncOpenAI(
+            if (
+                settings.model.startswith("anyscale")
+                and settings.check_and_get("anyscale_api_key") is not None
+            ):
+                self.aclient = AsyncOpenAI(
                     api_key=settings.anyscale_api_key,
-                    base_url="https://api.endpoints.anyscale.com/v1"
+                    base_url="https://api.endpoints.anyscale.com/v1",
                 )
 
             self._rpm_limit = settings.check_and_get("rpm_limit")
             self._tpm_limit = settings.check_and_get("tpm_limit")
 
-
     def make_payload(
-            self,
-            index: int, 
-            prompt: str,
-            temperature: float = 0.1, 
+        self,
+        index: int,
+        prompt: str,
+        temperature: float = 0.1,
     ) -> Payload:
-
         model = self.settings.model
         seed = self.settings.seed
         response_format = self.settings.response_format
@@ -205,8 +215,9 @@ class LLMMulticlient:
             metadata={"index": index},
         )
 
-
-    def fetch_responses(self, input_payloads: list[Payload], validate_func: function = None) -> list[Payload]:
+    def fetch_responses(
+        self, input_payloads: list[Payload], validate_func: function = None
+    ) -> list[Payload]:
         try:
             loop = asyncio.get_running_loop()
         except RuntimeError:
@@ -218,13 +229,20 @@ class LLMMulticlient:
             )
             with ThreadPoolExecutor(max_workers=1) as executor:
                 return executor.submit(
-                    asyncio.run, self.async_fetch_responses(input_payloads, validate_func=validate_func)
+                    asyncio.run,
+                    self.async_fetch_responses(
+                        input_payloads, validate_func=validate_func
+                    ),
                 ).result()
         else:
-            return asyncio.run(self.async_fetch_responses(input_payloads, validate_func=validate_func))
+            return asyncio.run(
+                self.async_fetch_responses(input_payloads, validate_func=validate_func)
+            )
 
     async def async_fetch_responses(
-        self, input_payloads: list[Payload], validate_func: function = None,
+        self,
+        input_payloads: list[Payload],
+        validate_func: function = None,
     ) -> list[Payload]:
         rpm_limiter = aiolimiter.AsyncLimiter(self._rpm_limit, time_period=60)
         tpm_limiter = aiolimiter.AsyncLimiter(self._tpm_limit, time_period=60)
@@ -235,7 +253,7 @@ class LLMMulticlient:
                 tpm_limiter,
                 self.aclient,
                 self._max_tries,
-                validate_func=validate_func
+                validate_func=validate_func,
             )
             for data in input_payloads
         ]

@@ -145,7 +145,7 @@ Task Data.
 
 
 # Response Consistency
-RESPONSE_CONSISTENCY_PROMPT_TEMPLATE =  """
+RESPONSE_CONSISTENCY_PROMPT_TEMPLATE = """
 You are given a question along with a context and a machine generated response. An intelligent LLM generated the given response to answer the given question by utilizing information present in the context.
 For the provided task data, come up with an argument to justify why the given answer is appropriate for the given question. Finally give a score between 0 to 1, indicating how logical the argument looks like along with an explanation for the score.
 
@@ -166,7 +166,7 @@ Task Data.
 
 
 # Valid Response
-VALID_RESPONSE_PROMPT_TEMPLATE =  """
+VALID_RESPONSE_PROMPT_TEMPLATE = """
 You are given a question and a response generated from an AI assistant. Please assess if the given response contain any information. 
 
 {scenario_description}

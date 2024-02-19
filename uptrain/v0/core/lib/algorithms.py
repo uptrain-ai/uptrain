@@ -30,8 +30,7 @@ def estimate_earth_moving_cost(prod_dist, ref_dist, clusters):
         for kdx in range(len(dictn)):
             if dirt_required > 0:
                 this_cost += (
-                    min(dictn[kdx]["dirt"], dirt_required)
-                    * dictn[kdx]["cost_per_dirt"]
+                    min(dictn[kdx]["dirt"], dirt_required) * dictn[kdx]["cost_per_dirt"]
                 )
                 dirt_required -= min(dictn[kdx]["dirt"], dirt_required)
             else:

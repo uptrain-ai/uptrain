@@ -5,6 +5,7 @@ import typing as t
 
 import polars as pl
 import pandas as pd
+
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
 from uptrain.operators.base import *
@@ -115,7 +116,6 @@ class DeltaReader(TransformOp):
     _batch_generator: t.Optional[t.Iterator[t.Any]]  # record batch generator
 
     def setup(self, settings: Settings):
-
         lazy_load_dep("pyarrow", "pyarrow>=10.0.0")
         dl = lazy_load_dep("deltatable", "deltalake>=0.9")
 

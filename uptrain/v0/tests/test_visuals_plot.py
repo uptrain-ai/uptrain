@@ -5,13 +5,13 @@ import uptrain.v0 as v0
 
 def test_visuals_plot():
     """Test Visual Plot API functionality.
-    
+
     In this test, we test the plotting functionality of the framework.
     We test the following plots:
         - Line chart
         - Bar chart
         - Histogram
-    
+
     For each of the above plots, we generate random data.
 
     The test passes if the plots are generated correctly.
@@ -46,16 +46,14 @@ def test_visuals_plot():
                 "y_feature_name": "loss",
                 "plot_name": "epoch vs loss",
             },
-
             # Line chart for epoch vs loss on a different dashboard
             {
                 "type": v0.Visual.PLOT,
                 "plot": v0.PlotType.LINE_CHART,
                 "y_feature_name": "loss",
                 "plot_name": "epoch vs loss 2",
-                "dashboard_name": "Plot 2"
+                "dashboard_name": "Plot 2",
             },
-
             # Bar chart for bar1 and bar2 on default dashboard
             {
                 "type": v0.Visual.PLOT,
@@ -65,7 +63,6 @@ def test_visuals_plot():
                 "bars": ["bar1", "bar2"],
                 "plot_name": "bar chart",
             },
-
             # Histogram for model_a on default dashboard
             {
                 "type": v0.Visual.PLOT,
@@ -73,7 +70,6 @@ def test_visuals_plot():
                 "feature_name": "model_a",
                 "plot_name": "single histogram",
             },
-
             # Histogram for model_b on default dashboard with multiple models
             {
                 "type": v0.Visual.PLOT,
@@ -81,7 +77,6 @@ def test_visuals_plot():
                 "feature_name": "model_a",
                 "plot_name": "multiple histogram",
             },
-
             # Histogram for model_b on default dashboard with multiple models
             {
                 "type": v0.Visual.PLOT,
@@ -90,7 +85,6 @@ def test_visuals_plot():
                 "plot_name": "multiple histogram",
             },
         ],
-
         # Specify logging arguments
         # "st_logging" should be True if we want streamlit logging, False otherwise
         "logging_args": {"st_logging": True},

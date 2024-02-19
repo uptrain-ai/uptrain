@@ -29,7 +29,10 @@ CONSOLIDATED_CHECK = Check(
 )
 
 
-def st_setup_layout(title: str="UpTrain Dashboard", page_icon: str="https://github.com/uptrain-ai/uptrain/raw/dashboard/uptrain/core/classes/logging/uptrain_logo_icon.png"):
+def st_setup_layout(
+    title: str = "UpTrain Dashboard",
+    page_icon: str = "https://github.com/uptrain-ai/uptrain/raw/dashboard/uptrain/core/classes/logging/uptrain_logo_icon.png",
+):
     st.set_page_config(
         page_title=title,
         layout="wide",

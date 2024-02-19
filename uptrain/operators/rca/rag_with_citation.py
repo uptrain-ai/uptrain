@@ -16,6 +16,7 @@ from uptrain.operators.base import *
 from uptrain import RcaTemplate
 from uptrain.utilities import polars_to_json_serializable_dict
 
+
 @register_op
 class RagWithCitation(ColumnOp):
     """
@@ -25,7 +26,7 @@ class RagWithCitation(ColumnOp):
         col_question (str): Column name for the stored questions
         col_context: (str) Column name for stored context
         col_response (str): Column name for the stored responses
-        col_cited_context (str): Column name for the stored cited context 
+        col_cited_context (str): Column name for the stored cited context
 
     Raises:
         Exception: Raises exception for any failed analysis attempts
@@ -55,16 +56,17 @@ class RagWithCitation(ColumnOp):
 
         try:
             results = self._api_client.perform_root_cause_analysis(
-                project_name = "_internal", 
-                data = data_send,
-                rca_template = RcaTemplate.RAG_WITH_CITATION,
-                scenario_description = self.scenario_description,
-                metadata = {"internal_call": True}
+                project_name="_internal",
+                data=data_send,
+                rca_template=RcaTemplate.RAG_WITH_CITATION,
+                scenario_description=self.scenario_description,
+                metadata={"internal_call": True},
             )
         except Exception as e:
-            logger.error(f"Failed to run Root cause analysis for `RagWithCitation`: {e}")
+            logger.error(
+                f"Failed to run Root cause analysis for `RagWithCitation`: {e}"
+            )
             raise e
-        
+
         assert results is not None
         return {"output": data.with_columns(pl.from_dicts(results))}
-

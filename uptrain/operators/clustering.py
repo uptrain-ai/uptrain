@@ -24,7 +24,6 @@ from uptrain.utilities import lazy_load_dep
 nltk = lazy_load_dep("nltk", "nltk")
 
 
-
 @register_op
 class Clustering(ColumnOp):
     """
@@ -45,7 +44,7 @@ class Clustering(ColumnOp):
         # Create an instance of the UMAP operator
         op = Clustering(
                 algorithm="kmeans",
-                n_clusters=40, 
+                n_clusters=40,
                 col_in = 'umap_embedding',
                 col_out = 'cluster_index'
             )
@@ -62,25 +61,26 @@ class Clustering(ColumnOp):
         ```
     """
 
-    algorithm: str = 'kmeans'
+    algorithm: str = "kmeans"
     n_clusters: int = 40
-    col_in: str = 'umap_embedding'
-    col_out: str = 'cluster_index'
-    col_out_dist: str = 'cluster_index_distance'
+    col_in: str = "umap_embedding"
+    col_out: str = "cluster_index"
+    col_out_dist: str = "cluster_index_distance"
     col_aggs: list[str] = []
     min_samples_each_cluster: int = 50
 
     def setup(self, settings: Settings):
         return self
 
-    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:      
-
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
         self.cluster_centroids = {}
-        unique_agg_keys = ['default']
+        unique_agg_keys = ["default"]
 
         if len(self.col_aggs):
             # First aggregate by col_aggs
-            agg_data = data.groupby(self.col_aggs).agg([pl.col(self.col_in).count().alias("num_rows_" + self.col_in)])
+            agg_data = data.groupby(self.col_aggs).agg(
+                [pl.col(self.col_in).count().alias("num_rows_" + self.col_in)]
+            )
             agg_data = agg_data.drop("num_rows_" + self.col_in)
             unique_agg_keys = agg_data.to_dicts()
 
@@ -88,15 +88,27 @@ class Clustering(ColumnOp):
         for unique_agg_key in unique_agg_keys:
             cond = True
             if isinstance(unique_agg_key, dict):
-                unique_agg_key = dict([(key, unique_agg_key[key]) for key in sorted(unique_agg_key)])
-                for key,val in unique_agg_key.items():
+                unique_agg_key = dict(
+                    [(key, unique_agg_key[key]) for key in sorted(unique_agg_key)]
+                )
+                for key, val in unique_agg_key.items():
                     cond = cond & (data[key] == val)
             data_subset = data.filter(cond)
 
-            n_clusters = max(1, min(self.n_clusters, int(len(data_subset)/self.min_samples_each_cluster)))
+            n_clusters = max(
+                1,
+                min(
+                    self.n_clusters,
+                    int(len(data_subset) / self.min_samples_each_cluster),
+                ),
+            )
 
             if self.algorithm == "kmeans":
-                algorithm_obj = nltk.cluster.KMeansClusterer(n_clusters, distance=nltk.cluster.util.cosine_distance, avoid_empty_clusters=True)
+                algorithm_obj = nltk.cluster.KMeansClusterer(
+                    n_clusters,
+                    distance=nltk.cluster.util.cosine_distance,
+                    avoid_empty_clusters=True,
+                )
             else:
                 raise Exception(f"{self.algorithm} is not supported yet.")
 
@@ -104,24 +116,30 @@ class Clustering(ColumnOp):
             assigned_clusters = algorithm_obj.cluster(embeddings, assign_clusters=True)
             scores = []
             for index in range(len(embeddings)):
-                scores.append(np.linalg.norm(embeddings[index] - algorithm_obj.means()[assigned_clusters[index]]))
+                scores.append(
+                    np.linalg.norm(
+                        embeddings[index]
+                        - algorithm_obj.means()[assigned_clusters[index]]
+                    )
+                )
 
-            data_subset = data_subset.with_columns([
-                        pl.Series(assigned_clusters).alias(self.col_out),
-                        pl.Series(scores).alias(self.col_out_dist),
-                        pl.Series([str(unique_agg_key)] * len(data_subset)).alias("_unique_agg_key_for_clustering")
-                ])
+            data_subset = data_subset.with_columns(
+                [
+                    pl.Series(assigned_clusters).alias(self.col_out),
+                    pl.Series(scores).alias(self.col_out_dist),
+                    pl.Series([str(unique_agg_key)] * len(data_subset)).alias(
+                        "_unique_agg_key_for_clustering"
+                    ),
+                ]
+            )
             res_data_arr.append(data_subset)
             unique_assigned_clusters = np.unique(np.array(assigned_clusters))
-            all_means = [list(x.astype(np.float64)) for x in list(algorithm_obj.means())]
+            all_means = [
+                list(x.astype(np.float64)) for x in list(algorithm_obj.means())
+            ]
             assigned_means = []
             for clus_idx in unique_assigned_clusters:
                 assigned_means.append([round(y, 8) for y in all_means[clus_idx]])
             self.cluster_centroids[str(unique_agg_key)] = assigned_means
 
-        return {
-            "output": 
-                pl.concat(res_data_arr)
-        }
-
-
+        return {"output": pl.concat(res_data_arr)}

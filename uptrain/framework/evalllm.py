@@ -60,8 +60,8 @@ PARAMETRIC_EVAL_TO_OPERATOR_MAPPING = {
     "CritiqueTone": ToneCritique,
 }
 
-class EvalLLM:
 
+class EvalLLM:
     def __init__(self, settings: Settings = None, openai_api_key: str = None) -> None:
         if (openai_api_key is None) and (settings is None):
             raise Exception("Please provide OpenAI API Key")
@@ -78,7 +78,7 @@ class EvalLLM:
         checks: list[t.Union[str, Evals, ParametricEval]],
         scenario_description: t.Union[str, list[str], None] = None,
         schema: t.Union[DataSchema, dict[str, str], None] = None,
-        metadata: t.Optional[dict[str, str]] = None
+        metadata: t.Optional[dict[str, str]] = None,
     ):
         """Run an evaluation on the UpTrain server using user's openai keys.
         NOTE: This api doesn't log any data.
@@ -112,25 +112,49 @@ class EvalLLM:
             if m in [Evals.SUB_QUERY_COMPLETENESS]:
                 req_attrs.update([schema.sub_questions, schema.question])
             elif m in [Evals.CONTEXT_CONCISENESS]:
-                req_attrs.update([schema.question, schema.context, schema.concise_context])
+                req_attrs.update(
+                    [schema.question, schema.context, schema.concise_context]
+                )
             elif m in [Evals.CONTEXT_RERANKING]:
-                req_attrs.update([schema.question, schema.context, schema.reranked_context])
-            elif m in [Evals.FACTUAL_ACCURACY, Evals.RESPONSE_COMPLETENESS_WRT_CONTEXT, Evals.RESPONSE_CONSISTENCY, Evals.CODE_HALLUCINATION]:
+                req_attrs.update(
+                    [schema.question, schema.context, schema.reranked_context]
+                )
+            elif m in [
+                Evals.FACTUAL_ACCURACY,
+                Evals.RESPONSE_COMPLETENESS_WRT_CONTEXT,
+                Evals.RESPONSE_CONSISTENCY,
+                Evals.CODE_HALLUCINATION,
+            ]:
                 req_attrs.update([schema.question, schema.context, schema.response])
-            elif m in [Evals.RESPONSE_RELEVANCE, Evals.VALID_RESPONSE, Evals.RESPONSE_COMPLETENESS, Evals.RESPONSE_CONCISENESS]:
+            elif m in [
+                Evals.RESPONSE_RELEVANCE,
+                Evals.VALID_RESPONSE,
+                Evals.RESPONSE_COMPLETENESS,
+                Evals.RESPONSE_CONCISENESS,
+            ]:
                 req_attrs.update([schema.question, schema.response])
             elif m in [Evals.CONTEXT_RELEVANCE]:
                 req_attrs.update([schema.question, schema.context])
-            elif m in [Evals.CRITIQUE_LANGUAGE] or isinstance(m, CritiqueTone) or isinstance(m, GuidelineAdherence):
+            elif (
+                m in [Evals.CRITIQUE_LANGUAGE]
+                or isinstance(m, CritiqueTone)
+                or isinstance(m, GuidelineAdherence)
+            ):
                 req_attrs.update([schema.response])
             elif isinstance(m, ResponseMatching):
-                req_attrs.update([schema.question, schema.response, schema.ground_truth])
+                req_attrs.update(
+                    [schema.question, schema.response, schema.ground_truth]
+                )
             elif isinstance(m, ConversationSatisfaction):
                 req_attrs.update([schema.conversation])
             elif m in [Evals.PROMPT_INJECTION] or isinstance(m, JailbreakDetection):
-                req_attrs.update([schema.question])    
+                req_attrs.update([schema.question])
 
-            this_scenario_description = scenario_description if not isinstance(scenario_description, list) else scenario_description[idx]                
+            this_scenario_description = (
+                scenario_description
+                if not isinstance(scenario_description, list)
+                else scenario_description[idx]
+            )
 
             if isinstance(m, ParametricEval):
                 dictm = m.dict()
@@ -153,12 +177,26 @@ class EvalLLM:
             for idx, check in enumerate(checks):
                 if isinstance(check, ParametricEval):
                     # Use the check_name field to get the operator and remove it from ser_checks
-                    op = PARAMETRIC_EVAL_TO_OPERATOR_MAPPING[ser_checks[idx].pop("check_name")](**ser_checks[idx])
-                    res = op.setup(self.settings).run(pl.DataFrame(data))['output'].to_dicts()
+                    op = PARAMETRIC_EVAL_TO_OPERATOR_MAPPING[
+                        ser_checks[idx].pop("check_name")
+                    ](**ser_checks[idx])
+                    res = (
+                        op.setup(self.settings)
+                        .run(pl.DataFrame(data))["output"]
+                        .to_dicts()
+                    )
                 elif check in EVAL_TO_OPERATOR_MAPPING:
                     op = EVAL_TO_OPERATOR_MAPPING[check]
-                    op.scenario_description = scenario_description if not isinstance(scenario_description, list) else scenario_description[idx]
-                    res = op.setup(self.settings).run(pl.DataFrame(data))['output'].to_dicts()
+                    op.scenario_description = (
+                        scenario_description
+                        if not isinstance(scenario_description, list)
+                        else scenario_description[idx]
+                    )
+                    res = (
+                        op.setup(self.settings)
+                        .run(pl.DataFrame(data))["output"]
+                        .to_dicts()
+                    )
                 else:
                     res = self.evaluate_on_server(data, [ser_checks[idx]], schema)
                 for idx, row in enumerate(res):
@@ -167,9 +205,7 @@ class EvalLLM:
             results = self.evaluate_on_server(data, ser_checks, schema)
         return results
 
-
     def evaluate_on_server(self, data, ser_checks, schema):
-
         # send in chunks of 50, so the connection doesn't time out waiting for the server
         results = []
         NUM_TRIES, BATCH_SIZE = 3, 50
@@ -185,8 +221,8 @@ class EvalLLM:
                         checks=ser_checks,
                         metadata={
                             "schema": schema.dict(),
-                            "uptrain_settings": self.settings.dict()
-                        }
+                            "uptrain_settings": self.settings.dict(),
+                        },
                     )
                     break
                 except Exception as e:

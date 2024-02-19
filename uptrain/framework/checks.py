@@ -55,7 +55,9 @@ class Check:
 
         return self
 
-    def run(self, data: t.Union[pl.DataFrame, None] = None) -> t.Union[pl.DataFrame, None]:
+    def run(
+        self, data: t.Union[pl.DataFrame, None] = None
+    ) -> t.Union[pl.DataFrame, None]:
         """Run this check on the given data."""
         node_inputs = {"operator_0": data}
 
@@ -105,7 +107,7 @@ class CheckSet:
         source: Operator,
         checks: list[t.Any],
         preprocessors: t.Union[list[TransformOp], None] = None,
-        postprocessors: t.Union[list[Operator], None] = None
+        postprocessors: t.Union[list[Operator], None] = None,
     ):
         self.source = source
         self.checks = checks
@@ -189,8 +191,10 @@ class CheckSet:
         if len(self.postprocessors):
             consolidated_output = pl.DataFrame(consolidated_output)
             for postprocessor in self.postprocessors:
-                consolidated_output = postprocessor.run(consolidated_output)['output']
-                assert consolidated_output is not None, "Output of postprocessor is None"
+                consolidated_output = postprocessor.run(consolidated_output)["output"]
+                assert (
+                    consolidated_output is not None
+                ), "Output of postprocessor is None"
 
             # persist the postprocessed input for debugging
             JsonWriter(
