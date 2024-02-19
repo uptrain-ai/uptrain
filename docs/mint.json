@@ -23,6 +23,9 @@
     "type": "github",
     "url": "https://github.com/uptrain-ai/uptrain"
   },
+  "feedback": {
+    "thumbsRating": true
+  },
   "versions": [
     "v1",
     "v0"
