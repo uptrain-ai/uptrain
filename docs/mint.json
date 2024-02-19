@@ -147,6 +147,22 @@
       ]
     },
     {
+      "group": "Framework",
+      "version": "v1",
+      "pages": [
+        {
+          "group": "LlamaIndex",
+          "version": "v1",
+          "pages": [
+            "integrations/framework/llamaindex-methods/overview",
+            "integrations/framework/llamaindex-methods/callback_handler",
+            "integrations/framework/llamaindex-methods/evalllamaindex"            
+          ]
+        }
+        
+      ]
+    },
+    {
       "group": "LLM Providers",
       "version": "v1",
       "pages": [
