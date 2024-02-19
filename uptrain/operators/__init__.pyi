@@ -38,7 +38,6 @@ __all__ = [
     "GrammarScore",
     "OpenaiEval",
     "PromptEval",
-    "Embedding",
     "RougeScore",
     "BLEUScore",
     "METEORScore",
@@ -70,6 +69,7 @@ __all__ = [
     "TopicAssignmentviaCluster",
     "JailbreakDetectionScore",
     "PromptInjectionScore",
+    "ResponseCoherence",
     # io - also include all the subimports
     "io",
     "ExcelReader",
@@ -92,7 +92,8 @@ __all__ = [
     # rca
     "RagWithCitation",
     # embedding
-    "VectorSearch"
+    "VectorSearch",
+    "Embedding"
 ]
 
 from .base import (
@@ -123,7 +124,6 @@ from .chart import (
 from . import language
 from .language.grammar import GrammarScore
 from .language.openai_evals import OpenaiEval, PromptEval
-from .language.embedding import Embedding
 from .language.rouge import RougeScore
 from .language.bleu import BLEUScore
 from .language.meteor import METEORScore
@@ -142,16 +142,17 @@ from .language.generation import (
     TopicGenerator,
 )
 from .language.factual_accuracy import ResponseFactualScore
-from .language.context_quality import ContextRelevance
+from .language.context_quality import ContextRelevance, ResponseCompletenessWrtContext
+
 from .language.response_quality import (
     ResponseCompleteness,
-    ResponseCompletenessWrtContext,
     ResponseConsistency,
     ResponseConciseness,
     ValidResponseScore,
     ResponseRelevance,
 )
-from .language.critique import LanguageCritique, ToneCritique
+from .language.language_quality import LanguageCritique, ResponseCoherence
+from .language.tone import ToneCritique
 from .language.guideline import GuidelineAdherenceScore
 from .language.conversation import ConversationSatisfactionScore
 from .language.response_matching import ResponseMatchingScore
@@ -178,4 +179,5 @@ from .code.sql import (
     ExecuteAndCompareSQL,
 )
 
+from .embedding.embedding import Embedding
 from .embedding.vector_search import VectorSearch

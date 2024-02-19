@@ -44,8 +44,9 @@ class ConversationSatisfactionScore(ColumnOp):
      Attributes:
         col_conversation (str): Column name for the stored conversations.
         col_out (str): Column name to output scores
-        user_perosna (str): The persona of user asking the queries.
-        llm_persona (str): The persona of LLM responding to the queries.
+        assistant_persona (str): The personality description of the assistant.
+        user_role (str): Designation of the user in the conversation.
+        assistant_role (str): Designation of the assistant in the conversation.
         scenario_description (str | None): Optional scenario description to incorporate in the evaluation prompt.
 
     Raises:
@@ -55,8 +56,9 @@ class ConversationSatisfactionScore(ColumnOp):
 
     col_conversation: str = "conversation"
     col_out: str = "score_conversation_satisfaction"
-    llm_persona: t.Union[str, None] = None
-    user_persona: str = "user"
+    assistant_persona: t.Union[str, None] = None
+    user_role: str = "User"
+    assistant_role: str = "Assistant"
     scenario_description: t.Union[str, list[str], None] = None
     score_mapping: dict = {"A": 1.0, "B": 0.5, "C": 0.0}
 
@@ -84,8 +86,8 @@ class ConversationSatisfactionScore(ColumnOp):
                     "ConversationSatisfaction",
                     data_send,
                     {
-                        "user_persona": self.user_persona,
-                        "llm_persona": self.llm_persona,
+                        "user_persona": self.user_role,
+                        "llm_persona": self.assistant_role,
                     },
                 )
 
@@ -146,8 +148,9 @@ class ConversationSatisfactionScore(ColumnOp):
                     "output_format": output_format,
                     "prompting_instructions": prompting_instructions,
                     "few_shot_examples": few_shot_examples,
-                    "llm_persona": self.llm_persona,
-                    "user_persona": self.user_persona,
+                    "user_role": self.user_role,
+                    "assistant_role": self.assistant_role,
+                    "assistant_persona": self.assistant_persona,
                 }
             )
             try:
