@@ -51,11 +51,11 @@
 # Pre-built Evaluations We Offer 📝
 <img width="1088" alt="quality of your responses" src="https://github.com/uptrain-ai/uptrain/assets/108270398/2cbff61d-a571-404e-bc7c-a8cd712dc854">
 
-1. [Response Completeness](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/completeness.ipynb): Grades how if the response completely resolves the given user query.
-2. [Response Relevance](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/relevance.ipynb): Grades how relevant the generated response is for the given question.
-3. [Response Conciseness](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/conciseness.ipynb): Grades how concise the generated response is i.e. the extent of additional irrelevant information in the response.
-4. [Response Matching](): Operator to compare the llm-generated text with the gold (ideal) response using the defined score metric.
-5. [Response Consistency](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/consistency.ipynb): Grades how consistent the response is with the question asked as well as with the context provided.
+1. [Response Completeness](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/completeness.ipynb): Evaluates the extent to which the response fully addresses the user's query.
+2. [Response Relevance](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/relevance.ipynb): Assesses how relevant the generated response is for the given question.
+3. [Response Conciseness](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/conciseness.ipynb): Measures how concise the generated response is, i.e., the extent of additional irrelevant information present in the response.
+4. [Response Matching](https://github.com/uptrain-ai/uptrain/blob/emb_model_compare/examples/checks/response_quality/matching.ipynb): Operator to compare the LLM-generated text with the gold (ideal) response using the defined score metric.
+5. [Response Consistency](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/consistency.ipynb): Assesses how consistent the response is with the question asked as well as with the context provided.
 
 <img width="1088" alt="quality of retrieved context and response groundedness" src="https://github.com/uptrain-ai/uptrain/assets/108270398/0866a939-5bde-4723-b7bf-e72b9b154041">
 
@@ -65,19 +65,19 @@
 
 <img width="1088" alt="safeguard system prompts and avoid LLM mis-use" src="https://github.com/uptrain-ai/uptrain/assets/108270398/a66868ca-e6d5-40ba-b433-3001324862fd">
 
-1. [Prompt Injection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/system_prompt_injection.ipynb): Identifys prompt leakage attacks
+1. [Prompt Injection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/system_prompt_injection.ipynb): Checks if the user query prompts the LLM to reveal its system prompt.
 2. [Jailbreak Detection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/jailbreak_detection.ipynb): Measures if the user prompts to generate a response over potentially harmful or illegal behaviour.
 
 <img width="1088" alt="language quality of the response" src="https://github.com/uptrain-ai/uptrain/assets/108270398/2a2748e7-c137-4d70-8845-731878d5d39a">
 
 1. [Tone Critique](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/language_features/tone_critique.ipynb): Assesses if the tone of machine-generated responses matches with the desired persona.
-2. [Language Critique](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/language_features/language_critique.ipynb): Scores machine generated responses on multiple aspects - fluence, politeness, grammar, and coherence.
+2. [Language Critique](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/language_features/language_critique.ipynb): Scores machine-generated responses on multiple aspects - fluency, politeness, grammar, and coherence.
 
 <img width="1088" alt="custom evaluations and others" src="https://github.com/uptrain-ai/uptrain/assets/108270398/3d843449-6624-4433-8f6e-acfebda92eb3">
 
 1. [Guideline Adherence](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/custom/guideline_adherence.ipynb): Grades how well the LLM adheres to a given custom guideline.
 2. [Custom Prompt Evaluation](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/custom/writing_custom_evals.ipynb): Evaluate by defining your custom grading prompt.
-3. [Cosine Similarity](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/custom/cosine_similarity.ipynb): Calculate cosine similarity between embeddings of two texts.
+3. [Cosine Similarity](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/custom/cosine_similarity.ipynb): Calculates cosine similarity between embeddings of two texts.
 
 <img width="1088" alt="conversation as a whole" src="https://github.com/uptrain-ai/uptrain/assets/108270398/a4c5d746-2867-4299-91e0-4efdfa76aedf">
 
@@ -146,21 +146,21 @@ Having worked with ML and NLP models for the last 8 years, we were continuosly f
 
 However we soon released that LLM developers face an even bigger problem -- there is no good way to measure accuracy of their LLM applications, let alone identify regression.
 
-We also saw release of [OpenAI evals](https://github.com/openai/evals), where they proposed the use of LLMs to grade the model responses. Further more we gained more confidence to approach this after reading [how Anthropic leverages RLAIF](https://arxiv.org/pdf/2212.08073.pdf) and dived right into the LLM evaluations research (We are soon releasing a repository of awesome Eval research). 
+We also saw release of [OpenAI evals](https://github.com/openai/evals), where they proposed the use of LLMs to grade the model responses. Furthermore, we gained confidence to approach this after reading [how Anthropic leverages RLAIF](https://arxiv.org/pdf/2212.08073.pdf) and dived right into the LLM evaluations research (We are soon releasing a repository of awesome evaluations research). 
 
-So, come today, UpTrain is our attempt to bring order to LLM chaos and contribute back to the community. While a majority of developers still go with the vibes and productionise prompt changes by reviewing a couple of cases, we have heard enough regression stories to believe "evaluations and improvement" will be a key part of LLM ecosystem as the space matures.
+So, come today, UpTrain is our attempt to bring order to LLM chaos and contribute back to the community. While a majority of developers still rely on intuition and productionise prompt changes by reviewing a couple of cases, we have heard enough regression stories to believe "evaluations and improvement" will be a key part of LLM ecosystem as the space matures.
 
 1. Robust evaluations allows you to systematically experiment with different configurations and prevent any regressions by helping objectively select the best choice.
 
-2. It helps you understand where your systems are going wrong, find root cause and fix them - long before your end users complain and potentially churn out.
+2. It helps you understand where your systems are going wrong, find the root cause(s) and fix them - long before your end users complain and potentially churn out.
 
-3. Evaluations like prompt injection, jailbreak are essential to maintain safety and security of your LLM applications.
+3. Evaluations like prompt injection and jailbreak detection are essential to maintain safety and security of your LLM applications.
 
-4. Evaluations help you to provide transparency and build trust with your end-users - especially relevant if you are selling to enterprises.
+4. Evaluations help you provide transparency and build trust with your end-users - especially relevant if you are selling to enterprises.
 
 # Why open-source? 
 
-1. We understand there is **no one-size-fits-all solution** when it come to evaluations. We are increasingly seeing the desire from developers to modify the evaluation prompt or set of choices or the few shot examples, etc. We believe the best developer experience lies in open-source, instead of exposing 20 different variables.
+1. We understand that there is **no one-size-fits-all solution** when it come to evaluations. We are increasingly seeing the desire from developers to modify the evaluation prompt or set of choices or the few shot examples, etc. We believe the best developer experience lies in open-source, instead of exposing 20 different parameters.
 
 2. **Foster innovation**: The field of LLM evaluations and using LLM-as-a-judge is still pretty nascent. We see a lot of exciting research happening, almost on a daily basis and being open-source provides the right platform to us and our community to implement those techniques and innovate faster.
 
