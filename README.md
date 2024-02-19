@@ -67,7 +67,7 @@ Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact 
 <br />
 
 # Pre-built Evaluations We Offer 📝
-<img width="1088" alt="quality of your responses" src="https://github.com/uptrain-ai/uptrain/assets/36454110/2a6ea4b8-8ef3-40b9-a5dc-4746d246f3ab">
+<img width="1088" alt="quality of your responses" src="https://github.com/uptrain-ai/uptrain/assets/43818888/654b2289-2799-4310-84be-fcdd071f3e2e">
 
 | Eval | Description |
 | ---- | ----------- |
@@ -205,7 +205,7 @@ So, come today, UpTrain is our attempt to bring order to LLM chaos and contribut
 
 <br />
 
-# Why open-source? 
+# Why open-source?
 
 1. We understand that there is **no one-size-fits-all solution** when it come to evaluations. We are increasingly seeing the desire from developers to modify the evaluation prompt or set of choices or the few shot examples, etc. We believe the best developer experience lies in open-source, instead of exposing 20 different parameters.
 
@@ -213,7 +213,7 @@ So, come today, UpTrain is our attempt to bring order to LLM chaos and contribut
 
 <br />
 
-## How You Can Help 🙏
+# How You Can Help 🙏
 
 We are continuously striving to enhance UpTrain, and there are several ways you can contribute:
 
