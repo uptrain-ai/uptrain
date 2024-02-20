@@ -147,6 +147,30 @@
       ]
     },
     {
+      "group": "Framework",
+      "version": "v1",
+      "pages": [
+        {
+          "group": "LlamaIndex",
+          "version": "v1",
+          "pages": [
+            "integrations/framework/llamaindex-methods/overview",
+            "integrations/framework/llamaindex-methods/evalllamaindex",
+            {
+              "group": "Callback Handler",
+              "version": "v1",
+              "pages": [
+                "integrations/framework/llamaindex-methods/callback_handler/overview",
+                "integrations/framework/llamaindex-methods/callback_handler/rag_query",
+                "integrations/framework/llamaindex-methods/callback_handler/subques_query",
+                "integrations/framework/llamaindex-methods/callback_handler/reranking"            
+              ]
+            }         
+          ]
+        }
+      ]
+    },
+    {
       "group": "LLM Providers",
       "version": "v1",
       "pages": [
