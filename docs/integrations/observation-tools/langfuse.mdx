@@ -1,0 +1,241 @@
+---
+title: Langfuse
+---
+[Langfuse](https://langfuse.com/) offers the feature to score your traces and spans. They can be used in multiple ways across Langfuse:
+1. Displayed on trace to provide a quick overview
+2. Segment all execution traces by scores to e.g. find all traces with a low-quality score
+3. Analytics: Detailed score reporting with drill downs into use cases and user segments
+
+This notebook demonstrates how to use Langfuse to create traces and evaluate using UpTrain
+
+## How to integrate?
+### Setup
+**Enter your Langfuse API keys and OpenAI API key**
+
+You can get your Langfure API keys [here](https://cloud.langfuse.com/) and OpenAI API key [here](https://platform.openai.com/api-keys)
+
+```python
+%pip install langfuse datasets uptrain litellm openai --upgrade
+```
+```python
+import os
+
+# get keys for your project from https://cloud.langfuse.com
+os.environ["LANGFUSE_PUBLIC_KEY"] = ""
+os.environ["LANGFUSE_SECRET_KEY"] = ""
+
+# your openai key
+os.environ["OPENAI_API_KEY"] = ""
+
+# Your host, defaults to https://cloud.langfuse.com
+# For US data region, set to "https://us.cloud.langfuse.com"
+# os.environ["LANGFUSE_HOST"] = "http://localhost:3000"
+```
+
+**Let's create a sample data**
+```python
+data = [
+    {
+        "question": "What are the symptoms of a heart attack?",
+        "context": "A heart attack, or myocardial infarction, occurs when the blood supply to the heart muscle is blocked. Chest pain is a good symptom of heart attack, though there are many others.",
+        "response": "Symptoms of a heart attack may include chest pain or discomfort, shortness of breath, nausea, lightheadedness, and pain or discomfort in one or both arms, the jaw, neck, or back."
+    },
+    {
+        "question": "Can stress cause physical health problems?",
+        "context": "Stress is the body's response to challenges or threats. Yes, chronic stress can contribute to various physical health problems, including cardiovascular issues.",
+        "response": "Yes, chronic stress can contribute to various physical health problems, including cardiovascular issues, and a weakened immune system."
+    },
+    {
+        'question': "What are the symptoms of a heart attack?",
+        'context': "A heart attack, or myocardial infarction, occurs when the blood supply to the heart muscle is blocked. Symptoms of a heart attack may include chest pain or discomfort, shortness of breath and nausea.",
+        'response': "Heart attack symptoms are usually just indigestion and can be relieved with antacids."
+    },
+    {
+        'question': "Can stress cause physical health problems?",
+        'context': "Stress is the body's response to challenges or threats. Yes, chronic stress can contribute to various physical health problems, including cardiovascular issues.",
+        'response': "Stress is not real, it is just imaginary!"
+    }
+]
+```
+**Run Evaluations using UpTrain Open-Source Software (OSS)**
+
+We have used the following 3 metrics from UpTrain's library:
+
+1. [Context Relevance](/predefined-evaluations/context-awareness/context-relevance): Evaluates how relevant the retrieved context is to the question specified.
+
+2. [Factual Accuracy](/predefined-evaluations/context-awareness/factual-accuracy): Evaluates whether the response generated is factually correct and grounded by the provided context.
+
+3. [Response Completeness](/predefined-evaluations/response-quality/response-completeness): Evaluates whether the response has answered all the aspects of the question specified
+
+You can look at the complete list of UpTrain's supported metrics [here](/predefined-evaluations/overview)
+
+```python
+from uptrain import EvalLLM, Evals
+import json
+import pandas as pd
+
+eval_llm = EvalLLM(openai_api_key=os.environ["OPENAI_API_KEY"])
+
+res = eval_llm.evaluate(
+    data = data,
+    checks = [Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_COMPLETENESS]
+)
+```
+
+### Using Langfuse
+
+You can use Langfuse in 2 ways:
+1. Score each Trace: This means you will run the evaluations for each trace item. This gives you much better idea since of how each call to your UpTrain pipelines is performing but can be expensive
+2. Score as Batch: In this method we will take a random sample of traces on a periodic basis and score them. This brings down cost and gives you a rough estimate the performance of your app but can miss out on important samples.
+
+#### Method 1: Score with Trace
+
+**Now lets initialize a Langfuse client SDK to instrument you app**
+
+```python
+from langfuse import Langfuse
+ 
+langfuse = Langfuse()
+
+langfuse.auth_check()
+```
+**Let's create a trace for the dataset**
+```python
+# start a new trace when you get a question
+question = data[0]['question']
+trace = langfuse.trace(name = "uptrain trace")
+
+# retrieve the relevant chunks
+# chunks = get_similar_chunks(question)
+context = data[0]['context']
+# pass it as span
+trace.span(
+    name = "retrieval", input={'question': question}, output={'context': context}
+)
+
+# use llm to generate a answer with the chunks
+# answer = get_response_from_llm(question, chunks)
+response = data[0]['response']
+trace.span(
+    name = "generation", input={'question': question, 'context': context}, output={'response': response}
+)
+```
+**Let's add the scores to the trace in Langfuse**
+```python
+trace.score(name='context_relevance', value=res[0]['score_context_relevance'])
+trace.score(name='factual_accuracy', value=res[0]['score_factual_accuracy'])
+trace.score(name='response_completeness', value=res[0]['score_response_completeness'])
+```
+### Method 2: Scoring as batch
+
+**Let's create trace with our original dataset**
+```python
+for interaction in data:
+    trace = langfuse.trace(name = "uptrain batch")
+    trace.span(
+        name = "retrieval",
+        input={'question': interaction['question']},
+        output={'context': interaction['context']}
+    )
+    trace.span(
+        name = "generation",
+        input={'question': interaction['question'], 'context': interaction['context']},
+        output={'response': interaction['response']}
+    )
+ 
+# await that Langfuse SDK has processed all events before trying to retrieve it in the next step
+langfuse.flush()
+```
+**Retrieve the uploaded dataset**
+```python
+def get_traces(name=None, limit=10000, user_id=None):
+    all_data = []
+    page = 1
+ 
+    while True:
+        response = langfuse.client.trace.list(
+            name=name, page=page, user_id=user_id, order_by=None
+        )
+        if not response.data:
+            break
+        page += 1
+        all_data.extend(response.data)
+        if len(all_data) > limit:
+            break
+ 
+    return all_data[:limit]
+```
+**Now lets make a batch and score it using UpTrain.**
+```python
+from random import sample
+ 
+NUM_TRACES_TO_SAMPLE = 4
+traces = get_traces(name="uptrain batch")
+traces_sample = sample(traces, NUM_TRACES_TO_SAMPLE)
+```
+
+```python
+# score on a sample
+from random import sample
+ 
+evaluation_batch = {
+    "question": [],
+    "context": [],
+    "response": [],
+    "trace_id": [],
+}
+ 
+for t in traces_sample:
+    observations = [langfuse.client.observations.get(o) for o in t.observations]
+    for o in observations:
+        if o.name == 'retrieval':
+            question = o.input['question']
+            context = o.output['context']
+        if o.name=='generation':
+            answer = o.output['response']
+    evaluation_batch['question'].append(question)
+    evaluation_batch['context'].append(context)
+    evaluation_batch['response'].append(response)
+    evaluation_batch['trace_id'].append(t.id)
+```
+
+```python
+data = [dict(zip(evaluation_batch,t)) for t in zip(*evaluation_batch.values())]
+res = eval_llm.evaluate(
+    data = data,
+    checks = [Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_COMPLETENESS]
+)
+```
+```python
+df = pd.DataFrame(res)
+
+# add the langfuse trace_id to the result dataframe
+df["trace_id"] = [d['trace_id'] for d in data]
+for _, row in df.iterrows():
+    for metric_name in ["context_relevance", "factual_accuracy","response_completeness"]:
+        langfuse.score(
+            name=metric_name,
+            value=row["score_"+metric_name],
+            trace_id=row["trace_id"]
+        )
+df.head()
+```
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/integrations/observation_tools/langfuse.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>
