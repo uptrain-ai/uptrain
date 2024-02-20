@@ -184,7 +184,14 @@ class LLMMulticlient:
                     api_key=settings.anyscale_api_key,
                     base_url="https://api.endpoints.anyscale.com/v1",
                 )
-
+            if (
+                settings.model.startswith("together")
+                and settings.check_and_get("together_api_key") is not None
+            ):
+                self.aclient = AsyncOpenAI(
+                    api_key=settings.together_api_key,
+                    base_url="https://api.together.xyz/v1/completions",
+                )
             self._rpm_limit = settings.check_and_get("rpm_limit")
             self._tpm_limit = settings.check_and_get("tpm_limit")
 
@@ -198,7 +205,7 @@ class LLMMulticlient:
         seed = self.settings.seed
         response_format = self.settings.response_format
 
-        prefixes = ["anyscale/", "azure/"]
+        prefixes = ["anyscale/", "azure/", "together/"]
         for prefix in prefixes:
             model = model.replace(prefix, "")
 
