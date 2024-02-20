@@ -30,6 +30,11 @@
     "v1",
     "v0"
   ],
+    "analytics": {
+    "posthog": {
+        "apiKey": "phc_xZJotYlN8qX9dI0AIeGYi6Yt2a0zTZaZ2igmYlHLTq6"
+    }
+},
   "anchors": [
     {
       "name": "Changelog",
