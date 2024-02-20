@@ -1,5 +1,5 @@
 ---
-title: LlamaIndex
+title: LlamaIndex Overview 
 ---
 [LlamaIndex](https://www.llamaindex.ai/) is a simple, flexible data framework for connecting
 custom data sources to large language models.
@@ -18,9 +18,9 @@ custom data sources to large language models.
 
 There two ways you can use UpTrain with LlamaIndex:
 
-1. [Using the UpTrain Callback Handler:](llamaindex-methods/callback_handler) This method allows you to seamlessly integrate UpTrain with LlamaIndex. You can simply add UpTrainCallbackHandler to your existing LlamaIndex pipeline and it will take care of sending the generated responses to the UpTrain Managed Service for evaluations. This is the recommended method as it is the easiest to use and provides you with dashboards and insights with minimal effort.
+1. [Using the UpTrain Callback Handler:](/integrations/framework/llamaindex-methods/callback_handler/overview) This method allows you to seamlessly integrate UpTrain with LlamaIndex. You can simply add UpTrainCallbackHandler to your existing LlamaIndex pipeline and it will take care of sending the generated responses to the UpTrain Managed Service for evaluations. This is the recommended method as it is the easiest to use and provides you with dashboards and insights with minimal effort.
 
-2. [Using UpTrain's EvalLlamaIndex:](llamaindex-methods/evalllamaindex) This method allows you to use UpTrain to perform evaluations on the generated responses. You can use the EvalLlamaIndex object to generate responses for the queries and then perform evaluations on the responses. You can find a detailed tutorial on how to do this below. This method offers more flexibility and control over the evaluations, but requires more effort to set up and use.
+2. [Using UpTrain's EvalLlamaIndex:](/integrations/framework/llamaindex-methods/evalllamaindex) This method allows you to use UpTrain to perform evaluations on the generated responses. You can use the EvalLlamaIndex object to generate responses for the queries and then perform evaluations on the responses. You can find a detailed tutorial on how to do this below. This method offers more flexibility and control over the evaluations, but requires more effort to set up and use.
 
 <CardGroup cols={2}>
   <Card
