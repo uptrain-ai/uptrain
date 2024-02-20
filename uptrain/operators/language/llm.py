@@ -190,7 +190,7 @@ class LLMMulticlient:
             ):
                 self.aclient = AsyncOpenAI(
                     api_key=settings.together_api_key,
-                    base_url="https://api.together.xyz/v1/completions",
+                    base_url="https://api.together.xyz/v1",
                 )
             self._rpm_limit = settings.check_and_get("rpm_limit")
             self._tpm_limit = settings.check_and_get("tpm_limit")

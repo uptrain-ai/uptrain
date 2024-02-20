@@ -150,7 +150,8 @@
       "group": "LLM Providers",
       "version": "v1",
       "pages": [
-        "integrations/llm_providers/anyscale"
+        "integrations/llm_providers/anyscale",
+        "integrations/llm_providers/together_ai"
       ]
     },
     {

@@ -1,0 +1,91 @@
+---
+title: Together AI
+---
+[Together AI](https://www.together.ai/) provides fully managed API endpoints for open-source large language models (LLMs), allowing developers for building and running generative AI. 
+
+The best part is you can use these open-source models directly without worrying about the underlying infrastructure, 
+
+### How will this help?
+
+They offer API endpoints for models like Llama-2, Mistral-7B, CodeLlama, and more. 
+You can use these endpoints to evaluate the performance of these models using UpTrain.
+
+Before we start you will need an Together AI API key. You can get it [here](https://api.together.xyz/)
+
+### How to integrate?
+
+First, let's import the necessary packages and define Together AI API Key
+
+```python
+from uptrain import EvalLLM, Evals, Settings
+import json
+
+# Insert your Together AI API key here
+TOGETHER_API_KEY = "*********************"
+
+settings = Settings(model='together/mistralai/Mixtral-8x7B-Instruct-v0.1', together_api_key=TOGETHER_API_KEY)
+```
+
+We will be using Mixtral-8x7B-Instruct-v0.1 for this example. You can find a full list of available models [here](https://docs.together.ai/docs/inference-models).
+
+<Info>Remember to add "together/" at the beginning of the model name to let UpTrain know that you are using a Together AI model.</Info>
+
+Let's define a dataset on which we want to perform the evaluations
+
+```python
+data = [{
+    'question': 'Which is the most popular global sport?',
+    'context': "The popularity of sports can be measured in various ways, including TV viewership, social media presence, number of participants, and economic impact. Football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi, drawing a followership of more than 4 billion people. Cricket is particularly popular in countries like India, Pakistan, Australia, and England. The ICC Cricket World Cup and Indian Premier League (IPL) have substantial viewership. The NBA has made basketball popular worldwide, especially in countries like the USA, Canada, China, and the Philippines. Major tennis tournaments like Wimbledon, the US Open, French Open, and Australian Open have large global audiences. Players like Roger Federer, Serena Williams, and Rafael Nadal have boosted the sport's popularity. Field Hockey is very popular in countries like India, Netherlands, and Australia. It has a considerable following in many parts of the world.",
+    'response': 'Football is the most popular sport with around 4 billion followers worldwide'
+}]
+```
+
+Now, let's use UpTrain to evaluate for [Context Relevance](/predefined-evaluations/context-awareness/context-relevance). 
+You can find the complete list of metrics supported by UpTrain [here](/predefined-evaluations)
+
+```python
+eval_llm = EvalLLM(settings)
+
+results = eval_llm.evaluate(
+    data=data,
+    checks=[Evals.CONTEXT_RELEVANCE]
+)
+
+print(json.dumps(results, indent=3))
+```
+
+Let's look at the output of the above code:
+
+```json
+[
+   {
+      "response": "Football is the most popular sport with around 4 billion followers worldwide",
+      "score_context_relevance": 1.0,
+      "explanation_context_relevance": " {\n    \"Reasoning\": \"The extracted context can answer the given query completely. The context provides information about the popularity of various sports and mentions that football is the most popular sport, drawing a followership of more than 4 billion people. Hence, selected choice is A. The extracted context can answer the given query completely.\",\n    \"Choice\": \"A\"\n}"
+   }
+]
+```
+
+According to these evaluations:
+1. **Context Relevance:** Since the context has information on the most popular sport globally, UpTrain has rated the context to be relevant to the question.
+2. **Factual Accuracy:** Since the facts mentioned in the response are grounded to the context, UpTrain has rated the response as factually accurate. 
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/integrations/llm_providers/together_ai.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>
+
