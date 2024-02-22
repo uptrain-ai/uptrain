@@ -203,6 +203,13 @@
       ]
     },
     {
+      "group": "FAQ",
+      "version": "v1",
+      "pages": [
+        "faq/faq"
+      ]
+    },
+    {
       "group": "Getting Started",
       "version": "v0",
       "pages": [
