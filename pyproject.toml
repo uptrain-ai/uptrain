@@ -30,7 +30,7 @@ dependencies = [
     "httpx>=0.24.1",
     "plotly>=5.0.0",
     "aiolimiter>=1.1",
-    "openai==1.6.1",
+    "openai>=1.6.1",
 ]
 
 [project.urls]
