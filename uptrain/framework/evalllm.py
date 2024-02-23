@@ -11,6 +11,9 @@ import polars as pl
 import pandas as pd
 import pydantic
 import copy
+import os
+import httpx
+from uptrain.utilities.utils import get_sqlite_utils_db, get_current_datetime
 
 from uptrain.framework.remote import APIClientWithoutAuth, DataSchema
 from uptrain.framework.base import Settings
@@ -76,6 +79,7 @@ class EvalLLM:
         self,
         data: t.Union[list[dict], pl.DataFrame, pd.DataFrame],
         checks: list[t.Union[str, Evals, ParametricEval]],
+        project_name: str,
         scenario_description: t.Union[str, list[str], None] = None,
         schema: t.Union[DataSchema, dict[str, str], None] = None,
         metadata: t.Optional[dict[str, str]] = None,
@@ -203,6 +207,58 @@ class EvalLLM:
                     results[idx].update(row)
         else:
             results = self.evaluate_on_server(data, ser_checks, schema)
+        ## database insertions
+        try:  
+            url = "http://localhost:4300/api/internal/user"
+            client = httpx.Client(
+                timeout=httpx.Timeout(7200, connect=5),
+            )
+            response = client.post(
+                url,
+                json={"name": self.settings.openai_api_key},
+            )
+            if not response.is_success:
+                url = "http://localhost:4300/api/public/user"
+                client = httpx.Client(
+                    headers={"uptrain-access-token": self.settings.openai_api_key},
+                    timeout=httpx.Timeout(7200, connect=5),
+                )
+                response = client.post(
+                    url,
+                    json={"name": self.settings.openai_api_key}
+                )
+            user_id = response.json()['user_id']
+        except:
+            user_id = 'default'
+            logger.info('Database/Server is not up!')
+        
+        database_path = os.path.join(self.settings.database_path, "uptrain-eval-results", f"{user_id}.db")
+        DB = get_sqlite_utils_db(database_path)
+        project = project_name
+        timestamp = get_current_datetime()
+        
+        checks = []
+        for res in results:
+            row_check = {}
+            for key in res:
+                if 'score' in key or 'explanation' in key:
+                    row_check.update({key: res[key]})
+            checks.append(row_check)
+        #print(checks)
+        print(metadata)
+        DB["results"].insert_all(
+            [
+                {
+                    "data": row_data,
+                    "checks": row_check,
+                    "metadata": metadata,
+                    "schema": schema.dict(),
+                    "project": project,
+                    "timestamp": timestamp,
+                }
+                for row_data, row_check in zip(results, checks)
+            ]
+        )
         return results
 
     def evaluate_on_server(self, data, ser_checks, schema):
@@ -233,3 +289,53 @@ class EvalLLM:
 
             results.extend(batch_results)
         return results
+
+    def evaluate_experiments(
+        self,
+        project_name: str,
+        data: t.Union[list[dict], pl.DataFrame],
+        checks: list[t.Union[str, Evals, ParametricEval]],
+        exp_columns: list[str],
+        schema: t.Union[DataSchema, dict[str, str], None] = None,
+        metadata: t.Optional[dict[str, t.Any]] = None,
+    ):
+        """Evaluate experiments on the server and log the results.
+
+        Args:
+            project_name: Name of the project.
+            data: Data to evaluate on. Either a Pandas DataFrame or a list of dicts.
+            checks: List of checks to evaluate on.
+            exp_columns: List of columns/keys which denote different experiment configurations.
+            schema: Schema of the data. Only required if the data attributes aren't typical (question, response, context).
+            metadata: Attributes to attach to this dataset. Useful for filtering and grouping in the UI.
+
+        Returns:
+            results: List of dictionaries with each data point and corresponding evaluation results for all the experiments.
+        """
+        if metadata is None:
+            metadata = {}
+
+        metadata.update({"uptrain_experiment_columns": exp_columns})
+
+        if schema is None:
+            schema = DataSchema()
+        elif isinstance(schema, dict):
+            schema = DataSchema(**schema)
+
+        results = self.evaluate(
+            project_name=project_name,
+            data=data,
+            checks=checks,
+            schema=schema,
+            metadata=metadata,
+        )
+
+        results = pl.DataFrame(results)
+        all_cols = set(results.columns)
+        value_cols = list(all_cols - set([schema.question] + exp_columns))
+        index_cols = metadata.get("uptrain_index_columns", [schema.question])
+        exp_results = results.pivot(
+            values=value_cols, index=index_cols, columns=exp_columns
+        )
+        exp_results = exp_results.to_dicts()
+        return exp_results
