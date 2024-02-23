@@ -3,10 +3,10 @@ import { createSlice } from "@reduxjs/toolkit";
 const userInfoSlice = createSlice({
   name: "userInfo",
   initialState: {
-    credits_total: null,
-    credits_used: null,
-    user_name: null,
-    uptrain_access_token: null,
+    credits_total: "nill",
+    credits_used: "nill",
+    user_name: "open source user",
+    uptrain_access_token: "default_key",
   },
   reducers: {
     addUserData(state, action) {
