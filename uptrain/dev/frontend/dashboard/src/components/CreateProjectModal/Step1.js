@@ -1,8 +1,10 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import CustomSelect from "../CustomSelect/CustomSelect";
+import Step3OverModal from "./Step3OverModal";
 
 const Step1 = (props) => {
   const fileInputRef = useRef(null);
+  const [openModal, setOpenModal] = useState(false);
 
   const handleFileChange = (event) => {
     props.setSelectedFile(event.target.files[0]);
@@ -22,8 +24,22 @@ const Step1 = (props) => {
       : props.nextPrompt();
   };
 
+  const handleModelSelect = (key) => {
+    props.setSelectedOption(key);
+    setOpenModal(true);
+  };
+
   return (
     <div>
+      {openModal && (
+        <Step3OverModal
+          selectedKey={props.selectedOption}
+          close={() => setOpenModal(false)}
+          data={props.models}
+          metadata={props.metadata}
+          setMetadata={props.setMetadata}
+        />
+      )}
       <h2 className="text-lg text-[#B0B0B1] font-medium mb-5">New project</h2>
       <form onSubmit={handleSubmit}>
         <input
@@ -80,8 +96,8 @@ const Step1 = (props) => {
         </p>
         <CustomSelect
           selectedOption={props.selectedOption}
-          setSelectedOption={props.setSelectedOption}
-          options={props.models}
+          setSelectedOption={handleModelSelect}
+          options={Object.keys(props.models)}
           placeholder="Select Evaluation LLM"
           className="rounded-xl px-6 py-4"
           required

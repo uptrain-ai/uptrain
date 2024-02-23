@@ -218,8 +218,8 @@ const page = () => {
   return (
     <Layout heading="API Keys">
       <div className="bg-[#23232D] rounded-xl p-8 w-[calc(100vw-640px)]">
-        <ApiSection />
-        <CreditsSection />
+        {/* <ApiSection />
+        <CreditsSection /> */}
         <WorkingSection />
       </div>
     </Layout>

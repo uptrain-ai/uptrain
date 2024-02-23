@@ -50,16 +50,23 @@ const CreateProjectModal = (props) => {
     ConversationSatisfaction: ["user_persona", "llm_persona"],
   };
 
-  const models = [
-    "gpt-3.5-turbo",
-    "gpt-4",
-    "gpt-4-turbo-preview",
-    "claude-2.1",
-  ];
+  const models = {
+    "gpt-3.5-turbo": ["openai_api_key"],
+    "gpt-4": ["openai_api_key"],
+    "gpt-4-turbo-preview": ["openai_api_key"],
+    "claude-2.1": ["anthropic_api_key"],
+    "azure-deployment": [
+      "azure_api_base",
+      "azure_api_version",
+      "azure_api_key",
+    ],
+  };
 
   const handleEvaluationSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
+
+    console.log(metadata);
 
     try {
       const formData = new FormData();
@@ -184,6 +191,8 @@ const CreateProjectModal = (props) => {
             selectedFile={selectedFile}
             setSelectedFile={setSelectedFile}
             promptProjectName={props.promptProjectName}
+            metadata={metadata}
+            setMetadata={setMetadata}
           />
         ) : step === 2 ? (
           <Step2
