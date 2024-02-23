@@ -215,7 +215,8 @@ class EvalLLM:
             )
             response = client.post(
                 url,
-                json={"name": self.settings.openai_api_key},
+                #json={"name": self.settings.openai_api_key},
+                json={"name": 'default_key'},
             )
             if not response.is_success:
                 url = "http://localhost:4300/api/public/user"
@@ -225,11 +226,13 @@ class EvalLLM:
                 )
                 response = client.post(
                     url,
-                    json={"name": self.settings.openai_api_key}
+                    #json={"name": self.settings.openai_api_key}
+                    json={"name": 'default_key'}
                 )
             user_id = response.json()['user_id']
+            print(user_id)
         except:
-            user_id = 'default'
+            user_id = 'default_key'
             logger.info('Database/Server is not up!')
         
         database_path = os.path.join(self.settings.database_path, "uptrain-eval-results", f"{user_id}.db")

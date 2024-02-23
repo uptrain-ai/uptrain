@@ -177,7 +177,7 @@ def get_user(
         raise HTTPException(status_code=404, detail="User not found")
     else:
         #return {"user_id": user.id, "user_name": 'open-source user', "api_key": user.name}
-        return {"user_id": 'open source user', "user_name": 'open-source user', "api_key":'default_key'}
+        return {"user_id": 'open_source_user', "user_name": 'open-source user', "api_key":'default_key'}
     #{"user_name": user.name, "api_key": api_key, "credits_used": user.credits_used, "credits_total": user.credits_total}
 
 
