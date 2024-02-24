@@ -176,9 +176,7 @@ def get_user(
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     else:
-        #return {"user_id": user.id, "user_name": 'open-source user', "api_key": user.name}
-        return {"user_id": 'open_source_user', "user_name": 'open-source user', "api_key":'default_key'}
-    #{"user_name": user.name, "api_key": api_key, "credits_used": user.credits_used, "credits_total": user.credits_total}
+        return {"user_id" : user_id, "user_name" : "open-source user", "api_key" : "default_key"}
 
 
 
@@ -727,15 +725,17 @@ async def add_evaluation(
         if metadata is None or check not in metadata:
             checks_1.append(checks_mapping(check))
 
-    metadata = None
-    if metadata is None:
-        metadata = {'project': project_name}
-    else:
-        metadata.update({'project': project_name})
+    openai_api_key = metadata[model]
+
+    # metadata = None
+    # if metadata is None:
+    #     metadata = {'project': project_name}
+    # else:
+    #     metadata.update({'project': project_name})
 
     try:
         from uptrain import EvalLLM
-        user_client = EvalLLM(Settings(openai_api_key = user_name, database_path=DATABASE_PATH))
+        user_client = EvalLLM(Settings(model = model, openai_api_key = openai_api_key, database_path=DATABASE_PATH))
         data = JsonReader(fpath = os.path.join(DATABASE_PATH, "uptrain-datasets", name_w_version)).setup(Settings()).run()['output'].to_dicts()
         results = user_client.evaluate(data, checks_1, project_name)        
         return {"message": f"Evaluation has been queued up"}
@@ -831,33 +831,41 @@ async def add_prompts(
     metadata = eval(metadata)
     if metadata is not None and len(metadata):
         for check in metadata:
-            checks_1.append({"check_name": check, **metadata[check]})
+            checks_1.append(checks_mapping(check, **metadata[check]))
             
     for check in checks:
         if metadata is None or check not in metadata:
-            checks_1.append({"check_name": check})
+            checks_1.append(checks_mapping(check))
+            
+    openai_api_key = metadata[model]
 
     from uptrain.operators import JsonReader
     from uptrain import Settings as UserSettings
 
     metadata = None
     if metadata is None:
-        metadata = {'project': project_name, 'prompt': prompt, 'prompt_name': prompt_name,'prompt_version': version, 'model': 'gpt-3.5-turbo-1106'}
+        metadata = {'project': project_name, 'prompt': prompt, 'prompt_name': prompt_name,'prompt_version': version, 'model': model}
     else:
-        metadata.update({'project': project_name, 'prompt': prompt, 'prompt_name': prompt_name,'prompt_version': version, 'model': 'gpt-3.5-turbo-1106'})
+        metadata.update({'project': project_name, 'prompt': prompt, 'prompt_name': prompt_name,'prompt_version': version, 'model': model})
      
     try:
         from uptrain import EvalLLM
-        user_client = EvalLLM(Settings(openai_api_key = user_name))
+        user_client = EvalLLM(Settings(openai_api_key = openai_api_key,  model = model))
         data = JsonReader(fpath = os.path.join(DATABASE_PATH, "uptrain-datasets", name_w_version)).setup(UserSettings()).run()['output'].to_dicts()
-        #results = user_client.evaluate_prompts(data, checks_1, project_name)   
+        results = user_client.evaluate_prompts(
+            project_name=project_name,
+            data=data, 
+            checks=checks_1,
+            prompt=prompt, 
+            metadata=metadata
+            )   
         # kwargs={
         #         "user_id": user_id,
         #         "data" : data,
         #         "metadata": metadata,
         #         "checks": checks_1
         #     },  
-        
+
         return {"message": f"Evaluation has been queued up"}
     except Exception as e:
         logger.exception(f"Error running the eval: {e}")
@@ -883,4 +891,4 @@ app.include_router(router_public, prefix="/api/public", tags=["public"])
 app.include_router(router_internal, prefix="/api/internal", tags=["internal"])
 
 if __name__ == "__main__":
-    uvicorn.run("app:app", host="0.0.0.0", port=4300, workers=4)
+    uvicorn.run("app:app", host="0.0.0.0", port=4300, workers=3)

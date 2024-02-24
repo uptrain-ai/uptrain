@@ -13,8 +13,7 @@ import pydantic
 import copy
 import os
 import httpx
-from uptrain.utilities.utils import get_sqlite_utils_db, get_current_datetime
-
+from uptrain.utilities.utils import get_sqlite_utils_db, get_current_datetime, parse_prompt
 from uptrain.framework.remote import APIClientWithoutAuth, DataSchema
 from uptrain.framework.base import Settings
 from uptrain.framework.evals import (
@@ -215,24 +214,21 @@ class EvalLLM:
             )
             response = client.post(
                 url,
-                #json={"name": self.settings.openai_api_key},
-                json={"name": 'default_key'},
+                json={"name": "default_key"},
             )
             if not response.is_success:
                 url = "http://localhost:4300/api/public/user"
                 client = httpx.Client(
-                    headers={"uptrain-access-token": self.settings.openai_api_key},
+                    headers={"uptrain-access-token": "default_key"},
                     timeout=httpx.Timeout(7200, connect=5),
                 )
                 response = client.post(
                     url,
-                    #json={"name": self.settings.openai_api_key}
-                    json={"name": 'default_key'}
+                    json={"name": "default_key"}
                 )
             user_id = response.json()['user_id']
-            print(user_id)
         except:
-            user_id = 'default_key'
+            user_id = "default_key"
             logger.info('Database/Server is not up!')
         
         database_path = os.path.join(self.settings.database_path, "uptrain-eval-results", f"{user_id}.db")
@@ -247,7 +243,6 @@ class EvalLLM:
                 if 'score' in key or 'explanation' in key:
                     row_check.update({key: res[key]})
             checks.append(row_check)
-        #print(checks)
         print(metadata)
         DB["results"].insert_all(
             [
@@ -342,3 +337,69 @@ class EvalLLM:
         )
         exp_results = exp_results.to_dicts()
         return exp_results
+
+
+    def evaluate_prompts(
+        self,
+        project_name: str,
+        data: t.Union[list[dict], pl.DataFrame],
+        checks: list[t.Union[str, Evals, ParametricEval]],
+        prompt: str, 
+        schema: t.Union[DataSchema, dict[str, str], None] = None,
+        metadata: t.Optional[dict[str, t.Any]] = None,
+    ):
+        """Evaluate experiments on the server and log the results.
+
+        Args:
+            project_name: Name of the project.
+            data: Data to evaluate on. Either a Pandas DataFrame or a list of dicts.
+            checks: List of checks to evaluate on.
+            exp_columns: List of columns/keys which denote different experiment configurations.
+            schema: Schema of the data. Only required if the data attributes aren't typical (question, response, context).
+            metadata: Attributes to attach to this dataset. Useful for filtering and grouping in the UI.
+
+        Returns:
+            results: List of dictionaries with each data point and corresponding evaluation results for all the experiments.
+        """
+        if metadata is None:
+            metadata = {}
+        
+        base_prompt, prompt_vars = parse_prompt(prompt)
+
+        prompts =[]
+        context_vars = {}
+        context_vars.update(zip(prompt_vars, prompt_vars))
+        for idx, item in enumerate(data):
+            subs = {k: item[v] for k, v in context_vars.items()}
+            msg = base_prompt.format(**subs)
+            prompts.append(msg)
+
+        model = metadata["model"]
+        dataset = pl.DataFrame(data)
+        dataset = dataset.with_columns(pl.Series(name="model", values=[model] * len(dataset)))
+        dataset = dataset.with_columns(pl.Series(name="prompt", values= prompts))
+        
+        from uptrain.operators import TextCompletion
+        
+        dataset = TextCompletion(
+            col_in_prompt = "prompt", 
+            col_in_model = "model", 
+            col_out_completion = "response", 
+            temperature = 0.0
+            ).setup(self.settings).run(dataset)['output']
+        
+        dataset = dataset.to_dicts()
+
+        if schema is None:
+            schema = DataSchema()
+        elif isinstance(schema, dict):
+            schema = DataSchema(**schema)
+
+        results = self.evaluate(
+            project_name=project_name,
+            data=dataset,
+            checks=checks,
+            schema=schema,
+            metadata=metadata,
+        )
+        return results
