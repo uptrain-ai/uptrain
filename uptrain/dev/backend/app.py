@@ -107,7 +107,6 @@ async def validate_api_key_public(
     deduce the user name from the access token. For admin access, the user name is
     provided in another header.
     """
-    print("key_header:", key_header)
     if key_header is None:
         raise HTTPException(status_code=403, detail="Unspecified API key")
     else:
@@ -176,7 +175,7 @@ def get_user(
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     else:
-        return {"user_id" : user_id, "user_name" : "open-source user", "api_key" : "default_key"}
+        return {"id" : user_id, "user_name" : "open-source user", "api_key" : "default_key"}
 
 
 
@@ -189,15 +188,6 @@ def get_project_data(
 ):
     """Get all the data for a particular project_name for the given user.
     """
-    user = db.query(ModelUser).filter_by(id=user_id).first()
-    if user is None:
-        raise HTTPException(status_code=403, detail="Invalid user name")
-    else:
-        user_name = user.name
-    #from uptrain import Settings, APIClient
-    #api_key = _fetch_api_key(db, user_name)
-    #user_headers={"uptrain_access_token": api_key, "uptrain_server_url": f"http://{SETTINGS.server_host}:{SETTINGS.server_port}"}
-    #user_client = APIClient(Settings(**user_headers))
     projects = get_projects_list(num_days=num_days, db=db, user_id=user_id)
 
     for project in projects.data:
@@ -236,9 +226,7 @@ def get_project_data(
                         except:
                             pass
                     data.append(details)
-                print('checks', data[0]['checks'])
                 scores = [col[6:] for col in data[0]['checks'].keys() if col.startswith("score_")]
-                print("scores", scores)
                 if run_via == "project":
                     return app_schema.ProjectData(data = [data, None, project["latest_timestamp"][:10], None, scores], project_name = project_name)
                 else:
@@ -265,12 +253,6 @@ def get_prompt_data(
 ):
     """Get all the data for a particular project_name for the given user.
     """
-    user = db.query(ModelUser).filter_by(id=user_id).first()
-    if user is None:
-        raise HTTPException(status_code=403, detail="Invalid user name")
-    else:
-        user_name = user.name
-
     projects = get_projects_list(num_days=num_days, db=db, user_id=user_id)
 
     for project in projects.data:
@@ -282,7 +264,7 @@ def get_prompt_data(
                     FROM results
                     WHERE project = '{project_name}' AND metadata like '%prompt_version%' AND metadata NOT LIKE '%uptrain_experiment_columns%' AND timestamp > datetime('now', '-{num_days} days')
                     """
-                fpath = os.path.join(SETTINGS.get_store_loc_v2(), f"{user_id}.db")
+                fpath = os.path.join(DATABASE_PATH, "uptrain-eval-results" , f"{user_id}.db")
                 if not os.path.exists(fpath):
                     raise HTTPException(
                         status_code=404, detail="No evaluations run yet for this user"
@@ -364,13 +346,6 @@ def get_projects_list(
         raise HTTPException(status_code=403, detail="Invalid user name")
     else:
         user_name = user.name
-    print(user_id)
-    print(user_name)
-    # from uptrain import Settings, APIClient
-    # api_key = _fetch_api_key(db, user_name)
-    # user_headers={"uptrain_access_token": api_key, "uptrain_server_url": f"http://{SETTINGS.server_host}:{SETTINGS.server_port}"}
-    # user_client = APIClient(Settings(**user_headers))
-
     try:
         query = f"""
         SELECT project, MAX(timestamp) AS latest_timestamp
@@ -380,13 +355,6 @@ def get_projects_list(
         ORDER BY latest_timestamp DESC
         LIMIT {limit}
         """
-        # db_item = db.query(ModelUser).filter_by(name=user_name).first()
-        # if db_item is None:
-        #     raise HTTPException(
-        #         status_code=403, detail=f"User with name {user_name} not found"
-        #     )
-        # user_id = db_item.id
-
         fpath = os.path.join(DATABASE_PATH, "uptrain-eval-results" , f"{user_id}.db")
         if not os.path.exists(fpath):
             raise HTTPException(
@@ -407,13 +375,6 @@ def get_projects_list(
         ORDER BY latest_timestamp DESC
         LIMIT {limit}
         """
-        # db_item = db.query(ModelUser).filter_by(name=user_name).first()
-        # if db_item is None:
-        #     raise HTTPException(
-        #         status_code=403, detail=f"User with name {user_name} not found"
-        #     )
-        # user_id = db_item.id
-
         fpath = os.path.join(DATABASE_PATH, "uptrain-eval-results" , f"{user_id}.db")
         if not os.path.exists(fpath):
             raise HTTPException(
@@ -665,15 +626,8 @@ async def add_evaluation(
     db: Session = Depends(get_db),
     fsspec_fs: t.Any = Depends(get_fsspec_fs),
 ):
-    print("running add evaluation!")
     ## project key would be present in the eval_args.metadata
     
-    user = db.query(ModelUser).filter_by(id=user_id).first()
-    if user is None:
-        raise HTTPException(status_code=403, detail="Invalid user name")
-    else:
-        user_name = user.name
-    print(user_name, "user_name add_evaluation")
     existing_dataset = (
         db.query(ModelDataset)
         .filter_by(name=dataset_name, user_id=user_id)
@@ -686,16 +640,12 @@ async def add_evaluation(
         version = 1
     try:
         name_w_version = os.path.join(user_id, dataset_name, f"v_{version}")
-        #address = os.path.join(SETTINGS.s3_bucket_datasets, name_w_version)
-        print(name_w_version)
         address = os.path.join("uptrain-datasets", name_w_version)
-        print(address)
         with fsspec_fs.open(address, "wb") as f:
             f.write(data_file.file.read())
 
         data_file.file.seek(0, 0)
         rows_count = len(data_file.file.readlines())
-        print('rows_count', rows_count)
         db_item = ModelDataset(
             user_id=user_id,
             name=dataset_name,
@@ -717,25 +667,24 @@ async def add_evaluation(
     checks = eval(checks[0])
     checks_1 = []
     metadata = eval(metadata)
-    if metadata is not None and len(metadata):
-        for check in metadata:
-            checks_1.append(checks_mapping(check, **metadata[check]))
-            
+
     for check in checks:
-        if metadata is None or check not in metadata:
-            checks_1.append(checks_mapping(check))
+        if check in metadata:
+            final_check = checks_mapping(check, metadata[check])
+        else:
+            final_check = checks_mapping(check)
 
-    openai_api_key = metadata[model]
+        if final_check is not None:
+            checks_1.append(final_check)
 
-    # metadata = None
-    # if metadata is None:
-    #     metadata = {'project': project_name}
-    # else:
-    #     metadata.update({'project': project_name})
+    settings_data = {}
+    settings_data['model'] = model
+    settings_data['database_path'] = DATABASE_PATH
+    settings_data.update(metadata[model])
 
     try:
         from uptrain import EvalLLM
-        user_client = EvalLLM(Settings(model = model, openai_api_key = openai_api_key, database_path=DATABASE_PATH))
+        user_client = EvalLLM(Settings(**settings_data))
         data = JsonReader(fpath = os.path.join(DATABASE_PATH, "uptrain-datasets", name_w_version)).setup(Settings()).run()['output'].to_dicts()
         results = user_client.evaluate(data, checks_1, project_name)        
         return {"message": f"Evaluation has been queued up"}
@@ -829,28 +778,30 @@ async def add_prompts(
     checks = eval(checks[0])
     checks_1 = []
     metadata = eval(metadata)
-    if metadata is not None and len(metadata):
-        for check in metadata:
-            checks_1.append(checks_mapping(check, **metadata[check]))
-            
+
     for check in checks:
-        if metadata is None or check not in metadata:
-            checks_1.append(checks_mapping(check))
-            
-    openai_api_key = metadata[model]
+        if check in metadata:
+            final_check = checks_mapping(check, metadata[check])
+        else:
+            final_check = checks_mapping(check)
+
+        if final_check is not None:
+            checks_1.append(final_check)
+
+    settings_data = {}
+    settings_data['model'] = model
+    settings_data['database_path'] = DATABASE_PATH
+    settings_data.update(metadata[model])
 
     from uptrain.operators import JsonReader
     from uptrain import Settings as UserSettings
 
     metadata = None
-    if metadata is None:
-        metadata = {'project': project_name, 'prompt': prompt, 'prompt_name': prompt_name,'prompt_version': version, 'model': model}
-    else:
-        metadata.update({'project': project_name, 'prompt': prompt, 'prompt_name': prompt_name,'prompt_version': version, 'model': model})
-     
+    metadata = {'project': project_name, 'prompt': prompt, 'prompt_name': prompt_name,'prompt_version': version, 'model': model}
+
     try:
         from uptrain import EvalLLM
-        user_client = EvalLLM(Settings(openai_api_key = openai_api_key,  model = model))
+        user_client = EvalLLM(Settings(**settings_data))
         data = JsonReader(fpath = os.path.join(DATABASE_PATH, "uptrain-datasets", name_w_version)).setup(UserSettings()).run()['output'].to_dicts()
         results = user_client.evaluate_prompts(
             project_name=project_name,
@@ -858,14 +809,7 @@ async def add_prompts(
             checks=checks_1,
             prompt=prompt, 
             metadata=metadata
-            )   
-        # kwargs={
-        #         "user_id": user_id,
-        #         "data" : data,
-        #         "metadata": metadata,
-        #         "checks": checks_1
-        #     },  
-
+            )
         return {"message": f"Evaluation has been queued up"}
     except Exception as e:
         logger.exception(f"Error running the eval: {e}")

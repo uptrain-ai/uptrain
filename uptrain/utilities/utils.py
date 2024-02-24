@@ -56,6 +56,8 @@ def checks_mapping(check_name: str, params: dict = dict()):
         return evals_mapping[check_name]
     elif check_name in parametric_evals_mapping:
         return parametric_evals_mapping[check_name](**params)
+    else:
+        return None
     
 def get_uuid():
     import uuid

@@ -76,9 +76,9 @@ class EvalLLM:
 
     def evaluate(
         self,
+        project_name: str,
         data: t.Union[list[dict], pl.DataFrame, pd.DataFrame],
         checks: list[t.Union[str, Evals, ParametricEval]],
-        project_name: str,
         scenario_description: t.Union[str, list[str], None] = None,
         schema: t.Union[DataSchema, dict[str, str], None] = None,
         metadata: t.Optional[dict[str, str]] = None,
@@ -87,10 +87,11 @@ class EvalLLM:
         NOTE: This api doesn't log any data.
 
         Args:
+            project_name: Name of the project.
             data: Data to evaluate on. Either a Pandas DataFrame or a list of dicts.
             checks: List of checks to evaluate on.
             schema: Schema of the data. Only required if the data attributes aren't typical (question, response, context).
-
+            metadata: Attributes to attach to this dataset. Useful for filtering and grouping in the UI.
         Returns:
             results: List of dictionaries with each data point and corresponding evaluation results.
         """
@@ -207,7 +208,7 @@ class EvalLLM:
         else:
             results = self.evaluate_on_server(data, ser_checks, schema)
         ## database insertions
-        try:  
+        try:
             url = "http://localhost:4300/api/internal/user"
             client = httpx.Client(
                 timeout=httpx.Timeout(7200, connect=5),
@@ -226,7 +227,7 @@ class EvalLLM:
                     url,
                     json={"name": "default_key"}
                 )
-            user_id = response.json()['user_id']
+            user_id = response.json()['id']
         except:
             user_id = "default_key"
             logger.info('Database/Server is not up!')
@@ -240,10 +241,9 @@ class EvalLLM:
         for res in results:
             row_check = {}
             for key in res:
-                if 'score' in key or 'explanation' in key:
+                if key.startswith('score')  or key.startswith('explanation'):
                     row_check.update({key: res[key]})
             checks.append(row_check)
-        print(metadata)
         DB["results"].insert_all(
             [
                 {
@@ -297,7 +297,7 @@ class EvalLLM:
         schema: t.Union[DataSchema, dict[str, str], None] = None,
         metadata: t.Optional[dict[str, t.Any]] = None,
     ):
-        """Evaluate experiments on the server and log the results.
+        """Evaluate experiments on the given data.
 
         Args:
             project_name: Name of the project.
@@ -354,6 +354,7 @@ class EvalLLM:
             project_name: Name of the project.
             data: Data to evaluate on. Either a Pandas DataFrame or a list of dicts.
             checks: List of checks to evaluate on.
+            prompt: prompt for generating responses.
             exp_columns: List of columns/keys which denote different experiment configurations.
             schema: Schema of the data. Only required if the data attributes aren't typical (question, response, context).
             metadata: Attributes to attach to this dataset. Useful for filtering and grouping in the UI.
