@@ -48,8 +48,6 @@ from uptrain.utilities.db import (
     ModelPrompt
 )
 from uptrain.utilities.utils import (
-    get_current_datetime,
-    get_uuid,
     get_sqlite_utils_db,
     _get_fsspec_filesystem,
     convert_project_to_polars,
@@ -69,7 +67,8 @@ def _row_to_dict(row):
 # Dependencies
 # -----------------------------------------------------------
 
-DATABASE_PATH = "/Users/ashisharora/Downloads/uptrain_data/"
+DATABASE_PATH = "/Users/ashisharora/Downloads/data/uptrain_data/"
+#DATABASE_PATH = "/data/uptrain_data/"
 # security
 ACCESS_TOKEN = APIKeyHeader(name="uptrain-access-token", auto_error=False)
 
@@ -686,7 +685,7 @@ async def add_evaluation(
         from uptrain import EvalLLM
         user_client = EvalLLM(Settings(**settings_data))
         data = JsonReader(fpath = os.path.join(DATABASE_PATH, "uptrain-datasets", name_w_version)).setup(Settings()).run()['output'].to_dicts()
-        results = user_client.evaluate(data, checks_1, project_name)        
+        results = user_client.evaluate(data=data, checks=checks_1, project_name=project_name)        
         return {"message": f"Evaluation has been queued up"}
     except Exception as e:
         logger.exception(f"Error running the eval: {e}")
