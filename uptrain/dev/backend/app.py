@@ -684,7 +684,7 @@ async def add_evaluation(
 
     settings_data = {}
     settings_data['model'] = model
-    settings_data['database_path'] = DATABASE_PATH
+    settings_data['database_path'] =  "/" + DATABASE_PATH.split("/")[1]
     settings_data.update(metadata[model])
 
     try:
@@ -795,7 +795,7 @@ async def add_prompts(
 
     settings_data = {}
     settings_data['model'] = model
-    settings_data['database_path'] = DATABASE_PATH
+    settings_data['database_path'] = "/" + DATABASE_PATH.split("/")[1]
     settings_data.update(metadata[model])
 
     from uptrain.operators import JsonReader
