@@ -12,10 +12,6 @@ saq
 fastapi-sso @ git+https://github.com/tomasvotava/fastapi-sso.git@master
 pyjwt
 uptrain @ git+https://github.com/uptrain-ai/uptrain.git@dashboard_integration
-streamlit
-streamlit_tags
-streamlit_option_menu
-streamlit-toggle-switch==1.0.2
 posthog
 sqlite-utils
 openai==1.6.1
