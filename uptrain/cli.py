@@ -29,7 +29,7 @@ EXTRA_PACKAGES = {
         "scikit-learn>=1.0.0",
         "umap-learn",
         "rouge-score",
-        "torchmetrics",
+        #"torchmetrics",
         # "sentence-transformers",
         # "InstructorEmbedding",
         "openai==1.6.1",
