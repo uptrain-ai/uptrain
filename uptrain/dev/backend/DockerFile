@@ -26,4 +26,6 @@ COPY . /app
 EXPOSE 4300
 # Run your_script.py when the container launches
 # Note that you must provide the config file using a volume mount to /data/
+RUN pip install nest-asyncio==1.6.0
+COPY nest_asyncio.py /usr/local/lib/python3.10/site-packages/nest_asyncio.py
 ENTRYPOINT ["python", "app.py"]

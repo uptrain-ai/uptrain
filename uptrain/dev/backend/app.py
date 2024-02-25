@@ -52,7 +52,8 @@ from uptrain.utilities.utils import (
     _get_fsspec_filesystem,
     convert_project_to_polars,
     convert_project_to_dicts,
-    checks_mapping
+    checks_mapping,
+    create_dirs
 )
 from uptrain.utilities import polars_to_pandas
 
@@ -67,14 +68,27 @@ def _row_to_dict(row):
 # Dependencies
 # -----------------------------------------------------------
 
-DATABASE_PATH = "/Users/ashisharora/Downloads/data/uptrain_data/"
-#DATABASE_PATH = "/data/uptrain_data/"
+#DATABASE_PATH = "/Users/ashisharora/Downloads/data1/uptrain_data/"
+DATABASE_PATH = "/data/uptrain_data/"
 # security
 ACCESS_TOKEN = APIKeyHeader(name="uptrain-access-token", auto_error=False)
 
 # database
 #/data/uptrain-server.db"
+create_dirs(DATABASE_PATH)
 SessionLocal = create_database("sqlite:///" + DATABASE_PATH + 'uptrain-local-server.db')
+
+def _create_user(db: Session, name: str):
+    """Create a new user."""
+    db_user = ModelUser(name=name)
+    try:
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
+        return db_user
+    except Exception as exc:
+        db.rollback()
+        raise exc
 
 def get_db():
     """Get the database session."""
@@ -84,6 +98,10 @@ def get_db():
     finally:
         SessionLocal.remove()
 
+try:
+    _create_user(SessionLocal(), "default_key")
+except:
+    pass
 
 # some methods need a context manager to get the db
 get_db_context = contextmanager(get_db)
@@ -130,18 +148,6 @@ router_internal = APIRouter()
 # -----------------------------------------------------------
 # Internal API 
 # -----------------------------------------------------------
-
-def _create_user(db: Session, name: str):
-    """Create a new user."""
-    db_user = ModelUser(name=name)
-    try:
-        db.add(db_user)
-        db.commit()
-        db.refresh(db_user)
-        return db_user
-    except Exception as exc:
-        db.rollback()
-        raise exc
 
 @router_internal.post("/user")
 def add_user(user: app_schema.UserCreate, db: Session = Depends(get_db)):

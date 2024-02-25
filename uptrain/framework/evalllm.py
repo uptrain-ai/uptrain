@@ -209,54 +209,45 @@ class EvalLLM:
             results = self.evaluate_on_server(data, ser_checks, schema)
         ## database insertions
         try:
-            url = "http://localhost:4300/api/internal/user"
+            url = "http://localhost:4300/api/public/user"
             client = httpx.Client(
+                headers={"uptrain-access-token": "default_key"},
                 timeout=httpx.Timeout(7200, connect=5),
             )
             response = client.post(
                 url,
-                json={"name": "default_key"},
+                json={"name": "default_key"}
             )
-            if not response.is_success:
-                url = "http://localhost:4300/api/public/user"
-                client = httpx.Client(
-                    headers={"uptrain-access-token": "default_key"},
-                    timeout=httpx.Timeout(7200, connect=5),
-                )
-                response = client.post(
-                    url,
-                    json={"name": "default_key"}
-                )
+
             user_id = response.json()['id']
+            database_path = os.path.join(self.settings.database_path, "uptrain_data", "uptrain-eval-results", f"{user_id}.db")
+            DB = get_sqlite_utils_db(database_path)
+            project = project_name
+            timestamp = get_current_datetime()
+            
+            checks = []
+            for res in results:
+                row_check = {}
+                for key in res:
+                    if key.startswith('score')  or key.startswith('explanation'):
+                        row_check.update({key: res[key]})
+                checks.append(row_check)
+            DB["results"].insert_all(
+                [
+                    {
+                        "data": row_data,
+                        "checks": row_check,
+                        "metadata": metadata,
+                        "schema": schema.dict(),
+                        "project": project,
+                        "timestamp": timestamp,
+                    }
+                    for row_data, row_check in zip(results, checks)
+                ]
+            )
         except:
             user_id = "default_key"
-            logger.info('Database/Server is not up!')
-        
-        database_path = os.path.join(self.settings.database_path, "uptrain-eval-results", f"{user_id}.db")
-        DB = get_sqlite_utils_db(database_path)
-        project = project_name
-        timestamp = get_current_datetime()
-        
-        checks = []
-        for res in results:
-            row_check = {}
-            for key in res:
-                if key.startswith('score')  or key.startswith('explanation'):
-                    row_check.update({key: res[key]})
-            checks.append(row_check)
-        DB["results"].insert_all(
-            [
-                {
-                    "data": row_data,
-                    "checks": row_check,
-                    "metadata": metadata,
-                    "schema": schema.dict(),
-                    "project": project,
-                    "timestamp": timestamp,
-                }
-                for row_data, row_check in zip(results, checks)
-            ]
-        )
+            logger.info('Server is not running!')
         return results
 
     def evaluate_on_server(self, data, ser_checks, schema):

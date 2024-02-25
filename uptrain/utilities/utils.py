@@ -73,6 +73,15 @@ def hash_string(s: str):
 
     return hashlib.sha256(s.encode()).hexdigest()
 
+def create_dirs(path: str):
+    dirs_to_create = [
+        os.path.join(path),
+        os.path.join(path, "uptrain-datasets"),
+        os.path.join(path, "uptrain-eval-results"),
+    ]
+    for _dir in dirs_to_create:
+        os.makedirs(_dir, exist_ok=True)
+    return
 
 def get_sqlite_utils_db(fpath: str):
     import sqlite3
