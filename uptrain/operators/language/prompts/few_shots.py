@@ -160,25 +160,61 @@ RESPONSE_COMPLETENESS_WRT_CONTEXT_FEW_SHOT__COT = """
 # TODO: Improve the quality of response consistency few shot examples
 # Response Consistency
 RESPONSE_CONSISTENCY_FEW_SHOT__CLASSIFY = """
-[Question]: What is postgres?
-[Context]: PostgreSQL is a powerful, open source object-relational database system that uses and extends the SQL language combined with many features that safely store and scale the most complicated data workloads. The origins of PostgreSQL date back to 1986 as part of the POSTGRES project at the University of California at Berkeley and has more than 35 years of active development on the core platform.
-[Response]: Instead of inserting each row directly into the PostgreSQL database, each record is at first inserted into Redis. New records are inserted using bulk operations for better performance. Note that many duplicate records may be received from mobile clients.
-[Output]:
+[Question1]: What is postgres?
+[Context1]: PostgreSQL is a powerful, open source object-relational database system that uses and extends the SQL language combined with many features that safely store and scale the most complicated data workloads. The origins of PostgreSQL date back to 1986 as part of the POSTGRES project at the University of California at Berkeley and has more than 35 years of active development on the core platform.
+[Response1]: Instead of inserting each row directly into the PostgreSQL database, each record is at first inserted into Redis. New records are inserted using bulk operations for better performance. Note that many duplicate records may be received from mobile clients.
+[Output1]:
 {
-    "Choice": "B"
+    "Score": 0,
+    "Argument": "The given answer is not completely appropriate for the question because it addresses a specific usage scenario (using Redis for performance optimization in PostgreSQL) rather than providing an overview or definition of PostgreSQL itself, which was the focus of the question. An appropriate response would directly address the definition of PostgreSQL as outlined in the context, emphasizing its role as an object-relational database system and its historical development."
 }
+
+[Question2]: How does caffeine affect the body?
+[Context2]: Caffeine is a stimulant that affects the central nervous system, making you feel more awake and alert. It is found in coffee, tea, chocolate, many soft drinks, and some medications. Consuming caffeine can lead to increased alertness, but excessive intake may cause nervousness, insomnia, stomach upset, increased heart rate, and even muscle tremors.
+[Response3]: Caffeine blocks the action of a neurotransmitter called adenosine, which promotes sleep and relaxation. By blocking adenosine, caffeine prevents the onset of drowsiness induced by adenosine, thereby increasing alertness and wakefulness.
+[Output]: {
+    "Score": 0.5,
+    "Argument": "The response is somewhat appropriate for the given question as it correctly identifies and explains a key effect of caffeine on the body, which is blocking adenosine to increase alertness and wakefulness. However, it fails to address the broader spectrum of caffeine's effects, including potential adverse reactions, thereby providing a partial but not fully comprehensive answer."
+}
+
+[Question3]: What is the greenhouse effect?
+[Context3]: The greenhouse effect is a natural process that warms the Earth's surface. When the Sun's energy reaches the Earth's atmosphere, some of it is reflected back to space and the rest is absorbed and re-radiated by greenhouse gases. Greenhouse gases include carbon dioxide, methane, and water vapor. This process keeps the Earth’s temperature at a level necessary for life to flourish.
+[Response3]: The greenhouse effect is the process by which radiation from a planet's atmosphere warms the planet's surface to a temperature above what it would be without its atmosphere. This effect is caused by certain gases in the atmosphere (such as carbon dioxide, methane, and water vapor) that absorb and emit infrared radiation.
+[Output3]: {
+    "Score": 1,
+    "Argument": "The response appropriately and accurately explains the greenhouse effect in alignment with the context. It defines the process, identifies the key gases involved, and describes how these gases contribute to warming the Earth's surface. By addressing both the definition and mechanism of the greenhouse effect, the response fully satisfies the inquiry of the question."
+} 
 """
 
 # TODO: Improve the quality of response consistency few shot examples
 RESPONSE_CONSISTENCY_FEW_SHOT__COT = """
-[Question]: What is postgres?
-[Context]: PostgreSQL is a powerful, open source object-relational database system that uses and extends the SQL language combined with many features that safely store and scale the most complicated data workloads. The origins of PostgreSQL date back to 1986 as part of the POSTGRES project at the University of California at Berkeley and has more than 35 years of active development on the core platform.
-[Response]: Instead of inserting each row directly into the PostgreSQL database, each record is at first inserted into Redis. New records are inserted using bulk operations for better performance. Note that many duplicate records may be received from mobile clients.
-[Output]:
+[Question1]: What is postgres?
+[Context1]: PostgreSQL is a powerful, open source object-relational database system that uses and extends the SQL language combined with many features that safely store and scale the most complicated data workloads. The origins of PostgreSQL date back to 1986 as part of the POSTGRES project at the University of California at Berkeley and has more than 35 years of active development on the core platform.
+[Response1]: Instead of inserting each row directly into the PostgreSQL database, each record is at first inserted into Redis. New records are inserted using bulk operations for better performance. Note that many duplicate records may be received from mobile clients.
+[Output1]:
 {
-    "Reasoning": "The given response is not appropriate for the given question because it does not contain any key information about PostgreSQL as given in the context. Moreover, there is no information about Redis in the given context.",
-    "Choice": "B"
+    "Reasoning": "The given response does not directly answer the question 'What is postgres?' as it focuses on a specific use case or operational detail involving Redis and PostgreSQL rather than explaining what PostgreSQL is. The question asks for a definition or explanation of PostgreSQL, expecting an overview or description of its nature, functionality, or purpose. The response provides technical details about how records might be handled when using PostgreSQL with Redis, which is unrelated to the basic definition or understanding of PostgreSQL as an object-relational database system. An appropriate response would have summarized PostgreSQL's identity as an open source object-relational database system, its capabilities, and its historical background as provided in the context. The logical connection between the question and the response is weak because the response assumes prior knowledge about PostgreSQL and Redis, and focuses on a procedural aspect rather than PostgreSQL's definition or core attributes.",
+    "Score": 0,
+    "Argument": "The given answer is not completely appropriate for the question because it addresses a specific usage scenario (using Redis for performance optimization in PostgreSQL) rather than providing an overview or definition of PostgreSQL itself, which was the focus of the question. An appropriate response would directly address the definition of PostgreSQL as outlined in the context, emphasizing its role as an object-relational database system and its historical development."
 }
+
+[Question2]: How does caffeine affect the body?
+[Context2]: Caffeine is a stimulant that affects the central nervous system, making you feel more awake and alert. It is found in coffee, tea, chocolate, many soft drinks, and some medications. Consuming caffeine can lead to increased alertness, but excessive intake may cause nervousness, insomnia, stomach upset, increased heart rate, and even muscle tremors.
+[Response3]: Caffeine blocks the action of a neurotransmitter called adenosine, which promotes sleep and relaxation. By blocking adenosine, caffeine prevents the onset of drowsiness induced by adenosine, thereby increasing alertness and wakefulness.
+[Output]: {
+    "Reasoning": "The response accurately describes one of the primary mechanisms through which caffeine affects the body, aligning with the context provided about caffeine being a stimulant for the central nervous system. The question asks for the effects of caffeine on the body, and the response directly addresses this by explaining the biochemical interaction between caffeine and adenosine, a key factor in feeling awake and alert. However, the response does not cover the full range of effects mentioned in the context, such as potential negative effects (nervousness, insomnia, stomach upset, increased heart rate, muscle tremors) of caffeine consumption). The response is partially complete as it correctly explains a significant aspect of how caffeine works but lacks the comprehensive effects of caffeine on the body, both positive and negative, as detailed in the context.",
+    "Score": 0.5,
+    "Argument": "The response is somewhat appropriate for the given question as it correctly identifies and explains a key effect of caffeine on the body, which is blocking adenosine to increase alertness and wakefulness. However, it fails to address the broader spectrum of caffeine's effects, including potential adverse reactions, thereby providing a partial but not fully comprehensive answer."
+}
+
+[Question3]: What is the greenhouse effect?
+[Context3]: The greenhouse effect is a natural process that warms the Earth’s surface. When the Sun’s energy reaches the Earth’s atmosphere, some of it is reflected back to space and the rest is absorbed and re-radiated by greenhouse gases. Greenhouse gases include carbon dioxide, methane, and water vapor. This process keeps the Earth’s temperature at a level necessary for life to flourish.
+[Response3]: The greenhouse effect is the process by which radiation from a planet's atmosphere warms the planet's surface to a temperature above what it would be without its atmosphere. This effect is caused by certain gases in the atmosphere (such as carbon dioxide, methane, and water vapor) that absorb and emit infrared radiation.
+[Output3]: {
+    "Reasoning": "The response directly answers the question by defining the greenhouse effect as a natural process that results in the warming of the Earth's surface, which is consistent with the context provided. It accurately describes the mechanism of the greenhouse effect, mentioning the role of greenhouse gases like carbon dioxide, methane, and water vapor in absorbing and emitting infrared radiation, which aligns with the context's explanation. The response also implicitly addresses the importance of this process for maintaining the Earth’s temperature at a level necessary for life, as mentioned in the context, by explaining how it warms the planet's surface. The response is comprehensive, covering both the definition and the mechanism of the greenhouse effect, thereby providing a full understanding of the concept as requested in the question.",
+    "Score": 1,
+    "Argument": "The response appropriately and accurately explains the greenhouse effect in alignment with the context. It defines the process, identifies the key gases involved, and describes how these gases contribute to warming the Earth's surface. By addressing both the definition and mechanism of the greenhouse effect, the response fully satisfies the inquiry of the question."
+} 
 """
 
 

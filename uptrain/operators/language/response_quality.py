@@ -358,7 +358,6 @@ class ResponseConsistency(ColumnOp):
     col_response: str = "response"
     col_out: str = "score_response_consistency"
     scenario_description: t.Optional[str] = None
-    score_mapping: dict = {"A": 1.0, "B": 0.5, "C": 0.0}
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
@@ -399,9 +398,13 @@ class ResponseConsistency(ColumnOp):
         }
 
     def response_consistency_classify_validate_func(self, llm_output):
+        parsed_output = json.loads(llm_output)
         is_correct = True
-        is_correct = is_correct and ("Choice" in json.loads(llm_output))
-        is_correct = is_correct and json.loads(llm_output)["Choice"] in ["A", "B", "C"]
+        is_correct = is_correct and ("Score" in parsed_output)
+        is_correct = (
+            is_correct and parsed_output["Score"] >= 0 and parsed_output["Score"] <= 1
+        )
+        is_correct = is_correct and ("Argument" in parsed_output)
         return is_correct
 
     def response_consistency_cot_validate_func(self, llm_output):
@@ -462,16 +465,17 @@ class ResponseConsistency(ColumnOp):
             idx = res.metadata["index"]
             output = {
                 "score_response_consistency": None,
-                "explanation_response_consistency": None,
+                "argument_repsonse_consistency": None,
             }
             try:
-                score = self.score_mapping[
-                    json.loads(res.response.choices[0].message.content)["Choice"]
-                ]
+                parsed_output = json.loads(res.response.choices[0].message.content)
+                score = parsed_output["Score"]
                 output["score_response_consistency"] = float(score)
-                output["explanation_response_consistency"] = res.response.choices[
-                    0
-                ].message.content
+                output["argument_repsonse_consistency"] = parsed_output["Argument"]
+                if self.settings.eval_type == "cot":
+                    output["reasoning_response_consistency"] = parsed_output[
+                        "Reasoning"
+                    ]
             except Exception:
                 logger.error(
                     f"Error when processing payload at index {idx}: {res.error}"
@@ -722,27 +726,23 @@ class ResponseRelevance(ColumnOp):
                 "score_response_relevance": None,
                 "explanation_response_relevance": None,
             }
-            if (
-                precision is not None
-                and recall is not None
-            ):
+            if precision is not None and recall is not None:
                 explanation = (
-                    "Response Precision: " + str(precision)
+                    "Response Precision: "
+                    + str(precision)
                     + str(combined_row[0]["explanation_response_conciseness"])
                     + "\n"
-                    + "Response Recall: " + str(recall)
+                    + "Response Recall: "
+                    + str(recall)
                     + str(combined_row[1]["explanation_response_completeness"])
                 )
                 output["explanation_response_relevance"] = explanation
 
-                if (
-                    precision != 0
-                    and recall != 0
-                ):
+                if precision != 0 and recall != 0:
                     output["score_response_relevance"] = 2 * (
                         (precision * recall) / (precision + recall)
                     )
                 else:
-                    output['score_response_relevance'] = 0
+                    output["score_response_relevance"] = 0
             results.append(output)
         return results
