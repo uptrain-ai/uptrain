@@ -31,6 +31,8 @@ class EvaluateV2(BaseModel):
     data: list[dict]
     checks: list[t.Any]
     metadata: dict
+    schema_dict: dict
+    project: str
 
 class EvaluateV3(BaseModel):
     model: str

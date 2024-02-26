@@ -22,8 +22,6 @@ __all__ = [
 class Settings(BaseSettings):
     # uptrain stores logs in this folder
     logs_folder: str = "/tmp/uptrain-logs"
-    ## database_path
-    database_path: str = "/usr/uptrain/"
     # external api related
     openai_api_key: str = Field(None, env="OPENAI_API_KEY")
     cohere_api_key: str = Field(None, env="COHERE_API_KEY")

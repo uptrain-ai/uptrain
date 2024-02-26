@@ -13,7 +13,7 @@ import pydantic
 import copy
 import os
 import httpx
-from uptrain.utilities.utils import get_sqlite_utils_db, get_current_datetime, parse_prompt
+from uptrain.utilities.utils import get_current_datetime, parse_prompt
 from uptrain.framework.remote import APIClientWithoutAuth, DataSchema
 from uptrain.framework.base import Settings
 from uptrain.framework.evals import (
@@ -207,7 +207,7 @@ class EvalLLM:
                     results[idx].update(row)
         else:
             results = self.evaluate_on_server(data, ser_checks, schema)
-        ## database insertions
+        ## local server calls
         try:
             url = "http://localhost:4300/api/public/user"
             client = httpx.Client(
@@ -220,11 +220,6 @@ class EvalLLM:
             )
 
             user_id = response.json()['id']
-            database_path = os.path.join(self.settings.database_path, "uptrain_data", "uptrain-eval-results", f"{user_id}.db")
-            DB = get_sqlite_utils_db(database_path)
-            project = project_name
-            timestamp = get_current_datetime()
-            
             checks = []
             for res in results:
                 row_check = {}
@@ -232,19 +227,18 @@ class EvalLLM:
                     if key.startswith('score')  or key.startswith('explanation'):
                         row_check.update({key: res[key]})
                 checks.append(row_check)
-            DB["results"].insert_all(
-                [
-                    {
-                        "data": row_data,
-                        "checks": row_check,
-                        "metadata": metadata,
-                        "schema": schema.dict(),
-                        "project": project,
-                        "timestamp": timestamp,
-                    }
-                    for row_data, row_check in zip(results, checks)
-                ]
-            )
+            
+            url = "http://localhost:4300/api/public/add_project_data"
+            response = client.post(
+                        url,
+                        json={
+                            "data": results,
+                            "checks": checks,
+                            "metadata": metadata,
+                            "schema_dict": schema.dict(),
+                            "project": project_name,
+                        },
+                    )
         except:
             user_id = "default_key"
             logger.info('Server is not running!')
