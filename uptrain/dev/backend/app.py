@@ -53,7 +53,8 @@ from uptrain.utilities.utils import (
     convert_project_to_polars,
     convert_project_to_dicts,
     checks_mapping,
-    create_dirs
+    create_dirs,
+    get_current_datetime
 )
 from uptrain.utilities import polars_to_pandas
 
@@ -68,7 +69,6 @@ def _row_to_dict(row):
 # Dependencies
 # -----------------------------------------------------------
 
-#DATABASE_PATH = "/Users/ashisharora/Downloads/data1/uptrain_data/"
 DATABASE_PATH = "/data/uptrain_data/"
 # security
 ACCESS_TOKEN = APIKeyHeader(name="uptrain-access-token", auto_error=False)
@@ -334,6 +334,41 @@ def get_prompt_data(
                         prompt_data.append(prompt_v)
                     res.append({"prompt_name": prompt["prompt_name"], "prompts": prompt_data})
                 return app_schema.ProjectData(data=res, project_name=project_name)
+
+
+@router_public.post("/add_project_data")
+async def add_project_data(
+    eval_args: app_schema.EvaluateV2,
+    user_id: str = Depends(validate_api_key_public),
+    db: Session = Depends(get_db),
+):
+   
+    fpath = os.path.join(DATABASE_PATH, "uptrain-eval-results", f"{user_id}.db")
+    DB = get_sqlite_utils_db(fpath)
+
+    metadata = eval_args.metadata
+    schema = eval_args.schema_dict
+    results = eval_args.data
+    checks = eval_args.checks
+    project = eval_args.project
+    timestamp = get_current_datetime()
+    try: 
+        DB["results"].insert_all(
+            [
+                {
+                    "data": row_data,
+                    "checks": row_check,
+                    "metadata": metadata,
+                    "schema": schema,
+                    "project": project,
+                    "timestamp": timestamp
+                }
+            for row_data, row_check in zip(results, checks)
+            ]
+        )
+    except Exception as e:
+        logger.exception(f"Error running the eval: {e}")
+        raise HTTPException(status_code=500, detail=f"Error saving the data for the project: {e}")
 
     
 @router_public.get("/get_projects_list", response_model=app_schema.ProjectsList)
@@ -684,7 +719,6 @@ async def add_evaluation(
 
     settings_data = {}
     settings_data['model'] = model
-    settings_data['database_path'] =  "/" + DATABASE_PATH.split("/")[1]
     settings_data.update(metadata[model])
 
     try:
@@ -795,7 +829,6 @@ async def add_prompts(
 
     settings_data = {}
     settings_data['model'] = model
-    settings_data['database_path'] = "/" + DATABASE_PATH.split("/")[1]
     settings_data.update(metadata[model])
 
     from uptrain.operators import JsonReader
