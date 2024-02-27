@@ -17,7 +17,11 @@ EXTRA_PACKAGES = {
     "local-generation": [
         "tqdm>=4.0",
     ],
-    "dashboard": ["plotly>=5.0.0", "streamlit>=1.23", "pyarrow>=10.0.0"],
+    "st_classic": [
+        "plotly>=5.0.0", 
+        "streamlit>=1.23",
+        "pyarrow>=10.0.0",
+    ],
     "llama-index": [
         "llama-index>=0.8.0",
     ],
@@ -41,6 +45,13 @@ EXTRA_PACKAGES = {
         "replicate",
         "litellm>=1.15.7",
         "faiss-cpu",
+    ],
+    "dashboard": [
+        "tqdm>=4.0",
+        "pyarrow>=10.0.0",
+        "scikit-learn>=1.0.0",
+        "rouge-score",
+        "litellm>=1.15.7",
     ],
     # Add packages here
     "full": [
