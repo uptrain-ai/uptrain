@@ -16,7 +16,6 @@ EXTRA_PACKAGES = {
     ],
     "local-generation": [
         "tqdm>=4.0",
-        "aiolimiter>=1.1",
     ],
     "dashboard": ["plotly>=5.0.0", "streamlit>=1.23", "pyarrow>=10.0.0"],
     "llama-index": [
