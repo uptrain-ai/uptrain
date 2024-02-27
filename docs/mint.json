@@ -181,6 +181,13 @@
           ]
         },
         {
+          "group": "Observation Tools",
+          "version": "v1",
+          "pages": [
+            "integrations/observation-tools/langfuse"
+          ]
+        },
+        {
           "group": "Vector Database",
           "version": "v1",
           "pages": [
