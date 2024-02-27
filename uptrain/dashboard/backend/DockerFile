@@ -18,7 +18,7 @@ ARG DUMMY=unknown
 # Install any needed packages specified in requirements.txt
 COPY requirements.txt requirements.txt
 RUN DUMMY=${DUMMY} pip install -r requirements.txt
-RUN uptrain-add --feature selfhosted
+RUN uptrain-add --feature dashboard
 
 # COPY over the current directory contents into the container at /app
 COPY . /app
@@ -28,4 +28,5 @@ EXPOSE 4300
 # Note that you must provide the config file using a volume mount to /data/
 RUN pip install nest-asyncio==1.6.0
 COPY nest_asyncio.py /usr/local/lib/python3.10/site-packages/nest_asyncio.py
+RUN pip install polars-lts-cpu
 ENTRYPOINT ["python", "app.py"]

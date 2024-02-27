@@ -11,7 +11,7 @@ httpx
 saq
 fastapi-sso @ git+https://github.com/tomasvotava/fastapi-sso.git@master
 pyjwt
-uptrain @ git+https://github.com/uptrain-ai/uptrain.git@dashboard_integration
+uptrain @ git+https://github.com/uptrain-ai/uptrain.git@main
 posthog
 sqlite-utils
 openai==1.6.1
