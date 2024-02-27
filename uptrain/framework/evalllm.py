@@ -11,7 +11,9 @@ import polars as pl
 import pandas as pd
 import pydantic
 import copy
-
+import os
+import httpx
+from uptrain.utilities.utils import get_current_datetime, parse_prompt
 from uptrain.framework.remote import APIClientWithoutAuth, DataSchema
 from uptrain.framework.base import Settings
 from uptrain.framework.evals import (
@@ -74,6 +76,7 @@ class EvalLLM:
 
     def evaluate(
         self,
+        project_name: str,
         data: t.Union[list[dict], pl.DataFrame, pd.DataFrame],
         checks: list[t.Union[str, Evals, ParametricEval]],
         scenario_description: t.Union[str, list[str], None] = None,
@@ -84,10 +87,11 @@ class EvalLLM:
         NOTE: This api doesn't log any data.
 
         Args:
+            project_name: Name of the project.
             data: Data to evaluate on. Either a Pandas DataFrame or a list of dicts.
             checks: List of checks to evaluate on.
             schema: Schema of the data. Only required if the data attributes aren't typical (question, response, context).
-
+            metadata: Attributes to attach to this dataset. Useful for filtering and grouping in the UI.
         Returns:
             results: List of dictionaries with each data point and corresponding evaluation results.
         """
@@ -203,6 +207,41 @@ class EvalLLM:
                     results[idx].update(row)
         else:
             results = self.evaluate_on_server(data, ser_checks, schema)
+        ## local server calls
+        try:
+            url = "http://localhost:4300/api/public/user"
+            client = httpx.Client(
+                headers={"uptrain-access-token": "default_key"},
+                timeout=httpx.Timeout(7200, connect=5),
+            )
+            response = client.post(
+                url,
+                json={"name": "default_key"}
+            )
+
+            user_id = response.json()['id']
+            checks = []
+            for res in results:
+                row_check = {}
+                for key in res:
+                    if key.startswith('score')  or key.startswith('explanation'):
+                        row_check.update({key: res[key]})
+                checks.append(row_check)
+            
+            url = "http://localhost:4300/api/public/add_project_data"
+            response = client.post(
+                        url,
+                        json={
+                            "data": results,
+                            "checks": checks,
+                            "metadata": metadata,
+                            "schema_dict": schema.dict(),
+                            "project": project_name,
+                        },
+                    )
+        except:
+            user_id = "default_key"
+            logger.info('Server is not running!')
         return results
 
     def evaluate_on_server(self, data, ser_checks, schema):
@@ -232,4 +271,121 @@ class EvalLLM:
                         raise e
 
             results.extend(batch_results)
+        return results
+
+    def evaluate_experiments(
+        self,
+        project_name: str,
+        data: t.Union[list[dict], pl.DataFrame],
+        checks: list[t.Union[str, Evals, ParametricEval]],
+        exp_columns: list[str],
+        schema: t.Union[DataSchema, dict[str, str], None] = None,
+        metadata: t.Optional[dict[str, t.Any]] = None,
+    ):
+        """Evaluate experiments on the given data.
+
+        Args:
+            project_name: Name of the project.
+            data: Data to evaluate on. Either a Pandas DataFrame or a list of dicts.
+            checks: List of checks to evaluate on.
+            exp_columns: List of columns/keys which denote different experiment configurations.
+            schema: Schema of the data. Only required if the data attributes aren't typical (question, response, context).
+            metadata: Attributes to attach to this dataset. Useful for filtering and grouping in the UI.
+
+        Returns:
+            results: List of dictionaries with each data point and corresponding evaluation results for all the experiments.
+        """
+        if metadata is None:
+            metadata = {}
+
+        metadata.update({"uptrain_experiment_columns": exp_columns})
+
+        if schema is None:
+            schema = DataSchema()
+        elif isinstance(schema, dict):
+            schema = DataSchema(**schema)
+
+        results = self.evaluate(
+            project_name=project_name,
+            data=data,
+            checks=checks,
+            schema=schema,
+            metadata=metadata,
+        )
+
+        results = pl.DataFrame(results)
+        all_cols = set(results.columns)
+        value_cols = list(all_cols - set([schema.question] + exp_columns))
+        index_cols = metadata.get("uptrain_index_columns", [schema.question])
+        exp_results = results.pivot(
+            values=value_cols, index=index_cols, columns=exp_columns
+        )
+        exp_results = exp_results.to_dicts()
+        return exp_results
+
+
+    def evaluate_prompts(
+        self,
+        project_name: str,
+        data: t.Union[list[dict], pl.DataFrame],
+        checks: list[t.Union[str, Evals, ParametricEval]],
+        prompt: str, 
+        schema: t.Union[DataSchema, dict[str, str], None] = None,
+        metadata: t.Optional[dict[str, t.Any]] = None,
+    ):
+        """Evaluate experiments on the server and log the results.
+
+        Args:
+            project_name: Name of the project.
+            data: Data to evaluate on. Either a Pandas DataFrame or a list of dicts.
+            checks: List of checks to evaluate on.
+            prompt: prompt for generating responses.
+            exp_columns: List of columns/keys which denote different experiment configurations.
+            schema: Schema of the data. Only required if the data attributes aren't typical (question, response, context).
+            metadata: Attributes to attach to this dataset. Useful for filtering and grouping in the UI.
+
+        Returns:
+            results: List of dictionaries with each data point and corresponding evaluation results for all the experiments.
+        """
+        if metadata is None:
+            metadata = {}
+        
+        base_prompt, prompt_vars = parse_prompt(prompt)
+
+        prompts =[]
+        context_vars = {}
+        context_vars.update(zip(prompt_vars, prompt_vars))
+        for idx, item in enumerate(data):
+            subs = {k: item[v] for k, v in context_vars.items()}
+            msg = base_prompt.format(**subs)
+            prompts.append(msg)
+
+        model = metadata["model"]
+        dataset = pl.DataFrame(data)
+        dataset = dataset.with_columns(pl.Series(name="model", values=[model] * len(dataset)))
+        dataset = dataset.with_columns(pl.Series(name="prompt", values= prompts))
+        
+        from uptrain.operators import TextCompletion
+        
+        dataset = TextCompletion(
+            col_in_prompt = "prompt", 
+            col_in_model = "model", 
+            col_out_completion = "response", 
+            temperature = 0.0
+            ).setup(self.settings).run(dataset)['output']
+        
+        dataset = dataset.to_dicts()
+
+        if schema is None:
+            schema = DataSchema()
+        elif isinstance(schema, dict):
+            schema = DataSchema(**schema)
+
+        results = self.evaluate(
+            project_name=project_name,
+            data=dataset,
+            checks=checks,
+            schema=schema,
+            metadata=metadata,
+        )
         return results

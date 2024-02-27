@@ -1,0 +1,32 @@
+# Use an official Python runtime as a parent image
+FROM python:3.10-slim
+
+# openai evals is a shitty dependency - https://github.com/snowflakedb/snowflake-connector-python/issues/382#issuecomment-948055573
+# Downgraded pyarrow for evals<-snowflake-connector-python to work.
+RUN apt update && apt install gcc -y
+RUN apt install git -y
+RUN pip install --upgrade pip
+
+# Set the working directory to /app
+WORKDIR /app
+# Make sure the /data/ directory exists, which we will use as shared storage for 
+# dashboard, agent, and server; by mounting a host directory to /data/ in the container.
+RUN mkdir -p /data/
+
+# dummy variable so I can invalidate the cache and force a rebuild
+ARG DUMMY=unknown
+# Install any needed packages specified in requirements.txt
+COPY requirements.txt requirements.txt
+RUN DUMMY=${DUMMY} pip install -r requirements.txt
+RUN uptrain-add --feature dashboard
+
+# COPY over the current directory contents into the container at /app
+COPY . /app
+
+EXPOSE 4300
+# Run your_script.py when the container launches
+# Note that you must provide the config file using a volume mount to /data/
+RUN pip install nest-asyncio==1.6.0
+COPY nest_asyncio.py /usr/local/lib/python3.10/site-packages/nest_asyncio.py
+RUN pip install polars-lts-cpu
+ENTRYPOINT ["python", "app.py"]

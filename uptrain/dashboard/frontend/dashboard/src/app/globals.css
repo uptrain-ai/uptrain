@@ -1,0 +1,72 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&family=Poppins:wght@400;500&display=swap");
+
+@tailwind base;
+@tailwind components;
+
+body {
+  @apply bg-[#171721] relative;
+  font-family: Poppins;
+}
+
+.mont {
+  font-family: Montserrat;
+}
+
+.allLogsGrid {
+  grid-template-columns: 1fr 2fr 2fr 1fr 2fr;
+}
+
+.allLogsExpGrid {
+  @apply flex gap-2;
+}
+
+.max2lines {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  /* Number of lines to show */
+}
+
+.lineargradientborder {
+  background: linear-gradient(
+    90deg,
+    #2f2f2f 0%,
+    rgba(47, 47, 47, 0) 0%,
+    #2f2f2f 51.04%,
+    rgba(47, 47, 47, 0) 100%
+  );
+}
+
+.line {
+  background: linear-gradient(
+    90deg,
+    #2f2f2f,
+    rgba(47, 47, 47, 0) 0,
+    #656565 51.04%,
+    rgba(47, 47, 47, 0)
+  );
+}
+
+@tailwind utilities;
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 3px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #23232d;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #5587fd;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #7d76d6;
+}

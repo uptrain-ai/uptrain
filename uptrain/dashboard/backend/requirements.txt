@@ -1,0 +1,16 @@
+python-multipart>=0.0.6
+python-dateutil
+fsspec>=2023.6.0
+croniter
+fastapi
+uvicorn
+boto3
+sqlalchemy
+loguru
+httpx
+fastapi-sso @ git+https://github.com/tomasvotava/fastapi-sso.git@master
+pyjwt
+uptrain @ git+https://github.com/uptrain-ai/uptrain.git@main
+sqlite-utils
+openai>=1.6.1
+litellm>=1.15.7

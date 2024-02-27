@@ -1,0 +1,27 @@
+version: "3.9"
+services:
+  ### FastAPI server
+  server:
+    image: ghcr.io/uptrain-ai/uptrain:latest
+    restart: always
+    entrypoint: ["python", "app.py"]
+    working_dir: "/app/"
+    volumes:
+      - "$SERVER_DATA_DIR:/data/"
+    ports:
+      - 4300:4300
+    profiles: ["server"]
+
+  ###  dashboard
+  dashboard:
+    image: ghcr.io/uptrain-ai/uptrain-dashboard:latest
+    restart: always
+    entrypoint: ["npm", "run", "dev"]
+    working_dir: "/app/"
+    ports:
+      - 3000:3000
+    profiles: ["server"]
+
+networks:
+  default:
+    name: uptrain-network
