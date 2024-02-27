@@ -1,0 +1,125 @@
+---
+title: EvalLlamaIndex
+---
+
+### How to do it?
+
+<Steps>
+  <Step title="Install UpTrain and LlamaIndex">
+```python
+pip install uptrain llama_index
+```
+  </Step>
+  <Step title="Import required libraries">
+```python
+import os
+import openai
+import pandas as pd
+
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
+from uptrain import Evals, EvalLlamaIndex, Settings
+```
+  </Step>
+  <Step title="Create the dataset folder for the query engine">
+    You can use any documents that you have to do thid. For this tutorial, we will use data on New York City extracted from wikipedia. We will only add one document to the folder, but you can add as many as you want.
+```python
+url = "https://uptrain-assets.s3.ap-south-1.amazonaws.com/data/nyc_text.txt"
+if not os.path.exists('nyc_wikipedia'):
+   os.makedirs('nyc_wikipedia')
+dataset_path = os.path.join('./nyc_wikipedia', "nyc_text.txt")
+
+if not os.path.exists(dataset_path):
+    import httpx
+    r = httpx.get(url)
+    with open(dataset_path, "wb") as f:
+        f.write(r.content)
+```
+  </Step>
+  <Step title="Make a list of queries">
+Before we can generate responses, we need to create a list of queries. Since the query engine is trained on New York City, we will create a list of queries related to New York City.
+```python
+data = [
+    {"question": "What is the population of New York City?"},
+    {"question": "What is the area of New York City?"},
+    {"question": "What is the largest borough in New York City?"},
+    {"question": "What is the average temperature in New York City?"},
+    {"question": "What is the main airport in New York City?"},
+    {"question": "What is the famous landmark in New York City?"},
+    {"question": "What is the official language of New York City?"},
+    {"question": "What is the currency used in New York City?"},
+    {"question": "What is the time zone of New York City?"},
+    {"question": "What is the famous sports team in New York City?"}
+]
+```
+This notebook uses the OpenAI API to generate text for prompts as well as to create the Vector Store Index. So, set openai.api_key to your OpenAI API key.
+```python
+openai.api_key = "sk-************************"  # your OpenAI API key
+```
+  </Step>
+  <Step title="Create a query engine using LlamaIndex">
+Let's create a vector store index using LLamaIndex and then use that as a query engine to retrieve relevant sections from the documentation.
+```python
+documents = SimpleDirectoryReader("./nyc_wikipedia/").load_data()
+
+vector_index = VectorStoreIndex.from_documents(
+    documents, service_context=ServiceContext.from_defaults(chunk_size=512)
+)
+
+query_engine = vector_index.as_query_engine()
+```
+  </Step>
+  <Step title="Create the Settings object">
+```python
+settings = Settings(
+    openai_api_key=openai.api_key,
+)
+```
+  </Step>
+  <Step title="Create the EvalLlamaIndex object">
+Now that we have created the query engine, we can use it to create an EvalLlamaIndex object. This object will be used to generate responses for the queries.
+```python
+llamaindex_object = EvalLlamaIndex(settings=settings, query_engine=query_engine)
+```
+  </Step>
+  <Step title="Run the evaluations">
+Now that we have the list of queries, we can use the EvalLlamaIndex object to generate responses for the queries and then perform evaluations on the responses. You can find an extensive list of the evaluations offered by UpTrain [here](/predefined-evaluations/overview). We have chosen two that we found to be the most relevant for this tutorial:
+1. [Context Relevance](/predefined-evaluations/context-awareness/context-relevance): This evaluation checks whether the retrieved context is relevant to the query. This is important because the retrieved context is used to generate the response. If the retrieved context is not relevant to the query, then the response will not be relevant to the query either.
+2. [Response Conciseness](/predefined-evaluations/response-quality/response-conciseness): This evaluation checks whether the response is concise. This is important because the response should be concise and should not contain any unnecessary information.
+```python
+results = llamaindex_object.evaluate(
+    data=data,
+    checks=[
+        Evals.CONTEXT_RELEVANCE,
+        Evals.RESPONSE_CONCISENESS
+    ]
+)
+```
+  </Step>
+  <Step title="Display the results">
+```python
+pd.DataFrame(results)
+```
+  </Step>
+</Steps>
+
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/integrations/llamaindex.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+  
+</CardGroup>
+
