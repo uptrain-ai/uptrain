@@ -69,7 +69,7 @@ Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact 
 # Pre-built Evaluations We Offer 📝
 <img width="1088" alt="quality of your responses" src="https://github.com/uptrain-ai/uptrain/assets/43818888/654b2289-2799-4310-84be-fcdd071f3e2e">
 
-|  <div style="width:160px"></div> | <div style="width:300px"></div> |
+|||
 | ---- | ----------- |
 |[Reponse Completeness](https://docs.uptrain.ai/predefined-evaluations/response-quality/response-completeness) | Grades whether the response has answered all the aspects of the question specified. |
 |[Reponse Conciseness](https://docs.uptrain.ai/predefined-evaluations/response-quality/response-conciseness) | Grades how concise the generated response is or if it has any additional irrelevant information for the question asked. |
@@ -79,7 +79,7 @@ Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact 
 
 <img width="1088" alt="quality of retrieved context and response groundedness" src="https://github.com/uptrain-ai/uptrain/assets/43818888/a7e384a3-c857-4a71-a938-7a2a70f8db1e">
 
-|  <div style="width:160px"></div> | <div style="width:300px"></div> |
+|||
 | ---- | ----------- |
 |[Context Relevance](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-relevance) | Grades how relevant the context was to the question specified. |
 |[Context Utilization](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-utilization) | Grades how complete the generated response was for the question specified given the information provided in the context. |
@@ -87,39 +87,39 @@ Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact 
 
 <img width="1088" alt="language quality of the response" src="https://github.com/uptrain-ai/uptrain/assets/43818888/776cbc6d-bb4c-4ed1-a892-7a1df38d12d5">
 
-|  <div style="width:160px"></div> | <div style="width:300px"></div> |
+|||
 | ---- | ----------- |
-|[Language Features](https://docs.uptrain.ai/predefined-evaluations/language-quality/fluency-and-coherence) | Grades whether the response has answered all the aspects of the question specified. |
+|[Language Features](https://docs.uptrain.ai/predefined-evaluations/language-quality/fluency-and-coherence) | Grades whether the generated response has answered all the aspects of the question specified. |
 |[Tonality](https://docs.uptrain.ai/predefined-evaluations/code-evals/code-hallucination) | Grades whether the generated response matches the required persona's tone  |
 
 <img width="1088" alt="language quality of the response" src="https://github.com/uptrain-ai/uptrain/assets/36454110/2fba9f0b-71b3-4d90-90f8-16ef38cef3ab">
 
-|  <div style="width:160px"></div> | <div style="width:300px"></div> |
+|||
 | ---- | ----------- |
 |[Code Hallucination](https://docs.uptrain.ai/predefined-evaluations/code-evals/code-hallucination) | Grades whether the code present in the generated response is grounded by the context. |
 
 <img width="1088" alt="conversation as a whole" src="https://github.com/uptrain-ai/uptrain/assets/43818888/194f8dd7-26ca-48eb-bdff-028212db9e25">
 
-|  <div style="width:160px"></div> | <div style="width:300px"></div> |
+|||
 | ---- | ----------- |
-|[User Satisfaction](https://docs.uptrain.ai/predefined-evaluations/conversation-evals/user-satisfaction) | Grade the conversations between the user and the LLM/AI assistant. |
+|[User Satisfaction](https://docs.uptrain.ai/predefined-evaluations/conversation-evals/user-satisfaction) | Grade the conversations between the user and the LLM/AI assistant and rates it on the basis of how satisfied the user seems from the conversation. |
 
 <img width="1088" alt="custom evaluations and others" src="https://github.com/uptrain-ai/uptrain/assets/43818888/0bbc2d82-0f96-49ab-969c-4eec29fef988">
 
-|  <div style="width:160px"></div> | <div style="width:300px"></div> |
+|||
 | ---- | ----------- |
-|[Custom Guideline](https://docs.uptrain.ai/predefined-evaluations/custom-evals/custom-guideline) | Grades how well the LLM adheres to a provided guideline when giving a response. |
+|[Custom Guideline](https://docs.uptrain.ai/predefined-evaluations/custom-evals/custom-guideline) | Grades how well the LLM adheres to any provided guidelines when giving a response. |
 |[Custom Prompts](https://docs.uptrain.ai/predefined-evaluations/custom-evals/custom-prompt-eval) | Allows you to create your own set of evaluations. |
 
 <img width="1088" alt="compare responses with ground truth" src="https://github.com/uptrain-ai/uptrain/assets/36454110/e3ee22f4-9984-47a5-a7d2-9d8688a090fb">
 
-|  <div style="width:160px"></div> | <div style="width:300px"></div> |
+|||
 | ---- | ----------- |
-|[Response Matching](https://docs.uptrain.ai/predefined-evaluations/ground-truth-comparison/response-matching) | Grades whether the generated response is leaking any system prompt. |
+|[Response Matching](https://docs.uptrain.ai/predefined-evaluations/ground-truth-comparison/response-matching) | Grades how well the response generated by an LLM matches the ground truth or an ideal response. |
 
 <img width="1088" alt="safeguard system prompts and avoid LLM mis-use" src="https://github.com/uptrain-ai/uptrain/assets/43818888/4fcdb1e8-f356-443b-88f0-94146e08829e">
 
-|  <div style="width:160px"></div> | <div style="width:300px"></div> |
+|||
 | ---- | ----------- |
 |[Prompt Injection](https://docs.uptrain.ai/predefined-evaluations/safeguarding/prompt-injection) | Grades whether the generated response is leaking any system prompt. |
 |[Jailbreak Detection](https://docs.uptrain.ai/predefined-evaluations/safeguarding/jailbreak) | Grades whether the user's prompt is an attempt to jailbreak (i.e. generate illegal or harmful responses). |
