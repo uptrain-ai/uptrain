@@ -1,6 +1,6 @@
 import numpy as np
 
-from river import drift
+# from river import drift
 
 from uptrain.v0.core.classes.monitors import AbstractMonitor
 from uptrain.v0.constants import DataDriftAlgo, MeasurableType
@@ -27,22 +27,23 @@ class ConceptDrift(AbstractMonitor):
         self.plot_name = f"avg_accuracy_{self.measurable.col_name()}"
         self.feat_slicing = check.get("feat_slicing", False)
 
-        if self.algorithm == DataDriftAlgo.DDM:
-            warm_start = check.get("warm_start", 500)
-            warn_threshold = check.get("warn_threshold", 2.0)
-            alarm_threshold = check.get("alarm_threshold", 3.0)
-            self.algo = drift.DDM(warm_start, warn_threshold, alarm_threshold)
-        elif self.algorithm == DataDriftAlgo.ADWIN:
-            delta = check.get("delta", 0.002)
-            clock = check.get("clock", 32)
-            max_buckets = check.get("max_buckets", 5)
-            min_window_length = check.get("min_window_length", 5)
-            grace_period = check.get("grace_period", 5)
-            self.algo = drift.ADWIN(
-                delta, clock, max_buckets, min_window_length, grace_period
-            )
-        else:
-            raise Exception("Data drift algo type not supported")
+        raise Exception("Data drift algo type not supported")
+        # if self.algorithm == DataDriftAlgo.DDM:
+        #     warm_start = check.get("warm_start", 500)
+        #     warn_threshold = check.get("warn_threshold", 2.0)
+        #     alarm_threshold = check.get("alarm_threshold", 3.0)
+        #     self.algo = drift.DDM(warm_start, warn_threshold, alarm_threshold)
+        # elif self.algorithm == DataDriftAlgo.ADWIN:
+        #     delta = check.get("delta", 0.002)
+        #     clock = check.get("clock", 32)
+        #     max_buckets = check.get("max_buckets", 5)
+        #     min_window_length = check.get("min_window_length", 5)
+        #     grace_period = check.get("grace_period", 5)
+        #     self.algo = drift.ADWIN(
+        #         delta, clock, max_buckets, min_window_length, grace_period
+        #     )
+        # else:
+        #     raise Exception("Data drift algo type not supported")
 
     def need_ground_truth(self):
         return True
