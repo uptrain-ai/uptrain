@@ -15,7 +15,7 @@ from uptrain.operators.base import *
 
 from uptrain import RcaTemplate
 from uptrain.utilities import polars_to_json_serializable_dict
-
+from uptrain.operators.language.llm import LLMMulticlient
 
 @register_op
 class RagWithCitation(ColumnOp):
@@ -43,7 +43,10 @@ class RagWithCitation(ColumnOp):
         from uptrain.framework.remote import APIClient
 
         assert settings is not None
-        self._api_client = APIClient(settings)
+        if self.settings.evaluate_locally:
+            self._api_client = LLMMulticlient(settings)
+        else:
+            self._api_client = APIClient(settings)
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
