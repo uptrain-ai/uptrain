@@ -108,7 +108,7 @@ Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact 
 
 | <!-- -->    | <!-- -->    |
 | ---- | ----------- |
-|[Custom Guideline](https://docs.uptrain.ai/predefined-evaluations/custom-evals/custom-guideline) | Grades how well the LLM adheres to any provided guidelines when giving a response. |
+|[Custom Guideline](https://docs.uptrain.ai/predefined-evaluations/custom-evals/custom-guideline) | Grades how well the LLM adheres to any provided guidelines while generating a response. |
 |[Custom Prompts](https://docs.uptrain.ai/predefined-evaluations/custom-evals/custom-prompt-eval) | Allows you to create your own set of evaluations. |
 
 <img width="1088" alt="compare responses with ground truth" src="https://github.com/uptrain-ai/uptrain/assets/36454110/e3ee22f4-9984-47a5-a7d2-9d8688a090fb">
