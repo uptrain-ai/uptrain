@@ -19,7 +19,7 @@ from uptrain.operators.language.prompts.few_shots import (
 from uptrain.operators.language.prompts.instructions import CHAIN_OF_THOUGHT, CLASSIFY
 from uptrain.operators.language.prompts.output_format import (
     RESPONSE_COMPLETENESS_OUTPUT_FORMAT__CLASSIFY,
-    SUBQUERY_COMPLETENESS_OUTPUT_FORMAT__CLASSIFY,
+    SUB_QUERY_COMPLETENESS_OUTPUT_FORMAT__CLASSIFY,
 )
 
 from uptrain.utilities.prompt_utils import parse_scenario_description
@@ -120,7 +120,7 @@ class SubQueryCompleteness(ColumnOp):
             prompting_instructions = CLASSIFY
         elif self.settings.eval_type == "cot":
             few_shot_examples = SUB_QUERY_COMPLETENESS_FEW_SHOT__COT
-            output_format = SUBQUERY_COMPLETENESS_OUTPUT_FORMAT__CLASSIFY
+            output_format = SUB_QUERY_COMPLETENESS_OUTPUT_FORMAT__CLASSIFY
             validation_func = self.sub_query_completeness_cot_validate_func
             prompting_instructions = CHAIN_OF_THOUGHT
         else:

@@ -236,13 +236,13 @@ LANGUAGE_COHERENCE_OUTPUT_FORMAT__COT = """
 
 
 # Sub-query Completeness
-SUBQUERY_COMPLETENESS_OUTPUT_FORMAT__CLASSIFY = """
+SUB_QUERY_COMPLETENESS_OUTPUT_FORMAT__CLASSIFY = """
 {
     "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
 }
 """
 
-SUBQUERY_COMPLETENESS_OUTPUT_FORMAT__COT = """
+SUB_QUERY_COMPLETENESS_OUTPUT_FORMAT__COT = """
 {
     "Reasoning": [Reasoning],  # Reasoning to critique the completeness the sub-queries to the main query,
     "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
