@@ -4,7 +4,7 @@ of LLM applications.
 """
 
 import typing as t
-
+from datetime import datetime
 from loguru import logger
 import httpx
 import polars as pl
@@ -82,9 +82,9 @@ class EvalLLM:
 
     def evaluate(
         self,
-        project_name: str,
         data: t.Union[list[dict], pl.DataFrame, pd.DataFrame],
         checks: list[t.Union[str, Evals, ParametricEval]],
+        project_name: str = "Project - " + str(datetime.utcnow()),
         scenario_description: t.Union[str, list[str], None] = None,
         schema: t.Union[DataSchema, dict[str, str], None] = None,
         metadata: t.Optional[dict[str, str]] = None,
