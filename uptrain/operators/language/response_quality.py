@@ -363,7 +363,6 @@ class ResponseConsistency(ColumnOp):
     col_response: str = "response"
     col_out: str = "score_response_consistency"
     scenario_description: t.Optional[str] = None
-    score_mapping: dict = {"A": 1.0, "B": 0.5, "C": 0.0}
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
@@ -405,8 +404,8 @@ class ResponseConsistency(ColumnOp):
 
     def response_consistency_classify_validate_func(self, llm_output):
         is_correct = True
-        is_correct = is_correct and ("Choice" in json.loads(llm_output))
-        is_correct = is_correct and json.loads(llm_output)["Choice"] in ["A", "B", "C"]
+        is_correct = is_correct and ("Score" in json.loads(llm_output))
+        is_correct = is_correct and 0 <= json.loads(llm_output)["Score"] <= 1
         return is_correct
 
     def response_consistency_cot_validate_func(self, llm_output):
@@ -470,9 +469,7 @@ class ResponseConsistency(ColumnOp):
                 "explanation_response_consistency": None,
             }
             try:
-                score = self.score_mapping[
-                    json.loads(res.response.choices[0].message.content)["Choice"]
-                ]
+                score = json.loads(res.response.choices[0].message.content)["Score"]
                 output["score_response_consistency"] = float(score)
                 output["explanation_response_consistency"] = res.response.choices[
                     0

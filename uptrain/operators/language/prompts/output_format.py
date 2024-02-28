@@ -103,14 +103,14 @@ RESPONSE_COMPLETENESS_WRT_CONTEXT_OUTPUT_FORMAT__COT = """
 # Response Consistency
 RESPONSE_CONSISTENCY_OUTPUT_FORMAT__CLASSIFY = """
 {
-    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B")
+    "Score": [Score],  # Score (between 0 and 1) to determine the quality of reasoning generated to justify the given response for answering the given query,
 }
 """
 
 RESPONSE_CONSISTENCY_OUTPUT_FORMAT__COT = """
 {
     "Reasoning": [Reasoning],  # Reasoning to determine the quality of reasoning generated to justify the given response for answering the given query,
-    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B")
+    "Score": [Score],  # Score (between 0 and 1) to determine the quality of reasoning generated to justify the given response for answering the given query,
 }
 """
 
