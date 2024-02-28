@@ -84,6 +84,8 @@ Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact 
 |[Context Relevance](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-relevance) | Grades how relevant the context was to the question specified. |
 |[Context Utilization](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-utilization) | Grades how complete the generated response was for the question specified given the information provided in the context. |
 |[Factual Accuracy](https://docs.uptrain.ai/predefined-evaluations/context-awareness/factual-accuracy)| Grades whether the response generated is factually correct and grounded by the provided context.|
+|[Context Conciseness](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-conciseness)| Evaluates the concise context cited from an original context for irrelevant information.
+|[Context Reranking](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-reranking)| Evaluates how efficient the reranked context is compared to the original context.|
 
 <img width="1088" alt="language quality of the response" src="https://github.com/uptrain-ai/uptrain/assets/43818888/776cbc6d-bb4c-4ed1-a892-7a1df38d12d5">
 

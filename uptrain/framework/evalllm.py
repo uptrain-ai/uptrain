@@ -32,6 +32,7 @@ from uptrain.operators import (
     ResponseCompletenessWrtContext,
     ResponseConciseness,
     ResponseConsistency,
+    ResponseMatchingScore,
     ValidResponseScore,
     JailbreakDetectionScore,
     PromptInjectionScore,
@@ -40,11 +41,16 @@ from uptrain.operators import (
     LanguageCritique,
     ToneCritique,
     ResponseRelevance,
+    ContextConciseness,
+    ContextReranking,
+    SubQueryCompleteness,
 )
 
 EVAL_TO_OPERATOR_MAPPING = {
     Evals.FACTUAL_ACCURACY: ResponseFactualScore(),
     Evals.CONTEXT_RELEVANCE: ContextRelevance(),
+    Evals.CONTEXT_RERANKING: ContextReranking(),
+    Evals.CONTEXT_CONCISENESS: ContextConciseness(),
     Evals.RESPONSE_COMPLETENESS: ResponseCompleteness(),
     Evals.RESPONSE_CONCISENESS: ResponseConciseness(),
     Evals.RESPONSE_COMPLETENESS_WRT_CONTEXT: ResponseCompletenessWrtContext(),
@@ -53,6 +59,7 @@ EVAL_TO_OPERATOR_MAPPING = {
     Evals.VALID_RESPONSE: ValidResponseScore(),
     Evals.PROMPT_INJECTION: PromptInjectionScore(),
     Evals.CRITIQUE_LANGUAGE: LanguageCritique(),
+    Evals.SUB_QUERY_COMPLETENESS: SubQueryCompleteness(),
 }
 
 PARAMETRIC_EVAL_TO_OPERATOR_MAPPING = {
@@ -60,6 +67,7 @@ PARAMETRIC_EVAL_TO_OPERATOR_MAPPING = {
     "GuidelineAdherence": GuidelineAdherenceScore,
     "ConversationSatisfaction": ConversationSatisfactionScore,
     "CritiqueTone": ToneCritique,
+    "ResponseMatching": ResponseMatchingScore,
 }
 
 
@@ -79,7 +87,7 @@ class EvalLLM:
         data: t.Union[list[dict], pl.DataFrame, pd.DataFrame],
         checks: list[t.Union[str, Evals, ParametricEval]],
         project_name: str = "Project - " + str(datetime.utcnow()),
-        scenario_description: t.Union[str, list[str], None] = None,
+        scenario_description: t.Optional[str] = None,
         schema: t.Union[DataSchema, dict[str, str], None] = None,
         metadata: t.Optional[dict[str, str]] = None,
     ):

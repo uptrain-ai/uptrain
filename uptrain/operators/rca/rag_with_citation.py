@@ -37,7 +37,7 @@ class RagWithCitation(ColumnOp):
     col_response: str = "response"
     col_cited_context: str = "cited_context"
     col_out: str = "score_context_relevance"
-    scenario_description: t.Union[str, list[str], None] = None
+    scenario_description: t.Optional[str] = None
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient

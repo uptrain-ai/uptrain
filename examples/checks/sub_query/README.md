@@ -30,17 +30,14 @@
 </h4>
 
 
-# Context Awareness Evaluations 📝
+# Pre-built Evaluations We Offer 📝
 
-#### Evaluate the quality of retrieved context and response groundedness:
+#### Evaluate the quality of sub queries:
 
 | Metrics  | Usage | 
 |------------|----------|
-|[Context Relevance](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-relevance) | Grades how relevant the context was to the question specified. |
-|[Context Utilization](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-utilization) | Grades how complete the generated response was for the question specified given the information provided in the context. |
-|[Factual Accuracy](https://docs.uptrain.ai/predefined-evaluations/context-awareness/factual-accuracy)| Grades whether the response generated is factually correct and grounded by the provided context.|
-|[Context Conciseness](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-conciseness)| Evaluates the concise context cited from an original context for irrelevant information.
-|[Context Reranking](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-reranking)| Evaluates how efficient the reranked context is compared to the original context.| 
+| [Sub-query Completeness](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/sub_query/sub_query_completeness.ipynb)        | Evaluate if the list of generated sub-questions comprehensively cover all aspects of the main question.| 
+
 
 If you face any difficulties, need some help with using UpTrain or want to brainstorm on custom evaluations for your use-case, [speak to the maintainers of UpTrain here](https://calendly.com/uptrain-sourabh/30min).
 

@@ -59,7 +59,7 @@ class ConversationSatisfactionScore(ColumnOp):
     assistant_persona: t.Union[str, None] = None
     user_role: str = "User"
     assistant_role: str = "Assistant"
-    scenario_description: t.Union[str, list[str], None] = None
+    scenario_description: t.Optional[str] = None
     score_mapping: dict = {"A": 0.0, "B": 0.5, "C": 1.0}
 
     def setup(self, settings: t.Optional[Settings] = None):

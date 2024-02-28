@@ -1,0 +1,76 @@
+---
+title: Sub-Query Completeness
+description: Evaluates if the list of generated sub-questions comprehensively cover all aspects of the main question.
+---
+
+Sub-Query Completeness checks whether the sub-queries generated from a question are complete. This check considers all the sub-queries and evaluate if all of them taken together answers all aspects of the question or not
+
+Columns required:
+- `question`: The question asked by the user
+- `sub_question`: Sub questions generated from the question
+
+### How to use it?
+
+```python
+from uptrain import EvalLLM, Evals
+
+OPENAI_API_KEY = "sk-********************"  # Insert your OpenAI key here
+
+data = [
+    {
+        'question': 'What is the Taj Mahal? When was it built, where and by whom',
+        'sub_questions': '1. What is the Taj Mahal? '        
+    }
+]
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+
+res = eval_llm.evaluate(
+    data = data,
+    checks = [Evals.SUB_QUERY_COMPLETENESS]
+)
+```
+<Info>By default, we are using GPT 3.5 Turbo for evaluations. If you want to use a different model, check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb).</Info>
+
+Sample Response:
+```json
+[
+   {
+      "score_sub_query_completeness": 0.0,
+      "explanation_sub_query_completeness": "Step by step reasoning:\n\n1. The main question is \"What is the Taj Mahal? When was it built, where and by whom.\"\n2. The sub-question provided is \"What is the Taj Mahal?\"\n3. The sub-question does not cover the aspects of when it was built, where, and by whom.\n4. The sub-question collectively does not cover any aspects of the main question.\n\n[Choice]: (C) Sub Questions collectively does not cover any aspects of the main question.\n[Explanation]: The sub-question provided collectively does not cover any aspects of the main question."
+   }
+]
+```
+<Note>A higher Sub-Query Completeness score reflects that the generated sub-questions cover all aspects of the question asked.</Note>
+
+The `sub_question` does not contain some parts of the `question` such as: "When was the Taj Mahal?", "Who built the Taj Mahal?", "Where is the the Taj Mahal?"
+
+Resulting in low Sub-Query Completeness score.
+
+### How it works?
+
+We evaluate Sub-Query Completeness by determining which of the following three cases apply for the given task data:
+
+* Sub Questions collectively cover all the aspects of the main question.
+* Sub Questions collectively cover only a few aspects of the main question.
+* Sub Questions collectively does not cover any aspects of the main question.
+
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/sub-query/sub-query-completeness.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>

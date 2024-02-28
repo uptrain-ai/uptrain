@@ -1,52 +1,46 @@
 """
-Implement operators to evaluate question-response-guideline and question-response datapoints for a 
-LLM-powered agent pipeline. 
+Implement checks for subquery related operations
+
 """
 
 from __future__ import annotations
-from loguru import logger
-
-import json
-import polars as pl
 import typing as t
+import json
 
-from uptrain.operators.language.llm import LLMMulticlient
+from loguru import logger
+import polars as pl
 from uptrain.operators.language.prompts.classic import (
-    GUIDELINE_ADHERENCE_PROMPT_TEMPLATE,
+    SUB_QUERY_COMPLETENESS_PROMPT_TEMPLATE,
 )
 from uptrain.operators.language.prompts.few_shots import (
-    GUIDELINE_ADHERENCE_FEW_SHOT__CLASSIFY,
-    GUIDELINE_ADHERENCE_FEW_SHOT__COT,
+    SUB_QUERY_COMPLETENESS_FEW_SHOT__CLASSIFY,
+    SUB_QUERY_COMPLETENESS_FEW_SHOT__COT,
 )
 from uptrain.operators.language.prompts.instructions import CHAIN_OF_THOUGHT, CLASSIFY
 from uptrain.operators.language.prompts.output_format import (
-    GUIDELINE_ADHERENCE_OUTPUT_FORMAT__CLASSIFY,
-    GUIDELINE_ADHERENCE_OUTPUT_FORMAT__COT,
+    RESPONSE_COMPLETENESS_OUTPUT_FORMAT__CLASSIFY,
+    SUBQUERY_COMPLETENESS_OUTPUT_FORMAT__CLASSIFY,
 )
+
 from uptrain.utilities.prompt_utils import parse_scenario_description
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
-from uptrain.operators.base import (
-    register_op,
-    ColumnOp,
-    TYPE_TABLE_OUTPUT,
-)
+from uptrain.operators.base import register_op, ColumnOp, TYPE_TABLE_OUTPUT
 from uptrain.utilities import polars_to_json_serializable_dict
+from uptrain.operators.language.llm import LLMMulticlient
 
 
 @register_op
-class GuidelineAdherenceScore(ColumnOp):
+class SubQueryCompleteness(ColumnOp):
     """
-    Grade if the LLM agent follows the given guideline or not.
+    Operator to evaluate how completely subqueries cover the main query
 
-     Attributes:
-        col_question (str): Column name for the stored questions
-        col_response (str): Column name for the stored responses
-        guideline (str): Guideline to be followed
-        guideline_name (str): Name the given guideline to be used in the score column name
-        response_schema (str | None): Schema of the response if it is in form of a json string
+    Attributes:
+        col_question: (str) Column Name for the stored questions
+        col_sub_questions: (str) Coloumn name for stored sub_questions
         col_out (str): Column name to output scores
+        scenario_description (str): Optional scenario description to incorporate in the evaluation prompt
         score_mapping (dict): Mapping of different grades to float scores
 
     Raises:
@@ -55,13 +49,10 @@ class GuidelineAdherenceScore(ColumnOp):
     """
 
     col_question: str = "question"
-    col_response: str = "response"
-    guideline: str
-    guideline_name: str = "guideline"
-    response_schema: t.Union[str, None] = None
-    col_out: str = "score_guideline_adherence"
+    col_sub_questions: str = "sub_questions"
+    col_out: str = "score_sub_query_completeness"
     scenario_description: t.Optional[str] = None
-    score_mapping: dict = {"A": 1.0, "B": 0.0}
+    score_mapping: dict = {"A": 1.0, "B": 0.5, "C": 0.0}
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
@@ -78,43 +69,38 @@ class GuidelineAdherenceScore(ColumnOp):
         data_send = polars_to_json_serializable_dict(data)
         for row in data_send:
             row["question"] = row.pop(self.col_question)
-            row["response"] = row.pop(self.col_response)
+            row["sub_questions"] = row.pop(self.col_sub_questions)
 
         try:
             if self.settings.evaluate_locally:
                 results = self.evaluate_local(data_send)
             else:
                 results = self._api_client.evaluate(
-                    "GuidelineAdherence",
+                    "sub_query_completeness",
                     data_send,
-                    {
-                        "guideline": self.guideline,
-                        "guideline_name": self.guideline_name,
-                        "response_schema": self.response_schema,
-                        "scenario_description": self.scenario_description,
-                    },
+                    {"scenario_description": self.scenario_description},
                 )
         except Exception as e:
-            logger.error(f"Failed to run evaluation for `GuidelineAdherenceScore`: {e}")
+            logger.error(f"Failed to run evaluation for `SubQueryCompleteness`: {e}")
             raise e
 
         assert results is not None
         return {
             "output": data.with_columns(
                 pl.from_dicts(results).rename(
-                    {f"score_{self.guideline_name}_adherence": self.col_out}
+                    {"score_sub_query_completeness": self.col_out}
                 )
             )
         }
 
-    def guideline_adherence_classify_validate_func(self, llm_output):
+    def sub_query_completeness_classify_validate_func(self, llm_output):
         is_correct = True
         is_correct = is_correct and ("Choice" in json.loads(llm_output))
-        is_correct = is_correct and json.loads(llm_output)["Choice"] in ["A", "B"]
+        is_correct = is_correct and json.loads(llm_output)["Choice"] in ["A", "B", "C"]
         return is_correct
 
-    def guideline_adherence_cot_validate_func(self, llm_output):
-        is_correct = self.guideline_adherence_classify_validate_func(llm_output)
+    def sub_query_completeness_cot_validate_func(self, llm_output):
+        is_correct = self.sub_query_completeness_classify_validate_func(llm_output)
         is_correct = is_correct and ("Reasoning" in json.loads(llm_output))
         return is_correct
 
@@ -128,14 +114,14 @@ class GuidelineAdherenceScore(ColumnOp):
         )
         input_payloads = []
         if self.settings.eval_type == "basic":
-            few_shot_examples = GUIDELINE_ADHERENCE_FEW_SHOT__CLASSIFY
-            output_format = GUIDELINE_ADHERENCE_OUTPUT_FORMAT__CLASSIFY
-            validation_func = self.guideline_adherence_classify_validate_func
+            few_shot_examples = SUB_QUERY_COMPLETENESS_FEW_SHOT__CLASSIFY
+            output_format = RESPONSE_COMPLETENESS_OUTPUT_FORMAT__CLASSIFY
+            validation_func = self.sub_query_completeness_classify_validate_func
             prompting_instructions = CLASSIFY
         elif self.settings.eval_type == "cot":
-            few_shot_examples = GUIDELINE_ADHERENCE_FEW_SHOT__COT
-            output_format = GUIDELINE_ADHERENCE_OUTPUT_FORMAT__COT
-            validation_func = self.guideline_adherence_cot_validate_func
+            few_shot_examples = SUB_QUERY_COMPLETENESS_FEW_SHOT__COT
+            output_format = SUBQUERY_COMPLETENESS_OUTPUT_FORMAT__CLASSIFY
+            validation_func = self.sub_query_completeness_cot_validate_func
             prompting_instructions = CHAIN_OF_THOUGHT
         else:
             raise ValueError(
@@ -149,13 +135,14 @@ class GuidelineAdherenceScore(ColumnOp):
                     "output_format": output_format,
                     "prompting_instructions": prompting_instructions,
                     "few_shot_examples": few_shot_examples,
-                    "guideline": self.guideline,
                 }
             )
             try:
-                grading_prompt_template = GUIDELINE_ADHERENCE_PROMPT_TEMPLATE.replace(
-                    "{scenario_description}", self.scenario_description
-                ).format(**kwargs)
+                grading_prompt_template = (
+                    SUB_QUERY_COMPLETENESS_PROMPT_TEMPLATE.replace(
+                        "{scenario_description}", self.scenario_description
+                    ).format(**kwargs)
+                )
             except KeyError as e:
                 raise KeyError(
                     f"Missing required attribute(s) for scenario description: {e}"
@@ -168,19 +155,18 @@ class GuidelineAdherenceScore(ColumnOp):
         )
 
         results = []
-
         for res in output_payloads:
             idx = res.metadata["index"]
             output = {
-                "score_guideline_adherence": None,
-                "explanation_guideline_adherence": None,
+                "score_sub_query_completeness": None,
+                "explanation_sub_query_completeness": None,
             }
             try:
                 score = self.score_mapping[
                     json.loads(res.response.choices[0].message.content)["Choice"]
                 ]
-                output["score_guideline_adherence"] = float(score)
-                output["explanation_guideline_adherence"] = res.response.choices[
+                output["score_sub_query_completeness"] = float(score)
+                output["explanation_sub_query_completeness"] = res.response.choices[
                     0
                 ].message.content
             except Exception:
@@ -188,6 +174,6 @@ class GuidelineAdherenceScore(ColumnOp):
                     f"Error when processing payload at index {idx}: {res.error}"
                 )
             results.append((idx, output))
-
         results = [val for _, val in sorted(results, key=lambda x: x[0])]
+
         return results

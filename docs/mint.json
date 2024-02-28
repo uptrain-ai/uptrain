@@ -94,7 +94,9 @@
           "pages": [
             "predefined-evaluations/context-awareness/context-relevance",
             "predefined-evaluations/context-awareness/context-utilization",
-            "predefined-evaluations/context-awareness/factual-accuracy"
+            "predefined-evaluations/context-awareness/factual-accuracy",
+            "predefined-evaluations/context-awareness/context-conciseness",
+            "predefined-evaluations/context-awareness/context-reranking"
           ]
         },
         {
@@ -140,6 +142,13 @@
           "pages": [
             "predefined-evaluations/safeguarding/prompt-injection",
             "predefined-evaluations/safeguarding/jailbreak"
+          ]
+        },
+        {
+          "group": "Sub-Query Evals",
+          "version": "v1",
+          "pages": [
+            "predefined-evaluations/sub-query/sub-query-completeness"
           ]
         }
       ]

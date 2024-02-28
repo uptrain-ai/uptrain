@@ -552,7 +552,7 @@ class APIClient:
         project_name: str,
         data: t.Union[list[dict], pl.DataFrame, pd.DataFrame],
         checks: list[t.Union[str, Evals, ParametricEval]],
-        scenario_description: t.Union[str, list[str], None] = None,
+        scenario_description: t.Optional[str] = None,
         schema: t.Union[DataSchema, dict[str, str], None] = None,
         metadata: t.Optional[dict[str, t.Any]] = None,
     ):
