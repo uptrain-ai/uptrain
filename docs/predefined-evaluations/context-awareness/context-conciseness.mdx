@@ -1,0 +1,80 @@
+---
+title: Context Conciseness
+description: Evaluates the concise context cited from an original context for irrelevant information.
+---
+
+Context conciseness refers to the quality of a reference context generated from retrieved context in terms of being clear, brief, and to the point. 
+
+A concise context effectively conveys the necessary information without unnecessary elaboration or verbosity. 
+
+Columns required:
+- `question`: The question asked by the user
+- `context`: Information retrieved to answer the question
+- `concise_context`: Concise context retrieved from the original context 
+
+### How to use it?
+
+```python
+from uptrain import EvalLLM, Evals
+
+OPENAI_API_KEY = "sk-********************"  # Insert your OpenAI key here
+
+data = [
+    {
+        'question': 'What is the capital of France?',
+        'context': 'France has a capital city named Paris. It is a place where people speak French and enjoy baguettes. I once heard that the Eiffel Tower was built by aliens, but don\'t quote me on that.',
+        'concise_context': 'It is a place where people speak French and enjoy baguettes.'
+    }
+]
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+
+res = eval_llm.evaluate(
+    data = data,
+    checks = [Evals.CONTEXT_RERANKING]
+)
+```
+<Info>By default, we are using GPT 3.5 Turbo for evaluations. If you want to use a different model, check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb).</Info>
+
+Sample Response:
+```json
+[
+   {
+      "score_context_conciseness": 0.0,
+      "explanation_context_conciseness": "Step by step reasoning:\n1. The question is \"What is the capital of France?\"\n2. Original context: \"France has a capital city named Paris.\"\n3. Concise context: \"It is a place where people speak French and enjoy baguettes.\"\n4. The original context explicitly states that Paris is the capital of France, while the concise context does not mention this information.\n5. The concise context only provides information about the language and food in France, but it does not mention the capital city.\n\n[Choice]: (C) The concise context doesn't cover the relevant information from the original context with respect to the given question."
+   }
+]
+```
+<Note>A higher context conciseness score reflects that concise context does not contatin irrelevant information.</Note>
+
+The `context` has information about the `question`: "What is the capital of France."
+
+The `concise_context` has cited some context which is not relevant to the question asked, hence a low context conciseness score.
+
+### How it works?
+
+We evaluate context conciseness by determining which of the following three cases apply for the given task data:
+
+* The concise context adequately covers all the relevant information from the original context with respect to the given question.
+* The concise context partially covers relevant information from the original context with respect to the given question.
+* The concise context doesn't cover the relevant information from the original context with respect to the given question.
+
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/context_conciseness.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>

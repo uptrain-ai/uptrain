@@ -94,7 +94,9 @@
           "pages": [
             "predefined-evaluations/context-awareness/context-relevance",
             "predefined-evaluations/context-awareness/context-utilization",
-            "predefined-evaluations/context-awareness/factual-accuracy"
+            "predefined-evaluations/context-awareness/factual-accuracy",
+            "predefined-evaluations/context-awareness/context-conciseness",
+            "predefined-evaluations/context-awareness/context-reranking"
           ]
         },
         {

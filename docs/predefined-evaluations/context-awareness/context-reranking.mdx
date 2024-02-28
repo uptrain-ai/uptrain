@@ -53,11 +53,11 @@ The reranked context has changed the ordering of the steps breaking the logical 
 
 ### How it works?
 
-We evaluate context relevance by determining which of the following three cases apply for the given task data:
+We evaluate context reranking by determining which of the following three cases apply for the given task data:
 
-* The extracted context can answer the given query completely.
-* The extracted context can give some relevant answer for the given query, but can't answer it completely.
-* The extracted context doesn't contain any information to answer the given query.
+* The reranking of the original context is highly effective in generating the reranked context for the given question.
+* The reranking of the original context is somewhat effective in generating the reranked context for the given question.
+* The reranking of the original context is not very effective in generating the reranked context for the given question.
 
 <CardGroup cols={2}>
   <Card
