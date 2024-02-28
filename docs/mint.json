@@ -148,7 +148,7 @@
           "group": "Sub-Query Evals",
           "version": "v1",
           "pages": [
-            "predefined-evaluations/sub_query/sub_query_completeness"
+            "predefined-evaluations/sub-query/sub-query-completeness"
           ]
         }
       ]
