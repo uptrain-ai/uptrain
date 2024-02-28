@@ -160,10 +160,10 @@ def CheckCodeHallucination():
 # Conversation Quality
 # -----------------------------------------------------------
 
-def CheckConversationSatisfaction(user_persona="user", llm_persona=None):
+def CheckConversationSatisfaction(user_role="user", llm_role="assistant"):
     return Check(
         name="conversation_satisfaction_score",
-        operators=[ConversationSatisfactionScore(user_persona, llm_persona)],
+        operators=[ConversationSatisfactionScore(user_role=user_role, llm_role=llm_role)],
         plots=[Histogram(x="score_conversation_satisfaction")],
     )
 

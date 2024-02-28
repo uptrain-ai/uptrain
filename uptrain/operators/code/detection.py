@@ -26,6 +26,7 @@ class CodeHallucinationScore(ColumnOp):
         col_question (str): Column name for the stored questions
         col_context (str): Column name for the stored contexts
         col_out (str): Column name to output scores
+
     Raises:
         Exception: Raises exception for any failed evaluation attempts
 
