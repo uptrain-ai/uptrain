@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 import random
 import typing as t
 
+from contextlib import suppress
 from loguru import logger
 from pydantic import BaseModel, Field
 
@@ -221,7 +222,8 @@ class LLMMulticlient:
         self, input_payloads: list[Payload], validate_func: function = None
     ) -> list[Payload]:
         try:
-            loop = asyncio.get_running_loop()
+            with suppress(RuntimeError):
+                loop = asyncio.get_running_loop()
         except RuntimeError:
             loop = None
 
