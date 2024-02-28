@@ -17,6 +17,8 @@ from uptrain.framework.builtins import (
     CheckValidResponse,
     CheckResponseConsistency,
     CheckContextRelevance,
+    CheckContextReranking,
+    CheckContextConciseness,
     CheckResponseCompletenessWrtContext,
     CheckResponseFacts,
     CheckLanguageQuality,
@@ -27,6 +29,7 @@ from uptrain.framework.builtins import (
     CheckResponseMatching,
     CheckPromptInjection,
     CheckJailbreakDetection,
+    CheckSubQueryCompleteness,
 )
 
 settings = Settings(openai_api_key="sk-************************")
@@ -119,6 +122,72 @@ def test_check_context_relevance():
     assert output["score_context_relevance"].dtype == pl.Float64 and len(output["score_context_relevance"]) - output["score_context_relevance"].null_count() > 0
     assert output["explanation_context_relevance"].dtype == pl.Utf8 and len(output["explanation_context_relevance"]) - output["explanation_context_relevance"].null_count() > 0
 
+context_reranking_dataset = pl.DataFrame(
+    {
+        "question": [
+            "What are the main causes of climate change?"
+        ],
+        "context": [
+            """
+            1. The main causes of climate change include greenhouse gas emissions from human activities such as burning fossil fuels, deforestation, and industrial processes.
+            2. Climate change is primarily driven by human-induced factors, including the release of carbon dioxide and other greenhouse gases into the atmosphere.
+            3. Human activities such as the burning of fossil fuels, agricultural practices, and land-use changes contribute significantly to climate change by increasing the concentration of greenhouse gases in the atmosphere.
+            4. Other factors that contribute to climate change include methane emissions from livestock and rice paddies, as well as nitrous oxide emissions from agricultural fertilizers.
+            5. Changes in land use, such as urbanization and deforestation, also play a role in altering local climates and contributing to global climate change.
+            """,
+        ],
+        "reranked_context": [
+            """
+            1. Climate change is primarily driven by human-induced factors, including the release of carbon dioxide and other greenhouse gases into the atmosphere.
+            2. The main causes of climate change include greenhouse gas emissions from human activities such as burning fossil fuels, deforestation, and industrial processes.
+            3. Human activities such as the burning of fossil fuels, agricultural practices, and land-use changes contribute significantly to climate change by increasing the concentration of greenhouse gases in the atmosphere.
+            4. Other factors that contribute to climate change include methane emissions from livestock and rice paddies, as well as nitrous oxide emissions from agricultural fertilizers.
+            5. Changes in land use, such as urbanization and deforestation, also play a role in altering local climates and contributing to global climate change.
+            """,
+        ]
+    }
+)
+
+
+def test_check_context_reranking():
+    check = CheckContextReranking()
+    output = check.setup(settings).run(context_reranking_dataset)
+    assert isinstance(output, pl.DataFrame)
+    assert "score_context_reranking" in output.columns and "explanation_context_reranking" in output.columns
+    assert output["score_context_reranking"].dtype == pl.Float64 and len(output["score_context_reranking"]) - output["score_context_reranking"].null_count() > 0
+    assert output["explanation_context_reranking"].dtype == pl.Utf8 and len(output["explanation_context_reranking"]) - output["explanation_context_reranking"].null_count() > 0
+
+
+context_conciseness_dataset = pl.DataFrame(
+    {
+        "question": [
+            "What are the main causes of climate change?"
+        ],
+        "context": [
+            """
+            1. The main causes of climate change include greenhouse gas emissions from human activities such as burning fossil fuels, deforestation, and industrial processes.
+            2. Climate change is primarily driven by human-induced factors, including the release of carbon dioxide and other greenhouse gases into the atmosphere.
+            3. Human activities such as the burning of fossil fuels, agricultural practices, and land-use changes contribute significantly to climate change by increasing the concentration of greenhouse gases in the atmosphere.
+            4. Other factors that contribute to climate change include methane emissions from livestock and rice paddies, as well as nitrous oxide emissions from agricultural fertilizers.
+            5. Changes in land use, such as urbanization and deforestation, also play a role in altering local climates and contributing to global climate change.
+            """,
+        ],
+        "concise_context": [
+            """
+            1. Climate change is primarily driven by human-induced factors, including the release of carbon dioxide and other greenhouse gases into the atmosphere.
+            2. The main causes of climate change include greenhouse gas emissions from human activities such as burning fossil fuels, deforestation, and industrial processes.
+            """,
+        ]
+    }
+)
+
+def test_check_context_conciseness():
+    check = CheckContextConciseness()
+    output = check.setup(settings).run(context_conciseness_dataset)
+    assert isinstance(output, pl.DataFrame)
+    assert "score_context_conciseness" in output.columns and "explanation_context_conciseness" in output.columns
+    assert output["score_context_conciseness"].dtype == pl.Float64 and len(output["score_context_conciseness"]) - output["score_context_conciseness"].null_count() > 0
+    assert output["explanation_context_conciseness"].dtype == pl.Utf8 and len(output["explanation_context_conciseness"]) - output["explanation_context_conciseness"].null_count() > 0
 
 def test_check_response_completeness_wrt_context():
     check = CheckResponseCompletenessWrtContext()
@@ -233,3 +302,53 @@ def test_check_jailbreak_detection():
     assert output["score_jailbreak_attempted"].dtype == pl.Float64 and len(output["score_jailbreak_attempted"]) - output["score_jailbreak_attempted"].null_count() > 0
     assert output["explanation_jailbreak_attempted"].dtype == pl.Utf8 and len(output["explanation_jailbreak_attempted"]) - output["explanation_jailbreak_attempted"].null_count() > 0
 
+
+# -----------------------------------------------------------
+# Sub Query
+# -----------------------------------------------------------
+    
+sub_query_dataset = pl.DataFrame(
+    {
+        "question": [
+            "What did Sam Altman do before, during, and after Y Combinator?",
+            "What are the causes, effects, and solutions to climate change?",
+            "What are the benefits, risks, and regulations of AI?",
+            "What are the differences, similarities, and applications of Python and Java?",
+            "What are the advantages, disadvantages, and use cases of blockchain?",
+        ],
+        "sub_questions": [
+            """
+            1. What did Sam Altman do before Y Combinator?
+            2. What did Sam Altman do during Y Combinator?
+            3. What did Sam Altman do after Y Combinator?
+            """,
+            """
+            1. What are the causes of climate change?
+            2. What are the effects of climate change?
+            3. What are the solutions to climate change?
+            """,
+            """
+            1. What are the benefits of AI?
+            2. What is AI?
+            3. What are the regulations of AI?
+            """,
+            """
+            1. What are the differences between Python and Java?
+            2. What are the similarities between Python and Java?
+            """,
+            """
+            1. What are the advantages of blockchain?
+            2. What are the disadvantages of blockchain?
+            3. What are the use cases of cryptography?
+            """,
+        ],
+    }
+)
+    
+def test_check_sub_query_completeness():
+    check = CheckSubQueryCompleteness()
+    output = check.setup(settings).run(sub_query_dataset)
+    assert isinstance(output, pl.DataFrame)
+    assert "score_sub_query_completeness" in output.columns and "explanation_sub_query_completeness" in output.columns
+    assert output["score_sub_query_completeness"].dtype == pl.Float64 and len(output["score_sub_query_completeness"]) - output["score_sub_query_completeness"].null_count() > 0
+    assert output["explanation_sub_query_completeness"].dtype == pl.Utf8 and len(output["explanation_sub_query_completeness"]) - output["explanation_sub_query_completeness"].null_count() > 0

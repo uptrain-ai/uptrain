@@ -485,7 +485,7 @@ CONTEXT_RERANKING_FEW_SHOT__COT = """
 
 
 # Context Conciseness
-CONTEXT_RERANKING_FEW_SHOT__CLASSIFY = """
+CONTEXT_CONCISENESS_FEW_SHOT__CLASSIFY = """
 [Question]: What are the main causes of climate change?
 [Original Context]:
     1. The main causes of climate change include greenhouse gas emissions from human activities such as burning fossil fuels, deforestation, and industrial processes.

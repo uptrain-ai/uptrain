@@ -438,12 +438,12 @@ class ContextReranking(ColumnOp):
         if self.settings.eval_type == "basic":
             few_shot_examples = CONTEXT_RERANKING_FEW_SHOT__CLASSIFY
             output_format = CONTEXT_RERANKING_OUTPUT_FORMAT__CLASSIFY
-            validation_func = self.context_relevance_classify_validate_func
+            validation_func = self.context_reranking_classify_validate_func
             prompting_instructions = CLASSIFY
         elif self.settings.eval_type == "cot":
             few_shot_examples = CONTEXT_RERANKING_FEW_SHOT__COT
             output_format = CONTEXT_RERANKING_OUTPUT_FORMAT__COT
-            validation_func = self.context_relevance_cot_validate_func
+            validation_func = self.context_reranking_cot_validate_func
             prompting_instructions = CHAIN_OF_THOUGHT
         else:
             raise ValueError(
@@ -478,15 +478,15 @@ class ContextReranking(ColumnOp):
         for res in output_payloads:
             idx = res.metadata["index"]
             output = {
-                "score_context_relevance": None,
-                "explanation_context_relevance": None,
+                "score_context_reranking": None,
+                "explanation_context_reranking": None,
             }
             try:
                 score = self.score_mapping[
                     json.loads(res.response.choices[0].message.content)["Choice"]
                 ]
-                output["score_context_relevance"] = float(score)
-                output["explanation_context_relevance"] = res.response.choices[
+                output["score_context_reranking"] = float(score)
+                output["explanation_context_reranking"] = res.response.choices[
                     0
                 ].message.content
             except Exception:

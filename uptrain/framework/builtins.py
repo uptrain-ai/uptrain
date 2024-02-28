@@ -20,6 +20,9 @@ from uptrain.operators import (
     ConversationSatisfactionScore,
     CodeHallucinationScore,
     JailbreakDetectionScore,
+    SubQueryCompleteness,
+    ContextReranking,
+    ContextConciseness,
 )
 
 
@@ -94,6 +97,21 @@ def CheckResponseFacts():
         plots=[Histogram(x="score_factual_accuracy")],
     )
 
+
+def CheckContextReranking():
+    return Check(
+        name="context_reranking_score",
+        operators=[ContextReranking()],
+        plots=[Histogram(x="score_context_reranking")],
+    )
+
+
+def CheckContextConciseness():
+    return Check(
+        name="context_conciseness_score",
+        operators=[ContextConciseness()],
+        plots=[Histogram(x="score_context_conciseness")],
+    )
 
 
 # -----------------------------------------------------------
@@ -191,4 +209,16 @@ def CheckJailbreakDetection():
         name="j`ailbreak_detection_score",
         operators=[JailbreakDetectionScore()],
         plots=[Histogram(x="score_jailbreak_attempted")],
+    )
+
+
+# -----------------------------------------------------------
+# Subquery
+# -----------------------------------------------------------
+
+def CheckSubQueryCompleteness():
+    return Check(
+        name="sub_query_completeness_score",
+        operators=[SubQueryCompleteness()],
+        plots=[Histogram(x="score_sub_query_completeness")],
     )
