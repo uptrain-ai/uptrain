@@ -32,6 +32,7 @@ from uptrain.operators import (
     ResponseCompletenessWrtContext,
     ResponseConciseness,
     ResponseConsistency,
+    ResponseMatchingScore,
     ValidResponseScore,
     JailbreakDetectionScore,
     PromptInjectionScore,
@@ -66,6 +67,7 @@ PARAMETRIC_EVAL_TO_OPERATOR_MAPPING = {
     "GuidelineAdherence": GuidelineAdherenceScore,
     "ConversationSatisfaction": ConversationSatisfactionScore,
     "CritiqueTone": ToneCritique,
+    "ResponseMatching": ResponseMatchingScore,
 }
 
 
@@ -85,7 +87,7 @@ class EvalLLM:
         data: t.Union[list[dict], pl.DataFrame, pd.DataFrame],
         checks: list[t.Union[str, Evals, ParametricEval]],
         project_name: str = "Project - " + str(datetime.utcnow()),
-        scenario_description: t.Union[str, list[str], None] = None,
+        scenario_description: t.Optional[str] = None,
         schema: t.Union[DataSchema, dict[str, str], None] = None,
         metadata: t.Optional[dict[str, str]] = None,
     ):

@@ -70,6 +70,14 @@ def CheckResponseConsistency():
     )
 
 
+def CheckResponseMatching(method="llm"):
+    return Check(
+        name="response_matching_score",
+        operators=[ResponseMatchingScore(method=method)],
+        plots=[Histogram(x="score_response_matching")],
+    )
+
+
 # -----------------------------------------------------------
 # Context Quality
 # -----------------------------------------------------------
@@ -177,18 +185,6 @@ def CheckGuidelineAdherence(
             )
         ],
         plots=[Histogram(x=f"score_{guideline_name}_adherence")],
-    )
-
-
-# -----------------------------------------------------------
-# Compare response with ground truth
-# -----------------------------------------------------------
-
-def CheckResponseMatching(method="llm"):
-    return Check(
-        name=f"{method}_score",
-        operators=[ResponseMatchingScore(method=method)],
-        plots=[Histogram(x=f"{method}_score")],
     )
 
 

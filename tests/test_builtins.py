@@ -109,6 +109,30 @@ def test_check_response_consistency():
     assert output["score_response_consistency"].dtype == pl.Float64 and len(output["score_response_consistency"]) - output["score_response_consistency"].null_count() > 0
     assert output["explanation_response_consistency"].dtype == pl.Utf8 and len(output["explanation_response_consistency"]) - output["explanation_response_consistency"].null_count() > 0
 
+
+response_matching_dataset = pl.DataFrame(
+    {
+        "question": [
+            "Do both Ronaldo and Messi play in the Spanish League?",
+        ],
+        "response": [
+            "Yes, Messi plays in the Spanish League. However, Ronaldo plays in the English league.",
+        ],
+        "ground_truth": [
+            "no",
+        ],
+    }
+)
+
+def test_check_response_matching():
+    check = CheckResponseMatching()
+    output = check.setup(settings).run(response_matching_dataset)
+    assert isinstance(output, pl.DataFrame)
+    assert "score_response_matching" in output.columns and "explanation_response_matching" in output.columns
+    assert output["score_response_matching"].dtype == pl.Float64 and len(output["score_response_matching"]) - output["score_response_matching"].null_count() > 0
+    assert output["explanation_response_matching"].dtype == pl.Utf8 and len(output["explanation_response_matching"]) - output["explanation_response_matching"].null_count() > 0
+
+
 # -----------------------------------------------------------
 # Context Quality
 # -----------------------------------------------------------

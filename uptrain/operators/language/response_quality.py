@@ -22,6 +22,7 @@ from uptrain.operators.language.prompts.classic import (
     RESPONSE_COMPLETENESS_PROMPT_TEMPLATE,
     RESPONSE_CONCISENESS_PROMPT_TEMPLATE,
     RESPONSE_CONSISTENCY_PROMPT_TEMPLATE,
+    RESPONSE_MATCHING_PROMPT_TEMPLATE,
     VALID_RESPONSE_PROMPT_TEMPLATE,
 )
 from uptrain.operators.language.prompts.few_shots import (
@@ -31,6 +32,8 @@ from uptrain.operators.language.prompts.few_shots import (
     RESPONSE_CONCISENESS_FEW_SHOT__COT,
     RESPONSE_CONSISTENCY_FEW_SHOT__CLASSIFY,
     RESPONSE_CONSISTENCY_FEW_SHOT__COT,
+    RESPONSE_MATCHING_FEW_SHOT__CLASSIFY,
+    RESPONSE_MATCHING_FEW_SHOT__COT,
     VALID_RESPONSE_FEW_SHOT__CLASSIFY,
     VALID_RESPONSE_FEW_SHOT__COT,
 )
@@ -42,6 +45,8 @@ from uptrain.operators.language.prompts.output_format import (
     RESPONSE_CONCISENESS_OUTPUT_FORMAT__COT,
     RESPONSE_CONSISTENCY_OUTPUT_FORMAT__CLASSIFY,
     RESPONSE_CONSISTENCY_OUTPUT_FORMAT__COT,
+    RESPONSE_MATCHING_OUTPUT_FORMAT__CLASSIFY,
+    RESPONSE_MATCHING_OUTPUT_FORMAT__COT,
     VALID_RESPONSE_OUTPUT_FORMAT__CLASSIFY,
     VALID_RESPONSE_OUTPUT_FORMAT__COT,
 )
@@ -722,27 +727,182 @@ class ResponseRelevance(ColumnOp):
                 "score_response_relevance": None,
                 "explanation_response_relevance": None,
             }
-            if (
-                precision is not None
-                and recall is not None
-            ):
+            if precision is not None and recall is not None:
                 explanation = (
-                    "Response Precision: " + str(precision)
+                    "Response Precision: "
+                    + str(precision)
                     + str(combined_row[0]["explanation_response_conciseness"])
                     + "\n"
-                    + "Response Recall: " + str(recall)
+                    + "Response Recall: "
+                    + str(recall)
                     + str(combined_row[1]["explanation_response_completeness"])
                 )
                 output["explanation_response_relevance"] = explanation
 
-                if (
-                    precision != 0
-                    and recall != 0
-                ):
+                if precision != 0 and recall != 0:
                     output["score_response_relevance"] = 2 * (
                         (precision * recall) / (precision + recall)
                     )
                 else:
-                    output['score_response_relevance'] = 0
+                    output["score_response_relevance"] = 0
             results.append(output)
+        return results
+
+
+@register_op
+class ResponseMatchingScore(ColumnOp):
+    """
+    Operator to compare the llm-generated text with the gold response using the defined score metric.
+
+     Attributes:
+        col_question (str): Column name for the stored questions
+        col_response (str): Column name for the llm generated responses
+        col_ground_truth (str): Column name for the ground truth responses
+        col_out (str): Column name for the output score
+        method (str): (Literal["rouge", "exact", "llm"]): Method to calculate the score (For now, only "llm" is supported for evalute locally. All methods are supported for remote evaluation.)
+        scenario_description (str): Optional scenario description to incorporate in the evaluation prompt
+        score_mapping (dict): Mapping of different grades to float scores
+
+    Raises:
+        Exception: Raises exception for any failed evaluation attempts
+
+    """
+
+    col_question: str = "question"
+    col_response: str = "response"
+    col_ground_truth: str = "ground_truth"
+    col_out: str = "score_response_match"
+    method: t.Literal["exact", "rouge", "llm"] = "llm"
+    scenario_description: t.Optional[str] = None
+    score_mapping: dict = {"A": 1.0, "B": 0.0}
+
+    def setup(self, settings: t.Optional[Settings] = None):
+        from uptrain.framework.remote import APIClient
+
+        assert settings is not None
+        self.settings = settings
+        if self.settings.evaluate_locally:
+            # TODO: Add support for local evaluation for all methods
+            if self.method != "llm":
+                raise Exception(
+                    f"Local evaluation is only supported for `llm` method for `ResponseMatchingScore`. Metric: {self.method} is not supported."
+                )
+            self._api_client = LLMMulticlient(settings)
+        else:
+            if self.method not in ["exact", "rouge", "llm"]:
+                raise Exception(f"Metric: {self.method} is not supported yet.")
+            self._api_client = APIClient(settings)
+        return self
+
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
+        data_send = polars_to_json_serializable_dict(data)
+        for row in data_send:
+            row["question"] = row.pop(self.col_question)
+            row["response"] = row.pop(self.col_response)
+            row["ground_truth"] = row.pop(self.col_ground_truth)
+
+        try:
+            if self.settings.evaluate_locally:
+                results = self.evaluate_local(data_send)
+            else:
+                results = self._api_client.evaluate(
+                    "ResponseMatching",
+                    data_send,
+                    {
+                        "type": self.method,
+                        "scenario_description": self.scenario_description,
+                    },
+                )
+        except Exception as e:
+            logger.error(f"Failed to run evaluation for `ResponseMatchingScore`: {e}")
+            raise e
+
+        assert results is not None
+        return {
+            "output": data.with_columns(
+                pl.from_dicts(results).rename({"score_response_match": self.col_out})
+            )
+        }
+
+    def response_matching_classify_validate_func(self, llm_output):
+        is_correct = True
+        is_correct = is_correct and ("Choice" in json.loads(llm_output))
+        is_correct = is_correct and json.loads(llm_output)["Choice"] in ["A", "B", "C"]
+        return is_correct
+
+    def response_matching_cot_validate_func(self, llm_output):
+        is_correct = self.response_matching_classify_validate_func(llm_output)
+        is_correct = is_correct and ("Reasoning" in json.loads(llm_output))
+        return is_correct
+
+    def evaluate_local(self, data):
+        """
+        Our methodology is based on the model grade evaluation introduced by openai evals.
+        """
+
+        self.scenario_description, scenario_vars = parse_scenario_description(
+            self.scenario_description
+        )
+        input_payloads = []
+        if self.settings.eval_type == "basic":
+            few_shot_examples = RESPONSE_MATCHING_FEW_SHOT__CLASSIFY
+            output_format = RESPONSE_MATCHING_OUTPUT_FORMAT__CLASSIFY
+            validation_func = self.response_matching_classify_validate_func
+            prompting_instructions = CLASSIFY
+        elif self.settings.eval_type == "cot":
+            few_shot_examples = RESPONSE_MATCHING_FEW_SHOT__COT
+            output_format = RESPONSE_MATCHING_OUTPUT_FORMAT__COT
+            validation_func = self.response_matching_cot_validate_func
+            prompting_instructions = CHAIN_OF_THOUGHT
+        else:
+            raise ValueError(
+                f"Invalid eval_type: {self.settings.eval_type}. Must be either 'basic' or 'cot'"
+            )
+
+        for idx, row in enumerate(data):
+            kwargs = row
+            kwargs.update(
+                {
+                    "output_format": output_format,
+                    "prompting_instructions": prompting_instructions,
+                    "few_shot_examples": few_shot_examples,
+                }
+            )
+            try:
+                grading_prompt_template = RESPONSE_MATCHING_PROMPT_TEMPLATE.replace(
+                    "{scenario_description}", self.scenario_description
+                ).format(**kwargs)
+            except KeyError as e:
+                raise KeyError(
+                    f"Missing required attribute(s) for scenario description: {e}"
+                )
+            input_payloads.append(
+                self._api_client.make_payload(idx, grading_prompt_template)
+            )
+        output_payloads = self._api_client.fetch_responses(
+            input_payloads, validation_func
+        )
+
+        results = []
+        for res in output_payloads:
+            idx = res.metadata["index"]
+            output = {
+                "score_response_matching": None,
+                "explanation_response_matching": None,
+            }
+            try:
+                score = self.score_mapping[
+                    json.loads(res.response.choices[0].message.content)["Choice"]
+                ]
+                output["score_response_matching"] = float(score)
+                output["explanation_response_matching"] = res.response.choices[
+                    0
+                ].message.content
+            except Exception:
+                logger.error(
+                    f"Error when processing payload at index {idx}: {res.error}"
+                )
+            results.append((idx, output))
+        results = [val for _, val in sorted(results, key=lambda x: x[0])]
+
         return results

@@ -420,12 +420,12 @@ class ContextReranking(ColumnOp):
         is_correct = is_correct and ("Choice" in json.loads(llm_output))
         is_correct = is_correct and json.loads(llm_output)["Choice"] in ["A", "B", "C"]
         return is_correct
-    
+
     def context_reranking_cot_validate_func(self, llm_output):
         is_correct = self.context_reranking_classify_validate_func(llm_output)
         is_correct = is_correct and ("Reasoning" in json.loads(llm_output))
         return is_correct
-    
+
     def evaluate_local(self, data):
         """
         Our methodology is based on the model grade evaluation introduced by openai evals.
@@ -498,7 +498,7 @@ class ContextReranking(ColumnOp):
         results = [val for _, val in sorted(results, key=lambda x: x[0])]
 
         return results
-    
+
 
 @register_op
 class ContextConciseness(ColumnOp):

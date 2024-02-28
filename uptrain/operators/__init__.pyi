@@ -158,12 +158,12 @@ from .language.response_quality import (
     ResponseConciseness,
     ValidResponseScore,
     ResponseRelevance,
+    ResponseMatchingScore,
 )
 from .language.language_quality import LanguageCritique, ResponseCoherence
 from .language.tone import ToneCritique
 from .language.guideline import GuidelineAdherenceScore
 from .language.conversation import ConversationSatisfactionScore
-from .language.response_matching import ResponseMatchingScore
 from .language.topic import TopicAssignmentviaCluster
 from .language.jailbreak import (
     PromptInjectionScore,

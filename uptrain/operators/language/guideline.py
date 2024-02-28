@@ -60,7 +60,7 @@ class GuidelineAdherenceScore(ColumnOp):
     guideline_name: str = "guideline"
     response_schema: t.Union[str, None] = None
     col_out: str = "score_guideline_adherence"
-    scenario_description: t.Union[str, list[str], None] = None
+    scenario_description: t.Optional[str] = None
     score_mapping: dict = {"A": 1.0, "B": 0.0}
 
     def setup(self, settings: t.Optional[Settings] = None):

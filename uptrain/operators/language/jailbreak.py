@@ -58,7 +58,7 @@ class JailbreakDetectionScore(ColumnOp):
     col_question: str = "question"
     col_out: str = "score_jailbreak_attempted"
     model_purpose: str = "To help the users with their queries without providing them with any illegal, immoral or abusive content."
-    scenario_description: t.Union[str, list[str], None] = None
+    scenario_description: t.Optional[str] = None
     score_mapping: dict = {"A": 1.0, "B": 0.0}
 
     def setup(self, settings: t.Optional[Settings] = None):
@@ -206,7 +206,7 @@ class PromptInjectionScore(ColumnOp):
 
     col_question: str = "question"
     col_out: str = "score_prompt_injection"
-    scenario_description: t.Union[str, list[str], None] = None
+    scenario_description: t.Optional[str] = None
     score_mapping: dict = {"A": 1.0, "B": 0.0}
 
     def setup(self, settings: t.Optional[Settings] = None):

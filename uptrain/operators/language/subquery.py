@@ -9,10 +9,18 @@ import json
 
 from loguru import logger
 import polars as pl
-from uptrain.operators.language.prompts.classic import SUB_QUERY_COMPLETENESS_PROMPT_TEMPLATE
-from uptrain.operators.language.prompts.few_shots import SUB_QUERY_COMPLETENESS_FEW_SHOT__CLASSIFY, SUB_QUERY_COMPLETENESS_FEW_SHOT__COT
+from uptrain.operators.language.prompts.classic import (
+    SUB_QUERY_COMPLETENESS_PROMPT_TEMPLATE,
+)
+from uptrain.operators.language.prompts.few_shots import (
+    SUB_QUERY_COMPLETENESS_FEW_SHOT__CLASSIFY,
+    SUB_QUERY_COMPLETENESS_FEW_SHOT__COT,
+)
 from uptrain.operators.language.prompts.instructions import CHAIN_OF_THOUGHT, CLASSIFY
-from uptrain.operators.language.prompts.output_format import RESPONSE_COMPLETENESS_OUTPUT_FORMAT__CLASSIFY, SUBQUERY_COMPLETENESS_OUTPUT_FORMAT__CLASSIFY
+from uptrain.operators.language.prompts.output_format import (
+    RESPONSE_COMPLETENESS_OUTPUT_FORMAT__CLASSIFY,
+    SUBQUERY_COMPLETENESS_OUTPUT_FORMAT__CLASSIFY,
+)
 
 from uptrain.utilities.prompt_utils import parse_scenario_description
 
@@ -26,7 +34,7 @@ from uptrain.operators.language.llm import LLMMulticlient
 @register_op
 class SubQueryCompleteness(ColumnOp):
     """
-    Operator to evaluate how completely subqueries cover the main query    
+    Operator to evaluate how completely subqueries cover the main query
 
     Attributes:
         col_question: (str) Column Name for the stored questions
@@ -79,7 +87,9 @@ class SubQueryCompleteness(ColumnOp):
         assert results is not None
         return {
             "output": data.with_columns(
-                pl.from_dicts(results).rename({"score_sub_query_completeness": self.col_out})
+                pl.from_dicts(results).rename(
+                    {"score_sub_query_completeness": self.col_out}
+                )
             )
         }
 
@@ -128,9 +138,11 @@ class SubQueryCompleteness(ColumnOp):
                 }
             )
             try:
-                grading_prompt_template = SUB_QUERY_COMPLETENESS_PROMPT_TEMPLATE.replace(
-                    "{scenario_description}", self.scenario_description
-                ).format(**kwargs)
+                grading_prompt_template = (
+                    SUB_QUERY_COMPLETENESS_PROMPT_TEMPLATE.replace(
+                        "{scenario_description}", self.scenario_description
+                    ).format(**kwargs)
+                )
             except KeyError as e:
                 raise KeyError(
                     f"Missing required attribute(s) for scenario description: {e}"
