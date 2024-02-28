@@ -204,6 +204,7 @@ CRITIQUE_TONE_OUTPUT_FORMAT__COT = """
 }
 """
 
+
 # Critique Language Fluency
 LANGUAGE_FLUENCY_OUTPUT_FORMAT__CLASSIFY = """
 {
@@ -218,6 +219,7 @@ LANGUAGE_FLUENCY_OUTPUT_FORMAT__COT = """
 }
 """
 
+
 # Critique Language Coherence
 LANGUAGE_COHERENCE_OUTPUT_FORMAT__CLASSIFY = """
 {
@@ -231,3 +233,49 @@ LANGUAGE_COHERENCE_OUTPUT_FORMAT__COT = """
     "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
 }
 """
+
+
+# Sub-query Completeness
+SUBQUERY_COMPLETENESS_OUTPUT_FORMAT__CLASSIFY = """
+{
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+}
+"""
+
+SUBQUERY_COMPLETENESS_OUTPUT_FORMAT__COT = """
+{
+    "Reasoning": [Reasoning],  # Reasoning to critique the completeness the sub-queries to the main query,
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+}
+"""
+
+
+# Context Rerakning
+CONTEXT_RERANKING_OUTPUT_FORMAT__CLASSIFY = """
+{
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+}
+"""
+
+CONTEXT_RERANKING_OUTPUT_FORMAT__COT = """
+{
+    "Reasoning": [Reasoning],  # Reasoning to critique the reranking of the context,
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+}
+"""
+
+
+# Context Conciseness
+CONTEXT_CONCISENESS_OUTPUT_FORMAT__CLASSIFY = """
+{
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+}
+"""
+
+CONTEXT_CONCISENESS_OUTPUT_FORMAT__COT = """
+{
+    "Reasoning": [Reasoning],  # Reasoning to critique the conciseness of the context,
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+}
+"""
+

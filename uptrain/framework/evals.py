@@ -20,6 +20,9 @@ class Evals(enum.Enum):
     SUB_QUERY_COMPLETENESS = "sub_query_completeness"
     CONTEXT_RERANKING = "context_reranking"
     CONTEXT_CONCISENESS = "context_conciseness"
+    SUB_QUERY_COMPLETENESS = "sub_query_completeness"
+    CONTEXT_RERANKING = "context_reranking"
+    CONTEXT_CONCISENESS = "context_conciseness"
 
 
 class ParametricEval(pydantic.BaseModel):

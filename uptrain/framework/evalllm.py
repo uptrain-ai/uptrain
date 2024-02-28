@@ -40,6 +40,9 @@ from uptrain.operators import (
     LanguageCritique,
     ToneCritique,
     ResponseRelevance,
+    ContextConciseness,
+    ContextReranking,
+    SubQueryCompleteness,
 )
 
 EVAL_TO_OPERATOR_MAPPING = {
@@ -53,6 +56,9 @@ EVAL_TO_OPERATOR_MAPPING = {
     Evals.VALID_RESPONSE: ValidResponseScore(),
     Evals.PROMPT_INJECTION: PromptInjectionScore(),
     Evals.CRITIQUE_LANGUAGE: LanguageCritique(),
+    Evals.SUB_QUERY_COMPLETENESS: SubQueryCompleteness(),
+    Evals.CONTEXT_RERANKING: ContextReranking(),
+    Evals.CONTEXT_CONCISENESS: ContextConciseness(),
 }
 
 PARAMETRIC_EVAL_TO_OPERATOR_MAPPING = {

@@ -70,6 +70,9 @@ __all__ = [
     "JailbreakDetectionScore",
     "PromptInjectionScore",
     "ResponseCoherence",
+    "SubQueryCompleteness",
+    "ContextReranking",
+    "ContextConciseness",
     # io - also include all the subimports
     "io",
     "ExcelReader",
@@ -142,8 +145,13 @@ from .language.generation import (
     TopicGenerator,
 )
 from .language.factual_accuracy import ResponseFactualScore
-from .language.context_quality import ContextRelevance, ResponseCompletenessWrtContext
-
+from .language.context_quality import (
+    ContextRelevance,
+    ResponseCompletenessWrtContext,
+    ContextConciseness,
+    ContextReranking,
+)
+from .language.subquery import SubQueryCompleteness
 from .language.response_quality import (
     ResponseCompleteness,
     ResponseConsistency,
