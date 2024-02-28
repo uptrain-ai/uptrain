@@ -143,6 +143,13 @@
             "predefined-evaluations/safeguarding/prompt-injection",
             "predefined-evaluations/safeguarding/jailbreak"
           ]
+        },
+        {
+          "group": "Sub-Query Evals",
+          "version": "v1",
+          "pages": [
+            "predefined-evaluations/sub_query/sub_query_completeness"
+          ]
         }
       ]
     },
