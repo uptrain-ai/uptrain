@@ -293,3 +293,20 @@ RESPONSE_MATCHING_OUTPUT_FORMAT__COT = """
     "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B")
 }
 """
+
+
+# Code Hallucination
+CODE_HALLUCINATION_OUTPUT_FORMAT__CLASSIFY = """
+{
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B"),
+    "Snippet": [Code Snippet],  # Code snippet (if any) found in the response,
+}
+"""
+
+CODE_HALLUCINATION_OUTPUT_FORMAT__COT = """
+{
+    "Reasoning": [Reasoning],  # Reasoning to critique the hallucination of the code,
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B"),
+    "Snippet": [Code Snippet],  # Code snippet (if any) found in the response,
+}
+"""

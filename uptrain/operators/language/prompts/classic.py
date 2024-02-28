@@ -474,3 +474,29 @@ Task data:
 [Ground Truth]: {ground_truth}
 [Output]: 
 """
+
+
+# Code Hallucination
+CODE_HALLUCINATION_PROMPT_TEMPLATE = """
+You are given a response generated from a chatbot. Please assess whether the given response includes any computer code (or CLI command) or not. If you do find a code/command, include the line number in which you found the code/command.
+Computer Code refers to the set of instructions, or a system of rules, written in a particular programming language (i.e., the source code). It is also the term used for the source code after a compiler has processed it.
+Note that if the response mentions any CLI or bash commands that can be executed in the terminal, then the response contains code.
+Only responses that contain actual code examples or mention any CLI commands should be considered as containing code. Not the ones that only mention a function or method.
+
+{scenario_description}
+
+Example Data.
+{few_shot_examples}
+
+Determine which case applies by selecting one of the following options:
+A. The given response contains computer code or CLI command.
+B. The given response does not contain computer code or CLI command.
+{prompting_instructions}
+
+Return the output only in the corresponding JSON format. Do not output anything other than this JSON object:
+{output_format}
+
+Task data:
+[Response]: {response}
+"""
+

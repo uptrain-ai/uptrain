@@ -542,3 +542,31 @@ RESPONSE_MATCHING_FEW_SHOT__COT = """
     "Choice": "A"
 }
 """
+
+
+# Code Hallucination
+CODE_HALLUCINATION_FEW_SHOT__CLASSIFY = """
+[Response]: To select the rows where the hospital name is "St. Mary's Hospital", use the following query:
+SELECT * FROM hospitals WHERE name = "St. Mary's Hospital";
+[Output]:
+{
+  "Choice": "A",
+  "Snippet": "SELECT * FROM hospitals WHERE name = \"St. Mary's Hospital\";"
+}
+"""
+
+CODE_HALLUCINATION_FEW_SHOT__COT = """
+[Response]: To select the rows where the hospital name is "St. Mary's Hospital", use the following query:
+SELECT * FROM hospitals WHERE name = "St. Mary's Hospital";
+[Output]:
+{
+  "Reasoning": [
+    "1. The given text starts with a statement providing a task related to querying data from a database.",
+    "2. The text then presents a specific query written in SQL: SELECT * FROM hospitals WHERE name = \"St. Mary's Hospital\";",
+    "3. The provided content is SQL syntax, which is a programming language used for database queries.",
+    "4. The text does not just mention a function or method but includes an actual code example in SQL."
+  ],
+  "Choice": "A",
+  "Snippet": "SELECT * FROM hospitals WHERE name = \"St. Mary's Hospital\";"
+}
+"""

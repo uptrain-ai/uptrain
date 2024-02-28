@@ -258,30 +258,30 @@ def test_check_tone_quality():
 # # Code Hallucinations
 # # -----------------------------------------------------------
     
-# code_hallucination_dataset = pl.DataFrame(
-#     {
-#         "question": [
-#             "How to use the sessionstate feature in Streamlit",
-#             "Can I create histograms with different bucket colors in Streamlit",
-#         ],
-#         "context": [
-#             "This property lets you store Python primitives such as integers, floating-point numbers, complex numbers and booleans, dataframes, and even [lambdas](https://docs.python.org/3/reference/expressions.html#lambda) returned by functions. However, some execution environments may require serializing all data in Session State, so it may be useful to detect incompatibility during development, or when the execution environment will stop supporting it in the future.\n\nTo that end, Streamlit provides a `runner.enforceSerializableSessionState` [configuration option](https://docs.streamlit.io/library/advanced-features/configuration) that, when set to `true`, only allows pickle-serializable objects in Session State. To enable the option, either create a global or project config file with the following or use it as a command-line flag:\n\n\n```\n# .streamlit/config.toml\n[runner]\nenforceSerializableSessionState = true\n\n```\nBy \"*pickle-serializable*\", we mean calling `pickle.dumps(obj)` should not raise a [`PicklingError`](https://docs.python.org/3/library/pickle.html#pickle.PicklingError) exception. When the config option is enabled, adding unserializable data to session state should result in an exception. E.g.,\n\n\n```\nimport streamlit as st\n\ndef unserializable_data():\n        return lambda x: x\n\n#👇 results in an exception when enforceSerializableSessionState is on\nst.session_state.unserializable = unserializable_data()\n\n```\n![UnserializableSessionStateError](https://docs.streamlit.io/images/unserializable-session-state-error.png)",
-#             "eader(\"Define a custom colorscale\")\ndf = px.data.iris()\nfig = px.scatter(\n    df,\n    x=\"sepal_width\",\n    y=\"sepal_length\",\n    color=\"sepal_length\",\n    color_continuous_scale=\"reds\",\n)\n\ntab1, tab2 = st.tabs([\"Streamlit theme (default)\", \"Plotly native theme\"])\nwith tab1:\n    st.plotly_chart(fig, theme=\"streamlit\", use_container_width=True)\nwith tab2:\n    st.plotly_chart(fig, theme=None, use_container_width=True)\n\n```\nNotice how the custom color scale is still reflected in the chart, even when the Streamlit theme is enabled 👇\n\nFor many more examples of Plotly charts with and without the Streamlit theme, check out the [plotly.streamlit.app](https://plotly.streamlit.app).\n\n"
-#         ],
-#         "response": [
-#             "Serialization refers to the process of converting an object or data structure into a format that can be persisted and shared, and allowing you to recover the data’s original structure.\n\nBy default, Streamlit’s [Session State](https://docs.streamlit.io/library/advanced-features/session-state) allows you to persist any Python object for the duration of the session, irrespective of the object’s pickle-serializability. \n\nStreamlit provides a `runner.enforceSerializableSessionState` [configuration option](https://docs.streamlit.io/library/advanced-features/configuration) that, when set to `true`, only allows pickle-serializable objects in Session State.\n\nBy \"*pickle-serializable*\", we mean calling `pickle.dumps(obj)` should not raise a [`PicklingError`](https://docs.python.org/3/library/pickle.html#pickle.PicklingError) exception",
-#             "The `color_continuous_scale` parameter in the `px.scatter` function allows you to define a custom color scale for the plot. You can use any of the built-in color scales provided by Plotly, or you can define your own custom color scale using a list of colors. The `color_continuous_scale` parameter accepts a string that specifies the name of the color scale to use. You can also pass a list of colors to the `color_continuous_scale` parameter to define a custom color scale. The list of colors can be any length, and the colors can be specified using any valid CSS color format, such as hex, RGB, or HSL. The `color_continuous_scale` parameter allows you to create a custom color scale for the plot that is tailored to your specific needs."
-#         ],
-#     }
-# )
+code_hallucination_dataset = pl.DataFrame(
+    {
+        "question": [
+            "How to use the sessionstate feature in Streamlit",
+            "Can I create histograms with different bucket colors in Streamlit",
+        ],
+        "context": [
+            "This property lets you store Python primitives such as integers, floating-point numbers, complex numbers and booleans, dataframes, and even [lambdas](https://docs.python.org/3/reference/expressions.html#lambda) returned by functions. However, some execution environments may require serializing all data in Session State, so it may be useful to detect incompatibility during development, or when the execution environment will stop supporting it in the future.\n\nTo that end, Streamlit provides a `runner.enforceSerializableSessionState` [configuration option](https://docs.streamlit.io/library/advanced-features/configuration) that, when set to `true`, only allows pickle-serializable objects in Session State. To enable the option, either create a global or project config file with the following or use it as a command-line flag:\n\n\n```\n# .streamlit/config.toml\n[runner]\nenforceSerializableSessionState = true\n\n```\nBy \"*pickle-serializable*\", we mean calling `pickle.dumps(obj)` should not raise a [`PicklingError`](https://docs.python.org/3/library/pickle.html#pickle.PicklingError) exception. When the config option is enabled, adding unserializable data to session state should result in an exception. E.g.,\n\n\n```\nimport streamlit as st\n\ndef unserializable_data():\n        return lambda x: x\n\n#👇 results in an exception when enforceSerializableSessionState is on\nst.session_state.unserializable = unserializable_data()\n\n```\n![UnserializableSessionStateError](https://docs.streamlit.io/images/unserializable-session-state-error.png)",
+            "eader(\"Define a custom colorscale\")\ndf = px.data.iris()\nfig = px.scatter(\n    df,\n    x=\"sepal_width\",\n    y=\"sepal_length\",\n    color=\"sepal_length\",\n    color_continuous_scale=\"reds\",\n)\n\ntab1, tab2 = st.tabs([\"Streamlit theme (default)\", \"Plotly native theme\"])\nwith tab1:\n    st.plotly_chart(fig, theme=\"streamlit\", use_container_width=True)\nwith tab2:\n    st.plotly_chart(fig, theme=None, use_container_width=True)\n\n```\nNotice how the custom color scale is still reflected in the chart, even when the Streamlit theme is enabled 👇\n\nFor many more examples of Plotly charts with and without the Streamlit theme, check out the [plotly.streamlit.app](https://plotly.streamlit.app).\n\n"
+        ],
+        "response": [
+            "Serialization refers to the process of converting an object or data structure into a format that can be persisted and shared, and allowing you to recover the data’s original structure.\n\nBy default, Streamlit’s [Session State](https://docs.streamlit.io/library/advanced-features/session-state) allows you to persist any Python object for the duration of the session, irrespective of the object’s pickle-serializability. \n\nStreamlit provides a `runner.enforceSerializableSessionState` [configuration option](https://docs.streamlit.io/library/advanced-features/configuration) that, when set to `true`, only allows pickle-serializable objects in Session State.\n\nBy \"*pickle-serializable*\", we mean calling `pickle.dumps(obj)` should not raise a [`PicklingError`](https://docs.python.org/3/library/pickle.html#pickle.PicklingError) exception",
+            "The `color_continuous_scale` parameter in the `px.scatter` function allows you to define a custom color scale for the plot. You can use any of the built-in color scales provided by Plotly, or you can define your own custom color scale using a list of colors. The `color_continuous_scale` parameter accepts a string that specifies the name of the color scale to use. You can also pass a list of colors to the `color_continuous_scale` parameter to define a custom color scale. The list of colors can be any length, and the colors can be specified using any valid CSS color format, such as hex, RGB, or HSL. The `color_continuous_scale` parameter allows you to create a custom color scale for the plot that is tailored to your specific needs."
+        ],
+    }
+)
 
-# def test_check_code_hallucination():
-#     check = CheckCodeHallucination()
-#     output = check.setup(settings).run(code_hallucination_dataset)
-#     assert isinstance(output, pl.DataFrame)
-#     assert "score_code_hallucination" in output.columns and "explanation_code_hallucination" in output.columns
-#     assert output["score_code_hallucination"].dtype == pl.Float64 and len(output["score_code_hallucination"]) - output["score_code_hallucination"].null_count() > 0
-#     assert output["explanation_code_hallucination"].dtype == pl.Utf8 and len(output["explanation_code_hallucination"]) - output["explanation_code_hallucination"].null_count() > 0
+def test_check_code_hallucination():
+    check = CheckCodeHallucination()
+    output = check.setup(settings).run(code_hallucination_dataset)
+    assert isinstance(output, pl.DataFrame)
+    assert "score_code_hallucination" in output.columns and "explanation_code_hallucination" in output.columns
+    assert output["score_code_hallucination"].dtype == pl.Float64 and len(output["score_code_hallucination"]) - output["score_code_hallucination"].null_count() > 0
+    assert output["explanation_code_hallucination"].dtype == pl.Utf8 and len(output["explanation_code_hallucination"]) - output["explanation_code_hallucination"].null_count() > 0
 
 
 # # -----------------------------------------------------------
