@@ -5,7 +5,6 @@ import typing as t
 import polars as pl
 import pandas as pd
 import dateutil.parser
-import sqlite_utils as sqlite
 
 import fsspec
 from fsspec.implementations.dirfs import DirFileSystem
@@ -22,6 +21,8 @@ from uptrain import (
 
 def _get_fsspec_filesystem(database_path) -> fsspec.AbstractFileSystem:
     return DirFileSystem(database_path, auto_mkdir=True)
+
+from uptrain.utilities import lazy_load_dep
 
 fsspec.config.conf["file"] = {"auto_mkdir": True}
 
@@ -84,6 +85,7 @@ def create_dirs(path: str):
     return
 
 def get_sqlite_utils_db(fpath: str):
+    sqlite = lazy_load_dep("sqlite_utils", "sqlite_utils")
     import sqlite3
 
     conn = sqlite3.connect(fpath, check_same_thread=False)

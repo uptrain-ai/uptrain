@@ -78,6 +78,13 @@
       "version": "v1",
       "pages": [
         {
+          "group": "Ground Truth Comparison Evals",
+          "version": "v1",
+          "pages": [
+            "predefined-evaluations/ground-truth-comparison/response-matching"
+          ]
+        },
+        {
           "group": "Response Quality Evals",
           "version": "v1",
           "pages": [
@@ -108,6 +115,13 @@
           ]
         },
         {
+          "group": "Query Clarity Evals",
+          "version": "v1",
+          "pages": [
+            "predefined-evaluations/query-quality/sub-query-completeness"
+          ]
+        },
+        {
           "group": "Code Related Evals",
           "version": "v1",
           "pages": [
@@ -130,25 +144,11 @@
           ]
         },
         {
-          "group": "Ground Truth Comparison Evals",
-          "version": "v1",
-          "pages": [
-            "predefined-evaluations/ground-truth-comparison/response-matching"
-          ]
-        },
-        {
           "group": "Safeguarding Evals",
           "version": "v1",
           "pages": [
             "predefined-evaluations/safeguarding/prompt-injection",
             "predefined-evaluations/safeguarding/jailbreak"
-          ]
-        },
-        {
-          "group": "Sub-Query Evals",
-          "version": "v1",
-          "pages": [
-            "predefined-evaluations/sub-query/sub-query-completeness"
           ]
         }
       ]
