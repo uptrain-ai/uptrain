@@ -43,7 +43,8 @@ class RagWithCitation(ColumnOp):
         from uptrain.framework.remote import APIClient
 
         assert settings is not None
-        if self.settings.evaluate_locally:
+        self.settings = settings
+        if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
             self._api_client = LLMMulticlient(settings)
         else:
             self._api_client = APIClient(settings)
@@ -58,13 +59,16 @@ class RagWithCitation(ColumnOp):
             row["cited_context"] = row.pop(self.col_cited_context)
 
         try:
-            results = self._api_client.perform_root_cause_analysis(
-                project_name="_internal",
-                data=data_send,
-                rca_template=RcaTemplate.RAG_WITH_CITATION,
-                scenario_description=self.scenario_description,
-                metadata={"internal_call": True},
-            )
+            if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
+                results = self.evaluate_local(data_send)
+            else:
+                results = self._api_client.perform_root_cause_analysis(
+                    project_name="_internal",
+                    data=data_send,
+                    rca_template=RcaTemplate.RAG_WITH_CITATION,
+                    scenario_description=self.scenario_description,
+                    metadata={"internal_call": True},
+                )
         except Exception as e:
             logger.error(
                 f"Failed to run Root cause analysis for `RagWithCitation`: {e}"
@@ -73,3 +77,6 @@ class RagWithCitation(ColumnOp):
 
         assert results is not None
         return {"output": data.with_columns(pl.from_dicts(results))}
+    
+    def evaluate_local(self, data):
+        
