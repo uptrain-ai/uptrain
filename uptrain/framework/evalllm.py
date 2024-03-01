@@ -187,7 +187,7 @@ class EvalLLM:
         if self.settings.evaluate_locally:
             results = copy.deepcopy(data)
             for idx, check in enumerate(checks):
-                if isinstance(check, ParametricEval):
+                if isinstance(check, ParametricEval) and ser_checks[idx]["check_name"] in PARAMETRIC_EVAL_TO_OPERATOR_MAPPING:
                     # Use the check_name field to get the operator and remove it from ser_checks
                     op = PARAMETRIC_EVAL_TO_OPERATOR_MAPPING[
                         ser_checks[idx].pop("check_name")
@@ -197,7 +197,7 @@ class EvalLLM:
                         .run(pl.DataFrame(data))["output"]
                         .to_dicts()
                     )
-                elif check in EVAL_TO_OPERATOR_MAPPING:
+                elif isinstance(check, Evals) and check in EVAL_TO_OPERATOR_MAPPING:
                     op = EVAL_TO_OPERATOR_MAPPING[check]
                     op.scenario_description = (
                         scenario_description
