@@ -5,6 +5,7 @@ Implement operaores to evaluate response quality i.e. quality of the generated r
 from __future__ import annotations
 import typing as t
 import json
+import copy
 
 from loguru import logger
 import polars as pl
@@ -17,12 +18,12 @@ if t.TYPE_CHECKING:
 from uptrain.operators.base import register_op, ColumnOp, TYPE_TABLE_OUTPUT
 from uptrain.utilities import polars_to_json_serializable_dict
 from uptrain.operators.language.llm import LLMMulticlient
+from uptrain.operators.language.factual_accuracy import ResponseFactualScore
 
 from uptrain.operators.language.prompts.classic import (
     RESPONSE_COMPLETENESS_PROMPT_TEMPLATE,
     RESPONSE_CONCISENESS_PROMPT_TEMPLATE,
     RESPONSE_CONSISTENCY_PROMPT_TEMPLATE,
-    RESPONSE_MATCHING_PROMPT_TEMPLATE,
     VALID_RESPONSE_PROMPT_TEMPLATE,
 )
 from uptrain.operators.language.prompts.few_shots import (
@@ -32,8 +33,6 @@ from uptrain.operators.language.prompts.few_shots import (
     RESPONSE_CONCISENESS_FEW_SHOT__COT,
     RESPONSE_CONSISTENCY_FEW_SHOT__CLASSIFY,
     RESPONSE_CONSISTENCY_FEW_SHOT__COT,
-    RESPONSE_MATCHING_FEW_SHOT__CLASSIFY,
-    RESPONSE_MATCHING_FEW_SHOT__COT,
     VALID_RESPONSE_FEW_SHOT__CLASSIFY,
     VALID_RESPONSE_FEW_SHOT__COT,
 )
@@ -45,8 +44,6 @@ from uptrain.operators.language.prompts.output_format import (
     RESPONSE_CONCISENESS_OUTPUT_FORMAT__COT,
     RESPONSE_CONSISTENCY_OUTPUT_FORMAT__CLASSIFY,
     RESPONSE_CONSISTENCY_OUTPUT_FORMAT__COT,
-    RESPONSE_MATCHING_OUTPUT_FORMAT__CLASSIFY,
-    RESPONSE_MATCHING_OUTPUT_FORMAT__COT,
     VALID_RESPONSE_OUTPUT_FORMAT__CLASSIFY,
     VALID_RESPONSE_OUTPUT_FORMAT__COT,
 )
@@ -837,69 +834,54 @@ class ResponseMatchingScore(ColumnOp):
         Our methodology is based on the model grade evaluation introduced by openai evals.
         """
 
-        self.scenario_description, scenario_vars = parse_scenario_description(
-            self.scenario_description
-        )
-        input_payloads = []
-        if self.settings.eval_type == "basic":
-            few_shot_examples = RESPONSE_MATCHING_FEW_SHOT__CLASSIFY
-            output_format = RESPONSE_MATCHING_OUTPUT_FORMAT__CLASSIFY
-            validation_func = self.response_matching_classify_validate_func
-            prompting_instructions = CLASSIFY
-        elif self.settings.eval_type == "cot":
-            few_shot_examples = RESPONSE_MATCHING_FEW_SHOT__COT
-            output_format = RESPONSE_MATCHING_OUTPUT_FORMAT__COT
-            validation_func = self.response_matching_cot_validate_func
-            prompting_instructions = CHAIN_OF_THOUGHT
-        else:
-            raise ValueError(
-                f"Invalid eval_type: {self.settings.eval_type}. Must be either 'basic' or 'cot'"
-            )
+        data_precision = copy.deepcopy(pl.DataFrame(data)).rename({
+            self.col_response: "response",
+            self.col_ground_truth: "context"
+        })
+        data_recall = copy.deepcopy(pl.DataFrame(data)).rename({
+            self.col_ground_truth: "response",
+            self.col_response: "context"
+        })
+        eval_data = pl.concat([data_precision, data_recall.select(data_precision.columns)])
 
-        for idx, row in enumerate(data):
-            kwargs = row
-            kwargs.update(
-                {
-                    "output_format": output_format,
-                    "prompting_instructions": prompting_instructions,
-                    "few_shot_examples": few_shot_examples,
-                }
-            )
-            try:
-                grading_prompt_template = RESPONSE_MATCHING_PROMPT_TEMPLATE.replace(
-                    "{scenario_description}", self.scenario_description
-                ).format(**kwargs)
-            except KeyError as e:
-                raise KeyError(
-                    f"Missing required attribute(s) for scenario description: {e}"
-                )
-            input_payloads.append(
-                self._api_client.make_payload(idx, grading_prompt_template)
-            )
-        output_payloads = self._api_client.fetch_responses(
-            input_payloads, validation_func
-        )
+        output = ResponseFactualScore(
+            col_question=self.col_question,
+            col_response="response",
+            col_context="context",
+            scenario_description=self.scenario_description,
+        ).setup(settings=self.settings).run(eval_data)["output"].to_dicts()
+        output_precision = output[0:len(data)]
+        output_recall = output[len(data):]
 
         results = []
-        for res in output_payloads:
-            idx = res.metadata["index"]
+        for combined_row in zip(output_precision, output_recall):
+            precision = combined_row[0]["score_factual_accuracy"]
+            recall = combined_row[1]["score_factual_accuracy"]
             output = {
                 "score_response_matching": None,
                 "explanation_response_matching": None,
+                "score_response_match_recall": None,
+                "score_response_match_precision": None,
             }
-            try:
-                score = self.score_mapping[
-                    json.loads(res.response.choices[0].message.content)["Choice"]
-                ]
-                output["score_response_matching"] = float(score)
-                output["explanation_response_matching"] = res.response.choices[
-                    0
-                ].message.content
-            except Exception:
-                logger.error(
-                    f"Error when processing payload at index {idx}: {res.error}"
+            if precision is not None and recall is not None:
+                explanation = (
+                    "Information Recall: "
+                    + str(recall)
+                    + str(combined_row[1]["explanation_factual_accuracy"])
+                    + "\n"
+                    + "Information Precision: "
+                    + str(precision)
+                    + str(combined_row[0]["explanation_factual_accuracy"])
                 )
-            results.append((idx, output))
-        results = [val for _, val in sorted(results, key=lambda x: x[0])]
+                output["explanation_response_matching"] = explanation
 
+                if precision != 0 and recall != 0:
+                    output["score_response_matching"] = 4 * (
+                        (precision * recall) / (precision*3 + recall)
+                    )
+                else:
+                    output["score_response_matching"] = 0
+                output["score_response_match_recall"] = recall
+                output["score_response_match_precision"] = precision
+            results.append(output)
         return results
