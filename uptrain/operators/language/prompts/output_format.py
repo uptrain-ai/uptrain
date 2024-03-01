@@ -279,22 +279,6 @@ CONTEXT_CONCISENESS_OUTPUT_FORMAT__COT = """
 }
 """
 
-
-# Resposne Matching
-RESPONSE_MATCHING_OUTPUT_FORMAT__CLASSIFY = """
-{
-    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B")
-}
-"""
-
-RESPONSE_MATCHING_OUTPUT_FORMAT__COT = """
-{
-    "Reasoning": [Reasoning],  # Reasoning to critique the matching of the response with the ground truth,
-    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B")
-}
-"""
-
-
 # Code Hallucination
 CODE_HALLUCINATION_OUTPUT_FORMAT__CLASSIFY = """
 {
