@@ -15,7 +15,7 @@ from uptrain.operators.base import register_op, ColumnOp, TYPE_TABLE_OUTPUT
 
 
 @register_op
-class QuestionCompleteness(ColumnOp):
+class ValidQuestion(ColumnOp):
     """
     Simply check the number of words in the question and grades as incomplete if below a threshold
     Attributes:
@@ -28,7 +28,7 @@ class QuestionCompleteness(ColumnOp):
 
     col_question: str = "question"
     words_threshold: int = 1
-    col_out: str = "score_question_completeness"
+    col_out: str = "score_valid_question"
 
     def setup(self, settings: t.Optional[Settings] = None):
         assert settings is not None
@@ -41,16 +41,16 @@ class QuestionCompleteness(ColumnOp):
         try:
             for row in data_send:
                 question = row.pop(self.col_question)
-                results.append({"score_question_completeness": int(len(question.split(" ")) > self.words_threshold)})
+                results.append({"score_valid_question": int(len(question.split(" ")) > self.words_threshold)})
         except Exception as e:
-            logger.error(f"Failed to run evaluation for `QuestionCompleteness`: {e}")
+            logger.error(f"Failed to run evaluation for `ValidQuestion`: {e}")
             raise e
         
         assert results is not None
         return {
             "output": data.with_columns(
                 pl.from_dicts(results).rename(
-                    {"score_question_completeness": self.col_out}
+                    {"score_valid_question": self.col_out}
                 )
             )
         }

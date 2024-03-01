@@ -59,7 +59,7 @@ __all__ = [
     "ResponseCompletenessWrtContext",
     "ResponseConsistency",
     "ResponseConciseness",
-    "QuestionCompleteness",
+    "ValidQuestion",
     "LanguageCritique",
     "ToneCritique",
     "GuidelineAdherenceScore",
@@ -162,7 +162,7 @@ from .language.response_quality import (
     ResponseMatchingScore,
 )
 from .language.question_quality import (
-    QuestionCompleteness
+    ValidQuestion
 )
 from .language.language_quality import LanguageCritique, ResponseCoherence
 from .language.tone import ToneCritique
