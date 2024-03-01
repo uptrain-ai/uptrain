@@ -15,7 +15,7 @@ from uptrain.operators.base import *
 
 from uptrain import RcaTemplate
 from uptrain.utilities import polars_to_json_serializable_dict
-from uptrain.operators.language.llm import LLMMulticlientfrom uptrain.operators.language.llm import LLMMulticlient
+from uptrain.operators.language.llm import LLMMulticlient
 
 @register_op
 class RagWithCitation(ColumnOp):
@@ -43,7 +43,11 @@ class RagWithCitation(ColumnOp):
         from uptrain.framework.remote import APIClient
 
         assert settings is not None
-        self._api_client = APIClient(settings)
+        self.settings = settings
+        if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
+            self._api_client = LLMMulticlient(settings)
+        else:
+            self._api_client = APIClient(settings)
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
@@ -75,4 +79,10 @@ class RagWithCitation(ColumnOp):
         return {"output": data.with_columns(pl.from_dicts(results))}
     
     def evaluate_local(self, data):
-        
+        question_completeness_scores = score_question_completeness(settings, data)
+
+        response_valid_scores = score_valid_response(settings, data)
+        context_relevance_scores = score_context_relevance(settings, data)
+        factual_accuracy_scores = score_factual_accuracy(settings, data)
+
+            
