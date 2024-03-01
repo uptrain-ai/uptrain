@@ -80,7 +80,7 @@ class ResponseCompleteness(ColumnOp):
 
         assert settings is not None
         self.settings = settings
-        if self.settings.evaluate_locally:
+        if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
             self._api_client = LLMMulticlient(settings)
         else:
             self._api_client = APIClient(settings)
@@ -93,7 +93,7 @@ class ResponseCompleteness(ColumnOp):
             row["response"] = row.pop(self.col_response)
 
         try:
-            if self.settings.evaluate_locally:
+            if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
                 results = self.evaluate_local(data_send)
             else:
                 results = self._api_client.evaluate(
@@ -226,7 +226,7 @@ class ResponseConciseness(ColumnOp):
 
         assert settings is not None
         self.settings = settings
-        if self.settings.evaluate_locally:
+        if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
             self._api_client = LLMMulticlient(settings)
         else:
             self._api_client = APIClient(settings)
@@ -239,7 +239,7 @@ class ResponseConciseness(ColumnOp):
             row["response"] = row.pop(self.col_response)
 
         try:
-            if self.settings.evaluate_locally:
+            if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
                 results = self.evaluate_local(data_send)
             else:
                 results = self._api_client.evaluate(
@@ -369,7 +369,7 @@ class ResponseConsistency(ColumnOp):
 
         assert settings is not None
         self.settings = settings
-        if self.settings.evaluate_locally:
+        if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
             self._api_client = LLMMulticlient(settings)
         else:
             self._api_client = APIClient(settings)
@@ -381,7 +381,7 @@ class ResponseConsistency(ColumnOp):
             row["response"] = row.pop(self.col_response)
 
         try:
-            if self.settings.evaluate_locally:
+            if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
                 results = self.evaluate_local(data_send)
             else:
                 results = self._api_client.evaluate(
@@ -510,7 +510,7 @@ class ValidResponseScore(ColumnOp):
 
         assert settings is not None
         self.settings = settings
-        if self.settings.evaluate_locally:
+        if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
             self._api_client = LLMMulticlient(settings)
         else:
             self._api_client = APIClient(settings)
@@ -522,7 +522,7 @@ class ValidResponseScore(ColumnOp):
             row["response"] = row.pop(self.col_response)
 
         try:
-            if self.settings.evaluate_locally:
+            if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
                 results = self.evaluate_local(data_send)
             else:
                 results = self._api_client.evaluate(
@@ -649,7 +649,7 @@ class ResponseRelevance(ColumnOp):
 
         assert settings is not None
         self.settings = settings
-        if self.settings.evaluate_locally:
+        if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
             self._api_client = LLMMulticlient(settings)
         else:
             self._api_client = APIClient(settings)
@@ -661,7 +661,7 @@ class ResponseRelevance(ColumnOp):
             row["response"] = row.pop(self.col_response)
 
         try:
-            if self.settings.evaluate_locally:
+            if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
                 results = self.evaluate_local(data_send)
             else:
                 results = self._api_client.evaluate(
@@ -778,7 +778,7 @@ class ResponseMatchingScore(ColumnOp):
 
         assert settings is not None
         self.settings = settings
-        if self.settings.evaluate_locally:
+        if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
             # TODO: Add support for local evaluation for all methods
             if self.method != "llm":
                 raise Exception(
@@ -799,7 +799,7 @@ class ResponseMatchingScore(ColumnOp):
             row["ground_truth"] = row.pop(self.col_ground_truth)
 
         try:
-            if self.settings.evaluate_locally:
+            if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
                 results = self.evaluate_local(data_send)
             else:
                 results = self._api_client.evaluate(
