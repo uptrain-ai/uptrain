@@ -204,6 +204,13 @@
             "integrations/vector_db/qdrant",
             "integrations/vector_db/faiss"
           ]
+        },
+        {
+          "group": "Visualization",
+          "version": "v1",
+          "pages": [
+            "integrations/visualization/zeno"
+          ]
         }
       ]
     },
