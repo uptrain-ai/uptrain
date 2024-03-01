@@ -57,7 +57,7 @@ async def async_process_payload(
     payload: Payload,
     rpm_limiter: aiolimiter.AsyncLimiter,
     tpm_limiter: aiolimiter.AsyncLimiter,
-    aclient: t.Union[AsyncOpenAI, AsyncAzureOpenAI, None],
+    aclient: t.Union[AsyncOpenAI, AsyncAzureOpenAI, None, t.Any],
     max_retries: int,
     validate_func: function = None,
 ) -> Payload:
@@ -146,12 +146,12 @@ async def async_process_payload(
 class LLMMulticlient:
     """Uses asyncio to send requests to LLM APIs concurrently."""
 
-    def __init__(self, settings: t.Optional[Settings] = None):
+    def __init__(self, settings: t.Optional[Settings] = None, aclient: t.Any = None):
         self._max_tries = 4
         # TODO: consult for accurate limits - https://platform.openai.com/account/rate-limits
         self._rpm_limit = 200
         self._tpm_limit = 90_000
-        self.aclient = None
+        self.aclient = aclient
         self.settings = settings
         if settings is not None:
             if (
@@ -159,6 +159,7 @@ class LLMMulticlient:
                 and settings.check_and_get("openai_api_key") is not None
             ):
                 openai.api_key = settings.check_and_get("openai_api_key")  # type: ignore
+                #if self.aclient is not None:
                 self.aclient = AsyncOpenAI()
 
             if (
