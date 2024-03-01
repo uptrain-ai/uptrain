@@ -197,7 +197,7 @@ class EvalLLM:
                         .run(pl.DataFrame(data))["output"]
                         .to_dicts()
                     )
-                elif check in EVAL_TO_OPERATOR_MAPPING:
+                elif isinstance(check, Evals) and check in EVAL_TO_OPERATOR_MAPPING:
                     op = EVAL_TO_OPERATOR_MAPPING[check]
                     op.scenario_description = (
                         scenario_description
