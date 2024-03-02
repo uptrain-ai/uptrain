@@ -125,7 +125,7 @@ class RagWithCitation(ColumnOp):
             this_row_error = None
             this_row_suggestion = None
 
-            question_completeness = question_valid_scores[idx]['score_question_completeness']
+            question_completeness = question_valid_scores[idx]['score_valid_question']
             valid_response = response_valid_scores[idx]['score_valid_response']
             context_relevance = context_relevance_scores[idx]['score_context_relevance']
             factual_accuracy = factual_accuracy_scores[idx]['score_factual_accuracy']
