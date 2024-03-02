@@ -34,8 +34,13 @@ You can choose evals as per your needs. We have divided them into a few categori
 |[Factual Accuracy](/predefined-evaluations/context-awareness/factual-accuracy)| Grades whether the response generated is factually correct and grounded by the provided context.|
 |[Context Conciseness](/predefined-evaluations/context-awareness/context-conciseness)| Evaluates the concise context cited from an original context for irrelevant information.
 |[Context Reranking](/predefined-evaluations/context-awareness/context-reranking)| Evaluates how efficient the reranked context is compared to the original context.|
+  </Accordion>
 
-
+  <Accordion title="Security Evals">
+| Eval | Description |
+| ---- | ----------- |
+|[Prompt Injection](/predefined-evaluations/safeguarding/prompt-injection) | Grades whether the generated response is leaking any system prompt. |
+|[Jailbreak Detection](/predefined-evaluations/safeguarding/jailbreak) | Grades whether the user's prompt is an attempt to jailbreak (i.e. generate illegal or harmful responses). |
   </Accordion>
 
   <Accordion title="Language Quality Evals">
@@ -68,13 +73,6 @@ You can choose evals as per your needs. We have divided them into a few categori
 | Eval | Description |
 | ---- | ----------- |
 |[Response Matching](/predefined-evaluations/ground-truth-comparison/response-matching) | Grades how relevant the generated context was to the question specified. |
-  </Accordion>
-
-  <Accordion title="Safeguarding Evals">
-| Eval | Description |
-| ---- | ----------- |
-|[Prompt Injection](/predefined-evaluations/safeguarding/prompt-injection) | Grades whether the generated response is leaking any system prompt. |
-|[Jailbreak Detection](/predefined-evaluations/safeguarding/jailbreak) | Grades whether the user's prompt is an attempt to jailbreak (i.e. generate illegal or harmful responses). |
   </Accordion>
 
     <Accordion title="Sub-Query Evals">

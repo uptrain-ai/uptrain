@@ -107,6 +107,14 @@
           ]
         },
         {
+          "group": "Security Evals",
+          "version": "v1",
+          "pages": [
+            "predefined-evaluations/safeguarding/jailbreak",
+            "predefined-evaluations/safeguarding/prompt-injection"
+          ]
+        },
+        {
           "group": "Language Quality Evals",
           "version": "v1",
           "pages": [
@@ -142,15 +150,19 @@
             "predefined-evaluations/custom-evals/custom-guideline",
             "predefined-evaluations/custom-evals/custom-prompt-eval"
           ]
-        },
-        {
-          "group": "Safeguarding Evals",
-          "version": "v1",
-          "pages": [
-            "predefined-evaluations/safeguarding/prompt-injection",
-            "predefined-evaluations/safeguarding/jailbreak"
-          ]
         }
+      ]
+    },
+    {
+      "group": "Supported LLMs",
+      "version": "v1",
+      "pages": [
+        "llms/openai",
+        "llms/azure",
+        "llms/claude",
+        "llms/mistral",
+        "llms/together_ai",
+        "llms/anyscale"
       ]
     },
     {
@@ -179,14 +191,6 @@
                 }
               ]
             }
-          ]
-        },
-        {
-          "group": "LLM Providers",
-          "version": "v1",
-          "pages": [
-            "integrations/llm_providers/anyscale",
-            "integrations/llm_providers/together_ai"
           ]
         },
         {

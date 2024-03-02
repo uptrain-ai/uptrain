@@ -1,0 +1,113 @@
+---
+title: Azure
+---
+You can use your Azure API key to run LLM evaluations using UpTrain.
+
+### How to do it?
+
+<Steps>
+  <Step title="Install UpTrain">
+    ```python
+    pip install uptrain
+    ```
+    ```python
+    from uptrain import EvalLLM, Evals, Settings
+    import json
+    ```
+  </Step>
+  <Step title="Create your data">
+  You can define your data as a list of dictionaries to run evaluations on UpTrain
+  * `question`: The question you want to ask
+  * `context`: The context relevant to the question
+  * `response`: The response to the question
+    ```python
+    data = [
+      {
+        'question': 'Which is the most popular global sport?',
+        'context': "The popularity of sports can be measured in various ways, including TV viewership, social media presence, number of participants, and economic impact. Football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi, drawing a followership of more than 4 billion people. Cricket is particularly popular in countries like India, Pakistan, Australia, and England. The ICC Cricket World Cup and Indian Premier League (IPL) have substantial viewership. The NBA has made basketball popular worldwide, especially in countries like the USA, Canada, China, and the Philippines. Major tennis tournaments like Wimbledon, the US Open, French Open, and Australian Open have large global audiences. Players like Roger Federer, Serena Williams, and Rafael Nadal have boosted the sport's popularity. Field Hockey is very popular in countries like India, Netherlands, and Australia. It has a considerable following in many parts of the world.",
+        'response': 'Football is the most popular sport with around 4 billion followers worldwide'
+      }
+    ]
+    ```
+  </Step>
+  <Step title="Enter your AZURE API details">
+    ```python
+    AZURE_API_KEY = "************"
+    AZURE_API_VERSION = "***********"
+    AZURE_API_BASE = "*************"
+    ```
+  </Step>
+
+  <Step title="Create an EvalLLM Evaluator">
+    ```python
+    settings = Settings(model = 'azure/*', azure_api_key=AZURE_API_KEY, azure_api_version=AZURE_API_VERSION, azure_api_base=AZURE_API_BASE)
+    eval_llm = EvalLLM(settings)
+    ```
+  </Step>
+
+  <Step title="Evaluate data using UpTrain">
+  Now that we have our data, we can evaluate it using UpTrain. We use the `evaluate` method to do this. This method takes the following arguments:
+  * `data`: The data you want to log and evaluate
+  * `checks`: The evaluations you want to perform on your data
+    ```python
+    results = eval_llm.evaluate(
+          data=data,
+          checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
+        )
+    ```
+  We have used the following 3 metrics from UpTrain's library:
+
+  1. [Context Relevance](/predefined-evaluations/context-awareness/context-relevance): Evaluates how relevant the retrieved context is to the question specified.
+  2. [Factual Accuracy](/predefined-evaluations/context-awareness/factual-accuracy): Evaluates whether the response generated is factually correct and grounded by the provided context.
+  3. [Response Relevance](/predefined-evaluations/response-quality/response-relevance): Evaluates how relevant the generated response was to the question specified.
+  4. [Tonality](/predefined-evaluations/language-quality/tonality): Evaluates whether the generated response matches the required persona's tone 
+
+  You can look at the complete list of UpTrain's supported metrics [here](/predefined-evaluations/overview)
+  </Step>
+  
+  <Step title="Print the results">
+    ```python
+    print(json.dumps(results, indent=3))
+    ```
+    
+    Sample response:
+    ```JSON
+    [
+      {
+          "question": "Which is the most popular global sport?",
+          "context": "The popularity of sports can be measured in various ways, including TV viewership, social media presence, number of participants, and economic impact. Football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi, drawing a followership of more than 4 billion people. Cricket is particularly popular in countries like India, Pakistan, Australia, and England. The ICC Cricket World Cup and Indian Premier League (IPL) have substantial viewership. The NBA has made basketball popular worldwide, especially in countries like the USA, Canada, China, and the Philippines. Major tennis tournaments like Wimbledon, the US Open, French Open, and Australian Open have large global audiences. Players like Roger Federer, Serena Williams, and Rafael Nadal have boosted the sport's popularity. Field Hockey is very popular in countries like India, Netherlands, and Australia. It has a considerable following in many parts of the world.",
+          "response": "Football is the most popular sport with around 4 billion followers worldwide",
+          "score_context_relevance": 1.0,
+          "explanation_context_relevance": "The extracted context can answer the given user query completely. It states that football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi drawing a followership of more than 4 billion people. This information clearly establishes football as the most popular global sport. While the context also mentions the popularity of other sports like cricket, basketball, tennis, and field hockey, it emphasizes that football is the most popular sport with the highest number of followers globally. Therefore, the extracted context provides sufficient evidence to answer the user query about the most popular global sport.",
+          "score_factual_accuracy": 1.0,
+          "explanation_factual_accuracy": "1. Football is the most popular sport.\nReasoning for yes: The context explicitly states that football is undoubtedly the world's most popular sport.\nReasoning for no: No arguments.\nJudgement: yes. as the context explicitly supports the fact.\n\n2. Football has around 4 billion followers worldwide.\nReasoning for yes: The context explicitly states that football has a followership of more than 4 billion people.\nReasoning for no: No arguments.\nJudgement: yes. as the context explicitly supports the fact.\n\n",
+          "score_response_relevance": 0.6666666666666666,
+          "explanation_response_relevance": "The given LLM response contains a little additional irrelevant information because it mentions that football has around 4 billion followers worldwide. While this information is somewhat related to the user's query about the most popular global sport, it is not necessary to provide an accurate answer. The user is asking for the most popular sport, not the specific number of followers. Therefore, this additional information is only slightly irrelevant and adds some unnecessary detail to the response.\n \"The given LLM response sufficiently answers all the key aspects of the given user query. The LLM response states that football is the most popular sport with around 4 billion followers worldwide. This information directly addresses the user query and provides a clear answer to the question of which sport is the most popular globally. The user will be highly satisfied with this answer as it fulfills their query and provides a logical argument supported by the number of followers.\" \n",
+          "score_tone": 1.0,
+          "explanation_tone": "The provided machine-generated response aligns with the specified persona of a helpful chatbot. It provides a factual statement about the popularity of football without any additional tone or emotion. The response is straightforward and informative, which is in line with the persona of a helpful chatbot. \n\n[Score]: 5"
+      }
+]
+    ```
+  </Step>
+</Steps>
+
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>
+
