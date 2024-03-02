@@ -1,0 +1,113 @@
+---
+title: OpenAI
+---
+You can use your OpenAI API key to run LLM evaluations using UpTrain.
+
+### How to do it?
+
+<Steps>
+  <Step title="Install UpTrain">
+    ```python
+    pip install uptrain
+    ```
+    ```python
+    from uptrain import EvalLLM, Evals, Settings
+    import json
+    ```
+  </Step>
+  <Step title="Create your data">
+  You can define your data as a list of dictionaries to run evaluations on UpTrain
+  * `question`: The question you want to ask
+  * `context`: The context relevant to the question
+  * `response`: The response to the question
+    ```python
+    data = [
+      {
+        'question': 'Which is the most popular global sport?',
+        'context': "The popularity of sports can be measured in various ways, including TV viewership, social media presence, number of participants, and economic impact. Football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi, drawing a followership of more than 4 billion people. Cricket is particularly popular in countries like India, Pakistan, Australia, and England. The ICC Cricket World Cup and Indian Premier League (IPL) have substantial viewership. The NBA has made basketball popular worldwide, especially in countries like the USA, Canada, China, and the Philippines. Major tennis tournaments like Wimbledon, the US Open, French Open, and Australian Open have large global audiences. Players like Roger Federer, Serena Williams, and Rafael Nadal have boosted the sport's popularity. Field Hockey is very popular in countries like India, Netherlands, and Australia. It has a considerable following in many parts of the world.",
+        'response': 'Football is the most popular sport with around 4 billion followers worldwide'
+      }
+    ]
+    ```
+  </Step>
+  <Step title="Enter your OPENAI API Key">
+  Get your OPENAI API Key [here](https://platform.openai.com/api-keys)
+    ```python
+    OPENAI_API_KEY = "sk-*********************"
+    ```
+  </Step>
+
+  <Step title="Create an EvalLLM Evaluator">
+    ```python
+    settings = Settings(model = 'gpt-3.5-turbo-1106', openai_api_key=OPENAI_API_KEY)
+    eval_llm = EvalLLM(settings)
+    ```
+    We use GPT 3.5 Turbo be default, you can use any other OpenAI models as well
+  </Step>
+
+  <Step title="Evaluate data using UpTrain">
+  Now that we have our data, we can evaluate it using UpTrain. We use the `evaluate` method to do this. This method takes the following arguments:
+  * `data`: The data you want to log and evaluate
+  * `checks`: The evaluations you want to perform on your data
+    ```python
+    results = eval_llm.evaluate(
+          data=data,
+          checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
+        )
+    ```
+  We have used the following 3 metrics from UpTrain's library:
+
+  1. [Context Relevance](/predefined-evaluations/context-awareness/context-relevance): Evaluates how relevant the retrieved context is to the question specified.
+  2. [Factual Accuracy](/predefined-evaluations/context-awareness/factual-accuracy): Evaluates whether the response generated is factually correct and grounded by the provided context.
+  3. [Response Relevance](/predefined-evaluations/response-quality/response-relevance): Evaluates how relevant the generated response was to the question specified.
+  4. [Tonality](/predefined-evaluations/language-quality/tonality): Evaluates whether the generated response matches the required persona's tone 
+
+  You can look at the complete list of UpTrain's supported metrics [here](/predefined-evaluations/overview)
+  </Step>
+  
+  <Step title="Print the results">
+    ```python
+    print(json.dumps(results, indent=3))
+    ```
+    
+    Sample response:
+    ```JSON
+    [
+      {
+          "question": "Which is the most popular global sport?",
+          "context": "The popularity of sports can be measured in various ways, including TV viewership, social media presence, number of participants, and economic impact. Football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi, drawing a followership of more than 4 billion people. Cricket is particularly popular in countries like India, Pakistan, Australia, and England. The ICC Cricket World Cup and Indian Premier League (IPL) have substantial viewership. The NBA has made basketball popular worldwide, especially in countries like the USA, Canada, China, and the Philippines. Major tennis tournaments like Wimbledon, the US Open, French Open, and Australian Open have large global audiences. Players like Roger Federer, Serena Williams, and Rafael Nadal have boosted the sport's popularity. Field Hockey is very popular in countries like India, Netherlands, and Australia. It has a considerable following in many parts of the world.",
+          "response": "Football is the most popular sport with around 4 billion followers worldwide",
+          "score_context_relevance": 1.0,
+          "explanation_context_relevance": "['The extracted context can answer the given user query completely as it provides information about the popularity of different sports globally, including football, cricket, basketball, tennis, and field hockey. It mentions major events, personalities, and the number of followers for each sport, allowing for a comprehensive comparison to determine the most popular global sport. Therefore, the extracted context can answer the user query completely.']",
+          "score_factual_accuracy": 1.0,
+          "explanation_factual_accuracy": "1. Football is the most popular sport.\nReasoning for yes: The context explicitly states that football is undoubtedly the world's most popular sport.\nReasoning for no: No arguments.\nJudgement: yes. as the context explicitly supports the fact.\n\n2. Football has around 4 billion followers worldwide.\nReasoning for yes: The context explicitly mentions that football draws a followership of more than 4 billion people.\nReasoning for no: No arguments.\nJudgement: yes. as the context explicitly supports the fact.",
+          "score_response_relevance": 0.5,
+          "explanation_response_relevance": " \"The LLM response contains a little additional irrelevant information because it includes the general statement that football is the most popular sport, which is relevant to the user query. However, the specific number of followers worldwide is not necessary to answer the question and can be considered as a minor addition of irrelevant information.\"\n\n \"The LLM response answers a few aspects by stating that football is the most popular sport with around 4 billion followers worldwide. However, it fails to provide any evidence or data to support this claim. The response also does not address the criteria for determining the most popular global sport, such as viewership, participation, or cultural impact. Without this information, the user will not be highly satisfied with the given answer as it lacks critical aspects of the user query.\"\n",
+          "score_tone": 0.4,
+          "explanation_tone": "[Persona]: helpful-chatbot\n[Response]: The provided response does not align with the specified persona of a helpful chatbot. It lacks any form of assistance or guidance, which is expected from a helpful chatbot. The response simply provides a piece of information without engaging in a conversation or offering any support or assistance to the user.\n[Score]: 2"
+      }
+    ]
+    ```
+  </Step>
+</Steps>
+
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>
+
