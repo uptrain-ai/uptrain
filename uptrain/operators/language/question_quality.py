@@ -15,7 +15,7 @@ from uptrain.operators.base import register_op, ColumnOp, TYPE_TABLE_OUTPUT
 
 
 @register_op
-class ValidQuestion(ColumnOp):
+class ValidQuestionScore(ColumnOp):
     """
     Simply check the number of words in the question and grades as incomplete if below a threshold
     Attributes:
@@ -43,7 +43,7 @@ class ValidQuestion(ColumnOp):
                 question = row.pop(self.col_question)
                 results.append({"score_valid_question": int(len(question.split(" ")) > self.words_threshold)})
         except Exception as e:
-            logger.error(f"Failed to run evaluation for `ValidQuestion`: {e}")
+            logger.error(f"Failed to run evaluation for `ValidQuestionScore`: {e}")
             raise e
         
         assert results is not None
