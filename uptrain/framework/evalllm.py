@@ -46,6 +46,13 @@ from uptrain.operators import (
     SubQueryCompleteness,
 )
 
+from uptrain.framework.rca_templates import RcaTemplate
+from uptrain.operators import RagWithCitation
+
+RCA_TEMPLATE_TO_OPERATOR_MAPPING = {
+    RcaTemplate.RAG_WITH_CITATION: RagWithCitation()
+}
+
 EVAL_TO_OPERATOR_MAPPING = {
     Evals.FACTUAL_ACCURACY: ResponseFactualScore(),
     Evals.CONTEXT_RELEVANCE: ContextRelevance(),
@@ -81,6 +88,82 @@ class EvalLLM:
         else:
             self.settings = settings
         self.executor = APIClientWithoutAuth(self.settings)
+    ####
+    def perform_root_cause_analysis(
+        self,
+        data: t.Union[list[dict], pl.DataFrame, pd.DataFrame],
+        rca_template: RcaTemplate,
+        scenario_description: t.Union[str, list[str], None] = None,
+        schema: t.Union[DataSchema, dict[str, str], None] = None,
+        metadata: t.Optional[dict[str, t.Any]] = None,
+    ):
+        """Perform root cause analysis for the open source user.
+        NOTE: This api doesn't log any data.
+
+        Args:
+            data: Data to evaluate on. Either a Pandas DataFrame or a list of dicts.
+            rca_template: rca template to run.
+            schema: Schema of the data. Only required if the data attributes aren't typical (question, response, context).
+            metadata: Attributes to attach to this dataset. Useful for filtering and grouping in the UI.
+
+        Returns:
+            results: List of dictionaries with each data point and corresponding evaluation results.
+        """
+
+        if isinstance(data, pl.DataFrame):
+            data = data.to_dicts()
+        elif isinstance(data, pd.DataFrame):
+            data = data.to_dict(orient="records")
+
+
+        if schema is None:
+            schema = DataSchema()
+        elif isinstance(schema, dict):
+            schema = DataSchema(**schema)
+
+        if metadata is None:
+            metadata = {}
+
+        
+        req_attrs, ser_template = set(), {}
+        if rca_template == RcaTemplate.RAG_WITH_CITATION:
+            req_attrs.update(
+                [schema.question, schema.response, schema.context, schema.cited_context]
+            )
+        else:
+            raise Exception("RCA Template not supported yet")
+
+        dictn = {"scenario_description": scenario_description}
+        ser_template.update({"rca_template_name": rca_template.value, **dictn})
+
+        for idx, row in enumerate(data):
+            if not req_attrs.issubset(row.keys()):
+                raise ValueError(
+                    f"Row {idx} is missing required all required attributes for evaluation: {req_attrs}"
+                )
+
+        if self.settings.evaluate_locally:
+            results = copy.deepcopy(data)
+            if rca_template in RCA_TEMPLATE_TO_OPERATOR_MAPPING:
+                op = RCA_TEMPLATE_TO_OPERATOR_MAPPING[rca_template]
+                op.scenario_description = (
+                    scenario_description
+                    if not isinstance(scenario_description, list)
+                    else scenario_description[idx]
+                )
+                res = (
+                    op.setup(self.settings)
+                    .run(pl.DataFrame(data))["output"]
+                    .to_dicts()
+                )
+            else:
+                res = self.evaluate_on_server(data, [ser_template], schema)
+            for idx, row in enumerate(res):
+                results[idx].update(row)
+        else:
+            results = self.evaluate_on_server(data, [ser_template], schema)
+        return results
+
 
     def evaluate(
         self,
