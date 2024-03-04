@@ -160,13 +160,13 @@ RESPONSE_COMPLETENESS_WRT_CONTEXT_FEW_SHOT__COT = """
 # TODO: Improve the quality of response consistency few shot examples
 # Response Consistency
 RESPONSE_CONSISTENCY_FEW_SHOT__CLASSIFY = """
-[Question1]: What is postgres?
-[Context1]: PostgreSQL is a powerful, open source object-relational database system that uses and extends the SQL language combined with many features that safely store and scale the most complicated data workloads. The origins of PostgreSQL date back to 1986 as part of the POSTGRES project at the University of California at Berkeley and has more than 35 years of active development on the core platform.
-[Response1]: Instead of inserting each row directly into the PostgreSQL database, each record is at first inserted into Redis. New records are inserted using bulk operations for better performance. Note that many duplicate records may be received from mobile clients.
+[Question1]: Which Alex is being referred to in the last line?
+[Context1]:  In a story, Alex is a renowned chef famous for their culinary skills, especially in Italian cuisine. They've recently been experimenting with French recipes, trying to fuse them with Italian dishes to create something unique. Alex's restaurant, which used to serve exclusively Italian dishes, now offers a hybrid menu that's gaining popularity. However, Alex has a twin named Alex, who is not involved in the culinary world but is an artist in the local community. The artist Alex paintings are not good. But, her food is also delicious and is tasty.
+[Response1]: In the last line, it is referring to the renowned chef Alex, whose food is delicious and tasty.
 [Output1]:
 {
-    "Score": 0,
-    "Argument": "The given answer is not completely appropriate for the question because it addresses a specific usage scenario (using Redis for performance optimization in PostgreSQL) rather than providing an overview or definition of PostgreSQL itself, which was the focus of the question. An appropriate response would directly address the definition of PostgreSQL as outlined in the context, emphasizing its role as an object-relational database system and its historical development."
+    "Score": 0.0,
+    "Argument": "The LLM's response identifies the renowned chef Alex as the subject of the last line, focusing on the established narrative that this Alex is known for their culinary expertise. This interpretation maintains consistency with the broader story arc, where chef Alex's skills and experimentation with cuisine are central themes. The response assumes continuity in highlighting the chef's accomplishments, thereby aligning with the narrative's focus on culinary achievements."
 }
 
 [Question2]: How does caffeine affect the body?
@@ -188,14 +188,14 @@ RESPONSE_CONSISTENCY_FEW_SHOT__CLASSIFY = """
 
 # TODO: Improve the quality of response consistency few shot examples
 RESPONSE_CONSISTENCY_FEW_SHOT__COT = """
-[Question1]: What is postgres?
-[Context1]: PostgreSQL is a powerful, open source object-relational database system that uses and extends the SQL language combined with many features that safely store and scale the most complicated data workloads. The origins of PostgreSQL date back to 1986 as part of the POSTGRES project at the University of California at Berkeley and has more than 35 years of active development on the core platform.
-[Response1]: Instead of inserting each row directly into the PostgreSQL database, each record is at first inserted into Redis. New records are inserted using bulk operations for better performance. Note that many duplicate records may be received from mobile clients.
+[Question1]: Which Alex is being referred to in the last line?
+[Context1]:  In a story, Alex is a renowned chef famous for their culinary skills, especially in Italian cuisine. They've recently been experimenting with French recipes, trying to fuse them with Italian dishes to create something unique. Alex's restaurant, which used to serve exclusively Italian dishes, now offers a hybrid menu that's gaining popularity. However, Alex has a twin named Alex, who is not involved in the culinary world but is an artist in the local community. The artist Alex paintings are not good. But, her food is also delicious and is tasty.
+[Response1]: In the last line, it is referring to the renowned chef Alex, whose food is delicious and tasty.
 [Output1]:
 {
-    "Reasoning": "The given response does not directly answer the question 'What is postgres?' as it focuses on a specific use case or operational detail involving Redis and PostgreSQL rather than explaining what PostgreSQL is. The question asks for a definition or explanation of PostgreSQL, expecting an overview or description of its nature, functionality, or purpose. The response provides technical details about how records might be handled when using PostgreSQL with Redis, which is unrelated to the basic definition or understanding of PostgreSQL as an object-relational database system. An appropriate response would have summarized PostgreSQL's identity as an open source object-relational database system, its capabilities, and its historical background as provided in the context. The logical connection between the question and the response is weak because the response assumes prior knowledge about PostgreSQL and Redis, and focuses on a procedural aspect rather than PostgreSQL's definition or core attributes.",
-    "Score": 0,
-    "Argument": "The given answer is not completely appropriate for the question because it addresses a specific usage scenario (using Redis for performance optimization in PostgreSQL) rather than providing an overview or definition of PostgreSQL itself, which was the focus of the question. An appropriate response would directly address the definition of PostgreSQL as outlined in the context, emphasizing its role as an object-relational database system and its historical development."
+    "Reasoning": "The context mentions two individuals named Alex with distinct professions and skills. The chef is known for culinary skills, while the artist's culinary abilities are only hinted at in the last line. The LLM's response overlooks this nuance, attributing culinary excellence solely to the chef Alex. The last line introduces ambiguity by mentioning "her food," which suggests a shift in focus to the artist Alex. The LLM's response does not address this shift, maintaining focus on the chef Alex despite the gender pronoun and new information suggesting otherwise. The response is consistent with the majority of the provided context, which focuses on the chef Alex's culinary endeavors. However, it fails to reconcile the twist introduced in the last line, suggesting a potential new aspect of the artist Alex's character. Interpretation Flexibility: Given the ambiguity and the dual presence of Alexes in the story, the LLM's decision to stick with the chef Alex's storyline is an interpretation but not fully aligned with the last line's implication. A score of 0.0 reflects the response's partial consistency with the main storyline but acknowledges its failure to incorporate the last line's implication about the artist Alex's cooking skills, which introduces a significant twist or new information.",
+    "Score": 0.0,
+    "Argument": "The LLM's response identifies the renowned chef Alex as the subject of the last line, focusing on the established narrative that this Alex is known for their culinary expertise. This interpretation maintains consistency with the broader story arc, where chef Alex's skills and experimentation with cuisine are central themes. The response assumes continuity in highlighting the chef's accomplishments, thereby aligning with the narrative's focus on culinary achievements."
 }
 
 [Question2]: How does caffeine affect the body?

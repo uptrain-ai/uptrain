@@ -732,22 +732,17 @@ class ResponseRelevance(ColumnOp):
                 "explanation_response_relevance": None,
             }
             if precision is not None and recall is not None:
-            if precision is not None and recall is not None:
                 explanation = (
-                    "Response Precision: "
-                    + str(precision)
                     "Response Precision: "
                     + str(precision)
                     + str(combined_row[0]["explanation_response_conciseness"])
                     + "\n"
                     + "Response Recall: "
-                   
                     + str(recall)
                     + str(combined_row[1]["explanation_response_completeness"])
                 )
                 output["explanation_response_relevance"] = explanation
 
-                if precision != 0 and recall != 0:
                 if precision != 0 and recall != 0:
                     output["score_response_relevance"] = 2 * (
                         (precision * recall) / (precision + recall)
