@@ -2,7 +2,7 @@ from __future__ import annotations
 import typing
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import ConfigDict, BaseModel
 import numpy as np
 
 from uptrain.v0.constants import AnnotationMethod
@@ -82,6 +82,4 @@ class Config(BaseModel):
 class GroundTruthArgs(BaseModel):
     gt: typing.Union[np.ndarray, list]
     id: typing.Union[np.ndarray, list]
-
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)

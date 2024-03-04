@@ -15,13 +15,13 @@ from uptrain.operators.language.prompts.instructions import CHAIN_OF_THOUGHT, CL
 from uptrain.operators.language.prompts.output_format import CODE_HALLUCINATION_OUTPUT_FORMAT__CLASSIFY, CODE_HALLUCINATION_OUTPUT_FORMAT__COT
 from uptrain.utilities.prompt_utils import parse_scenario_description
 
-
-from uptrain.framework.base import (
+from uptrain.operators.base import (
     ColumnOp,
     register_op,
     TYPE_TABLE_OUTPUT,
-    Settings,
 )
+from uptrain.framework.base import Settings
+
 from uptrain.utilities import polars_to_json_serializable_dict
 
 

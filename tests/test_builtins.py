@@ -8,6 +8,7 @@ What we are checking
 """
 
 import polars as pl
+import os
 
 from uptrain.framework import Settings
 from uptrain.framework.builtins import (
@@ -32,8 +33,11 @@ from uptrain.framework.builtins import (
     CheckSubQueryCompleteness,
 )
 
-# settings = Settings(openai_api_key="sk-************************")
-settings = Settings()
+# Enter your OpenAI API key here if it is not already set as an environment variable
+openai_api_key = os.environ.get("OPENAI_API_KEY")
+
+settings = Settings(openai_api_key=openai_api_key)
+
 dataset = pl.DataFrame(
     {
         "response": [

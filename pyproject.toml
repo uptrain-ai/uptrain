@@ -20,7 +20,8 @@ classifiers = [
 ]
 keywords = ["uptrain", "ai", "LLM", "evaluation", "hallucinations", "observability", "response quality"]
 dependencies = [
-    "pydantic<1.10.10",
+    "pydantic",
+    "pydantic-settings",
     "loguru",
     "lazy_loader",
     "networkx",
