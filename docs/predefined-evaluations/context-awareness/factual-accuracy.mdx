@@ -55,6 +55,29 @@ Most of these claims can not be validated by the context document.
 
 Ultimately, resulting in a low factual accuracy score.
 
+### How it works?
+
+We evaluate factual accuracy along the following steps:
+<Steps>
+  <Step title = 'Split Response to Individual Facts'>
+  Responses are generally not very straightforward and mostly they are a combination of different arguments.
+
+  To say that a response is factually correct or not, we first divide the response into various arguments each claiming a fact.
+  </Step>
+
+  <Step title = 'Rate Individual Facts'>
+  We then evaluate whether these individual facts are correct (on basis of supporting context) and divide them in following categories:
+
+    * Completely Right (Score 1)
+    * Completely Wrong (Score 0)
+    * Ambiguous (Score 0.5)
+  </Step>
+
+  <Step title = 'Generating Final Score'>
+  We consider a mean of the scores of these individual facts to rate whether the response is factually correct or not.
+  </Step>
+</Steps>
+
 <CardGroup cols={2}>
   <Card
     title="Tutorial"

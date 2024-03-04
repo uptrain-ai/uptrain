@@ -403,7 +403,7 @@ LANGUAGE_FLUENCY_FEW_SHOT__COT = """
 """
 
 
-# Critique Language Fluency
+# Critique Language Coherence
 LANGUAGE_COHERENCE_FEW_SHOT__CLASSIFY = """
 [Response]: Exercise is good  health. It makes body strong and helps the mind too. Many benefits gained.
 [Output]:
@@ -446,5 +446,139 @@ LANGUAGE_COHERENCE_FEW_SHOT__COT = """
 {
     "Reasoning": "The text is not fluent at all and has awkward phrasing, making it difficult to understand.",
     "Choice": "C"
+}
+"""
+
+
+# Sub-query Completeness
+SUB_QUERY_COMPLETENESS_FEW_SHOT__CLASSIFY = """
+[Question]: What are the characteristics, habitat, and diet of the Bengal tiger?
+[Sub Questions]:
+    1. What are the key characteristics of the Bengal tiger?
+    2. What is the natural habitat of the Bengal tiger?
+    3. What does the Bengal tiger typically eat in the wild?
+[Output]:
+{
+    "Choice": "A"
+}
+"""
+
+SUB_QUERY_COMPLETENESS_FEW_SHOT__COT = """
+[Question]: What are the characteristics, habitat, and diet of the Bengal tiger?
+[Sub Questions]:
+    1. What are the key characteristics of the Bengal tiger?
+    2. What is the natural habitat of the Bengal tiger?
+    3. What does the Bengal tiger typically eat in the wild?
+[Output]:
+{
+    "Reasoning": "The sub-queries cover the essential aspects of the Bengal tiger, including its characteristics, habitat, and diet, providing a comprehensive understanding of the species.",
+    "Choice": "A"
+}
+"""
+
+
+# Context Reranking
+CONTEXT_RERANKING_FEW_SHOT__CLASSIFY = """
+[Question]: What are the main causes of climate change?
+[Original Context]:
+    1. The main causes of climate change include greenhouse gas emissions from human activities such as burning fossil fuels, deforestation, and industrial processes.
+    2. Climate change is primarily driven by human-induced factors, including the release of carbon dioxide and other greenhouse gases into the atmosphere.
+    3. Human activities such as the burning of fossil fuels, agricultural practices, and land-use changes contribute significantly to climate change by increasing the concentration of greenhouse gases in the atmosphere.
+    4. Other factors that contribute to climate change include methane emissions from livestock and rice paddies, as well as nitrous oxide emissions from agricultural fertilizers.
+    5. Changes in land use, such as urbanization and deforestation, also play a role in altering local climates and contributing to global climate change.
+[Reranked Context]:
+    1. Climate change is primarily driven by human-induced factors, including the release of carbon dioxide and other greenhouse gases into the atmosphere.
+    2. The main causes of climate change include greenhouse gas emissions from human activities such as burning fossil fuels, deforestation, and industrial processes.
+    3. Human activities such as the burning of fossil fuels, agricultural practices, and land-use changes contribute significantly to climate change by increasing the concentration of greenhouse gases in the atmosphere.
+    4. Other factors that contribute to climate change include methane emissions from livestock and rice paddies, as well as nitrous oxide emissions from agricultural fertilizers.
+    5. Changes in land use, such as urbanization and deforestation, also play a role in altering local climates and contributing to global climate change.
+[Output]:
+{
+    "Choice": "A"
+}
+"""
+
+CONTEXT_RERANKING_FEW_SHOT__COT = """
+[Question]: What are the main causes of climate change?
+[Original Context]:
+    1. The main causes of climate change include greenhouse gas emissions from human activities such as burning fossil fuels, deforestation, and industrial processes.
+    2. Climate change is primarily driven by human-induced factors, including the release of carbon dioxide and other greenhouse gases into the atmosphere.
+    3. Human activities such as the burning of fossil fuels, agricultural practices, and land-use changes contribute significantly to climate change by increasing the concentration of greenhouse gases in the atmosphere.
+    4. Other factors that contribute to climate change include methane emissions from livestock and rice paddies, as well as nitrous oxide emissions from agricultural fertilizers.
+    5. Changes in land use, such as urbanization and deforestation, also play a role in altering local climates and contributing to global climate change.
+[Reranked Context]:
+    1. Climate change is primarily driven by human-induced factors, including the release of carbon dioxide and other greenhouse gases into the atmosphere.
+    2. The main causes of climate change include greenhouse gas emissions from human activities such as burning fossil fuels, deforestation, and industrial processes.
+    3. Human activities such as the burning of fossil fuels, agricultural practices, and land-use changes contribute significantly to climate change by increasing the concentration of greenhouse gases in the atmosphere.
+    4. Other factors that contribute to climate change include methane emissions from livestock and rice paddies, as well as nitrous oxide emissions from agricultural fertilizers.
+    5. Changes in land use, such as urbanization and deforestation, also play a role in altering local climates and contributing to global climate change.
+[Output]:
+{
+    "Reasoning": "The reranking of the original context is highly effective because it follows the principle that contexts occurring earlier in the list have higher priority. This ensures that the most pertinent information related to the main causes of climate change is presented at the top of the reranked context, providing a clear and concise overview.",
+    "Choice": "A"
+}
+"""
+
+
+# Context Conciseness
+CONTEXT_CONCISENESS_FEW_SHOT__CLASSIFY = """
+[Question]: What are the main causes of climate change?
+[Original Context]:
+    1. The main causes of climate change include greenhouse gas emissions from human activities such as burning fossil fuels, deforestation, and industrial processes.
+    2. Climate change is primarily driven by human-induced factors, including the release of carbon dioxide and other greenhouse gases into the atmosphere.
+    3. Human activities such as the burning of fossil fuels, agricultural practices, and land-use changes contribute significantly to climate change by increasing the concentration of greenhouse gases in the atmosphere.
+    4. Other factors that contribute to climate change include methane emissions from livestock and rice paddies, as well as nitrous oxide emissions from agricultural fertilizers.
+    5. Changes in land use, such as urbanization and deforestation, also play a role in altering local climates and contributing to global climate change.
+[Reranked Context]:
+    1. Climate change is primarily driven by human-induced factors, including the release of carbon dioxide and other greenhouse gases into the atmosphere.
+    2. The main causes of climate change include greenhouse gas emissions from human activities such as burning fossil fuels, deforestation, and industrial processes.
+[Output]:
+{
+    "Choice": "A"
+}
+"""
+
+CONTEXT_CONCISENESS_FEW_SHOT__COT = """
+[Question]: What are the main causes of climate change?
+[Original Context]:
+    1. The main causes of climate change include greenhouse gas emissions from human activities such as burning fossil fuels, deforestation, and industrial processes.
+    2. Climate change is primarily driven by human-induced factors, including the release of carbon dioxide and other greenhouse gases into the atmosphere.
+    3. Human activities such as the burning of fossil fuels, agricultural practices, and land-use changes contribute significantly to climate change by increasing the concentration of greenhouse gases in the atmosphere.
+    4. Other factors that contribute to climate change include methane emissions from livestock and rice paddies, as well as nitrous oxide emissions from agricultural fertilizers.
+    5. Changes in land use, such as urbanization and deforestation, also play a role in altering local climates and contributing to global climate change.
+[Reranked Context]:
+    1. Climate change is primarily driven by human-induced factors, including the release of carbon dioxide and other greenhouse gases into the atmosphere.
+    2. The main causes of climate change include greenhouse gas emissions from human activities such as burning fossil fuels, deforestation, and industrial processes.
+[Output]:
+{
+    "Reasoning": "The concise context adequately covers all the relevant information from the original context with respect to the given question. Despite reducing the number of points in the reranked context, the two remaining points still effectively capture the main causes of climate change outlined in the original context.",
+    "Choice": "A"
+}
+"""
+
+# Code Hallucination
+CODE_HALLUCINATION_FEW_SHOT__CLASSIFY = """
+[Response]: To select the rows where the hospital name is "St. Mary's Hospital", use the following query:
+SELECT * FROM hospitals WHERE name = "St. Mary's Hospital";
+[Output]:
+{
+  "Choice": "A",
+  "Snippet": "SELECT * FROM hospitals WHERE name = \"St. Mary's Hospital\";"
+}
+"""
+
+CODE_HALLUCINATION_FEW_SHOT__COT = """
+[Response]: To select the rows where the hospital name is "St. Mary's Hospital", use the following query:
+SELECT * FROM hospitals WHERE name = "St. Mary's Hospital";
+[Output]:
+{
+  "Reasoning": [
+    "1. The given text starts with a statement providing a task related to querying data from a database.",
+    "2. The text then presents a specific query written in SQL: SELECT * FROM hospitals WHERE name = \"St. Mary's Hospital\";",
+    "3. The provided content is SQL syntax, which is a programming language used for database queries.",
+    "4. The text does not just mention a function or method but includes an actual code example in SQL."
+  ],
+  "Choice": "A",
+  "Snippet": "SELECT * FROM hospitals WHERE name = \"St. Mary's Hospital\";"
 }
 """

@@ -20,6 +20,9 @@ from uptrain.operators import (
     ConversationSatisfactionScore,
     CodeHallucinationScore,
     JailbreakDetectionScore,
+    SubQueryCompleteness,
+    ContextReranking,
+    ContextConciseness,
 )
 
 
@@ -67,6 +70,14 @@ def CheckResponseConsistency():
     )
 
 
+def CheckResponseMatching(method="llm"):
+    return Check(
+        name="response_matching_score",
+        operators=[ResponseMatchingScore(method=method)],
+        plots=[Histogram(x="score_response_matching")],
+    )
+
+
 # -----------------------------------------------------------
 # Context Quality
 # -----------------------------------------------------------
@@ -94,6 +105,21 @@ def CheckResponseFacts():
         plots=[Histogram(x="score_factual_accuracy")],
     )
 
+
+def CheckContextReranking():
+    return Check(
+        name="context_reranking_score",
+        operators=[ContextReranking()],
+        plots=[Histogram(x="score_context_reranking")],
+    )
+
+
+def CheckContextConciseness():
+    return Check(
+        name="context_conciseness_score",
+        operators=[ContextConciseness()],
+        plots=[Histogram(x="score_context_conciseness")],
+    )
 
 
 # -----------------------------------------------------------
@@ -134,10 +160,10 @@ def CheckCodeHallucination():
 # Conversation Quality
 # -----------------------------------------------------------
 
-def CheckConversationSatisfaction(user_persona="user", llm_persona=None):
+def CheckConversationSatisfaction(user_role="user", llm_role="assistant"):
     return Check(
         name="conversation_satisfaction_score",
-        operators=[ConversationSatisfactionScore(user_persona, llm_persona)],
+        operators=[ConversationSatisfactionScore(user_role=user_role, llm_role=llm_role)],
         plots=[Histogram(x="score_conversation_satisfaction")],
     )
 
@@ -163,18 +189,6 @@ def CheckGuidelineAdherence(
 
 
 # -----------------------------------------------------------
-# Compare response with ground truth
-# -----------------------------------------------------------
-
-def CheckResponseMatching(method="llm"):
-    return Check(
-        name=f"{method}_score",
-        operators=[ResponseMatchingScore(method=method)],
-        plots=[Histogram(x=f"{method}_score")],
-    )
-
-
-# -----------------------------------------------------------
 # Security
 # -----------------------------------------------------------
 
@@ -191,4 +205,16 @@ def CheckJailbreakDetection():
         name="j`ailbreak_detection_score",
         operators=[JailbreakDetectionScore()],
         plots=[Histogram(x="score_jailbreak_attempted")],
+    )
+
+
+# -----------------------------------------------------------
+# Subquery
+# -----------------------------------------------------------
+
+def CheckSubQueryCompleteness():
+    return Check(
+        name="sub_query_completeness_score",
+        operators=[SubQueryCompleteness()],
+        plots=[Histogram(x="score_sub_query_completeness")],
     )

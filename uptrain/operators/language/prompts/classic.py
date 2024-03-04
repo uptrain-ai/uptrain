@@ -365,3 +365,112 @@ Return the output only in the corresponding JSON format. Do not output anything 
 Task Data.
 [Response]: {response}
 """
+
+
+# Sub-query Completeness
+SUB_QUERY_COMPLETENESS_PROMPT_TEMPLATE = """
+You are given a question and a list of sub questions generated from an AI assistant. Please assess if the all sub-questions comprehensively cover the various aspects of the main question. 
+
+It should consider the completeness, relevance, and diversity of information provided by each sub-question, aiming to ensure that the combined set offers a comprehensive understanding of the main question's scope. The goal is to generate a qualitative assessment of how well the sub-questions collectively cover all relevant aspects of the main question.
+
+{scenario_description}
+
+Example Data.
+{few_shot_examples}
+
+Determine which case applies by selecting one of the following options:
+A. Sub Questions collectively cover all the aspects of the main question.
+B. Sub Questions collectively cover only a few aspects of the main question.
+C. Sub Questions collectively does not cover any aspects of the main question.
+{prompting_instructions}
+
+Return the output only in the corresponding JSON format. Do not output anything other than this JSON object:
+{output_format}
+
+Task data:
+[Question]: {question}
+[Sub Questions]: {sub_questions}
+"""
+
+
+# Context Reranking
+CONTEXT_RERANKING_PROMPT_TEMPLATE = """
+You are given a question and two different contexts, original context, and reranked context. 
+The reranked context is generated from the original context with the help of a reranking algorithm. The reranking is determined with the information asked in the given question. 
+It should consider the effectiveness of the reranking process applied to the original context in generating the new context in relation to the given question. Assess the degree to which the reranked context enhances the relevance, coherence, and informativeness with respect to the provided question.
+
+{scenario_description}
+
+Example Data.
+{few_shot_examples}
+
+Contexts that occur earlier in order have higher priority.
+
+Determine which case applies by selecting one of the following options:
+A. The reranking of the original context is highly effective in generating the reranked context for the given question.
+B. The reranking of the original context is somewhat effective in generating the reranked context for the given question.
+C. The reranking of the original context is not very effective in generating the reranked context for the given question.
+{prompting_instructions}
+
+Return the output only in the corresponding JSON format. Do not output anything other than this JSON object:
+{output_format}
+
+Task data:
+[Question]: {question}
+[Original Context]: {context}
+[Reranked Context]: {reranked_context}
+"""
+
+
+# Context Conciseness
+CONTEXT_CONCISENESS_PROMPT_TEMPLATE = """
+You are given a question and two different contexts, original context and concise context. 
+Determine if the concise context adequately covers all the information from the original context with respect to the given question.
+
+{scenario_description}
+
+Example Data.
+{few_shot_examples}
+
+Determine which case applies by selecting one of the following options:
+A. The concise context adequately covers all the relevant information from the original context with respect to the given question.
+B. The concise context partially covers relevant information from the original context with respect to the given question.
+C. The concise context doesn't cover the relevant information from the original context with respect to the given question.
+{prompting_instructions}
+
+Return the output only in the corresponding JSON format. Do not output anything other than this JSON object:
+{output_format}
+
+Task data:
+[Question]: {question}
+[Original Context]: {context}
+[Concise Context]: {concise_context}
+"""
+
+
+
+
+# Code Hallucination
+CODE_HALLUCINATION_PROMPT_TEMPLATE = """
+You are given a response generated from a chatbot. Please assess whether the given response includes any computer code (or CLI command) or not. If you do find a code/command, include the line number in which you found the code/command.
+Computer Code refers to the set of instructions, or a system of rules, written in a particular programming language (i.e., the source code). It is also the term used for the source code after a compiler has processed it.
+Note that if the response mentions any CLI or bash commands that can be executed in the terminal, then the response contains code.
+Only responses that contain actual code examples or mention any CLI commands should be considered as containing code. Not the ones that only mention a function or method.
+
+{scenario_description}
+
+Example Data.
+{few_shot_examples}
+
+Determine which case applies by selecting one of the following options:
+A. The given response contains computer code or CLI command.
+B. The given response does not contain computer code or CLI command.
+{prompting_instructions}
+
+Return the output only in the corresponding JSON format. Do not output anything other than this JSON object:
+{output_format}
+
+Task data:
+[Response]: {response}
+"""
+

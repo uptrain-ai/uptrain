@@ -1,0 +1,108 @@
+---
+title: Claude
+---
+You can use your Anthropic API key to run LLM evaluations using UpTrain.
+
+### How to do it?
+
+<Steps>
+  <Step title="Install UpTrain">
+    ```python
+    pip install uptrain
+    ```
+    ```python
+    from uptrain import EvalLLM, Evals, Settings
+    import json
+    ```
+  </Step>
+  <Step title="Create your data">
+  You can define your data as a list of dictionaries to run evaluations on UpTrain
+  * `question`: The question you want to ask
+  * `context`: The context relevant to the question
+  * `response`: The response to the question
+    ```python
+    data = [
+      {
+        'question': 'Which is the most popular global sport?',
+        'context': "The popularity of sports can be measured in various ways, including TV viewership, social media presence, number of participants, and economic impact. Football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi, drawing a followership of more than 4 billion people. Cricket is particularly popular in countries like India, Pakistan, Australia, and England. The ICC Cricket World Cup and Indian Premier League (IPL) have substantial viewership. The NBA has made basketball popular worldwide, especially in countries like the USA, Canada, China, and the Philippines. Major tennis tournaments like Wimbledon, the US Open, French Open, and Australian Open have large global audiences. Players like Roger Federer, Serena Williams, and Rafael Nadal have boosted the sport's popularity. Field Hockey is very popular in countries like India, Netherlands, and Australia. It has a considerable following in many parts of the world.",
+        'response': 'Football is the most popular sport with around 4 billion followers worldwide'
+      }
+    ]
+    ```
+  </Step>
+  <Step title="Enter your Anthropic API Key">
+    ```python
+    ANTHROPIC_API_KEY = "sk-***************************"
+    ```
+  </Step>
+
+  <Step title="Create an EvalLLM Evaluator">
+    ```python
+    settings = Settings(model = 'claude-2.1', anthropic_api_key=ANTHROPIC_API_KEY)
+    eval_llm = EvalLLM(settings)
+    ```
+  </Step>
+
+  <Step title="Evaluate data using UpTrain">
+  Now that we have our data, we can evaluate it using UpTrain. We use the `evaluate` method to do this. This method takes the following arguments:
+  * `data`: The data you want to log and evaluate
+  * `checks`: The evaluations you want to perform on your data
+    ```python
+    results = eval_llm.evaluate(
+      data=data,
+      checks=[Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE, CritiqueTone(persona="teacher")]
+    )
+    ```
+  We have used the following 3 metrics from UpTrain's library:
+
+  1. [Factual Accuracy](/predefined-evaluations/context-awareness/factual-accuracy): Evaluates whether the response generated is factually correct and grounded by the provided context.
+  2. [Response Relevance](/predefined-evaluations/response-quality/response-relevance): Evaluates how relevant the generated response was to the question specified.
+  3. [Tonality](/predefined-evaluations/language-quality/tonality): Evaluates whether the generated response matches the required persona's tone 
+
+  You can look at the complete list of UpTrain's supported metrics [here](/predefined-evaluations/overview)
+  </Step>
+  
+  <Step title="Print the results">
+    ```python
+    print(json.dumps(results, indent=3))
+    ```
+    
+    Sample response:
+    ```JSON
+    [
+      {
+          "question": "Which is the most popular global sport?",
+          "context": "The popularity of sports can be measured in various ways, including TV viewership, social media presence, number of participants, and economic impact. Football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi, drawing a followership of more than 4 billion people. Cricket is particularly popular in countries like India, Pakistan, Australia, and England. The ICC Cricket World Cup and Indian Premier League (IPL) have substantial viewership. The NBA has made basketball popular worldwide, especially in countries like the USA, Canada, China, and the Philippines. Major tennis tournaments like Wimbledon, the US Open, French Open, and Australian Open have large global audiences. Players like Roger Federer, Serena Williams, and Rafael Nadal have boosted the sport's popularity. Field Hockey is very popular in countries like India, Netherlands, and Australia. It has a considerable following in many parts of the world.",
+          "response": "Football is the most popular sport with around 4 billion followers worldwide",
+          "score_factual_accuracy": 1.0,
+          "explanation_factual_accuracy": " Here are the reasoning and judgements for the 5 fact statements:\n\n1. Football is the most popular sport.\nReasoning for yes: The context states that \"Football is undoubtedly the world's most popular sport\". This directly supports the fact.\nReasoning for no: No contradicting evidence. \nJudgement: yes\n\n2. Football has around 4 billion followers.\nReasoning for yes: The context mentions that football draws \"a followership of more than 4 billion people\". This supports the approximate number stated in the fact.\nReasoning for no: No contradicting evidence.\nJudgement: yes\n\n3. Football has followers worldwide. \nReasoning for yes: The context talks about football having major events and personalities that are popular globally. This implies that football has worldwide followers.\nReasoning for no: No contradicting evidence. \nJudgement: yes\n\n4. Football is a global sport.\nReasoning for yes: The context states that football has \"major events like the FIFA World Cup\" which are global events, implying that football itself is a global sport.\nReasoning for no: No contradicting evidence.\nJudgement: yes\n\n5. Football has the most followers compared to",
+          "score_response_relevance": 1.0,
+          "explanation_response_relevance": " \"The LLM response directly answers the user's question of 'Which is the most popular global sport' by stating 'Football is the most popular sport'. No additional information is provided beyond identifying football as\n",
+          "score_tone": -1.0,
+          "explanation_tone": " Unfortunately I do not have enough context to fully assess the tone and scoring in the provided example. As an AI assistant without clear guidelines on the persona or expected response, I cannot reliably determine how well the response aligns. I would kindly suggest providing more details on the expected tone, persona traits, and response criteria so that the scoring can be made more objective. Some examples of helpful details would be:\n\n- Key traits that define the \"helpful-chatbot\" persona (e.g. supportive, encouraging, provides resources/options, avoids judgment, etc.)\n\n- Whether the response should directly answer the user's question or aim to be more conversational\n\n- Any expectations around providing additional info, resources, or suggestions beyond a direct answer\n\nWith more context around the expected interaction style and goals, I could then better analyze the response for alignment and provide a more meaningful score. I'm happy to re-assess with any clarifying details you can provide! Please let me know if any part of this is unclear or if you have any other questions."
+      }
+    ]
+    ```
+  </Step>
+</Steps>
+
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>
+

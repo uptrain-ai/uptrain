@@ -194,6 +194,9 @@ def deserialize_operator(data: dict) -> Operator:
             klass._uptrain_op_custom_source = data["source"]
             return klass(**params)  # type: ignore
         else:
+            ## support for previous operators
+            if mod_name.startswith("uptrain.operators"):
+                mod_name = "uptrain.operators"
             mod = importlib.import_module(mod_name)
             op = getattr(mod, cls_name)
             # Is it a class implemented by uptrain or a regular pydantic model?

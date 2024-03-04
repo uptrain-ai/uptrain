@@ -1,0 +1,116 @@
+---
+title: Callback Handler Overview
+---
+
+Three additional evaluations for Llamaindex have been introduced, complementing existing ones. These evaluations run automatically, with results displayed in the output. More details on UpTrain’s evaluations can be found here.
+
+Selected operators from the LlamaIndex pipeline are highlighted for demonstration:
+
+1. **RAG Query Engine Evaluations:**
+  The RAG query engine plays a crucial role in retrieving context and generating responses. To ensure its performance and response quality, we conduct the following evaluations:
+    * [Context Relevance](/predefined-evaluations/context-awareness/context-relevance): Determines if the context extracted from the query is relevant to the response.
+    * [Factual Accuracy](/predefined-evaluations/context-awareness/factual-accuracy): Assesses if the LLM is hallcuinating or providing incorrect information.
+    * [Response Completeness](/predefined-evaluations//response-quality/response-completeness): Checks if the response contains all the information requested by the query.
+<Info>You can check out the complete list of evaluations UpTrain supports [here](/predefined-evaluations/overview) </Info>
+
+2. **Sub-Question Query Generation Evaluation:**
+  The SubQuestionQueryGeneration operator decomposes a question into sub-questions, generating responses for each using a RAG query engine. Given the complexity, we include the previous evaluations and add:
+    * Sub Query Completeness: Assures that the sub-questions accurately and comprehensively cover the original query.
+
+3. **Re-Ranking Evaluations:**
+  Re-ranking involves reordering nodes based on relevance to the query and choosing top n nodes. Different evaluations are performed based on the number of nodes returned after re-ranking.
+    1. Same Number of Nodes
+    Context Reranking: Checks if the order of re-ranked nodes is more relevant to the query than the original order.
+    2. Different Number of Nodes:
+    Context Conciseness: Examines whether the reduced number of nodes still provides all the required information.
+  
+These evaluations collectively ensure the robustness and effectiveness of the RAG query engine, SubQuestionQueryGeneration operator, and the re-ranking process in the LlamaIndex pipeline.
+<Note>
+We have performed evaluations using basic RAG query engine, the same evaluations can be performed using the advanced RAG query engine as well.
+
+Same is true for Re-Ranking evaluations, we have performed evaluations using CohereRerank, the same evaluations can be performed using other re-rankers as well.
+</Note>
+
+### How to do it?
+<Steps>
+  <Step title="Install UpTrain and LlamaIndex">
+```python
+pip install -q html2text llama-index pandas tqdm uptrain cohere
+```
+  </Step>
+  <Step title="Import required libraries">
+```python
+from llama_index import (
+    ServiceContext,
+    VectorStoreIndex,
+)
+from llama_index.node_parser import SentenceSplitter
+from llama_index.readers import SimpleWebPageReader
+from llama_index.callbacks import CallbackManager, UpTrainCallbackHandler
+from llama_index.postprocessor.cohere_rerank import CohereRerank
+from llama_index.service_context import set_global_service_context
+from llama_index.query_engine.sub_question_query_engine import (
+    SubQuestionQueryEngine,
+)
+from llama_index.tools.query_engine import QueryEngineTool
+from llama_index.tools.types import ToolMetadata
+```
+  </Step>
+  <Step title="Setup UpTrain Open-Source Software (OSS)">
+  You can use the open-source evaluation service to evaluate your model. In this case, you will need to provie an OpenAI API key. You can get yours [here](https://platform.openai.com/account/api-keys).
+
+Parameters:
+* `key_type`="openai"
+* `api_key`="OPENAI_API_KEY"
+* `project_name_prefix`="PROJECT_NAME_PREFIX"
+```python
+callback_handler = UpTrainCallbackHandler(
+    key_type="openai",
+    api_key="sk-...",  # Replace with your OpenAI API key
+    project_name_prefix="llama",
+)
+Settings.callback_manager = CallbackManager([callback_handler])
+```
+  </Step>
+  <Step title="Load and Parse Documents">
+  Load documents from Paul Graham's essay "What I Worked On".
+  ```python
+  documents = SimpleWebPageReader().load_data(
+    [
+        "https://raw.githubusercontent.com/run-llama/llama_index/main/docs/examples/data/paul_graham/paul_graham_essay.txt"
+    ]
+)
+  ```
+  Parse the document into nodes.
+```python
+parser = SentenceSplitter()
+nodes = parser.get_nodes_from_documents(documents)
+```
+  </Step>
+</Steps>
+
+We have completed the basic steps, now let's look at the demontration for using LlamaIndex for the following 3 cases:
+* [RAG Query Engine Evaluations](/rag_query)
+* [Sub-Question Query Generation Evaluation](/subques_query)
+* [Re-Ranking Evaluations](/reranking)
+
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://colab.research.google.com/github/run-llama/llama_index/blob/main/docs/examples/callbacks/UpTrainCallback.ipynb"
+    icon="infinity"
+    color="#808080"
+  >
+    Open this tutorial in Colab
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>
+

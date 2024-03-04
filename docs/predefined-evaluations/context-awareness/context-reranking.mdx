@@ -1,0 +1,79 @@
+---
+title: Context Reranking
+description: Evaluates how efficient the reranked context is compared to the original context.
+---
+
+Context Reranking reflects the efficiency of the reranking process applied to the original context in generating the new renaked context used to answer a given question. 
+
+This operator assess the degree to which the reranked context enhances the relevance, coherence, and informativeness with respect to the provided question.
+
+Columns required:
+- `question`: The question asked by the user
+- `context`: Information retrieved to answer the question
+- `reranked_context`: The context generated from the original context using the reranking algorithm
+
+### How to use it?
+
+```python
+from uptrain import EvalLLM, Evals
+
+OPENAI_API_KEY = "sk-********************"  # Insert your OpenAI key here
+
+data = [
+    {
+        "question": "How to make red sauce pasta?",
+        "context": "Step 1: Heat oil in a pan over medium flame and add minced garlic along with chopped red chilli and red chilli flakes. Stir and saute for 2 minutes. Take another pan, pour the water and bring it to a boil. Then, add pasta to the boiling water along with some salt and 1/2 tbsp oil. Cook the pasta for a few minutes. When it is cooked through, drain the extra water and transfer the pasta to another bowl. \n Step 2: Now, heat the olive oil and add the peeled (or pureed) tomatoes, basil and parsley to the pan. Mix all the ingredients well and let it simmer for 10 minutes until the sauce starts to thicken. When the sauce starts gaining consistency, put off the burner and add salt and black pepper powder to the sauce. Keep the sauce warm. Add the pasta over the warm sauce and toss carefully so that each piece is coated with the sauce. \n Step 3: Cook for 2-3 minutes more and then serve the Red Sauce Pasta immediately. To make it more aromatic, you can dry roast a few basil leaves, crush them with some chilli flakes, oregano and add it to the dish. This herb fusion will make your pasta even more delectable. Serve it with garlic bread and relish this delicious pasta.",
+        "reranked_context": "Step 1 : Cook for 2-3 minutes more and then serve the Red Sauce Pasta immediately. To make it more aromatic, you can dry roast a few basil leaves, crush them with some chilli flakes, oregano and add it to the dish. This herb fusion will make your pasta even more delectable. Serve it with garlic bread and relish this delicious pasta. \n Step 2: Heat oil in a pan over medium flame and add minced garlic along with chopped red chilli and red chilli flakes. Stir and saute for 2 minutes. Take another pan, pour the water and bring it to a boil. Then, add pasta to the boiling water along with some salt and 1/2 tbsp oil. Cook the pasta for a few minutes. When it is cooked through, drain the extra water and transfer the pasta to another bowl. \n Step 3: Now, heat the olive oil and add the peeled (or pureed) tomatoes, basil and parsley to the pan. Mix all the ingredients well and let it simmer for 10 minutes until the sauce starts to thicken. When the sauce starts gaining consistency, put off the burner and add salt and black pepper powder to the sauce. Keep the sauce warm. Add the pasta over the warm sauce and toss carefully so that each piece is coated with the sauce.",
+    }
+]
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+
+res = eval_llm.evaluate(
+    data = data,
+    checks = [Evals.CONTEXT_RERANKING]
+)
+```
+<Info>By default, we are using GPT 3.5 Turbo for evaluations. If you want to use a different model, check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb).</Info>
+
+Sample Response:
+```json
+[
+   {
+      "score_context_reranking": 0.0,
+      "explanation_context_reranking": "Step 1: Review the original context and the reranked context to identify any changes made in the reranking process. \nOriginal context:\n- Step 1 involves heating oil, adding minced garlic, red chili, and red chili flakes, and cooking the pasta.\n- Step 2 involves heating olive oil, adding tomatoes, basil, and parsley to make the sauce, and then adding the cooked pasta to the sauce.\n- Step 3 involves adding additional seasoning and serving the pasta.\n\nReranked context:\n- Step 1 involves serving the pasta and adding aromatic herbs for flavor.\n- Step 2 involves heating oil, cooking the pasta, and preparing the sauce.\n- Step 3 is omitted in the reranked context.\n\nStep 2: Evaluate the reranked context in relation to the given question \"How to make red sauce pasta?\"\n- The reranked context does not effectively address the question as it rearranges the steps and omits important details related to making red sauce pasta.\n- The reranked context fails to provide coherent and informative instructions on making red sauce pasta.\n\n[Choice]: (C) The reranking of the original context is not very effective in generating the reranked context for the given question."
+   }
+]
+```
+<Note>A higher context reranking score reflects that reranked context is more efficient in answering the question as compared to the original context.</Note>
+
+The original context was better suited to answer the question: "How to make red sauce pasta?" as the steps mentioned were in logical order.
+
+The reranked context has changed the ordering of the steps breaking the logical flow of order, making it less efficient compared to the original context
+
+### How it works?
+
+We evaluate context reranking by determining which of the following three cases apply for the given task data:
+
+* The reranking of the original context is highly effective in generating the reranked context for the given question.
+* The reranking of the original context is somewhat effective in generating the reranked context for the given question.
+* The reranking of the original context is not very effective in generating the reranked context for the given question.
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/context_awareness/reranking.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>

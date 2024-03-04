@@ -5,6 +5,7 @@ Implement operaores to evaluate response quality i.e. quality of the generated r
 from __future__ import annotations
 import typing as t
 import json
+import copy
 
 from loguru import logger
 import polars as pl
@@ -17,6 +18,7 @@ if t.TYPE_CHECKING:
 from uptrain.operators.base import register_op, ColumnOp, TYPE_TABLE_OUTPUT
 from uptrain.utilities import polars_to_json_serializable_dict
 from uptrain.operators.language.llm import LLMMulticlient
+from uptrain.operators.language.factual_accuracy import ResponseFactualScore
 
 from uptrain.operators.language.prompts.classic import (
     RESPONSE_COMPLETENESS_PROMPT_TEMPLATE,
@@ -75,7 +77,7 @@ class ResponseCompleteness(ColumnOp):
 
         assert settings is not None
         self.settings = settings
-        if self.settings.evaluate_locally:
+        if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
             self._api_client = LLMMulticlient(settings)
         else:
             self._api_client = APIClient(settings)
@@ -88,7 +90,7 @@ class ResponseCompleteness(ColumnOp):
             row["response"] = row.pop(self.col_response)
 
         try:
-            if self.settings.evaluate_locally:
+            if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
                 results = self.evaluate_local(data_send)
             else:
                 results = self._api_client.evaluate(
@@ -221,7 +223,7 @@ class ResponseConciseness(ColumnOp):
 
         assert settings is not None
         self.settings = settings
-        if self.settings.evaluate_locally:
+        if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
             self._api_client = LLMMulticlient(settings)
         else:
             self._api_client = APIClient(settings)
@@ -234,7 +236,7 @@ class ResponseConciseness(ColumnOp):
             row["response"] = row.pop(self.col_response)
 
         try:
-            if self.settings.evaluate_locally:
+            if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
                 results = self.evaluate_local(data_send)
             else:
                 results = self._api_client.evaluate(
@@ -364,7 +366,7 @@ class ResponseConsistency(ColumnOp):
 
         assert settings is not None
         self.settings = settings
-        if self.settings.evaluate_locally:
+        if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
             self._api_client = LLMMulticlient(settings)
         else:
             self._api_client = APIClient(settings)
@@ -376,7 +378,7 @@ class ResponseConsistency(ColumnOp):
             row["response"] = row.pop(self.col_response)
 
         try:
-            if self.settings.evaluate_locally:
+            if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
                 results = self.evaluate_local(data_send)
             else:
                 results = self._api_client.evaluate(
@@ -400,6 +402,8 @@ class ResponseConsistency(ColumnOp):
     def response_consistency_classify_validate_func(self, llm_output):
         parsed_output = json.loads(llm_output)
         is_correct = True
+        is_correct = is_correct and ("Score" in json.loads(llm_output))
+        is_correct = is_correct and 0 <= json.loads(llm_output)["Score"] <= 1
         is_correct = is_correct and ("Score" in parsed_output)
         is_correct = (
             is_correct and parsed_output["Score"] >= 0 and parsed_output["Score"] <= 1
@@ -468,6 +472,7 @@ class ResponseConsistency(ColumnOp):
                 "argument_repsonse_consistency": None,
             }
             try:
+                score = json.loads(res.response.choices[0].message.content)["Score"]
                 parsed_output = json.loads(res.response.choices[0].message.content)
                 score = parsed_output["Score"]
                 output["score_response_consistency"] = float(score)
@@ -512,7 +517,7 @@ class ValidResponseScore(ColumnOp):
 
         assert settings is not None
         self.settings = settings
-        if self.settings.evaluate_locally:
+        if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
             self._api_client = LLMMulticlient(settings)
         else:
             self._api_client = APIClient(settings)
@@ -524,7 +529,7 @@ class ValidResponseScore(ColumnOp):
             row["response"] = row.pop(self.col_response)
 
         try:
-            if self.settings.evaluate_locally:
+            if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
                 results = self.evaluate_local(data_send)
             else:
                 results = self._api_client.evaluate(
@@ -651,7 +656,7 @@ class ResponseRelevance(ColumnOp):
 
         assert settings is not None
         self.settings = settings
-        if self.settings.evaluate_locally:
+        if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
             self._api_client = LLMMulticlient(settings)
         else:
             self._api_client = APIClient(settings)
@@ -663,7 +668,7 @@ class ResponseRelevance(ColumnOp):
             row["response"] = row.pop(self.col_response)
 
         try:
-            if self.settings.evaluate_locally:
+            if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
                 results = self.evaluate_local(data_send)
             else:
                 results = self._api_client.evaluate(
@@ -727,22 +732,171 @@ class ResponseRelevance(ColumnOp):
                 "explanation_response_relevance": None,
             }
             if precision is not None and recall is not None:
+            if precision is not None and recall is not None:
                 explanation = (
+                    "Response Precision: "
+                    + str(precision)
                     "Response Precision: "
                     + str(precision)
                     + str(combined_row[0]["explanation_response_conciseness"])
                     + "\n"
                     + "Response Recall: "
+                   
                     + str(recall)
                     + str(combined_row[1]["explanation_response_completeness"])
                 )
                 output["explanation_response_relevance"] = explanation
 
                 if precision != 0 and recall != 0:
+                if precision != 0 and recall != 0:
                     output["score_response_relevance"] = 2 * (
                         (precision * recall) / (precision + recall)
                     )
                 else:
                     output["score_response_relevance"] = 0
+            results.append(output)
+        return results
+
+
+@register_op
+class ResponseMatchingScore(ColumnOp):
+    """
+    Operator to compare the llm-generated text with the gold response using the defined score metric.
+
+     Attributes:
+        col_question (str): Column name for the stored questions
+        col_response (str): Column name for the llm generated responses
+        col_ground_truth (str): Column name for the ground truth responses
+        col_out (str): Column name for the output score
+        method (str): (Literal["rouge", "exact", "llm"]): Method to calculate the score (For now, only "llm" is supported for evalute locally. All methods are supported for remote evaluation.)
+        scenario_description (str): Optional scenario description to incorporate in the evaluation prompt
+        score_mapping (dict): Mapping of different grades to float scores
+
+    Raises:
+        Exception: Raises exception for any failed evaluation attempts
+
+    """
+
+    col_question: str = "question"
+    col_response: str = "response"
+    col_ground_truth: str = "ground_truth"
+    col_out: str = "score_response_match"
+    method: t.Literal["exact", "rouge", "llm"] = "llm"
+    scenario_description: t.Optional[str] = None
+    score_mapping: dict = {"A": 1.0, "B": 0.0}
+
+    def setup(self, settings: t.Optional[Settings] = None):
+        from uptrain.framework.remote import APIClient
+
+        assert settings is not None
+        self.settings = settings
+        if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
+            # TODO: Add support for local evaluation for all methods
+            if self.method != "llm":
+                raise Exception(
+                    f"Local evaluation is only supported for `llm` method for `ResponseMatchingScore`. Metric: {self.method} is not supported."
+                )
+            self._api_client = LLMMulticlient(settings)
+        else:
+            if self.method not in ["exact", "rouge", "llm"]:
+                raise Exception(f"Metric: {self.method} is not supported yet.")
+            self._api_client = APIClient(settings)
+        return self
+
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
+        data_send = polars_to_json_serializable_dict(data)
+        for row in data_send:
+            row["question"] = row.pop(self.col_question)
+            row["response"] = row.pop(self.col_response)
+            row["ground_truth"] = row.pop(self.col_ground_truth)
+
+        try:
+            if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
+                results = self.evaluate_local(data_send)
+            else:
+                results = self._api_client.evaluate(
+                    "ResponseMatching",
+                    data_send,
+                    {
+                        "type": self.method,
+                        "scenario_description": self.scenario_description,
+                    },
+                )
+        except Exception as e:
+            logger.error(f"Failed to run evaluation for `ResponseMatchingScore`: {e}")
+            raise e
+
+        assert results is not None
+        return {
+            "output": data.with_columns(
+                pl.from_dicts(results).rename({"score_response_match": self.col_out})
+            )
+        }
+
+    def response_matching_classify_validate_func(self, llm_output):
+        is_correct = True
+        is_correct = is_correct and ("Choice" in json.loads(llm_output))
+        is_correct = is_correct and json.loads(llm_output)["Choice"] in ["A", "B", "C"]
+        return is_correct
+
+    def response_matching_cot_validate_func(self, llm_output):
+        is_correct = self.response_matching_classify_validate_func(llm_output)
+        is_correct = is_correct and ("Reasoning" in json.loads(llm_output))
+        return is_correct
+
+    def evaluate_local(self, data):
+        """
+        Our methodology is based on the model grade evaluation introduced by openai evals.
+        """
+
+        data_precision = copy.deepcopy(pl.DataFrame(data)).rename({
+            self.col_response: "response",
+            self.col_ground_truth: "context"
+        })
+        data_recall = copy.deepcopy(pl.DataFrame(data)).rename({
+            self.col_ground_truth: "response",
+            self.col_response: "context"
+        })
+        eval_data = pl.concat([data_precision, data_recall.select(data_precision.columns)])
+
+        output = ResponseFactualScore(
+            col_question=self.col_question,
+            col_response="response",
+            col_context="context",
+            scenario_description=self.scenario_description,
+        ).setup(settings=self.settings).run(eval_data)["output"].to_dicts()
+        output_precision = output[0:len(data)]
+        output_recall = output[len(data):]
+
+        results = []
+        for combined_row in zip(output_precision, output_recall):
+            precision = combined_row[0]["score_factual_accuracy"]
+            recall = combined_row[1]["score_factual_accuracy"]
+            output = {
+                "score_response_matching": None,
+                "explanation_response_matching": None,
+                "score_response_match_recall": None,
+                "score_response_match_precision": None,
+            }
+            if precision is not None and recall is not None:
+                explanation = (
+                    "Information Recall: "
+                    + str(recall)
+                    + str(combined_row[1]["explanation_factual_accuracy"])
+                    + "\n"
+                    + "Information Precision: "
+                    + str(precision)
+                    + str(combined_row[0]["explanation_factual_accuracy"])
+                )
+                output["explanation_response_matching"] = explanation
+
+                if precision != 0 and recall != 0:
+                    output["score_response_matching"] = 4 * (
+                        (precision * recall) / (precision*3 + recall)
+                    )
+                else:
+                    output["score_response_matching"] = 0
+                output["score_response_match_recall"] = recall
+                output["score_response_match_precision"] = precision
             results.append(output)
         return results
