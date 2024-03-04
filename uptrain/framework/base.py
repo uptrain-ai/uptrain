@@ -10,7 +10,11 @@ import networkx as nx
 import polars as pl
 from pydantic import BaseSettings, Field
 
-from uptrain.operators.base import *
+from uptrain.operators.base import (
+    Operator,
+    deserialize_operator,
+    TransformOp,
+)
 from uptrain.utilities import to_py_types, jsondump, jsonload
 
 __all__ = [

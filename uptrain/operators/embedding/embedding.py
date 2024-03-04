@@ -18,7 +18,11 @@ import requests
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
-from uptrain.operators.base import *
+from uptrain.operators.base import (
+    ColumnOp,
+    register_op,
+    TYPE_TABLE_OUTPUT,
+)
 from uptrain.utilities import lazy_load_dep
 
 

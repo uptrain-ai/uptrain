@@ -7,12 +7,15 @@ import typing as t
 import copy
 
 import numpy as np
-from loguru import logger
 import polars as pl
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
-from uptrain.operators.base import *
+from uptrain.operators.base import (
+    TransformOp,
+    register_op,
+    TYPE_TABLE_OUTPUT,
+)
 from uptrain.operators.embedding.embedding import Embedding
 from uptrain.operators.io.base import JsonReader, CsvReader
 from uptrain.utilities import lazy_load_dep, polars_to_pandas
@@ -26,22 +29,25 @@ class VectorSearch(TransformOp):
 
      Attributes:
         col_in_query (str): Column name for the input query to be used for retrieval
-        documents (str): List of documents for vector database.
-        embeddings_model (str): Name of the embeddings model
+        colk_in_document (str): Column name for the input document to be used for retrieval
         col_out (str): Column name for the retrieved_context
+        documents (t.Union[list[str], str, JsonReader, CsvReader]): List of documents or path to the file containing the documents
+        embeddings_model (str): Name of the embeddings model
         top_k (int): Top K documents will be retrieved.
         distance_metric (str): One of ['cosine_similarity', 'l2_distance']
+        embedding_batch_size (int): Batch size for the embeddings model
+
     Raises:
         Exception: Raises exception for any failed evaluation attempts
 
     """
 
     col_in_query: str = "question"
+    col_in_document: str = ""
+    col_out: str = "context"
     documents: t.Union[list[str], str, JsonReader, CsvReader] = None
     embeddings_model: str = ""
-    col_out: str = "context"
     top_k: int = 1
-    col_in_document: str = ""
     distance_metric: str = t.Literal["cosine_similarity", "l2_distance"]
     embedding_batch_size: int = 128
 
