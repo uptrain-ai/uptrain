@@ -11,7 +11,7 @@ from uptrain.framework.remote import APIClient
 from uptrain.framework.remote import DataSchema
 
 
-from llama_index.indices.query.base import BaseQueryEngine
+from llama_index.core.indices.query.base import BaseQueryEngine
 
 
 __all__ = ["EvalLlamaIndex"]
@@ -34,6 +34,8 @@ class EvalLlamaIndex:
             self.client = APIClient(settings)
         elif settings.check_and_get("openai_api_key"):
             self.client = EvalLLM(settings)
+        elif settings.check_and_get("together_api_key"):
+            self.client = EvalLLM(settings)
 
     def evaluate(
         self,
@@ -44,7 +46,7 @@ class EvalLlamaIndex:
         metadata: t.Optional[dict[str, str]] = None,
     ):
         try:
-            from llama_index.async_utils import run_async_tasks
+            from llama_index.core.async_utils import run_async_tasks
         except ImportError:
             raise ImportError(
                 "llama_index must be installed to use this function. "
