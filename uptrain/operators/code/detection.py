@@ -9,10 +9,18 @@ import typing as t
 from loguru import logger
 import polars as pl
 from uptrain.operators.language.llm import LLMMulticlient
-from uptrain.operators.language.prompts.classic import CODE_HALLUCINATION_PROMPT_TEMPLATE
-from uptrain.operators.language.prompts.few_shots import CODE_HALLUCINATION_FEW_SHOT__CLASSIFY, CODE_HALLUCINATION_FEW_SHOT__COT
+from uptrain.operators.language.prompts.classic import (
+    CODE_HALLUCINATION_PROMPT_TEMPLATE,
+)
+from uptrain.operators.language.prompts.few_shots import (
+    CODE_HALLUCINATION_FEW_SHOT__CLASSIFY,
+    CODE_HALLUCINATION_FEW_SHOT__COT,
+)
 from uptrain.operators.language.prompts.instructions import CHAIN_OF_THOUGHT, CLASSIFY
-from uptrain.operators.language.prompts.output_format import CODE_HALLUCINATION_OUTPUT_FORMAT__CLASSIFY, CODE_HALLUCINATION_OUTPUT_FORMAT__COT
+from uptrain.operators.language.prompts.output_format import (
+    CODE_HALLUCINATION_OUTPUT_FORMAT__CLASSIFY,
+    CODE_HALLUCINATION_OUTPUT_FORMAT__COT,
+)
 from uptrain.utilities.prompt_utils import parse_scenario_description
 
 from uptrain.operators.base import (
@@ -56,7 +64,10 @@ class CodeHallucinationScore(ColumnOp):
 
         assert settings is not None
         self.settings = settings
-        if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
+        if self.settings.evaluate_locally and (
+            self.settings.uptrain_access_token is None
+            or not len(self.settings.uptrain_access_token)
+        ):
             self._api_client = LLMMulticlient(settings)
         else:
             self._api_client = APIClient(settings)
@@ -70,7 +81,10 @@ class CodeHallucinationScore(ColumnOp):
             row["context"] = row.pop(self.col_context)
 
         try:
-            if self.settings.evaluate_locally and (self.settings.uptrain_access_token is None or not len(self.settings.uptrain_access_token)):
+            if self.settings.evaluate_locally and (
+                self.settings.uptrain_access_token is None
+                or not len(self.settings.uptrain_access_token)
+            ):
                 results = self.evaluate_local(data_send)
             else:
                 results = self._api_client.evaluate("code_hallucination", data_send)

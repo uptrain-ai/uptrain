@@ -9,19 +9,20 @@ Operators:
 from __future__ import annotations
 import typing as t
 
-from loguru import logger
 import numpy as np
 import polars as pl
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
-from uptrain.operators.base import *
-from uptrain.utilities import lazy_load_dep
+from uptrain.operators.base import (
+    ColumnOp,
+    register_op,
+    TYPE_TABLE_OUTPUT,
+)
 
 
 @register_op
 class TopicAssignmentviaCluster(ColumnOp):
-
     """
     Operator for assigning topics based on cluster assignments. Note, you should run Clustering operator before using this.
 

@@ -97,6 +97,7 @@ class OpBaseModel(BaseModel):
     Base class you can use if constructing an operator using a pydantic
     model, to get around some of the sharp edges.
     """
+
     # TODO[pydantic]: The following keys were removed: `smart_union`, `underscore_attrs_are_private`.
     # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-config for more information.
     model_config = ConfigDict(extra="allow")

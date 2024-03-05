@@ -8,13 +8,11 @@ from concurrent.futures import ThreadPoolExecutor
 import random
 import typing as t
 
-from contextlib import suppress
 from loguru import logger
 from pydantic import BaseModel, Field
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
-from uptrain.operators.base import *
 from uptrain.utilities import lazy_load_dep
 
 openai = lazy_load_dep("openai", "openai")
@@ -25,6 +23,7 @@ tqdm_asyncio = lazy_load_dep("tqdm.asyncio", "tqdm>=4.0")
 from openai import AsyncOpenAI
 from openai import AsyncAzureOpenAI
 import openai
+from aiolimiter import AsyncLimiter
 
 # import openai.error
 
@@ -55,11 +54,11 @@ def run_validation(llm_output, validation_func):
 
 async def async_process_payload(
     payload: Payload,
-    rpm_limiter: aiolimiter.AsyncLimiter,
-    tpm_limiter: aiolimiter.AsyncLimiter,
+    rpm_limiter: AsyncLimiter,
+    tpm_limiter: AsyncLimiter,
     aclient: t.Union[AsyncOpenAI, AsyncAzureOpenAI, None],
     max_retries: int,
-    validate_func: function = None,
+    validate_func: t.Callable = None,
 ) -> Payload:
     messages = payload.data["messages"]
     total_chars = sum(len(msg["role"]) + len(msg["content"]) for msg in messages)
@@ -90,9 +89,10 @@ async def async_process_payload(
             break
         except Exception as exc:
             logger.error(f"Error when sending request to LLM API: {exc}")
-            sleep_and_retry = (count < max_retries - 1)
+            sleep_and_retry = count < max_retries - 1
             if aclient is not None:
-                if not ( isinstance(
+                if not (
+                    isinstance(
                         exc,
                         (
                             openai.APIConnectionError,
@@ -106,11 +106,10 @@ async def async_process_payload(
                     sleep_and_retry = False
             else:
                 litellm = lazy_load_dep("litellm", "litellm")
-                if not ( isinstance(
+                if not (
+                    isinstance(
                         exc,
-                        (
-                            litellm.RateLimitError,
-                        ),
+                        (litellm.RateLimitError,),
                     )
                 ):
                     sleep_and_retry = False
@@ -231,7 +230,7 @@ class LLMMulticlient:
         )
 
     def fetch_responses(
-        self, input_payloads: list[Payload], validate_func: function = None
+        self, input_payloads: list[Payload], validate_func: t.Callable = None
     ) -> list[Payload]:
         try:
             return asyncio.run(
@@ -251,17 +250,16 @@ class LLMMulticlient:
                                 input_payloads, validate_func=validate_func
                             ),
                         ).result()
-            except:
+            except Exception:
                 logger.error(f"Caught an exception: {e}")
-
 
     async def async_fetch_responses(
         self,
         input_payloads: list[Payload],
-        validate_func: function = None,
+        validate_func: t.Callable = None,
     ) -> list[Payload]:
-        rpm_limiter = aiolimiter.AsyncLimiter(self._rpm_limit, time_period=60)
-        tpm_limiter = aiolimiter.AsyncLimiter(self._tpm_limit, time_period=60)
+        rpm_limiter = AsyncLimiter(self._rpm_limit, time_period=60)
+        tpm_limiter = AsyncLimiter(self._tpm_limit, time_period=60)
         async_outputs = [
             async_process_payload(
                 data,

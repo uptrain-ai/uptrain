@@ -38,6 +38,7 @@ class ModelDataset(SQLBase):
         UniqueConstraint("user_id", "name", "version", name="uix_dataset"),
     )
 
+
 class ModelPrompt(SQLBase):
     __tablename__ = "prompts"
 
@@ -51,6 +52,7 @@ class ModelPrompt(SQLBase):
     __table_args__ = (
         UniqueConstraint("user_id", "name", "version", name="uix_prompt"),
     )
+
 
 class ModelUser(SQLBase):
     __tablename__ = "users"
