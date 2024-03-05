@@ -118,9 +118,9 @@ class DataDrift(AbstractMonitor):
                 ] = uniq_indexs
                 query_indexs[uniq_clusters] = uniq_indexs
                 query_indexs = np.array(query_indexs, dtype=int)
-                self.bucket_labelling_info[
-                    "hover_vals_for_production_clusters"
-                ] = hover_measurable_vals[query_indexs]
+                self.bucket_labelling_info["hover_vals_for_production_clusters"] = (
+                    hover_measurable_vals[query_indexs]
+                )
 
             self.prod_dist_counts_arr.append(self.prod_dist_counts.copy())
 
@@ -283,9 +283,9 @@ class DataDrift(AbstractMonitor):
             is_interesting = np.logical_or(is_close, is_interesting)
             for lkdx in range(len(is_close)):
                 if is_close[lkdx]:
-                    reasons[
-                        lkdx
-                    ] = "Lies_to_Low_Density_Regions_In_Training_Distribution"
+                    reasons[lkdx] = (
+                        "Lies_to_Low_Density_Regions_In_Training_Distribution"
+                    )
 
         if len(self.outliers):
             dists_from_outliers = np.min(
@@ -403,9 +403,9 @@ class DataDrift(AbstractMonitor):
                     clustering_results["idxs_closest_to_cluster_centroids"].values()
                 )
             ]
-            self.bucket_labelling_info[
-                "hover_vals_for_reference_clusters"
-            ] = all_hover_vals[hover_label_idxs]
+            self.bucket_labelling_info["hover_vals_for_reference_clusters"] = (
+                all_hover_vals[hover_label_idxs]
+            )
 
         self.prod_dist = np.zeros(self.ref_dist.shape)
         self.prod_dist_counts = np.zeros(self.ref_dist_counts.shape)

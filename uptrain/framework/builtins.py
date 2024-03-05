@@ -30,6 +30,7 @@ from uptrain.operators import (
 # Response Quality
 # -----------------------------------------------------------
 
+
 def CheckResponseCompleteness():
     return Check(
         name="response_completeness_score",
@@ -82,6 +83,7 @@ def CheckResponseMatching(method="llm"):
 # Context Quality
 # -----------------------------------------------------------
 
+
 def CheckContextRelevance():
     return Check(
         name="score_context_relevance",
@@ -126,6 +128,7 @@ def CheckContextConciseness():
 # Language Proficiency
 # -----------------------------------------------------------
 
+
 def CheckLanguageQuality():
     return Check(
         name="language_critique_score",
@@ -148,6 +151,7 @@ def CheckToneQuality(llm_persona):
 # Code generation
 # -----------------------------------------------------------
 
+
 def CheckCodeHallucination():
     return Check(
         name="code_hallucination_score",
@@ -160,10 +164,13 @@ def CheckCodeHallucination():
 # Conversation Quality
 # -----------------------------------------------------------
 
+
 def CheckConversationSatisfaction(user_role="user", llm_role="assistant"):
     return Check(
         name="conversation_satisfaction_score",
-        operators=[ConversationSatisfactionScore(user_role=user_role, llm_role=llm_role)],
+        operators=[
+            ConversationSatisfactionScore(user_role=user_role, llm_role=llm_role)
+        ],
         plots=[Histogram(x="score_conversation_satisfaction")],
     )
 
@@ -171,6 +178,7 @@ def CheckConversationSatisfaction(user_role="user", llm_role="assistant"):
 # -----------------------------------------------------------
 # Custom Evaluations
 # -----------------------------------------------------------
+
 
 def CheckGuidelineAdherence(
     guideline, guideline_name="guideline", response_schema=None
@@ -192,6 +200,7 @@ def CheckGuidelineAdherence(
 # Security
 # -----------------------------------------------------------
 
+
 def CheckPromptInjection():
     return Check(
         name="prompt_injection_score",
@@ -211,6 +220,7 @@ def CheckJailbreakDetection():
 # -----------------------------------------------------------
 # Subquery
 # -----------------------------------------------------------
+
 
 def CheckSubQueryCompleteness():
     return Check(

@@ -41,16 +41,20 @@ class ValidQuestionScore(ColumnOp):
         try:
             for row in data_send:
                 question = row.pop(self.col_question)
-                results.append({"score_valid_question": int(len(question.split(" ")) > self.words_threshold)})
+                results.append(
+                    {
+                        "score_valid_question": int(
+                            len(question.split(" ")) > self.words_threshold
+                        )
+                    }
+                )
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ValidQuestionScore`: {e}")
             raise e
-        
+
         assert results is not None
         return {
             "output": data.with_columns(
-                pl.from_dicts(results).rename(
-                    {"score_valid_question": self.col_out}
-                )
+                pl.from_dicts(results).rename({"score_valid_question": self.col_out})
             )
         }

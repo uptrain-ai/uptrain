@@ -1,6 +1,7 @@
 import enum
-import pydantic
 import typing as t
+
+from pydantic import BaseModel
 
 
 class Evals(enum.Enum):
@@ -22,8 +23,7 @@ class Evals(enum.Enum):
     CONTEXT_CONCISENESS = "context_conciseness"
 
 
-class ParametricEval(pydantic.BaseModel):
-    ...
+class ParametricEval(BaseModel): ...
 
 
 class CritiqueTone(ParametricEval):
@@ -32,10 +32,12 @@ class CritiqueTone(ParametricEval):
 
 class GuidelineAdherence(ParametricEval):
     guideline: str
-    guideline_name: str = "guideline"  # User-assigned name of the guideline to distinguish between multiple checks
-    response_schema: t.Union[
-        str, None
-    ] = None  # Schema of the response in case it is of type JSON, XML, etc.
+    guideline_name: str = (
+        "guideline"  # User-assigned name of the guideline to distinguish between multiple checks
+    )
+    response_schema: t.Union[str, None] = (
+        None  # Schema of the response in case it is of type JSON, XML, etc.
+    )
 
 
 class ConversationSatisfaction(ParametricEval):
@@ -52,9 +54,9 @@ class CustomPromptEval(ParametricEval):
         list[float], list[int]
     ]  # Scores associated for each choice. ex: [1.0, 0.0]
     eval_type: t.Literal["classify", "cot_classify"] = "cot_classify"
-    prompt_var_to_column_mapping: t.Union[
-        dict[str, str], None
-    ] = None  # Specify matching between variables in the evaluation prompt and keys in your data
+    prompt_var_to_column_mapping: t.Union[dict[str, str], None] = (
+        None  # Specify matching between variables in the evaluation prompt and keys in your data
+    )
 
 
 class ResponseMatching(ParametricEval):
@@ -62,4 +64,6 @@ class ResponseMatching(ParametricEval):
 
 
 class JailbreakDetection(ParametricEval):
-    model_purpose: str = "To help the users with their queries without providing them with any illegal, immoral or abusive content."
+    model_purpose: str = (
+        "To help the users with their queries without providing them with any illegal, immoral or abusive content."
+    )

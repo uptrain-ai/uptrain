@@ -9,7 +9,7 @@ import typing as t
 import typing_extensions as te
 
 from loguru import logger
-from pydantic import BaseModel
+from pydantic import ConfigDict, BaseModel
 import polars as pl
 
 if t.TYPE_CHECKING:
@@ -98,10 +98,9 @@ class OpBaseModel(BaseModel):
     model, to get around some of the sharp edges.
     """
 
-    class Config:
-        extra = "allow"
-        smart_union = True
-        underscore_attrs_are_private = True
+    # TODO[pydantic]: The following keys were removed: `smart_union`, `underscore_attrs_are_private`.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-config for more information.
+    model_config = ConfigDict(extra="allow")
 
 
 class ColumnOp(OpBaseModel):

@@ -6,10 +6,10 @@ on the UpTrain server.
 import typing as t
 
 from loguru import logger
+from pydantic import BaseModel
 import httpx
 import polars as pl
 import pandas as pd
-import pydantic
 
 from uptrain.framework.checks import CheckSet, ExperimentArgs
 from uptrain.framework.base import Settings
@@ -26,7 +26,7 @@ from uptrain.framework.rca_templates import RcaTemplate
 from uptrain.utilities import polars_to_pandas
 
 
-class DataSchema(pydantic.BaseModel):
+class DataSchema(BaseModel):
     id_: str = "id"
     question: str = "question"
     response: str = "response"
