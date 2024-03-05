@@ -1,7 +1,7 @@
 import enum
-import pydantic
 import typing as t
 
+from pydantic import BaseModel
 
 class Evals(enum.Enum):
     CONTEXT_RELEVANCE = "context_relevance"
@@ -22,7 +22,7 @@ class Evals(enum.Enum):
     CONTEXT_CONCISENESS = "context_conciseness"
 
 
-class ParametricEval(pydantic.BaseModel):
+class ParametricEval(BaseModel):
     ...
 
 

@@ -10,7 +10,7 @@ import time
 
 from lazy_loader import load as _lazy_load
 from loguru import logger
-import pydantic
+from pydantic import BaseModel
 import numpy as np
 
 # import numpy.typing as npt
@@ -53,7 +53,7 @@ def to_py_types(obj: t.Any) -> t.Any:
                 "op_name": getattr(obj, "_uptrain_op_name"),
                 "params": obj.dict(include=set(obj.__fields__)),
             }
-    elif isinstance(obj, pydantic.BaseModel):
+    elif isinstance(obj, BaseModel):
         return obj.dict()
 
     # for numpy types
