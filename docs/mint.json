@@ -157,6 +157,16 @@
       ]
     },
     {
+      "group": "Dashboard",
+      "version": "v1",
+      "pages": [
+          "dashboard/getting_started",
+          "dashboard/project",
+          "dashboard/evaluations",
+          "dashboard/prompts"
+      ]
+    },
+    {
       "group": "Supported LLMs",
       "version": "v1",
       "pages": [
