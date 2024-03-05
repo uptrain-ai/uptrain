@@ -35,6 +35,9 @@
       "apiKey": "phc_xZJotYlN8qX9dI0AIeGYi6Yt2a0zTZaZ2igmYlHLTq6"
     }
   },
+  "seo": {
+    "indexHiddenPages": false
+  },
   "anchors": [
     {
       "name": "Changelog",
