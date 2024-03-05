@@ -43,6 +43,11 @@ You can use your Azure API key to run LLM evaluations using UpTrain.
     settings = Settings(model = 'azure/*', azure_api_key=AZURE_API_KEY, azure_api_version=AZURE_API_VERSION, azure_api_base=AZURE_API_BASE)
     eval_llm = EvalLLM(settings)
     ```
+    <Note>
+    The model name should start with `azure/` for UpTrain to recognize you are using models hosted on Azure.
+    
+    For example if you are using `gpt-3.5-turbo` via Azure, the model name should be `azure/gpt-35-turbo`
+    </Note>
   </Step>
 
   <Step title="Evaluate data using UpTrain">

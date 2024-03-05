@@ -41,7 +41,11 @@ You can use your Mistral API key to run LLM evaluations using UpTrain.
     settings = Settings(model = 'mistral/mistral-tiny', mistral_api_key=MISTRAL_API_KEY)
     eval_llm = EvalLLM(settings)
     ```
-    We use GPT 3.5 Turbo be default, you can use any other OpenAI models as well
+    <Note>
+    The model name should start with `mistral/` for UpTrain to recognize you are using Mistral.
+    
+    For example if you are using `mistral-tiny`, the model name should be `mistral/mistral-tiny`
+    </Note>
   </Step>
 
   <Step title="Evaluate data using UpTrain">
