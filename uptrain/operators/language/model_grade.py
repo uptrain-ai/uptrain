@@ -258,8 +258,8 @@ class ModelGradeScore(ColumnOp):
     context_vars: dict[str, str]
     col_out: t.Union[str, list[str]] = "model_grade_score"
 
-    def setup(self, settings: Settings):
-        self._api_client = LLMMulticlient(settings=settings)
+    def setup(self, settings: Settings, aclient: t.Any = None):
+        self._api_client = LLMMulticlient(settings=settings, aclient=aclient)
         self._settings = settings
         self.model = settings.model.replace("azure/", "")
         if not (self.eval_type in ["cot_classify", "tot_classify", "tot_score"]):
@@ -289,21 +289,14 @@ class ModelGradeScore(ColumnOp):
         return self
 
     def _make_payload(self, id: t.Any, messages: list[dict]) -> Payload:
-        if self._settings.seed is None:
-            return Payload(
-                data={"model": self.model, "messages": messages, "temperature": 0.2},
-                metadata={"index": id},
-            )
-        else:
-            return Payload(
-                data={
-                    "model": self.model,
-                    "messages": messages,
-                    "temperature": 0.2,
-                    "seed": self._settings.seed,
-                },
-                metadata={"index": id},
-            )
+        payload = Payload(data={"model": self.model, "messages": messages, "temperature": 0.2}, metadata={"index": id})
+        if self._settings.seed is not None:
+            payload.data["seed"] = self._settings.seed
+        if self._settings.model.startswith("gpt"):
+            from uuid import uuid4
+            trace_id = str(uuid4())
+            payload.data["trace_id"] = trace_id
+        return payload
 
     def get_choice_via_llm(self, text: str, grading_prompt_template: str) -> str:
         """Queries LLM to get score from the text"""
