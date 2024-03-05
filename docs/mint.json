@@ -35,6 +35,9 @@
       "apiKey": "phc_xZJotYlN8qX9dI0AIeGYi6Yt2a0zTZaZ2igmYlHLTq6"
     }
   },
+  "seo": {
+    "indexHiddenPages": false
+  },
   "anchors": [
     {
       "name": "Changelog",
@@ -49,7 +52,7 @@
     {
       "name": "Contributing",
       "icon": "code",
-      "url": "https://github.com/uptrain-ai/uptrain/blob/emb_model_compare/CONTRIBUTING.md"
+      "url": "https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md"
     },
     {
       "name": "Community",
