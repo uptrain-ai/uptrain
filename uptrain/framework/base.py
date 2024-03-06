@@ -28,25 +28,25 @@ class Settings(BaseSettings):
     # uptrain stores logs in this folder
     logs_folder: str = "/tmp/uptrain-logs"
     # external api related
-    openai_api_key: t.Optional[str] = Field(None, validation_alias="OPENAI_API_KEY")
-    cohere_api_key: t.Optional[str] = Field(None, validation_alias="COHERE_API_KEY")
+    openai_api_key: t.Optional[str] = Field(None, env="OPENAI_API_KEY")
+    cohere_api_key: t.Optional[str] = Field(None, env="COHERE_API_KEY")
     huggingface_api_key: t.Optional[str] = Field(
-        None, validation_alias="HUGGINGFACE_API_KEY"
+        None, env="HUGGINGFACE_API_KEY"
     )
     anthropic_api_key: t.Optional[str] = Field(
-        None, validation_alias="ANTHROPIC_API_KEY"
+        None, env="ANTHROPIC_API_KEY"
     )
     replicate_api_token: t.Optional[str] = Field(
-        None, validation_alias="REPLICATE_API_TOKEN"
+        None, env="REPLICATE_API_TOKEN"
     )
-    anyscale_api_key: t.Optional[str] = Field(None, validation_alias="ANYSCALE_API_KEY")
-    together_api_key: t.Optional[str] = Field(None, validation_alias="TOGETHER_API_KEY")
-    mistral_api_key: t.Optional[str] = Field(None, validation_alias="MISTRAL_API_KEY")
+    anyscale_api_key: t.Optional[str] = Field(None, env="ANYSCALE_API_KEY")
+    together_api_key: t.Optional[str] = Field(None, env="TOGETHER_API_KEY")
+    mistral_api_key: t.Optional[str] = Field(None, env="MISTRAL_API_KEY")
 
-    azure_api_key: t.Optional[str] = Field(None, validation_alias="AZURE_API_KEY")
-    azure_api_base: t.Optional[str] = Field(None, validation_alias="AZURE_API_BASE")
+    azure_api_key: t.Optional[str] = Field(None, env="AZURE_API_KEY")
+    azure_api_base: t.Optional[str] = Field(None, env="AZURE_API_BASE")
     azure_api_version: t.Optional[str] = Field(
-        None, validation_alias="AZURE_API_VERSION"
+        None, env="AZURE_API_VERSION"
     )
 
     rpm_limit: int = 100
@@ -55,18 +55,18 @@ class Settings(BaseSettings):
 
     # uptrain managed service related
     uptrain_access_token: t.Optional[str] = Field(
-        None, validation_alias="UPTRAIN_ACCESS_TOKEN"
+        None, env="UPTRAIN_ACCESS_TOKEN"
     )
     uptrain_server_url: str = Field(
-        "https://demo.uptrain.ai/", validation_alias="UPTRAIN_SERVER_URL"
+        "https://demo.uptrain.ai/", env="UPTRAIN_SERVER_URL"
     )
 
     # Embedding model related, applicable if embedding_compute_method is api.
     embedding_model_url: t.Optional[str] = Field(
-        None, validation_alias="EMBEDDING_MODEL_URL"
+        None, env="EMBEDDING_MODEL_URL"
     )
     embedding_model_api_token: t.Optional[str] = Field(
-        None, validation_alias="EMBEDDING_MODEL_API_TOKEN"
+        None, env="EMBEDDING_MODEL_API_TOKEN"
     )
 
     # LLM model to run the evaluations
