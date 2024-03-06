@@ -1,44 +1,27 @@
 <h4 align="center">
-  <a href="https://uptrain.ai">
-   <img alt="Github banner 006 (1)" src="https://github.com/uptrain-ai/uptrain/assets/108270398/96ac1505-7811-4e12-958e-fce9519542a1"/>
+  <a href="https://www.uptrain.ai">
+   <img alt="Logo of UpTrain - an open-source platform to evaluate and improve LLM applications" src="https://github.com/uptrain-ai/uptrain/assets/108270398/b6a4905f-63fd-47ab-a894-1026a6669c86"/>
   </a>
 </h4>
+
 
 <p align="center">
 <a href="https://demo.uptrain.ai/evals_demo/" rel="nofollow"><strong>Try out Evaluations</strong></a>
 -
 <a href="https://docs.uptrain.ai/getting-started/introduction" rel="nofollow"><strong>Read Docs</strong></a>
 -
+<a href="https://docs.uptrain.ai/getting-started/quickstart" rel="nofollow"><strong>Quickstart Tutorials</strong></a>
+-
 <a href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg" rel="nofollow"><strong>Slack Community</strong></a>
 -
 <a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=" rel="nofollow"><strong>Feature Request</strong></a>
 </p>
 
-<h4 align="center">
-<a href='https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md'>
-    <img alt='PRs Welcome' src='https://img.shields.io/badge/PRs-welcome-blue.svg?style=shields'/>
-  </a>
-  <a href="https://github.com/uptrain-ai/uptrain/graphs/contributors">
-    <img src="https://img.shields.io/github/contributors/uptrain-ai/uptrain" />
-  </a>
-  <a href="https://docs.uptrain.ai/getting-started/quickstart">
-    <img src="https://img.shields.io/badge/Quickstart-tutorial-orange" alt="Quickstart" />
-  </a>
-  <a href="https://uptrain.ai/">
-    <img src="https://img.shields.io/badge/UpTrain-Website-red" alt="Website" />
-  </a>
-</h4>
 
+**[UpTrain](https://www.uptrain.ai)** is an open-source unified platform to evaluate and improve Generative AI applications. We provide grades for 20+ preconfigured checks (covering language, code, embedding use-cases), perform root cause analysis on failure cases and give insights on how to resolve them.    
 
-# Pre-built Evaluations We Offer 📝
+<img width="1088" alt="evaluate the clarity of user queries" src="https://github.com/uptrain-ai/uptrain/assets/36454110/50ed622f-0b92-468c-af48-2391ff6ab8e0">
 
-#### Evaluate the quality of sub queries:
-
-| Metrics  | Usage | 
-|------------|----------|
-| [Sub-query Completeness](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/sub_query/sub_query_completeness.ipynb)        | Evaluate if the list of generated sub-questions comprehensively cover all aspects of the main question.| 
-
-
-If you face any difficulties, need some help with using UpTrain or want to brainstorm on custom evaluations for your use-case, [speak to the maintainers of UpTrain here](https://calendly.com/uptrain-sourabh/30min).
-
-You can also raise a request for a new metrics [here](https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=)
+| Eval | Description |
+| ---- | ----------- |
+|[Sub-Query Completeness](https://docs.uptrain.ai/predefined-evaluations/query-quality/sub-query-completeness) | Evaluate whether all of the sub-questions generated from a user's query, taken together, answer all aspects of the question or not |
