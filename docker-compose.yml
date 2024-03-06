@@ -18,6 +18,8 @@ services:
     restart: always
     entrypoint: ["npm", "run", "dev"]
     working_dir: "/app/"
+    environment:
+      - NEXT_TELEMETRY_DISABLED=1
     ports:
       - 3000:3000
     profiles: ["server"]
