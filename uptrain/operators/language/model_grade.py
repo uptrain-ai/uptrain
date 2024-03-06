@@ -7,7 +7,7 @@ import typing as t
 import os
 import copy
 import re
-
+from uuid import uuid4
 
 from loguru import logger
 import polars as pl
@@ -260,6 +260,7 @@ class ModelGradeScore(ColumnOp):
 
     def setup(self, settings: Settings, aclient: t.Any = None):
         self._api_client = LLMMulticlient(settings=settings, aclient=aclient)
+        self._aclient = aclient
         self._settings = settings
         self.model = settings.model.replace("azure/", "")
         if not (self.eval_type in ["cot_classify", "tot_classify", "tot_score"]):
@@ -292,8 +293,7 @@ class ModelGradeScore(ColumnOp):
         payload = Payload(data={"model": self.model, "messages": messages, "temperature": 0.2}, metadata={"index": id})
         if self._settings.seed is not None:
             payload.data["seed"] = self._settings.seed
-        if self._settings.model.startswith("gpt"):
-            from uuid import uuid4
+        if self._aclient is not None:
             trace_id = str(uuid4())
             payload.data["trace_id"] = trace_id
         return payload
