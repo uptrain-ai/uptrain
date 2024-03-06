@@ -35,7 +35,7 @@ class Table(OpBaseModel):
     props: dict = Field(default_factory=dict)
     title: str = ""
 
-    kind = "table"
+    kind: str = "table"
 
     def setup(self, settings: Settings):
         return self
