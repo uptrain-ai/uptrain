@@ -80,6 +80,7 @@ class Settings(BaseSettings):
     # basic -> We will simply prompt the LLM to return the grade without any reasoning
     eval_type: t.Literal["basic", "cot"] = "cot"
     model_config = SettingsConfigDict(extra="allow")
+    model_config['protected_namespaces'] = ()
 
     def __init__(self, **data):
         super().__init__(**data)

@@ -1,7 +1,7 @@
 import enum
 import typing as t
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class Evals(enum.Enum):
@@ -23,7 +23,8 @@ class Evals(enum.Enum):
     CONTEXT_CONCISENESS = "context_conciseness"
 
 
-class ParametricEval(BaseModel): ...
+class ParametricEval(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
 
 
 class CritiqueTone(ParametricEval):
