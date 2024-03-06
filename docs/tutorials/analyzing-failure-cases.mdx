@@ -18,10 +18,10 @@ Columns required:
 ### How to use it?
 
 ```python
-from uptrain import APIClient, RcaTemplate
+from uptrain import RcaTemplate, EvalLLM
 import json
 
-uptrain_client = APIClient(uptrain_api_key=UPTRAIN_API_KEY)  # Insert your UpTrain key here
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)  # Insert your UpTrain key here
 
 data = [{
         'question': 'Which team won the 2023 ICC Cricket World Cup?',
@@ -30,8 +30,7 @@ data = [{
         'response': 'The 2023 ICC Cricket World Cup was won by Qatar.'        
     }]
 
-res = uptrain_client.perform_root_cause_analysis(
-    'Sample-RCA',       # Enter a project name
+res = eval_llm.perform_root_cause_analysis(
     data = data,
     rca_template = RcaTemplate.RAG_WITH_CITATION
 )
@@ -44,24 +43,24 @@ Sample Response:
 ```json
 [
    {
-   "question": "Which team won the 2023 ICC Cricket World Cup?",
-   "context": "Argentina won the 2022 FIFA World Cup. The 2022 FIFA World Cup took place in Qatar from 20 November to 18 December 2022. The previous FIFA World Cup was held in Russia.",
-   "cited_context": "The 2022 FIFA World Cup took place in Qatar from 20 November to 18 December 2022",
-   "response": "The 2023 ICC Cricket World Cup was won by Qatar.",
-   "error_mode": "Poor Retrieval",
-   "error_resolution_suggestion": "Context Retrieval Pipeline needs improvement",
-   "score_question_completeness": 1,
-   "score_valid_response": 1.0,
-   "explanation_valid_response": "Step by step reasoning:\n\n1. The question asks for the team that won the 2023 ICC Cricket World Cup.\n2. The response states \"The 2023 ICC Cricket World Cup was won by Qatar.\"\n\nConclusion:\nThe given response does contain some information.\n\n[Choice]: A",
-   "score_context_relevance": 0.0,
-   "explanation_context_relevance": " \"The extracted context is about the 2022 FIFA World Cup and does not contain any information about the 2023 ICC Cricket World Cup. Therefore, it cannot answer the user query about the winner of the 2023 ICC Cricket World Cup.\"\n",
-   "score_factual_accuracy": 0.5,
-   "explanation_factual_accuracy": "The 2023 ICC Cricket World Cup was won by Qatar.\nReasoning for yes: The context does not mention anything about the winner of the 2023 ICC Cricket World Cup, so it cannot be determined if Qatar won or not.\nReasoning for no: The context only provides information about the FIFA World Cup, not the ICC Cricket World Cup.\nJudgement: unclear.",
-   "score_cited_context_relevance": 0.0,
-   "explanation_cited_context_relevance": " \"The extracted context is about the 2022 FIFA World Cup in Qatar, which took place from 20 November to 18 December 2022. There is no mention of the 2023 ICC Cricket World Cup, so the extracted context doesn't contain any information to answer the given user query about the winner of the 2023 ICC Cricket World Cup.\"\n",
-   "score_factual_accuracy_wrt_cited": 0.5,
-   "explanation_factual_accuracy_wrt_cited": "The 2023 ICC Cricket World Cup was won by Qatar.\nReasoning for yes: The context explicitly states that the 2022 FIFA World Cup took place in Qatar, but it does not mention anything about the 2023 ICC Cricket World Cup.\nReasoning for no: The context does not provide any information about the winner of the 2023 ICC Cricket World Cup.\nJudgement: unclear. The context does not support or contradict the fact, and the fact cannot be logically derived from the context."
-}
+      "question": "Which team won the 2023 ICC Cricket World Cup?",
+      "context": "Argentina won the 2022 FIFA World Cup. The 2022 FIFA World Cup took place in Qatar from 20 November to 18 December 2022. The previous FIFA World Cup was held in Russia.",
+      "cited_context": "The 2022 FIFA World Cup took place in Qatar from 20 November to 18 December 2022",
+      "response": "The 2023 ICC Cricket World Cup was won by Qatar.",
+      "error_mode": "Poor Retrieval",
+      "error_resolution_suggestion": "Context Retrieval Pipeline needs improvement",
+      "score_question_completeness": 1,
+      "score_valid_response": 1.0,
+      "explanation_valid_response": "{\n    \"Reasoning\": \"The response 'The 2023 ICC Cricket World Cup was won by Qatar' provides the name of a team. Therefore, the response does contain information relevant to the question.\",\n    \"Choice\": \"A\"\n}",
+      "score_context_relevance": 0.0,
+      "explanation_context_relevance": "{\n    \"Reasoning\": \"The given context does not contain any information about the 2023 ICC Cricket World Cup or the team that won it. The context only provides information about the 2022 FIFA World Cup and its location. Therefore, the extracted context doesn't contain any information to answer the given query.\",\n    \"Choice\": \"C\"\n}",
+      "score_factual_accuracy": 0.0,
+      "explanation_factual_accuracy": "[\n    {\n        \"Fact\": \"1. The 2023 ICC Cricket World Cup was won by Qatar.\",\n        \"Reasoning\": \"The context only mentions the 2022 FIFA World Cup taking place in Qatar, but it does not provide any information about the 2023 ICC Cricket World Cup.\",\n        \"Judgement\": \"no\"\n    }\n]",
+      "score_cited_context_relevance": 0.0,
+      "explanation_cited_context_relevance": "{\n    \"Reasoning\": \"The given context does not contain any information about the 2023 ICC Cricket World Cup or the winner of the tournament. It only provides information about the 2022 FIFA World Cup. Therefore, the extracted context doesn't contain any information to answer the given query.\",\n    \"Choice\": \"C\"\n}",
+      "score_factual_accuracy_wrt_cited": 0.0,
+      "explanation_factual_accuracy_wrt_cited": "[\n    {\n        \"Fact\": \"1. The 2023 ICC Cricket World Cup was won by Qatar.\",\n        \"Reasoning\": \"The context only mentions the 2022 FIFA World Cup taking place in Qatar, but it does not provide any information about the 2023 ICC Cricket World Cup.\",\n        \"Judgement\": \"no\"\n    }\n]"
+   }
 ]
 ```
 
