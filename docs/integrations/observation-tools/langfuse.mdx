@@ -1,10 +1,15 @@
 ---
 title: Langfuse
 ---
-[Langfuse](https://langfuse.com/) offers the feature to score your traces and spans. They can be used in multiple ways across Langfuse:
-1. Displayed on trace to provide a quick overview
-2. Segment all execution traces by scores to e.g. find all traces with a low-quality score
-3. Analytics: Detailed score reporting with drill downs into use cases and user segments
+[Langfuse](https://langfuse.com/)  is an open source LLM engineering platform which helps teams collaboratively debug, analyze and iterate on their LLM applications. Its core features are [observability](https://langfuse.com/docs/tracing/overview) (tracing), [prompt management](https://langfuse.com/docs/prompts/get-started) (versioning), [evaluations](https://langfuse.com/docs/scores/overview) (scores) and [datasets](https://langfuse.com/docs/datasets/overview) (testing).
+
+Langfuse allows users to score individual executions or traces. Users can customize the scores and scales they use. As such, UpTrain's evaluations can easily be integrated into Langfuse.
+
+Scores can be used in a variety of ways in Langfuse:
+1. Data: Attach scores to executions and traces and view them in the Langfuse UI
+2. Filter: Group executions or traces by scores to e.g. filter for traces with a low-quality score
+3. Fine Tuning: Filter and [export](https://langfuse.com/docs/export-and-fine-tuning) by scores as .csv or .JSONL for fine-tuning
+4. Analytics: Detailed score reporting and dashboards with drill downs into use cases and user segments
 
 This notebook demonstrates how to use Langfuse to create traces and evaluate using UpTrain
 
@@ -12,7 +17,7 @@ This notebook demonstrates how to use Langfuse to create traces and evaluate usi
 ### Setup
 **Enter your Langfuse API keys and OpenAI API key**
 
-You can get your Langfuse API keys [here](https://cloud.langfuse.com/) and OpenAI API key [here](https://platform.openai.com/api-keys)
+You need to sign up to Langfuse and fetch your Langfuse API keys in your [project's settings](https://cloud.langfuse.com/). You also need an [OpenAI API key](https://platform.openai.com/api-keys)
 
 ```python
 %pip install langfuse datasets uptrain litellm openai --upgrade

@@ -8,13 +8,16 @@ This module provides the `BLEUScore` class, which allows comparing a generated t
 from __future__ import annotations
 import typing as t
 
-from loguru import logger
 import polars as pl
 from uptrain.framework import Settings
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
-from uptrain.operators.base import *
+from uptrain.operators.base import (
+    ColumnOp,
+    register_op,
+    TYPE_TABLE_OUTPUT,
+)
 from uptrain.utilities import lazy_load_dep
 
 # blue_score = lazy_load_dep("nltk.translate.bleu_score", "nltk")

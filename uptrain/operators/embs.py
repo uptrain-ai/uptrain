@@ -15,11 +15,17 @@ import typing as t
 from loguru import logger
 import numpy as np
 import polars as pl
-from pydantic import root_validator
+from pydantic import model_validator
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
-from uptrain.operators.base import *
+from uptrain.operators.base import (
+    ColumnOp,
+    TransformOp,
+    TYPE_TABLE_OUTPUT,
+    get_output_col_name_at,
+    register_op,
+)
 from uptrain.utilities import lazy_load_dep
 
 umap = lazy_load_dep("umap", "umap-learn")
@@ -92,7 +98,8 @@ class Distribution(TransformOp):
     col_in_groupby: list[str]
     col_out: list[str] | None = None
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
+    @classmethod
     def _check_cols(cls, values):
         """
         Validator to check the validity of input and output column lists.

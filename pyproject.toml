@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 
 [project]
 name = "uptrain"
-version = "0.6.4"
+version = "0.6.6.post3"
 description = "UpTrain - tool to evaluate LLM applications on aspects like factual accuracy, response quality, retrieval quality, tonality, etc."
 readme = "README.md"
 maintainers = [{ name = "UpTrain AI Team", email = "oss@uptrain.ai" }]
@@ -20,7 +20,8 @@ classifiers = [
 ]
 keywords = ["uptrain", "ai", "LLM", "evaluation", "hallucinations", "observability", "response quality"]
 dependencies = [
-    "pydantic<1.10.10",
+    "pydantic",
+    "pydantic-settings",
     "loguru",
     "lazy_loader",
     "networkx",
@@ -31,6 +32,7 @@ dependencies = [
     "plotly>=5.0.0",
     "aiolimiter>=1.1",
     "openai>=1.6.1",
+    "fsspec",
 ]
 
 [project.urls]

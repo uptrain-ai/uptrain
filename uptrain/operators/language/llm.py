@@ -13,11 +13,9 @@ from pydantic import BaseModel, Field
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
-from uptrain.operators.base import *
 from uptrain.utilities import lazy_load_dep
 
 openai = lazy_load_dep("openai", "openai")
-litellm = lazy_load_dep("litellm", "litellm")
 aiolimiter = lazy_load_dep("aiolimiter", "aiolimiter>=1.1")
 tqdm_asyncio = lazy_load_dep("tqdm.asyncio", "tqdm>=4.0")
 
@@ -25,6 +23,7 @@ tqdm_asyncio = lazy_load_dep("tqdm.asyncio", "tqdm>=4.0")
 from openai import AsyncOpenAI
 from openai import AsyncAzureOpenAI
 import openai
+from aiolimiter import AsyncLimiter
 
 # import openai.error
 
@@ -57,9 +56,9 @@ async def async_process_payload(
     payload: Payload,
     rpm_limiter: aiolimiter.AsyncLimiter,
     tpm_limiter: aiolimiter.AsyncLimiter,
-    aclient: t.Union[AsyncOpenAI, AsyncAzureOpenAI, None, t.Any],
+    aclient: t.Any,
     max_retries: int,
-    validate_func: function = None,
+    validate_func: t.Callable = None,
 ) -> Payload:
     messages = payload.data["messages"]
     total_chars = sum(len(msg["role"]) + len(msg["content"]) for msg in messages)
@@ -76,6 +75,7 @@ async def async_process_payload(
                     **payload.data, timeout=180
                 )
             else:
+                litellm = lazy_load_dep("litellm", "litellm")
                 payload.response = await litellm.acompletion(
                     **payload.data,
                 )
@@ -89,20 +89,32 @@ async def async_process_payload(
             break
         except Exception as exc:
             logger.error(f"Error when sending request to LLM API: {exc}")
-            if (
-                isinstance(
-                    exc,
-                    (
-                        litellm.RateLimitError,
-                        openai.APIConnectionError,
-                        openai.APITimeoutError,
-                        openai.InternalServerError,
-                        openai.RateLimitError,
-                        openai.UnprocessableEntityError,
-                    ),
-                )
-                and count < max_retries - 1
-            ):
+            sleep_and_retry = count < max_retries - 1
+            if aclient is not None:
+                if not (
+                    isinstance(
+                        exc,
+                        (
+                            openai.APIConnectionError,
+                            openai.APITimeoutError,
+                            openai.InternalServerError,
+                            openai.RateLimitError,
+                            openai.UnprocessableEntityError,
+                        ),
+                    )
+                ):
+                    sleep_and_retry = False
+            else:
+                litellm = lazy_load_dep("litellm", "litellm")
+                if not (
+                    isinstance(
+                        exc,
+                        (litellm.RateLimitError,),
+                    )
+                ):
+                    sleep_and_retry = False
+
+            if sleep_and_retry:
                 logger.info(
                     f"Going to sleep before retrying for payload {payload.metadata['index']}"
                 )
@@ -219,36 +231,36 @@ class LLMMulticlient:
         )
 
     def fetch_responses(
-        self, input_payloads: list[Payload], validate_func: function = None
+        self, input_payloads: list[Payload], validate_func: t.Callable = None
     ) -> list[Payload]:
         try:
-            loop = asyncio.get_running_loop()
-        except RuntimeError:
-            loop = None
-
-        if loop and loop.is_running():
-            logger.warning(
-                "Detected a running event loop, scheduling requests in a separate thread."
-            )
-            with ThreadPoolExecutor(max_workers=1) as executor:
-                return executor.submit(
-                    asyncio.run,
-                    self.async_fetch_responses(
-                        input_payloads, validate_func=validate_func
-                    ),
-                ).result()
-        else:
             return asyncio.run(
                 self.async_fetch_responses(input_payloads, validate_func=validate_func)
             )
+        except Exception as e:
+            try:
+                loop = asyncio.get_running_loop()
+                if loop.is_running():
+                    logger.warning(
+                        "Detected a running event loop, scheduling requests in a separate thread."
+                    )
+                    with ThreadPoolExecutor(max_workers=1) as executor:
+                        return executor.submit(
+                            asyncio.run,
+                            self.async_fetch_responses(
+                                input_payloads, validate_func=validate_func
+                            ),
+                        ).result()
+            except Exception:
+                logger.error(f"Caught an exception: {e}")
 
     async def async_fetch_responses(
         self,
         input_payloads: list[Payload],
-        validate_func: function = None,
+        validate_func: t.Callable = None,
     ) -> list[Payload]:
-        rpm_limiter = aiolimiter.AsyncLimiter(self._rpm_limit, time_period=60)
-        tpm_limiter = aiolimiter.AsyncLimiter(self._tpm_limit, time_period=60)
+        rpm_limiter = AsyncLimiter(self._rpm_limit, time_period=60)
+        tpm_limiter = AsyncLimiter(self._tpm_limit, time_period=60)
         async_outputs = [
             async_process_payload(
                 data,

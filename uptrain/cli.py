@@ -18,7 +18,7 @@ EXTRA_PACKAGES = {
         "tqdm>=4.0",
     ],
     "st_classic": [
-        "plotly>=5.0.0", 
+        "plotly>=5.0.0",
         "streamlit>=1.23",
         "pyarrow>=10.0.0",
     ],

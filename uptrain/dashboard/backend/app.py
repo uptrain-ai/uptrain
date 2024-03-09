@@ -41,12 +41,7 @@ from fastapi.security.api_key import APIKeyHeader
 from loguru import logger
 from sqlalchemy.orm import Session
 
-from uptrain.utilities.db import (
-    create_database,
-    ModelDataset,
-    ModelUser,
-    ModelPrompt
-)
+from uptrain.utilities.db import create_database, ModelDataset, ModelUser, ModelPrompt
 from uptrain.utilities.utils import (
     get_sqlite_utils_db,
     _get_fsspec_filesystem,
@@ -54,7 +49,7 @@ from uptrain.utilities.utils import (
     convert_project_to_dicts,
     checks_mapping,
     create_dirs,
-    get_current_datetime
+    get_current_datetime,
 )
 from uptrain.utilities import polars_to_pandas
 
@@ -74,9 +69,10 @@ DATABASE_PATH = "/data/uptrain_data/"
 ACCESS_TOKEN = APIKeyHeader(name="uptrain-access-token", auto_error=False)
 
 # database
-#/data/uptrain-server.db"
+# /data/uptrain-server.db"
 create_dirs(DATABASE_PATH)
-SessionLocal = create_database("sqlite:///" + DATABASE_PATH + 'uptrain-local-server.db')
+SessionLocal = create_database("sqlite:///" + DATABASE_PATH + "uptrain-local-server.db")
+
 
 def _create_user(db: Session, name: str):
     """Create a new user."""
@@ -90,6 +86,7 @@ def _create_user(db: Session, name: str):
         db.rollback()
         raise exc
 
+
 def get_db():
     """Get the database session."""
     db = SessionLocal()
@@ -98,9 +95,10 @@ def get_db():
     finally:
         SessionLocal.remove()
 
+
 try:
     _create_user(SessionLocal(), "default_key")
-except:
+except Exception:
     pass
 
 # some methods need a context manager to get the db
@@ -115,9 +113,7 @@ def get_fsspec_fs():
         pass
 
 
-async def validate_api_key_public(
-    key_header: str = Security(ACCESS_TOKEN)
-) -> str:
+async def validate_api_key_public(key_header: str = Security(ACCESS_TOKEN)) -> str:
     """Validate API key and return the user id.
 
     For public API, the API key is the access token provided to them by uptrain and we
@@ -128,14 +124,11 @@ async def validate_api_key_public(
         raise HTTPException(status_code=403, detail="Unspecified API key")
     else:
         with get_db_context() as db:
-            db_item = (
-                db.query(ModelUser).filter_by(name=key_header).first()
-            )
+            db_item = db.query(ModelUser).filter_by(name=key_header).first()
             if db_item is not None:
                 return db_item.id
             else:
                 raise HTTPException(status_code=403, detail="Invalid API key")
-
 
 
 # -----------------------------------------------------------
@@ -146,8 +139,9 @@ router_public = APIRouter(dependencies=[Depends(validate_api_key_public)])
 router_internal = APIRouter()
 
 # -----------------------------------------------------------
-# Internal API 
+# Internal API
 # -----------------------------------------------------------
+
 
 @router_internal.post("/user")
 def add_user(user: app_schema.UserCreate, db: Session = Depends(get_db)):
@@ -173,15 +167,17 @@ def add_user(user: app_schema.UserCreate, db: Session = Depends(get_db)):
 # Request to get user name, API key, user credits used and total using api key
 @router_public.post("/user")
 def get_user(
-    user_id: str = Depends(validate_api_key_public),
-    db: Session = Depends(get_db)
+    user_id: str = Depends(validate_api_key_public), db: Session = Depends(get_db)
 ):
     user = db.query(ModelUser).filter_by(id=user_id).first()
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     else:
-        return {"id" : user_id, "user_name" : "open-source user", "api_key" : "default_key"}
-
+        return {
+            "id": user_id,
+            "user_name": "open-source user",
+            "api_key": "default_key",
+        }
 
 
 @router_public.get("/get_project_data", response_model=app_schema.ProjectData)
@@ -191,15 +187,14 @@ def get_project_data(
     db: Session = Depends(get_db),
     user_id: str = Depends(validate_api_key_public),
 ):
-    """Get all the data for a particular project_name for the given user.
-    """
+    """Get all the data for a particular project_name for the given user."""
     projects = get_projects_list(num_days=num_days, db=db, user_id=user_id)
 
     for project in projects.data:
         if project["project"] == project_name:
             run_via = project["run_via"]
             if run_via == "project" or run_via == "experiment":
-                if run_via == 'project':
+                if run_via == "project":
                     query = f"""
                         SELECT *
                         FROM results
@@ -211,13 +206,15 @@ def get_project_data(
                         FROM results
                         WHERE project = '{project_name}' AND metadata LIKE '%uptrain_experiment_columns%' AND timestamp > datetime('now', '-{num_days} days')
                         """
-                fpath = os.path.join(DATABASE_PATH, "uptrain-eval-results" , f"{user_id}.db")
+                fpath = os.path.join(
+                    DATABASE_PATH, "uptrain-eval-results", f"{user_id}.db"
+                )
                 if not os.path.exists(fpath):
                     raise HTTPException(
                         status_code=404, detail="No evaluations run yet for this user"
                     )
                 DB = get_sqlite_utils_db(fpath)
-                
+
                 buffer = io.StringIO()
                 for row in DB.query(query):
                     buffer.write(json.dumps(row) + "\n")
@@ -228,27 +225,65 @@ def get_project_data(
                     for key in details:
                         try:
                             details[key] = json.loads(details[key])
-                        except:
+                        except Exception:
                             pass
                     data.append(details)
-                scores = [col[6:] for col in data[0]['checks'].keys() if col.startswith("score_")]
+                scores = [
+                    col[6:]
+                    for col in data[0]["checks"].keys()
+                    if col.startswith("score_")
+                ]
                 if run_via == "project":
-                    return app_schema.ProjectData(data = [data, None, project["latest_timestamp"][:10], None, scores], project_name = project_name)
+                    return app_schema.ProjectData(
+                        data=[
+                            data,
+                            None,
+                            project["latest_timestamp"][:10],
+                            None,
+                            scores,
+                        ],
+                        project_name=project_name,
+                    )
                 else:
                     exp_data = convert_project_to_polars(data)
                     exp_column = str(exp_data["uptrain_experiment_columns"][0][0])
 
                     plot_data = {}
                     for col in scores:
-                        col_name = 'score_' + col
-                        plot_data.update({col : exp_data.group_by([exp_column], maintain_order=True).agg(pl.col(col_name)).to_dicts()})
+                        col_name = "score_" + col
+                        plot_data.update(
+                            {
+                                col: exp_data.group_by(
+                                    [exp_column], maintain_order=True
+                                )
+                                .agg(pl.col(col_name))
+                                .to_dicts()
+                            }
+                        )
 
                     columns = exp_data.columns
-                    columns.remove('question')
-                    display_data = exp_data.group_by(["question"], maintain_order=True).agg(pl.col(col) for col in columns).to_dicts()
-                    unqiue_values  = list(set(exp_data[exp_column].to_list()))
-                    return app_schema.ProjectData(data = [display_data, None, project["latest_timestamp"][:10], None, scores, unqiue_values, exp_column, plot_data], project_name = project_name)
-        
+                    columns.remove("question")
+                    display_data = (
+                        exp_data.group_by(["question"], maintain_order=True)
+                        .agg(pl.col(col) for col in columns)
+                        .to_dicts()
+                    )
+                    unqiue_values = list(set(exp_data[exp_column].to_list()))
+                    return app_schema.ProjectData(
+                        data=[
+                            display_data,
+                            None,
+                            project["latest_timestamp"][:10],
+                            None,
+                            scores,
+                            unqiue_values,
+                            exp_column,
+                            plot_data,
+                        ],
+                        project_name=project_name,
+                    )
+
+
 @router_public.get("/get_prompt_data", response_model=app_schema.ProjectData)
 def get_prompt_data(
     project_name: str,
@@ -256,8 +291,7 @@ def get_prompt_data(
     db: Session = Depends(get_db),
     user_id: str = Depends(validate_api_key_public),
 ):
-    """Get all the data for a particular project_name for the given user.
-    """
+    """Get all the data for a particular project_name for the given user."""
     projects = get_projects_list(num_days=num_days, db=db, user_id=user_id)
 
     for project in projects.data:
@@ -269,13 +303,15 @@ def get_prompt_data(
                     FROM results
                     WHERE project = '{project_name}' AND metadata like '%prompt_version%' AND metadata NOT LIKE '%uptrain_experiment_columns%' AND timestamp > datetime('now', '-{num_days} days')
                     """
-                fpath = os.path.join(DATABASE_PATH, "uptrain-eval-results" , f"{user_id}.db")
+                fpath = os.path.join(
+                    DATABASE_PATH, "uptrain-eval-results", f"{user_id}.db"
+                )
                 if not os.path.exists(fpath):
                     raise HTTPException(
                         status_code=404, detail="No evaluations run yet for this user"
                     )
                 DB = get_sqlite_utils_db(fpath)
-                
+
                 buffer = io.StringIO()
                 for row in DB.query(query):
                     buffer.write(json.dumps(row) + "\n")
@@ -286,34 +322,40 @@ def get_prompt_data(
                     for key in details:
                         try:
                             details[key] = json.loads(details[key])
-                        except:
+                        except Exception:
                             pass
                     data.append(details)
 
                 exp_data, checks_mapping = convert_project_to_dicts(data)
-                
+
                 columns = exp_data.columns
-                columns.remove('prompt_name')
-                columns.remove('prompt_version')
-                data = exp_data.group_by(['prompt_name', 'prompt_version'], maintain_order=True).agg(pl.col(col) for col in columns)
+                columns.remove("prompt_name")
+                columns.remove("prompt_version")
+                data = exp_data.group_by(
+                    ["prompt_name", "prompt_version"], maintain_order=True
+                ).agg(pl.col(col) for col in columns)
                 columns = data.columns
-                columns.remove('prompt_name')
-                data = data.group_by(['prompt_name'], maintain_order=True).agg(pl.col(col) for col in columns).to_dicts()
-                
+                columns.remove("prompt_name")
+                data = (
+                    data.group_by(["prompt_name"], maintain_order=True)
+                    .agg(pl.col(col) for col in columns)
+                    .to_dicts()
+                )
+
                 for row in data:
-                    row['scores'] = []
-                    uuid_tags_version = row['uuid_tag']
+                    row["scores"] = []
+                    uuid_tags_version = row["uuid_tag"]
                     for uuid_tags in uuid_tags_version:
                         scores = []
                         for uuid in uuid_tags:
                             score = checks_mapping[uuid]
                             scores.append(score)
-                        row['scores'].append(pl.DataFrame(scores).mean().to_dicts()[0])
+                        row["scores"].append(pl.DataFrame(scores).mean().to_dicts()[0])
 
                 res = []
                 for prompt in data:
                     prompt_data = []
-                    num_versions = len(prompt['prompt_version'])
+                    num_versions = len(prompt["prompt_version"])
                     for i in range(num_versions):
                         prompt_v = {}
                         for key, value in prompt.items():
@@ -323,16 +365,32 @@ def get_prompt_data(
                             # Remove the explanations from the scores
                             elif key == "scores":
                                 try:
-                                    value = [{k: round(float(v), 3) for k, v in score.items() if not k.startswith("explanation")} for score in value]
-                                except:
-                                    value = [{k: v for k, v in score.items() if not k.startswith("explanation")} for score in value]
+                                    value = [
+                                        {
+                                            k: round(float(v), 3)
+                                            for k, v in score.items()
+                                            if not k.startswith("explanation")
+                                        }
+                                        for score in value
+                                    ]
+                                except Exception:
+                                    value = [
+                                        {
+                                            k: v
+                                            for k, v in score.items()
+                                            if not k.startswith("explanation")
+                                        }
+                                        for score in value
+                                    ]
                             # Handle cases where the value is a list or a string
                             if isinstance(value, list):
                                 prompt_v[key] = value[i]
                             else:
                                 prompt_v[key] = value
                         prompt_data.append(prompt_v)
-                    res.append({"prompt_name": prompt["prompt_name"], "prompts": prompt_data})
+                    res.append(
+                        {"prompt_name": prompt["prompt_name"], "prompts": prompt_data}
+                    )
                 return app_schema.ProjectData(data=res, project_name=project_name)
 
 
@@ -342,7 +400,7 @@ async def add_project_data(
     user_id: str = Depends(validate_api_key_public),
     db: Session = Depends(get_db),
 ):
-   
+
     fpath = os.path.join(DATABASE_PATH, "uptrain-eval-results", f"{user_id}.db")
     DB = get_sqlite_utils_db(fpath)
 
@@ -352,7 +410,7 @@ async def add_project_data(
     checks = eval_args.checks
     project = eval_args.project
     timestamp = get_current_datetime()
-    try: 
+    try:
         DB["results"].insert_all(
             [
                 {
@@ -361,16 +419,18 @@ async def add_project_data(
                     "metadata": metadata,
                     "schema": schema,
                     "project": project,
-                    "timestamp": timestamp
+                    "timestamp": timestamp,
                 }
-            for row_data, row_check in zip(results, checks)
+                for row_data, row_check in zip(results, checks)
             ]
         )
     except Exception as e:
         logger.exception(f"Error running the eval: {e}")
-        raise HTTPException(status_code=500, detail=f"Error saving the data for the project: {e}")
+        raise HTTPException(
+            status_code=500, detail=f"Error saving the data for the project: {e}"
+        )
 
-    
+
 @router_public.get("/get_projects_list", response_model=app_schema.ProjectsList)
 def get_projects_list(
     num_days: int = 200,
@@ -379,8 +439,7 @@ def get_projects_list(
     db: Session = Depends(get_db),
     user_id: str = Depends(validate_api_key_public),
 ):
-    """Get all the project names associated with the user.
-    """
+    """Get all the project names associated with the user."""
     user = db.query(ModelUser).filter_by(id=user_id).first()
     if user is None:
         raise HTTPException(status_code=403, detail="Invalid user name")
@@ -395,15 +454,15 @@ def get_projects_list(
         ORDER BY latest_timestamp DESC
         LIMIT {limit}
         """
-        fpath = os.path.join(DATABASE_PATH, "uptrain-eval-results" , f"{user_id}.db")
+        fpath = os.path.join(DATABASE_PATH, "uptrain-eval-results", f"{user_id}.db")
         if not os.path.exists(fpath):
             raise HTTPException(
                 status_code=404, detail="No evaluations run yet for this user"
             )
         DB = get_sqlite_utils_db(fpath)
 
-        experiment_runs =  DB.query(query)
-    except:
+        experiment_runs = DB.query(query)
+    except Exception:
         experiment_runs = []
 
     try:
@@ -415,20 +474,22 @@ def get_projects_list(
         ORDER BY latest_timestamp DESC
         LIMIT {limit}
         """
-        fpath = os.path.join(DATABASE_PATH, "uptrain-eval-results" , f"{user_id}.db")
+        fpath = os.path.join(DATABASE_PATH, "uptrain-eval-results", f"{user_id}.db")
         if not os.path.exists(fpath):
             raise HTTPException(
                 status_code=404, detail="No evaluations run yet for this user"
             )
         DB = get_sqlite_utils_db(fpath)
 
-        project_runs =  DB.query(query)
-    except:
+        project_runs = DB.query(query)
+    except Exception:
         project_runs = []
 
     try:
-        prompts_runs = get_prompts_list(num_days=num_days, limit=limit, db=db, user_id=user_id)
-    except:
+        prompts_runs = get_prompts_list(
+            num_days=num_days, limit=limit, db=db, user_id=user_id
+        )
+    except Exception:
         prompts_runs = []
 
     out = []
@@ -447,7 +508,7 @@ def get_projects_list(
             {
                 "project": run["project"],
                 "latest_timestamp": run["latest_timestamp"],
-                "run_via": "experiment"
+                "run_via": "experiment",
             }
         )
 
@@ -456,12 +517,12 @@ def get_projects_list(
             {
                 "project": run["project"],
                 "latest_timestamp": run["latest_timestamp"],
-                "run_via": "prompt"
+                "run_via": "prompt",
             }
         )
 
     out.sort(reverse=True, key=lambda x: x["latest_timestamp"])
-    return app_schema.ProjectsList(data = out, user_name = user_name)
+    return app_schema.ProjectsList(data=out, user_name=user_name)
 
 
 @router_public.get("/get_evaluations_list", response_model=app_schema.ProjectsList)
@@ -472,8 +533,7 @@ def get_evaluations_list(
     db: Session = Depends(get_db),
     user_id: str = Depends(validate_api_key_public),
 ):
-    """Get all the project names associated with the user.
-    """
+    """Get all the project names associated with the user."""
     user = db.query(ModelUser).filter_by(id=user_id).first()
     if user is None:
         raise HTTPException(status_code=403, detail="Invalid user name")
@@ -490,19 +550,19 @@ def get_evaluations_list(
         LIMIT {limit}
         """
 
-        fpath = os.path.join(DATABASE_PATH, "uptrain-eval-results" , f"{user_id}.db")
+        fpath = os.path.join(DATABASE_PATH, "uptrain-eval-results", f"{user_id}.db")
         if not os.path.exists(fpath):
             raise HTTPException(
                 status_code=404, detail="No evaluations run yet for this user"
             )
         DB = get_sqlite_utils_db(fpath)
 
-        project_runs =  DB.query(query)
-    except:
+        project_runs = DB.query(query)
+    except Exception:
         project_runs = []
 
     out = []
-   
+
     for run in project_runs:
         out.append(
             {
@@ -513,7 +573,7 @@ def get_evaluations_list(
         )
 
     out.sort(reverse=True, key=lambda x: x["latest_timestamp"])
-    return app_schema.ProjectsList(data = out, user_name = user_name)
+    return app_schema.ProjectsList(data=out, user_name=user_name)
 
 
 @router_public.get("/get_experiments_list", response_model=app_schema.ProjectsList)
@@ -523,8 +583,7 @@ def get_experiments_list(
     db: Session = Depends(get_db),
     user_id: str = Depends(validate_api_key_public),
 ):
-    """Get all the experiment names associated with the user.
-    """
+    """Get all the experiment names associated with the user."""
     user = db.query(ModelUser).filter_by(id=user_id).first()
     if user is None:
         raise HTTPException(status_code=403, detail="Invalid user name")
@@ -541,15 +600,15 @@ def get_experiments_list(
         LIMIT {limit}
         """
 
-        fpath = os.path.join(DATABASE_PATH, "uptrain-eval-results" , f"{user_id}.db")
+        fpath = os.path.join(DATABASE_PATH, "uptrain-eval-results", f"{user_id}.db")
         if not os.path.exists(fpath):
             raise HTTPException(
                 status_code=404, detail="No evaluations run yet for this user"
             )
         DB = get_sqlite_utils_db(fpath)
 
-        project_runs =  DB.query(query)
-    except:
+        project_runs = DB.query(query)
+    except Exception:
         project_runs = []
 
     out = []
@@ -564,7 +623,7 @@ def get_experiments_list(
         )
 
     out.sort(reverse=True, key=lambda x: x["latest_timestamp"])
-    return app_schema.ProjectsList(data = out, user_name = user_name)
+    return app_schema.ProjectsList(data=out, user_name=user_name)
 
 
 @router_public.get("/get_prompts_list", response_model=app_schema.ProjectsList)
@@ -574,8 +633,7 @@ def get_prompts_list(
     db: Session = Depends(get_db),
     user_id: str = Depends(validate_api_key_public),
 ):
-    """Get all the experiment names associated with the user.
-    """
+    """Get all the experiment names associated with the user."""
     user = db.query(ModelUser).filter_by(id=user_id).first()
     if user is None:
         raise HTTPException(status_code=403, detail="Invalid user name")
@@ -591,15 +649,15 @@ def get_prompts_list(
         ORDER BY latest_timestamp DESC
         LIMIT {limit}
         """
-        fpath = os.path.join(DATABASE_PATH, "uptrain-eval-results" , f"{user_id}.db")
+        fpath = os.path.join(DATABASE_PATH, "uptrain-eval-results", f"{user_id}.db")
         if not os.path.exists(fpath):
             raise HTTPException(
                 status_code=404, detail="No evaluations run yet for this user"
             )
         DB = get_sqlite_utils_db(fpath)
 
-        prompts_runs =  DB.query(query)
-    except:
+        prompts_runs = DB.query(query)
+    except Exception:
         prompts_runs = []
 
     out = []
@@ -614,12 +672,12 @@ def get_prompts_list(
         )
 
     out.sort(reverse=True, key=lambda x: x["latest_timestamp"])
-    return app_schema.ProjectsList(data = out, user_name = user_name)
+    return app_schema.ProjectsList(data=out, user_name=user_name)
 
 
 @router_public.post("/find_common_topic")
 async def find_common_topic(
-    args : app_schema.TopicGenerate,
+    args: app_schema.TopicGenerate,
     db: Session = Depends(get_db),
     user_id: str = Depends(validate_api_key_public),
 ):
@@ -632,22 +690,32 @@ async def find_common_topic(
     for elem in dataset:
         if elem[1] is not None and elem[1] == 0.0:
             refined_items.append(elem[0])
-    
-    refined_items = refined_items[:min(50, len(refined_items))]
-    data = list(map(lambda x: {'question': x, 'cluster_index' : 0, 'cluster_index_distance' : 0}, refined_items)) 
+
+    refined_items = refined_items[: min(50, len(refined_items))]
+    data = list(
+        map(
+            lambda x: {"question": x, "cluster_index": 0, "cluster_index_distance": 0},
+            refined_items,
+        )
+    )
 
     from uptrain.operators import TopicGenerator
+
     user = db.query(ModelUser).filter_by(id=user_id).first()
     if user is None:
         raise HTTPException(status_code=403, detail="Invalid user name")
     else:
         user_name = user.name
-        
-    user_headers={"openai_api_key": user_name}
-    
+
+    user_headers = {"openai_api_key": user_name}
+
     try:
-        result = TopicGenerator().setup(Settings(**user_headers)).run(pl.DataFrame(data))['output']
-        return {'common_topic': result.to_dicts()[0]['topic']}
+        result = (
+            TopicGenerator()
+            .setup(Settings(**user_headers))
+            .run(pl.DataFrame(data))["output"]
+        )
+        return {"common_topic": result.to_dicts()[0]["topic"]}
     except Exception as exc:
         logger.exception("Error creating run")
         db.rollback()
@@ -667,7 +735,7 @@ async def add_evaluation(
     fsspec_fs: t.Any = Depends(get_fsspec_fs),
 ):
     ## project key would be present in the eval_args.metadata
-    
+
     existing_dataset = (
         db.query(ModelDataset)
         .filter_by(name=dataset_name, user_id=user_id)
@@ -718,18 +786,31 @@ async def add_evaluation(
             checks_1.append(final_check)
 
     settings_data = {}
-    settings_data['model'] = model
+    settings_data["model"] = model
     settings_data.update(metadata[model])
 
     try:
         from uptrain import EvalLLM
+
         user_client = EvalLLM(Settings(**settings_data))
-        data = JsonReader(fpath = os.path.join(DATABASE_PATH, "uptrain-datasets", name_w_version)).setup(Settings()).run()['output'].to_dicts()
-        results = user_client.evaluate(data=data, checks=checks_1, project_name=project_name)        
+        data = (
+            JsonReader(
+                fpath=os.path.join(DATABASE_PATH, "uptrain-datasets", name_w_version)
+            )
+            .setup(Settings())
+            .run()["output"]
+            .to_dicts()
+        )
+        results = user_client.evaluate(
+            data=data, checks=checks_1, project_name=project_name
+        )
         return {"message": f"Evaluation has been queued up"}
     except Exception as e:
         logger.exception(f"Error running the eval: {e}")
-        raise HTTPException(status_code=500, detail=f"Error running the evaluation: {e}")
+        raise HTTPException(
+            status_code=500, detail=f"Error running the evaluation: {e}"
+        )
+
 
 @router_public.post("/add_prompts")
 async def add_prompts(
@@ -752,7 +833,7 @@ async def add_prompts(
         raise HTTPException(status_code=403, detail="Invalid user name")
     else:
         user_name = user.name
-        
+
     existing_dataset = (
         db.query(ModelDataset)
         .filter_by(name=dataset_name, user_id=user_id)
@@ -787,7 +868,7 @@ async def add_prompts(
         raise HTTPException(
             status_code=400, detail="Error adding/updating dataset to platform"
         )
-    
+
     existing_prompt = (
         db.query(ModelPrompt)
         .filter_by(name=prompt_name, user_id=user_id)
@@ -800,10 +881,7 @@ async def add_prompts(
         version = 1
     try:
         db_item = ModelPrompt(
-            user_id=user_id,
-            name=prompt_name,
-            version=version,
-            prompt=prompt
+            user_id=user_id, name=prompt_name, version=version, prompt=prompt
         )
         db.add(db_item)
         db.commit()
@@ -813,7 +891,7 @@ async def add_prompts(
         raise HTTPException(
             status_code=400, detail="Error adding/updating prompts to platform"
         )
-    
+
     checks = eval(checks[0])
     checks_1 = []
     metadata = eval(metadata)
@@ -828,31 +906,46 @@ async def add_prompts(
             checks_1.append(final_check)
 
     settings_data = {}
-    settings_data['model'] = model
+    settings_data["model"] = model
     settings_data.update(metadata[model])
 
     from uptrain.operators import JsonReader
     from uptrain import Settings as UserSettings
 
     metadata = None
-    metadata = {'project': project_name, 'prompt': prompt, 'prompt_name': prompt_name,'prompt_version': version, 'model': model}
+    metadata = {
+        "project": project_name,
+        "prompt": prompt,
+        "prompt_name": prompt_name,
+        "prompt_version": version,
+        "model": model,
+    }
 
     try:
         from uptrain import EvalLLM
+
         user_client = EvalLLM(Settings(**settings_data))
-        data = JsonReader(fpath = os.path.join(DATABASE_PATH, "uptrain-datasets", name_w_version)).setup(UserSettings()).run()['output'].to_dicts()
+        data = (
+            JsonReader(
+                fpath=os.path.join(DATABASE_PATH, "uptrain-datasets", name_w_version)
+            )
+            .setup(UserSettings())
+            .run()["output"]
+            .to_dicts()
+        )
         results = user_client.evaluate_prompts(
             project_name=project_name,
-            data=data, 
+            data=data,
             checks=checks_1,
-            prompt=prompt, 
-            metadata=metadata
-            )
+            prompt=prompt,
+            metadata=metadata,
+        )
         return {"message": f"Evaluation has been queued up"}
     except Exception as e:
         logger.exception(f"Error running the eval: {e}")
-        raise HTTPException(status_code=500, detail=f"Error running the evaluation: {e}")
-    
+        raise HTTPException(
+            status_code=500, detail=f"Error running the evaluation: {e}"
+        )
 
 
 # -----------------------------------------------------------

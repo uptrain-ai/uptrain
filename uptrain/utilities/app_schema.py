@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import datetime as dt
-from enum import Enum
 import typing as t
 
 from pydantic import BaseModel
@@ -34,6 +32,7 @@ class EvaluateV2(BaseModel):
     schema_dict: dict
     project: str
 
+
 class EvaluateV3(BaseModel):
     model: str
     project_name: str
@@ -50,4 +49,3 @@ class ProjectsList(BaseModel):
 class ProjectData(BaseModel):
     data: list[t.Any]
     project_name: str
-    

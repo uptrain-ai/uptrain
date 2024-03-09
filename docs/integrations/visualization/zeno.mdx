@@ -1,0 +1,170 @@
+---
+title: Zeno
+---
+[Zeno](https://zenoml.com/) is an interactive AI evaluation platform for exploring, debugging, and sharing how your AI systems perform.
+
+In this notebook, we will walk you through using UpTrain to evaluate LLM-generated responses and then visualize those evaluations using Zeno.
+
+## How to integrate?
+### Setup
+
+**Install required packages**
+```python
+%pip install zeno-client uptrain
+```
+
+**Enter your Zeno API keys and OpenAI API key**
+
+You can get your Zeno API keys [here](https://hub.zenoml.com/account) and OpenAI API key [here](https://platform.openai.com/api-keys)
+
+```python
+ZENO_API_KEY = "sk-***************"
+OPENAI_API_KEY = "zen_***************"
+```
+
+**Let's create a sample data**
+```python
+data = [
+    {
+      "question": "What causes diabetes?",
+      "context": "Diabetes is a metabolic disorder characterized by high blood sugar levels. It is primarily caused by a combination of genetic and environmental factors, including obesity and lack of physical activity.",
+      "response": "Diabetes is primarily caused by a combination of genetic and environmental factors, including obesity and lack of physical activity."
+   },
+   {
+      "question": "What are the symptoms of a heart attack?",
+      "context": "A heart attack, or myocardial infarction, occurs when the blood supply to the heart muscle is blocked. Symptoms of a heart attack may include chest pain or discomfort, shortness of breath, nausea, lightheadedness, and pain or discomfort in one or both arms, the jaw, neck, or back.",
+      "response": "Symptoms of a heart attack may include chest pain or discomfort, shortness of breath, nausea, lightheadedness, and pain or discomfort in one or both arms, the jaw, neck, or back."
+   },
+   {
+      "question": "Can stress cause physical health problems?",
+      "context": "Stress is the body's response to challenges or threats. Yes, chronic stress can contribute to various physical health problems, including cardiovascular issues, digestive problems, and a weakened immune system.",
+      "response": "Yes, chronic stress can contribute to various physical health problems, including cardiovascular issues, digestive problems, and a weakened immune system."
+   },
+   {
+        'question': "What causes diabetes?",
+        'context': "Diabetes is a metabolic disorder characterized by high blood sugar levels. It is primarily caused by a combination of genetic and environmental factors, including obesity and lack of physical activity.",
+        'response': "Diabetes is caused by eating too much sugar, and reducing sugar intake can cure it completely."
+    },
+    {
+        'question': "What are the symptoms of a heart attack?",
+        'context': "A heart attack, or myocardial infarction, occurs when the blood supply to the heart muscle is blocked. Symptoms of a heart attack may include chest pain or discomfort, shortness of breath, nausea, lightheadedness, and pain or discomfort in one or both arms, the jaw, neck, or back.",
+        'response': "Heart attack symptoms are usually just indigestion and can be relieved with antacids."
+    },
+    {
+        'question': "Can stress cause physical health problems?",
+        'context': "Stress is the body's response to challenges or threats. Yes, chronic stress can contribute to various physical health problems, including cardiovascular issues, digestive problems, and a weakened immune system.",
+        'response': "Stress has no impact on physical health; it's just a mental state and doesn't affect the body."
+    }
+]
+```
+### Run Evaluations using UpTrain Open-Source Software (OSS)
+
+We have used the following 3 metrics from UpTrain's library:
+
+1. [Context Relevance](/predefined-evaluations/context-awareness/context-relevance): Evaluates how relevant the retrieved context is to the question specified.
+
+2. [Response Completeness](/predefined-evaluations/response-quality/response-completeness): Evaluates whether the response has answered all the aspects of the question specified
+
+3. [Factual Accuracy](/predefined-evaluations/context-awareness/factual-accuracy): Evaluates whether the response generated is factually correct and grounded by the provided context.
+
+3. [Response Relevance](/predefined-evaluations/response-quality/response-relevance): Evaluates how relevant the generated response was to the question specified.
+
+You can look at the complete list of UpTrain's supported metrics [here](/predefined-evaluations/overview)
+
+
+```python
+from uptrain import EvalLLM, Evals
+import json
+import pandas as pd
+
+eval_llm = EvalLLM(openai_api_key = OPENAI_API_KEY)
+
+res = eval_llm.evaluate(
+    data = data,
+    checks = [Evals.CONTEXT_RELEVANCE, Evals.RESPONSE_COMPLETENESS, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_RELEVANCE]
+)
+
+df = pd.DataFrame(res)
+```
+
+### Create a Project on Zeno
+
+```python
+from zeno_client import ZenoClient, ZenoMetric
+client = ZenoClient(ZENO_API_KEY)
+
+project = client.create_project(
+    name="UpTrain Zeno Demo",
+    description="Evaluation of LLMs using UpTrain",
+    public=True,
+    view={
+        "data": {"type": "markdown"},
+        "label": {"type": "text"},
+        "output": {"type": "markdown"},
+    },
+    metrics=[
+        ZenoMetric(name="context relevance", type="mean", columns=["score_context_relevance"]),
+        ZenoMetric(name="response completeness", type="mean", columns=["score_response_completeness"]),
+        ZenoMetric(name="factual accuracy", type="mean", columns=["score_factual_accuracy"]),
+        ZenoMetric(name="response relevance", type="mean", columns=["score_response_relevance"]),
+    ],
+)
+```
+
+### Upload Input Data on Zeno Project
+
+```python
+data_df = df[['question', 'context']]
+data_df['id'] = data_df.index
+
+project.upload_dataset(
+    data_df, id_column="id", data_column="question", label_column="context"
+)
+```
+
+### Upload Output Data on Zeno Project
+
+```python
+output_df = df[
+    [
+        "score_context_relevance",
+        "score_response_completeness",
+        "score_factual_accuracy",
+        "score_response_relevance",
+    ]
+].copy()
+
+output_df["output"] = df[['response']]
+output_df["id"] = output_df.index
+
+project.upload_system(
+    output_df, name="Demo", id_column="id", output_column="output"
+)
+```
+
+You can see the evaluations using Zeno. 
+
+Further, you can slice the data and create charts using Zeno.
+
+<Frame>
+  <img src="/assets/zeno.png" />
+</Frame>
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/integrations/visualization/zeno.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>

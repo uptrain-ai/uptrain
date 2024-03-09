@@ -58,26 +58,7 @@ Thank you for your interest in contributing to UpTrain! We look forward to revie
 
 # Documentation
 
-There are two ways to contribute to our documentation. You can either do it directly from this website or you can clone the repository and run the website locally.
-
-We recommend that you use the first method if you want to make small changes to the documentation. However, if you want to make a bigger change, you can clone the repository and run the website locally.
-
-## Directly from this documentation website 
-
-You can create a pull request or an issue for any page, directly from this website. This is the easiest way to contribute to our documentation.
-
-There are two icons on the top right corner of each page. The left one is for opening a pull request and the right one is for opening an issue.
-
-
-<h4 align="center">
-<img src="https://uptrain-demo.s3.us-west-1.amazonaws.com/contributing/edit-tools.png" width="85%" alt="Performance" />
-</h4>
-
-This is convenient for small changes where you don't need to clone the repository and run the website locally.
-
-## Locally
-
-However, if you want to make a bigger change, you can clone the repository and run the website locally by following the instructions below.
+Follow the steps below to make changes to the documentation: 
 
 1. Fork the repository to your own GitHub account. This will create a copy of the repository that you can make changes to.
 

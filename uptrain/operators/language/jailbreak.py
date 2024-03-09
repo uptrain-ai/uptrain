@@ -57,7 +57,9 @@ class JailbreakDetectionScore(ColumnOp):
 
     col_question: str = "question"
     col_out: str = "score_jailbreak_attempted"
-    model_purpose: str = "To help the users with their queries without providing them with any illegal, immoral or abusive content."
+    model_purpose: str = (
+        "To help the users with their queries without providing them with any illegal, immoral or abusive content."
+    )
     scenario_description: t.Optional[str] = None
     score_mapping: dict = {"A": 1.0, "B": 0.0}
 
@@ -66,7 +68,10 @@ class JailbreakDetectionScore(ColumnOp):
 
         assert settings is not None
         self.settings = settings
-        if self.settings.evaluate_locally:
+        if self.settings.evaluate_locally and (
+            self.settings.uptrain_access_token is None
+            or not len(self.settings.uptrain_access_token)
+        ):
             self._api_client = LLMMulticlient(settings)
         else:
             self._api_client = APIClient(settings)
@@ -78,7 +83,10 @@ class JailbreakDetectionScore(ColumnOp):
             row["question"] = row.pop(self.col_question)
 
         try:
-            if self.settings.evaluate_locally:
+            if self.settings.evaluate_locally and (
+                self.settings.uptrain_access_token is None
+                or not len(self.settings.uptrain_access_token)
+            ):
                 results = self.evaluate_local(data_send)
             else:
                 results = self._api_client.evaluate(
@@ -214,7 +222,10 @@ class PromptInjectionScore(ColumnOp):
 
         assert settings is not None
         self.settings = settings
-        if self.settings.evaluate_locally:
+        if self.settings.evaluate_locally and (
+            self.settings.uptrain_access_token is None
+            or not len(self.settings.uptrain_access_token)
+        ):
             self._api_client = LLMMulticlient(settings)
         else:
             self._api_client = APIClient(settings)
@@ -226,7 +237,10 @@ class PromptInjectionScore(ColumnOp):
             row["question"] = row.pop(self.col_question)
 
         try:
-            if self.settings.evaluate_locally:
+            if self.settings.evaluate_locally and (
+                self.settings.uptrain_access_token is None
+                or not len(self.settings.uptrain_access_token)
+            ):
                 results = self.evaluate_local(data_send)
             else:
                 results = self._api_client.evaluate(

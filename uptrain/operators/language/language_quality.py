@@ -72,7 +72,10 @@ class LanguageCritique(ColumnOp):
 
         assert settings is not None
         self.settings = settings
-        if self.settings.evaluate_locally:
+        if self.settings.evaluate_locally and (
+            self.settings.uptrain_access_token is None
+            or not len(self.settings.uptrain_access_token)
+        ):
             self._api_client = LLMMulticlient(settings)
         else:
             self._api_client = APIClient(settings)
@@ -84,7 +87,10 @@ class LanguageCritique(ColumnOp):
             row["response"] = row.pop(self.col_response)
 
         try:
-            if self.settings.evaluate_locally:
+            if self.settings.evaluate_locally and (
+                self.settings.uptrain_access_token is None
+                or not len(self.settings.uptrain_access_token)
+            ):
                 results = self.evaluate_local(data_send)
             else:
                 results = self._api_client.evaluate("critique_language", data_send)
@@ -212,7 +218,10 @@ class ResponseCoherence(ColumnOp):
 
         assert settings is not None
         self.settings = settings
-        if self.settings.evaluate_locally:
+        if self.settings.evaluate_locally and (
+            self.settings.uptrain_access_token is None
+            or not len(self.settings.uptrain_access_token)
+        ):
             self._api_client = LLMMulticlient(settings)
         else:
             self._api_client = APIClient(settings)
@@ -224,7 +233,10 @@ class ResponseCoherence(ColumnOp):
             row["response"] = row.pop(self.col_response)
 
         try:
-            if self.settings.evaluate_locally:
+            if self.settings.evaluate_locally and (
+                self.settings.uptrain_access_token is None
+                or not len(self.settings.uptrain_access_token)
+            ):
                 results = self.evaluate_local(data_send)
             else:
                 results = self._api_client.evaluate("critique_language", data_send)

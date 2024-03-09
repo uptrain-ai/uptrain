@@ -520,30 +520,6 @@ CONTEXT_CONCISENESS_FEW_SHOT__COT = """
 }
 """
 
-
-# Response Matching
-RESPONSE_MATCHING_FEW_SHOT__CLASSIFY = """
-[Question]: What is the capital of France? 
-[Response]: The capital of France is Paris.
-[Ground Truth]: Paris
-[Output]:
-{
-    "Choice": "A"
-}
-"""
-
-RESPONSE_MATCHING_FEW_SHOT__COT = """
-[Question]: What is the capital of France?
-[Response]: The capital of France is Paris.
-[Ground Truth]: Paris
-[Output]:
-{
-    "Reasoning": "The response answers the given question and it does not contradict with the given ground truth. Hence, the selected choice is A",
-    "Choice": "A"
-}
-"""
-
-
 # Code Hallucination
 CODE_HALLUCINATION_FEW_SHOT__CLASSIFY = """
 [Response]: To select the rows where the hospital name is "St. Mary's Hospital", use the following query:

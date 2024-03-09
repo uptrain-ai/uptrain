@@ -67,7 +67,10 @@ class ConversationSatisfactionScore(ColumnOp):
 
         assert settings is not None
         self.settings = settings
-        if self.settings.evaluate_locally:
+        if self.settings.evaluate_locally and (
+            self.settings.uptrain_access_token is None
+            or not len(self.settings.uptrain_access_token)
+        ):
             self._api_client = LLMMulticlient(settings)
         else:
             self._api_client = APIClient(settings)
@@ -79,7 +82,10 @@ class ConversationSatisfactionScore(ColumnOp):
             row["conversation"] = row[self.col_conversation]
 
         try:
-            if self.settings.evaluate_locally:
+            if self.settings.evaluate_locally and (
+                self.settings.uptrain_access_token is None
+                or not len(self.settings.uptrain_access_token)
+            ):
                 results = self.evaluate_local(data_send)
             else:
                 results = self._api_client.evaluate(

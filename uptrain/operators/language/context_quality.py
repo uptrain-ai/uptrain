@@ -78,7 +78,10 @@ class ContextRelevance(ColumnOp):
 
         assert settings is not None
         self.settings = settings
-        if self.settings.evaluate_locally:
+        if self.settings.evaluate_locally and (
+            self.settings.uptrain_access_token is None
+            or not len(self.settings.uptrain_access_token)
+        ):
             self._api_client = LLMMulticlient(settings)
         else:
             self._api_client = APIClient(settings)
@@ -91,7 +94,10 @@ class ContextRelevance(ColumnOp):
             row["context"] = row.pop(self.col_context)
 
         try:
-            if self.settings.evaluate_locally:
+            if self.settings.evaluate_locally and (
+                self.settings.uptrain_access_token is None
+                or not len(self.settings.uptrain_access_token)
+            ):
                 results = self.evaluate_local(data_send)
             else:
                 results = self._api_client.evaluate(
@@ -224,7 +230,10 @@ class ResponseCompletenessWrtContext(ColumnOp):
 
         assert settings is not None
         self.settings = settings
-        if self.settings.evaluate_locally:
+        if self.settings.evaluate_locally and (
+            self.settings.uptrain_access_token is None
+            or not len(self.settings.uptrain_access_token)
+        ):
             self._api_client = LLMMulticlient(settings)
         else:
             self._api_client = APIClient(settings)
@@ -238,7 +247,10 @@ class ResponseCompletenessWrtContext(ColumnOp):
             row["context"] = row.pop(self.col_context)
 
         try:
-            if self.settings.evaluate_locally:
+            if self.settings.evaluate_locally and (
+                self.settings.uptrain_access_token is None
+                or not len(self.settings.uptrain_access_token)
+            ):
                 results = self.evaluate_local(data_send)
             else:
                 results = self._api_client.evaluate(
@@ -338,9 +350,9 @@ class ResponseCompletenessWrtContext(ColumnOp):
                     json.loads(res.response.choices[0].message.content)["Choice"]
                 ]
                 output["score_response_completeness_wrt_context"] = float(score)
-                output[
-                    "explanation_response_completeness_wrt_context"
-                ] = res.response.choices[0].message.content
+                output["explanation_response_completeness_wrt_context"] = (
+                    res.response.choices[0].message.content
+                )
             except Exception:
                 logger.error(
                     f"Error when processing payload at index {idx}: {res.error}"
@@ -382,7 +394,10 @@ class ContextReranking(ColumnOp):
 
         assert settings is not None
         self.settings = settings
-        if self.settings.evaluate_locally:
+        if self.settings.evaluate_locally and (
+            self.settings.uptrain_access_token is None
+            or not len(self.settings.uptrain_access_token)
+        ):
             self._api_client = LLMMulticlient(settings)
         else:
             self._api_client = APIClient(settings)
@@ -396,7 +411,10 @@ class ContextReranking(ColumnOp):
             row["reranked_context"] = row.pop(self.col_reranked_context)
 
         try:
-            if self.settings.evaluate_locally:
+            if self.settings.evaluate_locally and (
+                self.settings.uptrain_access_token is None
+                or not len(self.settings.uptrain_access_token)
+            ):
                 results = self.evaluate_local(data_send)
             else:
                 results = self._api_client.evaluate(
@@ -530,7 +548,10 @@ class ContextConciseness(ColumnOp):
 
         assert settings is not None
         self.settings = settings
-        if self.settings.evaluate_locally:
+        if self.settings.evaluate_locally and (
+            self.settings.uptrain_access_token is None
+            or not len(self.settings.uptrain_access_token)
+        ):
             self._api_client = LLMMulticlient(settings)
         else:
             self._api_client = APIClient(settings)
@@ -544,7 +565,10 @@ class ContextConciseness(ColumnOp):
             row["concise_context"] = row.pop(self.col_concise_context)
 
         try:
-            if self.settings.evaluate_locally:
+            if self.settings.evaluate_locally and (
+                self.settings.uptrain_access_token is None
+                or not len(self.settings.uptrain_access_token)
+            ):
                 results = self.evaluate_local(data_send)
             else:
                 results = self._api_client.evaluate(

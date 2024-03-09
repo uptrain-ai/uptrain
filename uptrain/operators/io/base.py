@@ -8,7 +8,12 @@ import pandas as pd
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
-from uptrain.operators.base import *
+from uptrain.operators.base import (
+    TransformOp,
+    register_op,
+    TYPE_TABLE_OUTPUT,
+    OpBaseModel,
+)
 from uptrain.utilities import lazy_load_dep
 
 # -----------------------------------------------------------
@@ -153,8 +158,6 @@ class DeltaWriter(OpBaseModel):
     columns: t.Optional[list[str]] = None
 
     def setup(self, settings: Settings):
-        dl = lazy_load_dep("deltatable", "deltalake>=0.9")
-
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
