@@ -870,16 +870,16 @@ class ResponseMatchingScore(ColumnOp):
         Our methodology is based on the model grade evaluation introduced by openai evals.
         """
 
-        data_precision = copy.deepcopy(pl.DataFrame(data)).rename(
+        data_precision = copy.deepcopy(pl.DataFrame(data).drop('context')).rename(
             {self.col_response: "response", self.col_ground_truth: "context"}
         )
-        data_recall = copy.deepcopy(pl.DataFrame(data)).rename(
+        data_recall = copy.deepcopy(pl.DataFrame(data).drop('context')).rename(
             {self.col_ground_truth: "response", self.col_response: "context"}
         )
         eval_data = pl.concat(
             [data_precision, data_recall.select(data_precision.columns)]
         )
-
+        
         output = (
             ResponseFactualScore(
                 col_question=self.col_question,
