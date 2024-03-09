@@ -54,8 +54,8 @@ def run_validation(llm_output, validation_func):
 
 async def async_process_payload(
     payload: Payload,
-    rpm_limiter: aiolimiter.AsyncLimiter,
-    tpm_limiter: aiolimiter.AsyncLimiter,
+    rpm_limiter: AsyncLimiter,
+    tpm_limiter: AsyncLimiter,
     aclient: t.Any,
     max_retries: int,
     validate_func: t.Callable = None,
