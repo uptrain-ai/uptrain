@@ -54,3 +54,6 @@ include-package-data = true
 
 [tool.setuptools.package-data]
 "*" = ["*.pyi"]
+
+[tool.setuptools.packages.find]
+include = ["uptrain"]
