@@ -921,7 +921,7 @@ class ResponseMatchingScore(ColumnOp):
                         (precision * recall) / (precision * 3 + recall)
                     )
                 else:
-                    output["score_response_matching"] = 0
+                    output["score_response_matching"] = 0.0
                 output["score_response_match_recall"] = recall
                 output["score_response_match_precision"] = precision
             results.append(output)

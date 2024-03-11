@@ -44,6 +44,7 @@ from uptrain.operators import (
     ContextConciseness,
     ContextReranking,
     SubQueryCompleteness,
+    CodeHallucinationScore,
 )
 
 from uptrain.framework.rca_templates import RcaTemplate
@@ -65,6 +66,7 @@ EVAL_TO_OPERATOR_MAPPING = {
     Evals.PROMPT_INJECTION: PromptInjectionScore(),
     Evals.CRITIQUE_LANGUAGE: LanguageCritique(),
     Evals.SUB_QUERY_COMPLETENESS: SubQueryCompleteness(),
+    Evals.CODE_HALLUCINATION: CodeHallucinationScore(),
 }
 
 PARAMETRIC_EVAL_TO_OPERATOR_MAPPING = {
@@ -327,7 +329,7 @@ class EvalLLM:
             )
         except Exception:
             user_id = "default_key"
-            logger.info("Server is not running!")
+            logger.info("Local server not running, start the server to log data and visualize in the dashboard!")
         return results
 
     def evaluate_on_server(self, data, ser_checks, schema):
