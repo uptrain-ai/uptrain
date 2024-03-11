@@ -55,14 +55,17 @@ UpTrain provides tons of ways to **customize evaluations**. You can customize ev
 
 Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact match, etc.
 
+<img width="1088" alt="Interactive Dashboards" src="https://github.com/uptrain-ai/uptrain/assets/36454110/eb1c8239-dd99-4e66-ba8a-cbaee2beec10">
+
+UpTrain Dashboard is a web-based interface that runs on your **local machine**. You can use the dashboard to evaluate your LLM applications, view the results, and perform root cause analysis.
+
 
 ### Coming Soon:
 
-1. Experiment Dashboards
-2. Collaborate with your team
-3. Embedding visualization via UMAP and Clustering
-4. Pattern recognition among failure cases
-5. Prompt improvement suggestions
+1. Collaborate with your team
+2. Embedding visualization via UMAP and Clustering
+3. Pattern recognition among failure cases
+4. Prompt improvement suggestions
 
 <br />
 
@@ -79,6 +82,7 @@ Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact 
 
 <img width="1088" alt="quality of retrieved context and response groundedness" src="https://github.com/uptrain-ai/uptrain/assets/43818888/a7e384a3-c857-4a71-a938-7a2a70f8db1e">
 
+
 | Eval | Description |
 | ---- | ----------- |
 |[Context Relevance](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-relevance) | Grades how relevant the context was to the question specified. |
@@ -91,7 +95,7 @@ Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact 
 
 | Eval | Description |
 | ---- | ----------- |
-|[Language Features](https://docs.uptrain.ai/predefined-evaluations/language-quality/fluency-and-coherence) | Grades whether the response has answered all the aspects of the question specified. |
+|[Language Features](https://docs.uptrain.ai/predefined-evaluations/language-quality/fluency-and-coherence) | Grades the quality and effectiveness of language in a response, focusing on factors such as clarity, coherence, conciseness, and overall communication. |
 |[Tonality](https://docs.uptrain.ai/predefined-evaluations/code-evals/code-hallucination) | Grades whether the generated response matches the required persona's tone  |
 
 <img width="1088" alt="language quality of the response" src="https://github.com/uptrain-ai/uptrain/assets/36454110/2fba9f0b-71b3-4d90-90f8-16ef38cef3ab">
@@ -153,6 +157,7 @@ cd uptrain
 # Run UpTrain
 bash run_uptrain.sh
 ```
+> **_NOTE:_**  UpTrain Dashboard is currently in **Beta version**. We would love your feedback to improve it.
 
 ## Using the UpTrain package
 
