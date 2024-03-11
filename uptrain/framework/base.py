@@ -141,7 +141,7 @@ class Settings(BaseSettings):
         if fpath is None:
             fpath = os.path.join(self.logs_folder, "settings.json")
         with open(fpath, "w") as f:
-            jsondump(self.dict(), f)
+            jsondump(self.model_dump(), f)
 
     @classmethod
     def deserialize(cls, fpath: str):
