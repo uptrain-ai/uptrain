@@ -1,5 +1,5 @@
 <h4 align="center">
-  <a href="https://www.uptrain.ai">
+  <a href="https://uptrain.ai">
    <img alt="Logo of UpTrain - an open-source platform to evaluate and improve LLM applications" src="https://github.com/uptrain-ai/uptrain/assets/108270398/b6a4905f-63fd-47ab-a894-1026a6669c86"/>
   </a>
 </h4>
@@ -21,7 +21,7 @@
   <img src="https://github.com/uptrain-ai/uptrain/assets/108270398/10d0faeb-c4f8-422f-a01e-49a891fa7ada" alt="Demo of UpTrain's LLM evaluations with scores for hallucinations, retrieved-context quality, response tonality for a customer support chatbot"/>
 </h4>
 
-**[UpTrain](https://www.uptrain.ai)** is an open-source unified platform to evaluate and improve Generative AI applications. We provide grades for 20+ preconfigured checks (covering language, code, embedding use-cases), perform root cause analysis on failure cases and give insights on how to resolve them.    
+**[UpTrain](https://uptrain.ai)** is an open-source unified platform to evaluate and improve Generative AI applications. We provide grades for 20+ preconfigured checks (covering language, code, embedding use-cases), perform root cause analysis on failure cases and give insights on how to resolve them.    
 
 <br />
 
@@ -55,14 +55,17 @@ UpTrain provides tons of ways to **customize evaluations**. You can customize ev
 
 Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact match, etc.
 
+<img width="1088" alt="Interactive Dashboards" src="https://github.com/uptrain-ai/uptrain/assets/36454110/eb1c8239-dd99-4e66-ba8a-cbaee2beec10">
+
+UpTrain Dashboard is a web-based interface that runs on your **local machine**. You can use the dashboard to evaluate your LLM applications, view the results, and perform root cause analysis.
+
 
 ### Coming Soon:
 
-1. Experiment Dashboards
-2. Collaborate with your team
-3. Embedding visualization via UMAP and Clustering
-4. Pattern recognition among failure cases
-5. Prompt improvement suggestions
+1. Collaborate with your team
+2. Embedding visualization via UMAP and Clustering
+3. Pattern recognition among failure cases
+4. Prompt improvement suggestions
 
 <br />
 
@@ -71,18 +74,19 @@ Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact 
 
 | Eval | Description |
 | ---- | ----------- |
-|[Reponse Completeness](https://docs.uptrain.ai/predefined-evaluations/response-quality/response-completeness) | Grades whether the response has answered all the aspects of the question specified. |
-|[Reponse Conciseness](https://docs.uptrain.ai/predefined-evaluations/response-quality/response-conciseness) | Grades how concise the generated response is or if it has any additional irrelevant information for the question asked. |
-|[Reponse Relevance](https://docs.uptrain.ai/predefined-evaluations/response-quality/response-relevance)| Grades how relevant the generated context was to the question specified.|
-|[Reponse Validity](https://docs.uptrain.ai/predefined-evaluations/response-quality/response-validity)| Grades if the response generated is valid or not. A response is considered to be valid if it contains any information.|
-|[Reponse Consistency](https://docs.uptrain.ai/predefined-evaluations/response-quality/response-consistency)| Grades how consistent the response is with the question asked as well as with the context provided.|
+|[Response Completeness](https://docs.uptrain.ai/predefined-evaluations/response-quality/response-completeness) | Grades whether the response has answered all the aspects of the question specified. |
+|[Response Conciseness](https://docs.uptrain.ai/predefined-evaluations/response-quality/response-conciseness) | Grades how concise the generated response is or if it has any additional irrelevant information for the question asked. |
+|[Response Relevance](https://docs.uptrain.ai/predefined-evaluations/response-quality/response-relevance)| Grades how relevant the generated context was to the question specified.|
+|[Response Validity](https://docs.uptrain.ai/predefined-evaluations/response-quality/response-validity)| Grades if the response generated is valid or not. A response is considered to be valid if it contains any information.|
+|[Response Consistency](https://docs.uptrain.ai/predefined-evaluations/response-quality/response-consistency)| Grades how consistent the response is with the question asked as well as with the context provided.|
 
 <img width="1088" alt="quality of retrieved context and response groundedness" src="https://github.com/uptrain-ai/uptrain/assets/43818888/a7e384a3-c857-4a71-a938-7a2a70f8db1e">
+
 
 | Eval | Description |
 | ---- | ----------- |
 |[Context Relevance](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-relevance) | Grades how relevant the context was to the question specified. |
-|[Context Utilization](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-utilization) | Grades how complete the generated response was for the question specified given the information provided in the context. |
+|[Context Utilization](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-utilization) | Grades how complete the generated response was for the question specified, given the information provided in the context. |
 |[Factual Accuracy](https://docs.uptrain.ai/predefined-evaluations/context-awareness/factual-accuracy)| Grades whether the response generated is factually correct and grounded by the provided context.|
 |[Context Conciseness](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-conciseness)| Evaluates the concise context cited from an original context for irrelevant information.
 |[Context Reranking](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-reranking)| Evaluates how efficient the reranked context is compared to the original context.|
@@ -91,7 +95,7 @@ Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact 
 
 | Eval | Description |
 | ---- | ----------- |
-|[Language Features](https://docs.uptrain.ai/predefined-evaluations/language-quality/fluency-and-coherence) | Grades whether the response has answered all the aspects of the question specified. |
+|[Language Features](https://docs.uptrain.ai/predefined-evaluations/language-quality/fluency-and-coherence) | Grades the quality and effectiveness of language in a response, focusing on factors such as clarity, coherence, conciseness, and overall communication. |
 |[Tonality](https://docs.uptrain.ai/predefined-evaluations/code-evals/code-hallucination) | Grades whether the generated response matches the required persona's tone  |
 
 <img width="1088" alt="language quality of the response" src="https://github.com/uptrain-ai/uptrain/assets/36454110/2fba9f0b-71b3-4d90-90f8-16ef38cef3ab">
@@ -123,8 +127,14 @@ Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact 
 
 | Eval | Description |
 | ---- | ----------- |
-|[Prompt Injection](https://docs.uptrain.ai/predefined-evaluations/safeguarding/prompt-injection) | Grades whether the generated response is leaking any system prompt. |
+|[Prompt Injection](https://docs.uptrain.ai/predefined-evaluations/safeguarding/prompt-injection) | Grades whether the user's prompt is an attempt to make the LLM reveal its system prompts. |
 |[Jailbreak Detection](https://docs.uptrain.ai/predefined-evaluations/safeguarding/jailbreak) | Grades whether the user's prompt is an attempt to jailbreak (i.e. generate illegal or harmful responses). |
+
+<img width="1088" alt="evaluate the clarity of user queries" src="https://github.com/uptrain-ai/uptrain/assets/36454110/50ed622f-0b92-468c-af48-2391ff6ab8e0">
+
+| Eval | Description |
+| ---- | ----------- |
+|[Sub-Query Completeness](https://docs.uptrain.ai/predefined-evaluations/query-quality/sub-query-completeness) | Evaluate whether all of the sub-questions generated from a user's query, taken together, cover all aspects of the user's query or not |
 
 <br />
 
@@ -147,6 +157,7 @@ cd uptrain
 # Run UpTrain
 bash run_uptrain.sh
 ```
+> **_NOTE:_**  UpTrain Dashboard is currently in **Beta version**. We would love your feedback to improve it.
 
 ## Using the UpTrain package
 
