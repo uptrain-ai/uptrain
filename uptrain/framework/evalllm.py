@@ -248,7 +248,7 @@ class EvalLLM:
             )
 
             if isinstance(m, ParametricEval):
-                dictm = m.dict()
+                dictm = m.model_dump()
                 dictm.update({"scenario_description": this_scenario_description})
                 ser_checks.append({"check_name": m.__class__.__name__, **dictm})
             elif isinstance(m, Evals):
@@ -323,7 +323,7 @@ class EvalLLM:
                     "data": results,
                     "checks": checks,
                     "metadata": metadata,
-                    "schema_dict": schema.dict(),
+                    "schema_dict": schema.model_dump(),
                     "project": project_name,
                 },
             )
@@ -347,8 +347,8 @@ class EvalLLM:
                         data=data[i : i + BATCH_SIZE],
                         checks=ser_checks,
                         metadata={
-                            "schema": schema.dict(),
-                            "uptrain_settings": self.settings.dict(),
+                            "schema": schema.model_dump(),
+                            "uptrain_settings": self.settings.model_dump(),
                         },
                     )
                     break

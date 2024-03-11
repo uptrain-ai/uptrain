@@ -54,7 +54,7 @@ def to_py_types(obj: t.Any) -> t.Any:
                 "params": obj.dict(include=set(obj.__fields__)),
             }
     elif isinstance(obj, BaseModel):
-        return obj.dict()
+        return obj.model_dump()
 
     # for numpy types
     if isinstance(obj, np.integer):
