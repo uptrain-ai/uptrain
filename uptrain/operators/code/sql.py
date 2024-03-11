@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import itertools
 import json
-import os
 import typing as t
 
 from pydantic import BaseModel
@@ -21,8 +20,12 @@ from uptrain.utilities.sql_utils import (
 )
 
 if t.TYPE_CHECKING:
-    from uptrain.framework.base import *
-from uptrain.operators.base import *
+    from uptrain.framework.base import Settings
+from uptrain.operators.base import (
+    TransformOp,
+    register_op,
+    TYPE_TABLE_OUTPUT,
+)
 
 sqlglot = lazy_load_dep("sqlglot", "sqlglot")
 

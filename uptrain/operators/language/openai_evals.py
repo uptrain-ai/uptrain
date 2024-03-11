@@ -4,18 +4,21 @@ import sys
 import typing as t
 import uuid
 import itertools
-import numpy as np
 
 import evals
 import evals.base
 import evals.record
 import evals.registry
-from loguru import logger
 import polars as pl
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
-from uptrain.operators.base import *
+from uptrain.operators.base import (
+    ColumnOp,
+    TransformOp,
+    register_op,
+    TYPE_TABLE_OUTPUT,
+)
 from uptrain.utilities import to_py_types
 
 UPTRAIN_BASE_DIR = os.path.dirname(os.path.abspath(__file__))

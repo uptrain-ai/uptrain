@@ -77,7 +77,9 @@ class FeatureDrift(AbstractMonitor):
             if psi > self.psi_threshold:
                 alert = f"Feature Drift last detected at {self.all_count} for {feat_name} with PSI = {psi}"
                 self.log_handler.add_alert(
-                    f"Feature Drift Alert for {feat_name} 🚨", alert, self.dashboard_name
+                    f"Feature Drift Alert for {feat_name} 🚨",
+                    alert,
+                    self.dashboard_name,
                 )
             self.feats = np.array([])
 

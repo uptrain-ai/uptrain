@@ -35,6 +35,9 @@
       "apiKey": "phc_xZJotYlN8qX9dI0AIeGYi6Yt2a0zTZaZ2igmYlHLTq6"
     }
   },
+  "seo": {
+    "indexHiddenPages": false
+  },
   "anchors": [
     {
       "name": "Changelog",
@@ -49,7 +52,7 @@
     {
       "name": "Contributing",
       "icon": "code",
-      "url": "https://github.com/uptrain-ai/uptrain/blob/emb_model_compare/CONTRIBUTING.md"
+      "url": "https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md"
     },
     {
       "name": "Community",
@@ -107,6 +110,14 @@
           ]
         },
         {
+          "group": "Security Evals",
+          "version": "v1",
+          "pages": [
+            "predefined-evaluations/safeguarding/jailbreak",
+            "predefined-evaluations/safeguarding/prompt-injection"
+          ]
+        },
+        {
           "group": "Language Quality Evals",
           "version": "v1",
           "pages": [
@@ -142,19 +153,33 @@
             "predefined-evaluations/custom-evals/custom-guideline",
             "predefined-evaluations/custom-evals/custom-prompt-eval"
           ]
-        },
-        {
-          "group": "Safeguarding Evals",
-          "version": "v1",
-          "pages": [
-            "predefined-evaluations/safeguarding/prompt-injection",
-            "predefined-evaluations/safeguarding/jailbreak"
-          ]
         }
       ]
     },
     {
-      "group": "integrations",
+      "group": "Dashboard",
+      "version": "v1",
+      "pages": [
+          "dashboard/getting_started",
+          "dashboard/project",
+          "dashboard/evaluations",
+          "dashboard/prompts"
+      ]
+    },
+    {
+      "group": "Supported LLMs",
+      "version": "v1",
+      "pages": [
+        "llms/openai",
+        "llms/azure",
+        "llms/claude",
+        "llms/mistral",
+        "llms/together_ai",
+        "llms/anyscale"
+      ]
+    },
+    {
+      "group": "Integrations",
       "version": "v1",
       "pages": [
         {
@@ -179,14 +204,6 @@
                 }
               ]
             }
-          ]
-        },
-        {
-          "group": "LLM Providers",
-          "version": "v1",
-          "pages": [
-            "integrations/llm_providers/anyscale",
-            "integrations/llm_providers/together_ai"
           ]
         },
         {

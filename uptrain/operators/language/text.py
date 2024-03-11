@@ -13,13 +13,16 @@ import re
 import typing as t
 from urllib.parse import urlparse
 
-from loguru import logger
 import polars as pl
 from uptrain.framework import Settings
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
-from uptrain.operators.base import *
+from uptrain.operators.base import (
+    ColumnOp,
+    register_op,
+    TYPE_TABLE_OUTPUT,
+)
 
 
 # TODO: Add support for versions without a minor version number (e.g., "v1") or without a patch version number (e.g., "v1.2")

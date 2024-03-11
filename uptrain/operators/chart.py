@@ -10,13 +10,16 @@ the input DataFrame.
 from __future__ import annotations
 import typing as t
 
-from loguru import logger
 from pydantic import Field
 import polars as pl
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
-from uptrain.operators.base import *
+from uptrain.operators.base import (
+    OpBaseModel,
+    register_op,
+    TYPE_TABLE_OUTPUT,
+)
 from uptrain.utilities import lazy_load_dep, polars_to_pandas
 
 px = lazy_load_dep("plotly.express", "plotly>=5.0.0")
@@ -175,7 +178,7 @@ class BarChart(Chart):
 
     barmode: str = "group"
 
-    kind = "bar"
+    kind: str = "bar"
 
 
 @register_op
@@ -224,7 +227,7 @@ class LineChart(Chart):
     description: str = ""
     color: str = ""
 
-    kind = "line"
+    kind: str = "line"
 
 
 @register_op
@@ -274,7 +277,7 @@ class ScatterPlot(Chart):
     color: str = ""
     symbol: str = "circle"
 
-    kind = "scatter"
+    kind: str = "scatter"
 
 
 @register_op
@@ -327,7 +330,7 @@ class Scatter3DPlot(Chart):
     color: str = ""
     symbol: str = ""
 
-    kind = "scatter_3d"
+    kind: str = "scatter_3d"
 
     def setup(self, settings: Settings = None):
         super(Scatter3DPlot, self).setup()
@@ -391,7 +394,7 @@ class Histogram(Chart):
     color: str = ""
     nbins: int = 20
 
-    kind = "histogram"
+    kind: str = "histogram"
 
 
 @register_op
@@ -461,10 +464,10 @@ class MultiPlot(Chart):
     description: str = ""
     charts: list
 
-    kind = "multiplot"
+    kind: str = "multiplot"
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        if type(self.charts[0]) == dict:
+        if isinstance(self.charts[0], dict):
             self.charts = [Chart(**chart).setup() for chart in self.charts]
 
         fig = ps.make_subplots(
@@ -483,9 +486,6 @@ class MultiPlot(Chart):
         annotation_multi_height = (
             -0.3
         )  # Adjust this value for multiline annotation position
-        annotation_line_height = (
-            -0.05
-        )  # Adjust this value for multiline annotation spacing
 
         for idx, chart in enumerate(self.charts):
             plot = getattr(px, chart.kind)(polars_to_pandas(data), **chart.props)

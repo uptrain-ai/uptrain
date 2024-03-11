@@ -77,7 +77,9 @@ class Embedding(ColumnOp):
 
     """
 
-    model: str = ""  # t.Literal["MiniLM-L6-v2", "instructor-xl", "mpnet-base-v2", "bge-large-zh-v1.5", "instructor-large"]
+    model: str = (
+        ""  # t.Literal["MiniLM-L6-v2", "instructor-xl", "mpnet-base-v2", "bge-large-zh-v1.5", "instructor-large"]
+    )
     col_in_text: str = "text"
     col_out: str = "embedding"
     batch_size: int = 128
@@ -187,7 +189,7 @@ class Embedding(ColumnOp):
                         ).json()["data"]
                     ]
                     emb_length = len(run_res[0])
-                except:
+                except Exception:
                     run_res = []
                     for elem_idx in range(idx * BATCH_SIZE, (idx + 1) * BATCH_SIZE):
                         if elem_idx < len(inputs):

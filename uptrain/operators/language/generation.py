@@ -15,7 +15,12 @@ from uptrain.framework import Settings
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
-from uptrain.operators.base import *
+from uptrain.operators.base import (
+    TransformOp,
+    register_op,
+    TYPE_TABLE_OUTPUT,
+    ColumnOp,
+)
 from uptrain.operators.language.llm import LLMMulticlient, Payload
 
 
@@ -82,7 +87,7 @@ class PromptGenerator(TransformOp):
             # TODO: Temp Fix for handling json in prompts. Permanent fix is to integrate langchain?
             try:
                 prompt = row["template"].format(**fill)
-            except:
+            except Exception:
                 prompt = row["template"]
                 for k, v in fill.items():
                     prompt = prompt.replace("{{" + k + "}}", v)

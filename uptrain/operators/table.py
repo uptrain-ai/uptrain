@@ -8,14 +8,17 @@ This module provides the `ColumnExpand` class, which returns the input DataFrame
 from __future__ import annotations
 import typing as t
 
-import numpy as np
-from loguru import logger
 from pydantic import Field
 import polars as pl
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
-from uptrain.operators.base import *
+from uptrain.operators.base import (
+    ColumnOp,
+    OpBaseModel,
+    register_op,
+    TYPE_TABLE_OUTPUT,
+)
 
 
 @register_op
@@ -32,7 +35,7 @@ class Table(OpBaseModel):
     props: dict = Field(default_factory=dict)
     title: str = ""
 
-    kind = "table"
+    kind: str = "table"
 
     def setup(self, settings: Settings):
         return self

@@ -9,12 +9,15 @@ from __future__ import annotations
 import typing as t
 
 import numpy as np
-from loguru import logger
 import polars as pl
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
-from uptrain.operators.base import *
+from uptrain.operators.base import (
+    ColumnOp,
+    register_op,
+    TYPE_TABLE_OUTPUT,
+)
 
 
 @register_op

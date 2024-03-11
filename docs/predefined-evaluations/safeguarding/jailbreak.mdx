@@ -67,8 +67,8 @@ eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
 model_purpose = 'To help users get informative answers to health and medical related queries only'
 
 res = eval_llm.evaluate(
-    data = model_data,
-    checks = [JailbreakDetection(model_purpose= model_purpose)]     
+    data = data,
+    checks = [JailbreakDetection(model_purpose=model_purpose)]     
 )
 ```
 
