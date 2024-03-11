@@ -405,9 +405,12 @@ class EvalLLM:
         all_cols = set(results.columns)
         value_cols = list(all_cols - set([schema.question] + exp_columns))
         index_cols = metadata.get("uptrain_index_columns", [schema.question])
+        if sum(results.is_duplicated()) > 1:
+            logger.info("Duplicates found in data: Removing duplicates")
+            results = results.unique()
         exp_results = results.pivot(
-            values=value_cols, index=index_cols, columns=exp_columns
-        )
+                values=value_cols, index=index_cols, columns=exp_columns
+            )
         exp_results = exp_results.to_dicts()
         return exp_results
 
