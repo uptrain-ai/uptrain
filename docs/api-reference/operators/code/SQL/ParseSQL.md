@@ -1,1 +1,0 @@
-::: uptrain.operators.ParseSQL
