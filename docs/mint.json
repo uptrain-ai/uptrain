@@ -158,7 +158,8 @@
         "llms/claude",
         "llms/mistral",
         "llms/together_ai",
-        "llms/anyscale"
+        "llms/anyscale",
+        "llms/ollama"
       ]
     },
     {

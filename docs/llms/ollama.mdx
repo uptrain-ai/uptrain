@@ -1,0 +1,133 @@
+---
+title: Ollama
+---
+[Ollama](https://ollama.com/) is a great solution to run large language models (LLMs) on your local system. 
+
+### How will this help?
+
+Using Ollama you can run models like Llama, Gemma locally on your system.
+
+In this tutorial we will walk you though running evaluations on UpTrain using your local models hosted on Ollama.
+
+### Prerequisites
+
+1. Install Ollama to your system, you can download it from [here](https://ollama.com/download)
+
+
+2. Pull the model using the command:
+
+    ```bash
+    ollama pull <model_name>
+    ```
+    
+    For the list of models supported by Ollama you can refer [here](https://ollama.com/library)
+
+3. You can enter http://localhost:11434/ in your web browser to confirm Ollama is running
+
+### How to integrate?
+**First, let's import the necessary packages**
+
+```python
+# %pip install uptrain
+```
+
+```python
+from uptrain import EvalLLM, Evals, Settings
+import json
+```
+
+**Create your data**
+
+You can define your data as a simple dictionary with the following keys:
+
+- `question`: The question you want to ask
+- `context`: The context relevant to the question
+- `response`: The response to the question
+
+```python
+data = [
+  {
+      "question": "Can stress cause physical health problems?",
+      "context": "Stress is the body's response to challenges or threats.",
+      "response": "Sorry, I dont have information to your question"
+  }
+]
+```
+
+**Define the model**
+
+We will be using Gemma 2B for this example. You can refer the [documentation](https://ollama.com/library/gemma) on Ollama.
+
+Remember to add "ollama/" at the beginning of the model name to let UpTrain know that you are using an Ollama model.
+
+```python
+settings = Settings(model='ollama/gemma:2b')
+```
+
+**Create an EvalLLM Evaluator**
+
+Before we can start using UpTrain, we need to create an EvalLLM Evaluator.
+
+```python
+eval_llm = EvalLLM(settings)
+```
+
+We have used the following 3 metrics from UpTrain's library:
+
+1. [Context Relevance](/predefined-evaluations/context-awareness/context-relevance): Evaluates how relevant the retrieved context is to the question specified.
+
+2. [Response Conciseness](/predefined-evaluations/response-quality/response-conciseness): Evaluates how concise the generated response is or if it has any additional irrelevant information for the question asked..
+
+3. [Response Relevance](/predefined-evaluations/response-quality/response-relevance): Evaluates how relevant the generated response was to the question specified.
+
+You can look at the complete list of UpTrain's supported metrics [here](https://docs.uptrain.ai/predefined-evaluations/overview)
+
+```python
+results = eval_llm.evaluate(
+    project_name = 'Ollama-Demo',
+    data=data,
+    checks=[Evals.CONTEXT_RELEVANCE, Evals.RESPONSE_CONCISENESS, Evals.RESPONSE_RELEVANCE]
+)
+```
+
+**View your results**
+```python
+print(json.dumps(results, indent=3))
+```
+Sample Reponse:
+```json
+[
+   {
+      "question": "Can stress cause physical health problems?",
+      "context": "Stress is the body's response to challenges or threats.",
+      "response": "Sorry, I dont have information to your question",
+      "score_context_relevance": 0.0,
+      "explanation_context_relevance": "{\n    \"Reasoning\": \"The context does not provide any information about the body's response to challenges or threats, so it cannot determine if stress can cause physical health problems.\",\n    \"Choice\": \"C\"\n}",
+      "score_response_conciseness": 0.0,
+      "explanation_response_conciseness": "{\n    \"Reasoning\": \"The response provides no information about the potential causes of physical health problems, which is an irrelevant detail.\",\n    \"Choice\": \"C\"\n}",
+      "score_response_relevance": 0,
+      "explanation_response_relevance": "Response Precision: 0.0{\n    \"Reasoning\": \"The response provides no information about the cause of stress or its impact on physical health, which is an irrelevant detail.\",\n    \"Choice\": \"C\"\n}\nResponse Recall: 0.0{\n    \"Reasoning\": \"The response does not provide any information about the ability of stress to cause physical health problems, which is not directly addressed by the question. Therefore, it cannot answer the question completely.\",\n    \"Choice\": \"C\"\n}"
+   }
+]
+```
+
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/integrations/llm_providers/ollama.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>
+
