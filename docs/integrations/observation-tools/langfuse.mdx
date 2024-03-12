@@ -11,7 +11,7 @@ Scores can be used in a variety of ways in Langfuse:
 3. Fine Tuning: Filter and [export](https://langfuse.com/docs/export-and-fine-tuning) by scores as .csv or .JSONL for fine-tuning
 4. Analytics: Detailed score reporting and dashboards with drill downs into use cases and user segments
 
-This notebook demonstrates how to use Langfuse to create traces and evaluate using UpTrain
+In this guide, we will walk you through using Langfuse to create traces and evaluate them using UpTrain.
 
 ## How to integrate?
 ### Setup
@@ -225,6 +225,11 @@ for _, row in df.iterrows():
         )
 df.head()
 ```
+
+You can visualize these results on Lanfuse:
+<Frame>
+  <img src="/assets/langfuse.webp" />
+</Frame>
 
 <CardGroup cols={2}>
   <Card
