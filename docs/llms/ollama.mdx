@@ -46,22 +46,25 @@ You can define your data as a simple dictionary with the following keys:
 
 ```python
 data = [
-  {
-      "question": "Can stress cause physical health problems?",
-      "context": "Stress is the body's response to challenges or threats.",
-      "response": "Sorry, I dont have information to your question"
-  }
+   {
+        'question': 'What is the capital of France?',
+        'context': 'France, context for its exquisite pastries and fashion, has a capital city called Paris. It\'s a place where people speak French and enjoy baguettes. I once heard that the Eiffel Tower was built by aliens, but don\'t quote me on that.',
+        'response': 'The capital of France is Paris.'
+    }
 ]
 ```
 
 **Define the model**
 
-We will be using Gemma 2B for this example. You can refer the [documentation](https://ollama.com/library/gemma) on Ollama.
+We will be using Stable LM 2 1.6B for this example. You can refer the [documentation](https://ollama.com/library/stablelm2) on Ollama.
 
 Remember to add "ollama/" at the beginning of the model name to let UpTrain know that you are using an Ollama model.
 
+<Note>You can check if you have downloaded Stable LM 2 1.6B by running `!ollama list` 
+        Else you can download it by `!ollama pull stablelm2`</Note>
+
 ```python
-settings = Settings(model='ollama/gemma:2b')
+settings = Settings(model='ollama/stablelm2')
 ```
 
 **Create an EvalLLM Evaluator**
@@ -92,23 +95,61 @@ results = eval_llm.evaluate(
 
 **View your results**
 ```python
-print(json.dumps(results, indent=3))
+results = eval_llm.evaluate(
+    project_name = 'Ollam-tutorial-test',
+    data=data,
+    checks=[Evals.CONTEXT_RELEVANCE, Evals.RESPONSE_CONCISENESS, Evals.RESPONSE_RELEVANCE]
+)
 ```
 Sample Reponse:
 ```json
-[
-   {
-      "question": "Can stress cause physical health problems?",
-      "context": "Stress is the body's response to challenges or threats.",
-      "response": "Sorry, I dont have information to your question",
-      "score_context_relevance": 0.0,
-      "explanation_context_relevance": "{\n    \"Reasoning\": \"The context does not provide any information about the body's response to challenges or threats, so it cannot determine if stress can cause physical health problems.\",\n    \"Choice\": \"C\"\n}",
-      "score_response_conciseness": 0.0,
-      "explanation_response_conciseness": "{\n    \"Reasoning\": \"The response provides no information about the potential causes of physical health problems, which is an irrelevant detail.\",\n    \"Choice\": \"C\"\n}",
-      "score_response_relevance": 0,
-      "explanation_response_relevance": "Response Precision: 0.0{\n    \"Reasoning\": \"The response provides no information about the cause of stress or its impact on physical health, which is an irrelevant detail.\",\n    \"Choice\": \"C\"\n}\nResponse Recall: 0.0{\n    \"Reasoning\": \"The response does not provide any information about the ability of stress to cause physical health problems, which is not directly addressed by the question. Therefore, it cannot answer the question completely.\",\n    \"Choice\": \"C\"\n}"
-   }
+[  
+  {  'context': 'France, context for its exquisite pastries and fashion, has '
+                 "a capital city called Paris. It's a place where people speak "
+                 'French and enjoy baguettes. I once heard that the Eiffel '
+                 "Tower was built by aliens, but don't quote me on that.",
+      'explanation_context_relevance': '{\n'
+                                       '     "Reasoning": "The extracted '
+                                       'context can answer the given query '
+                                       'because it provides information about '
+                                       "France's capital city, Paris. This "
+                                       'information is relevant to answering '
+                                       'the question about the capital of '
+                                       'France.",\n'
+                                       '     "Choice": "A"\n'
+                                       '}',
+      'explanation_response_conciseness': '{\n'
+                                          '     "Reasoning": "The given '
+                                          'response provides information about '
+                                          'the capital of France, but it lacks '
+                                          'the detail that could be expected '
+                                          'in this context.",\n'
+                                          '     "Choice": "B"\n'
+                                          '}',
+      'explanation_response_relevance': 'Response Precision: 0.5{\n'
+                                        '     "Reasoning": "The given response '
+                                        'provides information about the '
+                                        'capital of France, but it lacks the '
+                                        'detail that could be expected in this '
+                                        'context.",\n'
+                                        '     "Choice": "B"\n'
+                                        '}\n'
+                                        'Response Recall: 1.0{\n'
+                                        '     "Reasoning": "The given response '
+                                        'adequately answers the question about '
+                                        'the capital of France because it '
+                                        'provides the correct answer, i.e., '
+                                        'Paris.",\n'
+                                        '     "Choice": "A"\n'
+                                        '}',
+      'question': 'What is the capital of France?',
+      'response': 'The capital of France is Paris.',
+      'score_context_relevance': 1.0,
+      'score_response_conciseness': 0.5,
+      'score_response_relevance': 0.6666666666666666
+  }
 ]
+
 ```
 
 
