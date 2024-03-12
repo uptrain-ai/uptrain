@@ -25,10 +25,10 @@ Please note that the `context` mentioned here is the context that you have retri
 To further learn about the use of Vector DBs for your RAG pipeline, you can have a look at this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/integrations/rag/rag_evaluations_uptrain_mistral.ipynb)
 
 Through this tutorial we will try to walk you through the following failure cases possible in your RAG pipeline:
-- *Poor Retrieval*: The context does not have information relevant to the question asked.
-- *Poor Citation*: The cited information is not factually correct.
-- *Poor Context Utilization*: The cited information is not relevant to the question
-- *Hallucinations*: The generated response is not factually correct.
+- **Poor Retrieval**: The context does not have information relevant to the question asked.
+- **Poor Citation**: The cited information is not factually correct.
+- **Poor Context Utilization**: The cited information is not relevant to the question
+- **Hallucinations**: The generated response is not factually correct.
 
 ### How to use it?
 
@@ -91,104 +91,371 @@ Through this tutorial we will try to walk you through the following failure case
   )
   ```
   </Step>
+
+  <Step title = "Print the results">
+  ```python
+from pprint import pprint
+pprint(res, indent=3)
+  ```
+  </Step>
 </Steps>
 
+### Sample Responses
+
 Now that we have completed the RCA using UpTrain, let's look at some of the results:
+
   1. **Poor Retrieval**: 
 
   In the following example we can see that the `context` does not have any information on handling refunds where the customer receives a defective product. Reflecting that the quality of retrieved context to be poor and not sufficient to answer the user's query. 
     ```json
-    {
-      "question": "How much refund can I get for a defective product?",
-      "context": "Wrong Item Shipped: replacement. Late Delivery: 10% refund. Else: Talk to customer support agent.",
-      "cited_context": "Late Delivery: 10% refund.",
-      "response": "You are eligible for a 10% refund.",
-      "error_mode": "Poor Retrieval",
-      "error_resolution_suggestion": "Context Retrieval Pipeline needs improvement",
-      "score_question_completeness": 1,
-      "score_valid_response": 1.0,
-      "explanation_valid_response": "{\n    \"Reasoning\": \"The response 'You are eligible for a 10% refund' provides the specific percentage of refund that can be obtained for a defective product. Therefore, the response does contain information relevant to the question.\",\n    \"Choice\": \"A\"\n}",
-      "score_context_relevance": 0.0,
-      "explanation_context_relevance": "{\n    \"Reasoning\": \"The given context does not contain any specific information about the refund for a defective product. It only mentions a 10% refund for late delivery and advises to talk to customer support for other issues. Therefore, the context does not provide enough information to answer the query.\",\n    \"Choice\": \"C\"\n}",
-      "score_factual_accuracy": 0.5,
-      "explanation_factual_accuracy": "[\n    {\n        \"Fact\": \"1. You are eligible for a 10% refund.\",\n        \"Reasoning\": \"The context mentions that a 10% refund is eligible for late delivery, but it doesn't specify if this applies to all cases or just late delivery. Hence, the fact can not be verified by the context.\",\n        \"Judgement\": \"unclear\"\n    }\n]",
-      "score_cited_context_relevance": 0.5,
-      "explanation_cited_context_relevance": "{\n    \"Reasoning\": \"The given context can give some relevant answer for the given query but can't answer it completely. The context provides information about a 10% refund for late delivery, but it does not specify the refund amount for a defective product. Therefore, the context only partially addresses the query.\",\n    \"Choice\": \"B\"\n}",
-      "score_factual_accuracy_wrt_cited": 0.5,
-      "explanation_factual_accuracy_wrt_cited": "[\n    {\n        \"Fact\": \"1. You are eligible for a 10% refund.\",\n        \"Reasoning\": \"The context explicitly states that there is a 10% refund for late delivery, but it doesn't mention anything about eligibility.\",\n        \"Judgement\": \"unclear\"\n    }\n]"
-    }
+    {  'cited_context': 'Late Delivery: 10% refund.',
+   'context': 'Wrong Item Shipped: replacement. Late Delivery: 10% refund. '
+              'Else: Talk to customer support agent.',
+   'error_mode': 'Poor Retrieval',
+   'error_resolution_suggestion': 'Context Retrieval Pipeline needs '
+                                  'improvement',
+   'explanation_cited_context_relevance': '{\n'
+                                          '    "Reasoning": "The given context '
+                                          'can give some relevant answer for '
+                                          "the given query but can't answer it "
+                                          'completely. The context provides '
+                                          'information about a 10% refund for '
+                                          'late delivery, but it does not '
+                                          'specify the refund amount for a '
+                                          'defective product. Therefore, the '
+                                          'context only partially addresses '
+                                          'the query.",\n'
+                                          '    "Choice": "B"\n'
+                                          '}',
+   'explanation_context_relevance': '{\n'
+                                    '    "Reasoning": "The given context does '
+                                    'not contain any specific information '
+                                    'about the refund for a defective product. '
+                                    'It only mentions a 10% refund for late '
+                                    'delivery, but it does not provide any '
+                                    'information about refunds for defective '
+                                    'products. Therefore, the context does not '
+                                    'contain any information to answer the '
+                                    'given query.",\n'
+                                    '    "Choice": "C"\n'
+                                    '}',
+   'explanation_factual_accuracy': '[\n'
+                                   '    {\n'
+                                   '        "Fact": "1. You are eligible for a '
+                                   '10% refund.",\n'
+                                   '        "Reasoning": "The context mentions '
+                                   'that a 10% refund is eligible for late '
+                                   "delivery, but it doesn't specify if this "
+                                   'applies to all cases or just late '
+                                   'delivery. Hence, the fact can not be '
+                                   'verified by the context.",\n'
+                                   '        "Judgement": "unclear"\n'
+                                   '    }\n'
+                                   ']',
+   'explanation_factual_accuracy_wrt_cited': '[\n'
+                                             '    {\n'
+                                             '        "Fact": "1. You are '
+                                             'eligible for a 10% refund.",\n'
+                                             '        "Reasoning": "The '
+                                             'context explicitly states that '
+                                             'there is a 10% refund for late '
+                                             "delivery, but it doesn't mention "
+                                             'eligibility criteria. Hence, the '
+                                             'fact can not be verified by the '
+                                             'context.",\n'
+                                             '        "Judgement": "no"\n'
+                                             '    }\n'
+                                             ']',
+   'explanation_valid_response': '{\n'
+                                 '    "Reasoning": "The response \'You are '
+                                 "eligible for a 10% refund' provides the "
+                                 'specific percentage of refund that can be '
+                                 'obtained for a defective product. Therefore, '
+                                 'the response does contain information '
+                                 'relevant to the question.",\n'
+                                 '    "Choice": "A"\n'
+                                 '}',
+   'question': 'How much refund can I get for a defective product?',
+   'response': 'You are eligible for a 10% refund.',
+   'score_cited_context_relevance': 0.5,
+   'score_context_relevance': 0.0,
+   'score_factual_accuracy': 0.5,
+   'score_factual_accuracy_wrt_cited': 0.0,
+   'score_question_completeness': 1,
+   'score_valid_response': 1.0}
+
     ```
     2. **Poor Citation**: 
 
     In the following example we can see that the `context` does have relevant information on handling refunds but the LLM has cited incorrect information. Reflecting that the citation is poor. 
     ```json
-    {
-      "question": "How much refund can I get for a defective product?",
-      "context": "Defective Product: 100% refund. Wrong Item Shipped: replacement. Late Delivery: 10% refund.",
-      "cited_context": "Defective Product: 10% refund",
-      "response": "You are eligible for a a 10% refund.",
-      "error_mode": "Poor citation",
-      "error_resolution_suggestion": "LLM is extracting facts from the context which are not cited correctly. Improve the citation quality of LLM by adding more instructions",
-      "score_question_completeness": 1,
-      "score_valid_response": 1.0,
-      "explanation_valid_response": "{\n    \"Reasoning\": \"The response 'You are eligible for a 10% refund' provides the specific percentage of refund that can be obtained for a defective product. Therefore, the response does contain information relevant to the question.\",\n    \"Choice\": \"A\"\n}",
-      "score_context_relevance": 0.5,
-      "explanation_context_relevance": "{\n    \"Reasoning\": \"The given context can give some relevant answer for the given query but can't answer it completely. The context provides information about the refund policy for a defective product, stating that a 100% refund is available. However, it does not provide information about the refund amount for other types of defects or products. Therefore, while it gives some relevant information, it does not answer the query completely.\",\n    \"Choice\": \"B\"\n}",
-      "score_factual_accuracy": 1.0,
-      "explanation_factual_accuracy": "[\n    {\n        \"Fact\": \"1. You are eligible for a 10% refund.\",\n        \"Reasoning\": \"The context mentions that late delivery results in a 10% refund, which supports the fact that you are eligible for a 10% refund.\",\n        \"Judgement\": \"yes\"\n    }\n]",
-      "score_cited_context_relevance": 1.0,
-      "explanation_cited_context_relevance": "{\n    \"Reasoning\": \"The given context can answer the given question completely because it provides specific information about the refund percentage for a defective product. This information directly addresses the query. Hence, selected choice is A. The extracted context can answer the given question completely.\",\n    \"Choice\": \"A\"\n}",
-      "score_factual_accuracy_wrt_cited": 0.0,
-      "explanation_factual_accuracy_wrt_cited": "[\n    {\n        \"Fact\": \"1. You are eligible for a 10% refund.\",\n        \"Reasoning\": \"The context explicitly states that there is a 10% refund for a defective product, but it doesn't mention anything about eligibility criteria. Hence, the fact can not be verified by the context.\",\n        \"Judgement\": \"no\"\n    }\n]"
-    }
-    ```
+    {  'cited_context': 'Defective Product: 10% refund',
+   'context': 'Defective Product: 100% refund. Wrong Item Shipped: '
+              'replacement. Late Delivery: 10% refund.',
+   'error_mode': 'Poor citation',
+   'error_resolution_suggestion': 'LLM is extracting facts from the context '
+                                  'which are not cited correctly. Improve the '
+                                  'citation quality of LLM by adding more '
+                                  'instructions',
+   'explanation_cited_context_relevance': '{\n'
+                                          '    "Reasoning": "The given context '
+                                          'can answer the given question '
+                                          'completely because it provides '
+                                          'specific information about the '
+                                          'refund percentage for a defective '
+                                          'product. This information directly '
+                                          'addresses the query and can answer '
+                                          'it completely. Hence, selected '
+                                          'choice is A. The extracted context '
+                                          'can answer the given question '
+                                          'completely.",\n'
+                                          '    "Choice": "A"\n'
+                                          '}',
+   'explanation_context_relevance': '{\n'
+                                    '    "Reasoning": "The given context can '
+                                    'give some relevant answer for the given '
+                                    "query but can't answer it completely. The "
+                                    'context provides information about the '
+                                    'refund policy for a defective product, '
+                                    'stating that a 100% refund is available. '
+                                    'However, it does not provide information '
+                                    'about the refund amount for other types '
+                                    'of defective products or any specific '
+                                    'details about the process for obtaining a '
+                                    'refund. Therefore, while it provides some '
+                                    'relevant information, it does not answer '
+                                    'the query completely.",\n'
+                                    '    "Choice": "B"\n'
+                                    '}',
+   'explanation_factual_accuracy': '[\n'
+                                   '    {\n'
+                                   '        "Fact": "1. You are eligible for a '
+                                   '10% refund.",\n'
+                                   '        "Reasoning": "The context '
+                                   'explicitly states that late delivery is '
+                                   'eligible for a 10% refund. Hence, the fact '
+                                   'can be verified by the context.",\n'
+                                   '        "Judgement": "yes"\n'
+                                   '    }\n'
+                                   ']',
+   'explanation_factual_accuracy_wrt_cited': '[\n'
+                                             '    {\n'
+                                             '        "Fact": "1. You are '
+                                             'eligible for a 10% refund.",\n'
+                                             '        "Reasoning": "The '
+                                             'context explicitly states that '
+                                             'there is a 10% refund for a '
+                                             'defective product, but it '
+                                             "doesn't mention anything about "
+                                             'eligibility criteria. Hence, the '
+                                             'fact can not be verified by the '
+                                             'context.",\n'
+                                             '        "Judgement": "no"\n'
+                                             '    }\n'
+                                             ']',
+   'explanation_valid_response': '{\n'
+                                 '    "Reasoning": "The response \'You are '
+                                 "eligible for a 10% refund' provides the "
+                                 'specific percentage of refund that can be '
+                                 'obtained for a defective product. Therefore, '
+                                 'the response does contain information '
+                                 'relevant to the question.",\n'
+                                 '    "Choice": "A"\n'
+                                 '}',
+   'question': 'How much refund can I get for a defective product?',
+   'response': 'You are eligible for a a 10% refund.',
+   'score_cited_context_relevance': 1.0,
+   'score_context_relevance': 0.5,
+   'score_factual_accuracy': 1.0,
+   'score_factual_accuracy_wrt_cited': 0.0,
+   'score_question_completeness': 1,
+   'score_valid_response': 1.0}
+```
     3. **Poor Context Utilization**: 
 
     In the following example we can see that the `context` does have relevant information on handling refunds but the LLM has cited information with some other case which is not relevant to the user's query. Reflecting that the LLM has not utilized the retrieved context properly. 
+    
     ```json
-    {
-      "question": "How much refund can I get for a defective product?",
-      "context": "Defective Product: 100% refund. Wrong Item Shipped: replacement. Late Delivery: 10% refund.",
-      "cited_context": "Wrong Item Shipped: replacement",
-      "response": "You are not eligible for a refund but we can replace your order.",
-      "error_mode": "Poor Context Utilization",
-      "error_resolution_suggestion": "Add intermediary steps so as the LLM can better understand context and generate a complete response",
-      "score_question_completeness": 1,
-      "score_valid_response": 1.0,
-      "explanation_valid_response": "{\n    \"Reasoning\": \"The response 'You are not eligible for a refund but we can replace your order' provides information about the eligibility for a refund and the option to replace the order. Therefore, the response does contain information relevant to the question.\",\n    \"Choice\": \"A\"\n}",
-      "score_context_relevance": 0.5,
-      "explanation_context_relevance": "{\n    \"Reasoning\": \"The given context can give some relevant answer for the given query but can't answer it completely. The context provides information about the refund policy for a defective product, stating that a 100% refund is available. However, it does not provide information about the refund amount for other types of defects or products. Therefore, while it gives some relevant information, it does not answer the query completely.\",\n    \"Choice\": \"B\"\n}",
-      "score_factual_accuracy": 0.5,
-      "explanation_factual_accuracy": "[\n    {\n        \"Fact\": \"1. You are not eligible for a refund.\",\n        \"Reasoning\": \"The context mentions specific situations where a refund is applicable, but it doesn't explicitly state that you are not eligible for a refund in general. Hence, the fact can not be verified by the context.\",\n        \"Judgement\": \"no\"\n    },\n    {\n        \"Fact\": \"2. They can replace your order.\",\n        \"Reasoning\": \"The context mentions that a wrong item shipped can be replaced, so it can be inferred that they can replace your order in certain situations.\",\n        \"Judgement\": \"yes\"\n    }\n]",
-      "score_cited_context_relevance": 0.0,
-      "explanation_cited_context_relevance": "{\n    \"Reasoning\": \"The given context does not contain any information about the refund amount for a defective product. It only mentions a wrong item being shipped and a replacement. This information is not relevant to the query about the refund amount. Hence, selected choice is C. The extracted context doesn't contain any information to answer the given query.\",\n    \"Choice\": \"C\"\n}",
-      "score_factual_accuracy_wrt_cited": 0.75,
-      "explanation_factual_accuracy_wrt_cited": "[\n    {\n        \"Fact\": \"1. You are not eligible for a refund.\",\n        \"Reasoning\": \"The context mentions that the wrong item was shipped and a replacement is available, but it doesn't explicitly state anything about eligibility for a refund.\",\n        \"Judgement\": \"unclear\"\n    },\n    {\n        \"Fact\": \"2. They can replace your order.\",\n        \"Reasoning\": \"The context explicitly states that a replacement is available for the wrong item shipped, so the fact can be verified by the context.\",\n        \"Judgement\": \"yes\"\n    }\n]"
-    }
+    {  'cited_context': 'Wrong Item Shipped: replacement',
+   'context': 'Defective Product: 100% refund. Wrong Item Shipped: '
+              'replacement. Late Delivery: 10% refund.',
+   'error_mode': 'Poor Context Utilization',
+   'error_resolution_suggestion': 'Add intermediary steps so as the LLM can '
+                                  'better understand context and generate a '
+                                  'complete response',
+   'explanation_cited_context_relevance': '{\n'
+                                          '    "Reasoning": "The given context '
+                                          'does not contain any information '
+                                          'about the refund amount for a '
+                                          'defective product. It only mentions '
+                                          'that a wrong item was shipped and a '
+                                          'replacement is needed. This does '
+                                          'not provide any relevant '
+                                          'information to answer the query '
+                                          'about the refund amount.",\n'
+                                          '    "Choice": "C"\n'
+                                          '}',
+   'explanation_context_relevance': '{\n'
+                                    '    "Reasoning": "The given context can '
+                                    'give some relevant answer for the given '
+                                    "query but can't answer it completely. The "
+                                    'context provides information about the '
+                                    'refund policy for a defective product, '
+                                    'stating that a 100% refund is available. '
+                                    'However, it does not provide information '
+                                    'about the refund amount for other types '
+                                    'of defects or products. Therefore, while '
+                                    'it gives some relevant information, it '
+                                    'does not answer the query completely.",\n'
+                                    '    "Choice": "B"\n'
+                                    '}',
+   'explanation_factual_accuracy': '[\n'
+                                   '    {\n'
+                                   '        "Fact": "1. You are not eligible '
+                                   'for a refund.",\n'
+                                   '        "Reasoning": "The context mentions '
+                                   'different scenarios where refunds are '
+                                   "applicable, but it doesn't explicitly "
+                                   'state that you are not eligible for a '
+                                   'refund in general. Hence, the fact can not '
+                                   'be verified by the context.",\n'
+                                   '        "Judgement": "no"\n'
+                                   '    },\n'
+                                   '    {\n'
+                                   '        "Fact": "2. They can replace your '
+                                   'order.",\n'
+                                   '        "Reasoning": "The context mentions '
+                                   'that wrong item shipped can be replaced, '
+                                   'so it supports the fact that they can '
+                                   'replace your order.",\n'
+                                   '        "Judgement": "yes"\n'
+                                   '    }\n'
+                                   ']',
+   'explanation_factual_accuracy_wrt_cited': '[\n'
+                                             '    {\n'
+                                             '        "Fact": "1. You are not '
+                                             'eligible for a refund.",\n'
+                                             '        "Reasoning": "The '
+                                             'context mentions that the wrong '
+                                             'item was shipped and a '
+                                             'replacement is available, but it '
+                                             "doesn't explicitly state "
+                                             'anything about eligibility for a '
+                                             'refund.",\n'
+                                             '        "Judgement": "unclear"\n'
+                                             '    },\n'
+                                             '    {\n'
+                                             '        "Fact": "2. They can '
+                                             'replace your order.",\n'
+                                             '        "Reasoning": "The '
+                                             'context explicitly states that a '
+                                             'replacement is available for the '
+                                             'wrong item shipped, so the fact '
+                                             'can be verified by the '
+                                             'context.",\n'
+                                             '        "Judgement": "yes"\n'
+                                             '    }\n'
+                                             ']',
+   'explanation_valid_response': '{\n'
+                                 '    "Reasoning": "The response \'You are not '
+                                 'eligible for a refund but we can replace '
+                                 "your order' provides information about the "
+                                 'eligibility for a refund and the option to '
+                                 'replace the order. Therefore, the response '
+                                 'does contain information relevant to the '
+                                 'question.",\n'
+                                 '    "Choice": "A"\n'
+                                 '}',
+   'question': 'How much refund can I get for a defective product?',
+   'response': 'You are not eligible for a refund but we can replace your '
+               'order.',
+   'score_cited_context_relevance': 0.0,
+   'score_context_relevance': 0.5,
+   'score_factual_accuracy': 0.5,
+   'score_factual_accuracy_wrt_cited': 0.75,
+   'score_question_completeness': 1,
+   'score_valid_response': 1.0}
     ```
     4. **Hallucinations**:
 
     In the following example we can see that the `context` does have relevant information on handling refunds but the LLM has generated a response which is not grounded by this context. Reflecting that the LLM is generating hallucinated responses.  
     ```json
-    {
-      "question": "How much refund can I get for a defective product?",
-      "context": "Defective Product: 100% refund. Wrong Item Shipped: replacement. Late Delivery: 10% refund.",
-      "cited_context": "",
-      "response": "We dont provide any refunds",
-      "error_mode": "Hallucinations",
-      "error_resolution_suggestion": "Add instructions to your LLM to adher to the context provide - Try tipping",
-      "score_question_completeness": 1,
-      "score_valid_response": 1.0,
-      "explanation_valid_response": "{\n    \"Reasoning\": \"The response 'We dont provide any refunds' directly addresses the question by stating that no refunds are provided. Therefore, the response does contain information relevant to the question.\",\n    \"Choice\": \"A\"\n}",
-      "score_context_relevance": 0.5,
-      "explanation_context_relevance": "{\n    \"Reasoning\": \"The given context can give some relevant answer for the given query but can't answer it completely. The context provides information about the refund policy for a defective product, stating that a 100% refund is available. However, it does not provide information about the refund amount for other types of defects or products. Therefore, while it partially answers the query, it does not provide a complete answer.\",\n    \"Choice\": \"B\"\n}",
-      "score_factual_accuracy": 0.0,
-      "explanation_factual_accuracy": "[\n    {\n        \"Fact\": \"1. The company does not provide any refunds for defective products.\",\n        \"Reasoning\": \"The context explicitly states that for defective products, the company provides a 100% refund. Hence, the fact can be verified by the context.\",\n        \"Judgement\": \"no\"\n    }\n]",
-      "score_cited_context_relevance": 0.0,
-      "explanation_cited_context_relevance": "{\n    \"Reasoning\": \"The given context does not contain any information about the refund policy for defective products. It only provides information about Lionel Messi. Therefore, the context is not relevant to answer the query.\",\n    \"Choice\": \"C\"\n}",
-      "score_factual_accuracy_wrt_cited": 0.0,
-      "explanation_factual_accuracy_wrt_cited": "[\n    {\n        \"Fact\": \"1. We don't provide any refunds.\",\n        \"Reasoning\": \"The context does not mention anything about refunds or refund policy, so the fact cannot be verified by the context.\",\n        \"Judgement\": \"no\"\n    }\n]"
-    }
+    {  'cited_context': '',
+   'context': 'Defective Product: 100% refund. Wrong Item Shipped: '
+              'replacement. Late Delivery: 10% refund.',
+   'error_mode': 'Hallucinations',
+   'error_resolution_suggestion': 'Add instructions to your LLM to adher to '
+                                  'the context provide - Try tipping',
+   'explanation_cited_context_relevance': '{\n'
+                                          '    "Reasoning": "The given context '
+                                          'does not contain any information '
+                                          'about the refund policy for '
+                                          'defective products. It does not '
+                                          'provide any details about the '
+                                          "company's return or refund "
+                                          'policies. Hence, the extracted '
+                                          "context doesn't contain any "
+                                          'information to answer the given '
+                                          'query.",\n'
+                                          '    "Choice": "C"\n'
+                                          '}',
+   'explanation_context_relevance': '{\n'
+                                    '    "Reasoning": "The given context can '
+                                    'give some relevant answer for the given '
+                                    "query but can't answer it completely. The "
+                                    'context provides information about the '
+                                    'refund policy for a defective product, '
+                                    'stating that a 100% refund is available. '
+                                    'However, it does not provide information '
+                                    'about the refund amount for other types '
+                                    'of issues or products. Therefore, while '
+                                    'it gives some relevant information, it '
+                                    'does not answer the query completely.",\n'
+                                    '    "Choice": "B"\n'
+                                    '}',
+   'explanation_factual_accuracy': '[\n'
+                                   '    {\n'
+                                   '        "Fact": "1. We don\'t provide any '
+                                   'refunds.",\n'
+                                   '        "Reasoning": "The context clearly '
+                                   'states the different scenarios in which '
+                                   'refunds are provided, but it does not '
+                                   'mention that no refunds are provided under '
+                                   'any circumstances. Hence, the fact can not '
+                                   'be verified by the context.",\n'
+                                   '        "Judgement": "no"\n'
+                                   '    }\n'
+                                   ']',
+   'explanation_factual_accuracy_wrt_cited': '[\n'
+                                             '    {\n'
+                                             '        "Fact": "1. We don\'t '
+                                             'provide any refunds.",\n'
+                                             '        "Reasoning": "The '
+                                             'context does not mention '
+                                             'anything about refunds or refund '
+                                             'policy, so the fact cannot be '
+                                             'verified by the context.",\n'
+                                             '        "Judgement": "no"\n'
+                                             '    }\n'
+                                             ']',
+   'explanation_valid_response': '{\n'
+                                 '    "Reasoning": "The response \'We dont '
+                                 "provide any refunds' directly addresses the "
+                                 'question by stating that no refunds are '
+                                 'provided. Therefore, the response does '
+                                 'contain information relevant to the '
+                                 'question.",\n'
+                                 '    "Choice": "A"\n'
+                                 '}',
+   'question': 'How much refund can I get for a defective product?',
+   'response': 'We dont provide any refunds',
+   'score_cited_context_relevance': 0.0,
+   'score_context_relevance': 0.5,
+   'score_factual_accuracy': 0.0,
+   'score_factual_accuracy_wrt_cited': 0.0,
+   'score_question_completeness': 1,
+   'score_valid_response': 1.0}
+
     ```
 <CardGroup cols={2}>
   <Card
