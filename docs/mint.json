@@ -189,7 +189,8 @@
         {
           "group": "Observation Tools",
           "pages": [
-            "integrations/observation-tools/langfuse"
+            "integrations/observation-tools/langfuse",
+            "integrations/observation-tools/helicone"
           ]
         },
         {
