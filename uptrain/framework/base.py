@@ -8,10 +8,15 @@ import typing as t
 from loguru import logger
 import networkx as nx
 import polars as pl
-from pydantic import BaseSettings, Field
+from pydantic import Field
 
-from uptrain.operators.base import *
+from uptrain.operators.base import (
+    Operator,
+    TransformOp,
+    deserialize_operator,
+)
 from uptrain.utilities import to_py_types, jsondump, jsonload
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 __all__ = [
     "OperatorDAG",
@@ -23,32 +28,46 @@ class Settings(BaseSettings):
     # uptrain stores logs in this folder
     logs_folder: str = "/tmp/uptrain-logs"
     # external api related
-    openai_api_key: str = Field(None, env="OPENAI_API_KEY")
-    cohere_api_key: str = Field(None, env="COHERE_API_KEY")
-    huggingface_api_key: str = Field(None, env="HUGGINGFACE_API_KEY")
-    anthropic_api_key: str = Field(None, env="ANTHROPIC_API_KEY")
-    replicate_api_token: str = Field(None, env="REPLICATE_API_TOKEN")
-    anyscale_api_key: str = Field(None, env="ANYSCALE_API_KEY")
-    together_api_key: str = Field(None, env="TOGETHER_API_KEY")
-    mistral_api_key: str = Field(None, env="MISTRAL_API_KEY")
+    openai_api_key: t.Optional[str] = Field(None, env="OPENAI_API_KEY")
+    cohere_api_key: t.Optional[str] = Field(None, env="COHERE_API_KEY")
+    huggingface_api_key: t.Optional[str] = Field(
+        None, env="HUGGINGFACE_API_KEY"
+    )
+    anthropic_api_key: t.Optional[str] = Field(
+        None, env="ANTHROPIC_API_KEY"
+    )
+    replicate_api_token: t.Optional[str] = Field(
+        None, env="REPLICATE_API_TOKEN"
+    )
+    anyscale_api_key: t.Optional[str] = Field(None, env="ANYSCALE_API_KEY")
+    together_api_key: t.Optional[str] = Field(None, env="TOGETHER_API_KEY")
+    mistral_api_key: t.Optional[str] = Field(None, env="MISTRAL_API_KEY")
 
-    azure_api_key: str = Field(None, env="AZURE_API_KEY")
-    azure_api_base: str = Field(None, env="AZURE_API_BASE")
-    azure_api_version: str = Field(None, env="AZURE_API_VERSION")
+    azure_api_key: t.Optional[str] = Field(None, env="AZURE_API_KEY")
+    azure_api_base: t.Optional[str] = Field(None, env="AZURE_API_BASE")
+    azure_api_version: t.Optional[str] = Field(
+        None, env="AZURE_API_VERSION"
+    )
 
     rpm_limit: int = 100
     tpm_limit: int = 90_000
     embedding_compute_method: t.Literal["local", "replicate", "api"] = "local"
 
     # uptrain managed service related
-    uptrain_access_token: str = Field(None, env="UPTRAIN_ACCESS_TOKEN")
+    uptrain_access_token: t.Optional[str] = Field(
+        None, env="UPTRAIN_ACCESS_TOKEN"
+    )
     uptrain_server_url: str = Field(
         "https://demo.uptrain.ai/", env="UPTRAIN_SERVER_URL"
     )
 
     # Embedding model related, applicable if embedding_compute_method is api.
-    embedding_model_url: str = Field(None, env="EMBEDDING_MODEL_URL")
-    embedding_model_api_token: str = Field(None, env="EMBEDDING_MODEL_API_TOKEN")
+    embedding_model_url: t.Optional[str] = Field(
+        None, env="EMBEDDING_MODEL_URL"
+    )
+    embedding_model_api_token: t.Optional[str] = Field(
+        None, env="EMBEDDING_MODEL_API_TOKEN"
+    )
 
     # LLM model to run the evaluations
     model: str = "gpt-3.5-turbo-1106"
@@ -60,10 +79,8 @@ class Settings(BaseSettings):
     # Cot -> We will use chain of thought prompting to evaluate and get the grade
     # basic -> We will simply prompt the LLM to return the grade without any reasoning
     eval_type: t.Literal["basic", "cot"] = "cot"
-
-    # allow additional fields as needed by different operators
-    class Config:
-        extra = "allow"
+    model_config = SettingsConfigDict(extra="allow")
+    model_config['protected_namespaces'] = ()
 
     def __init__(self, **data):
         super().__init__(**data)
@@ -124,7 +141,7 @@ class Settings(BaseSettings):
         if fpath is None:
             fpath = os.path.join(self.logs_folder, "settings.json")
         with open(fpath, "w") as f:
-            jsondump(self.dict(), f)
+            jsondump(self.model_dump(), f)
 
     @classmethod
     def deserialize(cls, fpath: str):

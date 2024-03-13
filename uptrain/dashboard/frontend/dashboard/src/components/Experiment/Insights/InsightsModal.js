@@ -59,6 +59,7 @@ const InsightsModal = (props) => {
           width={683}
           height={318}
           className="w-full h-auto"
+          alt="Insights Access Image"
         />
         <TextSection />
       </div>

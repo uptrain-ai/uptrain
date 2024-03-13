@@ -8,8 +8,8 @@ import ChartSection from "@/components/Experiment/ChartSection";
 import TableSection from "@/components/Experiment/Logs_InsightsTable";
 import { useSelector } from "react-redux";
 import { selectUptrainAccessKey } from "@/store/reducers/userInfo";
-import ButtonSection from "@/components/Experiment/ButtonSection";
 import SpinningLoader from "@/components/UI/SpinningLoader";
+import ButtonSection from "@/components/Common/ButtonSection";
 
 const fetchData = async (uptrainAccessKey, setData, timeFilter) => {
   const num_days =
@@ -121,7 +121,17 @@ const page = () => {
   }, [uptrainAccessKey, data, selectedProject, TimeFilter]);
 
   return (
-    <Layout heading="Experiment" project={projectNames[selectedProject]}>
+    <Layout
+      heading="Experiment"
+      project={projectNames[selectedProject]}
+      TimeFilter={TimeFilter}
+      setTimeFilter={setTimeFilter}
+      duration
+      models
+      projectNames={projectNames}
+      selectedProject={selectedProject}
+      handleProjectChange={handleProjectChange}
+    >
       <div className="flex gap-10 w-full items-start">
         <div className="flex-1">
           {projectData ? (
@@ -144,22 +154,10 @@ const page = () => {
               </p>
             </div>
           ) : (
-            <div class="flex justify-center items-center h-screen">
+            <div className="flex justify-center items-center h-screen">
               <SpinningLoader />
             </div>
           )}
-        </div>
-        <div className="bg-[#23232D] text-[#5C5C66] rounded-xl p-4 max-w-[300px] w-full mb-8">
-          <FilterSection
-            TimeFilter={TimeFilter}
-            setTimeFilter={setTimeFilter}
-            duration
-            models
-            projectNames={projectNames}
-            selectedProject={selectedProject}
-            handleProjectChange={handleProjectChange}
-          />
-          {/* <PivotTable /> */}
         </div>
       </div>
     </Layout>

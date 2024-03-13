@@ -70,3 +70,7 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #7d76d6;
 }
+
+.scrollHorizontal::-webkit-scrollbar-thumb {
+  background: white;
+}

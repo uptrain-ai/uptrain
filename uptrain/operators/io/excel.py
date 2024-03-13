@@ -4,11 +4,14 @@ from __future__ import annotations
 import typing as t
 
 import polars as pl
-import deltalake as dl
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
-from uptrain.operators.base import *
+from uptrain.operators.base import (
+    TransformOp,
+    register_op,
+    TYPE_TABLE_OUTPUT,
+)
 from uptrain.utilities import lazy_load_dep
 
 xlsx2csv = lazy_load_dep("xlsx2csv", "xlsx2csv")

@@ -3,7 +3,6 @@ import AddNewProjectCard from "./AddNewProjectCard";
 import ProjectCard from "./ProjectCard";
 
 const ProjectSection = (props) => {
-  console.log(props);
   return (
     <div className="flex-1 mb-5 flex flex-col gap-5">
       <h2 className="font-medium text-[#5C5C66]">All Prompts</h2>
@@ -24,6 +23,7 @@ const ProjectSection = (props) => {
               data={item}
               openModal={props.openModal}
               setPromptVersionName={props.setPromptVersionName}
+              key={index}
             />
           ))}
       <AddNewProjectCard onClick={props.openModal} />

@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import SingleSelect from "../UI/SingleSelect";
+import SingleSelect from "../DropDowns/SingleSelect";
 
 const CustomMultiCheckBox = (props) => {
   const [isChecked, setChecked] = useState(false);

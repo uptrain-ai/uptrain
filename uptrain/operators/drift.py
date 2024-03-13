@@ -20,7 +20,12 @@ import polars as pl
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
-from uptrain.operators.base import *
+from uptrain.operators.base import (
+    ColumnOp,
+    OpBaseModel,
+    register_op,
+    TYPE_TABLE_OUTPUT,
+)
 from uptrain.utilities import lazy_load_dep
 
 drift = lazy_load_dep("river.drift", "river")
@@ -138,9 +143,9 @@ class ConceptDrift(ColumnOp):
 
     def setup(self):
         if self.algorithm == "DDM":
-            self._algo_obj = drift.binary.DDM(**self.params.dict())  # type: ignore
+            self._algo_obj = drift.binary.DDM(**self.params.model_dump())  # type: ignore
         elif self.algorithm == "ADWIN":
-            self._algo_obj = drift.ADWIN(**self.params.dict())  # type: ignore
+            self._algo_obj = drift.ADWIN(**self.params.model_dump())  # type: ignore
         self._counter = 0
         self._avg_accuracy = 0.0
         self._cuml_accuracy = 0.0

@@ -6,19 +6,11 @@ import sys
 
 
 EXTRA_PACKAGES = {
-    "v0": [
-        "pandas>=1.0.0",
-        "river",
-        "scikit-learn>=1.0.0",
-        "umap-learn",
-        "json-fix>=0.5.0",
-        "xgboost",
-    ],
     "local-generation": [
         "tqdm>=4.0",
     ],
     "st_classic": [
-        "plotly>=5.0.0", 
+        "plotly>=5.0.0",
         "streamlit>=1.23",
         "pyarrow>=10.0.0",
     ],

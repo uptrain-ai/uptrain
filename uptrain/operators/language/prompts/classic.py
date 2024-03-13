@@ -448,8 +448,6 @@ Task data:
 """
 
 
-
-
 # Code Hallucination
 CODE_HALLUCINATION_PROMPT_TEMPLATE = """
 You are given a response generated from a chatbot. Please assess whether the given response includes any computer code (or CLI command) or not. If you do find a code/command, include the line number in which you found the code/command.
@@ -473,4 +471,3 @@ Return the output only in the corresponding JSON format. Do not output anything 
 Task data:
 [Response]: {response}
 """
-

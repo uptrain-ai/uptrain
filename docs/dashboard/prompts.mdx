@@ -1,0 +1,71 @@
+---
+title: Prompts
+---
+
+### What are Prompts?
+
+You can manage your prompt iterations and experiment with them using UpTrain on 20+ pre-configured evaluation metrics like:
+1. [Context Relevance](/predefined-evaluations/context-awareness/context-relevance): Evaluates how relevant the retrieved context is to the question specified.
+
+2. [Factual Accuracy](/predefined-evaluations/context-awareness/factual-accuracy): Evaluates whether the response generated is factually correct and grounded by the provided context.
+
+3. [Response Completeness](/predefined-evaluations/response-quality/response-completeness): Evaluates whether the response has answered all the aspects of the question specified
+
+You can look at the complete list of UpTrain's supported metrics [here](/predefined-evaluations/overview)
+
+### How does it work?
+
+<Steps>
+  <Step title = "Create a new Project">
+    Click on `Create New Project` from Home
+    <Frame>
+      <img src="/assets/dashboard/dashboard_home.png" />
+    </Frame>
+  </Step>
+  <Step title = "Enter Project Information">
+    <Frame>
+      <img src="/assets/dashboard/dashboard_project1.png" />
+    </Frame>
+    * `Project name:` Create a name for your project
+    * `Dataset name:` Create a name for your dataset
+    * `Project Type:` Select project type: `Prompts`
+    * `Choose File:` Upload your Dataset
+      Sample Dataset:
+      ```jsonl
+      {"question":"","response":"","context":""}
+      {"question":"","response":"","context":""}
+      ```
+    * `Evaluation LLM:` Select an LLM to run evaluations
+  </Step>
+  <Step title = "Enter your Prompt">
+    <Frame>
+      <img src="/assets/dashboard/prompt_select.png" />
+    </Frame>
+  </Step>
+  <Step title = "Select Evaluations to Run">
+    <Frame>
+      <img src="/assets/dashboard/eval_select_metrics.png" />
+    </Frame>
+  </Step>
+  <Step title = "View Prompts">
+    You can see all the evaluations ran on your prompts using UpTrain
+    <Frame>
+      <img src="/assets/dashboard/prompt.png" />
+    </Frame>
+  </Step>
+</Steps>
+
+<Note>UpTrain Dashboard is currently in Beta version. We would love your feedback to improve it.</Note>
+
+<CardGroup cols={1}>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+  
+</CardGroup>
+

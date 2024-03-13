@@ -1,88 +1,89 @@
 <h4 align="center">
   <a href="https://uptrain.ai">
-   <img alt="Github banner 006 (1)" src="https://github.com/uptrain-ai/uptrain/assets/108270398/96ac1505-7811-4e12-958e-fce9519542a1"/>
+   <img alt="Logo of UpTrain - an open-source platform to evaluate and improve LLM applications" src="https://github.com/uptrain-ai/uptrain/assets/108270398/b6a4905f-63fd-47ab-a894-1026a6669c86"/>
   </a>
 </h4>
+
 
 <p align="center">
 <a href="https://demo.uptrain.ai/evals_demo/" rel="nofollow"><strong>Try out Evaluations</strong></a>
 -
 <a href="https://docs.uptrain.ai/getting-started/introduction" rel="nofollow"><strong>Read Docs</strong></a>
 -
+<a href="https://docs.uptrain.ai/getting-started/quickstart" rel="nofollow"><strong>Quickstart Tutorials</strong></a>
+-
 <a href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg" rel="nofollow"><strong>Slack Community</strong></a>
 -
 <a href="https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=" rel="nofollow"><strong>Feature Request</strong></a>
 </p>
 
-<h4 align="center">
-<a href='https://github.com/uptrain-ai/uptrain/blob/main/CONTRIBUTING.md'>
-    <img alt='PRs Welcome' src='https://img.shields.io/badge/PRs-welcome-blue.svg?style=shields'/>
-  </a>
-  <a href="https://github.com/uptrain-ai/uptrain/graphs/contributors">
-    <img src="https://img.shields.io/github/contributors/uptrain-ai/uptrain" />
-  </a>
-  <a href="https://docs.uptrain.ai/getting-started/quickstart">
-    <img src="https://img.shields.io/badge/Quickstart-tutorial-orange" alt="Quickstart" />
-  </a>
-  <a href="https://uptrain.ai/">
-    <img src="https://img.shields.io/badge/UpTrain-Website-red" alt="Website" />
-  </a>
-</h4>
 
+**[UpTrain](https://uptrain.ai)** is an open-source unified platform to evaluate and improve Generative AI applications. We provide grades for 20+ preconfigured checks (covering language, code, embedding use-cases), perform root cause analysis on failure cases and give insights on how to resolve them.    
+
+<br />
 
 # Pre-built Evaluations We Offer 📝
+<img width="1088" alt="quality of your responses" src="https://github.com/uptrain-ai/uptrain/assets/43818888/654b2289-2799-4310-84be-fcdd071f3e2e">
 
-#### Evaluate the quality of your responses: 
+| Eval | Description |
+| ---- | ----------- |
+|[Response Completeness](https://docs.uptrain.ai/predefined-evaluations/response-quality/response-completeness) | Grades whether the response has answered all the aspects of the question specified. |
+|[Response Conciseness](https://docs.uptrain.ai/predefined-evaluations/response-quality/response-conciseness) | Grades how concise the generated response is or if it has any additional irrelevant information for the question asked. |
+|[Response Relevance](https://docs.uptrain.ai/predefined-evaluations/response-quality/response-relevance)| Grades how relevant the generated context was to the question specified.|
+|[Response Validity](https://docs.uptrain.ai/predefined-evaluations/response-quality/response-validity)| Grades if the response generated is valid or not. A response is considered to be valid if it contains any information.|
+|[Response Consistency](https://docs.uptrain.ai/predefined-evaluations/response-quality/response-consistency)| Grades how consistent the response is with the question asked as well as with the context provided.|
 
-| Metrics  | Usage | 
-|------------|----------|
-| [Response Completeness](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/completeness.ipynb)        | Evaluate if the response completely resolves the given user query.      | 
-| [Response Relevance](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/relevance.ipynb)      | Evaluate whether the generated response for the given question, is relevant or not.    | 
-| [Response Conciseness](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/conciseness.ipynb) | Evaluate how concise the generated response is i.e. the extent of additional irrelevant information in the response.    | 
-| [Response Matching ](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/matching.ipynb)  | Compare the LLM-generated text with the gold (ideal) response using the defined score metric.  |
-| [Response Consistency](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/response_quality/consistency.ipynb)   | Evaluate how consistent the response is with the question asked as well as with the context provided.  |
+<img width="1088" alt="quality of retrieved context and response groundedness" src="https://github.com/uptrain-ai/uptrain/assets/43818888/a7e384a3-c857-4a71-a938-7a2a70f8db1e">
 
-
-#### Evaluate the quality of retrieved context and response groundedness:
-
-| Metrics  | Usage | 
-|------------|----------|
+| Eval | Description |
+| ---- | ----------- |
 |[Context Relevance](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-relevance) | Grades how relevant the context was to the question specified. |
-|[Context Utilization](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-utilization) | Grades how complete the generated response was for the question specified given the information provided in the context. |
+|[Context Utilization](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-utilization) | Grades how complete the generated response was for the question specified, given the information provided in the context. |
 |[Factual Accuracy](https://docs.uptrain.ai/predefined-evaluations/context-awareness/factual-accuracy)| Grades whether the response generated is factually correct and grounded by the provided context.|
 |[Context Conciseness](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-conciseness)| Evaluates the concise context cited from an original context for irrelevant information.
 |[Context Reranking](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-reranking)| Evaluates how efficient the reranked context is compared to the original context.|
 
+<img width="1088" alt="language quality of the response" src="https://github.com/uptrain-ai/uptrain/assets/43818888/776cbc6d-bb4c-4ed1-a892-7a1df38d12d5">
 
-#### Evaluations to safeguard system prompts and avoid LLM mis-use:
+| Eval | Description |
+| ---- | ----------- |
+|[Language Features](https://docs.uptrain.ai/predefined-evaluations/language-quality/fluency-and-coherence) | Grades the quality and effectiveness of language in a response, focusing on factors such as clarity, coherence, conciseness, and overall communication. |
+|[Tonality](https://docs.uptrain.ai/predefined-evaluations/code-evals/code-hallucination) | Grades whether the generated response matches the required persona's tone  |
 
-| Metrics  | Usage | 
-|------------|----------|
-| [Prompt Injection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/system_prompt_injection.ipynb)       | Identify prompt leakage attacks| 
-| [Jailbreak Detection](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/safeguarding/jailbreak_detection.ipynb)       | Detect prompts with potentially harmful or illegal behaviour|
+<img width="1088" alt="language quality of the response" src="https://github.com/uptrain-ai/uptrain/assets/36454110/2fba9f0b-71b3-4d90-90f8-16ef38cef3ab">
 
-#### Evaluate the language quality of the response:
+| Eval | Description |
+| ---- | ----------- |
+|[Code Hallucination](https://docs.uptrain.ai/predefined-evaluations/code-evals/code-hallucination) | Grades whether the code present in the generated response is grounded by the context. |
 
-| Metrics  | Usage | 
-|------------|----------|
-| [Tone Critique](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/language_features/tone_critique.ipynb)       | Assess if the tone of machine-generated responses matches with the desired persona.| 
-| [Language Critique](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/language_features/language_critique.ipynb)       | Evaluate LLM generated responses on multiple aspects - fluence, politeness, grammar, and coherence.| 
-| [Rouge Score](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/language_features/rouge_score.ipynb)       | Measure the similarity between two pieces of text. | 
+<img width="1088" alt="conversation as a whole" src="https://github.com/uptrain-ai/uptrain/assets/43818888/194f8dd7-26ca-48eb-bdff-028212db9e25">
 
-#### Evaluate the conversation as a whole:
+| Eval | Description |
+| ---- | ----------- |
+|[User Satisfaction](https://docs.uptrain.ai/predefined-evaluations/conversation-evals/user-satisfaction) | Grades how well the user's concerns are addressed and assesses their satisfaction based on provided conversation. |
 
-| Metrics  | Usage | 
-|------------|----------|
-| [Conversation Satisfaction](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/conversation/conversation_satisfaction.ipynb)       | Measures the user’s satisfaction with the conversation with the AI assistant based on completeness and user acceptance.| 
+<img width="1088" alt="custom evaluations and others" src="https://github.com/uptrain-ai/uptrain/assets/43818888/0bbc2d82-0f96-49ab-969c-4eec29fef988">
 
-#### Defining custom evaluations and others:
+ Eval | Description |
+| ---- | ----------- |
+|[Custom Guideline](https://docs.uptrain.ai/predefined-evaluations/custom-evals/custom-guideline) | Allows you to specify a guideline and grades how well the LLM adheres to the provided guideline when giving a response. |
+|[Custom Prompts](https://docs.uptrain.ai/predefined-evaluations/custom-evals/custom-prompt-eval) | Allows you to create your own set of evaluations. |
 
-| Metrics  | Usage | 
-|------------|----------|
-| [Guideline Adherence](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/custom/guideline_adherence.ipynb)       | Grade how well the LLM adheres to a given custom guideline.| 
-| [Custom Prompt Evaluation](https://github.com/uptrain-ai/uptrain/blob/main)       | Evaluate by defining your custom grading prompt.| 
-| [Cosine Similarity](https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/custom/cosine_similarity.ipynb)       | Calculate cosine similarity between embeddings of two texts.| 
+<img width="1088" alt="compare responses with ground truth" src="https://github.com/uptrain-ai/uptrain/assets/36454110/e3ee22f4-9984-47a5-a7d2-9d8688a090fb">
 
-If you face any difficulties, need some help with using UpTrain or want to brainstorm on custom evaluations for your use-case, [speak to the maintainers of UpTrain here](https://calendly.com/uptrain-sourabh/30min).
+| Eval | Description |
+| ---- | ----------- |
+|[Response Matching](https://docs.uptrain.ai/predefined-evaluations/ground-truth-comparison/response-matching) | Compares and grades how well the response generated by the LLM aligns with the provided ground truth. |
 
-You can also raise a request for a new metrics [here](https://github.com/uptrain-ai/uptrain/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=)
+<img width="1088" alt="safeguard system prompts and avoid LLM mis-use" src="https://github.com/uptrain-ai/uptrain/assets/43818888/4fcdb1e8-f356-443b-88f0-94146e08829e">
+
+| Eval | Description |
+| ---- | ----------- |
+|[Prompt Injection](https://docs.uptrain.ai/predefined-evaluations/safeguarding/prompt-injection) | Grades whether the user's prompt is an attempt to make the LLM reveal its system prompts. |
+|[Jailbreak Detection](https://docs.uptrain.ai/predefined-evaluations/safeguarding/jailbreak) | Grades whether the user's prompt is an attempt to jailbreak (i.e. generate illegal or harmful responses). |
+
+<img width="1088" alt="evaluate the clarity of user queries" src="https://github.com/uptrain-ai/uptrain/assets/36454110/50ed622f-0b92-468c-af48-2391ff6ab8e0">
+
+| Eval | Description |
+| ---- | ----------- |
+|[Sub-Query Completeness](https://docs.uptrain.ai/predefined-evaluations/query-quality/sub-query-completeness) | Evaluate whether all of the sub-questions generated from a user's query, taken together, cover all aspects of the user's query or not |

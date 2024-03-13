@@ -10,7 +10,7 @@ import time
 
 from lazy_loader import load as _lazy_load
 from loguru import logger
-import pydantic
+from pydantic import BaseModel
 import numpy as np
 
 # import numpy.typing as npt
@@ -53,8 +53,8 @@ def to_py_types(obj: t.Any) -> t.Any:
                 "op_name": getattr(obj, "_uptrain_op_name"),
                 "params": obj.dict(include=set(obj.__fields__)),
             }
-    elif isinstance(obj, pydantic.BaseModel):
-        return obj.dict()
+    elif isinstance(obj, BaseModel):
+        return obj.model_dump()
 
     # for numpy types
     if isinstance(obj, np.integer):
@@ -151,11 +151,11 @@ def polars_to_json_serializable_dict(data: pl.DataFrame):
 
     try:
         json.dumps(data_dictn)
-    except:
+    except Exception:
         for key in list(data_dictn[0].keys()):
             try:
                 json.dumps([x[key] for x in data_dictn])
-            except:
+            except Exception:
                 for row in data_dictn:
                     del row[key]
 
@@ -171,7 +171,7 @@ def polars_to_pandas(data: pl.DataFrame):
 
     try:
         pd_data = data.to_pandas()
-    except:
+    except Exception:
         # convert to python native types first and then to pandas
         logger.warning(
             "Error converting polars to pandas. Trying to convert to python native types first."
@@ -279,7 +279,7 @@ def lazy_load_dep(import_name: str, package_name: str):
     """
     try:
         spec = importlib.util.find_spec(import_name)
-    except:
+    except Exception:
         spec = None
     if spec is None:
         logger.warning(

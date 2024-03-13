@@ -14,11 +14,14 @@ import typing as t
 from loguru import logger
 import numpy as np
 import polars as pl
-from pydantic import root_validator
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
-from uptrain.operators.base import *
+from uptrain.operators.base import (
+    ColumnOp,
+    register_op,
+    TYPE_TABLE_OUTPUT,
+)
 from uptrain.utilities import lazy_load_dep
 
 nltk = lazy_load_dep("nltk", "nltk")

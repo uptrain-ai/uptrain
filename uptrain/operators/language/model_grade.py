@@ -4,10 +4,9 @@ Implement checks to test if a piece of text has been taken from a source.
 
 from __future__ import annotations
 import typing as t
-import os
 import copy
 import re
-
+from uuid import uuid4
 
 from loguru import logger
 import polars as pl
@@ -15,7 +14,11 @@ from uptrain.framework import Settings
 
 if t.TYPE_CHECKING:
     from uptrain.framework import Settings
-from uptrain.operators.base import *
+from uptrain.operators.base import (
+    ColumnOp,
+    register_op,
+    TYPE_TABLE_OUTPUT,
+)
 from uptrain.operators.language.llm import LLMMulticlient, Payload
 
 # from evals.elsuite.modelgraded.classify_utils import (
@@ -26,7 +29,6 @@ from uptrain.operators.language.llm import LLMMulticlient, Payload
 
 import logging
 import string
-from typing import Any, Callable, Iterable, Optional, Union
 
 MATCH_FNS = {
     "include": lambda x, y: float(x in y),
@@ -55,9 +57,9 @@ Reasoning:""",
 
 def get_choice_score(
     choice: str,
-    choice_strings: Iterable[str],
-    choice_scores: Optional[Union[dict[str, float], str]] = None,
-) -> Optional[float]:
+    choice_strings: t.Iterable[str],
+    choice_scores: t.Optional[t.Union[dict[str, float], str]] = None,
+) -> t.Optional[float]:
     if choice_scores is None:
         return None
     if choice_scores == "from_strings":
@@ -68,7 +70,7 @@ def get_choice_score(
     return choice_scores[choice]
 
 
-def choice_to_str(choice_strings: Iterable[str]) -> str:
+def choice_to_str(choice_strings: t.Iterable[str]) -> str:
     """Return a string of choices, e.g. '"Yes" or "No" or "Maybe"'."""
     return " or ".join(f'"{choice}"' for choice in choice_strings)
 
@@ -77,8 +79,8 @@ def append_answer_prompt(
     prompt: list,
     eval_type: str,
     append_type: str = "as_content",
-    answer_prompt: Optional[list] = None,
-    choice_strings: Optional[Iterable[str]] = None,
+    answer_prompt: t.Optional[list] = None,
+    choice_strings: t.Optional[t.Iterable[str]] = None,
 ) -> list:
     """Append answer prompt to prompt."""
     answer_prompt = (
@@ -160,9 +162,11 @@ def format_prompt(
     """Format a prompt with only necessary kwargs."""
     # if any input kwargs is chat prompt, convert to text prompt
     kwargs = {
-        k: chat_prompt_to_text_prompt(v, for_completion=False)
-        if is_chat_prompt(v)
-        else v
+        k: (
+            chat_prompt_to_text_prompt(v, for_completion=False)
+            if is_chat_prompt(v)
+            else v
+        )
         for k, v in kwargs.items()
     }
     if is_chat_prompt(prompt):
@@ -258,11 +262,12 @@ class ModelGradeScore(ColumnOp):
     context_vars: dict[str, str]
     col_out: t.Union[str, list[str]] = "model_grade_score"
 
-    def setup(self, settings: Settings):
-        self._api_client = LLMMulticlient(settings=settings)
+    def setup(self, settings: Settings, aclient: t.Any = None):
+        self._api_client = LLMMulticlient(settings=settings, aclient=aclient)
+        self._aclient = aclient
         self._settings = settings
         self.model = settings.model.replace("azure/", "")
-        if not (self.eval_type in ["cot_classify", "tot_classify", "tot_score"]):
+        if self.eval_type not in ["cot_classify", "tot_classify", "tot_score"]:
             raise Exception(
                 "Only eval_type: cot_classify and tot_classify is supported for model grading check"
             )
@@ -289,21 +294,13 @@ class ModelGradeScore(ColumnOp):
         return self
 
     def _make_payload(self, id: t.Any, messages: list[dict]) -> Payload:
-        if self._settings.seed is None:
-            return Payload(
-                data={"model": self.model, "messages": messages, "temperature": 0.2},
-                metadata={"index": id},
-            )
-        else:
-            return Payload(
-                data={
-                    "model": self.model,
-                    "messages": messages,
-                    "temperature": 0.2,
-                    "seed": self._settings.seed,
-                },
-                metadata={"index": id},
-            )
+        payload = Payload(data={"model": self.model, "messages": messages, "temperature": 0.2}, metadata={"index": id})
+        if self._settings.seed is not None:
+            payload.data["seed"] = self._settings.seed
+        if self._aclient is not None:
+            trace_id = str(uuid4())
+            payload.data["trace_id"] = trace_id
+        return payload
 
     def get_choice_via_llm(self, text: str, grading_prompt_template: str) -> str:
         """Queries LLM to get score from the text"""
@@ -324,15 +321,15 @@ class ModelGradeScore(ColumnOp):
             score = output_payload.response.choices[0].message.content
             float(score)
             return score
-        except:
+        except Exception:
             return str(0.0)
 
     def get_choice(
         self,
         text: str,
         eval_type: str,
-        match_fn: Union[str, Callable],
-        choice_strings: Iterable[str],
+        match_fn: t.Union[str, t.Callable],
+        choice_strings: t.Iterable[str],
         choice_scores: dict = {},
     ) -> str:
         """Clean the answer string to a choice string to one of choice_strings. Return '__invalid__.' if no match."""
@@ -416,7 +413,7 @@ class ModelGradeScore(ColumnOp):
                             new_char = char + prev_char
                             try:
                                 float(new_char)
-                            except:
+                            except Exception:
                                 break
                             prev_char = new_char
                         part_before_decimal = prev_char
@@ -427,7 +424,7 @@ class ModelGradeScore(ColumnOp):
                             new_char = prev_char + char
                             try:
                                 float(new_char)
-                            except:
+                            except Exception:
                                 break
                             prev_char = new_char
                         part_after_decimal = prev_char
@@ -439,7 +436,7 @@ class ModelGradeScore(ColumnOp):
                                     text, self.grading_prompt_template
                                 )
                             return str(choice)
-                        except:
+                        except Exception:
                             return self.get_choice_via_llm(
                                 text, self.grading_prompt_template
                             )
