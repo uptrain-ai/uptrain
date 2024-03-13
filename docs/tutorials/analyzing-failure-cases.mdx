@@ -28,7 +28,7 @@ Through this tutorial we will try to walk you an easy way to figure out the fail
 
 |Failure Case|Explanation|Example|
 |--|--|--|
-|**Poor Context Utilization**|The citations from the context are irrelevant to a user's query|The LLM cites "We dont offer refunds" from the context to a question "Can I get a refund?"|
+|**Poor Context Utilization**|The citations from the context are irrelevant to a user's query|The LLM cites information on offers rather than refunds from a context containing information on both refunds and offers, for a question "Can I get a refund?"|
 |**Poor Retrieval**|The context given to an LLM does not have information relevant to the question|The user asks "Do you deliver to Bangalore?" but the context does not have any information to deliveries in Bangalore|
 |**Hallucinations**|The generated response is not supported by information present in the context|The LLM generates a response "We deliver to Bangalore" when the information present in the context is: "We are going to start delivers in Bangalore soon" |
 |**Poor Citation**|The response generated can not be verified with the citation|The LLM cites "We deliver to Delhi" from the context for a response saying "We deliver to Bangalore"|
