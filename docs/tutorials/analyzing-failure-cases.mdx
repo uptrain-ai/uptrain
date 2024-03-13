@@ -1,15 +1,20 @@
 ---
-title: Analyzing Failure Cases
-description: Helps analyse failure causes in a RAG pipeline.
+title: Analyzing RAG Failure Cases
+description: Helps analyse failure causes in a RAG pipeline
 ---
 
-## Let's clear the basics first!
+By the end of this tutorial, you will be able to:
+- Understand the failure cases in a RAG pipeline
+- Perform Root Cause Analysis on your RAG pipeline
+- Get actionable insights to improve your RAG pipeline
 
-**What is RAG?** 
+Let's start by understanding what RAG is and how this tutorial will help you.
 
-RAG is the process of utilising external knowledge to your LLM-based application. 
+## What is RAG?
 
-For example: Imagine you have a knowledge document outlining various scenarios for handling customer queries (question). With an LLM-powered bot at your disposal, the goal is to provide users with accurate responses based on the information in the knowledge document.
+RAG is the process of utilising external knowledge in your LLM-based application. 
+
+**For example:** Imagine you have a knowledge document outlining various scenarios for handling customer queries (question). With an LLM-powered bot at your disposal, the goal is to provide users with accurate responses based on the information in the knowledge document.
 
 You can give an LLM relevant chunks of this information (retrieved context) to provide a better answer to user's query. The LLM can utilize certain portion of this retrieved context to generate a response.
 
@@ -148,7 +153,8 @@ Let's jump to the code
     }
   ```
   Here we can see that the user is asking about a specific delivery location but the LLM has cited irrelevant information on when FedL was established.  
-  Hence the failure case **Poor Context Utilization**
+  
+  Hence the failure case is **Poor Context Utilization**
   </Step>
 </Steps>
 
