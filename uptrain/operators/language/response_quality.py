@@ -467,7 +467,6 @@ class ResponseConsistency(ColumnOp):
                 "argument_response_consistency": None,
             }
             try:
-                score = json.loads(res.response.choices[0].message.content)["Score"]
                 parsed_output = json.loads(res.response.choices[0].message.content)
                 score = parsed_output["Score"]
                 output["score_response_consistency"] = float(score)
