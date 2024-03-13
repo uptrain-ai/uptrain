@@ -16,6 +16,11 @@ const DataModal = (props) => {
           timestamp={props.timestamp}
           response={props.response}
           explanation={props.explanation}
+          data={props.data}
+          updated={props.updated}
+          uuid={props.uuid}
+          AiConfidence={props.AiConfidence}
+          projectName={props.projectName}
         />
       </div>
     </div>

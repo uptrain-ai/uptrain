@@ -3,15 +3,18 @@ import React from "react";
 const DataRow = (props) => {
   const wordsLimit = 80;
 
+  let data = typeof props.data !== "string" ?  String(props.data) : props.data;
+  data = data === null ? "" : data;
+  
   const truncateExplanation = (explanation) => {
     const words = explanation.split(" ");
     const truncatedWords = words.slice(0, wordsLimit);
     return truncatedWords.join(" ");
   };
 
-  const truncatedExplanation = truncateExplanation(props.data);
+  const truncatedExplanation = truncateExplanation(data);
 
-  const wordsCount = props.data.split(" ").length;
+  const wordsCount = data.split(" ").length;
   const shouldShowMoreButton = wordsCount > wordsLimit;
 
   return (

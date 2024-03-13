@@ -16,6 +16,9 @@ const AllLogs = (props) => {
             response={item.response}
             explanation={item[`explanation_${props.selectedTab}`]}
             score={item[`score_${props.selectedTab}`]}
+            prompt_version={props.projectData[5]}
+            data={item}
+            model={props.projectData[6]}
           />
         ))}
     </div>

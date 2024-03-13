@@ -3,6 +3,13 @@ import CustomSelect from "../CustomSelect/CustomSelect";
 import Step3OverModal from "./Step3OverModal";
 
 const Step1 = (props) => {
+  const [error, setError] = useState();
+
+  console.log(error)
+
+  const projectName = props.promptProjectName
+  ? props.promptProjectName
+  : props.projectName;
   const fileInputRef = useRef(null);
   const [openModal, setOpenModal] = useState(false);
 
@@ -16,6 +23,16 @@ const Step1 = (props) => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+
+    if (!props.selectedFile) {
+      setError("Please upload a dataset");
+      return;
+    }
+
+    if (props.allProject.some(obj => obj.project === projectName)) {
+      setError("Given Project name already exists");
+      return;
+    }
 
     props.promptProjectName
       ? props.nextPrompt()
@@ -68,7 +85,6 @@ const Step1 = (props) => {
           onChange={handleFileChange}
           ref={fileInputRef}
           style={{ display: "none" }}
-          required
         />
         {!props.promptProjectName && (
           <CustomSelect
@@ -102,6 +118,7 @@ const Step1 = (props) => {
           className="rounded-xl px-6 py-4"
           required
         />
+         <p className="text-red-500">{error}</p>
         <div className="flex justify-end mt-5">
           <button
             type="Submit"

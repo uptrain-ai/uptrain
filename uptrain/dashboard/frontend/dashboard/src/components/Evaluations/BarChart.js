@@ -57,7 +57,7 @@ const BarChart = (props) => {
           },
         },
         ticks: {
-          
+          precision: 0,
           font: {
             size: 16,
           },

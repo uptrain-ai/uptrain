@@ -1,5 +1,5 @@
 import React from "react";
-import SingleSelect from "../UI/SingleSelect";
+import SingleSelect from "../DropDowns/SingleSelect";
 
 const CompareSection = (props) => {
   const versions =

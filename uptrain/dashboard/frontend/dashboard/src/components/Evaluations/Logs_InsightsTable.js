@@ -25,7 +25,7 @@ const ButtonSection = (props) => {
         />
       </div>
       <button>
-        <Image src="/DownloadButton.svg" height={42} width={42} />
+        <Image src="/DownloadButton.svg" height={42} width={42} alt="Download Button" className="w-auto h-auto"/>
       </button>
     </div>
   );
@@ -35,7 +35,7 @@ const TableSection = (props) => {
   const [Tab, setTab] = useState(1);
 
   return (
-    <div className="mb-10">
+    <div>
       <ButtonSection setTab={setTab} Tab={Tab} />
       {Tab == 1 ? (
         <AllLogs

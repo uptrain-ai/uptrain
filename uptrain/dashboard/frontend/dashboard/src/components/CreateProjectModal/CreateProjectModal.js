@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { selectUptrainAccessKey } from "@/store/reducers/userInfo";
 import SpinningLoader from "../UI/SpinningLoader";
@@ -6,6 +6,34 @@ import CloseButtonSection from "./CloseButtonSection";
 import Step1 from "./Step1";
 import Step2 from "./Step2";
 import Step3 from "./Step3";
+
+
+const fetchData = async (uptrainAccessKey, setData) => {
+  try {
+    const response = await fetch(
+      process.env.NEXT_PUBLIC_BACKEND_URL +
+        `api/public/get_projects_list?num_days=${10000}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "uptrain-access-token": `${uptrainAccessKey}`,
+        },
+      }
+    );
+
+    if (response.ok) {
+      const responseData = await response.json();
+      setData(responseData.data);
+    } else {
+      console.error("Failed to submit API Key:", response.statusText);
+      // Handle error cases
+    }
+  } catch (error) {
+    console.error("Error submitting API Key:", error.message);
+    // Handle network errors or other exceptions
+  }
+};
 
 const CreateProjectModal = (props) => {
   const uptrainAccessKey = useSelector(selectUptrainAccessKey);
@@ -22,6 +50,15 @@ const CreateProjectModal = (props) => {
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [metadata, setMetadata] = useState({});
+  const [allProject, setAllProject] = useState();
+
+  useEffect(() => {
+    const fetchDataAsync = async () => {
+      await fetchData(uptrainAccessKey, setAllProject);
+    };
+
+    if (uptrainAccessKey) fetchDataAsync();
+  }, [uptrainAccessKey]);
 
   const singleMetrics = [
     "context_relevance",
@@ -65,8 +102,6 @@ const CreateProjectModal = (props) => {
   const handleEvaluationSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
-
-    console.log(metadata);
 
     try {
       const formData = new FormData();
@@ -193,6 +228,7 @@ const CreateProjectModal = (props) => {
             promptProjectName={props.promptProjectName}
             metadata={metadata}
             setMetadata={setMetadata}
+            allProject={allProject}
           />
         ) : step === 2 ? (
           <Step2
