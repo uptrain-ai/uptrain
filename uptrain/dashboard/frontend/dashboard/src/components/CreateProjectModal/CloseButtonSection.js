@@ -5,7 +5,7 @@ const CloseButtonSection = (props) => {
   return (
     <div className="flex justify-end">
       <button onClick={props.onClick}>
-        <Image src="/Close.svg" width={20} height={20} alt="" />
+        <Image src="/Close.svg" width={20} height={20} alt="Close Icon" />
       </button>
     </div>
   );

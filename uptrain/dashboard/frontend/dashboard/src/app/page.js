@@ -55,7 +55,7 @@ const page = () => {
       await fetchData(uptrainAccessKey, setData, timeFilter);
     };
 
-    fetchDataAsync();
+    if (uptrainAccessKey) fetchDataAsync();
   }, [uptrainAccessKey, timeFilter]);
 
   const reloadData = () => {
@@ -66,39 +66,35 @@ const page = () => {
 
     fetchDataAsync();
   };
-
+  
   return (
-    <Layout heading={`Hello ${userName}`}>
-      <div className="flex gap-10 w-full items-start">
-        {openModal && (
-          <CreateProjectModal
-            close={() => {
-              setopenModal(false);
+    <Layout
+      heading={`Hello ${userName}`}
+      TimeFilter={timeFilter}
+      setTimeFilter={setTimeFilter}
+      duration
+    >
+      {openModal && (
+        <CreateProjectModal
+          close={() => {
+            setopenModal(false);
+          }}
+          reloadData={reloadData}
+        />
+      )}
+      <div className="flex-1">
+        {data ? (
+          <ProjectSection
+            data={data}
+            setopenModal={() => {
+              setopenModal(true);
             }}
-            reloadData={reloadData}
           />
+        ) : (
+          <div className="flex justify-center items-center h-screen">
+            <SpinningLoader />
+          </div>
         )}
-        <div className="flex-1 mb-5">
-          {data ? (
-            <ProjectSection
-              data={data}
-              setopenModal={() => {
-                setopenModal(true);
-              }}
-            />
-          ) : (
-            <div class="flex justify-center items-center h-screen">
-              <SpinningLoader />
-            </div>
-          )}
-        </div>
-        <div className="bg-[#23232D] text-[#5C5C66] rounded-xl p-4 max-w-[300px] w-full mb-8">
-          <FilterSection
-            TimeFilter={timeFilter}
-            setTimeFilter={setTimeFilter}
-            duration
-          />
-        </div>
       </div>
     </Layout>
   );

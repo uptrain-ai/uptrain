@@ -16,6 +16,9 @@ const DataModal = (props) => {
           date={props.date}
           response={props.response}
           explanation={props.explanation}
+          prompt_version={props.prompt_version}
+          data={props.data}
+          model={props.model}
         />
       </div>
     </div>

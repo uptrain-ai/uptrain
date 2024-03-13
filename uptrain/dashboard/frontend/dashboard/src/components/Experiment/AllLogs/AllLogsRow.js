@@ -26,6 +26,9 @@ const AllLogsRow = (props) => {
           response={props.response}
           explanation={props.explanation}
           inModal
+          prompt_version={props.prompt_version}
+          data={props.data}
+          model={props.model}
         />
       )}
       <AllLogsRowTop
@@ -39,6 +42,18 @@ const AllLogsRow = (props) => {
       />
       {expand || props.inModal ? (
         <div className="w-[calc(100vw-640px)] overflow-auto">
+          {props.prompt_version && (
+            <>
+              <Divider />
+              <DataRow
+                data={props.prompt_version}
+                title={props.model}
+                setShowFull={setShowFull}
+                inModal={props.inModal}
+              />
+            </>
+          )}
+
           {props.score && (
             <>
               <Divider />
@@ -74,6 +89,27 @@ const AllLogsRow = (props) => {
               />
             </>
           )}
+          {Object.entries(props.data)
+            .filter(
+              ([key, value]) =>
+                key !== "response" &&
+                key !== "explanation" &&
+                key !== "question" &&
+                key !== "uptrain_experiment_columns" &&
+                key !== props.model
+            )
+            .map(([key, value], index) => (
+              <div key={index}>
+                <Divider />
+                <DataRow
+                  data={value}
+                  title={key}
+                  className="mb-5"
+                  setShowFull={setShowFull}
+                  inModal={props.inModal}
+                />
+              </div>
+            ))}
         </div>
       ) : (
         <></>
