@@ -74,6 +74,7 @@
     {
       "group": "Pre-configured Evaluations",
       "pages": [
+        "predefined-evaluations/overview",
         {
           "group": "Ground Truth Comparison Evals",
           "pages": [
