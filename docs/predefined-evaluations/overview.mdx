@@ -1,5 +1,5 @@
 ---
-title: Evals
+title: Overview
 description: Quickest way to perform evaluations on your data
 ---
 
@@ -16,6 +16,12 @@ Some evals may require additional parameters to be passed to them. These are cal
 You can choose evals as per your needs. We have divided them into a few categories for your convenience:
 
 <AccordionGroup>
+  <Accordion title="Ground Truth Comparison Evals">
+| Eval | Description |
+| ---- | ----------- |
+|[Response Matching](/predefined-evaluations/ground-truth-comparison/response-matching) | Grades how relevant the generated context was to the question specified. |
+  </Accordion>
+
   <Accordion title="Response Quality Evals">
 | Eval | Description |
 | ---- | ----------- |
@@ -50,6 +56,12 @@ You can choose evals as per your needs. We have divided them into a few categori
 |[Tonality](/predefined-evaluations/language-quality/tonality) | Grades whether the generated response matches the required persona's tone  |
   </Accordion>
 
+    <Accordion title="Query Clarity Evals">
+| Eval | Description |
+| ---- | ----------- |
+|[Sub-query Completeness](/predefined-evaluations/query-quality/sub-query-completeness) | Evaluate if the list of generated sub-questions comprehensively cover all aspects of the main question. |
+  </Accordion>
+
   <Accordion title="Code Related Evals">
 | Eval | Description |
 | ---- | ----------- |
@@ -69,17 +81,6 @@ You can choose evals as per your needs. We have divided them into a few categori
 |[Custom Prompts](/predefined-evaluations/custom-evals/custom-prompt-eval) | Allows you to create your own set of evaluations. |
   </Accordion>
 
-  <Accordion title="Ground Truth Comparison Evals">
-| Eval | Description |
-| ---- | ----------- |
-|[Response Matching](/predefined-evaluations/ground-truth-comparison/response-matching) | Grades how relevant the generated context was to the question specified. |
-  </Accordion>
-
-    <Accordion title="Sub-Query Evals">
-| Eval | Description |
-| ---- | ----------- |
-|[Sub-query Completeness](/predefined-evaluations/query-quality/sub-query-completeness) | Evaluate if the list of generated sub-questions comprehensively cover all aspects of the main question. |
-  </Accordion>
 
   
 </AccordionGroup>
