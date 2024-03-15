@@ -203,12 +203,13 @@ Speak directly with the maintainers of UpTrain by [booking a call here](https://
 
 | Eval Frameworks  | LLM Providers | LLM Packages | Serving frameworks | LLM Observability | Vector DBs |
 | ------------- | ------------- | ------------- | ------------- | ------------- |  ------------- |
-| OpenAI Evals ✅ | GPT-3.5-turbo ✅ | Langchain 🔜 | HuggingFace ✅ | Langfuse 🔜 | Qdrant ✅ |
-| EleutherAI LM Eval 🔜 | GPT-4 ✅  | Llama Index ✅ |  Replicate ✅ | Helicone 🔜 | Pinecone 🔜 |
-| BIG-Bench 🔜 | Claude ✅ | AutoGPT 🔜 |  AnyScale ✅ | | Chroma ✅ |
-| | Cohere ✅ | | Together ai 🔜 |
-| | Llama2 ✅ | | Ollama 🔜 |
-| | Mistral ✅ |
+| [OpenAI Evals](https://docs.uptrain.ai/tutorials/openai-evals) | [OpenAI](https://docs.uptrain.ai/llms/openai) | [LlamaIndex](https://docs.uptrain.ai/integrations/framework/llamaindex-methods/overview) | [Ollama](https://docs.uptrain.ai/llms/ollama) | [Langfuse](https://docs.uptrain.ai/integrations/observation-tools/langfuse) | [Qdrant](https://docs.uptrain.ai/integrations/vector_db/qdrant) |
+| | [Azure](https://docs.uptrain.ai/llms/azure) | |  [Together AI](https://docs.uptrain.ai/llms/together_ai) | [Helicone](https://docs.uptrain.ai/integrations/observation-tools/helicone) | [FAISS](https://docs.uptrain.ai/integrations/vector_db/faiss) |
+| | [Claude](https://docs.uptrain.ai/llms/claude) | |  [Anyscale](https://docs.uptrain.ai/llms/anyscale) | [Zeno](https://docs.uptrain.ai/integrations/observation-tools/zeno) | [Chroma](https://docs.uptrain.ai/integrations/vector_db/chroma) |
+| | [Mistral](https://docs.uptrain.ai/llms/mistral) | | Replicate  |
+| |  | |  HuggingFace  |
+
+More integrations are coming soon. If you have a specific integration in mind, please let us know by [creating an issue](https://github.com/uptrain-ai/uptrain/issues).
 
 <br />
 
