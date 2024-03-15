@@ -21,7 +21,7 @@
   <img src="https://github.com/uptrain-ai/uptrain/assets/108270398/10d0faeb-c4f8-422f-a01e-49a891fa7ada" alt="Demo of UpTrain's LLM evaluations with scores for hallucinations, retrieved-context quality, response tonality for a customer support chatbot"/>
 </h4>
 
-**[UpTrain](https://uptrain.ai)** is an open-source unified platform to evaluate and improve Generative AI applications. We provide grades for 20+ preconfigured checks (covering language, code, embedding use-cases), perform root cause analysis on failure cases and give insights on how to resolve them.    
+**[UpTrain](https://uptrain.ai)** is an open-source unified platform to evaluate and improve Generative AI applications. We provide grades for 20+ preconfigured checks (covering language, code, embedding use cases), perform root cause analysis on failure cases and give insights on how to resolve them.    
 
 <br />
 
@@ -29,7 +29,7 @@
 
 <img width="1088" alt="Interactive Dashboards" src="https://github.com/uptrain-ai/uptrain/assets/36454110/eb1c8239-dd99-4e66-ba8a-cbaee2beec10">
 
-UpTrain Dashboard is a web-based interface that runs on your **local machine**. You can use the dashboard to evaluate your LLM applications, view the results, and perform root cause analysis.
+UpTrain Dashboard is a web-based interface that runs on your **local machine**. You can use the dashboard to evaluate your LLM applications, view the results, and perform a root cause analysis.
 
 <img width="1088" alt="Data Security" src="https://github.com/uptrain-ai/uptrain/assets/43818888/7b737bfc-b061-4f87-b51e-5bad67879332">
 
@@ -43,17 +43,17 @@ All the evaluations and analysis run locally on your system, ensuring that the d
 
 You can **perform root cause analysis** on cases with either negative user feedback or low evaluation scores to understand which part of your LLM pipeline is giving suboptimal results. Check out the supported RCA templates.
 
-<img width="1088" alt="Configure your own evaluation LLM" src="https://github.com/uptrain-ai/uptrain/assets/43818888/b87c75b1-b86d-4770-8d37-e8428d5f17c2">
+<img width="1088" alt="Select from a Variety of Evaluation LLMs" src="https://github.com/uptrain-ai/uptrain/assets/43818888/4c778006-5f93-4901-8ab8-620d908a7003">
 
-We allow you to use any of OpenAI, Anthropic, Mistral, Azure's Openai endpoints or open-source LLMs hosted on Anyscale to be used as evaluator.
+We allow you to use any of OpenAI, Anthropic, Mistral, Azure's Openai endpoints or open-source LLMs hosted on Anyscale to be used as evaluators.
 
 <img width="1088" alt="Customize Evaluations" src="https://github.com/uptrain-ai/uptrain/assets/43818888/167488ec-9feb-48a7-9659-7bb9478584f9">
 
-UpTrain provides tons of ways to **customize evaluations**. You can customize evaluation method (chain of thought vs classify), few shot examples, add scenario description, as well as create custom evaluators.
+UpTrain provides tons of ways to **customize evaluations**. You can customize the evaluation method (chain of thought vs classify), few-shot examples, and scenario description. You can also create custom evaluators.
 
-<img width="1088" alt="40+ Operators Supported" src="https://github.com/uptrain-ai/uptrain/assets/43818888/55d99fb9-ce0a-409f-b898-acb550fa0804">
+<img width="1088" alt="20+ Pre-configured Evaluations" src="https://github.com/uptrain-ai/uptrain/assets/43818888/55d99fb9-ce0a-409f-b898-acb550fa0804">
 
-Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact match, etc.
+Support for **20+ operators** such as Response Completeness, Factual Accuracy, Context Conciseness etc.
 
 ### Coming Soon:
 
@@ -70,7 +70,7 @@ Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact 
 ## Method 1: Using the Locally Hosted Dashboard
 
 The UpTrain dashboard is a web-based interface that allows you to evaluate your LLM applications. It is a self-hosted dashboard that runs on your local machine.
-You don't need to write any code to use the dashboard. You can use the dashboard to evaluate your LLM applications, view the results, and perform root cause analysis.
+You don't need to write any code to use the dashboard. You can use the dashboard to evaluate your LLM applications, view the results, and perform a root cause analysis.
 
 Before you start, ensure you have docker installed on your machine. If not, you can install it from [here](https://docs.docker.com/get-docker/).
 
