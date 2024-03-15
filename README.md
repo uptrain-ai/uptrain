@@ -27,6 +27,10 @@
 
 # Key Features 🔑
 
+<img width="1088" alt="Interactive Dashboards" src="https://github.com/uptrain-ai/uptrain/assets/36454110/eb1c8239-dd99-4e66-ba8a-cbaee2beec10">
+
+UpTrain Dashboard is a web-based interface that runs on your **local machine**. You can use the dashboard to evaluate your LLM applications, view the results, and perform root cause analysis.
+
 <img width="1088" alt="Data Security" src="https://github.com/uptrain-ai/uptrain/assets/43818888/7b737bfc-b061-4f87-b51e-5bad67879332">
 
 All the evaluations and analysis run locally on your system, ensuring that the data never leaves your secure environment (except for LLM calls while using model grading checks)
@@ -34,10 +38,6 @@ All the evaluations and analysis run locally on your system, ensuring that the d
 <img width="1088" alt="Experimentation" src="https://github.com/uptrain-ai/uptrain/assets/43818888/fd9c5c7f-3951-4d69-9b77-4fece6ff0830">
 
 **Experiment with different embedding models** like text-embedding-3-large/small, text-embedding-3-ada, baai/bge-large, etc. UpTrain supports HuggingFace models, Replicate endpoints, or custom models hosted on your endpoint.
-
-<img width="1088" alt="Cost Effective" src="https://github.com/uptrain-ai/uptrain/assets/43818888/8b9bc91b-389a-4664-88f6-11b9c91e1e0f">
-
-By leveraging model grading and introducing an 'Unclear' grade, we are able to leverage GPT-3.5-turbo-1106 as the default evaluator and get high quality yet cost effective scores.
 
 <img width="1088" alt="Root Cause Analysis" src="https://github.com/uptrain-ai/uptrain/assets/43818888/32df049c-c0a4-4377-a807-f74e2efa57b5">
 
@@ -55,11 +55,6 @@ UpTrain provides tons of ways to **customize evaluations**. You can customize ev
 
 Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact match, etc.
 
-<img width="1088" alt="Interactive Dashboards" src="https://github.com/uptrain-ai/uptrain/assets/36454110/eb1c8239-dd99-4e66-ba8a-cbaee2beec10">
-
-UpTrain Dashboard is a web-based interface that runs on your **local machine**. You can use the dashboard to evaluate your LLM applications, view the results, and perform root cause analysis.
-
-
 ### Coming Soon:
 
 1. Collaborate with your team
@@ -68,6 +63,69 @@ UpTrain Dashboard is a web-based interface that runs on your **local machine**. 
 4. Prompt improvement suggestions
 
 <br />
+
+
+# Getting Started 🙌
+
+## Method 1: Using the Locally Hosted Dashboard
+
+The UpTrain dashboard is a web-based interface that allows you to evaluate your LLM applications. It is a self-hosted dashboard that runs on your local machine.
+You don't need to write any code to use the dashboard. You can use the dashboard to evaluate your LLM applications, view the results, and perform root cause analysis.
+
+Before you start, ensure you have docker installed on your machine. If not, you can install it from [here](https://docs.docker.com/get-docker/).
+
+The following commands will download the UpTrain dashboard and start it on your local machine.
+
+```bash
+# Clone the repository
+git clone https://github.com/uptrain-ai/uptrain
+cd uptrain
+
+# Run UpTrain
+bash run_uptrain.sh
+```
+> **NOTE:**  UpTrain Dashboard is currently in **Beta version**. We would love your feedback to improve it.
+
+## Method 2: Using the UpTrain package
+
+If you are a developer and want to integrate UpTrain evaluations into your application, you can use the UpTrain package. This allows for a more programmatic way to evaluate your LLM applications.
+
+### Install the package through pip:
+```bash
+pip install uptrain
+```
+
+### How to use UpTrain:
+
+You can evaluate your responses via the open-source version by providing your OpenAI API key to run evaluations.
+
+```python
+from uptrain import EvalLLM, Evals
+import json
+
+OPENAI_API_KEY = "sk-***************"
+
+data = [{
+    'question': 'Which is the most popular global sport?',
+    'context': "The popularity of sports can be measured in various ways, including TV viewership, social media presence, number of participants, and economic impact. Football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi, drawing a followership of more than 4 billion people. Cricket is particularly popular in countries like India, Pakistan, Australia, and England. The ICC Cricket World Cup and Indian Premier League (IPL) have substantial viewership. The NBA has made basketball popular worldwide, especially in countries like the USA, Canada, China, and the Philippines. Major tennis tournaments like Wimbledon, the US Open, French Open, and Australian Open have large global audiences. Players like Roger Federer, Serena Williams, and Rafael Nadal have boosted the sport's popularity. Field Hockey is very popular in countries like India, Netherlands, and Australia. It has a considerable following in many parts of the world.",
+    'response': 'Football is the most popular sport with around 4 billion followers worldwide'
+}]
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+
+results = eval_llm.evaluate(
+    data=data,
+    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_COMPLETENESS]
+)
+
+print(json.dumps(results, indent=3))
+```
+If you have any questions, please join our [Slack community](https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg)
+
+Speak directly with the maintainers of UpTrain by [booking a call here](https://calendly.com/uptrain-sourabh/30min).
+
+<br />
+
 
 # Pre-built Evaluations We Offer 📝
 <img width="1088" alt="quality of your responses" src="https://github.com/uptrain-ai/uptrain/assets/43818888/654b2289-2799-4310-84be-fcdd071f3e2e">
@@ -135,67 +193,6 @@ UpTrain Dashboard is a web-based interface that runs on your **local machine**. 
 | Eval | Description |
 | ---- | ----------- |
 |[Sub-Query Completeness](https://docs.uptrain.ai/predefined-evaluations/query-quality/sub-query-completeness) | Evaluate whether all of the sub-questions generated from a user's query, taken together, cover all aspects of the user's query or not |
-
-<br />
-
-# Get started 🙌
-
-## Locally hosted Dashboard
-
-The UpTrain dashboard is a web-based interface that allows you to evaluate your LLM applications. It is a self-hosted dashboard that runs on your local machine.
-You don't need to write any code to use the dashboard. You can use the dashboard to evaluate your LLM applications, view the results, and perform root cause analysis.
-
-Before you start, ensure you have docker installed on your machine. If not, you can install it from [here](https://docs.docker.com/get-docker/).
-
-The following commands will download the UpTrain dashboard and start it on your local machine.
-
-```bash
-# Clone the repository
-git clone https://github.com/uptrain-ai/uptrain
-cd uptrain
-
-# Run UpTrain
-bash run_uptrain.sh
-```
-> **_NOTE:_**  UpTrain Dashboard is currently in **Beta version**. We would love your feedback to improve it.
-
-## Using the UpTrain package
-
-If you are a developer and want to integrate UpTrain evaluations into your application, you can use the UpTrain package. This allows for a more programmatic way to evaluate your LLM applications.
-
-### Install the package through pip:
-```bash
-pip install uptrain
-```
-
-### How to use UpTrain:
-
-You can evaluate your responses via the open-source version by providing your OpenAI API key to run evaluations.
-
-```python
-from uptrain import EvalLLM, Evals
-import json
-
-OPENAI_API_KEY = "sk-***************"
-
-data = [{
-    'question': 'Which is the most popular global sport?',
-    'context': "The popularity of sports can be measured in various ways, including TV viewership, social media presence, number of participants, and economic impact. Football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi, drawing a followership of more than 4 billion people. Cricket is particularly popular in countries like India, Pakistan, Australia, and England. The ICC Cricket World Cup and Indian Premier League (IPL) have substantial viewership. The NBA has made basketball popular worldwide, especially in countries like the USA, Canada, China, and the Philippines. Major tennis tournaments like Wimbledon, the US Open, French Open, and Australian Open have large global audiences. Players like Roger Federer, Serena Williams, and Rafael Nadal have boosted the sport's popularity. Field Hockey is very popular in countries like India, Netherlands, and Australia. It has a considerable following in many parts of the world.",
-    'response': 'Football is the most popular sport with around 4 billion followers worldwide'
-}]
-
-eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
-
-results = eval_llm.evaluate(
-    data=data,
-    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_COMPLETENESS]
-)
-
-print(json.dumps(results, indent=3))
-```
-If you have any questions, please join our [Slack community](https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg)
-
-Speak directly with the maintainers of UpTrain by [booking a call here](https://calendly.com/uptrain-sourabh/30min).
 
 <br />
 
