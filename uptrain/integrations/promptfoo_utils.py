@@ -55,7 +55,7 @@ def tempalate_uptrain_eval():
     data = [{"question": input_question, "context": input_context, "response": output}]
     settings = Settings(openai_api_key=os.environ["OPENAI_API_KEY"], model=eval_model)
     eval_llm = EvalLLM(settings=settings)
-    results = eval_llm.evaluate(data=data, checks=eval_type)
+    results = eval_llm.evaluate(project_name=__project_name__,data=data, checks=eval_type)
     if results[0][score_var] > threshold_var:
         return {
             "pass": True,
@@ -75,7 +75,7 @@ func(format_uptrain_template): Adds individual variables to the template
 """
 
 
-def format_uptrain_template(data, evals_compiled, threshold, eval_model):
+def format_uptrain_template(data, evals_compiled, threshold, eval_model, project_name):
     uptrain_template_lines = inspect.getsourcelines(tempalate_uptrain_eval)[0]
     uptrain_template = "".join(uptrain_template_lines[1:])
 
@@ -96,6 +96,8 @@ def format_uptrain_template(data, evals_compiled, threshold, eval_model):
     )
     uptrain_template = uptrain_template.replace("threshold_var", "{}".format(threshold))
     uptrain_template = uptrain_template.replace("eval_model", "'{}'".format(eval_model))
+    uptrain_template = uptrain_template.replace("__project_name__", "'{}'".format(project_name))
+    
     return uptrain_template
 
 

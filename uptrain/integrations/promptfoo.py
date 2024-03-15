@@ -28,6 +28,7 @@ class EvalPromptfoo:
         output_file: t.Optional[str] = "results_" + timestr + ".csv",
         port: t.Optional[int] = pr_u.generate_open_port(),
         eval_model: t.Optional[str] = "gpt-3.5-turbo-1106",
+        project_name: t.Optional[str] = "EvalPromptfoo Results  " + timestr
     ):
         evals_compiled = pr_u.compile_evals(evals_list, evals_weight)
 
@@ -51,7 +52,7 @@ class EvalPromptfoo:
                         {
                             "type": "python",
                             "value": pr_u.format_uptrain_template(
-                                input_data[i], evals_compiled[j], threshold, eval_model
+                                input_data[i], evals_compiled[j], threshold, eval_model, project_name
                             ),
                         }
                         for j in range(len(evals_compiled))
