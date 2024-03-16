@@ -31,6 +31,10 @@
 
 UpTrain Dashboard is a web-based interface that runs on your **local machine**. You can use the dashboard to evaluate your LLM applications, view the results, and perform a root cause analysis.
 
+<img width="1088" alt="20+ Pre-configured Evaluations" src="https://github.com/uptrain-ai/uptrain/assets/43818888/2700fe70-1ff6-4fa8-b85d-320e6245852f">
+
+Support for **20+ pre-configured evaluations** such as Response Completeness, Factual Accuracy, Context Conciseness etc.
+
 <img width="1088" alt="Data Security" src="https://github.com/uptrain-ai/uptrain/assets/43818888/7b737bfc-b061-4f87-b51e-5bad67879332">
 
 All the evaluations and analysis run locally on your system, ensuring that the data never leaves your secure environment (except for LLM calls while using model grading checks)
@@ -50,10 +54,6 @@ We allow you to use any of OpenAI, Anthropic, Mistral, Azure's Openai endpoints 
 <img width="1088" alt="Customize Evaluations" src="https://github.com/uptrain-ai/uptrain/assets/43818888/167488ec-9feb-48a7-9659-7bb9478584f9">
 
 UpTrain provides tons of ways to **customize evaluations**. You can customize the evaluation method (chain of thought vs classify), few-shot examples, and scenario description. You can also create custom evaluators.
-
-<img width="1088" alt="20+ Pre-configured Evaluations" src="https://github.com/uptrain-ai/uptrain/assets/43818888/2700fe70-1ff6-4fa8-b85d-320e6245852f">
-
-Support for **20+ operators** such as Response Completeness, Factual Accuracy, Context Conciseness etc.
 
 ### Coming Soon:
 
