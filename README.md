@@ -51,7 +51,7 @@ We allow you to use any of OpenAI, Anthropic, Mistral, Azure's Openai endpoints 
 
 UpTrain provides tons of ways to **customize evaluations**. You can customize the evaluation method (chain of thought vs classify), few-shot examples, and scenario description. You can also create custom evaluators.
 
-<img width="1088" alt="20+ Pre-configured Evaluations" src="https://github.com/uptrain-ai/uptrain/assets/43818888/55d99fb9-ce0a-409f-b898-acb550fa0804">
+<img width="1088" alt="20+ Pre-configured Evaluations" src="https://github.com/uptrain-ai/uptrain/assets/43818888/2700fe70-1ff6-4fa8-b85d-320e6245852f">
 
 Support for **20+ operators** such as Response Completeness, Factual Accuracy, Context Conciseness etc.
 
