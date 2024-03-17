@@ -74,6 +74,7 @@
     {
       "group": "Pre-configured Evaluations",
       "pages": [
+        "predefined-evaluations/overview",
         {
           "group": "Ground Truth Comparison Evals",
           "pages": [
@@ -190,7 +191,8 @@
           "group": "Observation Tools",
           "pages": [
             "integrations/observation-tools/langfuse",
-            "integrations/observation-tools/helicone"
+            "integrations/observation-tools/helicone",
+            "integrations/observation-tools/zeno"
           ]
         },
         {
@@ -199,12 +201,6 @@
             "integrations/vector_db/chroma",
             "integrations/vector_db/qdrant",
             "integrations/vector_db/faiss"
-          ]
-        },
-        {
-          "group": "Visualization",
-          "pages": [
-            "integrations/visualization/zeno"
           ]
         }
       ]

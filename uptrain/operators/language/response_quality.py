@@ -421,6 +421,7 @@ class ResponseConsistency(ColumnOp):
         is_correct = True
         is_correct = is_correct and ("Score" in json.loads(llm_output))
         is_correct = is_correct and 0 <= json.loads(llm_output)["Score"] <= 1
+        is_correct = is_correct and ("Argument" in json.loads(llm_output))
         return is_correct
 
     def response_consistency_cot_validate_func(self, llm_output):
@@ -481,14 +482,17 @@ class ResponseConsistency(ColumnOp):
             idx = res.metadata["index"]
             output = {
                 "score_response_consistency": None,
-                "explanation_response_consistency": None,
+                "argument_response_consistency": None,
             }
             try:
-                score = json.loads(res.response.choices[0].message.content)["Score"]
+                parsed_output = json.loads(res.response.choices[0].message.content)
+                score = parsed_output["Score"]
                 output["score_response_consistency"] = float(score)
-                output["explanation_response_consistency"] = res.response.choices[
-                    0
-                ].message.content
+                output["argument_response_consistency"] = parsed_output["Argument"]
+                if self.settings.eval_type == "cot":
+                    output["reasoning_response_consistency"] = parsed_output[
+                        "Reasoning"
+                    ]
             except Exception:
                 logger.error(
                     f"Error when processing payload at index {idx}: {res.error}"

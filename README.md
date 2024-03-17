@@ -21,11 +21,19 @@
   <img src="https://github.com/uptrain-ai/uptrain/assets/108270398/10d0faeb-c4f8-422f-a01e-49a891fa7ada" alt="Demo of UpTrain's LLM evaluations with scores for hallucinations, retrieved-context quality, response tonality for a customer support chatbot"/>
 </h4>
 
-**[UpTrain](https://uptrain.ai)** is an open-source unified platform to evaluate and improve Generative AI applications. We provide grades for 20+ preconfigured checks (covering language, code, embedding use-cases), perform root cause analysis on failure cases and give insights on how to resolve them.    
+**[UpTrain](https://uptrain.ai)** is an open-source unified platform to evaluate and improve Generative AI applications. We provide grades for [20+ preconfigured evaluations](https://github.com/uptrain-ai/uptrain?tab=readme-ov-file#pre-built-evaluations-we-offer-) (covering language, code, embedding use cases), perform [root cause analysis](https://github.com/uptrain-ai/uptrain/blob/main/examples/root_cause_analysis/rag_with_citation.ipynb) on failure cases and give insights on how to resolve them.    
 
 <br />
 
 # Key Features 🔑
+
+<img width="1088" alt="Interactive Dashboards" src="https://github.com/uptrain-ai/uptrain/assets/36454110/eb1c8239-dd99-4e66-ba8a-cbaee2beec10">
+
+UpTrain Dashboard is a web-based interface that runs on your **local machine**. You can use the dashboard to evaluate your LLM applications, view the results, and perform a root cause analysis.
+
+<img width="1088" alt="20+ Pre-configured Evaluations" src="https://github.com/uptrain-ai/uptrain/assets/43818888/2700fe70-1ff6-4fa8-b85d-320e6245852f">
+
+Support for **20+ pre-configured evaluations** such as Response Completeness, Factual Accuracy, Context Conciseness etc.
 
 <img width="1088" alt="Data Security" src="https://github.com/uptrain-ai/uptrain/assets/43818888/7b737bfc-b061-4f87-b51e-5bad67879332">
 
@@ -35,30 +43,17 @@ All the evaluations and analysis run locally on your system, ensuring that the d
 
 **Experiment with different embedding models** like text-embedding-3-large/small, text-embedding-3-ada, baai/bge-large, etc. UpTrain supports HuggingFace models, Replicate endpoints, or custom models hosted on your endpoint.
 
-<img width="1088" alt="Cost Effective" src="https://github.com/uptrain-ai/uptrain/assets/43818888/8b9bc91b-389a-4664-88f6-11b9c91e1e0f">
-
-By leveraging model grading and introducing an 'Unclear' grade, we are able to leverage GPT-3.5-turbo-1106 as the default evaluator and get high quality yet cost effective scores.
-
 <img width="1088" alt="Root Cause Analysis" src="https://github.com/uptrain-ai/uptrain/assets/43818888/32df049c-c0a4-4377-a807-f74e2efa57b5">
 
 You can **perform root cause analysis** on cases with either negative user feedback or low evaluation scores to understand which part of your LLM pipeline is giving suboptimal results. Check out the supported RCA templates.
 
-<img width="1088" alt="Configure your own evaluation LLM" src="https://github.com/uptrain-ai/uptrain/assets/43818888/b87c75b1-b86d-4770-8d37-e8428d5f17c2">
+<img width="1088" alt="Select from a Variety of Evaluation LLMs" src="https://github.com/uptrain-ai/uptrain/assets/43818888/4c778006-5f93-4901-8ab8-620d908a7003">
 
-We allow you to use any of OpenAI, Anthropic, Mistral, Azure's Openai endpoints or open-source LLMs hosted on Anyscale to be used as evaluator.
+We allow you to use any of OpenAI, Anthropic, Mistral, Azure's Openai endpoints or open-source LLMs hosted on Anyscale to be used as evaluators.
 
 <img width="1088" alt="Customize Evaluations" src="https://github.com/uptrain-ai/uptrain/assets/43818888/167488ec-9feb-48a7-9659-7bb9478584f9">
 
-UpTrain provides tons of ways to **customize evaluations**. You can customize evaluation method (chain of thought vs classify), few shot examples, add scenario description, as well as create custom evaluators.
-
-<img width="1088" alt="40+ Operators Supported" src="https://github.com/uptrain-ai/uptrain/assets/43818888/55d99fb9-ce0a-409f-b898-acb550fa0804">
-
-Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact match, etc.
-
-<img width="1088" alt="Interactive Dashboards" src="https://github.com/uptrain-ai/uptrain/assets/36454110/eb1c8239-dd99-4e66-ba8a-cbaee2beec10">
-
-UpTrain Dashboard is a web-based interface that runs on your **local machine**. You can use the dashboard to evaluate your LLM applications, view the results, and perform root cause analysis.
-
+UpTrain provides tons of ways to **customize evaluations**. You can customize the evaluation method (chain of thought vs classify), few-shot examples, and scenario description. You can also create custom evaluators.
 
 ### Coming Soon:
 
@@ -68,6 +63,69 @@ UpTrain Dashboard is a web-based interface that runs on your **local machine**. 
 4. Prompt improvement suggestions
 
 <br />
+
+
+# Getting Started 🙌
+
+## Method 1: Using the Locally Hosted Dashboard
+
+The UpTrain dashboard is a web-based interface that allows you to evaluate your LLM applications. It is a self-hosted dashboard that runs on your local machine.
+You don't need to write any code to use the dashboard. You can use the dashboard to evaluate your LLM applications, view the results, and perform a root cause analysis.
+
+Before you start, ensure you have docker installed on your machine. If not, you can install it from [here](https://docs.docker.com/get-docker/).
+
+The following commands will download the UpTrain dashboard and start it on your local machine.
+
+```bash
+# Clone the repository
+git clone https://github.com/uptrain-ai/uptrain
+cd uptrain
+
+# Run UpTrain
+bash run_uptrain.sh
+```
+> **NOTE:**  UpTrain Dashboard is currently in **Beta version**. We would love your feedback to improve it.
+
+## Method 2: Using the UpTrain package
+
+If you are a developer and want to integrate UpTrain evaluations into your application, you can use the UpTrain package. This allows for a more programmatic way to evaluate your LLM applications.
+
+### Install the package through pip:
+```bash
+pip install uptrain
+```
+
+### How to use UpTrain:
+
+You can evaluate your responses via the open-source version by providing your OpenAI API key to run evaluations.
+
+```python
+from uptrain import EvalLLM, Evals
+import json
+
+OPENAI_API_KEY = "sk-***************"
+
+data = [{
+    'question': 'Which is the most popular global sport?',
+    'context': "The popularity of sports can be measured in various ways, including TV viewership, social media presence, number of participants, and economic impact. Football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi, drawing a followership of more than 4 billion people. Cricket is particularly popular in countries like India, Pakistan, Australia, and England. The ICC Cricket World Cup and Indian Premier League (IPL) have substantial viewership. The NBA has made basketball popular worldwide, especially in countries like the USA, Canada, China, and the Philippines. Major tennis tournaments like Wimbledon, the US Open, French Open, and Australian Open have large global audiences. Players like Roger Federer, Serena Williams, and Rafael Nadal have boosted the sport's popularity. Field Hockey is very popular in countries like India, Netherlands, and Australia. It has a considerable following in many parts of the world.",
+    'response': 'Football is the most popular sport with around 4 billion followers worldwide'
+}]
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+
+results = eval_llm.evaluate(
+    data=data,
+    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_COMPLETENESS]
+)
+
+print(json.dumps(results, indent=3))
+```
+If you have any questions, please join our [Slack community](https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg)
+
+Speak directly with the maintainers of UpTrain by [booking a call here](https://calendly.com/uptrain-sourabh/30min).
+
+<br />
+
 
 # Pre-built Evaluations We Offer 📝
 <img width="1088" alt="quality of your responses" src="https://github.com/uptrain-ai/uptrain/assets/43818888/654b2289-2799-4310-84be-fcdd071f3e2e">
@@ -138,77 +196,17 @@ UpTrain Dashboard is a web-based interface that runs on your **local machine**. 
 
 <br />
 
-# Get started 🙌
-
-## Locally hosted Dashboard
-
-The UpTrain dashboard is a web-based interface that allows you to evaluate your LLM applications. It is a self-hosted dashboard that runs on your local machine.
-You don't need to write any code to use the dashboard. You can use the dashboard to evaluate your LLM applications, view the results, and perform root cause analysis.
-
-Before you start, ensure you have docker installed on your machine. If not, you can install it from [here](https://docs.docker.com/get-docker/).
-
-The following commands will download the UpTrain dashboard and start it on your local machine.
-
-```bash
-# Clone the repository
-git clone https://github.com/uptrain-ai/uptrain
-cd uptrain
-
-# Run UpTrain
-bash run_uptrain.sh
-```
-> **_NOTE:_**  UpTrain Dashboard is currently in **Beta version**. We would love your feedback to improve it.
-
-## Using the UpTrain package
-
-If you are a developer and want to integrate UpTrain evaluations into your application, you can use the UpTrain package. This allows for a more programmatic way to evaluate your LLM applications.
-
-### Install the package through pip:
-```bash
-pip install uptrain
-```
-
-### How to use UpTrain:
-
-You can evaluate your responses via the open-source version by providing your OpenAI API key to run evaluations.
-
-```python
-from uptrain import EvalLLM, Evals
-import json
-
-OPENAI_API_KEY = "sk-***************"
-
-data = [{
-    'question': 'Which is the most popular global sport?',
-    'context': "The popularity of sports can be measured in various ways, including TV viewership, social media presence, number of participants, and economic impact. Football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi, drawing a followership of more than 4 billion people. Cricket is particularly popular in countries like India, Pakistan, Australia, and England. The ICC Cricket World Cup and Indian Premier League (IPL) have substantial viewership. The NBA has made basketball popular worldwide, especially in countries like the USA, Canada, China, and the Philippines. Major tennis tournaments like Wimbledon, the US Open, French Open, and Australian Open have large global audiences. Players like Roger Federer, Serena Williams, and Rafael Nadal have boosted the sport's popularity. Field Hockey is very popular in countries like India, Netherlands, and Australia. It has a considerable following in many parts of the world.",
-    'response': 'Football is the most popular sport with around 4 billion followers worldwide'
-}]
-
-eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
-
-results = eval_llm.evaluate(
-    data=data,
-    checks=[Evals.CONTEXT_RELEVANCE, Evals.FACTUAL_ACCURACY, Evals.RESPONSE_COMPLETENESS]
-)
-
-print(json.dumps(results, indent=3))
-```
-If you have any questions, please join our [Slack community](https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg)
-
-Speak directly with the maintainers of UpTrain by [booking a call here](https://calendly.com/uptrain-sourabh/30min).
-
-<br />
-
 # Integrations 🤝
 
 | Eval Frameworks  | LLM Providers | LLM Packages | Serving frameworks | LLM Observability | Vector DBs |
 | ------------- | ------------- | ------------- | ------------- | ------------- |  ------------- |
-| OpenAI Evals ✅ | GPT-3.5-turbo ✅ | Langchain 🔜 | HuggingFace ✅ | Langfuse 🔜 | Qdrant ✅ |
-| EleutherAI LM Eval 🔜 | GPT-4 ✅  | Llama Index ✅ |  Replicate ✅ | Helicone 🔜 | Pinecone 🔜 |
-| BIG-Bench 🔜 | Claude ✅ | AutoGPT 🔜 |  AnyScale ✅ | | Chroma ✅ |
-| | Cohere ✅ | | Together ai 🔜 |
-| | Llama2 ✅ | | Ollama 🔜 |
-| | Mistral ✅ |
+| [OpenAI Evals](https://docs.uptrain.ai/tutorials/openai-evals) | [OpenAI](https://docs.uptrain.ai/llms/openai) | [LlamaIndex](https://docs.uptrain.ai/integrations/framework/llamaindex-methods/overview) | [Ollama](https://docs.uptrain.ai/llms/ollama) | [Langfuse](https://docs.uptrain.ai/integrations/observation-tools/langfuse) | [Qdrant](https://docs.uptrain.ai/integrations/vector_db/qdrant) |
+| | [Azure](https://docs.uptrain.ai/llms/azure) | |  [Together AI](https://docs.uptrain.ai/llms/together_ai) | [Helicone](https://docs.uptrain.ai/integrations/observation-tools/helicone) | [FAISS](https://docs.uptrain.ai/integrations/vector_db/faiss) |
+| | [Claude](https://docs.uptrain.ai/llms/claude) | |  [Anyscale](https://docs.uptrain.ai/llms/anyscale) | [Zeno](https://docs.uptrain.ai/integrations/observation-tools/zeno) | [Chroma](https://docs.uptrain.ai/integrations/vector_db/chroma) |
+| | [Mistral](https://docs.uptrain.ai/llms/mistral) | | Replicate  |
+| |  | |  HuggingFace  |
+
+More integrations are coming soon. If you have a specific integration in mind, please let us know by [creating an issue](https://github.com/uptrain-ai/uptrain/issues).
 
 <br />
 

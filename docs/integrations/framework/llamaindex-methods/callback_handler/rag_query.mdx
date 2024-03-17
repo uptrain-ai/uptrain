@@ -5,7 +5,7 @@ title: RAG Query Engine Evaluations
 The RAG query engine plays a crucial role in retrieving context and generating responses. To ensure its performance and response quality, we conduct the following evaluations:
     * [Context Relevance](/predefined-evaluations/context-awareness/context-relevance): Determines if the context extracted from the query is relevant to the response.
     * [Factual Accuracy](/predefined-evaluations/context-awareness/factual-accuracy): Assesses if the LLM is hallcuinating or providing incorrect information.
-    * [Response Completeness](/predefined-evaluations//response-quality/response-completeness): Checks if the response contains all the information requested by the query.
+    * [Response Completeness](/predefined-evaluations/response-quality/response-completeness): Checks if the response contains all the information requested by the query.
 
 <Info>You can check out the complete list of evaluations UpTrain supports [here](/predefined-evaluations/overview) </Info>
 
@@ -69,7 +69,7 @@ nodes = parser.get_nodes_from_documents(documents)
 UpTrain callback handler will automatically capture the query, context and response once generated and will run the following three evaluations (Graded from 0 to 1) on the response:
     * [Context Relevance](/predefined-evaluations/context-awareness/context-relevance): Determines if the context extracted from the query is relevant to the response.
     * [Factual Accuracy](/predefined-evaluations/context-awareness/factual-accuracy): Assesses if the LLM is hallcuinating or providing incorrect information.
-    * [Response Completeness](/predefined-evaluations//response-quality/response-completeness): Checks if the response contains all the information requested by the query.
+    * [Response Completeness](/predefined-evaluations/response-quality/response-completeness): Checks if the response contains all the information requested by the query.
 ```python
 index = VectorStoreIndex.from_documents(
     documents,

@@ -67,7 +67,7 @@ nodes = parser.get_nodes_from_documents(documents)
   UpTrain callback handler will automatically capture the sub-question and the responses for each of them once generated and will run the following three evaluations (Graded from 0 to 1) on the response:
     * [Context Relevance](/predefined-evaluations/context-awareness/context-relevance): Determines if the context extracted from the query is relevant to the response.
     * [Factual Accuracy](/predefined-evaluations/context-awareness/factual-accuracy): Assesses if the LLM is hallcuinating or providing incorrect information.
-    * [Response Completeness](/predefined-evaluations//response-quality/response-completeness): Checks if the response contains all the information requested by the query.
+    * [Response Completeness](/predefined-evaluations/response-quality/response-completeness): Checks if the response contains all the information requested by the query.
   
   In addition to the above evaluations, the callback handler will also run the following evaluation:
     * Sub Query Completeness: Checks if the sub-questions accurately and completely cover the original query.

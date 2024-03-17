@@ -103,14 +103,16 @@ RESPONSE_COMPLETENESS_WRT_CONTEXT_OUTPUT_FORMAT__COT = """
 # Response Consistency
 RESPONSE_CONSISTENCY_OUTPUT_FORMAT__CLASSIFY = """
 {
-    "Score": [Score],  # Score (between 0 and 1) to determine the quality of reasoning generated to justify the given response for answering the given query,
+    "Argument": [Argument], # Argument to justify why the given answer is appropriate for the given question,
+    "Score": [Consistency Score],  # Score between 0 to 1, to evaluate the consistency of the given answer for the given question
 }
 """
 
 RESPONSE_CONSISTENCY_OUTPUT_FORMAT__COT = """
 {
+    "Argument": [Argument], # Argument to justify why the given answer is appropriate for the given question,
     "Reasoning": [Reasoning],  # Reasoning to determine the quality of reasoning generated to justify the given response for answering the given query,
-    "Score": [Score],  # Score (between 0 and 1) to determine the quality of reasoning generated to justify the given response for answering the given query,
+    "Score": [Consistency Score],  # Score between 0 to 1, to evaluate the consistency of the given answer for the given question
 }
 """
 
