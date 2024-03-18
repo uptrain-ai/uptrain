@@ -4,7 +4,6 @@ Implement operators to evaluate factual correctness of the response.
 
 from __future__ import annotations
 import typing as t
-import json
 
 from loguru import logger
 import polars as pl
@@ -20,7 +19,7 @@ from uptrain.operators.base import (
     TYPE_TABLE_OUTPUT,
 )
 from uptrain.utilities import polars_to_json_serializable_dict
-from uptrain.operators.language.llm import LLMMulticlient
+from uptrain.operators.language.llm import LLMMulticlient, parse_json
 
 from uptrain.operators.language.prompts.classic import (
     FACT_EVAL_PROMPT_TEMPLATE,
@@ -174,7 +173,7 @@ class ResponseFactualScore(ColumnOp):
         for res in output_payloads:
             idx = res.metadata["index"]
             try:
-                facts = json.loads(res.response.choices[0].message.content)
+                facts = parse_json(res.response.choices[0].message.content)
                 fact_results.append((idx, facts))
             except Exception:
                 logger.error(
@@ -231,7 +230,7 @@ class ResponseFactualScore(ColumnOp):
                 "explanation_factual_accuracy": None,
             }
             try:
-                result = json.loads(res.response.choices[0].message.content)["Result"]
+                result = parse_json(res.response.choices[0].message.content)["Result"]
                 judgements = [x["Judgement"] for x in result]
                 score = np.mean([self.score_mapping[x.lower()] for x in judgements])
                 output["score_factual_accuracy"] = float(score)
