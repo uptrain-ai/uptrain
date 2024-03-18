@@ -111,13 +111,13 @@ class ResponseFactualScore(ColumnOp):
 
     def fact_generate_validate_func(self, llm_output):
         is_correct = True
-        is_correct = is_correct and "Facts" in json.loads(llm_output)
+        is_correct = is_correct and "Facts" in llm_output
         return is_correct
 
     def fact_eval_classify_validate_func(self, llm_output):
         is_correct = True
-        is_correct = is_correct and isinstance(json.loads(llm_output)["Result"], list)
-        for row in json.loads(llm_output)["Result"]:
+        is_correct = is_correct and isinstance(llm_output["Result"], list)
+        for row in llm_output["Result"]:
             is_correct = (
                 is_correct and min([x in row for x in ["Judgement", "Fact"]]) > 0
             )
@@ -130,7 +130,7 @@ class ResponseFactualScore(ColumnOp):
 
     def fact_eval_cot_validate_func(self, llm_output):
         is_correct = self.fact_eval_classify_validate_func(llm_output)
-        for row in json.loads(llm_output)["Result"]:
+        for row in llm_output["Result"]:
             is_correct = is_correct and min([x in row for x in ["Reasoning"]]) > 0
         return is_correct
 

@@ -32,12 +32,12 @@ FACT_EVALUATE_OUTPUT_FORMAT__COT = """
         {
             "Fact": [1st Fact],  # 1st fact being analysed,
             "Reasoning": [Reasoning for 1st Fact],  # Reasoning to determine if the 1st fact can be verified from the context or not,
-            "Judgement": [Judgement for 1st Fact],  # Judgement for 1st fact. Select one of the three - "yes", "unclear" or "no",
+            "Judgement": [Judgement for 1st Fact]   # Judgement for 1st fact. Select one of the three - "yes", "unclear" or "no",
         },
         {
             "Fact": [2nd Fact],  # 2nd fact being analysed,
             "Reasoning": [Reasoning for 2nd Fact],  # Reasoning to determine if the 2nd fact can be verified from the context or not,
-            "Judgement": [Judgement for 2nd Fact], # Judgement for 2nd fact. Select one of the three - "yes", "unclear" or "no",
+            "Judgement": [Judgement for 2nd Fact]   # Judgement for 2nd fact. Select one of the three - "yes", "unclear" or "no",
         },
         ... # Do for all the facts
     ]

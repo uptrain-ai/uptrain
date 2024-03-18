@@ -7,15 +7,15 @@ FACT_EVAL_FEW_SHOT__CLASSIFY = """
     "Result": [
         {
             "Fact": "1. The Eiffel Tower is located in Paris.",
-            "Judgement": "yes",
+            "Judgement": "yes"
         },
         {
             "Fact": "2. The Eiffel Tower is the tallest structure in Paris.",
-            "Judgement": "no",
+            "Judgement": "no"
         },
         {
             "Fact": "3. The Eiffel Tower is very old.",
-            "Judgement": "unclear",
+            "Judgement": "unclear"
         },
     ]
 }
@@ -30,17 +30,17 @@ FACT_EVAL_FEW_SHOT__COT = """
         {
             "Fact": "1. The Eiffel Tower is located in Paris.",
             "Reasoning": "The context explicity states that Paris, one of the most visited monuments in the world is located in Paris. Hence, the fact can be verified by the context.",
-            "Judgement": "yes",
+            "Judgement": "yes"
         },
         {
             "Fact": "2. The Eiffel Tower is the tallest structure in Paris.",
             "Reasoning": "While the context speaks about the popularity of Effiel Tower, it has no mention about its height or whether it is tallest or not. Hence, the the fact can not be verified by the context.",
-            "Judgement": "no",
+            "Judgement": "no"
         },
         {
             "Fact": "3. The Eiffel Tower is very old.",
             "Reasoning": "While the context mentions that the Eiffel Tower was built in 1880s, it doesn't clarify what very old means.",
-            "Judgement": "unclear",
+            "Judgement": "unclear"
         },
     ]
 }
