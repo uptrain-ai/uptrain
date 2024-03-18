@@ -1,5 +1,5 @@
 <h4 align="center">
-  <a href="https://www.uptrain.ai">
+  <a href="https://uptrain.ai">
    <img alt="Logo of UpTrain - an open-source platform to evaluate and improve LLM applications" src="https://github.com/uptrain-ai/uptrain/assets/108270398/b6a4905f-63fd-47ab-a894-1026a6669c86"/>
   </a>
 </h4>
@@ -21,11 +21,19 @@
   <img src="https://github.com/uptrain-ai/uptrain/assets/108270398/10d0faeb-c4f8-422f-a01e-49a891fa7ada" alt="Demo of UpTrain's LLM evaluations with scores for hallucinations, retrieved-context quality, response tonality for a customer support chatbot"/>
 </h4>
 
-**[UpTrain](https://www.uptrain.ai)** is an open-source unified platform to evaluate and improve Generative AI applications. We provide grades for 20+ preconfigured checks (covering language, code, embedding use-cases), perform root cause analysis on failure cases and give insights on how to resolve them.    
+**[UpTrain](https://uptrain.ai)** is an open-source unified platform to evaluate and improve Generative AI applications. We provide grades for [20+ preconfigured evaluations](https://github.com/uptrain-ai/uptrain?tab=readme-ov-file#pre-built-evaluations-we-offer-) (covering language, code, embedding use cases), perform [root cause analysis](https://github.com/uptrain-ai/uptrain/blob/main/examples/root_cause_analysis/rag_with_citation.ipynb) on failure cases and give insights on how to resolve them.    
 
 <br />
 
 # Key Features 🔑
+
+<img width="1088" alt="Interactive Dashboards" src="https://github.com/uptrain-ai/uptrain/assets/36454110/eb1c8239-dd99-4e66-ba8a-cbaee2beec10">
+
+UpTrain Dashboard is a web-based interface that runs on your **local machine**. You can use the dashboard to evaluate your LLM applications, view the results, and perform a root cause analysis.
+
+<img width="1088" alt="20+ Pre-configured Evaluations" src="https://github.com/uptrain-ai/uptrain/assets/43818888/2700fe70-1ff6-4fa8-b85d-320e6245852f">
+
+Support for **20+ pre-configured evaluations** such as Response Completeness, Factual Accuracy, Context Conciseness etc.
 
 <img width="1088" alt="Data Security" src="https://github.com/uptrain-ai/uptrain/assets/43818888/7b737bfc-b061-4f87-b51e-5bad67879332">
 
@@ -35,105 +43,34 @@ All the evaluations and analysis run locally on your system, ensuring that the d
 
 **Experiment with different embedding models** like text-embedding-3-large/small, text-embedding-3-ada, baai/bge-large, etc. UpTrain supports HuggingFace models, Replicate endpoints, or custom models hosted on your endpoint.
 
-<img width="1088" alt="Cost Effective" src="https://github.com/uptrain-ai/uptrain/assets/43818888/8b9bc91b-389a-4664-88f6-11b9c91e1e0f">
-
-By leveraging model grading and introducing an 'Unclear' grade, we are able to leverage GPT-3.5-turbo-1106 as the default evaluator and get high quality yet cost effective scores.
-
 <img width="1088" alt="Root Cause Analysis" src="https://github.com/uptrain-ai/uptrain/assets/43818888/32df049c-c0a4-4377-a807-f74e2efa57b5">
 
 You can **perform root cause analysis** on cases with either negative user feedback or low evaluation scores to understand which part of your LLM pipeline is giving suboptimal results. Check out the supported RCA templates.
 
-<img width="1088" alt="Configure your own evaluation LLM" src="https://github.com/uptrain-ai/uptrain/assets/43818888/b87c75b1-b86d-4770-8d37-e8428d5f17c2">
+<img width="1088" alt="Select from a Variety of Evaluation LLMs" src="https://github.com/uptrain-ai/uptrain/assets/43818888/4c778006-5f93-4901-8ab8-620d908a7003">
 
-We allow you to use any of OpenAI, Anthropic, Mistral, Azure's Openai endpoints or open-source LLMs hosted on Anyscale to be used as evaluator.
+We allow you to use any of OpenAI, Anthropic, Mistral, Azure's Openai endpoints or open-source LLMs hosted on Anyscale to be used as evaluators.
 
 <img width="1088" alt="Customize Evaluations" src="https://github.com/uptrain-ai/uptrain/assets/43818888/167488ec-9feb-48a7-9659-7bb9478584f9">
 
-UpTrain provides tons of ways to **customize evaluations**. You can customize evaluation method (chain of thought vs classify), few shot examples, add scenario description, as well as create custom evaluators.
-
-<img width="1088" alt="40+ Operators Supported" src="https://github.com/uptrain-ai/uptrain/assets/43818888/55d99fb9-ce0a-409f-b898-acb550fa0804">
-
-Support for **40+ operators** such as BLEU, ROUGE, Embeddings Similarity, Exact match, etc.
-
+UpTrain provides tons of ways to **customize evaluations**. You can customize the evaluation method (chain of thought vs classify), few-shot examples, and scenario description. You can also create custom evaluators.
 
 ### Coming Soon:
 
-1. Experiment Dashboards
-2. Collaborate with your team
-3. Embedding visualization via UMAP and Clustering
-4. Pattern recognition among failure cases
-5. Prompt improvement suggestions
+1. Collaborate with your team
+2. Embedding visualization via UMAP and Clustering
+3. Pattern recognition among failure cases
+4. Prompt improvement suggestions
 
 <br />
 
-# Pre-built Evaluations We Offer 📝
-<img width="1088" alt="quality of your responses" src="https://github.com/uptrain-ai/uptrain/assets/43818888/654b2289-2799-4310-84be-fcdd071f3e2e">
 
-| Eval | Description |
-| ---- | ----------- |
-|[Reponse Completeness](https://docs.uptrain.ai/predefined-evaluations/response-quality/response-completeness) | Grades whether the response has answered all the aspects of the question specified. |
-|[Reponse Conciseness](https://docs.uptrain.ai/predefined-evaluations/response-quality/response-conciseness) | Grades how concise the generated response is or if it has any additional irrelevant information for the question asked. |
-|[Reponse Relevance](https://docs.uptrain.ai/predefined-evaluations/response-quality/response-relevance)| Grades how relevant the generated context was to the question specified.|
-|[Reponse Validity](https://docs.uptrain.ai/predefined-evaluations/response-quality/response-validity)| Grades if the response generated is valid or not. A response is considered to be valid if it contains any information.|
-|[Reponse Consistency](https://docs.uptrain.ai/predefined-evaluations/response-quality/response-consistency)| Grades how consistent the response is with the question asked as well as with the context provided.|
+# Getting Started 🙌
 
-<img width="1088" alt="quality of retrieved context and response groundedness" src="https://github.com/uptrain-ai/uptrain/assets/43818888/a7e384a3-c857-4a71-a938-7a2a70f8db1e">
-
-| Eval | Description |
-| ---- | ----------- |
-|[Context Relevance](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-relevance) | Grades how relevant the context was to the question specified. |
-|[Context Utilization](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-utilization) | Grades how complete the generated response was for the question specified given the information provided in the context. |
-|[Factual Accuracy](https://docs.uptrain.ai/predefined-evaluations/context-awareness/factual-accuracy)| Grades whether the response generated is factually correct and grounded by the provided context.|
-|[Context Conciseness](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-conciseness)| Evaluates the concise context cited from an original context for irrelevant information.
-|[Context Reranking](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-reranking)| Evaluates how efficient the reranked context is compared to the original context.|
-
-<img width="1088" alt="language quality of the response" src="https://github.com/uptrain-ai/uptrain/assets/43818888/776cbc6d-bb4c-4ed1-a892-7a1df38d12d5">
-
-| Eval | Description |
-| ---- | ----------- |
-|[Language Features](https://docs.uptrain.ai/predefined-evaluations/language-quality/fluency-and-coherence) | Grades whether the response has answered all the aspects of the question specified. |
-|[Tonality](https://docs.uptrain.ai/predefined-evaluations/code-evals/code-hallucination) | Grades whether the generated response matches the required persona's tone  |
-
-<img width="1088" alt="language quality of the response" src="https://github.com/uptrain-ai/uptrain/assets/36454110/2fba9f0b-71b3-4d90-90f8-16ef38cef3ab">
-
-| Eval | Description |
-| ---- | ----------- |
-|[Code Hallucination](https://docs.uptrain.ai/predefined-evaluations/code-evals/code-hallucination) | Grades whether the code present in the generated response is grounded by the context. |
-
-<img width="1088" alt="conversation as a whole" src="https://github.com/uptrain-ai/uptrain/assets/43818888/194f8dd7-26ca-48eb-bdff-028212db9e25">
-
-| Eval | Description |
-| ---- | ----------- |
-|[User Satisfaction](https://docs.uptrain.ai/predefined-evaluations/conversation-evals/user-satisfaction) | Grades how well the user's concerns are addressed and assesses their satisfaction based on provided conversation. |
-
-<img width="1088" alt="custom evaluations and others" src="https://github.com/uptrain-ai/uptrain/assets/43818888/0bbc2d82-0f96-49ab-969c-4eec29fef988">
-
- Eval | Description |
-| ---- | ----------- |
-|[Custom Guideline](https://docs.uptrain.ai/predefined-evaluations/custom-evals/custom-guideline) | Allows you to specify a guideline and grades how well the LLM adheres to the provided guideline when giving a response. |
-|[Custom Prompts](https://docs.uptrain.ai/predefined-evaluations/custom-evals/custom-prompt-eval) | Allows you to create your own set of evaluations. |
-
-<img width="1088" alt="compare responses with ground truth" src="https://github.com/uptrain-ai/uptrain/assets/36454110/e3ee22f4-9984-47a5-a7d2-9d8688a090fb">
-
-| Eval | Description |
-| ---- | ----------- |
-|[Response Matching](https://docs.uptrain.ai/predefined-evaluations/ground-truth-comparison/response-matching) | Compares and grades how well the response generated by the LLM aligns with the provided ground truth. |
-
-<img width="1088" alt="safeguard system prompts and avoid LLM mis-use" src="https://github.com/uptrain-ai/uptrain/assets/43818888/4fcdb1e8-f356-443b-88f0-94146e08829e">
-
-| Eval | Description |
-| ---- | ----------- |
-|[Prompt Injection](https://docs.uptrain.ai/predefined-evaluations/safeguarding/prompt-injection) | Grades whether the generated response is leaking any system prompt. |
-|[Jailbreak Detection](https://docs.uptrain.ai/predefined-evaluations/safeguarding/jailbreak) | Grades whether the user's prompt is an attempt to jailbreak (i.e. generate illegal or harmful responses). |
-
-<br />
-
-# Get started 🙌
-
-## Locally hosted Dashboard
+## Method 1: Using the Locally Hosted Dashboard
 
 The UpTrain dashboard is a web-based interface that allows you to evaluate your LLM applications. It is a self-hosted dashboard that runs on your local machine.
-You don't need to write any code to use the dashboard. You can use the dashboard to evaluate your LLM applications, view the results, and perform root cause analysis.
+You don't need to write any code to use the dashboard. You can use the dashboard to evaluate your LLM applications, view the results, and perform a root cause analysis.
 
 Before you start, ensure you have docker installed on your machine. If not, you can install it from [here](https://docs.docker.com/get-docker/).
 
@@ -147,8 +84,9 @@ cd uptrain
 # Run UpTrain
 bash run_uptrain.sh
 ```
+> **NOTE:**  UpTrain Dashboard is currently in **Beta version**. We would love your feedback to improve it.
 
-## Using the UpTrain package
+## Method 2: Using the UpTrain package
 
 If you are a developer and want to integrate UpTrain evaluations into your application, you can use the UpTrain package. This allows for a more programmatic way to evaluate your LLM applications.
 
@@ -188,16 +126,87 @@ Speak directly with the maintainers of UpTrain by [booking a call here](https://
 
 <br />
 
+
+# Pre-built Evaluations We Offer 📝
+<img width="1088" alt="quality of your responses" src="https://github.com/uptrain-ai/uptrain/assets/43818888/654b2289-2799-4310-84be-fcdd071f3e2e">
+
+| Eval | Description |
+| ---- | ----------- |
+|[Response Completeness](https://docs.uptrain.ai/predefined-evaluations/response-quality/response-completeness) | Grades whether the response has answered all the aspects of the question specified. |
+|[Response Conciseness](https://docs.uptrain.ai/predefined-evaluations/response-quality/response-conciseness) | Grades how concise the generated response is or if it has any additional irrelevant information for the question asked. |
+|[Response Relevance](https://docs.uptrain.ai/predefined-evaluations/response-quality/response-relevance)| Grades how relevant the generated context was to the question specified.|
+|[Response Validity](https://docs.uptrain.ai/predefined-evaluations/response-quality/response-validity)| Grades if the response generated is valid or not. A response is considered to be valid if it contains any information.|
+|[Response Consistency](https://docs.uptrain.ai/predefined-evaluations/response-quality/response-consistency)| Grades how consistent the response is with the question asked as well as with the context provided.|
+
+<img width="1088" alt="quality of retrieved context and response groundedness" src="https://github.com/uptrain-ai/uptrain/assets/43818888/a7e384a3-c857-4a71-a938-7a2a70f8db1e">
+
+
+| Eval | Description |
+| ---- | ----------- |
+|[Context Relevance](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-relevance) | Grades how relevant the context was to the question specified. |
+|[Context Utilization](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-utilization) | Grades how complete the generated response was for the question specified, given the information provided in the context. |
+|[Factual Accuracy](https://docs.uptrain.ai/predefined-evaluations/context-awareness/factual-accuracy)| Grades whether the response generated is factually correct and grounded by the provided context.|
+|[Context Conciseness](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-conciseness)| Evaluates the concise context cited from an original context for irrelevant information.
+|[Context Reranking](https://docs.uptrain.ai/predefined-evaluations/context-awareness/context-reranking)| Evaluates how efficient the reranked context is compared to the original context.|
+
+<img width="1088" alt="language quality of the response" src="https://github.com/uptrain-ai/uptrain/assets/43818888/776cbc6d-bb4c-4ed1-a892-7a1df38d12d5">
+
+| Eval | Description |
+| ---- | ----------- |
+|[Language Features](https://docs.uptrain.ai/predefined-evaluations/language-quality/fluency-and-coherence) | Grades the quality and effectiveness of language in a response, focusing on factors such as clarity, coherence, conciseness, and overall communication. |
+|[Tonality](https://docs.uptrain.ai/predefined-evaluations/code-evals/code-hallucination) | Grades whether the generated response matches the required persona's tone  |
+
+<img width="1088" alt="language quality of the response" src="https://github.com/uptrain-ai/uptrain/assets/36454110/2fba9f0b-71b3-4d90-90f8-16ef38cef3ab">
+
+| Eval | Description |
+| ---- | ----------- |
+|[Code Hallucination](https://docs.uptrain.ai/predefined-evaluations/code-evals/code-hallucination) | Grades whether the code present in the generated response is grounded by the context. |
+
+<img width="1088" alt="conversation as a whole" src="https://github.com/uptrain-ai/uptrain/assets/43818888/194f8dd7-26ca-48eb-bdff-028212db9e25">
+
+| Eval | Description |
+| ---- | ----------- |
+|[User Satisfaction](https://docs.uptrain.ai/predefined-evaluations/conversation-evals/user-satisfaction) | Grades how well the user's concerns are addressed and assesses their satisfaction based on provided conversation. |
+
+<img width="1088" alt="custom evaluations and others" src="https://github.com/uptrain-ai/uptrain/assets/43818888/0bbc2d82-0f96-49ab-969c-4eec29fef988">
+
+ Eval | Description |
+| ---- | ----------- |
+|[Custom Guideline](https://docs.uptrain.ai/predefined-evaluations/custom-evals/custom-guideline) | Allows you to specify a guideline and grades how well the LLM adheres to the provided guideline when giving a response. |
+|[Custom Prompts](https://docs.uptrain.ai/predefined-evaluations/custom-evals/custom-prompt-eval) | Allows you to create your own set of evaluations. |
+
+<img width="1088" alt="compare responses with ground truth" src="https://github.com/uptrain-ai/uptrain/assets/36454110/e3ee22f4-9984-47a5-a7d2-9d8688a090fb">
+
+| Eval | Description |
+| ---- | ----------- |
+|[Response Matching](https://docs.uptrain.ai/predefined-evaluations/ground-truth-comparison/response-matching) | Compares and grades how well the response generated by the LLM aligns with the provided ground truth. |
+
+<img width="1088" alt="safeguard system prompts and avoid LLM mis-use" src="https://github.com/uptrain-ai/uptrain/assets/43818888/4fcdb1e8-f356-443b-88f0-94146e08829e">
+
+| Eval | Description |
+| ---- | ----------- |
+|[Prompt Injection](https://docs.uptrain.ai/predefined-evaluations/safeguarding/prompt-injection) | Grades whether the user's prompt is an attempt to make the LLM reveal its system prompts. |
+|[Jailbreak Detection](https://docs.uptrain.ai/predefined-evaluations/safeguarding/jailbreak) | Grades whether the user's prompt is an attempt to jailbreak (i.e. generate illegal or harmful responses). |
+
+<img width="1088" alt="evaluate the clarity of user queries" src="https://github.com/uptrain-ai/uptrain/assets/36454110/50ed622f-0b92-468c-af48-2391ff6ab8e0">
+
+| Eval | Description |
+| ---- | ----------- |
+|[Sub-Query Completeness](https://docs.uptrain.ai/predefined-evaluations/query-quality/sub-query-completeness) | Evaluate whether all of the sub-questions generated from a user's query, taken together, cover all aspects of the user's query or not |
+
+<br />
+
 # Integrations 🤝
 
 | Eval Frameworks  | LLM Providers | LLM Packages | Serving frameworks | LLM Observability | Vector DBs |
 | ------------- | ------------- | ------------- | ------------- | ------------- |  ------------- |
-| OpenAI Evals ✅ | GPT-3.5-turbo ✅ | Langchain 🔜 | HuggingFace ✅ | Langfuse 🔜 | Qdrant ✅ |
-| EleutherAI LM Eval 🔜 | GPT-4 ✅  | Llama Index ✅ |  Replicate ✅ | Helicone 🔜 | Pinecone 🔜 |
-| BIG-Bench 🔜 | Claude ✅ | AutoGPT 🔜 |  AnyScale ✅ | | Chroma ✅ |
-| | Cohere ✅ | | Together ai 🔜 |
-| | Llama2 ✅ | | Ollama 🔜 |
-| | Mistral ✅ |
+| [OpenAI Evals](https://docs.uptrain.ai/tutorials/openai-evals) | [OpenAI](https://docs.uptrain.ai/llms/openai) | [LlamaIndex](https://docs.uptrain.ai/integrations/framework/llamaindex-methods/overview) | [Ollama](https://docs.uptrain.ai/llms/ollama) | [Langfuse](https://docs.uptrain.ai/integrations/observation-tools/langfuse) | [Qdrant](https://docs.uptrain.ai/integrations/vector_db/qdrant) |
+| | [Azure](https://docs.uptrain.ai/llms/azure) | |  [Together AI](https://docs.uptrain.ai/llms/together_ai) | [Helicone](https://docs.uptrain.ai/integrations/observation-tools/helicone) | [FAISS](https://docs.uptrain.ai/integrations/vector_db/faiss) |
+| | [Claude](https://docs.uptrain.ai/llms/claude) | |  [Anyscale](https://docs.uptrain.ai/llms/anyscale) | [Zeno](https://docs.uptrain.ai/integrations/observation-tools/zeno) | [Chroma](https://docs.uptrain.ai/integrations/vector_db/chroma) |
+| | [Mistral](https://docs.uptrain.ai/llms/mistral) | | Replicate  |
+| |  | |  HuggingFace  |
+
+More integrations are coming soon. If you have a specific integration in mind, please let us know by [creating an issue](https://github.com/uptrain-ai/uptrain/issues).
 
 <br />
 

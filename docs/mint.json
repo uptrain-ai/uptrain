@@ -26,10 +26,6 @@
   "feedback": {
     "thumbsRating": true
   },
-  "versions": [
-    "v1",
-    "v0"
-  ],
   "analytics": {
     "posthog": {
       "apiKey": "phc_xZJotYlN8qX9dI0AIeGYi6Yt2a0zTZaZ2igmYlHLTq6"
@@ -68,7 +64,6 @@
   "navigation": [
     {
       "group": "Getting Started",
-      "version": "v1",
       "pages": [
         "getting-started/introduction",
         "getting-started/quickstart",
@@ -78,18 +73,16 @@
     },
     {
       "group": "Pre-configured Evaluations",
-      "version": "v1",
       "pages": [
+        "predefined-evaluations/overview",
         {
           "group": "Ground Truth Comparison Evals",
-          "version": "v1",
           "pages": [
             "predefined-evaluations/ground-truth-comparison/response-matching"
           ]
         },
         {
           "group": "Response Quality Evals",
-          "version": "v1",
           "pages": [
             "predefined-evaluations/response-quality/response-completeness",
             "predefined-evaluations/response-quality/response-conciseness",
@@ -100,7 +93,6 @@
         },
         {
           "group": "Context Awareness Evals",
-          "version": "v1",
           "pages": [
             "predefined-evaluations/context-awareness/context-relevance",
             "predefined-evaluations/context-awareness/context-utilization",
@@ -111,7 +103,6 @@
         },
         {
           "group": "Security Evals",
-          "version": "v1",
           "pages": [
             "predefined-evaluations/safeguarding/jailbreak",
             "predefined-evaluations/safeguarding/prompt-injection"
@@ -119,7 +110,6 @@
         },
         {
           "group": "Language Quality Evals",
-          "version": "v1",
           "pages": [
             "predefined-evaluations/language-quality/fluency-and-coherence",
             "predefined-evaluations/language-quality/tonality"
@@ -127,28 +117,24 @@
         },
         {
           "group": "Query Clarity Evals",
-          "version": "v1",
           "pages": [
             "predefined-evaluations/query-quality/sub-query-completeness"
           ]
         },
         {
           "group": "Code Related Evals",
-          "version": "v1",
           "pages": [
             "predefined-evaluations/code-evals/code-hallucination"
           ]
         },
         {
           "group": "Conversation Evals",
-          "version": "v1",
           "pages": [
             "predefined-evaluations/conversation-evals/user-satisfaction"
           ]
         },
         {
           "group": "Creating Custom Evals",
-          "version": "v1",
           "pages": [
             "predefined-evaluations/custom-evals/custom-guideline",
             "predefined-evaluations/custom-evals/custom-prompt-eval"
@@ -158,43 +144,38 @@
     },
     {
       "group": "Dashboard",
-      "version": "v1",
       "pages": [
-          "dashboard/getting_started",
-          "dashboard/project",
-          "dashboard/evaluations",
-          "dashboard/prompts"
+        "dashboard/getting_started",
+        "dashboard/project",
+        "dashboard/evaluations",
+        "dashboard/prompts"
       ]
     },
     {
       "group": "Supported LLMs",
-      "version": "v1",
       "pages": [
         "llms/openai",
         "llms/azure",
         "llms/claude",
         "llms/mistral",
         "llms/together_ai",
-        "llms/anyscale"
+        "llms/anyscale",
+        "llms/ollama"
       ]
     },
     {
       "group": "Integrations",
-      "version": "v1",
       "pages": [
         {
           "group": "Framework",
-          "version": "v1",
           "pages": [
             {
               "group": "LlamaIndex",
-              "version": "v1",
               "pages": [
                 "integrations/framework/llamaindex-methods/overview",
                 "integrations/framework/llamaindex-methods/evalllamaindex",
                 {
                   "group": "Callback Handler",
-                  "version": "v1",
                   "pages": [
                     "integrations/framework/llamaindex-methods/callback_handler/overview",
                     "integrations/framework/llamaindex-methods/callback_handler/rag_query",
@@ -208,32 +189,24 @@
         },
         {
           "group": "Observation Tools",
-          "version": "v1",
           "pages": [
-            "integrations/observation-tools/langfuse"
+            "integrations/observation-tools/langfuse",
+            "integrations/observation-tools/helicone",
+            "integrations/observation-tools/zeno"
           ]
         },
         {
           "group": "Vector Database",
-          "version": "v1",
           "pages": [
             "integrations/vector_db/chroma",
             "integrations/vector_db/qdrant",
             "integrations/vector_db/faiss"
-          ]
-        },
-        {
-          "group": "Visualization",
-          "version": "v1",
-          "pages": [
-            "integrations/visualization/zeno"
           ]
         }
       ]
     },
     {
       "group": "Tutorials",
-      "version": "v1",
       "pages": [
         "tutorials/open-source-evaluator",
         "tutorials/uptrain-api-client",
@@ -244,78 +217,8 @@
     },
     {
       "group": "FAQ",
-      "version": "v1",
       "pages": [
         "faq/faq"
-      ]
-    },
-    {
-      "group": "Getting Started",
-      "version": "v0",
-      "pages": [
-        "v0/getting-started/quickstart",
-        "v0/getting-started/key-features"
-      ]
-    },
-    {
-      "group": "Monitors",
-      "version": "v0",
-      "pages": [
-        "v0/monitors/concept-drift",
-        "v0/monitors/data-drift",
-        "v0/monitors/data-integrity",
-        "v0/monitors/edge-case-detection",
-        "v0/monitors/model-bias",
-        "v0/monitors/custom-monitors"
-      ]
-    },
-    {
-      "group": "Measurables",
-      "version": "v0",
-      "pages": [
-        "v0/measurables/overview",
-        "v0/measurables/predefined",
-        "v0/measurables/custom"
-      ]
-    },
-    {
-      "group": "Visuals",
-      "version": "v0",
-      "pages": [
-        "v0/visuals/plot",
-        "v0/visuals/shap",
-        "v0/visuals/umap",
-        "v0/visuals/tsne"
-      ]
-    },
-    {
-      "group": "Statistics",
-      "version": "v0",
-      "pages": [
-        "v0/statistics/distances",
-        "v0/statistics/convergence-analysis"
-      ]
-    },
-    {
-      "group": "Examples",
-      "version": "v0",
-      "pages": [
-        "v0/examples/text-summarization",
-        "v0/examples/fraud-detection",
-        "v0/examples/human-orientation-classification",
-        "v0/examples/deep-dive-examples",
-        "v0/examples/shopping-cart-recommendation",
-        "v0/examples/ride-time-estimation",
-        "v0/examples/masked-language-modeling",
-        "v0/examples/conversation-summarization"
-      ]
-    },
-    {
-      "group": "Contributing",
-      "version": "v0",
-      "pages": [
-        "contributing/development",
-        "contributing/documentation"
       ]
     }
   ],

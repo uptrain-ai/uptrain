@@ -26,7 +26,8 @@ const AllLogsRowTop = (props) => {
                 width={11}
                 className={`${
                   props.expand && "rotate-180"
-                } transition-all delay-150`}
+                } transition-all delay-150 w-auto h-auto`}
+                alt="Drop Down Icon"
               />
             </button>
           ) : (

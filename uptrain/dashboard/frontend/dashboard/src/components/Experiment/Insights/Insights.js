@@ -28,9 +28,9 @@ const InsightRow = (props) => {
           <div className="flex gap-2.5 items-center">
             <p>Score: {props.score}</p>
             {props.drop ? (
-              <Image src="DownArrow.svg" alt="" width={11} height={11} />
+              <Image src="DownArrow.svg"  width={11} height={11} alt="Down Arrow Icon"/>
             ) : (
-              <Image src="UpArrow.svg" alt="" width={11} height={11} />
+              <Image src="UpArrow.svg" alt="Up Arrow Icon" width={11} height={11} />
             )}
             <p>( {props.details} )</p>
           </div>
@@ -41,7 +41,7 @@ const InsightRow = (props) => {
           01-01-23, 02:36 AM
         </p>
         {isHovered ? (
-          <Image src="./RightPointingArrowBlue.svg" width={18} height={18} />
+          <Image src="./RightPointingArrowBlue.svg" width={18} height={18} alt="Arrow Icon" />
         ) : (
           <></>
         )}

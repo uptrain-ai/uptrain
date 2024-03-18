@@ -33,7 +33,7 @@ export const changeDateFormat = (date) => {
   hours = hours ? hours : 12; // Handle midnight (0 hours)
 
   // Format the date string
-  var formattedDateString = `${day}-${month}-${year} ${hours}:${minutes}:${seconds} ${meridiem}`;
+  var formattedDateString = `${day}-${month}-${year} ${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} ${meridiem}`;
 
   return formattedDateString;
 };

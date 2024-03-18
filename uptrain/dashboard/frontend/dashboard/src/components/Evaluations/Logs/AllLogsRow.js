@@ -3,10 +3,12 @@ import AllLogsRowTop from "./AllLogsRowTop";
 import Divider from "./Divider";
 import DataRow from "./DataRow";
 import DataModal from "./DataModal";
+import LikeModal from "./LikeModal";
 
 const AllLogsRow = (props) => {
   const [expand, setExpand] = useState(false);
   const [showFull, setShowFull] = useState(false);
+  const [showLikeModal, setShowLikeModal] = useState(false);
 
   let index =
     typeof props.index !== "string" ? String(props.index + 1) : props.index;
@@ -25,7 +27,22 @@ const AllLogsRow = (props) => {
           timestamp={props.timestamp}
           response={props.response}
           explanation={props.explanation}
+          data={props.data}
+          item={props.item}
           inModal
+          updated={props.updated}
+          uuid={props.uuid}
+          AiConfidence={props.AiConfidence}
+          projectName={props.projectName}
+        />
+      )}
+      {showLikeModal && (
+        <LikeModal
+          onClick={() => setShowLikeModal(false)}
+          uuid={props.uuid}
+          selectedTab={props.selectedTab}
+          score={props.score}
+          projectName={props.projectName}
         />
       )}
       <AllLogsRowTop
@@ -37,6 +54,11 @@ const AllLogsRow = (props) => {
         setExpand={setExpand}
         inModal={props.inModal}
         selectedTab={props.selectedTab}
+        setShowLikeModal={setShowLikeModal}
+        updated={props.updated}
+        uuid={props.uuid}
+        projectName={props.projectName}
+        AiConfidence={props.AiConfidence}
       />
       {expand || props.inModal ? (
         <>
@@ -63,6 +85,25 @@ const AllLogsRow = (props) => {
               />
             </>
           )}
+          {Object.entries(props.data)
+            .filter(
+              ([key, value]) =>
+                key !== "response" &&
+                key !== "explanation" &&
+                key !== "question"
+            )
+            .map(([key, value], index) => (
+              <div key={index}>
+                <Divider />
+                <DataRow
+                  data={value}
+                  title={key}
+                  className="mb-5"
+                  setShowFull={setShowFull}
+                  inModal={props.inModal}
+                />
+              </div>
+            ))}
         </>
       ) : (
         <></>

@@ -11,7 +11,7 @@ const AllLogs = (props) => {
         props.projectData[0].map((item, index) => (
           <AllLogsRow
             key={index}
-            index={index}
+            index={item.id}
             question={item.data.question}
             response={item.data.response}
             item={item}
@@ -19,6 +19,11 @@ const AllLogs = (props) => {
             selectedTab={props.selectedTab}
             explanation={item.checks[`explanation_${props.selectedTab}`]}
             score={item.checks[`score_${props.selectedTab}`]}
+            data={item.data}
+            updated={item.metadata && item.metadata[`score_${props.selectedTab}`]}
+            uuid={item.metadata && item.metadata["row_uuid"]}
+            AiConfidence={item.metadata && item.metadata[`score_confidence_${props.selectedTab}`]}
+            projectName={item.project}
           />
         ))}
     </div>

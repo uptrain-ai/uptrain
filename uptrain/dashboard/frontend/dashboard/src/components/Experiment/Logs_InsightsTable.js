@@ -25,7 +25,13 @@ const ButtonSection = (props) => {
         />
       </div>
       <button>
-        <Image src="/DownloadButton.svg" height={42} width={42} />
+        <Image
+          src="/DownloadButton.svg"
+          height={42}
+          width={42}
+          alt="Download button Icon"
+          className="w-auto h-auto"
+        />
       </button>
     </div>
   );
