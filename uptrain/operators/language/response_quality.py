@@ -482,15 +482,15 @@ class ResponseConsistency(ColumnOp):
             idx = res.metadata["index"]
             output = {
                 "score_response_consistency": None,
-                "argument_response_consistency": None,
+                "explanation_response_consistency": None,
             }
             try:
                 parsed_output = json.loads(res.response.choices[0].message.content)
                 score = parsed_output["Score"]
                 output["score_response_consistency"] = float(score)
-                output["argument_response_consistency"] = parsed_output["Argument"]
+                output["explanation_response_consistency"] = parsed_output["Argument"]
                 if self.settings.eval_type == "cot":
-                    output["reasoning_response_consistency"] = parsed_output[
+                    output["explanation_response_consistency"] += "\n" + parsed_output[
                         "Reasoning"
                     ]
             except Exception:
