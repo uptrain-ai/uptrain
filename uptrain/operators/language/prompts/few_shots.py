@@ -3,43 +3,47 @@ FACT_EVAL_FEW_SHOT__CLASSIFY = """
 [Facts]: ["1. The Eiffel Tower is located in Paris.", "2. The Eiffel Tower is the tallest structure in Paris.", "3. The Eiffel Tower is very old."]
 [Context]: The Eiffel Tower, located in Paris, is one of the most visited monuments in the world. It was named after the engineer Gustave Eiffel, whose company designed and built the tower. Constructed from 1887 to 1889, it was initially criticized by some of France's leading artists and intellectuals.
 [Output]: 
-[
-    {
-        "Fact": "1. The Eiffel Tower is located in Paris.",
-        "Judgement": "yes",
-    },
-    {
-        "Fact": "2. The Eiffel Tower is the tallest structure in Paris.",
-        "Judgement": "no",
-    },
-    {
-        "Fact": "3. The Eiffel Tower is very old.",
-        "Judgement": "unclear",
-    },
-]
+{
+    "Result": [
+        {
+            "Fact": "1. The Eiffel Tower is located in Paris.",
+            "Judgement": "yes"
+        },
+        {
+            "Fact": "2. The Eiffel Tower is the tallest structure in Paris.",
+            "Judgement": "no"
+        },
+        {
+            "Fact": "3. The Eiffel Tower is very old.",
+            "Judgement": "unclear"
+        },
+    ]
+}
 """
 
 FACT_EVAL_FEW_SHOT__COT = """
 [Facts]: ["1. The Eiffel Tower is located in Paris.", "2. The Eiffel Tower is the tallest structure in Paris.", "3. The Eiffel Tower is very old."]
 [Context]: The Eiffel Tower, located in Paris, is one of the most visited monuments in the world. It was named after the engineer Gustave Eiffel, whose company designed and built the tower. Constructed from 1887 to 1889, it was initially criticized by some of France's leading artists and intellectuals.
 [Output]: 
-[
-    {
-        "Fact": "1. The Eiffel Tower is located in Paris.",
-        "Reasoning": "The context explicity states that Paris, one of the most visited monuments in the world is located in Paris. Hence, the fact can be verified by the context.",
-        "Judgement": "yes",
-    },
-    {
-        "Fact": "2. The Eiffel Tower is the tallest structure in Paris.",
-        "Reasoning": "While the context speaks about the popularity of Effiel Tower, it has no mention about its height or whether it is tallest or not. Hence, the the fact can not be verified by the context.",
-        "Judgement": "no",
-    },
-    {
-        "Fact": "3. The Eiffel Tower is very old.",
-        "Reasoning": "While the context mentions that the Eiffel Tower was built in 1880s, it doesn't clarify what very old means.",
-        "Judgement": "unclear",
-    },
-]
+{
+    "Result": [
+        {
+            "Fact": "1. The Eiffel Tower is located in Paris.",
+            "Reasoning": "The context explicity states that Paris, one of the most visited monuments in the world is located in Paris. Hence, the fact can be verified by the context.",
+            "Judgement": "yes"
+        },
+        {
+            "Fact": "2. The Eiffel Tower is the tallest structure in Paris.",
+            "Reasoning": "While the context speaks about the popularity of Effiel Tower, it has no mention about its height or whether it is tallest or not. Hence, the the fact can not be verified by the context.",
+            "Judgement": "no"
+        },
+        {
+            "Fact": "3. The Eiffel Tower is very old.",
+            "Reasoning": "While the context mentions that the Eiffel Tower was built in 1880s, it doesn't clarify what very old means.",
+            "Judgement": "unclear"
+        },
+    ]
+}
 """
 
 FACT_GENERATE_FEW_SHOT = """
@@ -47,19 +51,27 @@ FACT_GENERATE_FEW_SHOT = """
 [Response]: The Eiffel Tower, located in Paris, is one of the most visited monuments in the world. It was named after the engineer Gustave Eiffel, whose company designed and built the tower. Constructed from 1887 to 1889, it was initially criticized by some of France's leading artists and intellectuals.
 [Output]: 
 [
-    "1. The Eiffel Tower is located in Paris.",
-    "2. The Eiffel Tower is one of the most visited monuments in the world.",
-    "3. The Eiffel Tower was named after the engineer Gustave Eiffel.",
-    "4. The Eiffel Tower was constructed from 1887 to 1889."
+    {
+        "Fact": "1. The Eiffel Tower is located in Paris.",
+    },
+    {
+        "Fact": "2. The Eiffel Tower is the tallest structure in Paris.",
+    },
+    {
+        "Fact": "3. The Eiffel Tower is very old.",
+    },
+    {
+        "Fact": "3. The Eiffel Tower is very old.",
+    },
 ]
 
 
 [Question]: Is Leaning Tower of Pisa, which is located in Italy, the oldest monument in Europe?
 [Response]: No
 [Output]: 
-[
-    "1. The Leaning Tower of Pisa is not the oldest monument in Europe.",
-]
+{
+    "Fact": "1. The Leaning Tower of Pisa is not the oldest monument in Europe.",
+}
 """
 
 
