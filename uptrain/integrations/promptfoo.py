@@ -97,9 +97,6 @@ class EvalPromptfoo:
                             str(port),
                         ]
                     )
-                    subprocess.run(
-                        ["npx", "promptfoo@latest", "view", "-y", "-p", str(port)]
-                    )
                 except Exception as e:
                     logger.error(
                         "Something failed: Try running !npx promptfoo@latest view" + e
@@ -132,20 +129,50 @@ class EvalPromptfoo:
             else:
                 return None
 
-    def view(self, port: t.Optional[int] = pr_u.generate_open_port()):
+    def view(
+        self, port: t.Optional[int] = pr_u.generate_open_port(),
+        kill_process_on_exit: t.Optional[bool] = True,
+        ) -> None:
         try:
-            subprocess.run(
-                [
-                    "npx",
-                    "promptfoo@" + pr_u.PROMPTFOO_version,
-                    "view",
-                    "-y",
-                    "-p",
-                    str(port),
-                ]
-            )
-        except Exception as e:
-            logger.error("Something failed: Try running !npx promptfoo@latest view" + e)
+            try:
+                subprocess.run(
+                    [
+                        "npx",
+                        "promptfoo@" + pr_u.PROMPTFOO_version,
+                        "view",
+                        "-y",
+                        "-p",
+                        str(port),
+                    ]
+                )
+            except Exception as e:
+                logger.error(
+                    "Something failed: Try running !npx promptfoo@latest view" + e
+                )
+        
+        except:
+            if kill_process_on_exit:
+                try:
+                    pid = subprocess.check_output(["lsof", "-t", "-i:" + str(port)])
+                    pids_str = pid.decode()
+                    pids = [
+                        int(pid)
+                        for pid in pids_str.split("\n")
+                        if pid.strip().isdigit()
+                    ]
+                    try:
+                        for pid in pids:
+                            subprocess.run(["kill", str(pid)])
+                        print(
+                            f"Closed application at http://localhost:{port} successfully"
+                        )
+                        print(f"To reopen it try running view method in EvalPromptfoo")
+                    except subprocess.CalledProcessError as e:
+                        pass
+                except:
+                    print("No running process to close")
+            else:
+                return None
 
     def custom(self, command: t.Union[str] = "init"):
         try:
