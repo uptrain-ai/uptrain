@@ -14,7 +14,7 @@ import copy
 import os
 import httpx
 from uptrain.operators.base import ColumnOp
-from uptrain.utilities.utils import get_current_datetime, parse_prompt
+from uptrain.utilities.utils import get_current_datetime, parse_prompt, check_openai_api_key
 from uptrain.framework.remote import APIClientWithoutAuth, DataSchema
 from uptrain.framework.base import Settings
 from uptrain.framework.checks import Check
@@ -90,6 +90,11 @@ class EvalLLM:
             self.settings = Settings(openai_api_key=openai_api_key)
         else:
             self.settings = settings
+        if self.settings.openai_api_key is not None and len(self.settings.openai_api_key):
+            response = check_openai_api_key(self.settings.openai_api_key)
+            if not response:
+                raise Exception("OpenAI API Key is invalid")
+
         self.executor = APIClientWithoutAuth(self.settings)
 
     ####
