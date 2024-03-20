@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 
 [project]
 name = "uptrain"
-version = "0.6.8"
+version = "0.6.9"
 description = "UpTrain - tool to evaluate LLM applications on aspects like factual accuracy, response quality, retrieval quality, tonality, etc."
 readme = "README.md"
 maintainers = [{ name = "UpTrain AI Team", email = "oss@uptrain.ai" }]
@@ -33,7 +33,8 @@ dependencies = [
     "openai>=1.6.1",
     "fsspec",
     "litellm",
-    "pyyaml"
+    "pyyaml",
+    "json5"
 ]
 
 [project.urls]

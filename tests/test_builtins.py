@@ -164,7 +164,7 @@ def test_check_response_consistency():
     assert isinstance(output, pl.DataFrame)
     assert (
         "score_response_consistency" in output.columns
-        and "argument_response_consistency" in output.columns
+        and "explanation_response_consistency" in output.columns
     )     
     assert (
         output["score_response_consistency"].dtype == pl.Float64 
@@ -172,17 +172,10 @@ def test_check_response_consistency():
         - output["score_response_consistency"].null_count() > 0
     )
     assert (
-        output["argument_response_consistency"].dtype == pl.Utf8 
-        and len(output["argument_response_consistency"]) 
-        - output["argument_response_consistency"].null_count() > 0
+        output["explanation_response_consistency"].dtype == pl.Utf8 
+        and len(output["explanation_response_consistency"]) 
+        - output["explanation_response_consistency"].null_count() > 0
     )
-    if settings.eval_type == "cot":
-        assert "reasoning_response_consistency" in output.columns
-        assert (
-            output["reasoning_response_consistency"].dtype == pl.Utf8 
-            and len(output["reasoning_response_consistency"]) 
-            - output["reasoning_response_consistency"].null_count() > 0
-        )
 
 
 response_matching_dataset = pl.DataFrame(
