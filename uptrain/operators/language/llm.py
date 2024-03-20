@@ -7,7 +7,7 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 import random
 import typing as t
-import json
+import json5
 
 from loguru import logger
 from pydantic import BaseModel, Field
@@ -50,7 +50,7 @@ def parse_json(json_str: str) -> dict:
     last_brace_index = json_str.rfind('}')
     json_str = json_str[first_brace_index:last_brace_index + 1]
     try:
-        return json.loads(json_str)
+        return json5.loads(json_str)
     except Exception as e:
         logger.error(f"Error when parsing JSON: {e}")
         return {}

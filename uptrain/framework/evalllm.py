@@ -193,6 +193,8 @@ class EvalLLM:
 
         if isinstance(data, pl.DataFrame):
             data = data.to_dicts()
+        elif isinstance(data, pd.DataFrame):
+            data = data.to_dict(orient="records")
 
         if schema is None:
             schema = DataSchema()
