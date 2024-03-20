@@ -7,8 +7,9 @@ import Layout from "@/components/Layout";
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { selectUptrainAccessKey } from "@/store/reducers/userInfo";
-import ButtonSection from "@/components/Evaluations/ButtonSection";
+import ButtonSection from "@/components/Common/ButtonSection";
 import SpinningLoader from "@/components/UI/SpinningLoader";
+import FilterContainer from "@/components/FilterContainer/FilterContainer";
 
 const fetchData = async (uptrainAccessKey, setData, timeFilter) => {
   const num_days =
@@ -83,6 +84,7 @@ const page = () => {
   const [projectData, setProjectData] = useState(null);
   const [selectedProject, setSelectedProject] = useState(0);
   const [Tab, setTab] = useState(0);
+  const [projectFilters, setProjectFilters] = useState({});
 
   const tabs = projectData && projectData[4];
   const projectNames = data.length !== 0 ? data.map((obj) => obj.project) : [];
@@ -101,6 +103,7 @@ const page = () => {
 
   useEffect(() => {
     setProjectData(null);
+    setProjectFilters({});
     const fetchProjectDataAsync = async () => {
       await fetchProjectData(
         uptrainAccessKey,
@@ -115,47 +118,85 @@ const page = () => {
     }
   }, [uptrainAccessKey, data, selectedProject, TimeFilter]);
 
+  useEffect(() => {
+    setProjectFilters({});
+  }, [Tab]);
+
+  const selectedTab = tabs && tabs[Tab];
+
+  let filteredData = JSON.parse(JSON.stringify(projectData));
+
+  if (filteredData) {
+    filteredData[0] = filteredData[0].map((item, index) => {
+      item.id = index; // Assuming 'id' is the field you want to update
+      return item;
+    });
+  }
+
+  if (filteredData && projectFilters.hasOwnProperty("index")) {
+    filteredData[0] = filteredData[0].filter(
+      (item, index) => !projectFilters["index"].includes(index + 1)
+    );
+  }
+
+  if (filteredData && projectFilters.hasOwnProperty("scores")) {
+    filteredData[0] = filteredData[0].filter((item, index) => {
+      return !projectFilters["scores"].includes(
+        item["checks"][`score_${selectedTab}`]
+      );
+    });
+  }
+
+  if (filteredData && projectFilters.hasOwnProperty("confidence")) {
+    filteredData[0] = filteredData[0].filter((item, index) => {
+      return !projectFilters["confidence"].includes(
+        item["metadata"][`score_confidence_${selectedTab}`]
+      );
+    });
+  }
+  
+  console.log(filteredData);
   return (
-    <Layout heading="Evaluations" project={projectNames[selectedProject]}>
-      <div className="flex gap-10 w-full items-start">
-        <div className="flex-1 flex flex-col">
-          {projectData ? (
-            <>
-              <ButtonSection tabs={tabs} Tab={Tab} setTab={setTab} />
-              <ChartSection
-                TimeFilter={TimeFilter}
-                projectData={projectData}
-                run_via={data[selectedProject] && data[selectedProject].run_via}
-                selectedTab={tabs && tabs[Tab]}
-              />
-              <TableSection
-                projectData={projectData}
-                selectedTab={tabs && tabs[Tab]}
-              />
-            </>
-          ) : !projectNames[selectedProject] ? (
-            <div className="flex justify-center items-center h-screen">
-              <p className="font-medium text-lg text-white">
-                No Projects found for this duration
-              </p>
-            </div>
-          ) : (
-            <div class="flex justify-center items-center h-screen">
-              <SpinningLoader />
-            </div>
-          )}
-        </div>
-        <div className="bg-[#23232D] text-[#5C5C66] rounded-xl p-4 w-[300px] mb-8">
-          <FilterSection
-            TimeFilter={TimeFilter}
-            setTimeFilter={setTimeFilter}
-            duration
-            projectNames={projectNames}
-            selectedProject={selectedProject}
-            handleProjectChange={handleProjectChange}
-          />
-          {/* <PivotTable /> */}
-        </div>
+    <Layout
+      heading="Evaluations"
+      project={projectNames[selectedProject]}
+      TimeFilter={TimeFilter}
+      setTimeFilter={setTimeFilter}
+      duration
+      projectNames={projectNames}
+      selectedProject={selectedProject}
+      handleProjectChange={handleProjectChange}
+      setProjectFilters={setProjectFilters}
+      projectFilters={projectFilters}
+      projectData={projectData}
+      selectedTab={selectedTab}
+    >
+      <div className="flex-1 flex flex-col">
+        {projectData ? (
+          <>
+            <ButtonSection tabs={tabs} Tab={Tab} setTab={setTab} />
+            <ChartSection
+              TimeFilter={TimeFilter}
+              projectData={filteredData}
+              run_via={data[selectedProject] && data[selectedProject].run_via}
+              selectedTab={selectedTab}
+            />
+            <TableSection
+              projectData={filteredData}
+              selectedTab={selectedTab}
+            />
+          </>
+        ) : !projectNames[selectedProject] ? (
+          <div className="flex justify-center items-center h-screen">
+            <p className="font-medium text-lg text-white">
+              No Projects found for this duration
+            </p>
+          </div>
+        ) : (
+          <div className="flex justify-center items-center h-screen">
+            <SpinningLoader />
+          </div>
+        )}
       </div>
     </Layout>
   );

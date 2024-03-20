@@ -115,13 +115,13 @@ class GuidelineAdherenceScore(ColumnOp):
 
     def guideline_adherence_classify_validate_func(self, llm_output):
         is_correct = True
-        is_correct = is_correct and ("Choice" in json.loads(llm_output))
-        is_correct = is_correct and json.loads(llm_output)["Choice"] in ["A", "B"]
+        is_correct = is_correct and ("Choice" in llm_output)
+        is_correct = is_correct and llm_output["Choice"] in ["A", "B"]
         return is_correct
 
     def guideline_adherence_cot_validate_func(self, llm_output):
         is_correct = self.guideline_adherence_classify_validate_func(llm_output)
-        is_correct = is_correct and ("Reasoning" in json.loads(llm_output))
+        is_correct = is_correct and ("Reasoning" in llm_output)
         return is_correct
 
     def evaluate_local(self, data):

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
-import DownArrow from "../FilterSection/DownArrow";
-import CustomSingleCheckBox from "../FilterSection/CustomSingleCheckBox";
+import DownArrow from "./DownArrow";
+import CustomSingleCheckBox from "./CustomSingleCheckBox";
 
 const SingleSelect = (props) => {
   const [selected, setSelected] = useState(false);
@@ -20,11 +20,11 @@ const SingleSelect = (props) => {
   }, []);
 
   return (
-    <div className="mt-4" ref={dropdownRef}>
+    <div className="mt-4">
       {props.title && (
         <h3 className="font-medium text-sm mb-1">{props.title}</h3>
       )}
-      <div className="relative h-8">
+      <div className="relative" ref={dropdownRef}>
         <div className="bg-[#171721] rounded-2xl px-2.5 py-1 overflow-auto cursor-pointer">
           <div
             className="flex justify-between items-center"

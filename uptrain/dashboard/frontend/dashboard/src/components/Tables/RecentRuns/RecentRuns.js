@@ -47,7 +47,7 @@ const RecentRunsRow = (props) => {
           {props.date}
         </p>
         {isHovered ? (
-          <Image src="./RightPointingArrowBlue.svg" width={18} height={18} />
+          <Image src="./RightPointingArrowBlue.svg" width={18} height={18} className="Arrow icon" />
         ) : (
           <></>
         )}

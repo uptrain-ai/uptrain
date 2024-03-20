@@ -103,13 +103,13 @@ class ToneCritique(ColumnOp):
 
     def critique_tone_classify_validate_func(self, llm_output):
         is_correct = True
-        is_correct = is_correct and ("Choice" in json.loads(llm_output))
-        is_correct = is_correct and json.loads(llm_output)["Choice"] in ["A", "B", "C"]
+        is_correct = is_correct and ("Choice" in llm_output)
+        is_correct = is_correct and llm_output["Choice"] in ["A", "B", "C"]
         return is_correct
 
     def critique_tone_cot_validate_func(self, llm_output):
         is_correct = self.critique_tone_classify_validate_func(llm_output)
-        is_correct = is_correct and ("Reasoning" in json.loads(llm_output))
+        is_correct = is_correct and ("Reasoning" in llm_output)
         return is_correct
 
     def evaluate_local(self, data):

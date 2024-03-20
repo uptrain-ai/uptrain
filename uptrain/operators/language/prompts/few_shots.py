@@ -3,43 +3,47 @@ FACT_EVAL_FEW_SHOT__CLASSIFY = """
 [Facts]: ["1. The Eiffel Tower is located in Paris.", "2. The Eiffel Tower is the tallest structure in Paris.", "3. The Eiffel Tower is very old."]
 [Context]: The Eiffel Tower, located in Paris, is one of the most visited monuments in the world. It was named after the engineer Gustave Eiffel, whose company designed and built the tower. Constructed from 1887 to 1889, it was initially criticized by some of France's leading artists and intellectuals.
 [Output]: 
-[
-    {
-        "Fact": "1. The Eiffel Tower is located in Paris.",
-        "Judgement": "yes",
-    },
-    {
-        "Fact": "2. The Eiffel Tower is the tallest structure in Paris.",
-        "Judgement": "no",
-    },
-    {
-        "Fact": "3. The Eiffel Tower is very old.",
-        "Judgement": "unclear",
-    },
-]
+{
+    "Result": [
+        {
+            "Fact": "1. The Eiffel Tower is located in Paris.",
+            "Judgement": "yes"
+        },
+        {
+            "Fact": "2. The Eiffel Tower is the tallest structure in Paris.",
+            "Judgement": "no"
+        },
+        {
+            "Fact": "3. The Eiffel Tower is very old.",
+            "Judgement": "unclear"
+        },
+    ]
+}
 """
 
 FACT_EVAL_FEW_SHOT__COT = """
 [Facts]: ["1. The Eiffel Tower is located in Paris.", "2. The Eiffel Tower is the tallest structure in Paris.", "3. The Eiffel Tower is very old."]
 [Context]: The Eiffel Tower, located in Paris, is one of the most visited monuments in the world. It was named after the engineer Gustave Eiffel, whose company designed and built the tower. Constructed from 1887 to 1889, it was initially criticized by some of France's leading artists and intellectuals.
 [Output]: 
-[
-    {
-        "Fact": "1. The Eiffel Tower is located in Paris.",
-        "Reasoning": "The context explicity states that Paris, one of the most visited monuments in the world is located in Paris. Hence, the fact can be verified by the context.",
-        "Judgement": "yes",
-    },
-    {
-        "Fact": "2. The Eiffel Tower is the tallest structure in Paris.",
-        "Reasoning": "While the context speaks about the popularity of Effiel Tower, it has no mention about its height or whether it is tallest or not. Hence, the the fact can not be verified by the context.",
-        "Judgement": "no",
-    },
-    {
-        "Fact": "3. The Eiffel Tower is very old.",
-        "Reasoning": "While the context mentions that the Eiffel Tower was built in 1880s, it doesn't clarify what very old means.",
-        "Judgement": "unclear",
-    },
-]
+{
+    "Result": [
+        {
+            "Fact": "1. The Eiffel Tower is located in Paris.",
+            "Reasoning": "The context explicity states that Paris, one of the most visited monuments in the world is located in Paris. Hence, the fact can be verified by the context.",
+            "Judgement": "yes"
+        },
+        {
+            "Fact": "2. The Eiffel Tower is the tallest structure in Paris.",
+            "Reasoning": "While the context speaks about the popularity of Effiel Tower, it has no mention about its height or whether it is tallest or not. Hence, the the fact can not be verified by the context.",
+            "Judgement": "no"
+        },
+        {
+            "Fact": "3. The Eiffel Tower is very old.",
+            "Reasoning": "While the context mentions that the Eiffel Tower was built in 1880s, it doesn't clarify what very old means.",
+            "Judgement": "unclear"
+        },
+    ]
+}
 """
 
 FACT_GENERATE_FEW_SHOT = """
@@ -47,19 +51,27 @@ FACT_GENERATE_FEW_SHOT = """
 [Response]: The Eiffel Tower, located in Paris, is one of the most visited monuments in the world. It was named after the engineer Gustave Eiffel, whose company designed and built the tower. Constructed from 1887 to 1889, it was initially criticized by some of France's leading artists and intellectuals.
 [Output]: 
 [
-    "1. The Eiffel Tower is located in Paris.",
-    "2. The Eiffel Tower is one of the most visited monuments in the world.",
-    "3. The Eiffel Tower was named after the engineer Gustave Eiffel.",
-    "4. The Eiffel Tower was constructed from 1887 to 1889."
+    {
+        "Fact": "1. The Eiffel Tower is located in Paris.",
+    },
+    {
+        "Fact": "2. The Eiffel Tower is the tallest structure in Paris.",
+    },
+    {
+        "Fact": "3. The Eiffel Tower is very old.",
+    },
+    {
+        "Fact": "3. The Eiffel Tower is very old.",
+    },
 ]
 
 
 [Question]: Is Leaning Tower of Pisa, which is located in Italy, the oldest monument in Europe?
 [Response]: No
 [Output]: 
-[
-    "1. The Leaning Tower of Pisa is not the oldest monument in Europe.",
-]
+{
+    "Fact": "1. The Leaning Tower of Pisa is not the oldest monument in Europe.",
+}
 """
 
 
@@ -160,25 +172,62 @@ RESPONSE_COMPLETENESS_WRT_CONTEXT_FEW_SHOT__COT = """
 # TODO: Improve the quality of response consistency few shot examples
 # Response Consistency
 RESPONSE_CONSISTENCY_FEW_SHOT__CLASSIFY = """
-[Question]: What is postgres?
-[Context]: PostgreSQL is a powerful, open source object-relational database system that uses and extends the SQL language combined with many features that safely store and scale the most complicated data workloads. The origins of PostgreSQL date back to 1986 as part of the POSTGRES project at the University of California at Berkeley and has more than 35 years of active development on the core platform.
-[Response]: Instead of inserting each row directly into the PostgreSQL database, each record is at first inserted into Redis. New records are inserted using bulk operations for better performance. Note that many duplicate records may be received from mobile clients.
+[Question]: Which Alex is being referred to in the last line?
+[Context]:  In a story, Alex is a renowned chef famous for their culinary skills, especially in Italian cuisine. They've recently been experimenting with French recipes, trying to fuse them with Italian dishes to create something unique. Alex's restaurant, which used to serve exclusively Italian dishes, now offers a hybrid menu that's gaining popularity. However, Alex has a twin named Alex, who is not involved in the culinary world but is an artist in the local community. The artist Alex paintings are not good. But, her food is also delicious and is tasty.
+[Response]: In the last line, it is referring to the renowned chef Alex, whose food is delicious and tasty.
 [Output]:
 {
-    "Choice": "B"
+    "Argument": "The LLM's response identifies the renowned chef Alex as the subject of the last line, focusing on the established narrative that this Alex is known for their culinary expertise. This interpretation maintains consistency with the broader story arc, where chef Alex's skills and experimentation with cuisine are central themes. The response assumes continuity in highlighting the chef's accomplishments, thereby aligning with the narrative's focus on culinary achievements.",
+    "Score": 0.0
 }
+
+[Question]: How does caffeine affect the body?
+[Context]: Caffeine is a stimulant that affects the central nervous system, making you feel more awake and alert. It is found in coffee, tea, chocolate, many soft drinks, and some medications. Consuming caffeine can lead to increased alertness, but excessive intake may cause nervousness, insomnia, stomach upset, increased heart rate, and even muscle tremors.
+[Response]: Caffeine blocks the action of a neurotransmitter called adenosine, which promotes sleep and relaxation. By blocking adenosine, caffeine prevents the onset of drowsiness induced by adenosine, thereby increasing alertness and wakefulness.
+[Output]: {
+    "Argument": "The response is somewhat appropriate for the given question as it correctly identifies and explains a key effect of caffeine on the body, which is blocking adenosine to increase alertness and wakefulness. However, it fails to address the broader spectrum of caffeine's effects, including potential adverse reactions, thereby providing a partial but not fully comprehensive answer.",
+    "Score": 0.5
+}
+
+[Question]: What is the greenhouse effect?
+[Context]: The greenhouse effect is a natural process that warms the Earth's surface. When the Sun's energy reaches the Earth's atmosphere, some of it is reflected back to space and the rest is absorbed and re-radiated by greenhouse gases. Greenhouse gases include carbon dioxide, methane, and water vapor. This process keeps the Earth’s temperature at a level necessary for life to flourish.
+[Response]: The greenhouse effect is the process by which radiation from a planet's atmosphere warms the planet's surface to a temperature above what it would be without its atmosphere. This effect is caused by certain gases in the atmosphere (such as carbon dioxide, methane, and water vapor) that absorb and emit infrared radiation.
+[Output]: {
+    "Argument": "The response appropriately and accurately explains the greenhouse effect in alignment with the context. It defines the process, identifies the key gases involved, and describes how these gases contribute to warming the Earth's surface. By addressing both the definition and mechanism of the greenhouse effect, the response fully satisfies the inquiry of the question.",
+    "Score": 1
+} 
 """
 
 # TODO: Improve the quality of response consistency few shot examples
 RESPONSE_CONSISTENCY_FEW_SHOT__COT = """
-[Question]: What is postgres?
-[Context]: PostgreSQL is a powerful, open source object-relational database system that uses and extends the SQL language combined with many features that safely store and scale the most complicated data workloads. The origins of PostgreSQL date back to 1986 as part of the POSTGRES project at the University of California at Berkeley and has more than 35 years of active development on the core platform.
-[Response]: Instead of inserting each row directly into the PostgreSQL database, each record is at first inserted into Redis. New records are inserted using bulk operations for better performance. Note that many duplicate records may be received from mobile clients.
+[Question]: Which Alex is being referred to in the last line?
+[Context]:  In a story, Alex is a renowned chef famous for their culinary skills, especially in Italian cuisine. They've recently been experimenting with French recipes, trying to fuse them with Italian dishes to create something unique. Alex's restaurant, which used to serve exclusively Italian dishes, now offers a hybrid menu that's gaining popularity. However, Alex has a twin named Alex, who is not involved in the culinary world but is an artist in the local community. The artist Alex paintings are not good. But, her food is also delicious and is tasty.
+[Response]: In the last line, it is referring to the renowned chef Alex, whose food is delicious and tasty.
 [Output]:
 {
-    "Reasoning": "The given response is not appropriate for the given question because it does not contain any key information about PostgreSQL as given in the context. Moreover, there is no information about Redis in the given context.",
-    "Choice": "B"
+    "Argument": "The LLM's response identifies the renowned chef Alex as the subject of the last line, focusing on the established narrative that this Alex is known for their culinary expertise. This interpretation maintains consistency with the broader story arc, where chef Alex's skills and experimentation with cuisine are central themes. The response assumes continuity in highlighting the chef's accomplishments, thereby aligning with the narrative's focus on culinary achievements.",
+    "Reasoning": "The context mentions two individuals named Alex with distinct professions and skills. The chef is known for culinary skills, while the artist's culinary abilities are only hinted at in the last line. The LLM's response overlooks this nuance, attributing culinary excellence solely to the chef Alex. The last line introduces ambiguity by mentioning "her food," which suggests a shift in focus to the artist Alex. The LLM's response does not address this shift, maintaining focus on the chef Alex despite the gender pronoun and new information suggesting otherwise. The response is consistent with the majority of the provided context, which focuses on the chef Alex's culinary endeavors. However, it fails to reconcile the twist introduced in the last line, suggesting a potential new aspect of the artist Alex's character. Interpretation Flexibility: Given the ambiguity and the dual presence of Alexes in the story, the LLM's decision to stick with the chef Alex's storyline is an interpretation but not fully aligned with the last line's implication. A score of 0.0 reflects the response's partial consistency with the main storyline but acknowledges its failure to incorporate the last line's implication about the artist Alex's cooking skills, which introduces a significant twist or new information.",
+    "Score": 0.0
+    
 }
+
+[Question]: How does caffeine affect the body?
+[Context]: Caffeine is a stimulant that affects the central nervous system, making you feel more awake and alert. It is found in coffee, tea, chocolate, many soft drinks, and some medications. Consuming caffeine can lead to increased alertness, but excessive intake may cause nervousness, insomnia, stomach upset, increased heart rate, and even muscle tremors.
+[Response]: Caffeine blocks the action of a neurotransmitter called adenosine, which promotes sleep and relaxation. By blocking adenosine, caffeine prevents the onset of drowsiness induced by adenosine, thereby increasing alertness and wakefulness.
+[Output]: {
+    "Argument": "The response is somewhat appropriate for the given question as it correctly identifies and explains a key effect of caffeine on the body, which is blocking adenosine to increase alertness and wakefulness. However, it fails to address the broader spectrum of caffeine's effects, including potential adverse reactions, thereby providing a partial but not fully comprehensive answer.",
+    "Reasoning": "The response accurately describes one of the primary mechanisms through which caffeine affects the body, aligning with the context provided about caffeine being a stimulant for the central nervous system. The question asks for the effects of caffeine on the body, and the response directly addresses this by explaining the biochemical interaction between caffeine and adenosine, a key factor in feeling awake and alert. However, the response does not cover the full range of effects mentioned in the context, such as potential negative effects (nervousness, insomnia, stomach upset, increased heart rate, muscle tremors) of caffeine consumption). The response is partially complete as it correctly explains a significant aspect of how caffeine works but lacks the comprehensive effects of caffeine on the body, both positive and negative, as detailed in the context.",
+    "Score": 0.5
+}
+
+[Question]: What is the greenhouse effect?
+[Context]: The greenhouse effect is a natural process that warms the Earth’s surface. When the Sun’s energy reaches the Earth’s atmosphere, some of it is reflected back to space and the rest is absorbed and re-radiated by greenhouse gases. Greenhouse gases include carbon dioxide, methane, and water vapor. This process keeps the Earth’s temperature at a level necessary for life to flourish.
+[Response]: The greenhouse effect is the process by which radiation from a planet's atmosphere warms the planet's surface to a temperature above what it would be without its atmosphere. This effect is caused by certain gases in the atmosphere (such as carbon dioxide, methane, and water vapor) that absorb and emit infrared radiation.
+[Output]: {
+    "Argument": "The response appropriately and accurately explains the greenhouse effect in alignment with the context. It defines the process, identifies the key gases involved, and describes how these gases contribute to warming the Earth's surface. By addressing both the definition and mechanism of the greenhouse effect, the response fully satisfies the inquiry of the question.",
+    "Reasoning": "The response directly answers the question by defining the greenhouse effect as a natural process that results in the warming of the Earth's surface, which is consistent with the context provided. It accurately describes the mechanism of the greenhouse effect, mentioning the role of greenhouse gases like carbon dioxide, methane, and water vapor in absorbing and emitting infrared radiation, which aligns with the context's explanation. The response also implicitly addresses the importance of this process for maintaining the Earth’s temperature at a level necessary for life, as mentioned in the context, by explaining how it warms the planet's surface. The response is comprehensive, covering both the definition and the mechanism of the greenhouse effect, thereby providing a full understanding of the concept as requested in the question.",
+    "Score": 1
+} 
 """
 
 

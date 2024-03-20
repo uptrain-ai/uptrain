@@ -112,13 +112,13 @@ class JailbreakDetectionScore(ColumnOp):
 
     def jailbreak_classify_validate_func(self, llm_output):
         is_correct = True
-        is_correct = is_correct and ("Choice" in json.loads(llm_output))
-        is_correct = is_correct and json.loads(llm_output)["Choice"] in ["A", "B"]
+        is_correct = is_correct and ("Choice" in llm_output)
+        is_correct = is_correct and llm_output["Choice"] in ["A", "B"]
         return is_correct
 
     def jailbreak_cot_validate_func(self, llm_output):
         is_correct = self.jailbreak_classify_validate_func(llm_output)
-        is_correct = is_correct and ("Reasoning" in json.loads(llm_output))
+        is_correct = is_correct and ("Reasoning" in llm_output)
         return is_correct
 
     def evaluate_local(self, data):
@@ -261,13 +261,13 @@ class PromptInjectionScore(ColumnOp):
 
     def prompt_injection_classify_validate_func(self, llm_output):
         is_correct = True
-        is_correct = is_correct and ("Choice" in json.loads(llm_output))
-        is_correct = is_correct and json.loads(llm_output)["Choice"] in ["A", "B"]
+        is_correct = is_correct and ("Choice" in llm_output)
+        is_correct = is_correct and llm_output["Choice"] in ["A", "B"]
         return is_correct
 
     def prompt_injection_cot_validate_func(self, llm_output):
         is_correct = self.prompt_injection_classify_validate_func(llm_output)
-        is_correct = is_correct and ("Reasoning" in json.loads(llm_output))
+        is_correct = is_correct and ("Reasoning" in llm_output)
         return is_correct
 
     def evaluate_local(self, data):

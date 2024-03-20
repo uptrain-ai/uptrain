@@ -10,7 +10,7 @@ Selected operators from the LlamaIndex pipeline are highlighted for demonstratio
   The RAG query engine plays a crucial role in retrieving context and generating responses. To ensure its performance and response quality, we conduct the following evaluations:
     * [Context Relevance](/predefined-evaluations/context-awareness/context-relevance): Determines if the context extracted from the query is relevant to the response.
     * [Factual Accuracy](/predefined-evaluations/context-awareness/factual-accuracy): Assesses if the LLM is hallcuinating or providing incorrect information.
-    * [Response Completeness](/predefined-evaluations//response-quality/response-completeness): Checks if the response contains all the information requested by the query.
+    * [Response Completeness](/predefined-evaluations/response-quality/response-completeness): Checks if the response contains all the information requested by the query.
 <Info>You can check out the complete list of evaluations UpTrain supports [here](/predefined-evaluations/overview) </Info>
 
 2. **Sub-Question Query Generation Evaluation:**
@@ -90,9 +90,9 @@ nodes = parser.get_nodes_from_documents(documents)
 </Steps>
 
 We have completed the basic steps, now let's look at the demontration for using LlamaIndex for the following 3 cases:
-* [RAG Query Engine Evaluations](/rag_query)
-* [Sub-Question Query Generation Evaluation](/subques_query)
-* [Re-Ranking Evaluations](/reranking)
+* [RAG Query Engine Evaluations](/integrations/framework/llamaindex-methods/callback_handler/rag_query)
+* [Sub-Question Query Generation Evaluation](/integrations/framework/llamaindex-methods/callback_handler/subques_query)
+* [Re-Ranking Evaluations](/integrations/framework/llamaindex-methods/callback_handler/reranking)
 
 
 <CardGroup cols={2}>

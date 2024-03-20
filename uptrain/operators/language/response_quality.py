@@ -119,13 +119,13 @@ class ResponseCompleteness(ColumnOp):
 
     def response_completeness_classify_validate_func(self, llm_output):
         is_correct = True
-        is_correct = is_correct and ("Choice" in json.loads(llm_output))
-        is_correct = is_correct and json.loads(llm_output)["Choice"] in ["A", "B", "C"]
+        is_correct = is_correct and ("Choice" in llm_output)
+        is_correct = is_correct and llm_output["Choice"] in ["A", "B", "C"]
         return is_correct
 
     def response_completeness_cot_validate_func(self, llm_output):
         is_correct = self.response_completeness_classify_validate_func(llm_output)
-        is_correct = is_correct and ("Reasoning" in json.loads(llm_output))
+        is_correct = is_correct and ("Reasoning" in llm_output)
         return is_correct
 
     def evaluate_local(self, data):
@@ -271,13 +271,13 @@ class ResponseConciseness(ColumnOp):
 
     def response_conciseness_classify_validate_func(self, llm_output):
         is_correct = True
-        is_correct = is_correct and ("Choice" in json.loads(llm_output))
-        is_correct = is_correct and json.loads(llm_output)["Choice"] in ["A", "B", "C"]
+        is_correct = is_correct and ("Choice" in llm_output)
+        is_correct = is_correct and llm_output["Choice"] in ["A", "B", "C"]
         return is_correct
 
     def response_conciseness_cot_validate_func(self, llm_output):
         is_correct = self.response_conciseness_classify_validate_func(llm_output)
-        is_correct = is_correct and ("Reasoning" in json.loads(llm_output))
+        is_correct = is_correct and ("Reasoning" in llm_output)
         return is_correct
 
     def evaluate_local(self, data):
@@ -419,13 +419,14 @@ class ResponseConsistency(ColumnOp):
 
     def response_consistency_classify_validate_func(self, llm_output):
         is_correct = True
-        is_correct = is_correct and ("Score" in json.loads(llm_output))
-        is_correct = is_correct and 0 <= json.loads(llm_output)["Score"] <= 1
+        is_correct = is_correct and ("Score" in llm_output)
+        is_correct = is_correct and 0 <= llm_output["Score"] <= 1
+        is_correct = is_correct and ("Argument" in llm_output)
         return is_correct
 
     def response_consistency_cot_validate_func(self, llm_output):
         is_correct = self.response_consistency_classify_validate_func(llm_output)
-        is_correct = is_correct and ("Reasoning" in json.loads(llm_output))
+        is_correct = is_correct and ("Reasoning" in llm_output)
         return is_correct
 
     def evaluate_local(self, data):
@@ -484,11 +485,14 @@ class ResponseConsistency(ColumnOp):
                 "explanation_response_consistency": None,
             }
             try:
-                score = json.loads(res.response.choices[0].message.content)["Score"]
+                parsed_output = json.loads(res.response.choices[0].message.content)
+                score = parsed_output["Score"]
                 output["score_response_consistency"] = float(score)
-                output["explanation_response_consistency"] = res.response.choices[
-                    0
-                ].message.content
+                output["explanation_response_consistency"] = parsed_output["Argument"]
+                if self.settings.eval_type == "cot":
+                    output["explanation_response_consistency"] += "\n" + parsed_output[
+                        "Reasoning"
+                    ]
             except Exception:
                 logger.error(
                     f"Error when processing payload at index {idx}: {res.error}"
@@ -564,13 +568,13 @@ class ValidResponseScore(ColumnOp):
 
     def valid_response_classify_validate_func(self, llm_output):
         is_correct = True
-        is_correct = is_correct and ("Choice" in json.loads(llm_output))
-        is_correct = is_correct and json.loads(llm_output)["Choice"] in ["A", "B", "C"]
+        is_correct = is_correct and ("Choice" in llm_output)
+        is_correct = is_correct and llm_output["Choice"] in ["A", "B", "C"]
         return is_correct
 
     def valid_response_cot_validate_func(self, llm_output):
         is_correct = self.valid_response_classify_validate_func(llm_output)
-        is_correct = is_correct and ("Reasoning" in json.loads(llm_output))
+        is_correct = is_correct and ("Reasoning" in llm_output)
         return is_correct
 
     def evaluate_local(self, data):
@@ -856,13 +860,13 @@ class ResponseMatchingScore(ColumnOp):
 
     def response_matching_classify_validate_func(self, llm_output):
         is_correct = True
-        is_correct = is_correct and ("Choice" in json.loads(llm_output))
-        is_correct = is_correct and json.loads(llm_output)["Choice"] in ["A", "B", "C"]
+        is_correct = is_correct and ("Choice" in llm_output)
+        is_correct = is_correct and llm_output["Choice"] in ["A", "B", "C"]
         return is_correct
 
     def response_matching_cot_validate_func(self, llm_output):
         is_correct = self.response_matching_classify_validate_func(llm_output)
-        is_correct = is_correct and ("Reasoning" in json.loads(llm_output))
+        is_correct = is_correct and ("Reasoning" in llm_output)
         return is_correct
 
     def evaluate_local(self, data):
