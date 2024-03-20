@@ -230,11 +230,10 @@ class ResponseFactualScore(ColumnOp):
                 "explanation_factual_accuracy": None,
             }
             try:
-                result = parse_json(res.response.choices[0].message.content)["Result"]
-                judgements = [x["Judgement"] for x in result]
+                judgements = [x["Judgement"] for x in parse_json(res.response.choices[0].message.content)["Result"]]
                 score = np.mean([self.score_mapping[x.lower()] for x in judgements])
                 output["score_factual_accuracy"] = float(score)
-                output["explanation_factual_accuracy"] = result
+                output["explanation_factual_accuracy"] = res.response.choices[0].message.content
             except Exception:
                 logger.error(
                     f"Error when processing payload at index {idx}: {res.error}"
