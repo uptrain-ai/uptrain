@@ -13,6 +13,7 @@ import pydantic
 import copy
 import os
 import httpx
+from uptrain.operators.base import ColumnOp
 from uptrain.utilities.utils import get_current_datetime, parse_prompt
 from uptrain.framework.remote import APIClientWithoutAuth, DataSchema
 from uptrain.framework.base import Settings
@@ -198,7 +199,7 @@ class EvalLLM:
 
         checks = [Evals(m) if isinstance(m, str) else m for m in checks]
         for m in checks:
-            assert isinstance(m, (Evals, ParametricEval, TransformOp, list))
+            assert isinstance(m, (Evals, ParametricEval, TransformOp, ColumnOp, list))
             # TODO: Check type of each element in the list - should be transformOp
 
         req_attrs, ser_checks = set(), []
@@ -258,7 +259,10 @@ class EvalLLM:
                 dictm = {"scenario_description": this_scenario_description}
                 ser_checks.append({"check_name": m.value, **dictm})
             elif isinstance(m, TransformOp):
-                dictm = m.dict()
+                dictm = m.model_dump()
+                ser_checks.append({"check_name": m.__class__.__name__, **dictm})
+            elif isinstance(m, ColumnOp):
+                dictm = m.model_dump()
                 ser_checks.append({"check_name": m.__class__.__name__, **dictm})
             elif isinstance(m, list):
                 ser_checks.append({"check_name": "dummy_list_ops"})
@@ -307,6 +311,12 @@ class EvalLLM:
                         .run(pl.DataFrame(data))["output"]
                         .to_dicts()
                     )
+                elif isinstance(check, ColumnOp):
+                    op = Check(name = "dummy", operators = [check])
+                    res = (
+                        op.setup(self.settings)
+                        .run(pl.DataFrame(data))
+                    ).to_dicts()
                 elif isinstance(check, list):
                     op = Check(name = "dummy", operators = check)
                     res = (
