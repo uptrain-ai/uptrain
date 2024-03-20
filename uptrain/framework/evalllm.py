@@ -16,6 +16,7 @@ import httpx
 from uptrain.utilities.utils import get_current_datetime, parse_prompt
 from uptrain.framework.remote import APIClientWithoutAuth, DataSchema
 from uptrain.framework.base import Settings
+from uptrain.framework.checks import Check
 from uptrain.framework.evals import (
     Evals,
     JailbreakDetection,
@@ -26,6 +27,7 @@ from uptrain.framework.evals import (
     ConversationSatisfaction,
 )
 from uptrain.operators import (
+    TransformOp,
     ResponseFactualScore,
     ContextRelevance,
     ResponseCompleteness,
@@ -196,7 +198,8 @@ class EvalLLM:
 
         checks = [Evals(m) if isinstance(m, str) else m for m in checks]
         for m in checks:
-            assert isinstance(m, (Evals, ParametricEval))
+            assert isinstance(m, (Evals, ParametricEval, TransformOp, list))
+            # TODO: Check type of each element in the list - should be transformOp
 
         req_attrs, ser_checks = set(), []
         for idx, m in enumerate(checks):
@@ -254,6 +257,11 @@ class EvalLLM:
             elif isinstance(m, Evals):
                 dictm = {"scenario_description": this_scenario_description}
                 ser_checks.append({"check_name": m.value, **dictm})
+            elif isinstance(m, TransformOp):
+                dictm = m.dict()
+                ser_checks.append({"check_name": m.__class__.__name__, **dictm})
+            elif isinstance(m, list):
+                ser_checks.append({"check_name": "dummy_list_ops"})
             else:
                 raise ValueError(f"Invalid metric: {m}")
 
@@ -292,6 +300,19 @@ class EvalLLM:
                         .run(pl.DataFrame(data))["output"]
                         .to_dicts()
                     )
+                elif isinstance(check, TransformOp):
+                    op = check
+                    res = (
+                        op.setup(self.settings)
+                        .run(pl.DataFrame(data))["output"]
+                        .to_dicts()
+                    )
+                elif isinstance(check, list):
+                    op = Check(name = "dummy", operators = check)
+                    res = (
+                        op.setup(self.settings)
+                        .run(pl.DataFrame(data))
+                    ).to_dicts()
                 else:
                     res = self.evaluate_on_server(data, [ser_checks[idx]], schema)
                 for idx, row in enumerate(res):
