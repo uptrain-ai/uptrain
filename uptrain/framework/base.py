@@ -84,50 +84,6 @@ class Settings(BaseSettings):
 
     def __init__(self, **data):
         super().__init__(**data)
-        if "openai_api_key" in data:
-            if data["openai_api_key"] is not None:
-                os.environ["OPENAI_API_KEY"] = data["openai_api_key"]
-        if "cohere_api_key" in data:
-            if data["cohere_api_key"] is not None:
-                os.environ["COHERE_API_KEY"] = data["cohere_api_key"]
-        if "huggingface_api_key" in data:
-            if data["huggingface_api_key"] is not None:
-                os.environ["HUGGINGFACE_API_KEY"] = data["huggingface_api_key"]
-        if "anthropic_api_key" in data:
-            if data["anthropic_api_key"] is not None:
-                os.environ["ANTHROPIC_API_KEY"] = data["anthropic_api_key"]
-        if "replicate_api_token" in data:
-            if data["replicate_api_token"] is not None:
-                os.environ["REPLICATE_API_TOKEN"] = data["replicate_api_token"]
-        if "anyscale_api_key" in data:
-            if data["anyscale_api_key"] is not None:
-                os.environ["ANYSCALE_API_KEY"] = data["anyscale_api_key"]
-        if "together_api_key" in data:
-            if data["together_api_key"] is not None:
-                os.environ["TOGETHER_API_KEY"] = data["together_api_key"]
-        if "mistral_api_key" in data:
-            if data["mistral_api_key"] is not None:
-                os.environ["MISTRAL_API_KEY"] = data["mistral_api_key"]
-        if "embedding_model_api_token" in data:
-            if data["embedding_model_api_token"] is not None:
-                os.environ["EMBEDDING_MODEL_API_TOKEN"] = data[
-                    "embedding_model_api_token"
-                ]
-        if "azure_api_key" in data:
-            if data["azure_api_key"] is not None:
-                os.environ["AZURE_API_KEY"] = data["azure_api_key"]
-        if "azure_api_base" in data:
-            if data["azure_api_base"] is not None:
-                os.environ["AZURE_API_BASE"] = data["azure_api_base"]
-        if "azure_api_version" in data:
-            if data["azure_api_version"] is not None:
-                os.environ["AZURE_API_VERSION"] = data["azure_api_version"]
-        if "uptrain_access_token" in data:
-            if data["uptrain_access_token"] is not None:
-                os.environ["UPTRAIN_ACCESS_TOKEN"] = data["uptrain_access_token"]
-        if "uptrain_server_url" in data:
-            if data["uptrain_server_url"] is not None:
-                os.environ["UPTRAIN_SERVER_URL"] = data["uptrain_server_url"]
 
     def check_and_get(self, key: str) -> t.Any:
         """Check if a value is present in the settings and return it."""
