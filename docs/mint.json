@@ -137,7 +137,8 @@
           "group": "Creating Custom Evals",
           "pages": [
             "predefined-evaluations/custom-evals/custom-guideline",
-            "predefined-evaluations/custom-evals/custom-prompt-eval"
+            "predefined-evaluations/custom-evals/custom-prompt-eval",
+            "predefined-evaluations/custom-evals/custom-eval"
           ]
         }
       ]
