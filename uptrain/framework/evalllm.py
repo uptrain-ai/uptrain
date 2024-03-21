@@ -14,7 +14,7 @@ import copy
 import os
 import httpx
 from uptrain.operators.base import ColumnOp
-from uptrain.utilities.utils import get_current_datetime, parse_prompt, check_openai_api_key
+from uptrain.utilities.utils import parse_prompt, check_openai_api_key
 from uptrain.framework.remote import APIClientWithoutAuth, DataSchema
 from uptrain.framework.base import Settings
 from uptrain.framework.checks import Check
@@ -28,7 +28,6 @@ from uptrain.framework.evals import (
     ConversationSatisfaction,
 )
 from uptrain.operators import (
-    TransformOp,
     ResponseFactualScore,
     ContextRelevance,
     ResponseCompleteness,
@@ -206,8 +205,10 @@ class EvalLLM:
 
         checks = [Evals(m) if isinstance(m, str) else m for m in checks]
         for m in checks:
-            assert isinstance(m, (Evals, ParametricEval, TransformOp, ColumnOp, list))
-            # TODO: Check type of each element in the list - should be transformOp
+            assert isinstance(m, (Evals, ParametricEval, ColumnOp, list))
+            if isinstance(m, list):
+                for op in m:
+                    assert isinstance(op, ColumnOp)
 
         req_attrs, ser_checks = set(), []
         for idx, m in enumerate(checks):
@@ -265,9 +266,6 @@ class EvalLLM:
             elif isinstance(m, Evals):
                 dictm = {"scenario_description": this_scenario_description}
                 ser_checks.append({"check_name": m.value, **dictm})
-            elif isinstance(m, TransformOp):
-                dictm = m.model_dump()
-                ser_checks.append({"check_name": m.__class__.__name__, **dictm})
             elif isinstance(m, ColumnOp):
                 dictm = m.model_dump()
                 ser_checks.append({"check_name": m.__class__.__name__, **dictm})
@@ -306,13 +304,6 @@ class EvalLLM:
                         if not isinstance(scenario_description, list)
                         else scenario_description[idx]
                     )
-                    res = (
-                        op.setup(self.settings)
-                        .run(pl.DataFrame(data))["output"]
-                        .to_dicts()
-                    )
-                elif isinstance(check, TransformOp):
-                    op = check
                     res = (
                         op.setup(self.settings)
                         .run(pl.DataFrame(data))["output"]

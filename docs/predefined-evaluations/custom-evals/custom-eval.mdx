@@ -45,7 +45,7 @@ import polars as pl
 
 ```python
 @register_custom_op
-class DiverseVocabularyEval(TransformOp):
+class DiverseVocabularyEval(ColumnOp):
     
     col_in_text: str = "response"
     col_out_score: str = "score_diverse_vocabulary"
@@ -63,7 +63,7 @@ class DiverseVocabularyEval(TransformOp):
 
 ```python
 @register_custom_op
-class AverageWordLengthEval(TransformOp):
+class AverageWordLengthEval(ColumnOp):
     col_in_text: str = "response"
     col_out_score: str = "score_average_word_length"
 
