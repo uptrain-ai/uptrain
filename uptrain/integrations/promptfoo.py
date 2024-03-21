@@ -105,7 +105,7 @@ class EvalPromptfoo:
             except Exception as e:
                 logger.error(f"Evaluation failed with error: {e}")
                 raise e
-        except:
+        except Exception:
             if kill_process_on_exit:
                 try:
                     pid = subprocess.check_output(["lsof", "-t", "-i:" + str(port)])
@@ -121,10 +121,10 @@ class EvalPromptfoo:
                         print(
                             f"Closed application at http://localhost:{port} successfully"
                         )
-                        print(f"To reopen it try running view method in EvalPromptfoo")
-                    except subprocess.CalledProcessError as e:
+                        print("To reopen it try running view method in EvalPromptfoo")
+                    except subprocess.CalledProcessError:
                         pass
-                except:
+                except Exception:
                     print("No running process to close")
             else:
                 return None
