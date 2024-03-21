@@ -107,9 +107,7 @@ All done! Now let's run these evaluations
 
 
 ```python
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-
-eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+eval_llm = EvalLLM(Settings())
 
 results = eval_llm.evaluate(
     project_name = 'UpTrain',
@@ -150,10 +148,7 @@ from uptrain.operators.language.text import WordCount
 from uptrain.operators.language.text import KeywordDetector
 from uptrain import EvalLLM
 
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-
-
-eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+eval_llm = EvalLLM(Settings())
 
 results = eval_llm.evaluate(
     project_name = 'UpTrain',
