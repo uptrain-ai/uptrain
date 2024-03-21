@@ -29,9 +29,9 @@ class EvalPromptfoo:
         evals_list: t.Union[list],
         evals_weight: t.Union[list],
         input_data: t.Union[list[dict], pl.DataFrame, pd.DataFrame],
-        threshold: t.Union[float],
         prompts: t.Union[str],
         providers: t.Union[list],
+        threshold: t.Optional[float] = 0.5,
         output_file: t.Optional[str] = "results_" + timestr + ".csv",
         port: t.Optional[int] = pr_u.generate_open_port(),
         eval_model: t.Optional[str] = "gpt-3.5-turbo-1106",
@@ -97,9 +97,6 @@ class EvalPromptfoo:
                             str(port),
                         ]
                     )
-                    subprocess.run(
-                        ["npx", "promptfoo@latest", "view", "-y", "-p", str(port)]
-                    )
                 except Exception as e:
                     logger.error(
                         "Something failed: Try running !npx promptfoo@latest view" + e
@@ -108,6 +105,51 @@ class EvalPromptfoo:
             except Exception as e:
                 logger.error(f"Evaluation failed with error: {e}")
                 raise e
+        except Exception:
+            if kill_process_on_exit:
+                try:
+                    pid = subprocess.check_output(["lsof", "-t", "-i:" + str(port)])
+                    pids_str = pid.decode()
+                    pids = [
+                        int(pid)
+                        for pid in pids_str.split("\n")
+                        if pid.strip().isdigit()
+                    ]
+                    try:
+                        for pid in pids:
+                            subprocess.run(["kill", str(pid)])
+                        print(
+                            f"Closed application at http://localhost:{port} successfully"
+                        )
+                        print("To reopen it try running view method in EvalPromptfoo")
+                    except subprocess.CalledProcessError:
+                        pass
+                except Exception:
+                    print("No running process to close")
+            else:
+                return None
+
+    def view(
+        self, port: t.Optional[int] = pr_u.generate_open_port(),
+        kill_process_on_exit: t.Optional[bool] = True,
+        ) -> None:
+        try:
+            try:
+                subprocess.run(
+                    [
+                        "npx",
+                        "promptfoo@" + pr_u.PROMPTFOO_version,
+                        "view",
+                        "-y",
+                        "-p",
+                        str(port),
+                    ]
+                )
+            except Exception as e:
+                logger.error(
+                    "Something failed: Try running !npx promptfoo@latest view" + e
+                )
+        
         except:
             if kill_process_on_exit:
                 try:
@@ -131,21 +173,6 @@ class EvalPromptfoo:
                     print("No running process to close")
             else:
                 return None
-
-    def view(self, port: t.Optional[int] = pr_u.generate_open_port()):
-        try:
-            subprocess.run(
-                [
-                    "npx",
-                    "promptfoo@" + pr_u.PROMPTFOO_version,
-                    "view",
-                    "-y",
-                    "-p",
-                    str(port),
-                ]
-            )
-        except Exception as e:
-            logger.error("Something failed: Try running !npx promptfoo@latest view" + e)
 
     def custom(self, command: t.Union[str] = "init"):
         try:
