@@ -47,6 +47,7 @@ from uptrain.operators import (
     ContextReranking,
     SubQueryCompleteness,
     CodeHallucinationScore,
+    CustomPromptEvalScore,
 )
 
 from uptrain.framework.rca_templates import RcaTemplate
@@ -77,6 +78,7 @@ PARAMETRIC_EVAL_TO_OPERATOR_MAPPING = {
     "ConversationSatisfaction": ConversationSatisfactionScore,
     "CritiqueTone": ToneCritique,
     "ResponseMatching": ResponseMatchingScore,
+    "CustomPromptEval": CustomPromptEvalScore,
 }
 
 

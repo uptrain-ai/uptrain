@@ -302,3 +302,29 @@ CODE_HALLUCINATION_OUTPUT_FORMAT__COT = """
     "Snippet": [Code Snippet],  # Code snippet (if any) found in the response,
 }
 """
+
+
+COT_CLASSIFY_JSON_OUTPUT_FORMAT = """
+You are given {num_choices} choices:
+{choices}
+
+Respond with one of the given choices which you think is most suitable for the given case. And write down a step-by-step explanation for your selected choice. 
+I WILL TIP YOU IF YOU WRITE DOWN THE SELECTED CHOICE, WORD-TO-WORD MATCHING WITH ONE OF THE CHOICES SPECIFIED ABOVE.
+
+Return the output only in the corresponding JSON format. Do not output anything other than this JSON object:
+{output_format}
+
+"""
+
+
+CLASSIFY_JSON_OUTPUT_FORMAT = """
+You are given {num_choices} choices:
+{choices}
+
+Respond with one of the given choices which you think is most suitable for the given case.
+I WILL TIP YOU IF YOU WRITE DOWN THE SELECTED CHOICE, WORD-TO-WORD MATCHING WITH ONE OF THE CHOICES SPECIFIED ABOVE.
+
+Return the output only in the corresponding JSON format. Do not output anything other than this JSON object:
+{output_format}
+
+"""
