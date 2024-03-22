@@ -74,6 +74,7 @@ __all__ = [
     "SubQueryCompleteness",
     "ContextReranking",
     "ContextConciseness",
+    "CustomPromptEvalScore",
     # io - also include all the subimports
     "io",
     "ExcelReader",
@@ -171,6 +172,7 @@ from .language.jailbreak import (
     PromptInjectionScore,
     JailbreakDetectionScore,
 )
+from .language.custom import CustomPromptEvalScore
 
 from . import io
 from .io.base import CsvReader, JsonReader, DeltaReader, JsonWriter, DeltaWriter
