@@ -76,7 +76,14 @@ class CustomPromptEvalScore(ColumnOp):
             ):
                 results = self.evaluate_local(data_send)
             else:
-                results = self._api_client.evaluate("custom_prompt_eval", data_send)
+                
+                results = self._api_client.evaluate("CustomPromptEval", data_send, {
+                    "prompt": self.prompt,
+                    "choices": self.choices,
+                    "choice_scores": self.choice_scores,
+                    "eval_type": self.eval_type,
+                    "prompt_var_to_column_mapping": self.prompt_var_to_column_mapping,
+                })
         except Exception as e:
             logger.error(f"Failed to run evaluation for `ResponseCompleteness`: {e}")
             raise e
