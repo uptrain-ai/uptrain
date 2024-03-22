@@ -33,8 +33,8 @@ We will use UpTrain to check for these custom evaluations over the following cas
 First, let's import the required dependencies
 
 ```python
-from uptrain.framework.base import Settings
-from uptrain.operators.base import TransformOp, register_custom_op, TYPE_TABLE_OUTPUT
+from uptrain import EvalLLM, Settings
+from uptrain.operators.base import ColumnOp, register_custom_op, TYPE_TABLE_OUTPUT
 import polars as pl
 ```
 
@@ -95,21 +95,12 @@ data = [
 ]
 ```
 
-First, let's import the required dependencies
-
-
-```python
-from uptrain import EvalLLM, Settings
-import os
-```
 
 All done! Now let's run these evaluations
 
 
 ```python
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-
-eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+eval_llm = EvalLLM(Settings())
 
 results = eval_llm.evaluate(
     project_name = 'UpTrain',
@@ -146,14 +137,9 @@ We have already defined some prebuilt evaluations that you can use without the h
 
 
 ```python
-from uptrain.operators.language.text import WordCount
-from uptrain.operators.language.text import KeywordDetector
-from uptrain import EvalLLM
+from uptrain.operators.language.text import WordCount, KeywordDetector
 
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-
-
-eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+eval_llm = EvalLLM(Settings())
 
 results = eval_llm.evaluate(
     project_name = 'UpTrain',
