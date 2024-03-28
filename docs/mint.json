@@ -68,7 +68,17 @@
         "getting-started/introduction",
         "getting-started/quickstart",
         "getting-started/why-we-are-building-uptrain",
-        "getting-started/why-open-source"
+        "getting-started/why-open-source",
+        {
+          "group": "Dashboard",
+          "pages": [
+            "getting-started/dashboard/getting_started",
+            "getting-started/dashboard/project",
+            "getting-started/dashboard/evaluations",
+            "getting-started/dashboard/prompts"
+          ]
+        }
+
       ]
     },
     {
@@ -141,15 +151,6 @@
             "predefined-evaluations/custom-evals/custom-eval"
           ]
         }
-      ]
-    },
-    {
-      "group": "Dashboard",
-      "pages": [
-        "dashboard/getting_started",
-        "dashboard/project",
-        "dashboard/evaluations",
-        "dashboard/prompts"
       ]
     },
     {
