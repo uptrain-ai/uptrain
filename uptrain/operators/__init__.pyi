@@ -60,6 +60,7 @@ __all__ = [
     "ResponseConsistency",
     "ResponseConciseness",
     "ValidQuestionScore",
+    "QueryRewrite",
     "LanguageCritique",
     "ToneCritique",
     "GuidelineAdherenceScore",
@@ -162,7 +163,7 @@ from .language.response_quality import (
     ResponseRelevance,
     ResponseMatchingScore,
 )
-from .language.question_quality import ValidQuestionScore
+from .language.question_quality import ValidQuestionScore, QueryRewrite
 from .language.language_quality import LanguageCritique, ResponseCoherence
 from .language.tone import ToneCritique
 from .language.guideline import GuidelineAdherenceScore
