@@ -23,6 +23,7 @@ from uptrain.operators import (
     SubQueryCompleteness,
     ContextReranking,
     ContextConciseness,
+    MultiQueryAccuracy,
 )
 
 
@@ -227,4 +228,16 @@ def CheckSubQueryCompleteness():
         name="sub_query_completeness_score",
         operators=[SubQueryCompleteness()],
         plots=[Histogram(x="score_sub_query_completeness")],
+    )
+
+
+# -----------------------------------------------------------
+# MultiQuery
+# -----------------------------------------------------------
+
+def CheckMultiQueryAccuracy():
+    return Check(
+        name="multi_query_accuracy_score",
+        operators=[MultiQueryAccuracy()],
+        plots=[Histogram(x="score_multi_query_accuracy")],
     )

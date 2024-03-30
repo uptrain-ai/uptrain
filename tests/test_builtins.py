@@ -31,6 +31,7 @@ from uptrain.framework.builtins import (
     CheckPromptInjection,
     CheckJailbreakDetection,
     CheckSubQueryCompleteness,
+    CheckMultiQueryAccuracy,
 )
 
 # Enter your OpenAI API key here if it is not already set as an environment variable
@@ -676,5 +677,58 @@ def test_check_sub_query_completeness():
         output["explanation_sub_query_completeness"].dtype == pl.Utf8
         and len(output["explanation_sub_query_completeness"])
         - output["explanation_sub_query_completeness"].null_count()
+        > 0
+    )
+
+
+# -----------------------------------------------------------
+# Multi Query
+# -----------------------------------------------------------
+    
+multi_query_dataset = pl.DataFrame(
+    {
+        "question": [
+            "What are the main causes of climate change?",
+            "What are the benefits of AI?",
+            "What are the differences between Python and Java?",
+        ],
+        "variants": [
+            """
+            1. What are the main causes of climate change?
+            2. What are the effects of climate change?
+            3. What are the solutions to climate change?
+            """,
+            """
+            1. What are the benefits of AI?
+            2. What is AI?
+            3. What are the regulations of AI?
+            """,
+            """
+            1. What are the differences between Python and Java?
+            2. What are the similarities between Python and Java?
+            """,
+        ],
+    }
+)
+
+
+def test_check_multi_query_accuracy():
+    check = CheckMultiQueryAccuracy()
+    output = check.setup(settings).run(multi_query_dataset)
+    assert isinstance(output, pl.DataFrame)
+    assert (
+        "score_multi_query_accuracy" in output.columns
+        and "explanation_multi_query_accuracy" in output.columns
+    )
+    assert (
+        output["score_multi_query_accuracy"].dtype == pl.Float64
+        and len(output["score_multi_query_accuracy"])
+        - output["score_multi_query_accuracy"].null_count()
+        > 0
+    )
+    assert (
+        output["explanation_multi_query_accuracy"].dtype == pl.Utf8
+        and len(output["explanation_multi_query_accuracy"])
+        - output["explanation_multi_query_accuracy"].null_count()
         > 0
     )

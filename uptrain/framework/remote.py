@@ -47,6 +47,7 @@ class DataSchema(BaseModel):
     sub_questions: str = "sub_questions"
     reranked_context: str = "reranked_context"
     concise_context: str = "concise_context"
+    variants: str = "variants"
 
 
 def raise_or_return(response: httpx.Response):
@@ -592,6 +593,8 @@ class APIClient:
         for m in checks:
             if m in [Evals.SUB_QUERY_COMPLETENESS]:
                 req_attrs.update([schema.sub_questions, schema.question])
+            elif m in [Evals.MULTI_QUERY_ACCURACY]:
+                req_attrs.update([schema.question, schema.variants])
             elif m in [Evals.CONTEXT_CONCISENESS]:
                 req_attrs.update(
                     [schema.question, schema.context, schema.concise_context]

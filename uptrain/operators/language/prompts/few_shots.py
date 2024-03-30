@@ -595,3 +595,30 @@ SELECT * FROM hospitals WHERE name = "St. Mary's Hospital";
   "Snippet": "SELECT * FROM hospitals WHERE name = \"St. Mary's Hospital\";"
 }
 """
+
+
+# Multi query accuracy
+MULTI_QUERY_ACCURACY_FEW_SHOT__CLASSIFY = """
+[Question]: What are the main causes of climate change?
+[Variants]: 
+    1. What factors contribute to climate change?
+    2. Please explain the primary reasons for global warming.
+    3. How do human activities impact climate change?
+[Output]:
+{
+    "Choice": "A"
+}
+"""
+
+MULTI_QUERY_ACCURACY_FEW_SHOT__COT = """
+[Question]: What are the main causes of climate change?
+[Variants]: 
+    1. What factors contribute to climate change?
+    2. Please explain the primary reasons for global warming.
+    3. How do human activities impact climate change?
+[Output]:
+{
+    "Reasoning": "The response provides accurate and relevant information about the main causes of climate change, addressing the various aspects of the question across different queries. It covers the factors contributing to climate change, the impact of human activities, and the primary reasons for global warming, demonstrating a comprehensive understanding of the topic.",
+    "Choice": "A"
+}
+"""

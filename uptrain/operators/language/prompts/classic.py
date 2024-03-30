@@ -471,3 +471,30 @@ Return the output only in the corresponding JSON format. Do not output anything 
 Task data:
 [Response]: {response}
 """
+
+
+# Multi Query Accuracy
+MULTI_QUERY_ACCURACY_PROMPT_TEMPLATE = """
+You are given a question and list of variations of the same question. Your task is to determine if the given variations mean the same as the original question.
+
+It should consider the relevance and similarity of the given variations with respect to the original question. The goal is to generate a qualitative assessment of how well the variations collectively cover all relevant aspects of the main question.
+
+{scenario_description}
+
+Example Data.
+{few_shot_examples}
+
+Determine which case applies by selecting one of the following options:
+A. The given variations mean the same as the original question.
+B. The given variations partially mean the same as the original question.
+C. The given variations do not mean the same as the original question.
+
+{prompting_instructions}
+
+Return the output only in the corresponding JSON format. Do not output anything other than this JSON object:
+{output_format}
+
+Task data:
+[Question]: {question}
+[Variants]: {variants}
+"""
