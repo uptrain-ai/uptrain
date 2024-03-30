@@ -48,6 +48,7 @@ from uptrain.operators import (
     SubQueryCompleteness,
     CodeHallucinationScore,
     CustomPromptEvalScore,
+    MultiQueryAccuracy,
 )
 
 from uptrain.framework.rca_templates import RcaTemplate
@@ -70,6 +71,7 @@ EVAL_TO_OPERATOR_MAPPING = {
     Evals.CRITIQUE_LANGUAGE: LanguageCritique(),
     Evals.SUB_QUERY_COMPLETENESS: SubQueryCompleteness(),
     Evals.CODE_HALLUCINATION: CodeHallucinationScore(),
+    Evals.MULTI_QUERY_ACCURACY: MultiQueryAccuracy(),
 }
 
 PARAMETRIC_EVAL_TO_OPERATOR_MAPPING = {

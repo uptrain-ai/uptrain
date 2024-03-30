@@ -76,6 +76,7 @@ __all__ = [
     "ContextReranking",
     "ContextConciseness",
     "CustomPromptEvalScore",
+    "MultiQueryAccuracy",
     # io - also include all the subimports
     "io",
     "ExcelReader",
@@ -155,6 +156,7 @@ from .language.context_quality import (
     ContextReranking,
 )
 from .language.subquery import SubQueryCompleteness
+from .language.multiquery import MultiQueryAccuracy
 from .language.response_quality import (
     ResponseCompleteness,
     ResponseConsistency,

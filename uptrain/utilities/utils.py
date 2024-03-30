@@ -47,6 +47,7 @@ evals_mapping = {
     "sub_query_completeness": Evals.SUB_QUERY_COMPLETENESS,
     "context_reranking": Evals.CONTEXT_RERANKING,
     "context_conciseness ": Evals.CONTEXT_CONCISENESS,
+    "multi_query_accuracy": Evals.MULTI_QUERY_ACCURACY,
 }
 
 parametric_evals_mapping = {

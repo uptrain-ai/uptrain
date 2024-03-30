@@ -328,3 +328,18 @@ Return the output only in the corresponding JSON format. Do not output anything 
 {output_format}
 
 """
+
+
+# Multi Query Accuracy
+MULTI_QUERY_ACCURACY_OUTPUT_FORMAT__CLASSIFY = """
+{
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+}
+"""
+
+MULTI_QUERY_ACCURACY_OUTPUT_FORMAT__COT = """
+{
+    "Reasoning": [Reasoning],  # Reasoning to determine the accuracy of the variations of the given query,
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+}
+"""
