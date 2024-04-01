@@ -13,9 +13,11 @@ import pydantic
 import copy
 import os
 import httpx
-from uptrain.utilities.utils import get_current_datetime, parse_prompt
+from uptrain.operators.base import ColumnOp
+from uptrain.utilities.utils import parse_prompt, check_openai_api_key
 from uptrain.framework.remote import APIClientWithoutAuth, DataSchema
 from uptrain.framework.base import Settings
+from uptrain.framework.checks import Check
 from uptrain.framework.evals import (
     Evals,
     JailbreakDetection,
@@ -44,6 +46,9 @@ from uptrain.operators import (
     ContextConciseness,
     ContextReranking,
     SubQueryCompleteness,
+    CodeHallucinationScore,
+    CustomPromptEvalScore,
+    MultiQueryAccuracy,
 )
 
 from uptrain.framework.rca_templates import RcaTemplate
@@ -65,6 +70,8 @@ EVAL_TO_OPERATOR_MAPPING = {
     Evals.PROMPT_INJECTION: PromptInjectionScore(),
     Evals.CRITIQUE_LANGUAGE: LanguageCritique(),
     Evals.SUB_QUERY_COMPLETENESS: SubQueryCompleteness(),
+    Evals.CODE_HALLUCINATION: CodeHallucinationScore(),
+    Evals.MULTI_QUERY_ACCURACY: MultiQueryAccuracy(),
 }
 
 PARAMETRIC_EVAL_TO_OPERATOR_MAPPING = {
@@ -73,6 +80,7 @@ PARAMETRIC_EVAL_TO_OPERATOR_MAPPING = {
     "ConversationSatisfaction": ConversationSatisfactionScore,
     "CritiqueTone": ToneCritique,
     "ResponseMatching": ResponseMatchingScore,
+    "CustomPromptEval": CustomPromptEvalScore,
 }
 
 
@@ -85,6 +93,11 @@ class EvalLLM:
             self.settings = Settings(openai_api_key=openai_api_key)
         else:
             self.settings = settings
+        if self.settings.openai_api_key is not None and len(self.settings.openai_api_key):
+            response = check_openai_api_key(self.settings.openai_api_key)
+            if not response:
+                raise Exception("OpenAI API Key is invalid")
+
         self.executor = APIClientWithoutAuth(self.settings)
 
     ####
@@ -183,6 +196,8 @@ class EvalLLM:
 
         if isinstance(data, pl.DataFrame):
             data = data.to_dicts()
+        elif isinstance(data, pd.DataFrame):
+            data = data.to_dict(orient="records")
 
         if schema is None:
             schema = DataSchema()
@@ -194,7 +209,10 @@ class EvalLLM:
 
         checks = [Evals(m) if isinstance(m, str) else m for m in checks]
         for m in checks:
-            assert isinstance(m, (Evals, ParametricEval))
+            assert isinstance(m, (Evals, ParametricEval, ColumnOp, list))
+            if isinstance(m, list):
+                for op in m:
+                    assert isinstance(op, ColumnOp)
 
         req_attrs, ser_checks = set(), []
         for idx, m in enumerate(checks):
@@ -246,12 +264,17 @@ class EvalLLM:
             )
 
             if isinstance(m, ParametricEval):
-                dictm = m.dict()
+                dictm = m.model_dump()
                 dictm.update({"scenario_description": this_scenario_description})
                 ser_checks.append({"check_name": m.__class__.__name__, **dictm})
             elif isinstance(m, Evals):
                 dictm = {"scenario_description": this_scenario_description}
                 ser_checks.append({"check_name": m.value, **dictm})
+            elif isinstance(m, ColumnOp):
+                dictm = m.model_dump()
+                ser_checks.append({"check_name": m.__class__.__name__, **dictm})
+            elif isinstance(m, list):
+                ser_checks.append({"check_name": "dummy_list_ops"})
             else:
                 raise ValueError(f"Invalid metric: {m}")
 
@@ -290,6 +313,18 @@ class EvalLLM:
                         .run(pl.DataFrame(data))["output"]
                         .to_dicts()
                     )
+                elif isinstance(check, ColumnOp):
+                    op = Check(name = "dummy", operators = [check])
+                    res = (
+                        op.setup(self.settings)
+                        .run(pl.DataFrame(data))
+                    ).to_dicts()
+                elif isinstance(check, list):
+                    op = Check(name = "dummy", operators = check)
+                    res = (
+                        op.setup(self.settings)
+                        .run(pl.DataFrame(data))
+                    ).to_dicts()
                 else:
                     res = self.evaluate_on_server(data, [ser_checks[idx]], schema)
                 for idx, row in enumerate(res):
@@ -321,13 +356,13 @@ class EvalLLM:
                     "data": results,
                     "checks": checks,
                     "metadata": metadata,
-                    "schema_dict": schema.dict(),
+                    "schema_dict": schema.model_dump(),
                     "project": project_name,
                 },
             )
         except Exception:
             user_id = "default_key"
-            logger.info("Server is not running!")
+            logger.info("Local server not running, start the server to log data and visualize in the dashboard!")
         return results
 
     def evaluate_on_server(self, data, ser_checks, schema):
@@ -345,8 +380,8 @@ class EvalLLM:
                         data=data[i : i + BATCH_SIZE],
                         checks=ser_checks,
                         metadata={
-                            "schema": schema.dict(),
-                            "uptrain_settings": self.settings.dict(),
+                            "schema": schema.model_dump(),
+                            "uptrain_settings": self.settings.model_dump(),
                         },
                     )
                     break
@@ -403,9 +438,12 @@ class EvalLLM:
         all_cols = set(results.columns)
         value_cols = list(all_cols - set([schema.question] + exp_columns))
         index_cols = metadata.get("uptrain_index_columns", [schema.question])
+        if sum(results.is_duplicated()) > 1:
+            logger.info("Duplicates found in data: Removing duplicates")
+            results = results.unique()
         exp_results = results.pivot(
-            values=value_cols, index=index_cols, columns=exp_columns
-        )
+                values=value_cols, index=index_cols, columns=exp_columns
+            )
         exp_results = exp_results.to_dicts()
         return exp_results
 

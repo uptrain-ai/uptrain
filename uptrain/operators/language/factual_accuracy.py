@@ -4,7 +4,6 @@ Implement operators to evaluate factual correctness of the response.
 
 from __future__ import annotations
 import typing as t
-import json
 
 from loguru import logger
 import polars as pl
@@ -20,7 +19,7 @@ from uptrain.operators.base import (
     TYPE_TABLE_OUTPUT,
 )
 from uptrain.utilities import polars_to_json_serializable_dict
-from uptrain.operators.language.llm import LLMMulticlient
+from uptrain.operators.language.llm import LLMMulticlient, parse_json
 
 from uptrain.operators.language.prompts.classic import (
     FACT_EVAL_PROMPT_TEMPLATE,
@@ -110,12 +109,14 @@ class ResponseFactualScore(ColumnOp):
         }
 
     def fact_generate_validate_func(self, llm_output):
-        return isinstance(json.loads(llm_output), list)
+        is_correct = True
+        is_correct = is_correct and "Facts" in llm_output
+        return is_correct
 
     def fact_eval_classify_validate_func(self, llm_output):
         is_correct = True
-        is_correct = is_correct and isinstance(json.loads(llm_output), list)
-        for row in json.loads(llm_output):
+        is_correct = is_correct and isinstance(llm_output["Result"], list)
+        for row in llm_output["Result"]:
             is_correct = (
                 is_correct and min([x in row for x in ["Judgement", "Fact"]]) > 0
             )
@@ -128,7 +129,7 @@ class ResponseFactualScore(ColumnOp):
 
     def fact_eval_cot_validate_func(self, llm_output):
         is_correct = self.fact_eval_classify_validate_func(llm_output)
-        for row in json.loads(llm_output):
+        for row in llm_output["Result"]:
             is_correct = is_correct and min([x in row for x in ["Reasoning"]]) > 0
         return is_correct
 
@@ -172,7 +173,7 @@ class ResponseFactualScore(ColumnOp):
         for res in output_payloads:
             idx = res.metadata["index"]
             try:
-                facts = json.loads(res.response.choices[0].message.content)
+                facts = parse_json(res.response.choices[0].message.content)
                 fact_results.append((idx, facts))
             except Exception:
                 logger.error(
@@ -229,15 +230,10 @@ class ResponseFactualScore(ColumnOp):
                 "explanation_factual_accuracy": None,
             }
             try:
-                judgements = [
-                    x["Judgement"]
-                    for x in json.loads(res.response.choices[0].message.content)
-                ]
+                judgements = [x["Judgement"] for x in parse_json(res.response.choices[0].message.content)["Result"]]
                 score = np.mean([self.score_mapping[x.lower()] for x in judgements])
                 output["score_factual_accuracy"] = float(score)
-                output["explanation_factual_accuracy"] = res.response.choices[
-                    0
-                ].message.content
+                output["explanation_factual_accuracy"] = res.response.choices[0].message.content
             except Exception:
                 logger.error(
                     f"Error when processing payload at index {idx}: {res.error}"

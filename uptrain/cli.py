@@ -6,14 +6,6 @@ import sys
 
 
 EXTRA_PACKAGES = {
-    "v0": [
-        "pandas>=1.0.0",
-        "river",
-        "scikit-learn>=1.0.0",
-        "umap-learn",
-        "json-fix>=0.5.0",
-        "xgboost",
-    ],
     "local-generation": [
         "tqdm>=4.0",
     ],
@@ -23,7 +15,7 @@ EXTRA_PACKAGES = {
         "pyarrow>=10.0.0",
     ],
     "llama-index": [
-        "llama-index>=0.8.0",
+        "llama-index>=0.10.0",
     ],
     "embeddings": [
         "tqdm>=4.0",
@@ -43,7 +35,6 @@ EXTRA_PACKAGES = {
         "umap-learn",
         "rouge-score",
         "replicate",
-        "litellm>=1.15.7",
         "faiss-cpu",
     ],
     "dashboard": [
@@ -51,7 +42,6 @@ EXTRA_PACKAGES = {
         "pyarrow>=10.0.0",
         "scikit-learn>=1.0.0",
         "rouge-score",
-        "litellm>=1.15.7",
     ],
     # Add packages here
     "full": [
@@ -67,7 +57,6 @@ EXTRA_PACKAGES = {
         "llama-index>=0.8.0",
         "evals @ git+https://github.com/openai/evals.git@main",
         "replicate",
-        "litellm>=1.15.7",
         "faiss-cpu",
     ],
 }

@@ -15,10 +15,18 @@ from uptrain import (
 )
 from uptrain.utilities import lazy_load_dep
 
+def check_openai_api_key(api_key):
+    import openai
+    client = openai.OpenAI(api_key=api_key)
+    try:
+        client.models.list()
+    except openai.AuthenticationError:
+        return False
+    else:
+        return True
+    
 def _get_fsspec_filesystem(database_path) -> fsspec.AbstractFileSystem:
     return DirFileSystem(database_path, auto_mkdir=True)
-
-
 
 fsspec.config.conf["file"] = {"auto_mkdir": True}
 
@@ -39,6 +47,7 @@ evals_mapping = {
     "sub_query_completeness": Evals.SUB_QUERY_COMPLETENESS,
     "context_reranking": Evals.CONTEXT_RERANKING,
     "context_conciseness ": Evals.CONTEXT_CONCISENESS,
+    "multi_query_accuracy": Evals.MULTI_QUERY_ACCURACY,
 }
 
 parametric_evals_mapping = {

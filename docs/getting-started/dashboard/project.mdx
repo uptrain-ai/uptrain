@@ -1,0 +1,54 @@
+---
+title: Create a Project
+---
+
+### What is a Project?
+
+Using UpTrain Dashboard you can manage all your projects.
+
+There are 2 types of projects we support:
+  * **[Evaluations](/getting-started/dashboard/evaluations):** Run evaluations on your queries, documents and LLM responses
+  * **[Prompts](/getting-started/dashboard/prompts):** Find the best way to ask questions to your LLM using prompt iteration, experimentation and evaluations
+
+### How does it work?
+
+<Steps>
+  <Step title = "Create a new Project">
+    Click on `Create New Project` from Home
+    <Frame>
+      <img src="/assets/dashboard/dashboard_home.png" />
+    </Frame>
+  </Step>
+  <Step title = "Enter Project Information">
+    * `Project name:` Create a name for your project
+    * `Dataset name:` Create a name for your dataset
+    * `Project Type:` Select a project type between `Evaluations` and `Prompts`
+    * `Choose File:` Upload your Dataset
+      Sample Dataset:
+      ```jsonl
+      {"question":"", "response":"", "context":""}
+      {"question":"", "response":"", "context":""}
+      ```
+    * `Evaluation LLM:` Select an LLM to run evaluations
+    <Frame>
+      <img src="/assets/dashboard/dashboard_project1.png" />
+    </Frame>
+  </Step>
+</Steps>
+
+Now that you have created a project, you can run evaluations or experiment with prompts
+
+<Note>UpTrain Dashboard is currently in Beta version. We would love your feedback to improve it.</Note>
+
+<CardGroup cols={1}>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+  
+</CardGroup>
+

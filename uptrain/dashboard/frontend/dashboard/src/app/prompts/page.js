@@ -88,6 +88,7 @@ const page = () => {
   const [selectedVersion2, setSelectedVersion2] = useState(null);
 
   const projectNames = data ? data.map((obj) => obj.project) : [];
+  
 
   const filteredProjects =
     projectData && projectData.filter((item) => item.prompts.length > 1);
@@ -141,7 +142,25 @@ const page = () => {
   };
 
   return (
-    <Layout heading="Prompts" project={projectNames[selectedProject]}>
+    <Layout
+      heading="Prompts"
+      project={projectNames[selectedProject]}
+      TimeFilter={timeFilter}
+      setTimeFilter={setTimeFilter}
+      duration
+      projectNames={projectNames}
+      selectedProject={selectedProject}
+      handleProjectChange={handleProjectChange}
+      projectData={projectData}
+      compare
+      filteredProjects={filteredProjects}
+      selectedCompareProject={selectedCompareProject}
+      setSelectedCompareProject={setSelectedCompareProject}
+      selectedVersion1={selectedVersion1}
+      setSelectedVersion1={setSelectedVersion1}
+      selectedVersion2={selectedVersion2}
+      setSelectedVersion2={setSelectedVersion2}
+    >
       {openModal && (
         <CreateProjectModal
           close={() => {
@@ -170,30 +189,10 @@ const page = () => {
             </p>
           </div>
         ) : (
-          <div class="flex flex-1 justify-center items-center h-screen">
+          <div className="flex flex-1 justify-center items-center h-screen">
             <SpinningLoader />
           </div>
         )}
-        <div className="bg-[#23232D] text-[#5C5C66] rounded-xl p-4 max-w-[300px] w-full mb-8">
-          <FilterSection
-            TimeFilter={timeFilter}
-            setTimeFilter={setTimeFilter}
-            duration
-            projectNames={projectNames}
-            selectedProject={selectedProject}
-            handleProjectChange={handleProjectChange}
-          />
-          <CompareSection
-            projectData={projectData}
-            filteredProjects={filteredProjects}
-            selectedCompareProject={selectedCompareProject}
-            setSelectedCompareProject={setSelectedCompareProject}
-            selectedVersion1={selectedVersion1}
-            setSelectedVersion1={setSelectedVersion1}
-            selectedVersion2={selectedVersion2}
-            setSelectedVersion2={setSelectedVersion2}
-          />
-        </div>
       </div>
     </Layout>
   );

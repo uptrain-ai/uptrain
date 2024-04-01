@@ -3,6 +3,7 @@ import os
 import typing as t
 
 from loguru import logger
+import pandas as pd
 import polars as pl
 from uptrain import Settings
 from uptrain.framework.evals import Evals, ParametricEval
@@ -69,6 +70,9 @@ class EvalLlamaIndex:
 
         if isinstance(data, pl.DataFrame):
             data = data.to_dicts()
+        elif isinstance(data, pd.DataFrame):
+            data = data.to_dict(orient="records")
+
         import nest_asyncio
 
         nest_asyncio.apply()

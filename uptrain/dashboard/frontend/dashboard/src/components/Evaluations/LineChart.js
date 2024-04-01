@@ -59,7 +59,7 @@ const LineChart = (props) => {
         backgroundColor: "#192C59",
         borderColor: "#192C59",
         data: count,
-        borderWidth: 2,
+        borderWidth: 4,
         yAxisID: "y1",
       },
     ],

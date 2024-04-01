@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 const CustomSelect = (props) => {
   const handleSelectChange = (event) => {
@@ -24,7 +24,7 @@ const CustomSelect = (props) => {
             {props.placeholder ? props.placeholder : "Choose an option"}
           </option>
           {props.options.map((item, index) => (
-            <option value={item}>{item}</option>
+            <option value={item} key={index}>{item}</option>
           ))}
         </select>
       </div>

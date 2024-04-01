@@ -36,10 +36,10 @@ const ProjectCard = (props) => {
         props.selectedVersion2 == null &&
         expand &&
         props.data.prompts.slice(1).map((item, index) => (
-          <>
+          <div key={index}>
             <Divider />
             <Row data={item} />
-          </>
+          </div>
         ))}
       {props.selectedVersion1 == null &&
         props.selectedVersion2 == null &&

@@ -60,6 +60,7 @@ __all__ = [
     "ResponseConsistency",
     "ResponseConciseness",
     "ValidQuestionScore",
+    "QueryRewrite",
     "LanguageCritique",
     "ToneCritique",
     "GuidelineAdherenceScore",
@@ -74,6 +75,8 @@ __all__ = [
     "SubQueryCompleteness",
     "ContextReranking",
     "ContextConciseness",
+    "CustomPromptEvalScore",
+    "MultiQueryAccuracy",
     # io - also include all the subimports
     "io",
     "ExcelReader",
@@ -153,6 +156,7 @@ from .language.context_quality import (
     ContextReranking,
 )
 from .language.subquery import SubQueryCompleteness
+from .language.multiquery import MultiQueryAccuracy
 from .language.response_quality import (
     ResponseCompleteness,
     ResponseConsistency,
@@ -161,7 +165,7 @@ from .language.response_quality import (
     ResponseRelevance,
     ResponseMatchingScore,
 )
-from .language.question_quality import ValidQuestionScore
+from .language.question_quality import ValidQuestionScore, QueryRewrite
 from .language.language_quality import LanguageCritique, ResponseCoherence
 from .language.tone import ToneCritique
 from .language.guideline import GuidelineAdherenceScore
@@ -171,6 +175,7 @@ from .language.jailbreak import (
     PromptInjectionScore,
     JailbreakDetectionScore,
 )
+from .language.custom import CustomPromptEvalScore
 
 from . import io
 from .io.base import CsvReader, JsonReader, DeltaReader, JsonWriter, DeltaWriter

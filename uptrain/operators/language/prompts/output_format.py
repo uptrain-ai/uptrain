@@ -1,41 +1,47 @@
 # Factual Accuracy
 FACT_GENERATE_OUTPUT_FORMAT = """
-[ # A list of numerically-ordered facts
-    "1. 1st Fact",
-    "2. 2nd Fact",
-    ...
-]
+{
+    "Facts": [ # List of all the facts
+        [1st Fact],  # 1st fact being analysed,
+        [2nd Fact],  # 2nd fact being analysed,
+        ... # Do for all the facts
+    ]
+}
 In case of no facts, return an empty list, i.e. [].
 """
 
 FACT_EVALUATE_OUTPUT_FORMAT__CLASSIFY = """
-[   # List containing data for all the facts
-    {
-        "Fact": [1st Fact]  # 1st fact being analysed,
-        "Judgement": [Judgement for 1st Fact]  # Judgement for 1st fact. Select one of the three - "yes", "unclear" or "no",
-    },
-    {
-        "Fact": [2nd Fact]  # 2nd fact being analysed,
-        "Judgement": [Judgement for 2nd Fact]  # Judgement for 2nd fact. Select one of the three - "yes", "unclear" or "no",
-    },
-    ... # Do for all the facts
-]
+{
+    "Result": [  # List containing data for all the facts
+        {
+            "Fact": [1st Fact]  # 1st fact being analysed,
+            "Judgement": [Judgement for 1st Fact]  # Judgement for 1st fact. Select one of the three - "yes", "unclear" or "no",
+        },
+        {
+            "Fact": [2nd Fact]  # 2nd fact being analysed,
+            "Judgement": [Judgement for 2nd Fact]  # Judgement for 2nd fact. Select one of the three - "yes", "unclear" or "no",
+        },
+        ... # Do for all the facts
+    ]
+}
 """
 
 FACT_EVALUATE_OUTPUT_FORMAT__COT = """
-[   # List containing data for all the facts
-    {
-        "Fact": [1st Fact],  # 1st fact being analysed,
-        "Reasoning": [Reasoning for 1st Fact],  # Reasoning to determine if the 1st fact can be verified from the context or not,
-        "Judgement": [Judgement for 1st Fact],  # Judgement for 1st fact. Select one of the three - "yes", "unclear" or "no",
-    },
-    {
-        "Fact": [2nd Fact],  # 2nd fact being analysed,
-        "Reasoning": [Reasoning for 2nd Fact],  # Reasoning to determine if the 2nd fact can be verified from the context or not,
-        "Judgement": [Judgement for 2nd Fact], # Judgement for 2nd fact. Select one of the three - "yes", "unclear" or "no",
-    },
-    ... # Do for all the facts
-]
+{
+    "Result": [  # List containing data for all the facts
+        {
+            "Fact": [1st Fact],  # 1st fact being analysed,
+            "Reasoning": [Reasoning for 1st Fact],  # Reasoning to determine if the 1st fact can be verified from the context or not,
+            "Judgement": [Judgement for 1st Fact]   # Judgement for 1st fact. Select one of the three - "yes", "unclear" or "no",
+        },
+        {
+            "Fact": [2nd Fact],  # 2nd fact being analysed,
+            "Reasoning": [Reasoning for 2nd Fact],  # Reasoning to determine if the 2nd fact can be verified from the context or not,
+            "Judgement": [Judgement for 2nd Fact]   # Judgement for 2nd fact. Select one of the three - "yes", "unclear" or "no",
+        },
+        ... # Do for all the facts
+    ]
+}
 """
 
 
@@ -103,14 +109,16 @@ RESPONSE_COMPLETENESS_WRT_CONTEXT_OUTPUT_FORMAT__COT = """
 # Response Consistency
 RESPONSE_CONSISTENCY_OUTPUT_FORMAT__CLASSIFY = """
 {
-    "Score": [Score],  # Score (between 0 and 1) to determine the quality of reasoning generated to justify the given response for answering the given query,
+    "Argument": [Argument], # Argument to justify why the given answer is appropriate for the given question,
+    "Score": [Consistency Score],  # Score between 0 to 1, to evaluate the consistency of the given answer for the given question
 }
 """
 
 RESPONSE_CONSISTENCY_OUTPUT_FORMAT__COT = """
 {
+    "Argument": [Argument], # Argument to justify why the given answer is appropriate for the given question,
     "Reasoning": [Reasoning],  # Reasoning to determine the quality of reasoning generated to justify the given response for answering the given query,
-    "Score": [Score],  # Score (between 0 and 1) to determine the quality of reasoning generated to justify the given response for answering the given query,
+    "Score": [Consistency Score],  # Score between 0 to 1, to evaluate the consistency of the given answer for the given question
 }
 """
 
@@ -292,5 +300,46 @@ CODE_HALLUCINATION_OUTPUT_FORMAT__COT = """
     "Reasoning": [Reasoning],  # Reasoning to critique the hallucination of the code,
     "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B"),
     "Snippet": [Code Snippet],  # Code snippet (if any) found in the response,
+}
+"""
+
+
+COT_CLASSIFY_JSON_OUTPUT_FORMAT = """
+You are given {num_choices} choices:
+{choices}
+
+Respond with one of the given choices which you think is most suitable for the given case. And write down a step-by-step explanation for your selected choice. 
+I WILL TIP YOU IF YOU WRITE DOWN THE SELECTED CHOICE, WORD-TO-WORD MATCHING WITH ONE OF THE CHOICES SPECIFIED ABOVE.
+
+Return the output only in the corresponding JSON format. Do not output anything other than this JSON object:
+{output_format}
+
+"""
+
+
+CLASSIFY_JSON_OUTPUT_FORMAT = """
+You are given {num_choices} choices:
+{choices}
+
+Respond with one of the given choices which you think is most suitable for the given case.
+I WILL TIP YOU IF YOU WRITE DOWN THE SELECTED CHOICE, WORD-TO-WORD MATCHING WITH ONE OF THE CHOICES SPECIFIED ABOVE.
+
+Return the output only in the corresponding JSON format. Do not output anything other than this JSON object:
+{output_format}
+
+"""
+
+
+# Multi Query Accuracy
+MULTI_QUERY_ACCURACY_OUTPUT_FORMAT__CLASSIFY = """
+{
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+}
+"""
+
+MULTI_QUERY_ACCURACY_OUTPUT_FORMAT__COT = """
+{
+    "Reasoning": [Reasoning],  # Reasoning to determine the accuracy of the variations of the given query,
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
 }
 """

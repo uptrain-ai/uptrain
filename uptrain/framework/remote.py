@@ -47,6 +47,7 @@ class DataSchema(BaseModel):
     sub_questions: str = "sub_questions"
     reranked_context: str = "reranked_context"
     concise_context: str = "concise_context"
+    variants: str = "variants"
 
 
 def raise_or_return(response: httpx.Response):
@@ -174,7 +175,7 @@ class APIClient:
         url = f"{self.base_url}/checkset"
         response = self.client.post(
             url,
-            json={"name": name, "config": checkset.dict(), "settings": settings.dict()},
+            json={"name": name, "config": checkset.dict(), "settings": settings.model_dump()},
         )
         return raise_or_return(response)
 
@@ -210,7 +211,7 @@ class APIClient:
             json={
                 "name": name,
                 "config": modified_checkset.dict(),
-                "settings": settings.dict(),
+                "settings": settings.model_dump(),
             },
         )
         return raise_or_return(response)
@@ -422,10 +423,10 @@ class APIClient:
         results = []
 
         if params is not None:
-            params["uptrain_settings"] = self.settings.dict()
+            params["uptrain_settings"] = self.settings.model_dump()
         else:
             params = {}
-            params["uptrain_settings"] = self.settings.dict()
+            params["uptrain_settings"] = self.settings.model_dump()
 
         NUM_TRIES = 3
         for i in range(0, len(full_dataset), 100):
@@ -528,9 +529,9 @@ class APIClient:
                             "rca_templates": ser_templates,
                             "metadata": {
                                 "project": project_name,
-                                "schema": schema.dict(),
+                                "schema": schema.model_dump(),
                                 **metadata,
-                                "uptrain_settings": self.settings.dict(),
+                                "uptrain_settings": self.settings.model_dump(),
                             },
                         },
                     )
@@ -592,6 +593,8 @@ class APIClient:
         for m in checks:
             if m in [Evals.SUB_QUERY_COMPLETENESS]:
                 req_attrs.update([schema.sub_questions, schema.question])
+            elif m in [Evals.MULTI_QUERY_ACCURACY]:
+                req_attrs.update([schema.question, schema.variants])
             elif m in [Evals.CONTEXT_CONCISENESS]:
                 req_attrs.update(
                     [schema.question, schema.context, schema.concise_context]
@@ -645,7 +648,7 @@ class APIClient:
                 req_attrs.update([schema.question])
 
             if isinstance(m, ParametricEval):
-                dictm = m.dict()
+                dictm = m.model_dump()
                 dictm.update({"scenario_description": scenario_description})
                 ser_checks.append({"check_name": m.__class__.__name__, **dictm})
             elif isinstance(m, Evals):
@@ -676,9 +679,9 @@ class APIClient:
                             "checks": ser_checks,
                             "metadata": {
                                 "project": project_name,
-                                "schema": schema.dict(),
+                                "schema": schema.model_dump(),
                                 **metadata,
-                                "uptrain_settings": self.settings.dict(),
+                                "uptrain_settings": self.settings.model_dump(),
                             },
                         },
                     )

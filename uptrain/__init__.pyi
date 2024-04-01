@@ -8,6 +8,7 @@ __all__ = [
     "ResponseMatching",
     "Settings",
     "EvalLlamaIndex",
+    "EvalPromptfoo",
     "CustomPromptEval",
     "RcaTemplate",
     "JailbreakDetection",
@@ -27,3 +28,4 @@ from .framework.evals import (
 from .framework.evalllm import EvalLLM
 from .framework.rca_templates import RcaTemplate
 from .integrations.llama_index import EvalLlamaIndex
+from .integrations.promptfoo import EvalPromptfoo

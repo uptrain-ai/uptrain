@@ -45,7 +45,8 @@ const Row = (props) => {
                 width={11}
                 className={`${
                   props.expand && "rotate-180"
-                } transition-all delay-150`}
+                } transition-all delay-150 min-w-[11px] w-auto h-auto`}
+                alt="Drop-down Icon"
               />
             </button>
           )}

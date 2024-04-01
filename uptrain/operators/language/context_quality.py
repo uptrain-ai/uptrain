@@ -118,13 +118,13 @@ class ContextRelevance(ColumnOp):
 
     def context_relevance_classify_validate_func(self, llm_output):
         is_correct = True
-        is_correct = is_correct and ("Choice" in json.loads(llm_output))
-        is_correct = is_correct and json.loads(llm_output)["Choice"] in ["A", "B", "C"]
+        is_correct = is_correct and ("Choice" in llm_output)
+        is_correct = is_correct and llm_output["Choice"] in ["A", "B", "C"]
         return is_correct
 
     def context_relevance_cot_validate_func(self, llm_output):
         is_correct = self.context_relevance_classify_validate_func(llm_output)
-        is_correct = is_correct and ("Reasoning" in json.loads(llm_output))
+        is_correct = is_correct and ("Reasoning" in llm_output)
         return is_correct
 
     def evaluate_local(self, data):
@@ -275,15 +275,15 @@ class ResponseCompletenessWrtContext(ColumnOp):
 
     def response_completeness_wrt_context_classify_validate_func(self, llm_output):
         is_correct = True
-        is_correct = is_correct and ("Choice" in json.loads(llm_output))
-        is_correct = is_correct and json.loads(llm_output)["Choice"] in ["A", "B", "C"]
+        is_correct = is_correct and ("Choice" in llm_output)
+        is_correct = is_correct and llm_output["Choice"] in ["A", "B", "C"]
         return is_correct
 
     def response_completeness_wrt_context_cot_validate_func(self, llm_output):
         is_correct = self.response_completeness_wrt_context_classify_validate_func(
             llm_output
         )
-        is_correct = is_correct and ("Reasoning" in json.loads(llm_output))
+        is_correct = is_correct and ("Reasoning" in llm_output)
         return is_correct
 
     def evaluate_local(self, data):
@@ -435,13 +435,13 @@ class ContextReranking(ColumnOp):
 
     def context_reranking_classify_validate_func(self, llm_output):
         is_correct = True
-        is_correct = is_correct and ("Choice" in json.loads(llm_output))
-        is_correct = is_correct and json.loads(llm_output)["Choice"] in ["A", "B", "C"]
+        is_correct = is_correct and ("Choice" in llm_output)
+        is_correct = is_correct and llm_output["Choice"] in ["A", "B", "C"]
         return is_correct
 
     def context_reranking_cot_validate_func(self, llm_output):
         is_correct = self.context_reranking_classify_validate_func(llm_output)
-        is_correct = is_correct and ("Reasoning" in json.loads(llm_output))
+        is_correct = is_correct and ("Reasoning" in llm_output)
         return is_correct
 
     def evaluate_local(self, data):
@@ -591,13 +591,13 @@ class ContextConciseness(ColumnOp):
 
     def context_conciseness_classify_validate_func(self, llm_output):
         is_correct = True
-        is_correct = is_correct and ("Choice" in json.loads(llm_output))
-        is_correct = is_correct and json.loads(llm_output)["Choice"] in ["A", "B", "C"]
+        is_correct = is_correct and ("Choice" in llm_output)
+        is_correct = is_correct and llm_output["Choice"] in ["A", "B", "C"]
         return is_correct
 
     def context_conciseness_cot_validate_func(self, llm_output):
         is_correct = self.context_conciseness_classify_validate_func(llm_output)
-        is_correct = is_correct and ("Reasoning" in json.loads(llm_output))
+        is_correct = is_correct and ("Reasoning" in llm_output)
         return is_correct
 
     def evaluate_local(self, data):

@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 
 [project]
 name = "uptrain"
-version = "0.6.6.post3"
+version = "0.6.10.post1"
 description = "UpTrain - tool to evaluate LLM applications on aspects like factual accuracy, response quality, retrieval quality, tonality, etc."
 readme = "README.md"
 maintainers = [{ name = "UpTrain AI Team", email = "oss@uptrain.ai" }]
@@ -13,7 +13,6 @@ classifiers = [
     "Intended Audience :: Developers",
     "Topic :: Software Development :: Build Tools",
     "License :: OSI Approved :: Apache Software License",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -33,6 +32,9 @@ dependencies = [
     "aiolimiter>=1.1",
     "openai>=1.6.1",
     "fsspec",
+    "litellm",
+    "pyyaml",
+    "json5"
 ]
 
 [project.urls]
@@ -55,5 +57,5 @@ include-package-data = true
 [tool.setuptools.package-data]
 "*" = ["*.pyi"]
 
-[tool.setuptools.packages.find]
-include = ["uptrain"]
+#[tool.setuptools.packages.find]
+#include = ["uptrain"]
