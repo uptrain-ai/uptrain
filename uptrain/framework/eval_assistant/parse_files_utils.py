@@ -9,6 +9,7 @@ from sentence_transformers import SentenceTransformer
 from uptrain.operators import QueryRewrite
 from uptrain import Settings
 import polars as pl
+from openai import OpenAI
 
 
 def parse_file(
@@ -70,18 +71,19 @@ def vector_search(
             context_chunk.append([chunk,file_parsed[index]['file_name']])
     context_chunk_df = pd.DataFrame(context_chunk, columns = ['chunk', 'file'])
     text = context_chunk_df['chunk']
-    print(text)
-    print(1)
-    encoder = SentenceTransformer("paraphrase-mpnet-base-v2")
-    print(2)
-    vectors = encoder.encode(text)
-    print(3)
-    vector_dimension = vectors.shape[1]
+    text = [item for item in list(text) if item != ""]
     
+    client = OpenAI(api_key=openai_api_key)
+    vectors_embeddings = client.embeddings.create(
+        input=text,
+        model="text-embedding-3-small"
+    )
+    # return vectors_embeddings
+    vectors = np.array([list(embedding_list.embedding) for embedding_list in vectors_embeddings.data]).astype(np.float32)
+    vector_dimension = vectors.shape[1]
     vector_index = faiss.IndexFlatL2(vector_dimension)
     faiss.normalize_L2(vectors)
     vector_index.add(vectors)
-    
     conversation_new = []
     for index in range(len(conversation)):
         conversation_list = conversation[index]['conversation']
@@ -105,13 +107,18 @@ def vector_search(
                     search_text = rewritten_query
                 else:
                     search_text = conversation_list[i]['content']
-                search_vector = encoder.encode(search_text)
-                _vector = np.array([search_vector])
-                faiss.normalize_L2(_vector)
-
+                
+                search_vector = client.embeddings.create(
+                                                input=search_text,
+                                                model="text-embedding-3-small"
+                                            )
+                search_vector = [embedding.embedding for embedding in search_vector.data]
+                search_vector = np.array([list(embedding_list) for embedding_list in search_vector]).astype(np.float32)
+                # _vector = np.array([search_vector])
+                faiss.normalize_L2(search_vector)
                 k = vector_index.ntotal
-                distances, ann = vector_index.search(_vector, k=k)
-
+                # return _vector, k
+                distances, ann = vector_index.search(search_vector, k=k)
                 results_context_df = pd.DataFrame({'distances': distances[0], 'ann': ann[0]})
                 context_chunk_df_final = pd.merge(results_context_df, context_chunk_df, left_on='ann', right_index = True)
                 scores = list(context_chunk_df_final['distances'].unique())
