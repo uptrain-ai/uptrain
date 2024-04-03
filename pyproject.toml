@@ -34,7 +34,11 @@ dependencies = [
     "fsspec",
     "litellm",
     "pyyaml",
-    "json5"
+    "json5",
+    "python-docx",
+    "pypdf",
+    "faiss-cpu",
+    "sentence_transformers"
 ]
 
 [project.urls]
