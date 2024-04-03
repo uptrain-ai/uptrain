@@ -343,3 +343,10 @@ MULTI_QUERY_ACCURACY_OUTPUT_FORMAT__COT = """
     "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
 }
 """
+
+# Query Rewrite
+QUERY_REWRITE_OUTPUT_FORMAT__CLASSIFY = """
+{
+    "Question": [Rewritten Question],
+}
+"""

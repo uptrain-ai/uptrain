@@ -498,3 +498,24 @@ Task data:
 [Question]: {question}
 [Variants]: {variants}
 """
+
+# Query Rewrite Prompt
+QUERY_REWRITE_PROMPT_TEMPLATE = """
+
+You have been presented with a scenario where an AI assistant engages in a conversation with a user. 
+
+{scenario_description}
+
+The user poses a question within this dialogue. Your task is to rephrase the question provided in a manner that encapsulates the essence of the ongoing conversation. 
+Your rewritten question should be comprehensible independently of the preceding dialogue, yet it should seamlessly integrate the contextual nuances inferred from the conversation.
+
+
+{prompting_instructions}
+
+Return the output only in the corresponding JSON format. Do not output anything other than this JSON object:
+{output_format}
+
+Task data.
+[Question]: {question}
+[Conversation]: {conversation}
+"""
