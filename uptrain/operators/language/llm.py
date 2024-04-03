@@ -215,7 +215,7 @@ class LLMMulticlient:
             if (
                 settings.model.startswith("ollama")
             ):
-                self.aclient = None
+                self.aclient = None        
             self._rpm_limit = settings.check_and_get("rpm_limit")
             self._tpm_limit = settings.check_and_get("tpm_limit")
 
@@ -229,6 +229,10 @@ class LLMMulticlient:
         seed = self.settings.seed
         response_format = self.settings.response_format
 
+        # For vllm
+        custom_llm_provider = self.settings.custom_llm_provider
+        api_base = self.settings.api_base
+
         prefixes = ["anyscale/", "azure/", "together/"]
         for prefix in prefixes:
             model = model.replace(prefix, "")
@@ -240,6 +244,10 @@ class LLMMulticlient:
             data["seed"] = seed
         if response_format is not None:
             data["response_format"] = response_format
+        if custom_llm_provider is not None:
+            data["custom_llm_provider"] = custom_llm_provider
+        if api_base is not None:
+            data["api_base"] = api_base
         return Payload(
             endpoint="chat.completions",
             data=data,

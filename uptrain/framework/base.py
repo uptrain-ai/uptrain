@@ -49,6 +49,9 @@ class Settings(BaseSettings):
         None, env="AZURE_API_VERSION"
     )
 
+    custom_llm_provider: t.Optional[str] = None
+    api_base: t.Optional[str] = None
+
     rpm_limit: int = 100
     tpm_limit: int = 90_000
     embedding_compute_method: t.Literal["local", "replicate", "api"] = "local"
