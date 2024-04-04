@@ -1,0 +1,83 @@
+---
+title: Multi-Query Accuracy
+description: Evaluates how accurately the variations of the query represent the same question.
+---
+
+Columns required:
+- `question`: The question asked by the user
+- `variants`: Sub questions generated from the question
+
+### How to use it?
+
+```python
+from uptrain import EvalLLM, Evals
+
+OPENAI_API_KEY = "sk-********************"  # Insert your OpenAI key here
+
+data = [
+    {
+        'question': 'How does the stock market work?',
+        'variants': '1. What is the stock market?\n 2. How does the stock market function?\n 3. What is the purpose of the stock market?'        
+    },
+    {
+        'question': 'How does the stock market work?',
+        'variants': '1. What is the stock market?'        
+    }
+]
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+
+res = eval_llm.evaluate(
+    data = data,
+    checks = [Evals.MULTI_QUERY_ACCURACY]
+)
+```
+<Info>By default, we are using GPT 3.5 Turbo for evaluations. If you want to use a different model, check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb).</Info>
+
+Sample Response:
+```json
+[
+   {
+      "question": "How does the stock market work?",
+      "variants": "1. What is the stock market?\n 2. How does the stock market function?\n 3. What is the purpose of the stock market?",
+      "score_multi_query_accuracy": 1.0,
+      "explanation_multi_query_accuracy": "{\n    \"Reasoning\": \"The response provides accurate and relevant information about the functioning and purpose of the stock market, addressing the various aspects of the question across different queries. It covers the definition of the stock market, its functioning, and its purpose, demonstrating a comprehensive understanding of the topic.\",\n    \"Choice\": \"A\"\n}"
+   },
+   {
+      "question": "How does the stock market work?",
+      "variants": "1. What is the stock market?",
+      "score_multi_query_accuracy": 0.0,
+      "explanation_multi_query_accuracy": "{\n    \"Reasoning\": \"The given variation does not directly address the main causes of climate change, but rather focuses on defining the stock market. It does not cover the aspects of how the stock market works, such as trading, investment, and market dynamics.\",\n    \"Choice\": \"C\"\n}"
+   }
+]
+```
+
+<Note>A higher Multi-Query Accuracy score reflects that the generated variants accurately represent the main question. A lower score indicates that the variants do not cover all the aspects of the main question.</Note>
+
+### How it works?
+
+We evaluate Multi-Query Accuracy by determining which of the following three cases apply for the given task data:
+
+* The given variations mean the same as the original question.
+* The given variations partially mean the same as the original question.
+* The given variations do not mean the same as the original question.
+
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/query_quality/multi_query_accuracy.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>
