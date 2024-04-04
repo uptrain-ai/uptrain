@@ -529,27 +529,28 @@ def test_check_conversation_satisfaction():
 
 
 def test_check_guideline_adherence():
+    guideline_name = "No Numbers"
     check = CheckGuidelineAdherence(
         guideline="The response should not contain any numbers or statistic",
-        guideline_name="guideline",
+        guideline_name=guideline_name,
         response_schema=None,
     )
     output = check.setup(settings).run(dataset)
     assert isinstance(output, pl.DataFrame)
     assert (
-        "score_guideline_adherence" in output.columns
-        and "explanation_guideline_adherence" in output.columns
+        f"score_{guideline_name}_adherence" in output.columns
+        and f"explanation_{guideline_name}_adherence" in output.columns
     )
     assert (
-        output["score_guideline_adherence"].dtype == pl.Float64
-        and len(output["score_guideline_adherence"])
-        - output["score_guideline_adherence"].null_count()
+        output[f"score_{guideline_name}_adherence"].dtype == pl.Float64
+        and len(output[f"score_{guideline_name}_adherence"])
+        - output[f"score_{guideline_name}_adherence"].null_count()
         > 0
     )
     assert (
-        output["explanation_guideline_adherence"].dtype == pl.Utf8
-        and len(output["explanation_guideline_adherence"])
-        - output["explanation_guideline_adherence"].null_count()
+        output[f"explanation_{guideline_name}_adherence"].dtype == pl.Utf8
+        and len(output[f"explanation_{guideline_name}_adherence"])
+        - output[f"explanation_{guideline_name}_adherence"].null_count()
         > 0
     )
 
