@@ -68,6 +68,7 @@ class GuidelineAdherenceScore(ColumnOp):
 
         assert settings is not None
         self.settings = settings
+        self.col_out = f"score_{self.guideline_name}_adherence"
         if self.settings.evaluate_locally and (
             self.settings.uptrain_access_token is None
             or not len(self.settings.uptrain_access_token)
@@ -178,15 +179,15 @@ class GuidelineAdherenceScore(ColumnOp):
         for res in output_payloads:
             idx = res.metadata["index"]
             output = {
-                "score_guideline_adherence": None,
-                "explanation_guideline_adherence": None,
+                f"score_{self.guideline_name}_adherence": None,
+                f"explanation_{self.guideline_name}_adherence": None,
             }
             try:
                 score = self.score_mapping[
                     json.loads(res.response.choices[0].message.content)["Choice"]
                 ]
-                output["score_guideline_adherence"] = float(score)
-                output["explanation_guideline_adherence"] = res.response.choices[
+                output[f"score_{self.guideline_name}_adherence"] = float(score)
+                output[f"explanation_{self.guideline_name}_adherence"] = res.response.choices[
                     0
                 ].message.content
             except Exception:
