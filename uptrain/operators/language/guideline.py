@@ -59,7 +59,7 @@ class GuidelineAdherenceScore(ColumnOp):
     guideline: str
     guideline_name: str = "guideline"
     response_schema: t.Union[str, None] = None
-    col_out: str = f"score_{guideline_name}_adherence"
+    col_out: str = "score_guideline_adherence"
     scenario_description: t.Optional[str] = None
     score_mapping: dict = {"A": 1.0, "B": 0.0}
 
@@ -68,6 +68,7 @@ class GuidelineAdherenceScore(ColumnOp):
 
         assert settings is not None
         self.settings = settings
+        self.col_out = f"score_{self.guideline_name}_adherence"
         if self.settings.evaluate_locally and (
             self.settings.uptrain_access_token is None
             or not len(self.settings.uptrain_access_token)
