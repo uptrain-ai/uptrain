@@ -87,3 +87,4 @@
 | Eval | Description |
 | ---- | ----------- |
 |[Sub-Query Completeness](https://docs.uptrain.ai/predefined-evaluations/query-quality/sub-query-completeness) | Evaluate whether all of the sub-questions generated from a user's query, taken together, cover all aspects of the user's query or not |
+| [Multi-Query Accuracy](https://docs.uptrain.ai/predefined-evaluations/query-quality/multi-query-accuracy) | Evaluate whether the variants generated accurately represent the original query |

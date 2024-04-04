@@ -128,7 +128,8 @@
         {
           "group": "Query Clarity Evals",
           "pages": [
-            "predefined-evaluations/query-quality/sub-query-completeness"
+            "predefined-evaluations/query-quality/sub-query-completeness",
+            "predefined-evaluations/query-quality/multi-query-accuracy"
           ]
         },
         {
