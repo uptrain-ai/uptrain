@@ -36,9 +36,8 @@ dependencies = [
     "pyyaml",
     "json5",
     "python-docx",
-    "pypdf",
+    "pymupdf",
     "faiss-cpu",
-    "sentence_transformers"
 ]
 
 [project.urls]

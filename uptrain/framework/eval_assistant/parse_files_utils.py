@@ -10,6 +10,7 @@ from uptrain.operators import QueryRewrite
 from uptrain import Settings
 import polars as pl
 from openai import OpenAI
+import fitz
 
 
 def parse_file(
@@ -23,14 +24,13 @@ def parse_file(
                 content = parse_docx(file_location)
                 file_content.append({
                     'content': content,
-                    'content_split': content.split('.'),
+                    
                     'file_name':file})
 
             elif file.split('.')[-1] == 'pdf':
                 content = parse_pdf(file_location)
                 file_content.append({
                     'content': content,
-                    'content_split': content.split('.'),
                     'file_name':file})
                 
         except Exception as e:
@@ -44,19 +44,30 @@ def parse_docx(
     fullText = []
     for para in doc.paragraphs:
         fullText.append(para.text)
-    content = ' '.join(fullText)
+    content = [item for item in fullText if item != ""]
     return content
 
 def parse_pdf(
     file
 ):
-    content = ''
-    reader = PdfReader(file)
-    number_of_pages = len(reader.pages)
-    for i in range(number_of_pages):
-        page = reader.pages[i]
-        content = content + ' ' + page.extract_text()
+    text = ""
+
+    pdf_document = fitz.open(file)
+    for page_num in range(pdf_document.page_count):
+        page = pdf_document[page_num]
+        blocks = page.get_text("dict")["blocks"]
+        for b in blocks:
+            if b["type"] == 0:  # 0 represents a text block
+                lines = b["lines"]
+                for line in lines:
+                    text += line["spans"][0]["text"]  # Add the first span of each line
+                text += "\n"  # Add a space instead of a newline character
+    pdf_document.close()
+
+    # Split the text into a list based on newline characters
+    content = text.split("\n")
     return content
+
 
 
 def vector_search(
@@ -67,7 +78,7 @@ def vector_search(
     context_chunk =[]
     file_parsed = parse_file(file_list)
     for index in range(len(file_parsed)):
-        for chunk in file_parsed[index]['content_split']:
+        for chunk in file_parsed[index]['content']:
             context_chunk.append([chunk,file_parsed[index]['file_name']])
     context_chunk_df = pd.DataFrame(context_chunk, columns = ['chunk', 'file'])
     text = context_chunk_df['chunk']
@@ -122,7 +133,7 @@ def vector_search(
                 results_context_df = pd.DataFrame({'distances': distances[0], 'ann': ann[0]})
                 context_chunk_df_final = pd.merge(results_context_df, context_chunk_df, left_on='ann', right_index = True)
                 scores = list(context_chunk_df_final['distances'].unique())
-                threshold = 4
+                threshold = 2
                 mean = np.mean(scores)
                 std_dev = np.std(scores)
                 context_shortlisted = context_chunk_df_final[context_chunk_df_final['distances']< mean - threshold * std_dev]
