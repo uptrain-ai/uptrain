@@ -554,7 +554,7 @@ class APIClient:
         data: t.Union[list[dict], pl.DataFrame, pd.DataFrame],
         checks: list[t.Union[str, Evals, ParametricEval]],
         project_name: str,
-        evaluation_name: str = "Eval - " + str(datetime.utcnow()),
+        evaluation_name: t.Optional[str] = None,
         scenario_description: t.Optional[str] = None,
         schema: t.Union[DataSchema, dict[str, str], None] = None,
         metadata: t.Optional[dict[str, t.Any]] = None,
@@ -573,8 +573,10 @@ class APIClient:
         Returns:
             results: List of dictionaries with each data point and corresponding evaluation results.
         """
+        if evaluation_name is None:
+            evaluation_name = "Eval - " + str(datetime.utcnow())
+        
         url = f"{self.base_url}/log_and_evaluate"
-
         if isinstance(data, pl.DataFrame):
             data = data.to_dicts()
         elif isinstance(data, pd.DataFrame):
@@ -708,7 +710,7 @@ class APIClient:
         checks: list[t.Union[str, Evals, ParametricEval]],
         exp_columns: list[str],
         project_name: str,
-        evaluation_name: str = "Expt - " + str(datetime.utcnow()),
+        evaluation_name: t.Optional[str] = None,
         schema: t.Union[DataSchema, dict[str, str], None] = None,
         metadata: t.Optional[dict[str, t.Any]] = None,
     ):
@@ -726,6 +728,8 @@ class APIClient:
         Returns:
             results: List of dictionaries with each data point and corresponding evaluation results for all the experiments.
         """
+        if evaluation_name is None:
+            evaluation_name = "Expt - " + str(datetime.utcnow())
         if metadata is None:
             metadata = {}
 
