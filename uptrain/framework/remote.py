@@ -9,6 +9,7 @@ from loguru import logger
 from pydantic import BaseModel
 import httpx
 import polars as pl
+from datetime import datetime
 import pandas as pd
 
 from uptrain.framework.checks import CheckSet, ExperimentArgs
@@ -550,9 +551,10 @@ class APIClient:
 
     def log_and_evaluate(
         self,
-        project_name: str,
         data: t.Union[list[dict], pl.DataFrame, pd.DataFrame],
         checks: list[t.Union[str, Evals, ParametricEval]],
+        project_name: str,
+        evaluation_name: t.Optional[str] = None,
         scenario_description: t.Optional[str] = None,
         schema: t.Union[DataSchema, dict[str, str], None] = None,
         metadata: t.Optional[dict[str, t.Any]] = None,
@@ -561,7 +563,8 @@ class APIClient:
         NOTE: This api is a bit different than the regular `evaluate` call.
 
         Args:
-            project_name: Name of the project to evaluate on.
+            project_name: Name of the project.
+            evaluation_name: Name of the Run to evaluate on.
             data: Data to evaluate on. Either a Pandas DataFrame or a list of dicts.
             checks: List of checks to evaluate on.
             schema: Schema of the data. Only required if the data attributes aren't typical (question, response, context).
@@ -570,8 +573,10 @@ class APIClient:
         Returns:
             results: List of dictionaries with each data point and corresponding evaluation results.
         """
+        if evaluation_name is None:
+            evaluation_name = "Eval - " + str(datetime.utcnow())
+        
         url = f"{self.base_url}/log_and_evaluate"
-
         if isinstance(data, pl.DataFrame):
             data = data.to_dicts()
         elif isinstance(data, pd.DataFrame):
@@ -679,6 +684,7 @@ class APIClient:
                             "checks": ser_checks,
                             "metadata": {
                                 "project": project_name,
+                                "evaluation": evaluation_name,
                                 "schema": schema.model_dump(),
                                 **metadata,
                                 "uptrain_settings": self.settings.model_dump(),
@@ -700,26 +706,30 @@ class APIClient:
 
     def evaluate_experiments(
         self,
-        project_name: str,
         data: t.Union[list[dict], pl.DataFrame],
         checks: list[t.Union[str, Evals, ParametricEval]],
         exp_columns: list[str],
+        project_name: str,
+        evaluation_name: t.Optional[str] = None,
         schema: t.Union[DataSchema, dict[str, str], None] = None,
         metadata: t.Optional[dict[str, t.Any]] = None,
     ):
         """Evaluate experiments on the server and log the results.
 
         Args:
-            project_name: Name of the experiment to evaluate on.
             data: Data to evaluate on. Either a Pandas DataFrame or a list of dicts.
             checks: List of checks to evaluate on.
             exp_columns: List of columns/keys which denote different experiment configurations.
+            project_name: Name of the project.
+            evaluation_name: Name of the Run to evaluate on.
             schema: Schema of the data. Only required if the data attributes aren't typical (question, response, context).
             metadata: Attributes to attach to this dataset. Useful for filtering and grouping in the UI.
 
         Returns:
             results: List of dictionaries with each data point and corresponding evaluation results for all the experiments.
         """
+        if evaluation_name is None:
+            evaluation_name = "Expt - " + str(datetime.utcnow())
         if metadata is None:
             metadata = {}
 
@@ -732,6 +742,7 @@ class APIClient:
 
         results = self.log_and_evaluate(
             project_name=project_name,
+            evaluation_name=evaluation_name,
             data=data,
             checks=checks,
             schema=schema,
