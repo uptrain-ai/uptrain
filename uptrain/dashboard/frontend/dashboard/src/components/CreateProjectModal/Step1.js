@@ -1,15 +1,14 @@
 import React, { useRef, useState } from "react";
-import CustomSelect from "../CustomSelect/CustomSelect";
-import Step3OverModal from "./Step3OverModal";
+import ModelSelector from "../Common/ModelSelector";
+import Step2OverModal from "../Common/Step2OverModal";
 
 const Step1 = (props) => {
   const [error, setError] = useState();
-
-  const projectName = props.promptProjectName
-    ? props.promptProjectName
-    : props.projectName;
-  const fileInputRef = useRef(null);
+  const [isExperiment, setIsExperiment] = useState(false);
   const [openModal, setOpenModal] = useState(false);
+
+  const projectName = props.projectName;
+  const fileInputRef = useRef(null);
 
   const handleFileChange = (event) => {
     props.setSelectedFile(event.target.files[0]);
@@ -22,32 +21,23 @@ const Step1 = (props) => {
   const handleSubmit = (event) => {
     event.preventDefault();
 
+    if (props.projectNames.includes(projectName)) {
+      setError("Cannot create an evaluation with previously used name");
+      return;
+    }
+
     if (!props.selectedFile) {
       setError("Please upload a dataset");
       return;
     }
 
-    // if (props.allProject.some(obj => obj.project === projectName)) {
-    //   setError("Given Project name already exists");
-    //   return;
-    // }
-
-    props.promptProjectName
-      ? props.nextPrompt()
-      : props.selectedProjectType === "Evaluation"
-      ? props.nextEvaluation()
-      : props.nextPrompt();
-  };
-
-  const handleModelSelect = (key) => {
-    props.setSelectedOption(key);
-    setOpenModal(true);
+    props.next();
   };
 
   return (
     <div>
       {openModal && (
-        <Step3OverModal
+        <Step2OverModal
           selectedKey={props.selectedOption}
           close={() => setOpenModal(false)}
           data={props.models}
@@ -63,7 +53,6 @@ const Step1 = (props) => {
           onChange={(e) => props.setProjectName(e.target.value)}
           value={projectName}
           required
-          disabled={props.promptProjectName}
         />
         <input
           className="bg-[#171721] rounded-xl px-6 py-4 text-[#B6B6B9] w-full mt-5"
@@ -72,24 +61,13 @@ const Step1 = (props) => {
           value={props.datasettName}
           required
         />
-
         <input
           type="file"
-          accept=".jsonl,.json"
+          accept=".jsonl"
           onChange={handleFileChange}
           ref={fileInputRef}
           style={{ display: "none" }}
         />
-        {!props.promptProjectName && (
-          <CustomSelect
-            selectedOption={props.selectedProjectType}
-            setSelectedOption={props.setSelectedProjectType}
-            options={["Evaluation", "Prompt"]}
-            placeholder="Select Project Type"
-            className="rounded-xl px-6 py-4"
-            required
-          />
-        )}
         <button
           type="button"
           onClick={handleButtonClick}
@@ -104,13 +82,68 @@ const Step1 = (props) => {
         <p className="text-sm text-white px-6 mt-1">
           Only .jsonl format supported
         </p>
-        <CustomSelect
+        <ModelSelector
           selectedOption={props.selectedOption}
-          setSelectedOption={handleModelSelect}
-          options={Object.keys(props.models)}
-          placeholder="Select Evaluation LLM"
-          className="rounded-xl px-6 py-4"
-          required
+          models={props.models}
+          metadata={props.metadata}
+          setMetadata={props.setMetadata}
+          setSelectedOption={props.setSelectedOption}
+          setOpenModal={setOpenModal}
+        />
+        <div className="flex gap-2 mt-5 mb-1 items-center">
+          <p className="text-[#868686] text-sm">
+            Use same info to run Experiments
+          </p>
+          <div className="flex">
+            <button
+              type="button"
+              className={`${
+                !isExperiment
+                  ? "text-[#ffffff] bg-[#5587FD]"
+                  : "text-[#868686] bg-[#171721]"
+              } py-1 px-1.5 rounded-l-lg`}
+              onClick={() => {
+                props.setMetadata((prevState) => {
+                  const { exp_column, ...rest } = prevState;
+                  return rest;
+                });
+                setIsExperiment(false);
+              }}
+            >
+              No
+            </button>
+            <button
+              type="button"
+              className={`${
+                isExperiment
+                  ? "text-[#ffffff] bg-[#5587FD]"
+                  : "text-[#868686] bg-[#171721] "
+              } py-1 px-1.5 rounded-r-lg`}
+              onClick={() => {
+                props.setMetadata((prevState) => {
+                  return { ...prevState, exp_column: "" };
+                });
+                setIsExperiment(true);
+              }}
+            >
+              Yes
+            </button>
+          </div>
+        </div>
+        <input
+          className="bg-[#171721] rounded-xl px-6 py-4 text-[#B6B6B9] w-full mt-1 disabled:bg-[#1f1f29] disabled:opacity-70 disabled:text-[#959393]"
+          placeholder="Experiment column"
+          onChange={(e) => {
+            props.setMetadata({
+              ...props.metadata, // Removed square brackets from props.metadata
+              exp_column: e.target.value,
+            });
+          }}
+          value={
+            props.metadata["exp_column"] ? props.metadata["exp_column"] : ""
+          }
+          required={isExperiment}
+          disabled={!isExperiment}
         />
         <p className="text-red-500">{error}</p>
         <div className="flex justify-end mt-5">

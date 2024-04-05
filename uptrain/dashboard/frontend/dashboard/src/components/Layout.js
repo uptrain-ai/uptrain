@@ -10,32 +10,36 @@ import FilterContainer from "./FilterContainer/FilterContainer";
 import FilterSection from "./FilterSection/FilterSection";
 import CompareSection from "./CompareSection/CompareSection";
 import ProjectFilterSection from "./ProjectFilterSection/ProjectFilterSection";
+import EvaluationsFilterSection from "./EvaluationsFilterSection/EvaluationsFilterSection";
+import PromptFilterSection from "./PromptFilterSection/PromptFilterSection";
 
 const MainArea = (props) => {
   return (
     <>
       <Image
-        src="/BackgroudDottedBoxTopLeft.png"
+        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/BackgroudDottedBoxTopLeft.png`}
         width={250}
         height={350}
         className="fixed top-0 right-0 w-64 h-80 -z-10"
         alt=""
       ></Image>
       <Image
-        src="/BackgroudDottedBoxTopLeft.png"
+        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/BackgroudDottedBoxTopLeft.png`}
         width={250}
         height={350}
         className="fixed bottom-0 left-52 w-64 h-80 transform rotate-180 -z-10"
         alt=""
       ></Image>
       <div className="flex gap-10 flex-1">
-        <div className="flex-1">
+        <div className="flex-1 flex flex-col">
           <Header heading={props.heading} project={props.project} />
-          <div className="flex items-start flex-1 gap-10 w-full mb-5">
+          <div className="flex items-start flex-1 gap-10 mb-5  w-[calc(100vw-640px)]">
             {props.children}
           </div>
         </div>
-        <FilterContainer show={props.duration || props.compare}>
+        <FilterContainer
+          show={props.duration || props.compare || props.setProjectFilters}
+        >
           <FilterSection
             TimeFilter={props.TimeFilter}
             setTimeFilter={props.setTimeFilter}
@@ -44,6 +48,19 @@ const MainArea = (props) => {
             selectedProject={props.selectedProject}
             handleProjectChange={props.handleProjectChange}
           />
+          {props.evaluations && (
+            <EvaluationsFilterSection
+              evaluations={props.evaluations}
+              evaluationId={props.evaluationId}
+              prompt={props.prompt}
+            />
+          )}
+          {props.prompts && (
+            <PromptFilterSection
+              prompts={props.prompts}
+              selectedPrompt={props.selectedPrompt}
+            />
+          )}
           {props.setProjectFilters && (
             <ProjectFilterSection
               setProjectFilters={props.setProjectFilters}
@@ -52,17 +69,10 @@ const MainArea = (props) => {
               projectFilters={props.projectFilters}
             />
           )}
-          {/* <PivotTable /> */}
           {props.compare && (
             <CompareSection
+              compare={props.compare}
               projectData={props.projectData}
-              filteredProjects={props.filteredProjects}
-              selectedCompareProject={props.selectedCompareProject}
-              setSelectedCompareProject={props.setSelectedCompareProject}
-              selectedVersion1={props.selectedVersion1}
-              setSelectedVersion1={props.setSelectedVersion1}
-              selectedVersion2={props.selectedVersion2}
-              setSelectedVersion2={props.setSelectedVersion2}
             />
           )}
         </FilterContainer>
@@ -73,7 +83,6 @@ const MainArea = (props) => {
 
 const Layout = (props) => {
   const uptrainAccessKey = useSelector(selectUptrainAccessKey);
-
   return (
     <div className="flex w-screen overflow-y-auto overflow-x-hidden relative">
       {!uptrainAccessKey && <KeyModal />}
@@ -88,18 +97,15 @@ const Layout = (props) => {
           projectNames={props.projectNames}
           selectedProject={props.selectedProject}
           handleProjectChange={props.handleProjectChange}
-          projectData={props.projectData}
-          compare={props.compare}
-          filteredProjects={props.filteredProjects}
-          selectedCompareProject={props.selectedCompareProject}
-          setSelectedCompareProject={props.setSelectedCompareProject}
-          selectedVersion1={props.selectedVersion1}
-          setSelectedVersion1={props.setSelectedVersion1}
-          selectedVersion2={props.selectedVersion2}
-          setSelectedVersion2={props.setSelectedVersion2}
           setProjectFilters={props.setProjectFilters}
           selectedTab={props.selectedTab}
           projectFilters={props.projectFilters}
+          evaluations={props.evaluations}
+          evaluationId={props.evaluationId}
+          prompts={props.prompts}
+          selectedPrompt={props.selectedPrompt}
+          compare={props.compare}
+          projectData={props.projectData}
         >
           {props.children}
         </MainArea>

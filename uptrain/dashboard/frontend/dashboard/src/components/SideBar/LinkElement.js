@@ -1,10 +1,7 @@
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import React from "react";
 
 const LinkElement = (props) => {
-  const pathname = usePathname();
-
   return (
     <Link className="flex" href={props.href}>
       <div

@@ -1,5 +1,4 @@
 "use client";
-import FilterSection from "@/components/FilterSection/FilterSection";
 import CreateProjectModal from "@/components/CreateProjectModal/CreateProjectModal";
 import ProjectSection from "@/components/HomePage/ProjectSection/ProjectSection";
 import Layout from "@/components/Layout";
@@ -18,7 +17,7 @@ const fetchData = async (uptrainAccessKey, setData, timeFilter) => {
   try {
     const response = await fetch(
       process.env.NEXT_PUBLIC_BACKEND_URL +
-        `api/public/get_projects_list?num_days=${num_days}`,
+        `api/public/projects?num_days=${num_days}`,
       {
         method: "GET",
         headers: {
@@ -30,7 +29,7 @@ const fetchData = async (uptrainAccessKey, setData, timeFilter) => {
 
     if (response.ok) {
       const responseData = await response.json();
-      setData(responseData.data);
+      setData(responseData);
     } else {
       console.error("Failed to submit API Key:", response.statusText);
       // Handle error cases
@@ -66,7 +65,7 @@ const page = () => {
 
     fetchDataAsync();
   };
-  
+
   return (
     <Layout
       heading={`Hello ${userName}`}
@@ -80,6 +79,7 @@ const page = () => {
             setopenModal(false);
           }}
           reloadData={reloadData}
+          projectNames={data.map((item) => item.project_name)}
         />
       )}
       <div className="flex-1">

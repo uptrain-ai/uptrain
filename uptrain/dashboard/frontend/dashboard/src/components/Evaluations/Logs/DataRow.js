@@ -20,7 +20,7 @@ const DataRow = (props) => {
   return (
     <>
       <div className={`flex gap-5 ${props.className}`}>
-        <p className="text-sm font-medium text-[#4F4F56] min-w-[100px]">
+        <p className="text-sm font-medium text-[#4F4F56] min-w-[120px] whitespace-normal break-words">
           {props.title}
         </p>
         <div>

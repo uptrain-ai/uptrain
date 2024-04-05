@@ -7,7 +7,7 @@ const page = () => {
     <Layout>
       <div className="w-full h-full flex items-center justify-center flex-col">
         <Image
-          src="/404.svg"
+          src={`${process.env.NEXT_PUBLIC_BASE_PATH}/404.svg`}
           width={310}
           height={310}
           className="w-1/5 h-auto grayscale mb-5"

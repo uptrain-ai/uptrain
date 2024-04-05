@@ -1,9 +1,10 @@
-import Image from "next/image";
 import React from "react";
 
 const Header = (props) => {
   return (
-    <div className="flex justify-between items-center my-10 gap-10">
+    <div
+      className={`flex justify-between items-center my-10 gap-10 ${props.className}`}
+    >
       <div className="flex justify-between items-center flex-1">
         <h1 className="text-3xl text-white">{props.heading}</h1>
         {props.project && (

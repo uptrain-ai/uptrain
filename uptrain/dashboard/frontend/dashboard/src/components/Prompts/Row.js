@@ -1,16 +1,10 @@
 import { changeDateFormat } from "@/utils/changeDateFormat";
+import { scoreColorCalculator } from "@/utils/scoreColorCalculator";
 import Image from "next/image";
 import React from "react";
 
 const Row = (props) => {
-  const colors = [
-    "text-red-400",
-    "text-yellow-400",
-    "text-blue-400",
-    "text-green-400",
-  ];
-
-  const formattedDate = changeDateFormat(props.data.timestamp[0]);
+  const formattedDate = changeDateFormat(props.data.created_at);
 
   return (
     <>
@@ -31,7 +25,10 @@ const Row = (props) => {
             {Object.entries(props.data.scores).map(([key, value], index) => (
               <p key={key} className="text-[#B9BDCE] text-sm">
                 {key} :{" "}
-                <span className={`${colors[index % 4]} font-bold`}>
+                <span
+                  className="font-bold"
+                  style={{ color: scoreColorCalculator(value) }}
+                >
                   {value}
                 </span>
               </p>
@@ -40,7 +37,7 @@ const Row = (props) => {
           {!props.expanded && props.setExpand && (
             <button onClick={() => props.setExpand((prev) => !prev)}>
               <Image
-                src="/DropDownIcon.svg"
+                src={`${process.env.NEXT_PUBLIC_BASE_PATH}/DropDownIcon.svg`}
                 height={5.5}
                 width={11}
                 className={`${

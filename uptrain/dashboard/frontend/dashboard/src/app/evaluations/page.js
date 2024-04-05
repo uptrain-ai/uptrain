@@ -1,24 +1,20 @@
 "use client";
-import ChartSection from "@/components/Evaluations/ChartSection";
-import PivotTable from "@/components/PivotTable/PivotTable";
-import TableSection from "@/components/Evaluations/Logs_InsightsTable";
-import FilterSection from "@/components/FilterSection/FilterSection";
+import AddProjectModal from "@/components/Evaluations/Homepage/AddProjectModal/AddProjectModal";
+import ProjectSection from "@/components/Evaluations/Homepage/ProjectSection";
 import Layout from "@/components/Layout";
-import React, { useEffect, useLayoutEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { selectUptrainAccessKey } from "@/store/reducers/userInfo";
-import ButtonSection from "@/components/Common/ButtonSection";
 import SpinningLoader from "@/components/UI/SpinningLoader";
-import FilterContainer from "@/components/FilterContainer/FilterContainer";
+import { selectUptrainAccessKey } from "@/store/reducers/userInfo";
+import React, { useLayoutEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
-const fetchData = async (uptrainAccessKey, setData, timeFilter) => {
+const fetchData = async (uptrainAccessKey, setProjectsData, timeFilter) => {
   const num_days =
     timeFilter === 0 ? 1 : timeFilter === 1 ? 7 : timeFilter === 2 ? 30 : 10000;
 
   try {
     const response = await fetch(
       process.env.NEXT_PUBLIC_BACKEND_URL +
-        `api/public/get_evaluations_list?num_days=${num_days}`,
+        `api/public/projects?num_days=${num_days}`,
       {
         method: "GET",
         headers: {
@@ -30,7 +26,9 @@ const fetchData = async (uptrainAccessKey, setData, timeFilter) => {
 
     if (response.ok) {
       const responseData = await response.json();
-      setData(responseData.data);
+      setProjectsData(
+        responseData.filter((item) => item.project_type === "project")
+      );
     } else {
       console.error("Failed to submit API Key:", response.statusText);
       // Handle error cases
@@ -43,17 +41,17 @@ const fetchData = async (uptrainAccessKey, setData, timeFilter) => {
 
 const fetchProjectData = async (
   uptrainAccessKey,
-  setData,
-  projectName,
-  TimeFilter
+  setProjectsData,
+  timeFilter,
+  projectId
 ) => {
   const num_days =
-    TimeFilter === 0 ? 1 : TimeFilter === 1 ? 7 : TimeFilter === 2 ? 30 : 10000;
+    timeFilter === 0 ? 1 : timeFilter === 1 ? 7 : timeFilter === 2 ? 30 : 10000;
 
   try {
     const response = await fetch(
       process.env.NEXT_PUBLIC_BACKEND_URL +
-        `api/public/get_project_data?project_name=${projectName}&num_days=${num_days}`,
+        `api/public/project_runs?num_days=${num_days}&project_id=${projectId}`,
       {
         method: "GET",
         headers: {
@@ -65,133 +63,127 @@ const fetchProjectData = async (
 
     if (response.ok) {
       const responseData = await response.json();
-      setData(responseData.data);
+      setProjectsData(responseData);
     } else {
       console.error("Failed to submit API Key:", response.statusText);
-      setData(null);
+      // Handle error cases
     }
   } catch (error) {
     console.error("Error submitting API Key:", error.message);
-    setData(null);
+    // Handle network errors or other exceptions
   }
 };
 
 const page = () => {
-  const uptrainAccessKey = useSelector(selectUptrainAccessKey);
-
   const [TimeFilter, setTimeFilter] = useState(1);
-  const [data, setData] = useState([]);
+  const [openModal, setopenModal] = useState(false);
+  const [projectsData, setProjectsData] = useState(null);
   const [projectData, setProjectData] = useState(null);
   const [selectedProject, setSelectedProject] = useState(0);
-  const [Tab, setTab] = useState(0);
-  const [projectFilters, setProjectFilters] = useState({});
 
-  const tabs = projectData && projectData[4];
-  const projectNames = data.length !== 0 ? data.map((obj) => obj.project) : [];
+  const uptrainAccessKey = useSelector(selectUptrainAccessKey);
+
+  useLayoutEffect(() => {
+    const fetchDataAsync = async () => {
+      await fetchData(uptrainAccessKey, setProjectsData, TimeFilter);
+    };
+
+    if (uptrainAccessKey) fetchDataAsync();
+  }, [uptrainAccessKey, TimeFilter]);
+
+  useLayoutEffect(() => {
+    const fetchDataAsync = async () => {
+      await fetchProjectData(
+        uptrainAccessKey,
+        setProjectData,
+        TimeFilter,
+        projectsData[selectedProject].project_id
+      );
+    };
+
+    if (uptrainAccessKey && projectsData && projectsData.length > 0) {
+      fetchDataAsync();
+    }
+  }, [uptrainAccessKey, TimeFilter, projectsData, selectedProject]);
 
   const handleProjectChange = (index) => {
     setSelectedProject(index);
   };
 
-  useLayoutEffect(() => {
-    const fetchDataAsync = async () => {
-      await fetchData(uptrainAccessKey, setData, TimeFilter);
-    };
-
-    if (uptrainAccessKey) fetchDataAsync();
-  }, [uptrainAccessKey, TimeFilter]); // Dependency array to re-run effect when uptrainAccessKey changes
-
-  useEffect(() => {
-    setProjectData(null);
-    setProjectFilters({});
-    const fetchProjectDataAsync = async () => {
-      await fetchProjectData(
-        uptrainAccessKey,
-        setProjectData,
-        projectNames[selectedProject],
-        TimeFilter
-      );
-    };
-
-    if (uptrainAccessKey && data.length !== 0) {
-      fetchProjectDataAsync();
-    }
-  }, [uptrainAccessKey, data, selectedProject, TimeFilter]);
-
-  useEffect(() => {
-    setProjectFilters({});
-  }, [Tab]);
-
-  const selectedTab = tabs && tabs[Tab];
-
-  let filteredData = JSON.parse(JSON.stringify(projectData));
-
-  if (filteredData) {
-    filteredData[0] = filteredData[0].map((item, index) => {
-      item.id = index; // Assuming 'id' is the field you want to update
-      return item;
-    });
-  }
-
-  if (filteredData && projectFilters.hasOwnProperty("index")) {
-    filteredData[0] = filteredData[0].filter(
-      (item, index) => !projectFilters["index"].includes(index + 1)
+  if (projectsData && projectsData.length == 0) {
+    return (
+      <Layout heading="Evaluations">
+        <div className="flex items-center justify-center flex-1 h-full">
+          <p className="text-white">Create a new project</p>
+        </div>
+      </Layout>
     );
   }
 
-  if (filteredData && projectFilters.hasOwnProperty("scores")) {
-    filteredData[0] = filteredData[0].filter((item, index) => {
-      return !projectFilters["scores"].includes(
-        item["checks"][`score_${selectedTab}`]
+  const reloadData = () => {
+    setProjectData(null);
+    const fetchDataAsync = async () => {
+      await fetchProjectData(
+        uptrainAccessKey,
+        setProjectData,
+        TimeFilter,
+        projectsData[selectedProject].project_id
       );
-    });
-  }
+    };
 
-  if (filteredData && projectFilters.hasOwnProperty("confidence")) {
-    filteredData[0] = filteredData[0].filter((item, index) => {
-      return !projectFilters["confidence"].includes(
-        item["metadata"][`score_confidence_${selectedTab}`]
-      );
-    });
-  }
-  
-  console.log(filteredData);
+    if (uptrainAccessKey && projectsData && projectsData.length > 0)
+      fetchDataAsync();
+  };
+
   return (
     <Layout
       heading="Evaluations"
-      project={projectNames[selectedProject]}
+      project={
+        projectsData &&
+        projectsData.length > 0 &&
+        projectsData[selectedProject].project_name
+      }
       TimeFilter={TimeFilter}
       setTimeFilter={setTimeFilter}
       duration
-      projectNames={projectNames}
+      projectNames={
+        projectsData && projectsData.map((item) => item.project_name)
+      }
       selectedProject={selectedProject}
       handleProjectChange={handleProjectChange}
-      setProjectFilters={setProjectFilters}
-      projectFilters={projectFilters}
-      projectData={projectData}
-      selectedTab={selectedTab}
     >
-      <div className="flex-1 flex flex-col">
-        {projectData ? (
-          <>
-            <ButtonSection tabs={tabs} Tab={Tab} setTab={setTab} />
-            <ChartSection
-              TimeFilter={TimeFilter}
-              projectData={filteredData}
-              run_via={data[selectedProject] && data[selectedProject].run_via}
-              selectedTab={selectedTab}
-            />
-            <TableSection
-              projectData={filteredData}
-              selectedTab={selectedTab}
-            />
-          </>
-        ) : !projectNames[selectedProject] ? (
-          <div className="flex justify-center items-center h-screen">
-            <p className="font-medium text-lg text-white">
-              No Projects found for this duration
-            </p>
-          </div>
+      {openModal && (
+        <AddProjectModal
+          close={() => {
+            setopenModal(false);
+          }}
+          checks={
+            projectsData &&
+            projectsData.length > 0 &&
+            projectsData[selectedProject].checks
+          }
+          projectId={
+            projectsData &&
+            projectsData.length > 0 &&
+            projectsData[selectedProject].project_id
+          }
+          reloadData={reloadData}
+          projectData={projectData && projectData}
+        />
+      )}
+      <div className="flex-1">
+        {projectsData ? (
+          <ProjectSection
+            data={projectData}
+            setopenModal={() => {
+              setopenModal(true);
+            }}
+            project={
+              projectsData &&
+              projectsData.length > 0 &&
+              projectsData[selectedProject].project_name
+            }
+          />
         ) : (
           <div className="flex justify-center items-center h-screen">
             <SpinningLoader />

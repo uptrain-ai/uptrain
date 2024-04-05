@@ -2,38 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { selectUptrainAccessKey } from "@/store/reducers/userInfo";
 import SpinningLoader from "../UI/SpinningLoader";
-import CloseButtonSection from "./CloseButtonSection";
+import CloseButtonSection from "../Common/CloseButtonSection";
 import Step1 from "./Step1";
-import Step2 from "./Step2";
-import Step3 from "./Step3";
-
-
-// const fetchData = async (uptrainAccessKey, setData) => {
-//   try {
-//     const response = await fetch(
-//       process.env.NEXT_PUBLIC_BACKEND_URL +
-//         `api/public/get_projects_list?num_days=${10000}`,
-//       {
-//         method: "GET",
-//         headers: {
-//           "Content-Type": "application/json",
-//           "uptrain-access-token": `${uptrainAccessKey}`,
-//         },
-//       }
-//     );
-
-//     if (response.ok) {
-//       const responseData = await response.json();
-//       setData(responseData.data);
-//     } else {
-//       console.error("Failed to submit API Key:", response.statusText);
-//       // Handle error cases
-//     }
-//   } catch (error) {
-//     console.error("Error submitting API Key:", error.message);
-//     // Handle network errors or other exceptions
-//   }
-// };
+import { models } from "@/utils/models";
+import Step2 from "../Common/Step2";
 
 const CreateProjectModal = (props) => {
   const uptrainAccessKey = useSelector(selectUptrainAccessKey);
@@ -42,23 +14,11 @@ const CreateProjectModal = (props) => {
   const [projectName, setProjectName] = useState("");
   const [datasetName, setDatasetName] = useState("");
   const [selectedOption, setSelectedOption] = useState("");
-  const [selectedProjectType, setSelectedProjectType] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedChecks, setselectedChecks] = useState([]);
   const [selectedMultiChecks, setSelectedMultiChecks] = useState([]);
-  const [promptName, setPromptName] = useState("");
-  const [prompt, setPrompt] = useState("");
-  const [loading, setLoading] = useState(false);
   const [metadata, setMetadata] = useState({});
-  const [allProject, setAllProject] = useState();
-
-  // useEffect(() => {
-  //   const fetchDataAsync = async () => {
-  //     await fetchData(uptrainAccessKey, setAllProject);
-  //   };
-
-  //   if (uptrainAccessKey) fetchDataAsync();
-  // }, [uptrainAccessKey]);
+  const [loading, setLoading] = useState(false);
 
   const singleMetrics = [
     "context_relevance",
@@ -87,19 +47,7 @@ const CreateProjectModal = (props) => {
     ConversationSatisfaction: ["user_persona", "llm_persona"],
   };
 
-  const models = {
-    "gpt-3.5-turbo": ["openai_api_key"],
-    "gpt-4": ["openai_api_key"],
-    "gpt-4-turbo-preview": ["openai_api_key"],
-    "claude-2.1": ["anthropic_api_key"],
-    "azure-deployment": [
-      "azure_api_base",
-      "azure_api_version",
-      "azure_api_key",
-    ],
-  };
-
-  const handleEvaluationSubmit = async (event) => {
+  const handleProjectSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
 
@@ -120,7 +68,7 @@ const CreateProjectModal = (props) => {
       formData.append("metadata", JSON.stringify(metadata));
 
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + `api/public/add_evaluation`,
+        process.env.NEXT_PUBLIC_BACKEND_URL + `api/public/create_project`,
         {
           method: "POST",
           headers: {
@@ -135,60 +83,6 @@ const CreateProjectModal = (props) => {
         setLoading(false);
         props.close();
         const responseData = await response.json();
-      } else {
-        console.error("Failed to submit:", response.statusText);
-        // Handle error cases
-      }
-    } catch (error) {
-      console.error("Error submitting:", error.message);
-      // Handle network errors or other exceptions
-    }
-  };
-
-  const handlePromptSubmit = async (event) => {
-    event.preventDefault();
-    setLoading(true);
-
-    try {
-      const formData = new FormData();
-      formData.append("model", selectedOption);
-      formData.append(
-        "project_name",
-        props.promptProjectName ? props.promptProjectName : projectName
-      );
-      formData.append(
-        "checks",
-        JSON.stringify(
-          singleMetrics
-            .filter((item, index) => selectedChecks.includes(index))
-            .concat(selectedMultiChecks)
-        )
-      );
-      formData.append("dataset_name", datasetName);
-      formData.append("data_file", selectedFile);
-      formData.append("prompt", prompt);
-      formData.append(
-        "prompt_name",
-        props.promptVersionName ? props.promptVersionName : promptName
-      );
-      formData.append("metadata", JSON.stringify(metadata));
-
-      const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + `api/public/add_prompts`,
-        {
-          method: "POST",
-          headers: {
-            "uptrain-access-token": `${uptrainAccessKey}`,
-          },
-          body: formData,
-        }
-      );
-
-      if (response.ok) {
-        const responseData = await response.json();
-        props.reloadData();
-        setLoading(false);
-        props.close();
       } else {
         console.error("Failed to submit:", response.statusText);
         // Handle error cases
@@ -204,7 +98,7 @@ const CreateProjectModal = (props) => {
       <div className="rounded-xl border-[#5587FD] bg-[#23232D] p-8 max-w-[70%] w-full max-h-[100%] overflow-auto">
         <CloseButtonSection onClick={props.close} />
         {loading ? (
-          <div class="flex justify-center items-center flex-col h-[60vh]">
+          <div className="flex justify-center items-center flex-col h-[60vh]">
             <SpinningLoader />
             <p className="mt-2 text-lg text-white font-medium">
               Please wait while we process your data
@@ -213,11 +107,8 @@ const CreateProjectModal = (props) => {
         ) : step === 1 ? (
           <Step1
             models={models}
-            nextEvaluation={() => setStep(3)}
-            nextPrompt={() => setStep(2)}
+            next={() => setStep(2)}
             setProjectName={setProjectName}
-            setSelectedProjectType={setSelectedProjectType}
-            selectedProjectType={selectedProjectType}
             projectName={projectName}
             datasetName={datasetName}
             setDatasetName={setDatasetName}
@@ -228,24 +119,11 @@ const CreateProjectModal = (props) => {
             promptProjectName={props.promptProjectName}
             metadata={metadata}
             setMetadata={setMetadata}
-            allProject={allProject}
-          />
-        ) : step === 2 ? (
-          <Step2
-            next={() => setStep(3)}
-            promptName={promptName}
-            setPromptName={setPromptName}
-            prompt={prompt}
-            setPrompt={setPrompt}
-            promptVersionName={props.promptVersionName}
+            projectNames={props.projectNames}
           />
         ) : (
-          <Step3
-            next={
-              selectedProjectType === "Evaluation"
-                ? handleEvaluationSubmit
-                : handlePromptSubmit
-            }
+          <Step2
+            next={handleProjectSubmit}
             singleMetrics={singleMetrics}
             multiMetrics={multiMetrics}
             selectedChecks={selectedChecks}
