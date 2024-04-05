@@ -1,5 +1,6 @@
 import { selectUptrainAccessKey } from "@/store/reducers/userInfo";
 import { changeDateFormat } from "@/utils/changeDateFormat";
+import { scoreColorCalculator } from "@/utils/scoreColorCalculator";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -39,7 +40,6 @@ const AllLogsRowTop = (props) => {
 
       if (response.ok) {
         const responseData = await response.json();
-        console.log(responseData);
       } else {
         console.error("Failed to submit:", response.statusText);
         // Handle error cases
@@ -61,14 +61,24 @@ const AllLogsRowTop = (props) => {
           <div className="flex gap-x-3 items-center  flex-wrap ">
             <p className="font-medium text-base text-[#4F4F56]">
               Score:{" "}
-              <span className="text-lg text-[#F8F14A]">{props.score}</span>
+              <span
+                className="text-lg "
+                style={{ color: scoreColorCalculator(props.score) }}
+              >
+                {props.score}
+              </span>
             </p>
             {props.AiConfidence && (
               <>
                 <div className="h-4 w-[1px] bg-[#4F4F56] "></div>
                 <p className="font-medium text-base text-[#4F4F56]">
                   Confidence:{" "}
-                  <span className="text-lg text-[#F8F14A]">{props.AiConfidence}</span>
+                  <span
+                    className="text-lg text-[#F8F14A]"
+                    style={{ color: scoreColorCalculator(props.AiConfidence) }}
+                  >
+                    {props.AiConfidence}
+                  </span>
                 </p>
               </>
             )}
@@ -76,63 +86,21 @@ const AllLogsRowTop = (props) => {
             <p className="font-medium text-base text-[#4F4F56]">
               {formattedDate}
             </p>
-            {props.uuid && (
-              <>
-                <div className="h-4 w-[1px] bg-[#4F4F56] "></div>
-
-                <div className="flex gap-3">
-                  <button onClick={likeHandler}>
-                    {liked == true ? (
-                      <Image
-                        src="/ThumbsUpLight.svg"
-                        width={28}
-                        height={28}
-                        alt=""
-                        className="rotate-180"
-                      />
-                    ) : (
-                      <Image
-                        src="/ThumbsUp.svg"
-                        width={28}
-                        height={28}
-                        alt=""
-                        className="rotate-180"
-                      />
-                    )}
-                  </button>
-                  <button onClick={() => setLiked(false)}>
-                    {liked == false ? (
-                      <Image
-                        src="/ThumbsUpLight.svg"
-                        width={28}
-                        height={28}
-                        alt=""
-                      />
-                    ) : (
-                      <Image
-                        src="/ThumbsUp.svg"
-                        width={28}
-                        height={28}
-                        alt=""
-                      />
-                    )}
-                  </button>
-                </div>
-              </>
-            )}
-            {props.updated && (
+            {props.updated ? (
               <>
                 <div className="h-4 w-[1px] bg-[#4F4F56] "></div>
                 <p className="font-medium text-base text-[#4F4F56]">
                   {props.updated}
                 </p>
               </>
+            ) : (
+              <></>
             )}
           </div>
           {!props.inModal ? (
             <button onClick={() => props.setExpand((prev) => !prev)}>
               <Image
-                src="/DropDownIcon.svg"
+                src={`${process.env.NEXT_PUBLIC_BASE_PATH}/DropDownIcon.svg`}
                 height={5.5}
                 width={11}
                 className={`${

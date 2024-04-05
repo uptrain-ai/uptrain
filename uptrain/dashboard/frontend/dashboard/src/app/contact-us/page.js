@@ -30,7 +30,7 @@ const page = () => {
           }}
         >
           <Image
-            src="/ContactUs-Thoughts.png"
+            src={`${process.env.NEXT_PUBLIC_BASE_PATH}/ContactUs-Thoughts.png`}
             width={63}
             height={63}
             alt="contact us form Image"
@@ -45,7 +45,7 @@ const page = () => {
           }}
         >
           <Image
-            src="/ContactUs-Calls.png"
+            src={`${process.env.NEXT_PUBLIC_BASE_PATH}/ContactUs-Calls.png`}
             width={63}
             height={63}
             alt="contact us candely Image"

@@ -10,22 +10,29 @@ const SideBar = () => {
 
   return (
     <div className="py-11 sticky top-0">
-      <div className="mx-10 mb-10">
+      <div className="mx-10 mb-10 flex gap-1">
         <Link href="/">
           <Image
-            src="/UptrainLogo.png"
+            src={`${process.env.NEXT_PUBLIC_BASE_PATH}/UptrainLogo.png`}
             width={240}
             height={60}
             alt="Uptrain Logo"
             className="w-[120px] h-auto"
           />
         </Link>
+        <Image
+          src={`${process.env.NEXT_PUBLIC_BASE_PATH}/BetaButton.svg`}
+          width={35}
+          height={35}
+          alt="Beta Button"
+          className="w-[35px] h-auto"
+        />
       </div>
       <div className="flex flex-col gap-6">
         <LinkElement title="Home" href="/" selected={pathname == "/"}>
           {pathname == "/" ? (
             <Image
-              src="/SideBar-Home-white.png"
+              src={`${process.env.NEXT_PUBLIC_BASE_PATH}/SideBar-Home-white.png`}
               width={36}
               height={36}
               className="w-[18px] h-[18px]"
@@ -33,7 +40,7 @@ const SideBar = () => {
             />
           ) : (
             <Image
-              src="/SideBar-Home.png"
+              src={`${process.env.NEXT_PUBLIC_BASE_PATH}/SideBar-Home.png`}
               width={36}
               height={36}
               className="w-[18px] h-[18px]"
@@ -48,7 +55,7 @@ const SideBar = () => {
         >
           {pathname.includes("/evaluations") ? (
             <Image
-              src="/SideBar-Evaluations-white.png"
+              src={`${process.env.NEXT_PUBLIC_BASE_PATH}/SideBar-Evaluations-white.png`}
               width={36}
               height={36}
               className="w-[18px] h-[18px]"
@@ -56,7 +63,7 @@ const SideBar = () => {
             />
           ) : (
             <Image
-              src="/SideBar-Evaluations.png"
+              src={`${process.env.NEXT_PUBLIC_BASE_PATH}/SideBar-Evaluations.png`}
               width={36}
               height={36}
               className="w-[18px] h-[18px]"
@@ -71,7 +78,7 @@ const SideBar = () => {
         >
           {pathname.includes("/experiment") ? (
             <Image
-              src="/SideBar-Experiment-white.png"
+              src={`${process.env.NEXT_PUBLIC_BASE_PATH}/SideBar-Experiment-white.png`}
               width={36}
               height={36}
               className="w-[18px] h-[18px]"
@@ -79,7 +86,7 @@ const SideBar = () => {
             />
           ) : (
             <Image
-              src="/SideBar-Experiment.png"
+              src={`${process.env.NEXT_PUBLIC_BASE_PATH}/SideBar-Experiment.png`}
               width={36}
               height={36}
               className="w-[18px] h-[18px]"
@@ -94,7 +101,7 @@ const SideBar = () => {
         >
           {pathname.includes("/prompts") ? (
             <Image
-              src="/SideBar-prompts-white.png"
+              src={`${process.env.NEXT_PUBLIC_BASE_PATH}/SideBar-prompts-white.png`}
               width={36}
               height={36}
               className="w-[18px] h-[18px]"
@@ -102,7 +109,7 @@ const SideBar = () => {
             />
           ) : (
             <Image
-              src="/SideBar-prompts.png"
+              src={`${process.env.NEXT_PUBLIC_BASE_PATH}/SideBar-prompts.png`}
               width={36}
               height={36}
               className="w-[18px] h-[18px]"
@@ -117,7 +124,7 @@ const SideBar = () => {
         >
           {pathname == "/api-keys" ? (
             <Image
-              src="/SideBar-ApiKeys-white.png"
+              src={`${process.env.NEXT_PUBLIC_BASE_PATH}/SideBar-ApiKeys-white.png`}
               width={36}
               height={36}
               className="w-[18px] h-[18px]"
@@ -125,7 +132,7 @@ const SideBar = () => {
             />
           ) : (
             <Image
-              src="/SideBar-ApiKeys.png"
+              src={`${process.env.NEXT_PUBLIC_BASE_PATH}/SideBar-ApiKeys.png`}
               width={36}
               height={36}
               className="w-[18px] h-[18px]"
@@ -140,7 +147,7 @@ const SideBar = () => {
         >
           {pathname == "/contact-us" ? (
             <Image
-              src="/SideBar-ContactUs-white.png"
+              src={`${process.env.NEXT_PUBLIC_BASE_PATH}/SideBar-ContactUs-white.png`}
               width={36}
               height={36}
               className="w-[18px] h-[18px]"
@@ -148,7 +155,7 @@ const SideBar = () => {
             />
           ) : (
             <Image
-              src="/SideBar-ContactUs.png"
+              src={`${process.env.NEXT_PUBLIC_BASE_PATH}/SideBar-ContactUs.png`}
               width={36}
               height={36}
               className="w-[18px] h-[18px]"

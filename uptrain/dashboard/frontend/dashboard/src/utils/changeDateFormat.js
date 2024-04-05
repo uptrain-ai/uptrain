@@ -21,6 +21,7 @@ export const changeDateFormat = (date) => {
     "Dec",
   ];
 
+  
   // Get individual date components
   var day = date.getDate();
   var month = months[date.getMonth()];
@@ -33,7 +34,9 @@ export const changeDateFormat = (date) => {
   hours = hours ? hours : 12; // Handle midnight (0 hours)
 
   // Format the date string
-  var formattedDateString = `${day}-${month}-${year} ${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} ${meridiem}`;
+  var formattedDateString = `${day}-${month}-${year} ${hours}:${String(
+    minutes
+  ).padStart(2, "0")}:${String(seconds).padStart(2, "0")} ${meridiem}`;
 
   return formattedDateString;
 };

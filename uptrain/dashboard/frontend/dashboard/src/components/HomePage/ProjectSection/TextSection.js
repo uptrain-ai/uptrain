@@ -1,16 +1,9 @@
 import React from "react";
 
 const TextSection = (props) => {
-  const originalTimestamp = props.date;
-  const dateObj = new Date(originalTimestamp);
-  const options = { year: "numeric", month: "short", day: "2-digit" };
-  const formattedDate = dateObj
-    .toLocaleDateString("en-US", options)
-    .replace(",", "");
-
   return (
     <div>
-      <p className="text-[#4F4F56] font-medium text-base">
+      {/* <p className="text-[#4F4F56] font-medium text-base">
         Run via:{" "}
         <span
           className={`${
@@ -27,9 +20,9 @@ const TextSection = (props) => {
         >
           {props.run_via.charAt(0).toUpperCase() + props.run_via.slice(1)}
         </span>
-      </p>
+      </p> */}
       <p className="text-[#4F4F56] font-medium text-base">
-        Latest Run: <span className="text-[#B6B6B9]">{formattedDate}</span>
+        Created at: <span className="text-[#B6B6B9]">{props.timeStamp}</span>
       </p>
     </div>
   );

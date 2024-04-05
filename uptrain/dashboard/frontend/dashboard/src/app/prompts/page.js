@@ -1,22 +1,20 @@
 "use client";
-import CompareSection from "@/components/CompareSection/CompareSection";
-import CreateProjectModal from "@/components/CreateProjectModal/CreateProjectModal";
-import FilterSection from "@/components/FilterSection/FilterSection";
 import Layout from "@/components/Layout";
+import AddProjectModal from "@/components/Prompts/AddProjectModal/AddProjectModal";
 import ProjectSection from "@/components/Prompts/ProjectSection";
 import SpinningLoader from "@/components/UI/SpinningLoader";
 import { selectUptrainAccessKey } from "@/store/reducers/userInfo";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
-const fetchData = async (uptrainAccessKey, setData, timeFilter) => {
+const fetchData = async (uptrainAccessKey, setProjectsData, timeFilter) => {
   const num_days =
     timeFilter === 0 ? 1 : timeFilter === 1 ? 7 : timeFilter === 2 ? 30 : 10000;
 
   try {
     const response = await fetch(
       process.env.NEXT_PUBLIC_BACKEND_URL +
-        `api/public/get_prompts_list?num_days=${num_days}`,
+        `api/public/projects?num_days=${num_days}`,
       {
         method: "GET",
         headers: {
@@ -28,7 +26,7 @@ const fetchData = async (uptrainAccessKey, setData, timeFilter) => {
 
     if (response.ok) {
       const responseData = await response.json();
-      setData(responseData.data);
+      setProjectsData(responseData);
     } else {
       console.error("Failed to submit API Key:", response.statusText);
       // Handle error cases
@@ -41,17 +39,13 @@ const fetchData = async (uptrainAccessKey, setData, timeFilter) => {
 
 const fetchProjectData = async (
   uptrainAccessKey,
-  setData,
-  projectName,
-  TimeFilter
+  setProjectData,
+  projectId
 ) => {
-  const num_days =
-    TimeFilter === 0 ? 1 : TimeFilter === 1 ? 7 : TimeFilter === 2 ? 30 : 10000;
-
   try {
     const response = await fetch(
       process.env.NEXT_PUBLIC_BACKEND_URL +
-        `api/public/get_prompt_data?project_name=${projectName}&num_days=${num_days}`,
+        `api/public/prompt_runs?project_id=${projectId}`,
       {
         method: "GET",
         headers: {
@@ -63,14 +57,14 @@ const fetchProjectData = async (
 
     if (response.ok) {
       const responseData = await response.json();
-      setData(responseData.data);
+      setProjectData(responseData);
     } else {
       console.error("Failed to submit API Key:", response.statusText);
-      setData(null);
+      setProjectData(null);
     }
   } catch (error) {
     console.error("Error submitting API Key:", error.message);
-    setData(null);
+    setProjectData(null);
   }
 };
 
@@ -79,115 +73,116 @@ const page = () => {
 
   const [timeFilter, setTimeFilter] = useState(1);
   const [selectedProject, setSelectedProject] = useState(0);
-  const [data, setData] = useState(null);
-  const [projectData, setProjectData] = useState(null);
+  const [projectsData, setProjectsData] = useState(null);
+  const [projectData, setProjectData] = useState([]);
   const [openModal, setOpenModal] = useState(false);
-  const [promptVersionName, setPromptVersionName] = useState(null);
-  const [selectedCompareProject, setSelectedCompareProject] = useState(null);
-  const [selectedVersion1, setSelectedVersion1] = useState(null);
-  const [selectedVersion2, setSelectedVersion2] = useState(null);
-
-  const projectNames = data ? data.map((obj) => obj.project) : [];
-  
-
-  const filteredProjects =
-    projectData && projectData.filter((item) => item.prompts.length > 1);
+  const [promptName, setPromptName] = useState(null);
 
   useLayoutEffect(() => {
     const fetchDataAsync = async () => {
-      await fetchData(uptrainAccessKey, setData, timeFilter);
+      await fetchData(uptrainAccessKey, setProjectsData, timeFilter);
     };
 
     if (uptrainAccessKey) fetchDataAsync();
   }, [uptrainAccessKey, timeFilter]); // Dependency array to re-run effect when uptrainAccessKey changes
 
   useEffect(() => {
-    setSelectedCompareProject(null);
     setProjectData(null);
     const fetchProjectDataAsync = async () => {
       await fetchProjectData(
         uptrainAccessKey,
         setProjectData,
-        projectNames[selectedProject],
+        projectsData[selectedProject].project_id,
         timeFilter
       );
     };
 
-    if (uptrainAccessKey && data) {
+    if (uptrainAccessKey && projectsData && projectsData[selectedProject]) {
       fetchProjectDataAsync();
     }
-  }, [uptrainAccessKey, data, selectedProject]);
-
-  useEffect(() => {
-    setSelectedVersion1(null);
-    setSelectedVersion2(null);
-  }, [selectedCompareProject]);
+  }, [uptrainAccessKey, projectsData, selectedProject]);
 
   const handleProjectChange = (index) => {
     setSelectedProject(index);
   };
 
   const reloadData = () => {
+    setProjectData(null);
     const fetchProjectDataAsync = async () => {
       await fetchProjectData(
         uptrainAccessKey,
         setProjectData,
-        projectNames[selectedProject],
+        projectsData[selectedProject].project_id,
         timeFilter
       );
     };
 
-    setProjectData(null);
-    fetchProjectDataAsync();
+    if (uptrainAccessKey && projectsData) {
+      fetchProjectDataAsync();
+    }
   };
+
+  if (projectsData && projectsData.length == 0) {
+    return (
+      <Layout heading="Evaluations">
+        <div className="flex items-center justify-center flex-1 h-full">
+          <p className="text-white">Create a new project</p>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout
       heading="Prompts"
-      project={projectNames[selectedProject]}
+      project={
+        projectsData &&
+        projectsData.length > 0 &&
+        projectsData[selectedProject].project_name
+      }
       TimeFilter={timeFilter}
       setTimeFilter={setTimeFilter}
       duration
-      projectNames={projectNames}
+      projectNames={
+        projectsData &&
+        projectsData.length > 0 &&
+        projectsData.map((item) => item.project_name)
+      }
       selectedProject={selectedProject}
       handleProjectChange={handleProjectChange}
-      projectData={projectData}
-      compare
-      filteredProjects={filteredProjects}
-      selectedCompareProject={selectedCompareProject}
-      setSelectedCompareProject={setSelectedCompareProject}
-      selectedVersion1={selectedVersion1}
-      setSelectedVersion1={setSelectedVersion1}
-      selectedVersion2={selectedVersion2}
-      setSelectedVersion2={setSelectedVersion2}
     >
       {openModal && (
-        <CreateProjectModal
+        <AddProjectModal
           close={() => {
             setOpenModal(false);
           }}
+          checks={
+            projectsData &&
+            projectsData.length > 0 &&
+            projectsData[selectedProject].checks
+          }
+          projectId={
+            projectsData &&
+            projectsData.length > 0 &&
+            projectsData[selectedProject].project_id
+          }
           reloadData={reloadData}
-          promptProjectName={projectNames[selectedProject]}
-          promptVersionName={promptVersionName}
+          promptName={promptName}
+          setPromptName={setPromptName}
         />
       )}
       <div className="flex gap-10 w-full items-start">
         {projectData ? (
           <ProjectSection
-            projectData={projectData}
+            projectData={projectData.filter((item) => item.prompt_version == 1)}
             openModal={() => setOpenModal(true)}
-            setPromptVersionName={setPromptVersionName}
-            selectedCompareProject={selectedCompareProject}
-            filteredProjects={filteredProjects}
-            selectedVersion1={selectedVersion1}
-            selectedVersion2={selectedVersion2}
+            setPromptName={setPromptName}
+            promptProjectName={
+              projectsData &&
+              projectsData.length > 0 &&
+              projectsData[selectedProject].project_name
+            }
           />
-        ) : !projectNames[selectedProject] ? (
-          <div className="flex flex-1 justify-center items-center h-screen">
-            <p className="font-medium text-lg text-white">
-              No Projects found for this duration
-            </p>
-          </div>
         ) : (
           <div className="flex flex-1 justify-center items-center h-screen">
             <SpinningLoader />

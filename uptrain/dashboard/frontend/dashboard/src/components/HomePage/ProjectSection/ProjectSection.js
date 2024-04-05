@@ -1,6 +1,7 @@
 import React from "react";
 import ProjectCard from "./ProjectCard";
-import CreateProjectTab from "./CreateProjectTab";
+import CreateProjectTab from "@/components/Common/CreateProjectTab";
+import { changeDateFormat } from "@/utils/changeDateFormat";
 
 const ProjectSection = (props) => {
   return (
@@ -8,16 +9,16 @@ const ProjectSection = (props) => {
       <h2 className="font-medium text-[#5C5C66] mb-5">Your Projects</h2>
       <div className="grid grid-cols-2 gap-5">
         {props.data &&
-          props.data.map((item, index) => (
+            props.data.map((item, index) => (
             <ProjectCard
               key={index}
-              title={item.project}
-              health={item.health}
-              date={item.latest_timestamp}
-              run_via={item.run_via}
+              title={item.project_name}
+              date={item.created_at}
+              projectType={item.project_type}
+              projectId={item.project_id}
             />
           ))}
-        <CreateProjectTab setopenModal={props.setopenModal} />
+        <CreateProjectTab onClick={props.setopenModal} />
       </div>
     </>
   );

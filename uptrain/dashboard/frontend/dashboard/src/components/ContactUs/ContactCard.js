@@ -37,9 +37,9 @@ const ContactCard = (props) => {
         {props.parah}
       </p>
       {isHovered ? (
-        <Image src="/RightPointingArrowBlue.svg" width={18} height={18} alt="Arrow Icon"/>
+        <Image src={`${process.env.NEXT_PUBLIC_BASE_PATH}/RightPointingArrowBlue.svg`} width={18} height={18} alt="Arrow Icon"/>
       ) : (
-        <Image src="/RightPointingArrow.svg" width={18} height={18} alt="Arrow Icon"/>
+        <Image src={`${process.env.NEXT_PUBLIC_BASE_PATH}/RightPointingArrow.svg`} width={18} height={18} alt="Arrow Icon"/>
       )}
     </a>
   );

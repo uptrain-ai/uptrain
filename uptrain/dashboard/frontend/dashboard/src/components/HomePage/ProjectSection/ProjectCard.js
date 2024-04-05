@@ -7,7 +7,14 @@ const ProjectCard = (props) => {
   const [isHovered, setIsHovered] = useState(false);
   const router = useRouter();
 
-  const goToProjectpage = !props.title.includes("/");
+  const originalTimestamp = props.date;
+  const dateObj = new Date(originalTimestamp);
+  const options = { year: "numeric", month: "short", day: "2-digit" };
+  const formattedDate = dateObj
+    .toLocaleDateString("en-US", options)
+    .replace(",", "");
+
+  const goToProjectpage = props.title && !props.title.includes("/");
 
   return (
     <button
@@ -20,19 +27,17 @@ const ProjectCard = (props) => {
       } border p-4 rounded-xl text-left`}
       onClick={() => {
         router.push(
-          props.run_via === "experiment"
-            ? `/experiment/${goToProjectpage ? props.title : ""}`
-            : props.run_via === "prompt"
-            ? `/prompts/${goToProjectpage ? props.title : ""}`
+          props.projectType === "schedule"
+            ? `/schedule/${props.projectId}`
+            : props.projectType === "checkset"
+            ? `/checkset/${props.projectId}`
             : `/evaluations/${goToProjectpage ? props.title : ""}`
         );
       }}
     >
-      <HeaderSection title={goToProjectpage ? props.title : props.title.split("/").slice(0, -1).concat(" data").join("/")} />
+      <HeaderSection title={goToProjectpage ? props.title : props.title && props.title.split("/").slice(0, -1).concat(" data").join("/")} />
       <TextSection
-        health={props.health}
-        date={props.date}
-        run_via={props.run_via}
+        timeStamp={formattedDate}
       />
     </button>
   );

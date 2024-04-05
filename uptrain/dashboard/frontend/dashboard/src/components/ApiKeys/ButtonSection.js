@@ -29,7 +29,7 @@ const ButtonSection = (props) => {
         />
       </div>
       <button onClick={props.onClick}>
-        <Image src="/CopyIcon.svg" width={24} height={24} alt="copy icon" />
+        <Image src={`${process.env.NEXT_PUBLIC_BASE_PATH}/CopyIcon.svg`} width={24} height={24} alt="copy icon" />
       </button>
     </div>
   );

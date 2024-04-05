@@ -18,8 +18,7 @@ const ProjectFilterSection = (props) => {
 
   const hasConfidence =
     props.projectData &&
-    props.projectData[0][0].metadata &&
-    props.projectData[0][0].metadata.hasOwnProperty(
+    props.projectData[0][0].hasOwnProperty(
       `score_confidence_${props.selectedTab}`
     );
 
@@ -30,7 +29,7 @@ const ProjectFilterSection = (props) => {
   const confidences =
     hasConfidence && props.projectData && props.projectData[0]
       ? props.projectData[0].map(
-          (item) => item.metadata[`score_confidence_${props.selectedTab}`]
+          (item) => item[`score_confidence_${props.selectedTab}`]
         )
       : [];
 
@@ -40,15 +39,12 @@ const ProjectFilterSection = (props) => {
 
   const scores =
     props.projectData && props.projectData[0]
-      ? props.projectData[0].map(
-          (item) => item.checks[`score_${props.selectedTab}`]
-        )
+      ? props.projectData[0].map((item) => item[`score_${props.selectedTab}`])
       : [];
 
   const uniqueScores = Array.from(
     new Set(scores.filter((score) => score !== null))
   );
-
   const indexes = createArrayUpToNumber(
     props.projectData && props.projectData[0].length
   );
@@ -152,7 +148,7 @@ const ProjectFilterSection = (props) => {
       : indexes);
 
   return (
-    <div className="mb-8">
+    <div className="mt-10">
       <h2 className="text-lg font-medium">Project Filters</h2>
       <CustomMultiSelect
         selections={selections}
@@ -190,7 +186,8 @@ const ProjectFilterSection = (props) => {
           onSelect={handleConfidenceSelect}
           title="Choose confidence"
           placeholder={
-            selectedConfidences.length > 0 && `${selectedConfidences.length} selected`
+            selectedConfidences.length > 0 &&
+            `${selectedConfidences.length} selected`
           }
         />
       )}

@@ -1,6 +1,5 @@
 import React from "react";
 import AllLogsRow from "./AllLogsRow";
-import TopBar from "../../Tables/Common/TopBar";
 
 const AllLogs = (props) => {
   return (
@@ -11,18 +10,18 @@ const AllLogs = (props) => {
         props.projectData[0].map((item, index) => (
           <AllLogsRow
             key={index}
-            index={item.id}
-            question={item.data.question}
-            response={item.data.response}
+            index={index}
+            question={item.question}
+            response={item.response}
             item={item}
-            timestamp={item.timestamp}
+            timestamp={props.projectData[1]}
             selectedTab={props.selectedTab}
-            explanation={item.checks[`explanation_${props.selectedTab}`]}
-            score={item.checks[`score_${props.selectedTab}`]}
-            data={item.data}
-            updated={item.metadata && item.metadata[`score_${props.selectedTab}`]}
-            uuid={item.metadata && item.metadata["row_uuid"]}
-            AiConfidence={item.metadata && item.metadata[`score_confidence_${props.selectedTab}`]}
+            explanation={item[`explanation_${props.selectedTab}`]}
+            score={item[`score_${props.selectedTab}`]}
+            data={item}
+            updated={item[`status_score_${props.selectedTab}`]}
+            uuid={item["row_uuid"]}
+            AiConfidence={item[`score_confidence_${props.selectedTab}`]}
             projectName={item.project}
           />
         ))}
