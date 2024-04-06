@@ -217,6 +217,6 @@ class Embedding(ColumnOp):
                                     run_res.append([0] * emb_length)
             results.extend(run_res)
             logger.info(
-                f"Running batch: {idx} out of {int(np.ceil(len(inputs)/BATCH_SIZE))} for operator Embedding"
+                f"Running batch: {idx + 1} out of {int(np.ceil(len(inputs)/BATCH_SIZE))} for operator Embedding"
             )
         return {"output": data.with_columns([pl.Series(results).alias(self.col_out)])}
