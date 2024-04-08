@@ -22,6 +22,7 @@ class Evals(enum.Enum):
     CONTEXT_RERANKING = "context_reranking"
     CONTEXT_CONCISENESS = "context_conciseness"
     MULTI_QUERY_ACCURACY = "multi_query_accuracy"
+    QUESTION_COMPLETENESS = "question_completeness"
 
 
 class ParametricEval(BaseModel):
