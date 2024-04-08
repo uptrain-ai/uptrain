@@ -34,7 +34,10 @@ dependencies = [
     "fsspec",
     "litellm",
     "pyyaml",
-    "json5"
+    "json5",
+    "python-docx",
+    "pymupdf",
+    "faiss-cpu",
 ]
 
 [project.urls]
