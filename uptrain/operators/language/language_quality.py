@@ -13,7 +13,6 @@ import typing as t
 from loguru import logger
 import polars as pl
 
-from build.lib.uptrain.operators.language.prompts.few_shots import LANGUAGE_COHERENCE_FEW_SHOT__CLASSIFY, LANGUAGE_COHERENCE_FEW_SHOT__COT
 from uptrain.operators.language.llm import LLMMulticlient
 from uptrain.operators.language.prompts.classic import (
     LANGUAGE_COHERENCE_PROMPT_TEMPLATE,
@@ -31,6 +30,8 @@ from uptrain.operators.language.prompts.few_shots import (
     LANGUAGE_CRITIQUE_GRAMMAR_FEW_SHOT__COT,
     LANGUAGE_CRITIQUE_POLITENESS_FEW_SHOT__CLASSIFY,
     LANGUAGE_CRITIQUE_POLITENESS_FEW_SHOT__COT,
+    LANGUAGE_COHERENCE_FEW_SHOT__CLASSIFY,
+    LANGUAGE_COHERENCE_FEW_SHOT__COT
 )
 from uptrain.operators.language.prompts.instructions import CHAIN_OF_THOUGHT, CLASSIFY
 from uptrain.operators.language.prompts.output_format import (

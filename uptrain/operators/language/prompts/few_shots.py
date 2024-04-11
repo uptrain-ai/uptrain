@@ -557,6 +557,53 @@ LANGUAGE_CRITIQUE_POLITENESS_FEW_SHOT__COT = """
 """
 
 
+# Response Coherence
+LANGUAGE_COHERENCE_FEW_SHOT__CLASSIFY = """
+[Response]: Exercise is good  health. It makes body strong and helps the mind too. Many benefits gained.
+[Output]:
+{
+    "Choice": "B"
+}
+
+[Response]: Exercises are very good for your health as they make the body physically strong as well as promote mental well-being.
+[Output]:
+{
+    "Choice": "A"
+}
+
+
+[Response]: Exercise good  health your. It maken strong strong body, fit, mind and.
+[Output]:
+{
+    "Choice": "C"
+}
+"""
+
+LANGUAGE_COHERENCE_FEW_SHOT__COT = """
+[Response]: Exercise is good  health. It makes body strong and helps the mind too. Many benefits gained.
+[Output]:
+{
+    "Reasoning": "The text is somewhat fluent but lacks variety in sentence structure and uses repetitive language.",
+    "Choice": "B"
+}
+
+[Response]: Exercises are very good for your health as they make the body physically strong as well as promote mental well-being.
+[Output]:
+{
+    "Reasoning": "The text is completely fluent and natural sounding.",
+    "Choice": "A"
+}
+
+
+[Response]: Exercise good  health your. It maken strong strong body, fit, mind and.
+[Output]:
+{
+    "Reasoning": "The text is not fluent at all and has awkward phrasing, making it difficult to understand.",
+    "Choice": "C"
+}
+"""
+
+
 # Sub-query Completeness
 SUB_QUERY_COMPLETENESS_FEW_SHOT__CLASSIFY = """
 [Question]: What are the characteristics, habitat, and diet of the Bengal tiger?
