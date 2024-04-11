@@ -321,7 +321,7 @@ Task Data.
 """
 
 
-# Critique Language Coherence
+# Coherence
 LANGUAGE_COHERENCE_PROMPT_TEMPLATE = """
 Please assess the language quality of the provided machine-generated response, and rate how coherent the response is, i.e. if the multiple parts of the response have conflicting information.
 
@@ -344,26 +344,108 @@ Task Data.
 [Response]: {response}
 """
 
-# Critique Language Fluency
-LANGUAGE_FLUENCY_PROMPT_TEMPLATE = """
-Please assess the language quality of the provided machine-generated response, and rate how fluent the response is.
+
+# Critique Language Coherence
+LANGUAGE_CRITIQUE_COHERENCE_PROMPT_TEMPLATE = """
+You are a detail-oriented LLM which pays close attention to the details. You are given a text and your job is to evaluate the quality of the provided text, focusing on the coherence aspect.
+
+Coherence is the quality of the text that makes it logical and consistent. It is important that the text is well-organized and the ideas are connected in a clear and meaningful way. A coherent text is easy to follow and understand.
+
+Please provide a score on the scale of 1-5, with 1 meaning that the text is completely incoherent and the elements in the text do not stitch together to produce meaningful text, and 5 meaning that the text is completely coherent and the elements in the text stitch together to produce meaningful text.
 
 {scenario_description}
 
 Example Data.
 {few_shot_examples}
 
-For the given task data, determine which case applies by selecting one of the following options:
-A. The response is highly fluent.
-B. The response is moderately fluent and can be improved.
-C. The response is not fluent at all.
+First, analyze the text and determine how fluent and natural sounding it is. Consider the structure, connectivity of ideas, and overall readability of the text. Write down step-by-step reasoning to make sure that your conclusion is correct.
+FINALLY GIVE THE SCORE BETWEEN 1 to 5 IN THE NEW LINE as [Score]: 'score'.
+
 {prompting_instructions}
 
 Return the output only in the corresponding JSON format. Do not output anything other than this JSON object:
 {output_format}
 
-Task Data.
-[Response]: {response}
+Task data.
+[Resposne]: {response}
+"""
+
+
+# Critique Language Fluency
+LANGUAGE_CRITIQUE_FLUENCY_PROMPT_TEMPLATE = """
+You are a detail-oriented LLM which pays close attention to the details. You are given a text and your job is to evaluate the quality of the provided text, focusing on the fluency aspect.
+
+Fluency is the ability of the text to flow smoothly and naturally. It is important that the text is easy to read and understand. A fluent text is well-structured, coherent, and free of awkward phrasing.
+
+Please provide a score on the scale of 1-5, with 1 meaning that the text is not fluent at all and/or has awkward phrasing, and 5 meaning that the text is completely fluent and natural sounding.
+
+{scenario_description}
+
+Example Data.
+{few_shot_examples}
+
+First, analyze the text and determine how fluent and natural sounding it is. Consider the structure, connectivity of ideas, and overall readability of the text. Write down step-by-step reasoning to make sure that your conclusion is correct.
+FINALLY GIVE THE SCORE BETWEEN 1 to 5 IN THE NEW LINE as [Score]: 'score'.
+
+{prompting_instructions}
+
+Return the output only in the corresponding JSON format. Do not output anything other than this JSON object:
+{output_format}
+
+Task data.
+[Resposne]: {response}
+"""
+
+
+# Critique Language Grammar
+LANGUAGE_CRITIQUE_GRAMMAR_PROMPT_TEMPLATE = """
+You are a detail-oriented LLM which pays close attention to the details. You are given a text and your job is to evaluate the quality of the provided text, focusing on the grammar aspect.
+
+Grammar is the correctness of the text in terms of spelling, punctuation, and sentence structure. It is important that the text is free of grammatical errors and follows the rules of the language.
+
+Please provide a score on the scale of 1-5, with 1 meaning that the text has many grammatical errors, and 5 meaning that the text has perfect grammar and word choice.
+
+{scenario_description}
+
+Example Data.
+{few_shot_examples}
+
+First, analyze the text and determine the grammar and word usage in the text.
+FINALLY GIVE THE SCORE BETWEEN 1 to 5 IN THE NEW LINE as [Score]: 'score'.
+
+{prompting_instructions}
+
+Return the output only in the corresponding JSON format. Do not output anything other than this JSON object:
+{output_format}
+
+Task data.
+[Resposne]: {response}
+"""
+
+
+# Critique Language Politeness
+LANGUAGE_CRITIQUE_POLITENESS_PROMPT_TEMPLATE = """
+You are a detail-oriented LLM which pays close attention to the details. You are given a text and your job is to evaluate the quality of the provided text, focusing on the politeness aspect.
+
+Politeness is the tone of the text and how polite or impolite it is. It is important that the text is written in a respectful and appropriate tone.
+
+Please provide a score on the scale of 1-5, with 1 meaning that the tone of the text is very rude or inappropriate, and 5 meaning that the tone of the text is extremely polite.
+
+{scenario_description}
+
+Example Data.
+{few_shot_examples}
+
+First, analyze the text and determine how polite or impolite the tone of the text is.
+FINALLY GIVE THE SCORE BETWEEN 1 to 5 IN THE NEW LINE as [Score]: 'score'.
+
+{prompting_instructions}
+
+Return the output only in the corresponding JSON format. Do not output anything other than this JSON object:
+{output_format}
+
+Task data.
+[Resposne]: {response}
 """
 
 

@@ -214,21 +214,66 @@ CRITIQUE_TONE_OUTPUT_FORMAT__COT = """
 
 
 # Critique Language Fluency
-LANGUAGE_FLUENCY_OUTPUT_FORMAT__CLASSIFY = """
+LANGUAGE_CRITIQUE_FLUENCY_OUTPUT_FORMAT__CLASSIFY = """
 {
-    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+    "Score": [Score],  # Score between 1 to 5, to evaluate the fluency of the response,
 }
 """
 
-LANGUAGE_FLUENCY_OUTPUT_FORMAT__COT = """
+LANGUAGE_CRITIQUE_FLUENCY_OUTPUT_FORMAT__COT = """
 {
     "Reasoning": [Reasoning],  # Reasoning to critique the fluency of the response,
-    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+    "Score": [Score],  # Score between 1 to 5, to evaluate the fluency of the response,
 }
 """
 
 
 # Critique Language Coherence
+LANGUAGE_CRITIQUE_COHERENCE_OUTPUT_FORMAT__CLASSIFY = """
+{
+    "Score": [Score],  # Score between 1 to 5, to evaluate the coherence of the response,
+}
+"""
+
+LANGUAGE_CRITIQUE_COHERENCE_OUTPUT_FORMAT__COT = """
+{
+    "Reasoning": [Reasoning],  # Reasoning to critique the coherence of the response,
+    "Score": [Score],  # Score between 1 to 5, to evaluate the coherence of the response,
+}
+"""
+
+
+# Critique Language Grammar
+LANGUAGE_CRITIQUE_GRAMMAR_OUTPUT_FORMAT__CLASSIFY = """
+{
+    "Score": [Score],  # Score between 1 to 5, to evaluate the grammar of the response,
+}
+"""
+
+LANGUAGE_CRITIQUE_GRAMMAR_OUTPUT_FORMAT__COT = """
+{
+    "Reasoning": [Reasoning],  # Reasoning to critique the grammar of the response,
+    "Score": [Score],  # Score between 1 to 5, to evaluate the grammar of the response,
+}
+"""
+
+
+# Critique Language Politeness
+LANGUAGE_CRITIQUE_POLITENESS_OUTPUT_FORMAT__CLASSIFY = """
+{
+    "Score": [Score],  # Score between 1 to 5, to evaluate the politeness of the response,
+}
+"""
+
+LANGUAGE_CRITIQUE_POLITENESS_OUTPUT_FORMAT__COT = """
+{
+    "Reasoning": [Reasoning],  # Reasoning to critique the politeness of the response,
+    "Score": [Score],  # Score between 1 to 5, to evaluate the politeness of the response,
+}
+"""
+
+
+# Coherence
 LANGUAGE_COHERENCE_OUTPUT_FORMAT__CLASSIFY = """
 {
     "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")

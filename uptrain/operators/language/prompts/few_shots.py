@@ -370,40 +370,40 @@ CRITIQUE_TONE_FEW_SHOT__COT = """
 
 
 # Critique Language Fluency
-LANGUAGE_FLUENCY_FEW_SHOT__CLASSIFY = """
+LANGUAGE_CRITIQUE_FLUENCY_FEW_SHOT__CLASSIFY = """
 [Response]: Exercise is good  health. It makes body strong and helps the mind too. Many benefits gained.
 [Output]:
 {
-    "Choice": "B"
+    "Score": "3"
 }
 
 [Response]: Exercises are very good for your health as they make the body physically strong as well as promote mental well-being.
 [Output]:
 {
-    "Choice": "A"
+    "Score": "5"
 }
 
 
 [Response]: Exercise good  health your. It maken strong strong body, fit, mind and.
 [Output]:
 {
-    "Choice": "C"
+    "Score": "1"
 }
 """
 
-LANGUAGE_FLUENCY_FEW_SHOT__COT = """
+LANGUAGE_CRITIQUE_FLUENCY_FEW_SHOT__COT = """
 [Response]: Exercise is good  health. It makes body strong and helps the mind too. Many benefits gained.
 [Output]:
 {
     "Reasoning": "The text is somewhat fluent but lacks variety in sentence structure and uses repetitive language.",
-    "Choice": "B"
+    "Score": "3"
 }
 
 [Response]: Exercises are very good for your health as they make the body physically strong as well as promote mental well-being.
 [Output]:
 {
     "Reasoning": "The text is completely fluent and natural sounding.",
-    "Choice": "A"
+    "Score": "5"
 }
 
 
@@ -411,46 +411,46 @@ LANGUAGE_FLUENCY_FEW_SHOT__COT = """
 [Output]:
 {
     "Reasoning": "The text is not fluent at all and has awkward phrasing, making it difficult to understand.",
-    "Choice": "C"
+    "Score": "1"
 }
 """
 
 
 # Critique Language Coherence
-LANGUAGE_COHERENCE_FEW_SHOT__CLASSIFY = """
+LANGUAGE_CRITIQUE_COHERENCE_FEW_SHOT__CLASSIFY = """
 [Response]: Exercise is good  health. It makes body strong and helps the mind too. Many benefits gained.
 [Output]:
 {
-    "Choice": "B"
+    "Score": "3"
 }
 
 [Response]: Exercises are very good for your health as they make the body physically strong as well as promote mental well-being.
 [Output]:
 {
-    "Choice": "A"
+    "Score": "5"
 }
 
 
 [Response]: Exercise good  health your. It maken strong strong body, fit, mind and.
 [Output]:
 {
-    "Choice": "C"
+    "Score": "1"
 }
 """
 
-LANGUAGE_COHERENCE_FEW_SHOT__COT = """
+LANGUAGE_CRITIQUE_COHERENCE_FEW_SHOT__COT = """
 [Response]: Exercise is good  health. It makes body strong and helps the mind too. Many benefits gained.
 [Output]:
 {
     "Reasoning": "The text is somewhat fluent but lacks variety in sentence structure and uses repetitive language.",
-    "Choice": "B"
+    "Score": "3"
 }
 
 [Response]: Exercises are very good for your health as they make the body physically strong as well as promote mental well-being.
 [Output]:
 {
     "Reasoning": "The text is completely fluent and natural sounding.",
-    "Choice": "A"
+    "Score": "5"
 }
 
 
@@ -458,7 +458,101 @@ LANGUAGE_COHERENCE_FEW_SHOT__COT = """
 [Output]:
 {
     "Reasoning": "The text is not fluent at all and has awkward phrasing, making it difficult to understand.",
-    "Choice": "C"
+    "Score": "1"
+}
+"""
+
+
+# Critique Language Grammar
+LANGUAGE_CRITIQUE_GRAMMAR_FEW_SHOT__CLASSIFY = """
+[Response]: Exercise is good  health. It makes body strong and helps the mind too. Many benefits gained.
+[Output]:
+{
+    "Score": "3"
+}
+
+[Response]: Exercises are very good for your health as they make the body physically strong as well as promote mental well-being.
+[Output]:
+{
+    "Score": "5"
+}
+
+
+[Response]: Exercise good  health your. It maken strong strong body, fit, mind and.
+[Output]:
+{
+    "Score": "1"
+}
+"""
+
+LANGUAGE_CRITIQUE_GRAMMAR_FEW_SHOT__COT = """
+[Response]: Exercise is good  health. It makes body strong and helps the mind too. Many benefits gained.
+[Output]:
+{
+    "Reasoning": "",
+    "Score": "3"
+}
+
+[Response]: Exercises are very good for your health as they make the body physically strong as well as promote mental well-being.
+[Output]:
+{
+    "Reasoning": "The text is completely fluent and natural sounding.",
+    "Score": "5"
+}
+
+
+[Response]: Exercise good  health your. It maken strong strong body, fit, mind and.
+[Output]:
+{
+    "Reasoning": "The text is not fluent at all and has awkward phrasing, making it difficult to understand.",
+    "Score": "1"
+}
+"""
+
+
+# Critique Language Politness
+LANGUAGE_CRITIQUE_POLITENESS_FEW_SHOT__CLASSIFY = """
+[Response]: Exercise is good  health. It makes body strong and helps the mind too. Many benefits gained.
+[Output]:
+{
+    "Score": "3"
+}
+
+[Response]: Exercises are very good for your health as they make the body physically strong as well as promote mental well-being.
+[Output]:
+{
+    "Score": "5"
+}
+
+
+[Response]: Exercise good  health your. It maken strong strong body, fit, mind and.
+[Output]:
+{
+    "Score": "1"
+}
+"""
+
+LANGUAGE_CRITIQUE_POLITENESS_FEW_SHOT__COT = """
+[Response]: Exercise is good  health. It makes body strong and helps the mind too. Many benefits gained.
+[Output]:
+{
+    "Reasoning": "The text is somewhat fluent but lacks variety in sentence structure and uses repetitive language.",
+    "Score": "3"
+}
+
+[Response]: Exercises are very good for your health as they make the body physically strong as well as promote mental well-being.
+[Output]:
+{
+    "Reasoning": "The text is completely fluent and natural sounding.",
+    "Score": "5"
+}
+
+
+[Response]: Exercise good  health your. It maken strong strong body, fit, mind and.
+[Output]:
+{
+    "Reasoning": "The text is not fluent at all and has awkward phrasing, making it difficult to understand.",
+    "Score": "1"
 }
 """
 
