@@ -98,7 +98,7 @@ class EvalLLM:
         if self.settings.openai_api_key is not None and len(self.settings.openai_api_key):
             response = check_openai_api_key(self.settings.openai_api_key)
             if not response:
-                raise Exception("OpenAI API Key is invalid")
+                raise ValueError("OpenAI API Key is invalid")
 
         self.executor = APIClientWithoutAuth(self.settings)
 
