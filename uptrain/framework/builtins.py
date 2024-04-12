@@ -76,7 +76,7 @@ def CheckResponseMatching(method="llm"):
     return Check(
         name="response_matching_score",
         operators=[ResponseMatchingScore(method=method)],
-        plots=[Histogram(x="score_response_matching")],
+        plots=[Histogram(x="score_response_match")],
     )
 
 

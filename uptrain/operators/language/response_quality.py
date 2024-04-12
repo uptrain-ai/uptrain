@@ -903,7 +903,7 @@ class ResponseMatchingScore(ColumnOp):
             precision = combined_row[0]["score_factual_accuracy"]
             recall = combined_row[1]["score_factual_accuracy"]
             output = {
-                "score_response_matching": None,
+                "score_response_match": None,
                 "explanation_response_matching": None,
                 "score_response_match_recall": None,
                 "score_response_match_precision": None,
@@ -921,11 +921,11 @@ class ResponseMatchingScore(ColumnOp):
                 output["explanation_response_matching"] = explanation
 
                 if precision != 0 and recall != 0:
-                    output["score_response_matching"] = 4 * (
+                    output["score_response_match"] = 4 * (
                         (precision * recall) / (precision * 3 + recall)
                     )
                 else:
-                    output["score_response_matching"] = 0.0
+                    output["score_response_match"] = 0.0
                 output["score_response_match_recall"] = recall
                 output["score_response_match_precision"] = precision
             results.append(output)
