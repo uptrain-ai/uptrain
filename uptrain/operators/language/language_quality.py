@@ -7,7 +7,7 @@ aspects on a scale of 0 to 1, along with an explanation for the score.
 """
 
 from __future__ import annotations
-import json
+import json5
 import typing as t
 
 from loguru import logger
@@ -15,21 +15,36 @@ import polars as pl
 
 from uptrain.operators.language.llm import LLMMulticlient
 from uptrain.operators.language.prompts.classic import (
-    LANGUAGE_FLUENCY_PROMPT_TEMPLATE,
     LANGUAGE_COHERENCE_PROMPT_TEMPLATE,
+    LANGUAGE_CRITIQUE_FLUENCY_PROMPT_TEMPLATE,
+    LANGUAGE_CRITIQUE_COHERENCE_PROMPT_TEMPLATE,
+    LANGUAGE_CRITIQUE_GRAMMAR_PROMPT_TEMPLATE,
+    LANGUAGE_CRITIQUE_POLITENESS_PROMPT_TEMPLATE,
 )
 from uptrain.operators.language.prompts.few_shots import (
-    LANGUAGE_FLUENCY_FEW_SHOT__CLASSIFY,
-    LANGUAGE_FLUENCY_FEW_SHOT__COT,
+    LANGUAGE_CRITIQUE_FLUENCY_FEW_SHOT__CLASSIFY,
+    LANGUAGE_CRITIQUE_FLUENCY_FEW_SHOT__COT,
+    LANGUAGE_CRITIQUE_COHERENCE_FEW_SHOT__CLASSIFY,
+    LANGUAGE_CRITIQUE_COHERENCE_FEW_SHOT__COT,
+    LANGUAGE_CRITIQUE_GRAMMAR_FEW_SHOT__CLASSIFY,
+    LANGUAGE_CRITIQUE_GRAMMAR_FEW_SHOT__COT,
+    LANGUAGE_CRITIQUE_POLITENESS_FEW_SHOT__CLASSIFY,
+    LANGUAGE_CRITIQUE_POLITENESS_FEW_SHOT__COT,
     LANGUAGE_COHERENCE_FEW_SHOT__CLASSIFY,
-    LANGUAGE_COHERENCE_FEW_SHOT__COT,
+    LANGUAGE_COHERENCE_FEW_SHOT__COT
 )
 from uptrain.operators.language.prompts.instructions import CHAIN_OF_THOUGHT, CLASSIFY
 from uptrain.operators.language.prompts.output_format import (
-    LANGUAGE_FLUENCY_OUTPUT_FORMAT__CLASSIFY,
-    LANGUAGE_FLUENCY_OUTPUT_FORMAT__COT,
     LANGUAGE_COHERENCE_OUTPUT_FORMAT__CLASSIFY,
     LANGUAGE_COHERENCE_OUTPUT_FORMAT__COT,
+    LANGUAGE_CRITIQUE_FLUENCY_OUTPUT_FORMAT__CLASSIFY,
+    LANGUAGE_CRITIQUE_FLUENCY_OUTPUT_FORMAT__COT,
+    LANGUAGE_CRITIQUE_COHERENCE_OUTPUT_FORMAT__CLASSIFY,
+    LANGUAGE_CRITIQUE_COHERENCE_OUTPUT_FORMAT__COT,
+    LANGUAGE_CRITIQUE_GRAMMAR_OUTPUT_FORMAT__CLASSIFY,
+    LANGUAGE_CRITIQUE_GRAMMAR_OUTPUT_FORMAT__COT,
+    LANGUAGE_CRITIQUE_POLITENESS_OUTPUT_FORMAT__CLASSIFY,
+    LANGUAGE_CRITIQUE_POLITENESS_OUTPUT_FORMAT__COT,
 )
 from uptrain.utilities.prompt_utils import parse_scenario_description
 
@@ -65,7 +80,7 @@ class LanguageCritique(ColumnOp):
     col_response: str = "response"
     col_out: str = "score_language_critique"
     scenario_description: t.Optional[str] = None
-    score_mapping: dict = {"A": 1.0, "B": 0.5, "C": 0.0}
+    score_mapping: dict = {1: 0.2, 2: 0.4, 3: 0.6, 4: 0.8, 5: 1.0}
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
@@ -107,8 +122,8 @@ class LanguageCritique(ColumnOp):
 
     def critique_language_classify_validate_func(self, llm_output):
         is_correct = True
-        is_correct = is_correct and ("Choice" in llm_output)
-        is_correct = is_correct and llm_output["Choice"] in ["A", "B", "C"]
+        is_correct = is_correct and ("Score" in llm_output)
+        is_correct = is_correct and llm_output["Score"] in self.score_mapping.keys()
         return is_correct
 
     def critique_language_cot_validate_func(self, llm_output):
@@ -124,15 +139,17 @@ class LanguageCritique(ColumnOp):
         self.scenario_description, scenario_vars = parse_scenario_description(
             self.scenario_description
         )
+
+        # Fluency
         input_payloads = []
         if self.settings.eval_type == "basic":
-            few_shot_examples = LANGUAGE_FLUENCY_FEW_SHOT__CLASSIFY
-            output_format = LANGUAGE_FLUENCY_OUTPUT_FORMAT__CLASSIFY
+            few_shot_examples = LANGUAGE_CRITIQUE_FLUENCY_FEW_SHOT__CLASSIFY
+            output_format = LANGUAGE_CRITIQUE_FLUENCY_OUTPUT_FORMAT__CLASSIFY
             validation_func = self.critique_language_classify_validate_func
             prompting_instructions = CLASSIFY
         elif self.settings.eval_type == "cot":
-            few_shot_examples = LANGUAGE_FLUENCY_FEW_SHOT__COT
-            output_format = LANGUAGE_FLUENCY_OUTPUT_FORMAT__COT
+            few_shot_examples = LANGUAGE_CRITIQUE_FLUENCY_FEW_SHOT__COT
+            output_format = LANGUAGE_CRITIQUE_FLUENCY_OUTPUT_FORMAT__COT
             validation_func = self.critique_language_cot_validate_func
             prompting_instructions = CHAIN_OF_THOUGHT
         else:
@@ -150,7 +167,7 @@ class LanguageCritique(ColumnOp):
                 }
             )
             try:
-                grading_prompt_template = LANGUAGE_FLUENCY_PROMPT_TEMPLATE.replace(
+                grading_prompt_template = LANGUAGE_CRITIQUE_FLUENCY_PROMPT_TEMPLATE.replace(
                     "{scenario_description}", self.scenario_description
                 ).format(**kwargs)
             except KeyError as e:
@@ -168,22 +185,205 @@ class LanguageCritique(ColumnOp):
         for res in output_payloads:
             idx = res.metadata["index"]
             output = {
-                "score_critique_language": None,
-                "explanation_critique_language": None,
+                "score_fluency": None,
+                "explanation_fluency": None,
             }
             try:
                 score = self.score_mapping[
-                    json.loads(res.response.choices[0].message.content)["Choice"]
+                    json5.loads(res.response.choices[0].message.content)["Score"]
                 ]
-                output["score_critique_language"] = float(score)
-                output["explanation_critique_language"] = res.response.choices[
+                output["score_fluency"] = float(score)
+                output["explanation_fluency"] = json5.loads(res.response.choices[
                     0
-                ].message.content
+                ].message.content)["Reasoning"]
             except Exception:
                 logger.error(
                     f"Error when processing payload at index {idx}: {res.error}"
                 )
             results.append((idx, output))
+
+        # Coherence
+        input_payloads = []
+        if self.settings.eval_type == "basic":
+            few_shot_examples = LANGUAGE_CRITIQUE_COHERENCE_FEW_SHOT__CLASSIFY
+            output_format = LANGUAGE_CRITIQUE_COHERENCE_OUTPUT_FORMAT__CLASSIFY
+            validation_func = self.critique_language_classify_validate_func
+            prompting_instructions = CLASSIFY
+        elif self.settings.eval_type == "cot":
+            few_shot_examples = LANGUAGE_CRITIQUE_COHERENCE_FEW_SHOT__COT
+            output_format = LANGUAGE_CRITIQUE_COHERENCE_OUTPUT_FORMAT__COT
+            validation_func = self.critique_language_cot_validate_func
+            prompting_instructions = CHAIN_OF_THOUGHT
+        else:
+            raise ValueError(
+                f"Invalid eval_type: {self.settings.eval_type}. Must be either 'basic' or 'cot'"
+            )
+
+        for idx, row in enumerate(data):
+            kwargs = row
+            kwargs.update(
+                {
+                    "output_format": output_format,
+                    "prompting_instructions": prompting_instructions,
+                    "few_shot_examples": few_shot_examples,
+                }
+            )
+            try:
+                grading_prompt_template = LANGUAGE_CRITIQUE_COHERENCE_PROMPT_TEMPLATE.replace(
+                    "{scenario_description}", self.scenario_description
+                ).format(**kwargs)
+            except KeyError as e:
+                raise KeyError(
+                    f"Missing required attribute(s) for scenario description: {e}"
+                )
+            input_payloads.append(
+                self._api_client.make_payload(idx, grading_prompt_template)
+            )
+        output_payloads = self._api_client.fetch_responses(
+            input_payloads, validation_func
+        )
+
+        for res in output_payloads:
+            idx = res.metadata["index"]
+            output = {
+                "score_coherence": None,
+                "explanation_coherence": None,
+            }
+            try:
+                score = self.score_mapping[
+                    json5.loads(res.response.choices[0].message.content)["Score"]
+                ]
+                output["score_coherence"] = float(score)
+                output["explanation_coherence"] = json5.loads(res.response.choices[
+                    0
+                ].message.content)["Reasoning"]
+            except Exception:
+                logger.error(
+                    f"Error when processing payload at index {idx}: {res.error}"
+                )
+            results[idx][1].update(output)
+    
+        # Grammar
+        input_payloads = []
+        if self.settings.eval_type == "basic":
+            few_shot_examples = LANGUAGE_CRITIQUE_GRAMMAR_FEW_SHOT__CLASSIFY
+            output_format = LANGUAGE_CRITIQUE_GRAMMAR_OUTPUT_FORMAT__CLASSIFY
+            validation_func = self.critique_language_classify_validate_func
+            prompting_instructions = CLASSIFY
+        elif self.settings.eval_type == "cot":
+            few_shot_examples = LANGUAGE_CRITIQUE_GRAMMAR_FEW_SHOT__COT
+            output_format = LANGUAGE_CRITIQUE_GRAMMAR_OUTPUT_FORMAT__COT
+            validation_func = self.critique_language_cot_validate_func
+            prompting_instructions = CHAIN_OF_THOUGHT
+        else:
+            raise ValueError(
+                f"Invalid eval_type: {self.settings.eval_type}. Must be either 'basic' or 'cot'"
+            )
+
+        for idx, row in enumerate(data):
+            kwargs = row
+            kwargs.update(
+                {
+                    "output_format": output_format,
+                    "prompting_instructions": prompting_instructions,
+                    "few_shot_examples": few_shot_examples,
+                }
+            )
+            try:
+                grading_prompt_template = LANGUAGE_CRITIQUE_GRAMMAR_PROMPT_TEMPLATE.replace(
+                    "{scenario_description}", self.scenario_description
+                ).format(**kwargs)
+            except KeyError as e:
+                raise KeyError(
+                    f"Missing required attribute(s) for scenario description: {e}"
+                )
+            input_payloads.append(
+                self._api_client.make_payload(idx, grading_prompt_template)
+            )
+        output_payloads = self._api_client.fetch_responses(
+            input_payloads, validation_func
+        )
+
+        for res in output_payloads:
+            idx = res.metadata["index"]
+            output = {
+                "score_grammar": None,
+                "explanation_grammar": None,
+            }
+            try:
+                score = self.score_mapping[
+                    json5.loads(res.response.choices[0].message.content)["Score"]
+                ]
+                output["score_grammar"] = float(score)
+                output["explanation_grammar"] = json5.loads(res.response.choices[
+                    0
+                ].message.content)["Reasoning"]
+            except Exception:
+                logger.error(
+                    f"Error when processing payload at index {idx}: {res.error}"
+                )
+            results[idx][1].update(output)
+
+        # Politeness
+        input_payloads = []
+        if self.settings.eval_type == "basic":
+            few_shot_examples = LANGUAGE_CRITIQUE_POLITENESS_FEW_SHOT__CLASSIFY
+            output_format = LANGUAGE_CRITIQUE_POLITENESS_OUTPUT_FORMAT__CLASSIFY
+            validation_func = self.critique_language_classify_validate_func
+            prompting_instructions = CLASSIFY
+        elif self.settings.eval_type == "cot":
+            few_shot_examples = LANGUAGE_CRITIQUE_POLITENESS_FEW_SHOT__COT
+            output_format = LANGUAGE_CRITIQUE_POLITENESS_OUTPUT_FORMAT__COT
+            validation_func = self.critique_language_cot_validate_func
+            prompting_instructions = CHAIN_OF_THOUGHT
+        else:
+            raise ValueError(
+                f"Invalid eval_type: {self.settings.eval_type}. Must be either 'basic' or 'cot'"
+            )
+
+        for idx, row in enumerate(data):
+            kwargs = row
+            kwargs.update(
+                {
+                    "output_format": output_format,
+                    "prompting_instructions": prompting_instructions,
+                    "few_shot_examples": few_shot_examples,
+                }
+            )
+            try:
+                grading_prompt_template = LANGUAGE_CRITIQUE_POLITENESS_PROMPT_TEMPLATE.replace(
+                    "{scenario_description}", self.scenario_description
+                ).format(**kwargs)
+            except KeyError as e:
+                raise KeyError(
+                    f"Missing required attribute(s) for scenario description: {e}"
+                )
+            input_payloads.append(
+                self._api_client.make_payload(idx, grading_prompt_template)
+            )
+        output_payloads = self._api_client.fetch_responses(
+            input_payloads, validation_func
+        )
+
+        for res in output_payloads:
+            idx = res.metadata["index"]
+            output = {
+                "score_politeness": None,
+                "explanation_politeness": None,
+            }
+            try:
+                score = self.score_mapping[
+                    json5.loads(res.response.choices[0].message.content)["Score"]
+                ]
+                output["score_politeness"] = float(score)
+                output["explanation_politeness"] = json5.loads(res.response.choices[
+                    0
+                ].message.content)["Reasoning"]
+            except Exception:
+                logger.error(
+                    f"Error when processing payload at index {idx}: {res.error}"
+                )
+            results[idx][1].update(output)
 
         results = [val for _, val in sorted(results, key=lambda x: x[0])]
 
@@ -321,7 +521,7 @@ class ResponseCoherence(ColumnOp):
             }
             try:
                 score = self.score_mapping[
-                    json.loads(res.response.choices[0].message.content)["Choice"]
+                    json5.loads(res.response.choices[0].message.content)["Choice"]
                 ]
                 output["score_response_coherence"] = float(score)
                 output["explanation_response_coherence"] = res.response.choices[
