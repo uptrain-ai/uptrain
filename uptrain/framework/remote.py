@@ -551,9 +551,9 @@ class APIClient:
 
     def log_and_evaluate(
         self,
+        project_name: str,
         data: t.Union[list[dict], pl.DataFrame, pd.DataFrame],
         checks: list[t.Union[str, Evals, ParametricEval]],
-        project_name: str,
         evaluation_name: t.Optional[str] = None,
         scenario_description: t.Optional[str] = None,
         schema: t.Union[DataSchema, dict[str, str], None] = None,
