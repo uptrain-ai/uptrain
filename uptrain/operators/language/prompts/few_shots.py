@@ -374,20 +374,20 @@ LANGUAGE_CRITIQUE_FLUENCY_FEW_SHOT__CLASSIFY = """
 [Response]: Exercise is good  health. It makes body strong and helps the mind too. Many benefits gained.
 [Output]:
 {
-    "Score": "3"
+    "Score": 3
 }
 
 [Response]: Exercises are very good for your health as they make the body physically strong as well as promote mental well-being.
 [Output]:
 {
-    "Score": "5"
+    "Score": 5
 }
 
 
 [Response]: Exercise good  health your. It maken strong strong body, fit, mind and.
 [Output]:
 {
-    "Score": "1"
+    "Score": 1
 }
 """
 
@@ -396,14 +396,14 @@ LANGUAGE_CRITIQUE_FLUENCY_FEW_SHOT__COT = """
 [Output]:
 {
     "Reasoning": "The text is somewhat fluent but lacks variety in sentence structure and uses repetitive language.",
-    "Score": "3"
+    "Score": 3
 }
 
 [Response]: Exercises are very good for your health as they make the body physically strong as well as promote mental well-being.
 [Output]:
 {
     "Reasoning": "The text is completely fluent and natural sounding.",
-    "Score": "5"
+    "Score": 5
 }
 
 
@@ -411,148 +411,143 @@ LANGUAGE_CRITIQUE_FLUENCY_FEW_SHOT__COT = """
 [Output]:
 {
     "Reasoning": "The text is not fluent at all and has awkward phrasing, making it difficult to understand.",
-    "Score": "1"
+    "Score": 1
 }
 """
 
 
 # Critique Language Coherence
 LANGUAGE_CRITIQUE_COHERENCE_FEW_SHOT__CLASSIFY = """
-[Response]: Exercise is good  health. It makes body strong and helps the mind too. Many benefits gained.
+[Response]: Exercise is beneficial for both physical and mental health. It strengthens the body and uplifts the mind.
 [Output]:
 {
-    "Score": "3"
+    "Score": 5
 }
 
-[Response]: Exercises are very good for your health as they make the body physically strong as well as promote mental well-being.
+[Response]: Regular exercise contributes to overall well-being by enhancing physical strength and mental clarity.
 [Output]:
 {
-    "Score": "5"
+    "Score": 4
 }
 
-
-[Response]: Exercise good  health your. It maken strong strong body, fit, mind and.
+[Response]: Exercise good. Health. Make body strong. Help mind. Benefits many.
 [Output]:
 {
-    "Score": "1"
+    "Score": 2
 }
 """
 
-LANGUAGE_CRITIQUE_COHERENCE_FEW_SHOT__COT = """
-[Response]: Exercise is good  health. It makes body strong and helps the mind too. Many benefits gained.
+
+LANGUAGE_CRITIQUE_COHERENCE_FEW_SHOT__CLASSIFY = """
+[Response]: Exercise is beneficial for both physical and mental health. It strengthens the body and uplifts the mind.
 [Output]:
 {
-    "Reasoning": "The text is somewhat fluent but lacks variety in sentence structure and uses repetitive language.",
-    "Score": "3"
+    "Reasoning": "The text is coherent and effectively conveys the message with clear organization of ideas.",
+    "Score": 5
 }
 
-[Response]: Exercises are very good for your health as they make the body physically strong as well as promote mental well-being.
+[Response]: Regular exercise contributes to overall well-being by enhancing physical strength and mental clarity.
 [Output]:
 {
-    "Reasoning": "The text is completely fluent and natural sounding.",
-    "Score": "5"
+    "Reasoning": "The text maintains coherence by linking ideas logically, providing a clear flow of information.",
+    "Score": 4
 }
 
-
-[Response]: Exercise good  health your. It maken strong strong body, fit, mind and.
+[Response]: Exercise good. Health. Make body strong. Help mind. Benefits many.
 [Output]:
 {
-    "Reasoning": "The text is not fluent at all and has awkward phrasing, making it difficult to understand.",
-    "Score": "1"
+    "Reasoning": "The text lacks coherence, as it presents fragmented ideas without clear connections.",
+    "Score": 2
 }
 """
 
 
 # Critique Language Grammar
 LANGUAGE_CRITIQUE_GRAMMAR_FEW_SHOT__CLASSIFY = """
-[Response]: Exercise is good  health. It makes body strong and helps the mind too. Many benefits gained.
+[Response]: Exercise is essential for maintaining good health. It strengthens the body and improves mental well-being.
 [Output]:
 {
-    "Score": "3"
+    "Score": 5
 }
 
-[Response]: Exercises are very good for your health as they make the body physically strong as well as promote mental well-being.
+[Response]: Exercises is important for healthiness. It makes body strong and helps the mind too.
 [Output]:
 {
-    "Score": "5"
+    "Score": 3
 }
 
-
-[Response]: Exercise good  health your. It maken strong strong body, fit, mind and.
+[Response]: Exercise good for healthy. It make body strong and help mind.
 [Output]:
 {
-    "Score": "1"
+    "Score": 2
 }
 """
 
 LANGUAGE_CRITIQUE_GRAMMAR_FEW_SHOT__COT = """
-[Response]: Exercise is good  health. It makes body strong and helps the mind too. Many benefits gained.
+[Response]: Exercise is essential for maintaining good health. It strengthens the body and improves mental well-being.
 [Output]:
 {
-    "Reasoning": "",
-    "Score": "3"
+    "Reasoning": "The text demonstrates proper grammar usage and sentence structure.",
+    "Score": 5
 }
 
-[Response]: Exercises are very good for your health as they make the body physically strong as well as promote mental well-being.
+[Response]: Exercises is important for healthiness. It makes body strong and helps the mind too.
 [Output]:
 {
-    "Reasoning": "The text is completely fluent and natural sounding.",
-    "Score": "5"
+    "Reasoning": "The text contains some grammatical errors, such as subject-verb agreement and pluralization.",
+    "Score": 3
 }
 
-
-[Response]: Exercise good  health your. It maken strong strong body, fit, mind and.
+[Response]: Exercise good for healthy. It make body strong and help mind.
 [Output]:
 {
-    "Reasoning": "The text is not fluent at all and has awkward phrasing, making it difficult to understand.",
-    "Score": "1"
+    "Reasoning": "The text has several grammatical errors, such as missing articles and incorrect verb forms.",
+    "Score": 2
 }
 """
 
 
 # Critique Language Politness
 LANGUAGE_CRITIQUE_POLITENESS_FEW_SHOT__CLASSIFY = """
-[Response]: Exercise is good  health. It makes body strong and helps the mind too. Many benefits gained.
+[Response]: Thank you for considering my application. I appreciate the opportunity to interview for the position.
 [Output]:
 {
-    "Score": "3"
+    "Score": 5
 }
 
-[Response]: Exercises are very good for your health as they make the body physically strong as well as promote mental well-being.
+[Response]: Thanks for considering my application. I appreciate the opportunity to interview for the position.
 [Output]:
 {
-    "Score": "5"
+    "Score": 4
 }
 
-
-[Response]: Exercise good  health your. It maken strong strong body, fit, mind and.
+[Response]: Consider my application. Interview for position.
 [Output]:
 {
-    "Score": "1"
+    "Score": 1
 }
 """
 
 LANGUAGE_CRITIQUE_POLITENESS_FEW_SHOT__COT = """
-[Response]: Exercise is good  health. It makes body strong and helps the mind too. Many benefits gained.
+[Response]: Thank you for considering my application. I appreciate the opportunity to interview for the position.
 [Output]:
 {
-    "Reasoning": "The text is somewhat fluent but lacks variety in sentence structure and uses repetitive language.",
-    "Score": "3"
+    "Reasoning": "The text is very polite and courteous, expressing gratitude and appreciation.",
+    "Score": 5
 }
 
-[Response]: Exercises are very good for your health as they make the body physically strong as well as promote mental well-being.
+[Response]: Thanks for considering my application. I appreciate the opportunity to interview for the position.
 [Output]:
 {
-    "Reasoning": "The text is completely fluent and natural sounding.",
-    "Score": "5"
+    "Reasoning": "The text is polite, but could be slightly improved with a more formal expression such as 'thank you'.",
+    "Score": 4
 }
 
-
-[Response]: Exercise good  health your. It maken strong strong body, fit, mind and.
+[Response]: Consider my application. Interview for position.
 [Output]:
 {
-    "Reasoning": "The text is not fluent at all and has awkward phrasing, making it difficult to understand.",
-    "Score": "1"
+    "Reasoning": "The text lacks politeness and appears rather abrupt, lacking in courtesy.",
+    "Score": 1
 }
 """
 

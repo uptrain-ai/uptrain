@@ -359,7 +359,6 @@ Example Data.
 {few_shot_examples}
 
 First, analyze the text and determine how fluent and natural sounding it is. Consider the structure, connectivity of ideas, and overall readability of the text. Write down step-by-step reasoning to make sure that your conclusion is correct.
-FINALLY GIVE THE SCORE BETWEEN 1 to 5 IN THE NEW LINE as [Score]: 'score'.
 
 {prompting_instructions}
 
@@ -385,7 +384,6 @@ Example Data.
 {few_shot_examples}
 
 First, analyze the text and determine how fluent and natural sounding it is. Consider the structure, connectivity of ideas, and overall readability of the text. Write down step-by-step reasoning to make sure that your conclusion is correct.
-FINALLY GIVE THE SCORE BETWEEN 1 to 5 IN THE NEW LINE as [Score]: 'score'.
 
 {prompting_instructions}
 
@@ -411,7 +409,6 @@ Example Data.
 {few_shot_examples}
 
 First, analyze the text and determine the grammar and word usage in the text.
-FINALLY GIVE THE SCORE BETWEEN 1 to 5 IN THE NEW LINE as [Score]: 'score'.
 
 {prompting_instructions}
 
@@ -437,7 +434,6 @@ Example Data.
 {few_shot_examples}
 
 First, analyze the text and determine how polite or impolite the tone of the text is.
-FINALLY GIVE THE SCORE BETWEEN 1 to 5 IN THE NEW LINE as [Score]: 'score'.
 
 {prompting_instructions}
 

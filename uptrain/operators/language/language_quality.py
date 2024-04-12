@@ -7,7 +7,7 @@ aspects on a scale of 0 to 1, along with an explanation for the score.
 """
 
 from __future__ import annotations
-import json
+import json5
 import typing as t
 
 from loguru import logger
@@ -80,7 +80,7 @@ class LanguageCritique(ColumnOp):
     col_response: str = "response"
     col_out: str = "score_language_critique"
     scenario_description: t.Optional[str] = None
-    score_mapping: dict = {"1": 0.2, "2": 0.4, "3": 0.6, "4": 0.8, "5": 1.0}
+    score_mapping: dict = {1: 0.2, 2: 0.4, 3: 0.6, 4: 0.8, 5: 1.0}
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
@@ -190,10 +190,10 @@ class LanguageCritique(ColumnOp):
             }
             try:
                 score = self.score_mapping[
-                    json.loads(res.response.choices[0].message.content)["Score"]
+                    json5.loads(res.response.choices[0].message.content)["Score"]
                 ]
                 output["score_fluency"] = float(score)
-                output["explanation_fluency"] = json.loads(res.response.choices[
+                output["explanation_fluency"] = json5.loads(res.response.choices[
                     0
                 ].message.content)["Reasoning"]
             except Exception:
@@ -201,7 +201,7 @@ class LanguageCritique(ColumnOp):
                     f"Error when processing payload at index {idx}: {res.error}"
                 )
             results.append((idx, output))
-        
+
         # Coherence
         input_payloads = []
         if self.settings.eval_type == "basic":
@@ -251,10 +251,10 @@ class LanguageCritique(ColumnOp):
             }
             try:
                 score = self.score_mapping[
-                    json.loads(res.response.choices[0].message.content)["Score"]
+                    json5.loads(res.response.choices[0].message.content)["Score"]
                 ]
                 output["score_coherence"] = float(score)
-                output["explanation_coherence"] = json.loads(res.response.choices[
+                output["explanation_coherence"] = json5.loads(res.response.choices[
                     0
                 ].message.content)["Reasoning"]
             except Exception:
@@ -262,7 +262,7 @@ class LanguageCritique(ColumnOp):
                     f"Error when processing payload at index {idx}: {res.error}"
                 )
             results[idx][1].update(output)
-        
+    
         # Grammar
         input_payloads = []
         if self.settings.eval_type == "basic":
@@ -312,10 +312,10 @@ class LanguageCritique(ColumnOp):
             }
             try:
                 score = self.score_mapping[
-                    json.loads(res.response.choices[0].message.content)["Score"]
+                    json5.loads(res.response.choices[0].message.content)["Score"]
                 ]
                 output["score_grammar"] = float(score)
-                output["explanation_grammar"] = json.loads(res.response.choices[
+                output["explanation_grammar"] = json5.loads(res.response.choices[
                     0
                 ].message.content)["Reasoning"]
             except Exception:
@@ -323,7 +323,7 @@ class LanguageCritique(ColumnOp):
                     f"Error when processing payload at index {idx}: {res.error}"
                 )
             results[idx][1].update(output)
-        
+
         # Politeness
         input_payloads = []
         if self.settings.eval_type == "basic":
@@ -373,10 +373,10 @@ class LanguageCritique(ColumnOp):
             }
             try:
                 score = self.score_mapping[
-                    json.loads(res.response.choices[0].message.content)["Score"]
+                    json5.loads(res.response.choices[0].message.content)["Score"]
                 ]
                 output["score_politeness"] = float(score)
-                output["explanation_politeness"] = json.loads(res.response.choices[
+                output["explanation_politeness"] = json5.loads(res.response.choices[
                     0
                 ].message.content)["Reasoning"]
             except Exception:
@@ -521,7 +521,7 @@ class ResponseCoherence(ColumnOp):
             }
             try:
                 score = self.score_mapping[
-                    json.loads(res.response.choices[0].message.content)["Choice"]
+                    json5.loads(res.response.choices[0].message.content)["Choice"]
                 ]
                 output["score_response_coherence"] = float(score)
                 output["explanation_response_coherence"] = res.response.choices[
