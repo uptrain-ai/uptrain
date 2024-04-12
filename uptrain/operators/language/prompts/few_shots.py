@@ -438,7 +438,7 @@ LANGUAGE_CRITIQUE_COHERENCE_FEW_SHOT__CLASSIFY = """
 """
 
 
-LANGUAGE_CRITIQUE_COHERENCE_FEW_SHOT__CLASSIFY = """
+LANGUAGE_CRITIQUE_COHERENCE_FEW_SHOT__COT = """
 [Response]: Exercise is beneficial for both physical and mental health. It strengthens the body and uplifts the mind.
 [Output]:
 {

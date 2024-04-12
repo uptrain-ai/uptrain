@@ -199,13 +199,13 @@ def test_check_response_matching():
     output = check.setup(settings).run(response_matching_dataset)
     assert isinstance(output, pl.DataFrame)
     assert (
-        "score_response_matching" in output.columns
+        "score_response_match" in output.columns
         and "explanation_response_matching" in output.columns
     )
     assert (
-        output["score_response_matching"].dtype == pl.Float64
-        and len(output["score_response_matching"])
-        - output["score_response_matching"].null_count()
+        output["score_response_match"].dtype == pl.Float64
+        and len(output["score_response_match"])
+        - output["score_response_match"].null_count()
         > 0
     )
     assert (
@@ -563,8 +563,8 @@ def test_check_guideline_adherence():
 #     check = CheckResponseMatching()
 #     output = check.setup(settings).run(dataset)
 #     assert isinstance(output, pl.DataFrame)
-#     assert "score_response_matching" in output.columns and "explanation_response_matching" in output.columns
-#     assert output["score_response_matching"].dtype == pl.Float64 and len(output["score_response_matching"]) - output["score_response_matching"].null_count() > 0
+#     assert "score_response_match" in output.columns and "explanation_response_matching" in output.columns
+#     assert output["score_response_match"].dtype == pl.Float64 and len(output["score_response_match"]) - output["score_response_match"].null_count() > 0
 #     assert output["explanation_response_matching"].dtype == pl.Utf8 and len(output["explanation_response_matching"]) - output["explanation_response_matching"].null_count() > 0
 
 
