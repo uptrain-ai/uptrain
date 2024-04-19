@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Row from "./Row";
-import Divider from "../Evaluations/Logs/Divider";
+import Divider from "../Evaluations/ChartPage/Logs/Divider";
 import { useRouter } from "next/navigation";
 import EvaluationModal from "./EvaluationModal/EvaluationModal";
 
@@ -9,23 +9,33 @@ const ProjectCard = (props) => {
   const [openModal, setOpenModal] = useState(null);
   const router = useRouter();
 
-  const handleCreateNewVersion = () => {
+  const handleCreateNewVersion = (e) => {
+    e.stopPropagation();
     props.setPromptName(props.data.prompt_name);
     props.openModal();
   };
 
-  const handleViewAllVersion = () => {
+  const handleViewAllVersion = (e) => {
+    e.stopPropagation();
     router.push(
       `/prompts/${props.promptProjectName}/${props.data.prompt_name}`
     );
   };
 
   return (
-    <div className="bg-[#23232D] rounded-xl p-8 text-red-400 ">
+    <div
+      className={`bg-[#23232D] rounded-xl p-8 text-red-400 border border-[#23232D] hover:bg-[#171721] hover:border-[#5587fd] ${
+        !props.viewEvals && "cursor-pointer"
+      }`}
+      onMouseEnter={() => setExpand(true)}
+      onMouseLeave={() => setExpand(false)}
+      onClick={!props.viewEvals ? handleViewAllVersion : () => {}}
+    >
       {openModal && (
         <EvaluationModal
           onClick={() => setOpenModal(null)}
           evaluationId={props.evaluationId}
+          data={props.data}
           heading="Evaluations"
         />
       )}

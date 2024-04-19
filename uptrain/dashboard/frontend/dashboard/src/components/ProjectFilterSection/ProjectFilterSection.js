@@ -1,5 +1,60 @@
-import React from "react";
+import React, { useState } from "react";
 import CustomMultiSelect from "../DropDowns/CustomMultiSelect";
+import SingleSelect from "../DropDowns/SingleSelect";
+
+const OtherKeySelector = (props) => {
+  const selections = [
+    "contains",
+    "does not contain",
+    "starts with",
+    "ends with",
+  ];
+
+  const handleConditionSelect = (index) => {
+    props.setProjectFilters((prev) => {
+      return {
+        ...prev,
+        [props.item]: {
+          ...prev[props.item],
+          filterCondition: selections[index],
+        },
+      };
+    });
+  };
+
+  const handleValueChange = (e) => {
+    props.setProjectFilters((prev) => {
+      return {
+        ...prev,
+        [props.item]: {
+          ...prev[props.item],
+          filterinput: e.target.value,
+        },
+      };
+    });
+  };
+
+  return (
+    <>
+      <p className="mt-4 -mb-3">Choose {props.item} conditions</p>
+      <SingleSelect
+        selections={selections}
+        selected={selections.indexOf(
+          props.projectFilters[props.item].filterCondition
+        )}
+        OnClick={handleConditionSelect}
+        placeholder="Select a condition"
+      />
+      {props.projectFilters[props.item].filterCondition.length > 0 && (
+        <input
+          className="relative z-10 bg-[#171721] rounded-2xl w-full  px-2.5 py-1 text- mt-1"
+          value={props.projectFilters[props.item].filterinput}
+          onChange={handleValueChange}
+        />
+      )}
+    </>
+  );
+};
 
 function createArrayUpToNumber(number) {
   // Initialize an empty array to store the numbers
@@ -25,6 +80,12 @@ const ProjectFilterSection = (props) => {
   if (hasConfidence) {
     selections.push("confidence");
   }
+
+  const otherKeys =
+    props.projectData &&
+    Object.keys(props.projectData[0][0]).filter(
+      (key) => !key.startsWith("score") && !key.startsWith("status")
+    );
 
   const confidences =
     hasConfidence && props.projectData && props.projectData[0]
@@ -58,6 +119,12 @@ const ProjectFilterSection = (props) => {
         return rest;
       } else {
         // If not present, add the index key with an empty array
+        if (otherKeys.includes(title)) {
+          return {
+            ...prev,
+            [title]: { filterCondition: "", filterinput: "" },
+          };
+        }
         return {
           ...prev,
           [title]: [],
@@ -146,12 +213,11 @@ const ProjectFilterSection = (props) => {
           (item) => !props.projectFilters["confidence"].includes(item)
         )
       : indexes);
-
   return (
     <div className="mt-10">
       <h2 className="text-lg font-medium">Project Filters</h2>
       <CustomMultiSelect
-        selections={selections}
+        selections={selections.concat(otherKeys)}
         selected={keysArray}
         onSelect={handleColumnSelect}
         title="Choose column"
@@ -191,6 +257,17 @@ const ProjectFilterSection = (props) => {
           }
         />
       )}
+      {keysArray
+        .filter(
+          (item) => item != "index" && item != "scores" && item != "confidence"
+        )
+        .map((item) => (
+          <OtherKeySelector
+            item={item}
+            setProjectFilters={props.setProjectFilters}
+            projectFilters={props.projectFilters}
+          />
+        ))}
     </div>
   );
 };

@@ -3,12 +3,10 @@ import AllLogsRowTop from "./AllLogsRowTop";
 import Divider from "./Divider";
 import DataRow from "./DataRow";
 import DataModal from "./DataModal";
-import LikeModal from "./LikeModal";
 
 const AllLogsRow = (props) => {
   const [expand, setExpand] = useState(false);
   const [showFull, setShowFull] = useState(false);
-  const [showLikeModal, setShowLikeModal] = useState(false);
 
   let index =
     typeof props.index !== "string" ? String(props.index + 1) : props.index;
@@ -17,7 +15,12 @@ const AllLogsRow = (props) => {
   }
 
   return (
-    <div className="bg-[#23232D] py-2.5 px-4 rounded-xl mb-4 ">
+    <div
+      className={`bg-[#23232D] py-2.5 px-4 rounded-xl mb-4 border border-[#23232D] hover:bg-[#171721] hover:border-[#5587fd] text-left`}
+      onClick={() => {
+        !expand && setExpand(true);
+      }}
+    >
       {!props.inModal && showFull && (
         <DataModal
           onClick={() => setShowFull(!showFull)}
@@ -36,15 +39,7 @@ const AllLogsRow = (props) => {
           projectName={props.projectName}
         />
       )}
-      {showLikeModal && (
-        <LikeModal
-          onClick={() => setShowLikeModal(false)}
-          uuid={props.uuid}
-          selectedTab={props.selectedTab}
-          score={props.score}
-          projectName={props.projectName}
-        />
-      )}
+
       <AllLogsRowTop
         index={index}
         question={props.question}
@@ -54,11 +49,11 @@ const AllLogsRow = (props) => {
         setExpand={setExpand}
         inModal={props.inModal}
         selectedTab={props.selectedTab}
-        setShowLikeModal={setShowLikeModal}
         updated={props.updated}
         uuid={props.uuid}
         projectName={props.projectName}
         AiConfidence={props.AiConfidence}
+        evaluationId={props.evaluationId}
       />
       {expand || props.inModal ? (
         <>

@@ -7,7 +7,7 @@ import Insights from "../Evaluations/ChartPage/Insights/Insights";
 
 const ButtonSection = (props) => {
   return (
-    <div className="flex w-full mb-6 justify-between">
+    <div className="flex mb-6 justify-between">
       <div className="flex gap-5 flex-wrap">
         <CustomTabButton
           onClick={() => {

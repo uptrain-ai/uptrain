@@ -2,8 +2,39 @@
 import React, { useState } from "react";
 import CustomTabButton from "../../UI/CustomTabButton";
 import Image from "next/image";
-import AllLogs from "../Logs/AllLogs";
+import AllLogs from "./Logs/AllLogs";
+// import Insights from "@/components/Experiment/ChartPage/Insights/Insights";
 import Insights from "./Insights/Insights";
+import { CSVLink } from "react-csv";
+
+const CsvComponent = ({ data }) => {
+  const headers = Object.keys(data[0]);
+
+  const formattedData = data.map((item) => {
+    const formattedItem = {};
+    for (const key in item) {
+      formattedItem[key] = JSON.stringify(item[key]).replace(/,/g, "\\,");
+    }
+    return formattedItem;
+  });
+
+  return (
+    <CSVLink
+      data={formattedData}
+      headers={headers}
+      filename={"data.csv"}
+      enclosingCharacter={`"`}
+    >
+      <Image
+        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/DownloadButton.svg`}
+        height={42}
+        width={42}
+        alt="Download Button"
+        className="w-auto h-auto"
+      />
+    </CSVLink>
+  );
+};
 
 const ButtonSection = (props) => {
   return (
@@ -24,15 +55,7 @@ const ButtonSection = (props) => {
           selected={props.Tab == 2}
         />
       </div>
-      <button>
-        <Image
-          src={`${process.env.NEXT_PUBLIC_BASE_PATH}/DownloadButton.svg`}
-          height={42}
-          width={42}
-          alt="Download Button"
-          className="w-auto h-auto"
-        />
-      </button>
+      <CsvComponent data={props.projectData[0]} />
     </div>
   );
 };
@@ -42,11 +65,16 @@ const TableSection = (props) => {
 
   return (
     <div>
-      <ButtonSection setTab={setTab} Tab={Tab} />
+      <ButtonSection
+        setTab={setTab}
+        Tab={Tab}
+        projectData={props.projectData}
+      />
       {Tab == 1 ? (
         <AllLogs
           projectData={props.projectData}
           selectedTab={props.selectedTab}
+          evaluationId={props.evaluationId}
         />
       ) : (
         <Insights

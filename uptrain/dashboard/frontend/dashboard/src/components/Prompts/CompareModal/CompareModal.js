@@ -1,4 +1,5 @@
 import ButtonSection from "@/components/Common/ButtonSection";
+import CloseButtonSection from "@/components/Common/CloseButtonSection";
 import ChartSection from "@/components/Experiment/ChartPage/ChartSection";
 import TableSection from "@/components/Experiment/ChartPage/Logs_InsightsTable";
 import Header from "@/components/Header";
@@ -6,6 +7,7 @@ import SpinningLoader from "@/components/UI/SpinningLoader";
 import { selectUptrainAccessKey } from "@/store/reducers/userInfo";
 import React, { useLayoutEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import Row from "../Row";
 
 const fetchEvaluationData = async (
   uptrainAccessKey,
@@ -87,7 +89,9 @@ const CompareModal = (props) => {
             // Your click handling logic here
           }}
         >
-          <p className="text-center text-white">No common metrics to compare between prompts</p>
+          <p className="text-center text-white">
+            No common metrics to compare between prompts
+          </p>
         </div>
       </div>
     );
@@ -106,6 +110,7 @@ const CompareModal = (props) => {
           // Your click handling logic here
         }}
       >
+        <CloseButtonSection onClick={props.onClick} />
         <div className="flex-1 flex flex-col">
           {evaluationData ? (
             <div className="flex-1">
@@ -114,6 +119,12 @@ const CompareModal = (props) => {
                 project={props.project}
                 className="my-0"
               />
+              <div className="bg-[#23232D] rounded-xl p-8 mb-5">
+                <Row data={props.data1} />
+              </div>
+              <div className="bg-[#23232D] rounded-xl p-8 mb-5">
+                <Row data={props.data2} />
+              </div>
               <ButtonSection tabs={tabs} Tab={Tab} setTab={setTab} prompt />
               <ChartSection
                 projectData={filteredData}

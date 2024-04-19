@@ -1,16 +1,18 @@
 import React from "react";
 import AllLogsRow from "./AllLogsRow";
+import TopBar from "./TopBar";
 
 const AllLogs = (props) => {
   return (
     <div>
-      {/* <TopBar /> */}
+      <TopBar projectData={props.projectData} selectedTab={props.selectedTab} />
       {props.projectData &&
         props.projectData[0] &&
         props.projectData[0].map((item, index) => (
           <AllLogsRow
             key={index}
-            index={index}
+            index={item.id}
+            id={item.id}
             question={item.question}
             response={item.response}
             item={item}
@@ -23,6 +25,7 @@ const AllLogs = (props) => {
             uuid={item["row_uuid"]}
             AiConfidence={item[`score_confidence_${props.selectedTab}`]}
             projectName={item.project}
+            evaluationId={props.evaluationId}
           />
         ))}
     </div>

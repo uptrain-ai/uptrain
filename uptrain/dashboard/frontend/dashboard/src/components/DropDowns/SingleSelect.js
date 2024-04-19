@@ -32,7 +32,9 @@ const SingleSelect = (props) => {
           >
             <p className="text-[#F5F5F5]">
               {props.selections && props.selections[props.selected]
-                ? props.selections[props.selected]
+                ? `${props.prelable != undefined ? props.prelable : ""} ${
+                    props.selections[props.selected]
+                  }`
                 : props.placeholder}
             </p>
             <DownArrow Selected={selected} />
@@ -54,6 +56,7 @@ const SingleSelect = (props) => {
                             : () => props.OnClick(index)
                           : () => props.OnClick(index)
                       }
+                      prelable={props.prelable}
                     />
                   ))}
               </div>

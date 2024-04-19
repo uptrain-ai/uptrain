@@ -1,6 +1,6 @@
 import React from "react";
 
-const CustomSingleCheckBox = ({ title, isChecked, handleCheckboxChange }) => {
+const CustomSingleCheckBox = ({ title, isChecked, handleCheckboxChange, prelable }) => {
   return (
     <div className="flex gap-3 items-center">
       <input
@@ -8,7 +8,7 @@ const CustomSingleCheckBox = ({ title, isChecked, handleCheckboxChange }) => {
         checked={isChecked}
         onChange={handleCheckboxChange}
       />
-      <label className="text-[#B6B6B9] font-medium">{title}</label>
+      <label className="text-[#B6B6B9] font-medium">{prelable} {title}</label>
     </div>
   );
 };
