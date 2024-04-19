@@ -5,7 +5,7 @@ import BarChart from "./BarChart";
 
 const Chart = (props) => {
   return (
-    <div className="p-5 bg-[#232331] rounded-xl">
+    <div className="p-5 bg-[#232331] rounded-xl  w-[calc(100vw-640px)]">
       {props.run_via === "schedule" ? (
         <LineChart
           selectedTab={props.selectedTab}

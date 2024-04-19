@@ -240,6 +240,48 @@ const ChartPage = (props) => {
     });
   }
 
+  if (filteredData) {
+    Object.entries(projectFilters).map(([key, value]) => {
+      if (key != "index" && key != "scores" && key != "confidence") {
+        if (
+          projectFilters[key].filterCondition == "contains" &&
+          projectFilters[key].filterinput
+        ) {
+          filteredData[0] = filteredData[0].filter((item) => {
+            return item[key].includes(projectFilters[key].filterinput);
+          });
+        }
+
+        if (
+          projectFilters[key].filterCondition == "does not contain" &&
+          projectFilters[key].filterinput
+        ) {
+          filteredData[0] = filteredData[0].filter((item) => {
+            return item[key].indexOf(projectFilters[key].filterinput) == -1;
+          });
+        }
+
+        if (
+          projectFilters[key].filterCondition == "starts with" &&
+          projectFilters[key].filterinput
+        ) {
+          filteredData[0] = filteredData[0].filter((item) => {
+            return item[key].startsWith(projectFilters[key].filterinput);
+          });
+        }
+
+        if (
+          projectFilters[key].filterCondition == "ends with" &&
+          projectFilters[key].filterinput
+        ) {
+          filteredData[0] = filteredData[0].filter((item) => {
+            return item[key].endsWith(projectFilters[key].filterinput);
+          });
+        }
+      }
+    });
+  }
+
   return (
     <Layout
       heading="Evaluations"
@@ -283,6 +325,7 @@ const ChartPage = (props) => {
             <TableSection
               projectData={filteredData}
               selectedTab={selectedTab}
+              evaluationId={evaluationId}
             />
           </>
         ) : (

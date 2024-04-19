@@ -1,3 +1,4 @@
+import { scoreColorCalculator } from "@/utils/scoreColorCalculator";
 import React from "react";
 
 const DataBox = (props) => {
@@ -20,9 +21,15 @@ const DataBox = (props) => {
   return (
     <div className="w-[calc((100vw-800px)/2)] bg-[#202C4F] p-5">
       <p
-        className="font-medium text-sm text-[#B6B6B9] inline leading-tight whitespace-normal break-words"
+        className="font-medium text-sm inline leading-tight whitespace-normal break-words"
         dangerouslySetInnerHTML={{
           __html: props.inModal ? props.data : truncatedExplanation,
+        }}
+        style={{
+          color:
+            typeof props.data !== "string"
+              ? scoreColorCalculator(props.score)
+              : "#B6B6B9",
         }}
       ></p>
       {!props.inModal && shouldShowMoreButton && (
@@ -48,23 +55,14 @@ const DataRow = (props) => {
           className={`flex gap-5 w-[calc((100vw-800px)/2*${props.data.length})] pb-5`}
         >
           {props.data &&
-            props.data.map((item, index) =>
-              props.score ? (
-                <div
-                  className="w-[calc((100vw-800px)/2)] bg-[#202C4F] p-5 text-yellow-500 "
-                  key={index}
-                >
-                  <p>{item}</p>
-                </div>
-              ) : (
-                <DataBox
-                  data={item}
-                  key={index}
-                  setShowFull={props.setShowFull}
-                  inModal={props.inModal}
-                />
-              )
-            )}
+            props.data.map((item, index) => (
+              <DataBox
+                data={item}
+                key={index}
+                setShowFull={props.setShowFull}
+                inModal={props.inModal}
+              />
+            ))}
         </div>
       </div>
     </>

@@ -49,7 +49,7 @@ const CustomMultiSelect = (props) => {
             <DownArrow Selected={selected} />
           </div>
           {selected && (
-            <div className="relative z-10 bg-[#171721]">
+            <div className="relative z-10 bg-[#171721] overflow-x-scroll">
               <div className="bg-[#40404A] w-full h-[1px] my-2"></div>
               {/* <div className="flex justify-end items-center">
                 <button className="text-[#5587FD] text-base">

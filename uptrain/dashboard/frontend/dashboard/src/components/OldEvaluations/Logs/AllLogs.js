@@ -3,7 +3,7 @@ import AllLogsRow from "./AllLogsRow";
 
 const AllLogs = (props) => {
   return (
-    <div>
+    <div className="w-[calc(100vw-640px)]">
       {/* <TopBar /> */}
       {props.projectData &&
         props.projectData[0] &&

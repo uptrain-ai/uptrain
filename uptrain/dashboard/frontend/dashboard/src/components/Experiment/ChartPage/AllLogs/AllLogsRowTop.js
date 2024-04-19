@@ -1,3 +1,4 @@
+import { scoreColorCalculator } from "@/utils/scoreColorCalculator";
 import Image from "next/image";
 import React from "react";
 
@@ -11,12 +12,19 @@ const AllLogsRowTop = (props) => {
         </h3>
         <div className="flex justify-between">
           <div className="flex gap-3 items-center">
-            {/* <p className="font-medium text-base text-[#4F4F56]">
-              Completeness Score:{" "}
-              <span className="text-lg text-[#F8F14A]">{props.score}</span>
-            </p>
-            <div className="h-4 w-[1px] bg-[#4F4F56] "></div>
-            <p className="font-medium text-base text-[#4F4F56]">{props.date}</p> */}
+            {props.model.map((item, index) => (
+              <p className="font-medium text-base text-[#4F4F56]" key={index}>
+                {item} Score:{" "}
+                <span
+                  className="text-lg"
+                  style={{
+                    color: scoreColorCalculator(props.score[index]),
+                  }}
+                >
+                  {props.score[index]}
+                </span>
+              </p>
+            ))}
           </div>
           {!props.inModal ? (
             <button onClick={() => props.setExpand((prev) => !prev)}>
