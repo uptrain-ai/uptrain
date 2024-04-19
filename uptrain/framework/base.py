@@ -63,7 +63,10 @@ class Settings(BaseSettings):
     uptrain_server_url: str = Field(
         "https://demo.uptrain.ai/", env="UPTRAIN_SERVER_URL"
     )
-
+    # uptrain open-source related
+    uptrain_local_url: str = Field(
+        "http://localhost:4300/", env="UPTRAIN_LOCAL_URL"
+    )
     # Embedding model related, applicable if embedding_compute_method is api.
     embedding_model_url: t.Optional[str] = Field(
         None, env="EMBEDDING_MODEL_URL"

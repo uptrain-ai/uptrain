@@ -86,6 +86,10 @@ PARAMETRIC_EVAL_TO_OPERATOR_MAPPING = {
 }
 
 
+def get_uuid():
+    import uuid
+    return str(uuid.uuid4().hex)
+
 class EvalLLM:
     def __init__(self, settings: Settings = None, openai_api_key: str = None) -> None:
         if (openai_api_key is None) and (settings is None):
@@ -179,6 +183,7 @@ class EvalLLM:
         data: t.Union[list[dict], pl.DataFrame, pd.DataFrame],
         checks: list[t.Union[str, Evals, ParametricEval]],
         project_name: str = "Project - " + str(datetime.utcnow()),
+        evaluation_name: t.Optional[str] = None,
         scenario_description: t.Optional[str] = None,
         schema: t.Union[DataSchema, dict[str, str], None] = None,
         metadata: t.Optional[dict[str, str]] = None,
@@ -195,7 +200,9 @@ class EvalLLM:
         Returns:
             results: List of dictionaries with each data point and corresponding evaluation results.
         """
-
+        if evaluation_name is None:
+            evaluation_name = "Eval - " + str(datetime.utcnow())
+        
         if isinstance(data, pl.DataFrame):
             data = data.to_dicts()
         elif isinstance(data, pd.DataFrame):
@@ -285,7 +292,7 @@ class EvalLLM:
                 raise ValueError(
                     f"Row {idx} is missing required all required attributes for evaluation: {req_attrs}"
                 )
-
+        server_checks = copy.deepcopy(ser_checks)
         if self.settings.evaluate_locally:
             results = copy.deepcopy(data)
             for idx, check in enumerate(checks):
@@ -335,35 +342,37 @@ class EvalLLM:
             results = self.evaluate_on_server(data, ser_checks, schema)
         ## local server calls
         try:
-            url = "http://localhost:4300/api/public/user"
             client = httpx.Client(
                 headers={"uptrain-access-token": "default_key"},
                 timeout=httpx.Timeout(7200, connect=5),
             )
-            response = client.post(url, json={"name": "default_key"})
 
-            user_id = response.json()["id"]
-            checks = []
-            for res in results:
-                row_check = {}
-                for key in res:
-                    if key.startswith("score") or key.startswith("explanation"):
-                        row_check.update({key: res[key]})
-                checks.append(row_check)
+            sink_data = copy.deepcopy(results)
+            for idx, data_point in enumerate(sink_data):
+                row_uuid= get_uuid()
+                data_point["row_uuid"] = row_uuid
+                for key_dict in list(data_point.keys()):
+                    if "confidence" in key_dict:
+                        data_point['score_confidence' + '_' + key_dict.split("confidence_")[-1]] = data_point[key_dict]
+                    if key_dict.startswith("score") and "confidence" not in key_dict:
+                        data_point["status_" + key_dict] = "not updated"
 
-            url = "http://localhost:4300/api/public/add_project_data"
+            url = self.settings.uptrain_local_url + "/api/public/add_project_data"
             response = client.post(
                 url,
                 json={
-                    "data": results,
-                    "checks": checks,
+                    "data": data,
+                    "sink_data": sink_data,
+                    "checks": server_checks,
                     "metadata": metadata,
                     "schema_dict": schema.model_dump(),
                     "project": project_name,
+                    "evaluation": evaluation_name,
+                    "exp_column": None if metadata.get("uptrain_experiment_columns", None) is None else metadata.get("uptrain_experiment_columns", None)[0]
                 },
             )
         except Exception:
-            user_id = "default_key"
+            #user_id = "default_key"
             logger.info("Local server not running, start the server to log data and visualize in the dashboard!")
         return results
 
@@ -402,6 +411,7 @@ class EvalLLM:
         data: t.Union[list[dict], pl.DataFrame],
         checks: list[t.Union[str, Evals, ParametricEval]],
         exp_columns: list[str],
+        evaluation_name: t.Optional[str] = None,
         schema: t.Union[DataSchema, dict[str, str], None] = None,
         metadata: t.Optional[dict[str, t.Any]] = None,
     ):
@@ -420,7 +430,9 @@ class EvalLLM:
         """
         if metadata is None:
             metadata = {}
-
+        if evaluation_name is None:
+            evaluation_name = "Expt - " + str(datetime.utcnow())
+        
         metadata.update({"uptrain_experiment_columns": exp_columns})
 
         if schema is None:
@@ -430,6 +442,7 @@ class EvalLLM:
 
         results = self.evaluate(
             project_name=project_name,
+            evaluation_name=evaluation_name,
             data=data,
             checks=checks,
             schema=schema,
