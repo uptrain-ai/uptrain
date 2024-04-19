@@ -23,38 +23,6 @@ from uptrain.utilities.utils import get_uuid, get_current_datetime
 SQLBase = declarative_base()
 
 
-# class ModelDataset(SQLBase):
-#     __tablename__ = "datasets"
-
-#     id = Column(String, primary_key=True, nullable=False, default=get_uuid)
-#     created_at = Column(DateTime, default=get_current_datetime)
-#     name = Column(String, nullable=False)
-#     version = Column(Integer, nullable=False)
-#     address = Column(String, nullable=False)
-#     user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
-#     rows_count = Column(Integer, nullable=False)
-
-#     __table_args__ = (
-#         UniqueConstraint("user_id", "name", "version", name="uix_dataset"),
-#     )
-
-
-# class ModelPrompt(SQLBase):
-#     __tablename__ = "prompts"
-
-#     id = Column(String, primary_key=True, nullable=False, default=get_uuid)
-#     created_at = Column(DateTime, default=get_current_datetime)
-#     name = Column(String, nullable=False)
-#     version = Column(Integer, nullable=False)
-#     prompt = Column(String, nullable=False)
-#     user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
-
-#     __table_args__ = (
-#         UniqueConstraint("user_id", "name", "version", name="uix_prompt"),
-#     )
-
-
-
 class ModelProjectDataset(SQLBase):
     __tablename__ = "project_datasets"
 
@@ -70,8 +38,6 @@ class ModelProjectDataset(SQLBase):
     __table_args__ = (
         UniqueConstraint("project_id", "name", "version", name="uix_dataset"),
     )
-
-
 
 
 class ModelPrompt(SQLBase):

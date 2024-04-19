@@ -292,7 +292,7 @@ class EvalLLM:
                 raise ValueError(
                     f"Row {idx} is missing required all required attributes for evaluation: {req_attrs}"
                 )
-
+        server_checks = copy.deepcopy(ser_checks)
         if self.settings.evaluate_locally:
             results = copy.deepcopy(data)
             for idx, check in enumerate(checks):
@@ -342,14 +342,10 @@ class EvalLLM:
             results = self.evaluate_on_server(data, ser_checks, schema)
         ## local server calls
         try:
-            #url = "http://localhost:4300/api/public/user"
             client = httpx.Client(
                 headers={"uptrain-access-token": "default_key"},
                 timeout=httpx.Timeout(7200, connect=5),
             )
-            #response = client.post(url, json={"name": "default_key"})
-
-            #user_id = response.json()["id"]
 
             sink_data = copy.deepcopy(results)
             for idx, data_point in enumerate(sink_data):
@@ -361,18 +357,18 @@ class EvalLLM:
                     if key_dict.startswith("score") and "confidence" not in key_dict:
                         data_point["status_" + key_dict] = "not updated"
 
-            url = "http://localhost:4300/api/public/add_project_data"
+            url = self.settings.uptrain_local_url + "/api/public/add_project_data"
             response = client.post(
                 url,
                 json={
                     "data": data,
                     "sink_data": sink_data,
-                    "checks": ser_checks,
+                    "checks": server_checks,
                     "metadata": metadata,
                     "schema_dict": schema.model_dump(),
                     "project": project_name,
                     "evaluation": evaluation_name,
-                    "exp_column": metadata.get("uptrain_experiment_columns", None)
+                    "exp_column": None if metadata.get("uptrain_experiment_columns", None) is None else metadata.get("uptrain_experiment_columns", None)[0]
                 },
             )
         except Exception:

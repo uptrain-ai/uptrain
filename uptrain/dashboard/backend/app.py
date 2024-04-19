@@ -7,18 +7,21 @@ work with rows specific to the user.
 
 from __future__ import annotations
 from contextlib import contextmanager
-from datetime import datetime, timedelta
 import datetime as dt
 import json
 import io
 import os
 import typing as t
+import copy 
+import random
 import uvicorn
 import polars as pl
 import sys
 
-from uptrain.framework import Settings, EvalLLM
-from uptrain.operators import ColumnOp, ColumnOp, Table, LineChart, Histogram
+from uptrain.operators import JsonReader, JsonWriter
+
+from uptrain import Settings as UserSettings
+from uptrain import EvalLLM
 
 import pandas as pd
 import dateutil.parser
@@ -46,15 +49,10 @@ from sqlalchemy.orm import Session
 
 from uptrain.utilities.db import create_database, ModelUser, ModelPrompt, ModelProject, ModelProjectDataset, ModelProjectRun
 from uptrain.utilities.utils import (
-    get_sqlite_utils_db,
     _get_fsspec_filesystem,
-    convert_project_to_polars,
-    convert_project_to_dicts,
     checks_mapping,
     create_dirs,
-    get_current_datetime,
 )
-from uptrain.utilities import polars_to_pandas
 
 from uptrain.utilities import app_schema
 
@@ -208,8 +206,6 @@ def get_data(
     created_at = project_run.created_at
     checks = project_run.checks
 
-    from uptrain.operators import JsonReader
-    from uptrain import Settings as UserSettings
     data = JsonReader(fpath = address).setup(UserSettings()).run()['output'].to_dicts()
 
     if run_type == "evaluation" or run_type == "experiment" or run_type == "prompt":
@@ -252,9 +248,6 @@ def _save_log_and_eval(
     else:
         project_id = get_uuid()
     
-    from uptrain.operators import JsonWriter
-    from uptrain import Settings as UserSettings
-    import polars as pl
 
     if "dataset_id" not in metadata:
         ######    
@@ -308,7 +301,6 @@ def _save_log_and_eval(
         )
         dataset_id = existing_dataset.id
 
-    from uptrain import Settings as UserSettings
     for check in checks:
         for key, value in check.copy().items():
             ## to remove scenario description
@@ -333,7 +325,6 @@ def _save_log_and_eval(
         )       
     
     evaluation_id = get_uuid()
-    import polars as pl 
 
     name_w_version = os.path.join("uptrain-eval-results", evaluation_id)
     address = os.path.join(DATABASE_PATH, name_w_version)
@@ -510,8 +501,6 @@ def prompt_runs(
     )
 
     prompt_runs = query.order_by(ModelPrompt.created_at.asc()).limit(num).all()
-    from uptrain.operators import JsonReader
-    from uptrain import Settings as UserSettings
 
     results = []
     prompts = []
@@ -583,9 +572,6 @@ def compare_prompt(
     created_at_1 = project_run_1.created_at
     created_at_2 = project_run_2.created_at
 
-    from uptrain.operators import JsonReader
-    from uptrain import Settings as UserSettings
-
     
     data_1 = JsonReader(fpath = address_1).setup(UserSettings()).run()['output'].with_columns(
         experiment_column = pl.lit(str(version_1))
@@ -656,7 +642,6 @@ async def find_common_topic(
     )
 
     from uptrain.operators import TopicGenerator
-
     user = db.query(ModelUser).filter_by(id=user_id).first()
     if user is None:
         raise HTTPException(status_code=403, detail="Invalid user name")
@@ -668,7 +653,7 @@ async def find_common_topic(
     try:
         result = (
             TopicGenerator()
-            .setup(Settings(**user_headers))
+            .setup(UserSettings(**user_headers))
             .run(pl.DataFrame(data))["output"]
         )
         return {"common_topic": result.to_dicts()[0]["topic"]}
@@ -703,15 +688,11 @@ async def create_project(
         )
     
     evaluation_name = "default_run"
-    import random
     version = str(random.random()).split('.')[-1][:2]
     name_w_version = os.path.join(user_id, dataset_name, f"v_{version}")
     address = os.path.join("temp-datasets", name_w_version)
     with fsspec_fs.open(address, "wb") as f:
         f.write(data_file.file.read())
-    
-    from uptrain.operators import JsonReader
-    from uptrain import Settings
 
     checks = eval(checks[0])
     checks_1 = []
@@ -728,6 +709,7 @@ async def create_project(
 
     settings_data = {}
     settings_data["model"] = model
+    settings_data["uptrain_local_url"] = os.environ["UPTRAIN_LOCAL_URL"]
     settings_data.update(metadata[model])
 
     if "exp_column" in metadata:
@@ -736,14 +718,12 @@ async def create_project(
         exp_column = None
     
     try:
-        from uptrain import EvalLLM
-
-        user_client = EvalLLM(Settings(**settings_data))
+        user_client = EvalLLM(UserSettings(**settings_data))
         data = (
             JsonReader(
                 fpath=os.path.join(DATABASE_PATH, "temp-datasets", name_w_version)
             )
-            .setup(Settings())
+            .setup(UserSettings())
             .run()["output"]
             .to_dicts()
         )
@@ -779,8 +759,6 @@ async def new_run(
     fsspec_fs: t.Any = Depends(get_fsspec_fs),
 ):
     ## project key would be present in the eval_args.metadata
-    from uptrain.operators import JsonReader
-    from uptrain import Settings as UserSettings
 
     existing_project = (
         db.query(ModelProject)
@@ -791,7 +769,6 @@ async def new_run(
     checks = eval(checks[0])
     checks_1 = []
     metadata = eval(metadata)
-    import random
 
     version = str(random.random()).split('.')[-1][:2]
     name_w_version = os.path.join(user_id, dataset_name, f"v_{version}")
@@ -810,6 +787,7 @@ async def new_run(
 
     settings_data = {}
     settings_data["model"] = model
+    settings_data["uptrain_local_url"] = os.environ["UPTRAIN_LOCAL_URL"]
     settings_data.update(metadata[model])
 
     if "exp_column" in metadata:
@@ -818,14 +796,12 @@ async def new_run(
         exp_column = None
 
     try:
-        from uptrain import EvalLLM
-
-        user_client = EvalLLM(Settings(**settings_data))
+        user_client = EvalLLM(UserSettings(**settings_data))
         data = (
             JsonReader(
                 fpath=os.path.join(DATABASE_PATH, "temp-datasets", name_w_version)
             )
-            .setup(Settings())
+            .setup(UserSettings())
             .run()["output"]
             .to_dicts()
         )
@@ -879,12 +855,7 @@ async def add_default_run(
 
     name_w_version = os.path.join(user_id, dataset_name, f"v_{version}")
     address = os.path.join('uptrain-datasets', name_w_version)
-
-
-    from uptrain.operators import JsonReader
-    from uptrain import Settings as UserSettings
     
-
     checks = eval_args.checks
     checks_1 = []
     metadata = eval_args.metadata
@@ -899,6 +870,7 @@ async def add_default_run(
 
     settings_data = {}
     settings_data["model"] = eval_args.model
+    settings_data["uptrain_local_url"] = os.environ["UPTRAIN_LOCAL_URL"]
     settings_data.update(metadata[eval_args.model])
 
     if "exp_column" in metadata:
@@ -907,13 +879,12 @@ async def add_default_run(
         exp_column = None
 
     try:
-        from uptrain import EvalLLM
-        user_client = EvalLLM(Settings(**settings_data))
+        user_client = EvalLLM(UserSettings(**settings_data))
         data = (
             JsonReader(
                 fpath=os.path.join(DATABASE_PATH, address)
             )
-            .setup(Settings())
+            .setup(UserSettings())
             .run()["output"]
             .to_dicts()
         )
@@ -955,8 +926,6 @@ async def add_prompts(
     #     raise HTTPException(status_code=403, detail="Invalid user name")
     # else:
     #     user_name = user.name
-    from uptrain.operators import JsonReader
-    from uptrain import Settings as UserSettings
 
     existing_project = (
         db.query(ModelProject)
@@ -967,7 +936,6 @@ async def add_prompts(
     checks = eval(checks[0])
     checks_1 = []
     metadata = eval(metadata)
-    import random
 
     version = str(random.random()).split('.')[-1][:2]
     name_w_version = os.path.join(user_id, dataset_name, f"v_{version}")
@@ -986,6 +954,7 @@ async def add_prompts(
 
     settings_data = {}
     settings_data["model"] = model
+    settings_data["uptrain_local_url"] = os.environ["UPTRAIN_LOCAL_URL"]
     settings_data.update(metadata[model])
     prompt_id = get_uuid()
 
@@ -999,9 +968,10 @@ async def add_prompts(
         version = existing_prompt.version + 1
     else:
         version = 1
+
     try:
         db_item = ModelPrompt(
-            id=prompt_id, user_id=user_id, name=prompt_name, version=version, prompt=prompt
+            id=prompt_id, user_id=user_id, name=prompt_name, version=version, prompt=prompt, project_id=project_id
         )
         db.add(db_item)
         db.commit()
@@ -1012,10 +982,6 @@ async def add_prompts(
             status_code=400, detail="Error adding/updating prompts to platform"
         )
 
-
-    from uptrain.operators import JsonReader
-    from uptrain import Settings as UserSettings
-
     metadata = {
         "dataset_name": dataset_name,
         "prompt_id": prompt_id,
@@ -1023,8 +989,7 @@ async def add_prompts(
     }
 
     try:
-        from uptrain import EvalLLM
-        user_client = EvalLLM(Settings(**settings_data))
+        user_client = EvalLLM(UserSettings(**settings_data))
         data = (
             JsonReader(
                 fpath=os.path.join(DATABASE_PATH, "temp-datasets", name_w_version)
@@ -1034,7 +999,7 @@ async def add_prompts(
             .to_dicts()
         )
         results = user_client.evaluate_prompts(
-            project_name=existing_project.project_name,
+            project_name=existing_project.name,
             data=data,
             checks=checks_1,
             prompt=prompt,
@@ -1087,9 +1052,6 @@ async def add_default_prompt(
 
     name_w_version = os.path.join(user_id, dataset_name, f"v_{version}")
     address = os.path.join('uptrain-datasets', name_w_version)
-
-    from uptrain.operators import JsonReader
-    from uptrain import Settings as UserSettings
     
     existing_prompt = (
         db.query(ModelPrompt)
@@ -1133,24 +1095,22 @@ async def add_default_prompt(
 
     settings_data = {}
     settings_data["model"] = eval_args.model
+    settings_data["uptrain_local_url"] = os.environ["UPTRAIN_LOCAL_URL"]
     settings_data.update(metadata[eval_args.model])
 
 
     metadata = {
-        "dataset_id": dataset_name,
+        "dataset_id": dataset_id,
         "prompt_id": prompt_id,
         "model": eval_args.model,
     }
-    from uptrain.operators import JsonReader
-    from uptrain import Settings as UserSettings
 
     data = JsonReader(fpath=os.path.join(DATABASE_PATH, address)).setup(UserSettings()).run()['output'].to_dicts()
     
     try:
-        from uptrain import EvalLLM
-        user_client = EvalLLM(Settings(**settings_data))
+        user_client = EvalLLM(UserSettings(**settings_data))
         results = user_client.evaluate_prompts(
-            project_name=existing_project.project_name,
+            project_name=existing_project.name,
             data=data,
             checks=checks_1,
             prompt=prompt,
