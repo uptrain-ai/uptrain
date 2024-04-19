@@ -8,6 +8,8 @@ services:
     working_dir: "/app/"
     volumes:
       - "$SERVER_DATA_DIR:/data/"
+    env_file:
+      - .env
     ports:
       - 4300:4300
     profiles: ["server"]
@@ -20,6 +22,8 @@ services:
     working_dir: "/app/"
     environment:
       - NEXT_TELEMETRY_DISABLED=1
+    env_file:
+      - .env
     ports:
       - 3000:3000
     profiles: ["server"]
