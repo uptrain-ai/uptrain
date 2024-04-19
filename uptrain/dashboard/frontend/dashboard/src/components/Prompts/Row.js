@@ -35,7 +35,12 @@ const Row = (props) => {
             ))}
           </div>
           {!props.expanded && props.setExpand && (
-            <button onClick={() => props.setExpand((prev) => !prev)}>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                props.setExpand((prev) => !prev);
+              }}
+            >
               <Image
                 src={`${process.env.NEXT_PUBLIC_BASE_PATH}/DropDownIcon.svg`}
                 height={5.5}

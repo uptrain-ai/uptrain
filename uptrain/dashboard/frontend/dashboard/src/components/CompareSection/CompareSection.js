@@ -43,6 +43,8 @@ const CompareSection = (props) => {
           evaluationId2={props.projectData[secondIndex].evaluation_id}
           version1={props.projectData[firstIndex].prompt_version}
           version2={props.projectData[secondIndex].prompt_version}
+          data1={props.projectData[firstIndex]}
+          data2={props.projectData[secondIndex]}
           heading="Compare"
         />
       )}
@@ -57,6 +59,7 @@ const CompareSection = (props) => {
           }
           selected={firstIndex}
           OnClick={handleFirstSelect}
+          prelable="V "
         />
         {firstIndex != null && (
           <SingleSelect
@@ -68,6 +71,7 @@ const CompareSection = (props) => {
             }
             selected={secondIndex}
             OnClick={handleSecondSelect}
+            prelable="V "
           />
         )}
         <p className="text-red-500">{error}</p>

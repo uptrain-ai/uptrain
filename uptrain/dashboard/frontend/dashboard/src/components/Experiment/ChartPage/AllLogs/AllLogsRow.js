@@ -15,7 +15,12 @@ const AllLogsRow = (props) => {
   }
 
   return (
-    <div className="bg-[#23232D] py-2.5 px-4 rounded-xl mb-4 ">
+    <div
+      className="bg-[#23232D] py-2.5 px-4 rounded-xl mb-4 border border-[#23232D] hover:bg-[#171721] hover:border-[#5587fd]"
+      onClick={() => {
+        !expand && setExpand(true);
+      }}
+    >
       {!props.inModal && showFull && (
         <DataModal
           onClick={() => setShowFull(!showFull)}
@@ -36,12 +41,13 @@ const AllLogsRow = (props) => {
         question={props.question}
         score={props.score}
         date={props.date}
+        model={props.prompt_version}
         expand={expand}
         setExpand={setExpand}
         inModal={props.inModal}
       />
       {expand || props.inModal ? (
-        <div className="w-[calc(100vw-640px)] overflow-auto">
+        <div className="w-[calc(100vw-672px)] overflow-auto">
           {props.prompt_version && (
             <>
               <Divider />
@@ -57,7 +63,6 @@ const AllLogsRow = (props) => {
             <>
               <Divider />
               <DataRow
-                score
                 data={props.score}
                 title="Score"
                 setShowFull={setShowFull}

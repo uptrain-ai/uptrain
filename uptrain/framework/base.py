@@ -76,7 +76,7 @@ class Settings(BaseSettings):
     )
 
     # LLM model to run the evaluations
-    model: str = "gpt-3.5-turbo-1106"
+    model: str = "gpt-3.5-turbo"
     seed: t.Union[int, None] = None
     response_format: t.Union[dict, None] = None
 
