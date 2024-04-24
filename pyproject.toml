@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 
 [project]
 name = "uptrain"
-version = "0.6.13"
+version = "0.7.0"
 description = "UpTrain - tool to evaluate LLM applications on aspects like factual accuracy, response quality, retrieval quality, tonality, etc."
 readme = "README.md"
 maintainers = [{ name = "UpTrain AI Team", email = "oss@uptrain.ai" }]

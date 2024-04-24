@@ -4,6 +4,7 @@ import typing as t
 
 from pydantic import BaseModel
 
+import datetime as dt
 
 class Dataset(BaseModel):
     name: str
@@ -26,11 +27,49 @@ class Evaluate(BaseModel):
 
 
 class EvaluateV2(BaseModel):
-    data: list[dict]
-    checks: list[t.Any]
-    metadata: dict
+    data: list[dict] #done
+    sink_data: list[dict] #done
+    checks: list[dict] #done
+    metadata: dict #
     schema_dict: dict
-    project: str
+    project: str #done
+    evaluation: str #done
+    exp_column: t.Optional[str] = None
+
+class DefaultRun(BaseModel):
+    model: t.Any
+    dataset_id: t.Any
+    evaluation_name: t.Any
+    checks: t.Any
+    project_id: t.Any
+    metadata: t.Any
+
+class ProjectDataset(BaseModel):
+    name: str
+    version: t.Optional[int]
+    id: str
+
+class DefaultPrompt(BaseModel):
+    project_id: str
+    model: str
+    dataset_id: str
+    prompt: str
+    prompt_name: str
+    checks: t.Any
+    metadata: t.Any
+
+
+class EvalCreate(BaseModel):
+    evaluation_id: str
+    evaluation_name: str
+    dataset_id: str
+    project_id: str
+    address: str
+    user_id: str
+    run_type: str
+    checks: dict
+    prompt_id: t.Optional[str] = None
+    exp_column: t.Optional[str] = None
 
 
 class EvaluateV3(BaseModel):
@@ -40,6 +79,25 @@ class EvaluateV3(BaseModel):
     checks: list[t.Any]
     metadata: dict = None
 
+class ProjectRun(BaseModel):
+    project_id: str
+    created_at: dt.datetime
+    evaluation_name: str
+    evaluation_id: str
+    dataset_id: str
+    run_type: str
+    exp_column: t.Optional[str] = None
+
+class PromptRun(BaseModel):
+    evaluation_id: str
+    prompt_id: str
+    prompt_name: str
+    prompt_version: t.Union[str, int]
+    prompt: str
+    created_at: dt.datetime
+    dataset_id: str
+    scores: dict
+
 
 class ProjectsList(BaseModel):
     user_name: str
@@ -48,4 +106,13 @@ class ProjectsList(BaseModel):
 
 class ProjectData(BaseModel):
     data: list[t.Any]
+    id: str
+
+
+class Project(BaseModel):
+    project_id: str
+    project_type: str
+    created_at: dt.datetime
     project_name: str
+    dataset_id: t.Union[str, None]
+    checks: t.Union[list[dict], dict, None]
