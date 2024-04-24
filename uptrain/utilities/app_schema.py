@@ -14,6 +14,8 @@ class Dataset(BaseModel):
 class TopicGenerate(BaseModel):
     items: list[t.Any]
     scores: list[t.Any]
+    model: str
+    metadata: t.Any
 
 
 class UserCreate(BaseModel):
