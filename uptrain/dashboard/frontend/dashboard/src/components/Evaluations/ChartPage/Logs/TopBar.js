@@ -81,7 +81,7 @@ const TopBar = (props) => {
         model: selectedOption,
         metadata: metadata,
       };
-F
+
       const response = await fetch(
         process.env.NEXT_PUBLIC_BACKEND_URL + `api/public/find_common_topic`,
         {
