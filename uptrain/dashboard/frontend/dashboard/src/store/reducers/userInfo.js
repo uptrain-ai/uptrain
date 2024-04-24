@@ -17,6 +17,12 @@ const userInfoSlice = createSlice({
       state.user_name = user_name;
       state.uptrain_access_token = api_key;
     },
+    removeUserData(state, action) {
+      state.credits_total = null;
+      state.credits_used = null;
+      state.user_name = null;
+      state.uptrain_access_token = null;
+    },
   },
 });
 
