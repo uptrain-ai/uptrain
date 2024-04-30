@@ -650,10 +650,15 @@ async def find_common_topic(
 
     user_headers = {"openai_api_key": user_name}
 
+    settings_data = {}
+    settings_data["model"] = args.model
+    settings_data["uptrain_local_url"] = os.environ["UPTRAIN_LOCAL_URL"]
+    settings_data.update(args.metadata[args.model])
+
     try:
         result = (
             TopicGenerator()
-            .setup(UserSettings(**user_headers))
+            .setup(UserSettings(**settings_data))
             .run(pl.DataFrame(data))["output"]
         )
         return {"common_topic": result.to_dicts()[0]["topic"]}
