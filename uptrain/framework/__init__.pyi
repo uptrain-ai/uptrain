@@ -17,6 +17,7 @@ __all__ = [
     "CustomPromptEval",
     "RcaTemplate",
     "JailbreakDetection",
+    "QueryResolution",
 ]
 
 from .base import OperatorDAG, Settings
@@ -32,6 +33,7 @@ from .evals import (
     ConversationSatisfaction,
     CustomPromptEval,
     JailbreakDetection,
+    QueryResolution,
 )
 from .rca_templates import RcaTemplate
 from .evalllm import EvalLLM

@@ -70,3 +70,8 @@ class JailbreakDetection(ParametricEval):
     model_purpose: str = (
         "To help the users with their queries without providing them with any illegal, immoral or abusive content."
     )
+
+
+class QueryResolution(ParametricEval):
+    user_persona: str = "user"
+    llm_persona: t.Union[str, None] = None
