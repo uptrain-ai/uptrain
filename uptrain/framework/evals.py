@@ -75,3 +75,8 @@ class JailbreakDetection(ParametricEval):
 class QueryResolution(ParametricEval):
     user_persona: str = "user"
     llm_persona: t.Union[str, None] = None
+
+
+class ConversationNumberOfTurns(ParametricEval):
+    user_persona: str = "user"
+    llm_persona: str = "assistant"

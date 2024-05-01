@@ -14,6 +14,7 @@ __all__ = [
     "JailbreakDetection",
     "EvalAssistant",
     "QueryResolution",
+    "ConversationNumberOfTurns",
 ]
 
 from .framework.base import Settings
@@ -27,6 +28,7 @@ from .framework.evals import (
     CustomPromptEval,
     JailbreakDetection,
     QueryResolution,
+    ConversationNumberOfTurns,
 )
 from .framework.evalllm import EvalLLM
 from .framework.rca_templates import RcaTemplate
