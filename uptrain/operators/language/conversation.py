@@ -55,7 +55,7 @@ class ConversationSatisfactionScore(ColumnOp):
     """
 
     col_conversation: str = "conversation"
-    col_out: str = "score_query_resolution"
+    col_out: str = "score_conversation_satisfaction"
     assistant_persona: t.Union[str, None] = None
     user_role: str = "User"
     assistant_role: str = "Assistant"
@@ -199,4 +199,3 @@ class ConversationSatisfactionScore(ColumnOp):
         results = [val for _, val in sorted(results, key=lambda x: x[0])]
 
         return results
-
