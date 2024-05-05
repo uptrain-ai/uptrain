@@ -16,6 +16,7 @@ __all__ = [
     "EvalAssistant",
     "QueryResolution",
     "ConversationNumberOfTurns",
+    "ConversationObjective"
 ]
 
 from .framework.base import Settings
@@ -31,6 +32,7 @@ from .framework.evals import (
     JailbreakDetection,
     QueryResolution,
     ConversationNumberOfTurns,
+    ConversationObjective
 )
 from .framework.evalllm import EvalLLM
 from .framework.rca_templates import RcaTemplate

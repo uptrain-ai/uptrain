@@ -48,6 +48,13 @@ class ConversationGuidelineAdherence(ParametricEval):
         "guideline"  # User-assigned name of the guideline to distinguish between multiple checks
     )
 
+class ConversationObjective(ParametricEval):
+    objective: str
+    objective_name: str = (
+        "objective"  # objective of the converstion.
+    )
+
+
 class ConversationSatisfaction(ParametricEval):
     user_persona: str = "user"
     llm_persona: t.Union[str, None] = None
