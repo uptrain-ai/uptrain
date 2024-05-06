@@ -42,6 +42,18 @@ class GuidelineAdherence(ParametricEval):
         None  # Schema of the response in case it is of type JSON, XML, etc.
     )
 
+class ConversationGuidelineAdherence(ParametricEval):
+    guideline: str
+    guideline_name: str = (
+        "guideline"  # User-assigned name of the guideline to distinguish between multiple checks
+    )
+
+class ConversationObjective(ParametricEval):
+    objective: str
+    objective_name: str = (
+        "objective"  # objective of the converstion.
+    )
+
 
 class ConversationSatisfaction(ParametricEval):
     user_persona: str = "user"
@@ -70,3 +82,13 @@ class JailbreakDetection(ParametricEval):
     model_purpose: str = (
         "To help the users with their queries without providing them with any illegal, immoral or abusive content."
     )
+
+
+class QueryResolution(ParametricEval):
+    user_persona: str = "user"
+    llm_persona: t.Union[str, None] = None
+
+
+class ConversationNumberOfTurns(ParametricEval):
+    user_persona: str = "user"
+    llm_persona: str = "assistant"

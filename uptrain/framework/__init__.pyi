@@ -12,11 +12,15 @@ __all__ = [
     "Evals",
     "CritiqueTone",
     "GuidelineAdherence",
+    "ConversationGuidelineAdherence",
     "ResponseMatching",
     "ConversationSatisfaction",
     "CustomPromptEval",
     "RcaTemplate",
     "JailbreakDetection",
+    "QueryResolution",
+    "ConversationNumberOfTurns",
+    "ConversationObjective"
 ]
 
 from .base import OperatorDAG, Settings
@@ -28,10 +32,14 @@ from .evals import (
     Evals,
     CritiqueTone,
     GuidelineAdherence,
+    ConversationGuidelineAdherence,
     ResponseMatching,
     ConversationSatisfaction,
     CustomPromptEval,
     JailbreakDetection,
+    QueryResolution,
+    ConversationNumberOfTurns,
+    ConversationObjective
 )
 from .rca_templates import RcaTemplate
 from .evalllm import EvalLLM

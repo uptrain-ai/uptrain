@@ -41,7 +41,7 @@ class ConversationSatisfactionScore(ColumnOp):
     """
     Grade if the user is satifised with the conversation with the ChatBot.
 
-     Attributes:
+    Attributes:
         col_conversation (str): Column name for the stored conversations.
         col_out (str): Column name to output scores
         assistant_persona (str): The personality description of the assistant.
