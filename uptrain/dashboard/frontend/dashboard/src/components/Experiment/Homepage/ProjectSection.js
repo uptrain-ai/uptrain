@@ -17,6 +17,7 @@ const ProjectSection = (props) => {
                 date={item.created_at}
                 project={props.project}
                 evaluation={item.evaluation_name}
+                evaluation_id={item.evaluation_id}
               />
             ))}
         <CreateProjectTab

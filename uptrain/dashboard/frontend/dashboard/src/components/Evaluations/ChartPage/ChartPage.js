@@ -92,7 +92,7 @@ const fetchProjectData = async (
       slug = decodeURIComponent(slug);
 
       const projectIndex = responseData.findIndex(
-        (project) => project.evaluation_name === slug
+        (project) => project.evaluation_id === slug
       );
 
       if (projectIndex != -1) {

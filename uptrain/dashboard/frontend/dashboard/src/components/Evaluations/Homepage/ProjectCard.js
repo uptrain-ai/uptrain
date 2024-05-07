@@ -18,7 +18,7 @@ const ProjectCard = (props) => {
           : "bg-[#23232D] border-[#23232D]"
       } border p-4 rounded-xl text-left flex flex-col justify-between min-h-[150px]`}
       onClick={() => {
-        router.push(`/evaluations/${props.project}/${props.evaluation}`);
+        router.push(`/evaluations/${props.project}/${props.evaluation_id}`);
       }}
     >
       <HeaderSection title={props.title} />
