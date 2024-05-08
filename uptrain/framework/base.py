@@ -214,7 +214,27 @@ class Settings(BaseSettings):
 
 
 class OperatorDAG:
-    """A Graph is a DAG of Uptrain table operators, that defines the data pipeline to execute."""
+    """
+    A Graph is a DAG of Uptrain table operators, that defines the data pipeline to execute.
+    
+    Attributes:
+        name: Name of the DAG.
+        graph: Directed graph of operators.
+
+    Methods:
+        add_step: Add a node to the DAG, along with its dependencies.
+        setup: Set up the operators in the DAG.
+        run: Run the compute DAG.
+        dict: Serialize the DAG to a dict.
+        from_dict: Deserialize the DAG from a dict.
+
+    Internal Methods:
+        _get_node_parents: Get the parents of a node in the DAG.
+        _get_node_children: Get the children of a node in the DAG.
+
+    Notes:
+        The __repr__ method provides a string representation of the DAG.
+    """
 
     name: str
     graph: nx.DiGraph
