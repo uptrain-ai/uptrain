@@ -1,5 +1,4 @@
-"""Base constructs used to create user-facing objects.
-"""
+"""Base classes for the Uptrain framework."""
 
 from __future__ import annotations
 import os
@@ -25,9 +24,102 @@ __all__ = [
 
 
 class Settings(BaseSettings):
-    # uptrain stores logs in this folder
+    """
+    Configuration parameters for the Uptrain framework.
+
+    Attributes:
+        logs_folder: Folder for storing logs.
+        model: Model for evaluations.
+        seed: Seed for evaluations.
+        response_format: Response format for evaluations.
+        evaluate_locally: Flag for local evaluation.
+        eval_type: Type of evaluation.
+
+        # Rate limits
+        rpm_limit: "Requests Per Minute" limit for the API.
+        tpm_limit: "Tokens Per Minute" limit for the API.
+
+        # UpTrain managed service
+        uptrain_access_token: Access token for Uptrain API.
+        uptrain_server_url: URL for Uptrain server.
+
+        # UpTrain open-source
+        uptrain_local_url: URL for local Uptrain server.
+
+        # Embedding model
+        embedding_compute_method: Method for computing embeddings.
+        embedding_model_url: URL for embedding model.
+        embedding_model_api_token: API token for embedding model.
+
+        # External API keys
+        openai_api_key: API key for OpenAI: https://platform.openai.com/api-keys
+        cohere_api_key: API key for Cohere: https://dashboard.cohere.com/api-keys
+        huggingface_api_key: API key for Huggingface: https://huggingface.co/settings/tokens
+        anthropic_api_key: API key for Anthropic: https://console.anthropic.com/settings/keys
+        replicate_api_token: API token for Replicate: https://replicate.com/account/api-tokens
+        anyscale_api_key: API key for Anyscale: https://app.endpoints.anyscale.com/credentials
+        together_api_key: API key for Together: https://api.together.xyz/settings/api-keys
+        mistral_api_key: API key for Mistral: https://console.mistral.ai/user/api-keys/
+
+        # For vllm: https://litellm.vercel.app/docs/providers/vllm
+        custom_llm_provider: Custom LLM provider.
+        api_base: Base URL for the API.
+
+        # Azure API
+        azure_api_key: API key for Azure API.
+        azure_api_base: Base URL for Azure API.
+        azure_api_version: Version of Azure API.
+
+    Methods:
+        __init__: Initialize settings.
+        check_and_get: Check and return a value from settings. Throw an error if the value is absent.
+        serialize: Serialize settings to a JSON file.
+        deserialize: Deserialize settings from a JSON file.
+    """
+
+
     logs_folder: str = "/tmp/uptrain-logs"
-    # external api related
+    model: str = "gpt-3.5-turbo"
+    seed: t.Union[int, None] = None
+    response_format: t.Union[dict, None] = None
+    evaluate_locally: bool = True
+
+    # cot -> We will use chain of thought prompting to evaluate and get the grade
+    # basic -> We will simply prompt the LLM to return the grade without any reasoning
+    eval_type: t.Literal["basic", "cot"] = "cot"
+
+    # Rate limits
+    rpm_limit: int = 100
+    tpm_limit: int = 90_000
+
+    # UpTrain managed service
+    uptrain_access_token: t.Optional[str] = Field(
+        None, env="UPTRAIN_ACCESS_TOKEN"
+    )
+    uptrain_server_url: str = Field(
+        "https://demo.uptrain.ai/", env="UPTRAIN_SERVER_URL"
+    )
+    
+    # UpTrain open-source
+    uptrain_local_url: str = Field(
+        "http://localhost:4300/", env="UPTRAIN_LOCAL_URL"
+    )
+
+    # Embedding model
+    embedding_compute_method: t.Literal["local", "replicate", "api"] = "local"
+    ## Applicable if embedding_compute_method is api.
+    embedding_model_url: t.Optional[str] = Field(
+        None, env="EMBEDDING_MODEL_URL"
+    )
+    embedding_model_api_token: t.Optional[str] = Field(
+        None, env="EMBEDDING_MODEL_API_TOKEN"
+    )
+
+    # Custom LLM provider
+    custom_llm_provider: t.Optional[str] = "openai"
+    api_base: t.Optional[str] = None
+
+    # External API keys
     openai_api_key: t.Optional[str] = Field(None, env="OPENAI_API_KEY")
     cohere_api_key: t.Optional[str] = Field(None, env="COHERE_API_KEY")
     huggingface_api_key: t.Optional[str] = Field(
@@ -49,42 +141,7 @@ class Settings(BaseSettings):
         None, env="AZURE_API_VERSION"
     )
 
-    custom_llm_provider: t.Optional[str] = None
-    api_base: t.Optional[str] = None
-
-    rpm_limit: int = 100
-    tpm_limit: int = 90_000
-    embedding_compute_method: t.Literal["local", "replicate", "api"] = "local"
-
-    # uptrain managed service related
-    uptrain_access_token: t.Optional[str] = Field(
-        None, env="UPTRAIN_ACCESS_TOKEN"
-    )
-    uptrain_server_url: str = Field(
-        "https://demo.uptrain.ai/", env="UPTRAIN_SERVER_URL"
-    )
-    # uptrain open-source related
-    uptrain_local_url: str = Field(
-        "http://localhost:4300/", env="UPTRAIN_LOCAL_URL"
-    )
-    # Embedding model related, applicable if embedding_compute_method is api.
-    embedding_model_url: t.Optional[str] = Field(
-        None, env="EMBEDDING_MODEL_URL"
-    )
-    embedding_model_api_token: t.Optional[str] = Field(
-        None, env="EMBEDDING_MODEL_API_TOKEN"
-    )
-
-    # LLM model to run the evaluations
-    model: str = "gpt-3.5-turbo"
-    seed: t.Union[int, None] = None
-    response_format: t.Union[dict, None] = None
-
-    evaluate_locally: bool = True
-
-    # Cot -> We will use chain of thought prompting to evaluate and get the grade
-    # basic -> We will simply prompt the LLM to return the grade without any reasoning
-    eval_type: t.Literal["basic", "cot"] = "cot"
+    # Pydantic settings configuration (not relevant for the user)
     model_config = SettingsConfigDict(extra="allow")
     model_config['protected_namespaces'] = ()
 

@@ -229,7 +229,7 @@ class LLMMulticlient:
         seed = self.settings.seed
         response_format = self.settings.response_format
 
-        # For vllm
+        # For vllm: https://litellm.vercel.app/docs/providers/vllm
         custom_llm_provider = self.settings.custom_llm_provider
         api_base = self.settings.api_base
 
