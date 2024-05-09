@@ -19,6 +19,8 @@ from uptrain.operators.base import register_op, ColumnOp, TYPE_TABLE_OUTPUT
 from uptrain.utilities import polars_to_json_serializable_dict
 from uptrain.operators.language.llm import LLMMulticlient
 from uptrain.operators.language.factual_accuracy import ResponseFactualScore
+from uptrain.operators.language.rouge import RougeScore
+from uptrain.framework import Settings
 
 from uptrain.operators.language.prompts.classic import (
     RESPONSE_COMPLETENESS_PROMPT_TEMPLATE,
@@ -809,19 +811,14 @@ class ResponseMatchingScore(ColumnOp):
 
         assert settings is not None
         self.settings = settings
+        if self.method not in ["exact", "rouge", "llm"]:
+            raise Exception(f"Metric: {self.method} is not supported. Supported metrics are: ['exact', 'rouge', 'llm']")
         if self.settings.evaluate_locally and (
             self.settings.uptrain_access_token is None
             or not len(self.settings.uptrain_access_token)
         ):
-            # TODO: Add support for local evaluation for all methods
-            if self.method != "llm":
-                raise Exception(
-                    f"Local evaluation is only supported for `llm` method for `ResponseMatchingScore`. Metric: {self.method} is not supported."
-                )
             self._api_client = LLMMulticlient(settings)
         else:
-            if self.method not in ["exact", "rouge", "llm"]:
-                raise Exception(f"Metric: {self.method} is not supported yet.")
             self._api_client = APIClient(settings)
         return self
 
@@ -874,59 +871,86 @@ class ResponseMatchingScore(ColumnOp):
         Our methodology is based on the model grade evaluation introduced by openai evals.
         """
 
-        data_precision = copy.deepcopy(pl.DataFrame(data).drop('context')).rename(
-            {self.col_response: "response", self.col_ground_truth: "context"}
-        )
-        data_recall = copy.deepcopy(pl.DataFrame(data).drop('context')).rename(
-            {self.col_ground_truth: "response", self.col_response: "context"}
-        )
-        eval_data = pl.concat(
-            [data_precision, data_recall.select(data_precision.columns)]
-        )
-        
-        output = (
-            ResponseFactualScore(
-                col_question=self.col_question,
-                col_response="response",
-                col_context="context",
-                scenario_description=self.scenario_description,
+        if self.method=='rouge':
+            dataset = pl.from_dicts(data)
+            op = RougeScore(
+                score_type='f1',
+                col_in_generated='response',
+                col_in_source='ground_truth',
+                col_out='rouge_score',
             )
-            .setup(settings=self.settings)
-            .run(eval_data)["output"]
-            .to_dicts()
-        )
-        output_precision = output[0 : len(data)]
-        output_recall = output[len(data) :]
-
-        results = []
-        for combined_row in zip(output_precision, output_recall):
-            precision = combined_row[0]["score_factual_accuracy"]
-            recall = combined_row[1]["score_factual_accuracy"]
-            output = {
-                "score_response_match": None,
-                "explanation_response_matching": None,
-                "score_response_match_recall": None,
-                "score_response_match_precision": None,
-            }
-            if precision is not None and recall is not None:
-                explanation = (
-                    "Information Recall: "
-                    + str(recall)
-                    + str(combined_row[1]["explanation_factual_accuracy"])
-                    + "\n"
-                    + "Information Precision: "
-                    + str(precision)
-                    + str(combined_row[0]["explanation_factual_accuracy"])
-                )
-                output["explanation_response_matching"] = explanation
-
-                if precision != 0 and recall != 0:
-                    output["score_response_match"] = 4 * (
-                        (precision * recall) / (precision * 3 + recall)
-                    )
+            output_df = op.setup(Settings()).run(dataset)["output"]
+            assert output_df is not None
+            return [
+                {
+                    "score_response_match": row['rouge_score'], 'response_match_method': self.method
+                }
+                for row in output_df.to_dicts()
+            ]
+        
+        elif self.method=='exact':
+            results=[]
+            for row in data:
+                if row['response'].lower() == row['ground_truth'].lower():
+                    results.append({'score_response_match' : 1, 'response_match_method': self.method})
                 else:
-                    output["score_response_match"] = 0.0
-                output["score_response_match_recall"] = recall
-                output["score_response_match_precision"] = precision
-            results.append(output)
-        return results
+                    results.append({'score_response_match' : 0, 'response_match_method': self.method})
+            return results
+        
+        elif self.method=='llm':
+            data_precision = copy.deepcopy(pl.DataFrame(data).drop('context')).rename(
+                {self.col_response: "response", self.col_ground_truth: "context"}
+            )
+            data_recall = copy.deepcopy(pl.DataFrame(data).drop('context')).rename(
+                {self.col_ground_truth: "response", self.col_response: "context"}
+            )
+            eval_data = pl.concat(
+                [data_precision, data_recall.select(data_precision.columns)]
+            )
+            
+            output = (
+                ResponseFactualScore(
+                    col_question=self.col_question,
+                    col_response="response",
+                    col_context="context",
+                    scenario_description=self.scenario_description,
+                )
+                .setup(settings=self.settings)
+                .run(eval_data)["output"]
+                .to_dicts()
+            )
+            output_precision = output[0 : len(data)]
+            output_recall = output[len(data) :]
+
+            results = []
+            for combined_row in zip(output_precision, output_recall):
+                precision = combined_row[0]["score_factual_accuracy"]
+                recall = combined_row[1]["score_factual_accuracy"]
+                output = {
+                    "score_response_match": None,
+                    "explanation_response_matching": None,
+                    "score_response_match_recall": None,
+                    "score_response_match_precision": None,
+                }
+                if precision is not None and recall is not None:
+                    explanation = (
+                        "Information Recall: "
+                        + str(recall)
+                        + str(combined_row[1]["explanation_factual_accuracy"])
+                        + "\n"
+                        + "Information Precision: "
+                        + str(precision)
+                        + str(combined_row[0]["explanation_factual_accuracy"])
+                    )
+                    output["explanation_response_matching"] = explanation
+
+                    if precision != 0 and recall != 0:
+                        output["score_response_match"] = 4 * (
+                            (precision * recall) / (precision * 3 + recall)
+                        )
+                    else:
+                        output["score_response_match"] = 0.0
+                    output["score_response_match_recall"] = recall
+                    output["score_response_match_precision"] = precision
+                results.append(output)
+            return results
