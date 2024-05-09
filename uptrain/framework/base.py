@@ -116,7 +116,7 @@ class Settings(BaseSettings):
     )
 
     # Custom LLM provider
-    custom_llm_provider: t.Optional[str] = "openai"
+    custom_llm_provider: t.Optional[str] = None
     api_base: t.Optional[str] = None
 
     # External API keys
