@@ -348,6 +348,37 @@ CONVERSATION_SATISFACTION_FEW_SHOT__COT = """
 """
 
 
+# Query Resolution
+QUERY_RESOLUTION_FEW_SHOT__CLASSIFY = """
+[User persona]: student
+[AI Assistant persona]: customer service representative
+[Conversation]:
+[{"role": "student", "content": "I am having trouble accessing my online course materials"},
+{"role": "customer service representative", "content": "I am sorry to hear that. Have you tried logging in with your student ID and password?"},
+{"role": "student", "content": "Yes, I have tried that multiple times, but it is not working"},
+{"role": "customer service representative", "content": "Then I do not know how to help you. You should contact your instructor for assistance"}]
+[Output]:
+{
+    "Choice": "C"
+}
+"""
+
+QUERY_RESOLUTION_FEW_SHOT__COT = """
+[User persona]: student
+[AI Assistant persona]: customer service representative
+[Conversation]:
+[{"role": "student", "content": "I am having trouble accessing my online course materials"},
+{"role": "customer service representative", "content": "I am sorry to hear that. Have you tried logging in with your student ID and password?"},
+{"role": "student", "content": "Yes, I have tried that multiple times, but it is not working"},
+{"role": "customer service representative", "content": "Then I do not know how to help you. You should contact your instructor for assistance"}]
+[Output]:
+{
+    "Choice": "C",
+    "Reasoning": "The customer service representative is unable to resolve the student's query and directs them to contact their instructor for assistance. The query remains unresolved, and the student is not provided with a solution to their problem. The conversation is not satisfactory.",
+}
+"""
+
+
 # Critique Tone
 CRITIQUE_TONE_FEW_SHOT__CLASSIFY = """
 [Persona]: Helpful and encouraging math teacher
