@@ -811,6 +811,7 @@ class ResponseMatchingScore(ColumnOp):
 
         assert settings is not None
         self.settings = settings
+        self.col_out = f"score_response_match_{self.method}"
         if self.method not in ["exact", "rouge", "llm"]:
             raise Exception(f"Metric: {self.method} is not supported. Supported metrics are: ['exact', 'rouge', 'llm']")
         if self.settings.evaluate_locally and (
@@ -883,20 +884,20 @@ class ResponseMatchingScore(ColumnOp):
             assert output_df is not None
             return [
                 {
-                    "score_response_match": row['rouge_score'], 'response_match_method': self.method
+                    "score_response_match": row['rouge_score']
                 }
                 for row in output_df.to_dicts()
             ]
-        
+
         elif self.method=='exact':
             results=[]
             for row in data:
                 if row['response'].lower() == row['ground_truth'].lower():
-                    results.append({'score_response_match' : 1, 'response_match_method': self.method})
+                    results.append({'score_response_match' : 1})
                 else:
-                    results.append({'score_response_match' : 0, 'response_match_method': self.method})
+                    results.append({'score_response_match' : 0})
             return results
-        
+
         elif self.method=='llm':
             data_precision = copy.deepcopy(pl.DataFrame(data).drop('context')).rename(
                 {self.col_response: "response", self.col_ground_truth: "context"}
@@ -907,7 +908,7 @@ class ResponseMatchingScore(ColumnOp):
             eval_data = pl.concat(
                 [data_precision, data_recall.select(data_precision.columns)]
             )
-            
+
             output = (
                 ResponseFactualScore(
                     col_question=self.col_question,
