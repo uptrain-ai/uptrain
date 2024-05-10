@@ -249,6 +249,31 @@ def _save_log_and_eval(
         project_id = get_uuid()
     
 
+    ############################### new code 
+    existing_evaluations = (
+        db.query(ModelProjectRun)
+        .filter_by(project_id=project_id)
+        .all()
+    )
+
+    exist_evals = {}
+    duplicate_check = False
+    if existing_evaluations is not None:
+        for existing_evaluation in existing_evaluations:
+            exist_evals[existing_evaluation.name] = True
+            if evaluation_name == str(existing_evaluation.name):
+                duplicate_check = True
+        
+        if duplicate_check:
+            index = 1
+            while True:
+                if f"{evaluation_name}_{index}" in exist_evals:
+                    index = index + 1
+                else:
+                    break
+            evaluation_name  = f"{evaluation_name}_{index}"
+    ###############################
+
     if "dataset_id" not in metadata:
         ######    
         if "dataset_name" in metadata:
