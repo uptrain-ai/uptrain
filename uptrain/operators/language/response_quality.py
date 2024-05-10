@@ -841,7 +841,7 @@ class ResponseMatchingScore(ColumnOp):
                     "ResponseMatching",
                     data_send,
                     {
-                        "type": self.method,
+                        "method": self.method,
                         "scenario_description": self.scenario_description,
                     },
                 )
