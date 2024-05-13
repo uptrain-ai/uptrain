@@ -102,7 +102,7 @@ class Settings(BaseSettings):
     
     # UpTrain open-source
     uptrain_local_url: str = Field(
-        "http://localhost:4300/", env="UPTRAIN_LOCAL_URL"
+        "http://localhost:4300", env="UPTRAIN_LOCAL_URL"
     )
 
     # Embedding model
