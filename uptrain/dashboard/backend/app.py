@@ -247,9 +247,7 @@ def _save_log_and_eval(
         project_id = existing_project.id
     else:
         project_id = get_uuid()
-    
 
-    ############################### new code 
     existing_evaluations = (
         db.query(ModelProjectRun)
         .filter_by(project_id=project_id)
@@ -272,10 +270,8 @@ def _save_log_and_eval(
                 else:
                     break
             evaluation_name  = f"{evaluation_name}_{index}"
-    ###############################
 
     if "dataset_id" not in metadata:
-        ######    
         if "dataset_name" in metadata:
             dataset_name = metadata["dataset_name"]
         else:
@@ -292,7 +288,6 @@ def _save_log_and_eval(
             version = existing_dataset.version + 1
         else:
             version = 1
-        #####    
         try:
             name_w_version = os.path.join(user_id, dataset_name)
             address = os.path.join(DATABASE_PATH, "uptrain-datasets", name_w_version)
