@@ -198,6 +198,20 @@ CONVERSATION_SATISFACTION_OUTPUT_FORMAT__COT = """
 """
 
 
+# Query Resolution
+QUERY_RESOLUTION_OUTPUT_FORMAT__CLASSIFY = """
+{
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+}
+"""
+
+QUERY_RESOLUTION_OUTPUT_FORMAT__COT = """
+{
+    "Reasoning": [Reasoning],  # Reasoning to determine if the query is resolved or not,
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+}
+
+
 # Critique Tone
 CRITIQUE_TONE_OUTPUT_FORMAT__CLASSIFY = """
 {
