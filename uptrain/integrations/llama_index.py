@@ -43,6 +43,7 @@ class EvalLlamaIndex:
         data: t.Union[list[dict], pl.DataFrame],
         checks: list[t.Union[str, Evals, ParametricEval]],
         project_name: str = None,
+        evaluation_name: str = None,
         schema: t.Union[DataSchema, dict[str, str], None] = None,
         metadata: t.Optional[dict[str, str]] = None,
     ):
@@ -97,11 +98,17 @@ class EvalLlamaIndex:
 
         if isinstance(self.client, EvalLLM):
             results = self.client.evaluate(
-                data=data, checks=checks, schema=schema, metadata=metadata
+                project_name=project_name,
+                evaluation_name=evaluation_name,
+                data=data,
+                checks=checks,
+                schema=schema,
+                metadata=metadata,
             )
         elif isinstance(self.client, APIClient):
             results = self.client.log_and_evaluate(
                 project_name=project_name,
+                evaluation_name=evaluation_name,
                 data=data,
                 checks=checks,
                 schema=schema,
