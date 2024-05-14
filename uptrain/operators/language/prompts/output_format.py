@@ -227,6 +227,20 @@ CONVERSATION_NUMBER_OF_TURNS_OUTPUT_FORMAT__COT = """
 }
 """
 
+# Conversation Guideline Adherence
+CONVERSATION_GUIDELINE_ADHERENCE_OUTPUT_FORMAT__CLASSIFY = """
+{
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B")
+}
+"""
+
+CONVERSATION_GUIDELINE_ADHERENCE_OUTPUT_FORMAT__COT = """
+{
+    "Reasoning": [Reasoning],  # Reasoning to determine if the given guideline is followed or not,
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B")
+}
+"""
+
 # Critique Tone
 CRITIQUE_TONE_OUTPUT_FORMAT__CLASSIFY = """
 {

@@ -347,6 +347,32 @@ Task Data.
 """
 
 
+# Conversation Guideline Adherence
+CONVERSATION_GUIDELINE_ADHERENCE_PROMPT_TEMPLATE = """
+You are a detail-oriented LLM which pays close attention to the details, checks for consistency, and is adept at identifying logical fallacies, incorrect assumptions, or other errors in reasoning.
+There is a conversation between a user and an AI assistant ChatBot. For every Customer Question, there is a response from the ChatBot. 
+
+We can always assume that the different queries asked by the user are interlinked with each other since it belongs to one single conversation. 
+Along with the full conversation, we have also given the objective to be followed in the given conversation. 
+
+Example Data.
+{few_shot_examples}
+
+Based on the Queries asked by the user, determine which case applies by selecting one of the following options:
+(A) The given guideline is strictly adhered in the given LLM Response.
+(B) The given guideline is strictly violated in the given LLM Response.
+
+{prompting_instructions}
+
+Return the output only in the corresponding JSON format. Do not output anything other than this JSON object:
+{output_format}
+
+Task Data.
+[Conversation]: {conversation}
+[Objective]: {objective}
+"""
+
+
 # Critique Tone
 CRITIQUE_TONE_PROMPT_TEMPLATE = """
 Please assess the tone of the provided machine-generated response, and rate how well it matches with the persona specified for the machine to follow. 

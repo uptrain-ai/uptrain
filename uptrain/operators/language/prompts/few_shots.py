@@ -409,6 +409,38 @@ CONVERSATION_NUMBER_OF_TURNS_FEW_SHOT__COT = """
 }
 """
 
+# Conversation Guideline Adherence
+CONVERSATION_GUIDELINE_ADHERENCE_FEW_SHOT__CLASSIFY = """
+[Conversation]:
+[{"role": "user", "content": "Hello"},
+{"role": "assistant", "content": "Hi there! How can I help you today?"},
+{"role": "user", "content": "I have a question about your services"},
+{"role": "assistant", "content": "Sure, I'd be happy to help. What would you like to know?"},
+{"role": "user", "content": "What is the cost of your premium plan?"},
+{"role": "assistant", "content": "Our premium plan costs $50 per month. It includes unlimited access to all features and priority customer support."}]
+[Guideline]: The assistant should not provide specific pricing information.
+[Output]:
+{
+    "Choice": "B"
+}
+"""
+
+CONVERSATION_GUIDELINE_ADHERENCE_FEW_SHOT__COT = """
+[Conversation]:
+[{"role": "user", "content": "Hello"},
+{"role": "assistant", "content": "Hi there! How can I help you today?"},
+{"role": "user", "content": "I have a question about your services"},
+{"role": "assistant", "content": "Sure, I'd be happy to help. What would you like to know?"},
+{"role": "user", "content": "What is the cost of your premium plan?"},
+{"role": "assistant", "content": "Our premium plan costs $50 per month. It includes unlimited access to all features and priority customer support."}]
+[Guideline]: The assistant should not provide specific pricing information.
+[Output]:
+{
+    "Reasoning": "The assistant provides specific pricing information about the premium plan, which violates the guideline of not providing specific pricing details. The response directly states the cost of the premium plan as $50 per month, which is against the guideline. Therefore, the assistant's response does not adhere to the guideline.",
+    "Choice": "B"
+}
+"""
+
 
 # Critique Tone
 CRITIQUE_TONE_FEW_SHOT__CLASSIFY = """
