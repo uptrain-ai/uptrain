@@ -14,12 +14,15 @@ from uptrain.operators.language.llm import LLMMulticlient
 from uptrain.operators.language.prompts.classic import (
     CONVERSATION_SATISFACTION_PROMPT_TEMPLATE,
     QUERY_RESOLUTION_PROMPT_TEMPLATE,
+    CONVERSATION_NUMBER_OF_TURNS_PROMPT_TEMPLATE,
 )
 from uptrain.operators.language.prompts.few_shots import (
     CONVERSATION_SATISFACTION_FEW_SHOT__CLASSIFY,
     CONVERSATION_SATISFACTION_FEW_SHOT__COT,
     QUERY_RESOLUTION_FEW_SHOT__CLASSIFY,
     QUERY_RESOLUTION_FEW_SHOT__COT,
+    CONVERSATION_NUMBER_OF_TURNS_FEW_SHOT__CLASSIFY,
+    CONVERSATION_NUMBER_OF_TURNS_FEW_SHOT__COT,
 )
 from uptrain.operators.language.prompts.instructions import CHAIN_OF_THOUGHT, CLASSIFY
 from uptrain.operators.language.prompts.output_format import (
@@ -27,6 +30,8 @@ from uptrain.operators.language.prompts.output_format import (
     CONVERSATION_SATISFACTION_OUTPUT_FORMAT__COT,
     QUERY_RESOLUTION_OUTPUT_FORMAT__CLASSIFY,
     QUERY_RESOLUTION_OUTPUT_FORMAT__COT,
+    CONVERSATION_NUMBER_OF_TURNS_OUTPUT_FORMAT__CLASSIFY,
+    CONVERSATION_NUMBER_OF_TURNS_OUTPUT_FORMAT__COT,
 )
 from uptrain.utilities.prompt_utils import parse_scenario_description
 
@@ -356,5 +361,141 @@ class QueryResolution(ColumnOp):
                 )
             results.append((idx, output))
         results = [val for _, val in sorted(results, key=lambda x: x[0])]
+
+        return results
+
+
+# TODO: See what happens when scenario_description is passed (Because this class does not use it)
+@register_op
+class ConversationNumberOfTurns(ColumnOp):
+    """
+    Calculate the number of turns in a conversation.
+
+    Attributes:
+        col_conversation (str): Column name for the stored conversations.
+        col_out (str): Column name to output scores
+    """
+
+    col_conversation: str = "conversation"
+    col_out: str = "num_turns"
+
+    def setup(self, settings: Settings):
+        from uptrain.framework.remote import APIClient
+
+        assert settings is not None
+        self.settings = settings
+        if self.settings.evaluate_locally and (
+            self.settings.uptrain_access_token is None
+            or not len(self.settings.uptrain_access_token)
+        ):
+            self._api_client = LLMMulticlient(settings)
+        else:
+            self._api_client = APIClient(settings)
+        return self
     
+    def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
+        data_send = polars_to_json_serializable_dict(data)
+        for row in data_send:
+            row["conversation"] = row[self.col_conversation]
+
+        try:
+            if self.settings.evaluate_locally and (
+                self.settings.uptrain_access_token is None
+                or not len(self.settings.uptrain_access_token)
+            ):
+                results = self.evaluate_local(data_send)
+            else:
+                results = self._api_client.evaluate(
+                    "ConversationNumberOfTurns",
+                    data_send,
+                    {
+                        "user_persona": self.user_role,
+                        "llm_persona": self.assistant_role,
+                    },
+                )
+
+        except Exception as e:
+            logger.error(
+                f"Failed to run evaluation for `ConversationNumberOfTurns`: {e}"
+            )
+            raise e
+
+        assert results is not None
+        return {
+            "output": data.with_columns(
+                pl.from_dicts(results).rename(
+                    {"score_conversation_number_of_turns": self.col_out}
+                )
+            )
+        }
+    
+    def conversation_number_of_turns_classify_validate_func(self, llm_output):
+        is_correct = True
+        is_correct = is_correct and ("Number of Turns" in llm_output)
+        is_correct = is_correct and isinstance(llm_output["Number of Turns"], int)
+        return is_correct
+
+    def conversation_number_of_turns_cot_validate_func(self, llm_output):
+        is_correct = self.conversation_number_of_turns_classify_validate_func(llm_output)
+        is_correct = is_correct and ("Reasoning" in llm_output)
+        return is_correct
+    
+    def evaluate_local(self, data):
+        """
+        Our methodology is based on the model grade evaluation introduced by openai evals.
+        """
+
+        input_payloads = []
+        if self.settings.eval_type == "basic":
+            few_shot_examples = CONVERSATION_NUMBER_OF_TURNS_FEW_SHOT__CLASSIFY
+            output_format = CONVERSATION_NUMBER_OF_TURNS_OUTPUT_FORMAT__CLASSIFY
+            validation_func = self.conversation_number_of_turns_classify_validate_func
+            prompting_instructions = CLASSIFY
+        elif self.settings.eval_type == "cot":
+            few_shot_examples = CONVERSATION_NUMBER_OF_TURNS_FEW_SHOT__COT
+            output_format = CONVERSATION_NUMBER_OF_TURNS_OUTPUT_FORMAT__COT
+            validation_func = self.conversation_number_of_turns_cot_validate_func
+            prompting_instructions = CHAIN_OF_THOUGHT
+        else:
+            raise ValueError(
+                f"Invalid eval_type: {self.settings.eval_type}. Must be either 'basic' or 'cot'"
+            )
+        
+        for idx, row in enumerate(data):
+            kwargs = row
+            kwargs.update(
+                {
+                    "output_format": output_format,
+                    "prompting_instructions": prompting_instructions,
+                    "few_shot_examples": few_shot_examples,
+                }
+            )
+            grading_prompt_template = (
+                CONVERSATION_NUMBER_OF_TURNS_PROMPT_TEMPLATE.format(**kwargs)
+            )
+            input_payloads.append(
+                self._api_client.make_payload(idx, grading_prompt_template)
+            )
+        output_payloads = self._api_client.fetch_responses(
+            input_payloads, validation_func
+        )
+
+        results = []
+        for res in output_payloads:
+            idx = res.metadata["index"]
+            output = {
+                "score_conversation_number_of_turns": None,
+                "explanation_conversation_number_of_turns": None,
+                # "conversation_length": len(json.loads(res.metadata["input"])["conversation"]),
+            }
+            try:
+                output["score_conversation_number_of_turns"] = res.response.choices[0].message.content
+                output["explanation_conversation_number_of_turns"] = res.response.choices[0].message.content
+            except Exception:
+                logger.error(
+                    f"Error when processing payload at index {idx}: {res.error}"
+                )
+            results.append((idx, output))
+        results = [val for _, val in sorted(results, key=lambda x: x[0])]
+
         return results

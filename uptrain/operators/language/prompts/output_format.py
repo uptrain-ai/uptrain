@@ -210,7 +210,22 @@ QUERY_RESOLUTION_OUTPUT_FORMAT__COT = """
     "Reasoning": [Reasoning],  # Reasoning to determine if the query is resolved or not,
     "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
 }
+"""
 
+
+# Conversation Number of Turns
+CONVERSATION_NUMBER_OF_TURNS_OUTPUT_FORMAT__CLASSIFY = """
+{
+  "Turns": [Number of Turns] # Number of turns in the conversation taken to resolve the user query.
+}
+"""
+
+CONVERSATION_NUMBER_OF_TURNS_OUTPUT_FORMAT__COT = """
+{
+    "Reasoning": [Reasoning], # Reasoning to justify the number of turns in the conversation taken to resolve the user query.
+    "Turns": [Number of Turns] # Number of turns in the conversation taken to resolve the user query.
+}
+"""
 
 # Critique Tone
 CRITIQUE_TONE_OUTPUT_FORMAT__CLASSIFY = """

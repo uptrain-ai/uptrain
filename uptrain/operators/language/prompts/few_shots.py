@@ -379,6 +379,37 @@ QUERY_RESOLUTION_FEW_SHOT__COT = """
 """
 
 
+# Conversation Number of Turns
+CONVERSATION_NUMBER_OF_TURNS_FEW_SHOT__CLASSIFY = """
+[Conversation]:
+[{"role": "user", "content": "Hello"},
+{"role": "assistant", "content": "Hi there! How can I help you today?"},
+{"role": "user", "content": "I have a question about your services"},
+{"role": "assistant", "content": "Sure, I'd be happy to help. What would you like to know?"},
+{"role": "user", "content": "I'm interested in learning more about your pricing plans"},
+{"role": "assistant", "content": "Great! We offer a variety of pricing plans to suit different needs. Let me provide you with more information on that."}]
+[Output]:
+{
+    "Number of Turns": 3
+}
+"""
+
+CONVERSATION_NUMBER_OF_TURNS_FEW_SHOT__COT = """
+[Conversation]:
+[{"role": "user", "content": "Hello"},
+{"role": "assistant", "content": "Hi there! How can I help you today?"},
+{"role": "user", "content": "I have a question about your services"},
+{"role": "assistant", "content": "Sure, I'd be happy to help. What would you like to know?"},
+{"role": "user", "content": "I'm interested in learning more about your pricing plans"},
+{"role": "assistant", "content": "Great! We offer a variety of pricing plans to suit different needs. Let me provide you with more information on that."}]
+[Output]:
+{
+    "Reasoning": "The conversation consists of three turns between the user and the assistant, with the user initiating the conversation, the assistant responding, and the user asking a follow-up question. The assistant provides information in response to the user's query, resulting in a total of three turns.",
+    "Number of Turns": 3
+}
+"""
+
+
 # Critique Tone
 CRITIQUE_TONE_FEW_SHOT__CLASSIFY = """
 [Persona]: Helpful and encouraging math teacher
