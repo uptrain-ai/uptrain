@@ -2,6 +2,7 @@ version: "3.9"
 services:
   ### FastAPI server
   server:
+    build: ./uptrain/dashboard/backend
     image: ghcr.io/uptrain-ai/uptrain:latest
     restart: always
     entrypoint: ["python", "app.py"]
@@ -16,6 +17,7 @@ services:
 
   ###  dashboard
   dashboard:
+    build: ./uptrain/dashboard/frontend
     image: ghcr.io/uptrain-ai/uptrain-dashboard:latest
     restart: always
     entrypoint: ["npm", "run", "dev"]
