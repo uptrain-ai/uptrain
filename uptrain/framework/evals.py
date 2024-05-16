@@ -91,4 +91,4 @@ class QueryResolution(ParametricEval):
 
 class ConversationNumberOfTurns(ParametricEval):
     user_persona: str = "user"
-    llm_persona: str = "assistant"
+    llm_persona: t.Union[str, None] = None

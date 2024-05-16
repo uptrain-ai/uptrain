@@ -66,6 +66,9 @@ __all__ = [
     "GuidelineAdherenceScore",
     "PromptInjectionScore",
     "ConversationSatisfactionScore",
+    "ConversationGuidelineAdherenceScore",
+    "ConversationNumberOfTurnsScore",
+    "QueryResolutionScore",
     "ResponseMatchingScore",
     "ValidResponseScore",
     "TopicAssignmentviaCluster",
@@ -169,7 +172,12 @@ from .language.question_quality import ValidQuestionScore, QueryRewrite
 from .language.language_quality import LanguageCritique, ResponseCoherence
 from .language.tone import ToneCritique
 from .language.guideline import GuidelineAdherenceScore
-from .language.conversation import ConversationSatisfactionScore
+from .language.conversation import (
+    ConversationSatisfactionScore,
+    ConversationGuidelineAdherenceScore,
+    ConversationNumberOfTurnsScore,
+    QueryResolutionScore,
+)
 from .language.topic import TopicAssignmentviaCluster
 from .language.jailbreak import (
     PromptInjectionScore,

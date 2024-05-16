@@ -217,7 +217,7 @@ class ConversationSatisfactionScore(ColumnOp):
 
 
 @register_op
-class QueryResolution(ColumnOp):
+class QueryResolutionScore(ColumnOp):
     """Evaluates whether the chatbot is able to resolve the user query in a conversation.
 
     Attributes:
@@ -233,6 +233,7 @@ class QueryResolution(ColumnOp):
     user_role: str = "User"
     assistant_role: str = "Assistant"
     scenario_description: t.Optional[str] = None
+    score_mapping: dict = {"A": 0.0, "B": 0.5, "C": 1.0}
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
@@ -287,7 +288,7 @@ class QueryResolution(ColumnOp):
     def query_resolution_classify_validate_func(self, llm_output):
         is_correct = True
         is_correct = is_correct and ("Choice" in llm_output)
-        is_correct = is_correct and llm_output["Choice"] in ["A", "B"]
+        is_correct = is_correct and llm_output["Choice"] in ["A", "B", "C"]
         return is_correct
 
     def query_resolution_cot_validate_func(self, llm_output):
@@ -355,7 +356,9 @@ class QueryResolution(ColumnOp):
                 "explanation_query_resolution": None,
             }
             try:
-                score = 0.0 if json.loads(res.response.choices[0].message.content)["Choice"] == "A" else 1.0
+                score = self.score_mapping[
+                    json.loads(res.response.choices[0].message.content)["Choice"]
+                ]
                 output["score_query_resolution"] = float(score)
                 output["explanation_query_resolution"] = res.response.choices[
                     0
@@ -372,7 +375,7 @@ class QueryResolution(ColumnOp):
 
 # TODO: See what happens when scenario_description is passed (Because this class does not use it)
 @register_op
-class ConversationNumberOfTurns(ColumnOp):
+class ConversationNumberOfTurnsScore(ColumnOp):
     """
     Calculate the number of turns in a conversation.
 
@@ -382,7 +385,9 @@ class ConversationNumberOfTurns(ColumnOp):
     """
 
     col_conversation: str = "conversation"
-    col_out: str = "num_turns"
+    col_out: str = "score_conversation_number_of_turns"
+    user_role: str = "User"
+    assistant_role: str = "Assistant"
 
     def setup(self, settings: Settings):
         from uptrain.framework.remote import APIClient
@@ -436,8 +441,8 @@ class ConversationNumberOfTurns(ColumnOp):
     
     def conversation_number_of_turns_classify_validate_func(self, llm_output):
         is_correct = True
-        is_correct = is_correct and ("Number of Turns" in llm_output)
-        is_correct = is_correct and isinstance(llm_output["Number of Turns"], int)
+        is_correct = is_correct and ("Turns" in llm_output)
+        is_correct = is_correct and isinstance(llm_output["Turns"], int)
         return is_correct
 
     def conversation_number_of_turns_cot_validate_func(self, llm_output):
@@ -491,11 +496,12 @@ class ConversationNumberOfTurns(ColumnOp):
             output = {
                 "score_conversation_number_of_turns": None,
                 "explanation_conversation_number_of_turns": None,
-                # "conversation_length": len(json.loads(res.metadata["input"])["conversation"]),
+                "conversation_length": len(data[idx]["conversation"]),
             }
             try:
-                output["score_conversation_number_of_turns"] = res.response.choices[0].message.content
-                output["explanation_conversation_number_of_turns"] = res.response.choices[0].message.content
+                resp_content = json.loads(res.response.choices[0].message.content)
+                output["score_conversation_number_of_turns"] = resp_content["Turns"]
+                output["explanation_conversation_number_of_turns"] = resp_content
             except Exception:
                 logger.error(
                     f"Error when processing payload at index {idx}: {res.error}"
@@ -507,7 +513,7 @@ class ConversationNumberOfTurns(ColumnOp):
 
 
 @register_op
-class ConversationGuidelineAdherence(ColumnOp):
+class ConversationGuidelineAdherenceScore(ColumnOp):
     """
     Evaluate if the assistant is following the guideline specified.
 
