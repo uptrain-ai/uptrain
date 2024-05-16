@@ -26,6 +26,9 @@ from uptrain.framework.evals import (
     GuidelineAdherence,
     ResponseMatching,
     ConversationSatisfaction,
+    ConversationGuidelineAdherence,
+    ConversationNumberOfTurns,
+    QueryResolution,
 )
 from uptrain.operators import (
     ResponseFactualScore,
@@ -40,6 +43,9 @@ from uptrain.operators import (
     PromptInjectionScore,
     GuidelineAdherenceScore,
     ConversationSatisfactionScore,
+    ConversationGuidelineAdherenceScore,
+    ConversationNumberOfTurnsScore,
+    QueryResolutionScore,
     LanguageCritique,
     ToneCritique,
     ResponseRelevance,
@@ -80,6 +86,9 @@ PARAMETRIC_EVAL_TO_OPERATOR_MAPPING = {
     "JailbreakDetection": JailbreakDetectionScore,
     "GuidelineAdherence": GuidelineAdherenceScore,
     "ConversationSatisfaction": ConversationSatisfactionScore,
+    "ConversationGuidelineAdherence": ConversationGuidelineAdherenceScore,
+    "ConversationNumberOfTurns": ConversationNumberOfTurnsScore,
+    "QueryResolution": QueryResolutionScore,
     "CritiqueTone": ToneCritique,
     "ResponseMatching": ResponseMatchingScore,
     "CustomPromptEval": CustomPromptEvalScore,
@@ -261,7 +270,7 @@ class EvalLLM:
                 req_attrs.update(
                     [schema.question, schema.response, schema.ground_truth]
                 )
-            elif isinstance(m, ConversationSatisfaction):
+            elif isinstance(m, t.Union[ConversationSatisfaction, ConversationGuidelineAdherence, ConversationNumberOfTurns, QueryResolution]):
                 req_attrs.update([schema.conversation])
             elif m in [Evals.PROMPT_INJECTION] or isinstance(m, JailbreakDetection):
                 req_attrs.update([schema.question])

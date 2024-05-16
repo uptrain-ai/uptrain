@@ -348,6 +348,100 @@ CONVERSATION_SATISFACTION_FEW_SHOT__COT = """
 """
 
 
+# Query Resolution
+QUERY_RESOLUTION_FEW_SHOT__CLASSIFY = """
+[User persona]: student
+[AI Assistant persona]: customer service representative
+[Conversation]:
+[{"role": "student", "content": "I am having trouble accessing my online course materials"},
+{"role": "customer service representative", "content": "I am sorry to hear that. Have you tried logging in with your student ID and password?"},
+{"role": "student", "content": "Yes, I have tried that multiple times, but it is not working"},
+{"role": "customer service representative", "content": "Then I do not know how to help you. You should contact your instructor for assistance"}]
+[Output]:
+{
+    "Choice": "C"
+}
+"""
+
+QUERY_RESOLUTION_FEW_SHOT__COT = """
+[User persona]: student
+[AI Assistant persona]: customer service representative
+[Conversation]:
+[{"role": "student", "content": "I am having trouble accessing my online course materials"},
+{"role": "customer service representative", "content": "I am sorry to hear that. Have you tried logging in with your student ID and password?"},
+{"role": "student", "content": "Yes, I have tried that multiple times, but it is not working"},
+{"role": "customer service representative", "content": "Then I do not know how to help you. You should contact your instructor for assistance"}]
+[Output]:
+{
+    "Choice": "C",
+    "Reasoning": "The customer service representative is unable to resolve the student's query and directs them to contact their instructor for assistance. The query remains unresolved, and the student is not provided with a solution to their problem. The conversation is not satisfactory.",
+}
+"""
+
+
+# Conversation Number of Turns
+CONVERSATION_NUMBER_OF_TURNS_FEW_SHOT__CLASSIFY = """
+[Conversation]:
+[{"role": "user", "content": "Hello"},
+{"role": "assistant", "content": "Hi there! How can I help you today?"},
+{"role": "user", "content": "I have a question about your services"},
+{"role": "assistant", "content": "Sure, I'd be happy to help. What would you like to know?"},
+{"role": "user", "content": "I'm interested in learning more about your pricing plans"},
+{"role": "assistant", "content": "Great! We offer a variety of pricing plans to suit different needs. Let me provide you with more information on that."}]
+[Output]:
+{
+    "Number of Turns": 3
+}
+"""
+
+CONVERSATION_NUMBER_OF_TURNS_FEW_SHOT__COT = """
+[Conversation]:
+[{"role": "user", "content": "Hello"},
+{"role": "assistant", "content": "Hi there! How can I help you today?"},
+{"role": "user", "content": "I have a question about your services"},
+{"role": "assistant", "content": "Sure, I'd be happy to help. What would you like to know?"},
+{"role": "user", "content": "I'm interested in learning more about your pricing plans"},
+{"role": "assistant", "content": "Great! We offer a variety of pricing plans to suit different needs. Let me provide you with more information on that."}]
+[Output]:
+{
+    "Reasoning": "The conversation consists of three turns between the user and the assistant, with the user initiating the conversation, the assistant responding, and the user asking a follow-up question. The assistant provides information in response to the user's query, resulting in a total of three turns.",
+    "Number of Turns": 3
+}
+"""
+
+# Conversation Guideline Adherence
+CONVERSATION_GUIDELINE_ADHERENCE_FEW_SHOT__CLASSIFY = """
+[Conversation]:
+[{"role": "user", "content": "Hello"},
+{"role": "assistant", "content": "Hi there! How can I help you today?"},
+{"role": "user", "content": "I have a question about your services"},
+{"role": "assistant", "content": "Sure, I'd be happy to help. What would you like to know?"},
+{"role": "user", "content": "What is the cost of your premium plan?"},
+{"role": "assistant", "content": "Our premium plan costs $50 per month. It includes unlimited access to all features and priority customer support."}]
+[Guideline]: The assistant should not provide specific pricing information.
+[Output]:
+{
+    "Choice": "B"
+}
+"""
+
+CONVERSATION_GUIDELINE_ADHERENCE_FEW_SHOT__COT = """
+[Conversation]:
+[{"role": "user", "content": "Hello"},
+{"role": "assistant", "content": "Hi there! How can I help you today?"},
+{"role": "user", "content": "I have a question about your services"},
+{"role": "assistant", "content": "Sure, I'd be happy to help. What would you like to know?"},
+{"role": "user", "content": "What is the cost of your premium plan?"},
+{"role": "assistant", "content": "Our premium plan costs $50 per month. It includes unlimited access to all features and priority customer support."}]
+[Guideline]: The assistant should not provide specific pricing information.
+[Output]:
+{
+    "Reasoning": "The assistant provides specific pricing information about the premium plan, which violates the guideline of not providing specific pricing details. The response directly states the cost of the premium plan as $50 per month, which is against the guideline. Therefore, the assistant's response does not adhere to the guideline.",
+    "Choice": "B"
+}
+"""
+
+
 # Critique Tone
 CRITIQUE_TONE_FEW_SHOT__CLASSIFY = """
 [Persona]: Helpful and encouraging math teacher
