@@ -3,13 +3,9 @@ title: Number of Turns
 description: Counts the number of turns in a conversation.
 ---
 
-A good chatbot should be able to resolve the user's query in the fewest number of turns possible. The number of turns in a conversation is a key metric to measure the efficiency of the chatbot in resolving the user's query.
+A chatbot that takes too many turns to resolve a user query can be frustrating for the user. The number of turns in a conversation is a key metric to evaluate the efficiency of the chatbot in resolving user queries.
 
-This should ideally be used in conjunction with the [Query Resolution](/predefined-evaluations/conversation-evals/query-resolution) evaluation to ensure that the chatbot is able to resolve the user's query in the fewest number of turns. 
-
-Columns required:
-- `guideline`: The guideline to be followed
-- `guideline_name (optional)`: User-assigned name of the guideline to distinguish between multiple guidelines
+This should ideally be used in conjunction with the [Query Resolution](/predefined-evaluations/conversation-evals/query-resolution) evaluation to ensure that the chatbot is actually resolving the user query and it's not that the user got frustrated and left the conversation. 
 
 ### How to use it?
 
@@ -57,13 +53,13 @@ Sample Response:
         ],
         "Turns": 5
     }
-}
+    }
 ```
 
 <CardGroup cols={2}>
   <Card
     title="Tutorial"
-    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/conversation/guideline_adherence.ipynb"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/conversation/number_of_turns.ipynb"
     icon="github"
     color="#808080"
   >
