@@ -1,0 +1,72 @@
+---
+title: Query Resolution
+description: Evaluates the ability of the LLM to resolve the user's query.
+---
+
+A good AI assistant should be able to effectively address the user's query. Query resolution evaluates the ability of the AI assistant to resolve the user's query effectively.
+
+### How to use it?
+
+```python
+from uptrain import EvalLLM, QueryResolution
+
+OPENAI_API_KEY = "sk-********************"  # Insert your OpenAI key here
+
+data = [{
+    'conversation' : [
+        {"role": "patient", "content": "Help"}, 
+        {"role": "nurse", "content": "what do you need"}, 
+        {"role": "patient", "content": "Having chest pain"}, 
+        {"role": "nurse", "content": "Sorry, I am not sure what that means"},
+        {"role": "patient", "content": "You don't understand. Do something! I am having severe pain in my chest"}
+    ]  
+}]
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+
+res = eval_llm.evaluate(
+    data=data,
+    checks=[QueryResolution(user_persona="patient", llm_persona="nurse")],
+)
+```
+<Info>By default, we are using GPT 3.5 Turbo. If you want to use a different model, check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb).</Info>
+
+Sample Response:
+```json
+{
+    "score_query_resolution": 0.0,
+    "explanation_query_resolution": "The AI assistant failed to effectively address the patient's urgent concern of chest pain, which could indicate a potential medical emergency. The responses provided by the AI assistant did not offer appropriate assistance or guidance in such a critical situation."
+}
+```
+<Note>A higher query resolution score reflects that the LLM effectively addresses the user's query.</Note>
+
+The nurse in the conversation was not able to address the patient's query, which was about chest pain, indicating a potential medical emergency.
+
+Resulting in a low query resolution score.
+
+### How it works?
+
+We evaluate query resolution by determining which of the following cases apply for the given task data:
+
+* The given responses effectively resolve the user's query.
+* The given responses partially resolve the user's query.
+* The given responses do not resolve the user's query.
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/conversation/query_resolution.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>
