@@ -33,7 +33,7 @@ eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
 
 res = eval_llm.evaluate(
     data=data,
-    checks=[ConversationNumberOfTurns()],
+    checks=[ConversationNumberOfTurns(user_persona="patient", llm_persona="nurse")],
 )
 ```
 <Info>By default, we are using GPT 3.5 Turbo. If you want to use a different model, check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb).</Info>
