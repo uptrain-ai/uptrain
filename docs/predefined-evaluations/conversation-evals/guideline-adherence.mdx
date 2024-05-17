@@ -1,0 +1,77 @@
+---
+title: Guideline Adherence
+description: Grades how well the LLM adheres to a provided guideline when giving a response.
+---
+
+Guideline adherence measures the extent to which the generated response follows a given guideline, rule, or protocol.
+
+Given the complexity of LLMs, it is crucial to define certain guidelines, be it in terms of the structure of the output or the constraints on the content of the output or protocols on the decision-making capabilities of the LLMs.
+
+Columns required:
+- `guideline`: The guideline to be followed
+- `guideline_name (optional)`: User-assigned name of the guideline to distinguish between multiple guidelines
+
+### How to use it?
+
+```python
+from uptrain import EvalLLM, ConversationGuidelineAdherence
+
+OPENAI_API_KEY = "sk-********************"  # Insert your OpenAI key here
+
+data = [{
+    'conversation' : [
+        {"role": "patient", "content": "Help"}, 
+        {"role": "nurse", "content": "what do you need"}, 
+        {"role": "patient", "content": "Having chest pain"}, 
+        {"role": "nurse", "content": "Sorry, I am not sure what that means"},
+        {"role": "patient", "content": "You don't understand. Do something! I am having severe pain in my chest"}
+    ]  
+}]
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+
+res = eval_llm.evaluate(
+    data=data,
+    checks=[ConversationGuidelineAdherence(guideline="Provide emergency contact information if the patient is in distress", guideline_name="Emergency Contact Information")],
+)
+```
+<Info>By default, we are using GPT 3.5 Turbo. If you want to use a different model, check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb).</Info>
+
+Sample Response:
+```json
+{
+       "score_conversation_Emergency Contact Information_adherence": 0.0,
+      "explanation_conversation_Emergency Contact Information_adherence": "[\"The given conversation strictly violates the guideline of providing emergency contact information if the patient is in distress. Despite the patient clearly expressing distress by mentioning 'Having chest pain' and emphasizing the severity of the situation with 'I am having severe pain in my chest', the nurse fails to provide any emergency contact information. Instead, the nurse responds with uncertainty and does not take appropriate action to address the patient's distress. This violation of the guideline puts the patient at risk by not providing the necessary support in a critical situation.\"]"
+}
+```
+<Note>A higher guideline adherence score reflects that the LLM adheres to the defined guideline.</Note>
+
+The nurse in the conversation did not provide emergency contact information to the patient in distress, which violates the defined guideline.
+
+Resulting in a low guideline adherence score.
+
+### How it works?
+
+We evaluate guideline adherence by determining which of the following cases apply for the given task data:
+
+* The LLM adheres to the given guideline.
+* The LLM violates the given guideline.
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/conversation/guideline_adherence.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>

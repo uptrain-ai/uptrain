@@ -141,7 +141,8 @@
         {
           "group": "Conversation Evals",
           "pages": [
-            "predefined-evaluations/conversation-evals/user-satisfaction"
+            "predefined-evaluations/conversation-evals/user-satisfaction",
+            "predefined-evaluations/conversation-evals/guideline-adherence"
           ]
         },
         {
