@@ -141,7 +141,10 @@
         {
           "group": "Conversation Evals",
           "pages": [
-            "predefined-evaluations/conversation-evals/user-satisfaction"
+            "predefined-evaluations/conversation-evals/user-satisfaction",
+            "predefined-evaluations/conversation-evals/query-resolution",
+            "predefined-evaluations/conversation-evals/guideline-adherence",
+            "predefined-evaluations/conversation-evals/number-of-turns"
           ]
         },
         {

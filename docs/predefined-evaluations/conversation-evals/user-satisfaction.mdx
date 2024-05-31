@@ -12,13 +12,11 @@ Measures the user's satisfaction with the conversation with the LLM/AI assistant
 Columns required:
 - `user_persona`: The persona of the user asking the queries
 - `llm_persona`: The persona of the LLM/AI assistant
-- `role`: The identifier for persona within a conversation
-- `content`: The user/llm argument in a particular conversation
 
 ### How to use it?
 
 ```python
-from uptrain import EvalLLM, Evals
+from uptrain import EvalLLM, ConversationSatisfaction
 
 OPENAI_API_KEY = "sk-********************"  # Insert your OpenAI key here
 
@@ -35,8 +33,8 @@ data = [{
 eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
 
 res = eval_llm.evaluate(
-    data = data,
-    checks = [ConversationSatisfaction(user_persona="patient", llm_persona="nurse")]
+    data=data,
+    checks=[ConversationSatisfaction(user_persona="patient", llm_persona="nurse")]
 )
 ```
 <Info>By default, we are using GPT 3.5 Turbo. If you want to use a different model, check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb).</Info>

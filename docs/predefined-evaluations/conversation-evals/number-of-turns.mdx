@@ -1,0 +1,76 @@
+---
+title: Number of Turns
+description: Counts the number of turns in a conversation.
+---
+
+A chatbot that takes too many turns to resolve a user query can be frustrating for the user. The number of turns in a conversation is a key metric to evaluate the efficiency of the chatbot in resolving user queries.
+
+This should ideally be used in conjunction with the [Query Resolution](/predefined-evaluations/conversation-evals/query-resolution) evaluation to ensure that the chatbot is actually resolving the user query and it's not that the user got frustrated and left the conversation. 
+
+### How to use it?
+
+```python
+from uptrain import EvalLLM, ConversationNumberOfTurns
+
+OPENAI_API_KEY = "sk-********************"  # Insert your OpenAI key here
+
+data = [{
+    'conversation' : [
+        {"role": "patient", "content": "Hello"},
+        {"role": "nurse", "content": "Hello, how can I help you"},
+        {"role": "patient", "content": "I am feeling very sick"},
+        {"role": "nurse", "content": "What are your symptoms"},
+        {"role": "patient", "content": "I have a headache"},
+        {"role": "nurse", "content": "Have you taken any medication"},
+        {"role": "patient", "content": "No, I haven't"},
+        {"role": "nurse", "content": "Please take some paracetamol"},
+        {"role": "patient", "content": "Thank you nurse"},
+    ]  
+}]
+
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+
+res = eval_llm.evaluate(
+    data=data,
+    checks=[ConversationNumberOfTurns(user_persona="patient", llm_persona="nurse")],
+)
+```
+<Info>By default, we are using GPT 3.5 Turbo. If you want to use a different model, check out this [tutorial](https://github.com/uptrain-ai/uptrain/blob/main/examples/open_source_evaluator_tutorial.ipynb).</Info>
+
+Sample Response:
+```json
+{
+    "score_conversation_number_of_turns": 5,
+    "explanation_conversation_number_of_turns": {
+        "Reasoning": [
+        "The conversation starts with the patient greeting the nurse.",
+        "The patient expresses feeling sick, prompting the nurse to ask about symptoms.",
+        "The patient mentions having a headache, leading the nurse to inquire about medication.",
+        "The patient confirms not taking any medication, and the nurse advises taking paracetamol.",
+        "The patient thanks the nurse, indicating the resolution of the user query.",
+        "Therefore, the number of turns in the conversation taken to resolve the user query is 5."
+        ],
+        "Turns": 5
+    }
+    }
+```
+
+<CardGroup cols={2}>
+  <Card
+    title="Tutorial"
+    href="https://github.com/uptrain-ai/uptrain/blob/main/examples/checks/conversation/number_of_turns.ipynb"
+    icon="github"
+    color="#808080"
+  >
+    Open this tutorial in GitHub
+  </Card>
+  <Card
+    title="Have Questions?"
+    href="https://join.slack.com/t/uptraincommunity/shared_invite/zt-1yih3aojn-CEoR_gAh6PDSknhFmuaJeg"
+    icon="slack"
+    color="#808080"
+  >
+    Join our community for any questions or requests
+  </Card>
+</CardGroup>

@@ -233,7 +233,7 @@ class QueryResolutionScore(ColumnOp):
     user_role: str = "User"
     assistant_role: str = "Assistant"
     scenario_description: t.Optional[str] = None
-    score_mapping: dict = {"A": 0.0, "B": 0.5, "C": 1.0}
+    score_mapping: dict = {"A": 1.0, "B": 0.5, "C": 0.0}
 
     def setup(self, settings: t.Optional[Settings] = None):
         from uptrain.framework.remote import APIClient
