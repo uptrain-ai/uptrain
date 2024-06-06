@@ -1,10 +1,10 @@
 ---
-title: Prompts
+title: Experiments
 ---
 
-### What are Prompts?
+### What are experiments?
 
-You can manage your prompt iterations and experiment with them using UpTrain on 20+ pre-configured evaluation metrics like:
+You can experiment with UpTrain on 20+ pre-configured evaluation metrics like:
 1. [Context Relevance](/predefined-evaluations/context-awareness/context-relevance): Evaluates how relevant the retrieved context is to the question specified.
 
 2. [Factual Accuracy](/predefined-evaluations/context-awareness/factual-accuracy): Evaluates whether the response generated is factually correct and grounded by the provided context.
@@ -24,33 +24,35 @@ You can look at the complete list of UpTrain's supported metrics [here](/predefi
   </Step>
   <Step title = "Enter Project Information">
     <Frame>
-      <img src="/assets/dashboard/dashboard_project1.png" />
+      <img src="/assets/dashboard/dashboard_experiment.png" />
     </Frame>
     * `Project name:` Create a name for your project
     * `Dataset name:` Create a name for your dataset
-    * `Project Type:` Select project type: `Prompts`
     * `Choose File:` Upload your Dataset
       Sample Dataset:
       ```jsonl
       {"question":"","response":"","context":""}
       {"question":"","response":"","context":""}
       ```
-    * `Evaluation LLM:` Select an LLM to run evaluations
-  </Step>
-  <Step title = "Enter your Prompt">
-    <Frame>
-      <img src="/assets/dashboard/prompt_select.png" />
-    </Frame>
+    * `Select Evaluation LLM:` Select an LLM to run evaluations
+    * `Use same info to run Evaluations`: Yes 
+    If you do not wish to run experiments, you can select `No` and follow the steps [here](/getting-started/dashboard/experiments)
+    * `Experiment column:` Enter the column to run experiments on
   </Step>
   <Step title = "Select Evaluations to Run">
     <Frame>
       <img src="/assets/dashboard/eval_select_metrics.png" />
     </Frame>
   </Step>
-  <Step title = "View Prompts">
-    You can see all the evaluations ran on your prompts using UpTrain
+  <Step title = "View Experiments">
+    You can see all the evaluations ran using UpTrain
     <Frame>
-      <img src="/assets/dashboard/prompt.png" />
+      <img src="/assets/dashboard/exp.png" />
+    </Frame>
+
+    You can also see individual logs
+    <Frame>
+      <img src="/assets/dashboard/exp_logs.png" />
     </Frame>
   </Step>
 </Steps>

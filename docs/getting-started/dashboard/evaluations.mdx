@@ -24,18 +24,19 @@ You can look at the complete list of UpTrain's supported metrics [here](/predefi
   </Step>
   <Step title = "Enter Project Information">
     <Frame>
-      <img src="/assets/dashboard/dashboard_project1.png" />
+      <img src="/assets/dashboard/dashboard_project.png" />
     </Frame>
     * `Project name:` Create a name for your project
     * `Dataset name:` Create a name for your dataset
-    * `Project Type:` Select project type: `Evaluations`
     * `Choose File:` Upload your Dataset
       Sample Dataset:
       ```jsonl
       {"question":"","response":"","context":""}
       {"question":"","response":"","context":""}
       ```
-    * `Evaluation LLM:` Select an LLM to run evaluations
+    * `Select Evaluation LLM:` Select an LLM to run evaluations
+    * `Use same info to run Evaluations`: No (since we are running evaluations here)
+    If you wish to run experiments, you can select `Yes` and follow the steps [here](/getting-started/dashboard/experiments)
   </Step>
   <Step title = "Select Evaluations to Run">
     <Frame>
