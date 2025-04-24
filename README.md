@@ -176,7 +176,7 @@ Speak directly with the maintainers of UpTrain by [booking a call here](https://
 | Eval | Description |
 | ---- | ----------- |
 |[Language Features](https://docs.uptrain.ai/predefined-evaluations/language-quality/fluency-and-coherence) | Grades the quality and effectiveness of language in a response, focusing on factors such as clarity, coherence, conciseness, and overall communication. |
-|[Tonality](https://docs.uptrain.ai/predefined-evaluations/code-evals/code-hallucination) | Grades whether the generated response matches the required persona's tone  |
+|[Tonality](https://docs.uptrain.ai/predefined-evaluations/language-quality/tonality) | Grades whether the generated response matches the required persona's tone  |
 
 <img width="1088" alt="language quality of the response" src="https://github.com/uptrain-ai/uptrain/assets/36454110/2fba9f0b-71b3-4d90-90f8-16ef38cef3ab">
 
