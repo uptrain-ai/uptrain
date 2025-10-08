@@ -24,20 +24,18 @@ import json
 - `response`: The response to the question
 
 ```python
-data = [{
-    "question": [
-        "Which is the most popular global sport?",
-        "Who created the Python language?",
-    ],
-    "context": [
-        "The popularity of sports can be measured in various ways, including TV viewership, social media presence, number of participants, and economic impact. Football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi, drawing a followership of more than 4 billion people.",
-        "Python, created by Guido van Rossum in the late 1980s, is a high-level general-purpose programming language. Its design philosophy emphasizes code readability, and its language constructs aim to help programmers write clear, logical code for both small and large-scale software projects.",
-    ],
-    "response":[
-        "Football is the most popular sport with around 4 billion followers worldwide",
-        "Python language was created by Guido van Rossum.",
-    ]
-}]
+data = [
+    {
+        "question": "Which is the most popular global sport?",
+        "context": "The popularity of sports can be measured in various ways, including TV viewership, social media presence, number of participants, and economic impact. Football is undoubtedly the world's most popular sport with major events like the FIFA World Cup and sports personalities like Ronaldo and Messi, drawing a followership of more than 4 billion people.",
+        "response": "Football is the most popular sport with around 4 billion followers worldwide",
+    },
+    {
+        "question": "Who created the Python language?",
+        "context": "Python, created by Guido van Rossum in the late 1980s, is a high-level general-purpose programming language. Its design philosophy emphasizes code readability, and its language constructs aim to help programmers write clear, logical code for both small and large-scale software projects.",
+        "response": "Python language was created by Guido van Rossum.",
+    },
+]
 ```
   </Step>
   <Step title="Run Evaluations">
@@ -52,7 +50,7 @@ eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
 Now that we have our data, we can evaluate it using UpTrain. We use the `evaluate` method to do this. This method takes the following arguments:
 
 - `data`: The data you want to evaluate upon
-- `evals`: The evaluations you want to perform on your data
+- `checks`: A list of evaluations (from `uptrain.Evals`) you want to perform on your data.
 
 You can find the list of all available evaluations [here](/predefined-evaluations).
 

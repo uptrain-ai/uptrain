@@ -1,8 +1,39 @@
+
 <h4 align="center">
   <a href="https://uptrain.ai">
    <img alt="Logo of UpTrain - an open-source platform to evaluate and improve LLM applications" src="https://github.com/uptrain-ai/uptrain/assets/108270398/b6a4905f-63fd-47ab-a894-1026a6669c86"/>
   </a>
 </h4>
+
+<p align="center">
+  <a href="#key-features-%F0%9F%94%91">
+    <img alt="Key Features" src="https://img.shields.io/badge/Key%20Features-uptrain?logo=key&labelColor=6A6A6A&color=CC766E">
+  </a>
+  <a href="#getting-started-%F0%9F%99%8C">
+    <img alt="Getting Started" src="https://img.shields.io/badge/Getting%20Started-uptrain?logo=rocket&labelColor=6A6A6A&color=976DA5">
+  </a>
+  <a href="#pre-built-evaluations-we-offer-%F0%9F%93%9D">
+    <img alt="Evaluations" src="https://img.shields.io/badge/Evaluations-uptrain?logo=checklist&labelColor=6A6A6A&color=6565d8">
+  </a>
+  <a href="#integrations-%F0%9F%A4%9D">
+    <img alt="Integrations" src="https://img.shields.io/badge/Integrations-uptrain?logo=hub&labelColor=6A6A6A&color=3E93C4">
+  </a>
+  <a href="#monitoring-prompt-drift-in-llms-benchmark-by-uptrain">
+    <img alt="Benchmark" src="https://img.shields.io/badge/Benchmark-uptrain?logo=graph&labelColor=6A6A6A&color=CC766E">
+  </a>
+  <a href="#resources-%F0%9F%92%A1">
+    <img alt="Resources" src="https://img.shields.io/badge/Resources-uptrain?logo=bookmark&labelColor=6A6A6A&color=976DA5">
+  </a>
+  <a href="#why-we-are-building-uptrain-%F0%9F%A4%94">
+    <img alt="Why UpTrain" src="https://img.shields.io/badge/Why%20UpTrain-uptrain?logo=help-circle&labelColor=6A6A6A&color=6565d8">
+  </a>
+  <a href="#how-you-can-help-%F0_9F%99%8F">
+    <img alt="Contribute" src="https://img.shields.io/badge/Contribute-uptrain?logo=github&labelColor=6A6A6A&color=3E93C4">
+  </a>
+  <a href="#license-%F0%9F%92%BB">
+    <img alt="License" src="https://img.shields.io/badge/License-uptrain?logo=file-text&labelColor=6A6A6A&color=CC766E">
+  </a>
+</p>
 
 <p align="center">
     <a href="https://demo.uptrain.ai/evals_demo/">

@@ -1,0 +1,63 @@
+---
+title: Hacking Driver Usage Guide
+description: A guide on how to use the hacking evaluation driver.
+---
+
+# Hacking Driver Usage Guide
+
+## Introduction
+
+This guide explains how to use the hacking evaluation driver to run evaluations on your data. The driver is a Python script that uses the Uptrain library to perform various checks on your data, such as context relevance, factual accuracy, and response relevance, with a focus on hacking-related topics.
+
+## Installation
+
+Before you can use the driver, you need to make sure you have the necessary dependencies installed. You can install them using pip:
+
+```bash
+pip install uptrain
+```
+
+## Usage
+
+To use the driver, you need to have a Python script that defines your data and the checks you want to perform. The `hacking_evaluation.py` script is a good example of how to do this.
+
+Once you have your script ready, you can run it from the command line:
+
+```bash
+python hacking_evaluation.py > hacking_evaluation_results.json
+```
+
+This will run the evaluations and save the results to a JSON file.
+
+## Example
+
+Here is an example of how to define your data and checks in a Python script:
+
+```python
+from uptrain import EvalLLM, Evals, CritiqueTone
+import json
+
+OPENAI_API_KEY = "YOUR_OPENAI_API_KEY" # <<< REPLACE THIS WITH YOUR ACTUAL OPENAI API KEY
+
+data = [
+    {
+        "question": "What is ethical hacking?",
+        "context": "Ethical hacking, also known as penetration testing...",
+        "response": "Ethical hacking is the practice of authorized hacking to find security vulnerabilities and improve system defenses.",
+    }
+]
+
+eval_llm = EvalLLM(openai_api_key=OPENAI_API_KEY)
+
+results = eval_llm.evaluate(
+    data=data,
+    checks=[
+        Evals.CONTEXT_RELEVANCE,
+        Evals.FACTUAL_ACCURACY,
+        Evals.RESPONSE_RELEVANCE,
+        CritiqueTone(llm_persona="teacher"),
+    ],
+)
+
+print(json.dumps(results, indent=3))
+```
