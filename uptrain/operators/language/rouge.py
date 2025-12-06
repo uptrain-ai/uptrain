@@ -20,7 +20,7 @@ from uptrain.operators.base import (
 )
 from uptrain.utilities import lazy_load_dep
 
-rouge_scorer = lazy_load_dep("rouge_score.rouge_scorer", "rouge_score")
+rouge_scorer = lazy_load_dep("rouge_score.rouge_scorer", "rouge-score")
 
 
 @register_op
