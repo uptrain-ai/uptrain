@@ -29,6 +29,7 @@ from uptrain.operators.base import (
 from uptrain.utilities import lazy_load_dep
 
 umap = lazy_load_dep("umap", "umap-learn")
+# Using rouge-score (Apache 2.0) instead of rouge_score (GPL-3.0) for license compatibility
 rouge_scorer = lazy_load_dep("rouge_score.rouge_scorer", "rouge-score")
 
 
