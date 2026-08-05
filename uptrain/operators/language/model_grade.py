@@ -340,14 +340,14 @@ class ModelGradeScore(ColumnOp):
                     r"(\[Score\]\: [1-5]|Score: [1-5]|Score is [1-5])", text
                 )
                 if len(scores_matches) != 0:
-                    score = str(scores_matches[0].split(" ")[-1])
+                    score = str(scores_matches[-1].split(" ")[-1])
 
             if len(score) == 0:
                 scores_matches = re.findall(
                     r"(\[score\]\: [1-5]|score: [1-5]|score is [1-5])", text
                 )
                 if len(scores_matches) != 0:
-                    score = str(scores_matches[0].split(" (")[-1])
+                    score = str(scores_matches[-1].split(" (")[-1])
 
             if len(score) == 1:
                 return float(score)
@@ -363,7 +363,7 @@ class ModelGradeScore(ColumnOp):
                     r"(\[Choice\]\: [a-zA-Z]|Choice: [a-zA-Z]|choice is [a-zA-Z])", text
                 )
                 if len(scores_matches) != 0:
-                    score = str(scores_matches[0].split(" ")[-1])
+                    score = str(scores_matches[-1].split(" ")[-1])
 
             if len(score) == 0:
                 scores_matches = re.findall(
@@ -371,7 +371,7 @@ class ModelGradeScore(ColumnOp):
                     text,
                 )
                 if len(scores_matches) != 0:
-                    score = str(scores_matches[0].split(" (")[-1])
+                    score = str(scores_matches[-1].split(" (")[-1])
 
             if len(score) == 0:
                 scores_matches = re.findall(
@@ -379,7 +379,7 @@ class ModelGradeScore(ColumnOp):
                     text,
                 )
                 if len(scores_matches) != 0:
-                    score = str(scores_matches[0].split(" (")[-1])
+                    score = str(scores_matches[-1].split(" (")[-1])
 
             if len(score) == 1:
                 if score.upper() in choice_scores:
