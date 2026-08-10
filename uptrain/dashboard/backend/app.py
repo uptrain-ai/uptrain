@@ -7,7 +7,6 @@ work with rows specific to the user.
 
 from __future__ import annotations
 from contextlib import contextmanager
-import ast
 import datetime as dt
 import json
 import io
@@ -61,21 +60,16 @@ from uptrain.utilities import app_schema
 def _parse_user_json(value: str, field_name: str, expected_type: type = None):
     """Safely parse user-supplied, JSON-like string data.
 
-    Uses `json.loads` first, falling back to `ast.literal_eval` for
-    Python-literal-style payloads (e.g. single-quoted strings). Never
-    executes arbitrary code, unlike `eval`/`exec`. Raises an
-    `HTTPException` with a 400 status code on malformed input, or if the
-    parsed value does not match `expected_type`.
+    Uses `json.loads` and raises an `HTTPException` with a 400 status code
+    on malformed input, or if the parsed value does not match
+    `expected_type`.
     """
     try:
         parsed = json.loads(value)
     except (json.JSONDecodeError, TypeError):
-        try:
-            parsed = ast.literal_eval(value)
-        except (ValueError, SyntaxError, TypeError):
-            raise HTTPException(
-                status_code=400, detail=f"Invalid {field_name}: could not parse value"
-            )
+        raise HTTPException(
+            status_code=400, detail=f"Invalid {field_name}: could not parse value"
+        )
 
     if expected_type is not None and not isinstance(parsed, expected_type):
         raise HTTPException(

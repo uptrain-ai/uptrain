@@ -38,12 +38,10 @@ def test_parse_user_json_accepts_valid_dict():
     ) == {"model": "gpt-4"}
 
 
-def test_parse_user_json_falls_back_to_literal_eval():
-    # Python-literal style (single quotes) is not valid JSON but is a safe literal.
-    assert backend_app._parse_user_json("['a', 'b']", "checks", expected_type=list) == [
-        "a",
-        "b",
-    ]
+def test_parse_user_json_rejects_python_literal():
+    with pytest.raises(HTTPException) as excinfo:
+        backend_app._parse_user_json("['a', 'b']", "checks", expected_type=list)
+    assert excinfo.value.status_code == 400
 
 
 def test_parse_user_json_rejects_malicious_payload():
