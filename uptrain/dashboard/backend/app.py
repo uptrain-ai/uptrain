@@ -139,7 +139,7 @@ def _bootstrap_default_user():
 
         api_key = os.getenv("UPTRAIN_API_KEY")
         generated_key = False
-        if api_key is None:
+        if not api_key or not api_key.strip():
             api_key = secrets.token_urlsafe(32)
             generated_key = True
 
