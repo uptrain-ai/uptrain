@@ -58,6 +58,7 @@ const TopBar = (props) => {
   const [selectedOption, setSelectedOption] = useState("");
 
   const uptrainAccessKey = useSelector(selectUptrainAccessKey);
+  const defaultAccessKey = process.env.NEXT_PUBLIC_UPTRAIN_API_KEY || "";
   const questions =
     props.projectData[0] && props.projectData[0].map((item) => item.question);
 
@@ -142,7 +143,7 @@ const TopBar = (props) => {
           </p>
           <button
             onClick={
-              uptrainAccessKey == "default_key"
+            defaultAccessKey && uptrainAccessKey == defaultAccessKey
                 ? () => {
                     setOpenKeyModal(1);
                   }

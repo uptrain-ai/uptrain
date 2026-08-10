@@ -352,7 +352,7 @@ class EvalLLM:
         ## local server calls
         try:
             client = httpx.Client(
-                headers={"uptrain-access-token": "default_key"},
+                headers={"uptrain-access-token": os.environ.get("UPTRAIN_API_KEY", "")},
                 timeout=httpx.Timeout(7200, connect=5),
             )
 
@@ -381,7 +381,7 @@ class EvalLLM:
                 },
             )
         except Exception:
-            #user_id = "default_key"
+            #user_id = os.environ.get("UPTRAIN_API_KEY", "")
             logger.info("Local server not running, start the server to log data and visualize in the dashboard!")
         return results
 
