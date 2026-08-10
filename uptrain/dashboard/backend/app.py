@@ -6,11 +6,13 @@ work with rows specific to the user.
 """
 
 from __future__ import annotations
+import ast
 from contextlib import contextmanager
 import datetime as dt
 import json
 import io
 import os
+import secrets
 import typing as t
 import copy 
 import random
@@ -101,10 +103,70 @@ def get_db():
         SessionLocal.remove()
 
 
-try:
-    _create_user(SessionLocal(), "default_key")
-except Exception:
-    pass
+def _safe_parse(value: t.Any, expected_type: type, field_name: str):
+    parsed_value = value
+    if isinstance(value, str):
+        try:
+            parsed_value = json.loads(value)
+        except Exception:
+            try:
+                parsed_value = ast.literal_eval(value)
+            except Exception:
+                raise HTTPException(status_code=400, detail=f"Invalid {field_name}")
+
+    if not isinstance(parsed_value, expected_type):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid {field_name}: expected {expected_type.__name__}",
+        )
+    return parsed_value
+
+
+def _get_allowed_origins() -> list[str]:
+    origins = os.getenv(
+        "UPTRAIN_ALLOWED_ORIGINS",
+        "http://localhost:4300,http://localhost:3000",
+    )
+    return [origin.strip() for origin in origins.split(",") if origin.strip()]
+
+
+def _bootstrap_default_user():
+    db = SessionLocal()
+    try:
+        legacy_user = db.query(ModelUser).filter_by(name="default_key").first()
+        if legacy_user is not None:
+            api_key = os.getenv("UPTRAIN_API_KEY")
+            generated_key = False
+            if not api_key or not api_key.strip():
+                api_key = secrets.token_urlsafe(32)
+                generated_key = True
+
+            legacy_user.name = api_key
+            db.commit()
+            if generated_key:
+                logger.warning(f"Generated default UpTrain API key: {api_key}")
+            return
+
+        existing_user = db.query(ModelUser).first()
+        if existing_user is not None:
+            return
+
+        api_key = os.getenv("UPTRAIN_API_KEY")
+        generated_key = False
+        if not api_key or not api_key.strip():
+            api_key = secrets.token_urlsafe(32)
+            generated_key = True
+
+        _create_user(db, api_key)
+        if generated_key:
+            logger.warning(f"Generated default UpTrain API key: {api_key}")
+    except Exception:
+        pass
+    finally:
+        SessionLocal.remove()
+
+
+_bootstrap_default_user()
 
 # some methods need a context manager to get the db
 get_db_context = contextmanager(get_db)
@@ -181,7 +243,7 @@ def get_user(
         return {
             "id": user_id,
             "user_name": "open-source user",
-            "api_key": "default_key",
+            "api_key": user.name,
         }
 
 @router_public.get("/get_data", response_model=app_schema.ProjectData)
@@ -467,7 +529,7 @@ def list_projects(
                 created_at=project.created_at,
                 project_name=project.name,
                 dataset_id=project.dataset_id,
-                checks=eval(project.checks)
+                checks=_safe_parse(project.checks, dict, "checks")
             )
         )
     return results
@@ -719,9 +781,11 @@ async def create_project(
     with fsspec_fs.open(address, "wb") as f:
         f.write(data_file.file.read())
 
-    checks = eval(checks[0])
+    if len(checks) == 0:
+        raise HTTPException(status_code=400, detail="Invalid checks")
+    checks = _safe_parse(checks[0], list, "checks")
     checks_1 = []
-    metadata = eval(metadata)
+    metadata = _safe_parse(metadata, dict, "metadata")
 
     for check in checks:
         if check in metadata:
@@ -736,6 +800,9 @@ async def create_project(
     settings_data["model"] = model
     settings_data["uptrain_local_url"] = os.environ["UPTRAIN_LOCAL_URL"]
     settings_data.update(metadata[model])
+    user = db.query(ModelUser).filter_by(id=user_id).first()
+    if user is None:
+        raise HTTPException(status_code=403, detail="Invalid user name")
 
     if "exp_column" in metadata:
         exp_column = metadata["exp_column"]
@@ -743,7 +810,9 @@ async def create_project(
         exp_column = None
     
     try:
-        user_client = EvalLLM(UserSettings(**settings_data))
+        user_client = EvalLLM(
+            UserSettings(**settings_data), uptrain_local_api_key=user.name
+        )
         data = (
             JsonReader(
                 fpath=os.path.join(DATABASE_PATH, "temp-datasets", name_w_version)
@@ -791,9 +860,11 @@ async def new_run(
         .first()
     )
     
-    checks = eval(checks[0])
+    if len(checks) == 0:
+        raise HTTPException(status_code=400, detail="Invalid checks")
+    checks = _safe_parse(checks[0], list, "checks")
     checks_1 = []
-    metadata = eval(metadata)
+    metadata = _safe_parse(metadata, dict, "metadata")
 
     version = str(random.random()).split('.')[-1][:2]
     name_w_version = os.path.join(user_id, dataset_name, f"v_{version}")
@@ -958,9 +1029,11 @@ async def add_prompts(
         .first()
     )
     
-    checks = eval(checks[0])
+    if len(checks) == 0:
+        raise HTTPException(status_code=400, detail="Invalid checks")
+    checks = _safe_parse(checks[0], list, "checks")
     checks_1 = []
-    metadata = eval(metadata)
+    metadata = _safe_parse(metadata, dict, "metadata")
 
     version = str(random.random()).split('.')[-1][:2]
     name_w_version = os.path.join(user_id, dataset_name, f"v_{version}")
@@ -1156,7 +1229,7 @@ async def add_default_prompt(
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_get_allowed_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
