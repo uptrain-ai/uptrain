@@ -100,7 +100,12 @@ def get_uuid():
     return str(uuid.uuid4().hex)
 
 class EvalLLM:
-    def __init__(self, settings: Settings = None, openai_api_key: str = None) -> None:
+    def __init__(
+        self,
+        settings: Settings = None,
+        openai_api_key: str = None,
+        uptrain_local_api_key: str = None,
+    ) -> None:
         if (openai_api_key is None) and (settings is None):
             raise Exception("Please provide OpenAI API Key")
 
@@ -108,6 +113,7 @@ class EvalLLM:
             self.settings = Settings(openai_api_key=openai_api_key)
         else:
             self.settings = settings
+        self.uptrain_local_api_key = uptrain_local_api_key
         if self.settings.openai_api_key is not None and len(self.settings.openai_api_key):
             response = check_openai_api_key(self.settings.openai_api_key)
             if not response:
@@ -352,7 +358,10 @@ class EvalLLM:
         ## local server calls
         try:
             client = httpx.Client(
-                headers={"uptrain-access-token": os.environ.get("UPTRAIN_API_KEY", "")},
+                headers={
+                    "uptrain-access-token": self.uptrain_local_api_key
+                    or os.environ.get("UPTRAIN_API_KEY", "")
+                },
                 timeout=httpx.Timeout(7200, connect=5),
             )
 

@@ -786,6 +786,9 @@ async def create_project(
     settings_data["model"] = model
     settings_data["uptrain_local_url"] = os.environ["UPTRAIN_LOCAL_URL"]
     settings_data.update(metadata[model])
+    user = db.query(ModelUser).filter_by(id=user_id).first()
+    if user is None:
+        raise HTTPException(status_code=403, detail="Invalid user name")
 
     if "exp_column" in metadata:
         exp_column = metadata["exp_column"]
@@ -793,7 +796,9 @@ async def create_project(
         exp_column = None
     
     try:
-        user_client = EvalLLM(UserSettings(**settings_data))
+        user_client = EvalLLM(
+            UserSettings(**settings_data), uptrain_local_api_key=user.name
+        )
         data = (
             JsonReader(
                 fpath=os.path.join(DATABASE_PATH, "temp-datasets", name_w_version)
