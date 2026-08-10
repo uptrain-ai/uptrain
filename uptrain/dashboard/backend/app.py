@@ -133,6 +133,20 @@ def _get_allowed_origins() -> list[str]:
 def _bootstrap_default_user():
     db = SessionLocal()
     try:
+        legacy_user = db.query(ModelUser).filter_by(name="default_key").first()
+        if legacy_user is not None:
+            api_key = os.getenv("UPTRAIN_API_KEY")
+            generated_key = False
+            if not api_key or not api_key.strip():
+                api_key = secrets.token_urlsafe(32)
+                generated_key = True
+
+            legacy_user.name = api_key
+            db.commit()
+            if generated_key:
+                logger.warning(f"Generated default UpTrain API key: {api_key}")
+            return
+
         existing_user = db.query(ModelUser).first()
         if existing_user is not None:
             return
