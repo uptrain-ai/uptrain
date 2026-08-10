@@ -101,6 +101,19 @@ def _post_new_run(client, checks, metadata):
     )
 
 
+def _capture_parsed_json(monkeypatch):
+    parsed_values = []
+    parse_user_json = backend_app._parse_user_json
+
+    def spy(*args, **kwargs):
+        parsed = parse_user_json(*args, **kwargs)
+        parsed_values.append(parsed)
+        return parsed
+
+    monkeypatch.setattr(backend_app, "_parse_user_json", spy)
+    return parsed_values
+
+
 def test_add_prompts_rejects_malicious_metadata(client):
     resp = _post_add_prompts(client, checks=["some_check"], metadata=MALICIOUS_PAYLOAD)
     assert resp.status_code == 400
@@ -125,15 +138,13 @@ def test_new_run_rejects_malicious_checks(client):
     assert not os.path.exists("/tmp/ghsl_2024_200_poc")
 
 
-def test_add_prompts_valid_json_passes_parsing(client):
-    # Valid JSON payloads must not be rejected as malformed input: parsing
-    # should succeed and the request should fail later (if at all) for
-    # unrelated reasons (e.g. missing project), never with our 400 for
-    # "could not parse value".
-    resp = _post_add_prompts(client, checks='["some_check"]', metadata="{}")
-    assert resp.status_code != 400 or "could not parse value" not in resp.text
+def test_add_prompts_valid_json_passes_parsing(client, monkeypatch):
+    parsed_values = _capture_parsed_json(monkeypatch)
+    _post_add_prompts(client, checks='["some_check"]', metadata="{}")
+    assert parsed_values == [["some_check"], {}]
 
 
-def test_new_run_valid_json_passes_parsing(client):
-    resp = _post_new_run(client, checks='["some_check"]', metadata="{}")
-    assert resp.status_code != 400 or "could not parse value" not in resp.text
+def test_new_run_valid_json_passes_parsing(client, monkeypatch):
+    parsed_values = _capture_parsed_json(monkeypatch)
+    _post_new_run(client, checks='["some_check"]', metadata="{}")
+    assert parsed_values == [["some_check"], {}]
