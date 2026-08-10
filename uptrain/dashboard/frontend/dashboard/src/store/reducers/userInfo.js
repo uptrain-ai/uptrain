@@ -6,7 +6,7 @@ const userInfoSlice = createSlice({
     credits_total: "nill",
     credits_used: "nill",
     user_name: "open source user",
-    uptrain_access_token: "default_key",
+    uptrain_access_token: process.env.NEXT_PUBLIC_UPTRAIN_API_KEY || "",
   },
   reducers: {
     addUserData(state, action) {
