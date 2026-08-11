@@ -57,6 +57,28 @@ from uptrain.utilities.utils import (
 from uptrain.utilities import app_schema
 
 
+def _parse_user_json(value: str, field_name: str, expected_type: type = None):
+    """Safely parse user-supplied, JSON-like string data.
+
+    Uses `json.loads` and raises an `HTTPException` with a 400 status code
+    on malformed input, or if the parsed value does not match
+    `expected_type`.
+    """
+    try:
+        parsed = json.loads(value)
+    except (json.JSONDecodeError, TypeError):
+        raise HTTPException(
+            status_code=400, detail=f"Invalid {field_name}: could not parse value"
+        )
+
+    if expected_type is not None and not isinstance(parsed, expected_type):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid {field_name}: expected {expected_type.__name__}",
+        )
+    return parsed
+
+
 def _row_to_dict(row):
     return {k: v for k, v in row.__dict__.items() if not k.startswith("_")}
 
@@ -467,7 +489,7 @@ def list_projects(
                 created_at=project.created_at,
                 project_name=project.name,
                 dataset_id=project.dataset_id,
-                checks=eval(project.checks)
+                checks=json.loads(project.checks)
             )
         )
     return results
@@ -719,9 +741,9 @@ async def create_project(
     with fsspec_fs.open(address, "wb") as f:
         f.write(data_file.file.read())
 
-    checks = eval(checks[0])
+    checks = _parse_user_json(checks[0], "checks", expected_type=list)
     checks_1 = []
-    metadata = eval(metadata)
+    metadata = _parse_user_json(metadata, "metadata", expected_type=dict)
 
     for check in checks:
         if check in metadata:
@@ -791,9 +813,9 @@ async def new_run(
         .first()
     )
     
-    checks = eval(checks[0])
+    checks = _parse_user_json(checks[0], "checks", expected_type=list)
     checks_1 = []
-    metadata = eval(metadata)
+    metadata = _parse_user_json(metadata, "metadata", expected_type=dict)
 
     version = str(random.random()).split('.')[-1][:2]
     name_w_version = os.path.join(user_id, dataset_name, f"v_{version}")
@@ -958,9 +980,9 @@ async def add_prompts(
         .first()
     )
     
-    checks = eval(checks[0])
+    checks = _parse_user_json(checks[0], "checks", expected_type=list)
     checks_1 = []
-    metadata = eval(metadata)
+    metadata = _parse_user_json(metadata, "metadata", expected_type=dict)
 
     version = str(random.random()).split('.')[-1][:2]
     name_w_version = os.path.join(user_id, dataset_name, f"v_{version}")
