@@ -899,10 +899,10 @@ class ResponseMatchingScore(ColumnOp):
             return results
 
         elif self.method=='llm':
-            data_precision = copy.deepcopy(pl.DataFrame(data).drop('context')).rename(
+            data_precision = copy.deepcopy(pl.DataFrame(data).drop('context', strict=False)).rename(
                 {self.col_response: "response", self.col_ground_truth: "context"}
             )
-            data_recall = copy.deepcopy(pl.DataFrame(data).drop('context')).rename(
+            data_recall = copy.deepcopy(pl.DataFrame(data).drop('context', strict=False)).rename(
                 {self.col_ground_truth: "response", self.col_response: "context"}
             )
             eval_data = pl.concat(

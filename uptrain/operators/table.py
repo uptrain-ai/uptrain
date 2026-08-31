@@ -232,5 +232,5 @@ class ColumnReduce(ColumnOp):
         return self
 
     def run(self, data: pl.DataFrame) -> TYPE_TABLE_OUTPUT:
-        out = data.drop(self.col_drop_names)
+        out = data.drop(self.col_drop_names, strict=False)
         return {"output": out}
