@@ -129,7 +129,7 @@ class RagWithCitation(ColumnOp):
 
         data_cited = (
             copy.deepcopy(pl.DataFrame(data))
-            .drop("context")
+            .drop("context", strict=False)
             .rename({"cited_context": "context"})
         )
 
