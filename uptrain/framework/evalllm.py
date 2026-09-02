@@ -55,7 +55,8 @@ from uptrain.operators import (
     CodeHallucinationScore,
     CustomPromptEvalScore,
     MultiQueryAccuracy,
-    ValidQuestionScore
+    ValidQuestionScore,
+    ContentCoherence
 )
 
 from uptrain.framework.rca_templates import RcaTemplate
@@ -80,6 +81,7 @@ EVAL_TO_OPERATOR_MAPPING = {
     Evals.CODE_HALLUCINATION: CodeHallucinationScore(),
     Evals.MULTI_QUERY_ACCURACY: MultiQueryAccuracy(),
     Evals.QUESTION_COMPLETENESS: ValidQuestionScore(),
+    Evals.CONTENT_COHERENCE: ContentCoherence(),
 }
 
 PARAMETRIC_EVAL_TO_OPERATOR_MAPPING = {

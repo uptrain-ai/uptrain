@@ -418,6 +418,32 @@ Task Data.
 """
 
 
+# Content Coherence (long-form)
+CONTENT_COHERENCE_PROMPT_TEMPLATE = """
+Please evaluate the provided machine-generated long-form article and rate how consistent its content is across the whole article, i.e. whether the same concept or entity is referred to by the same term throughout.
+
+Watch out for cases where the article drifts between different terms for the same thing as it progresses (for example, an article about American soccer that keeps switching between "soccer" and "football").
+
+{scenario_description}
+
+Example Data.
+{few_shot_examples}
+
+For the given task data, carefully analyze the whole article and check whether any term or reference is used inconsistently across different sections.
+Determine which case applies by selecting one of the following options:
+A. The article keeps consistent terminology and each concept is referred to by the same term throughout.
+B. The article is mostly consistent but has a few minor, isolated cases of inconsistent terminology.
+C. The article uses inconsistent terminology repeatedly, confusing the meaning of the whole article.
+{prompting_instructions}
+
+Return the output only in the corresponding JSON format. Do not output anything other than this JSON object:
+{output_format}
+
+Task Data.
+[Article]: {response}
+"""
+
+
 # Critique Language Coherence
 LANGUAGE_CRITIQUE_COHERENCE_PROMPT_TEMPLATE = """
 You are a detail-oriented LLM which pays close attention to the details. You are given a text and your job is to evaluate the quality of the provided text, focusing on the coherence aspect.
