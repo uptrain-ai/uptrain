@@ -692,6 +692,51 @@ LANGUAGE_COHERENCE_FEW_SHOT__COT = """
 """
 
 
+# Content Coherence (long-form)
+CONTENT_COHERENCE_FEW_SHOT__CLASSIFY = """
+[Article]: Soccer is one of the most popular sports in America. Football has a huge following, and many teams play soccer in the fall. The national soccer team attracts crowds that also love football.
+[Output]:
+{
+    "Choice": "C"
+}
+
+[Article]: The American soccer season runs from spring to late fall. Players train year-round to stay competitive in soccer, and fans pack the stadiums for soccer matches every weekend.
+[Output]:
+{
+    "Choice": "A"
+}
+
+[Article]: The team's soccer season starts in February. The schedule was released on the club's website, and the roster was finalized shortly after football practice concluded.
+[Output]:
+{
+    "Choice": "B"
+}
+"""
+
+CONTENT_COHERENCE_FEW_SHOT__COT = """
+[Article]: Soccer is one of the most popular sports in America. Football has a huge following, and many teams play soccer in the fall. The national soccer team attracts crowds that also love football.
+[Output]:
+{
+    "Reasoning": "The article repeatedly switches between 'soccer' and 'football' to refer to the same sport, which makes the content confusing.",
+    "Choice": "C"
+}
+
+[Article]: The American soccer season runs from spring to late fall. Players train year-round to stay competitive in soccer, and fans pack the stadiums for soccer matches every weekend.
+[Output]:
+{
+    "Reasoning": "The article consistently refers to the same sport as 'soccer' throughout, with no terminology drift.",
+    "Choice": "A"
+}
+
+[Article]: The team's soccer season starts in February. The schedule was released on the club's website, and the roster was finalized shortly after football practice concluded.
+[Output]:
+{
+    "Reasoning": "The article mostly uses 'soccer' but slips into 'football' once, a minor and isolated terminology drift.",
+    "Choice": "B"
+}
+"""
+
+
 # Sub-query Completeness
 SUB_QUERY_COMPLETENESS_FEW_SHOT__CLASSIFY = """
 [Question]: What are the characteristics, habitat, and diet of the Bengal tiger?

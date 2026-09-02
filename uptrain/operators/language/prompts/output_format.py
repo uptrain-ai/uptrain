@@ -331,6 +331,21 @@ LANGUAGE_COHERENCE_OUTPUT_FORMAT__COT = """
 """
 
 
+# Content Coherence (long-form)
+CONTENT_COHERENCE_OUTPUT_FORMAT__CLASSIFY = """
+{
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+}
+"""
+
+CONTENT_COHERENCE_OUTPUT_FORMAT__COT = """
+{
+    "Reasoning": [Reasoning],  # Reasoning to assess the consistency of terminology in the article,
+    "Choice": [Selected Choice],  # Choice selected for the given task data, one of ("A", "B", "C")
+}
+"""
+
+
 # Sub-query Completeness
 SUB_QUERY_COMPLETENESS_OUTPUT_FORMAT__CLASSIFY = """
 {
