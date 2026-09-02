@@ -46,8 +46,12 @@ class Payload(BaseModel):
 
 
 def parse_json(json_str: str) -> dict:
+    if not json_str:
+        return {}
     first_brace_index = json_str.find('{')
     last_brace_index = json_str.rfind('}')
+    if first_brace_index == -1 or last_brace_index == -1:
+        return {}
     json_str = json_str[first_brace_index:last_brace_index + 1]
     try:
         return json5.loads(json_str)
