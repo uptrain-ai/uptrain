@@ -55,6 +55,25 @@ def parse_json(json_str: str) -> dict:
         logger.error(f"Error when parsing JSON: {e}")
         return {}
 
+
+def parse_llm_choice(content: str) -> t.Optional[str]:
+    """Extract the ``Choice`` field from an LLM reply.
+
+    Providers such as Bedrock Claude often wrap the JSON payload in prose or
+    markdown fences, which ``json.loads`` cannot handle. This uses the
+    tolerant :func:`parse_json` instead and returns ``None`` (rather than
+    raising) when the reply carries no usable choice, so scoring code records
+    a null score instead of crashing (see issues #725 and #726).
+    """
+    try:
+        parsed = parse_json(content)
+    except Exception:
+        return None
+    if not isinstance(parsed, dict):
+        return None
+    return parsed.get("Choice")
+
+
 def run_validation(llm_output, validation_func):
     llm_output = parse_json(llm_output)
     try:

@@ -6,11 +6,10 @@ LLM-powered agent pipeline.
 from __future__ import annotations
 from loguru import logger
 
-import json
 import polars as pl
 import typing as t
 
-from uptrain.operators.language.llm import LLMMulticlient
+from uptrain.operators.language.llm import LLMMulticlient, parse_llm_choice
 from uptrain.operators.language.prompts.classic import (
     GUIDELINE_ADHERENCE_PROMPT_TEMPLATE,
 )
@@ -184,7 +183,7 @@ class GuidelineAdherenceScore(ColumnOp):
             }
             try:
                 score = self.score_mapping[
-                    json.loads(res.response.choices[0].message.content)["Choice"]
+                    parse_llm_choice(res.response.choices[0].message.content)
                 ]
                 output[f"score_{self.guideline_name}_adherence"] = float(score)
                 output[f"explanation_{self.guideline_name}_adherence"] = res.response.choices[
