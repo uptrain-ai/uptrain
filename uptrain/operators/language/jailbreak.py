@@ -5,11 +5,10 @@ Implements operators related to jailbreaking of LLMs
 from __future__ import annotations
 from loguru import logger
 
-import json
 import polars as pl
 import typing as t
 
-from uptrain.operators.language.llm import LLMMulticlient
+from uptrain.operators.language.llm import LLMMulticlient, parse_llm_choice
 from uptrain.operators.language.prompts.classic import (
     JAILBREAK_DETECTION_PROMPT_TEMPLATE,
     PROMPT_INJECTION_PROMPT_TEMPLATE,
@@ -180,7 +179,7 @@ class JailbreakDetectionScore(ColumnOp):
             }
             try:
                 score = self.score_mapping[
-                    json.loads(res.response.choices[0].message.content)["Choice"]
+                    parse_llm_choice(res.response.choices[0].message.content)
                 ]
                 output["score_jailbreak_attempted"] = float(score)
                 output["explanation_jailbreak_attempted"] = res.response.choices[
@@ -328,7 +327,7 @@ class PromptInjectionScore(ColumnOp):
             }
             try:
                 score = self.score_mapping[
-                    json.loads(res.response.choices[0].message.content)["Choice"]
+                    parse_llm_choice(res.response.choices[0].message.content)
                 ]
                 output["score_prompt_injection"] = float(score)
                 output["explanation_prompt_injection"] = res.response.choices[

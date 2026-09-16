@@ -6,13 +6,12 @@ aspects on a scale of 0 to 1, along with an explanation for the score.
 """
 
 from __future__ import annotations
-import json
 import typing as t
 
 from loguru import logger
 import polars as pl
 
-from uptrain.operators.language.llm import LLMMulticlient
+from uptrain.operators.language.llm import LLMMulticlient, parse_llm_choice
 from uptrain.operators.language.prompts.classic import (
     CRITIQUE_TONE_PROMPT_TEMPLATE,
 )
@@ -168,7 +167,7 @@ class ToneCritique(ColumnOp):
             output = {"score_critique_tone": None, "explanation_critique_tone": None}
             try:
                 score = self.score_mapping[
-                    json.loads(res.response.choices[0].message.content)["Choice"]
+                    parse_llm_choice(res.response.choices[0].message.content)
                 ]
                 output["score_critique_tone"] = float(score)
                 output["explanation_critique_tone"] = res.response.choices[

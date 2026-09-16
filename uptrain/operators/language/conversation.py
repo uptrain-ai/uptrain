@@ -4,13 +4,12 @@ LLM-powered agent pipeline.
 """
 
 from __future__ import annotations
-import json
 import typing as t
 
 from loguru import logger
 import polars as pl
 
-from uptrain.operators.language.llm import LLMMulticlient
+from uptrain.operators.language.llm import LLMMulticlient, parse_json, parse_llm_choice
 from uptrain.operators.language.prompts.classic import (
     CONVERSATION_SATISFACTION_PROMPT_TEMPLATE,
     QUERY_RESOLUTION_PROMPT_TEMPLATE,
@@ -200,7 +199,7 @@ class ConversationSatisfactionScore(ColumnOp):
             }
             try:
                 score = self.score_mapping[
-                    json.loads(res.response.choices[0].message.content)["Choice"]
+                    parse_llm_choice(res.response.choices[0].message.content)
                 ]
                 output["score_conversation_satisfaction"] = float(score)
                 output["explanation_conversation_satisfaction"] = res.response.choices[
@@ -357,7 +356,7 @@ class QueryResolutionScore(ColumnOp):
             }
             try:
                 score = self.score_mapping[
-                    json.loads(res.response.choices[0].message.content)["Choice"]
+                    parse_llm_choice(res.response.choices[0].message.content)
                 ]
                 output["score_query_resolution"] = float(score)
                 output["explanation_query_resolution"] = res.response.choices[
@@ -499,7 +498,7 @@ class ConversationNumberOfTurnsScore(ColumnOp):
                 "conversation_length": len(data[idx]["conversation"]),
             }
             try:
-                resp_content = json.loads(res.response.choices[0].message.content)
+                resp_content = parse_json(res.response.choices[0].message.content)
                 output["score_conversation_number_of_turns"] = resp_content["Turns"]
                 output["explanation_conversation_number_of_turns"] = resp_content
             except Exception:
@@ -644,7 +643,10 @@ class ConversationGuidelineAdherenceScore(ColumnOp):
                 "explanation_conversation_guideline_adherence": None,
             }
             try:
-                score = 0.0 if json.loads(res.response.choices[0].message.content)["Choice"] == "A" else 1.0
+                choice = parse_llm_choice(res.response.choices[0].message.content)
+                if choice is None:
+                    raise ValueError("LLM reply carried no usable Choice")
+                score = 0.0 if choice == "A" else 1.0
                 output["score_conversation_guideline_adherence"] = float(score)
                 output["explanation_conversation_guideline_adherence"] = res.response.choices[
                     0

@@ -5,7 +5,6 @@ Implement checks for subquery related operations
 
 from __future__ import annotations
 import typing as t
-import json
 
 from loguru import logger
 import polars as pl
@@ -28,7 +27,7 @@ if t.TYPE_CHECKING:
     from uptrain.framework import Settings
 from uptrain.operators.base import register_op, ColumnOp, TYPE_TABLE_OUTPUT
 from uptrain.utilities import polars_to_json_serializable_dict
-from uptrain.operators.language.llm import LLMMulticlient
+from uptrain.operators.language.llm import LLMMulticlient, parse_llm_choice
 
 
 @register_op
@@ -169,7 +168,7 @@ class SubQueryCompleteness(ColumnOp):
             }
             try:
                 score = self.score_mapping[
-                    json.loads(res.response.choices[0].message.content)["Choice"]
+                    parse_llm_choice(res.response.choices[0].message.content)
                 ]
                 output["score_sub_query_completeness"] = float(score)
                 output["explanation_sub_query_completeness"] = res.response.choices[

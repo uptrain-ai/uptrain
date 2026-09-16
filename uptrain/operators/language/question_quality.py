@@ -7,7 +7,6 @@ import typing as t
 
 from loguru import logger
 import polars as pl
-import json
 
 from uptrain.utilities.prompt_utils import parse_scenario_description
 
@@ -16,7 +15,7 @@ if t.TYPE_CHECKING:
 from uptrain.operators.base import register_op, ColumnOp, TYPE_TABLE_OUTPUT
 from uptrain.framework import APIClient
 from uptrain.utilities import polars_to_json_serializable_dict
-from uptrain.operators.language.llm import LLMMulticlient
+from uptrain.operators.language.llm import LLMMulticlient, parse_json
 
 from uptrain.operators.language.prompts.classic import (
     QUERY_REWRITE_PROMPT_TEMPLATE,
@@ -184,7 +183,9 @@ class QueryRewrite(ColumnOp):
                 "revised_question": None,
             }
             try:
-                revised_question = json.loads(res.response.choices[0].message.content)["Question"]
+                revised_question = parse_json(res.response.choices[0].message.content)[
+                    "Question"
+                ]
                 output["revised_question"] = revised_question
             except Exception:
                 logger.error(

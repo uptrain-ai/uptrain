@@ -4,7 +4,6 @@ Implement operaores to evaluate response quality i.e. quality of the generated r
 
 from __future__ import annotations
 import typing as t
-import json
 import copy
 
 from loguru import logger
@@ -17,7 +16,7 @@ if t.TYPE_CHECKING:
     from uptrain.framework import Settings
 from uptrain.operators.base import register_op, ColumnOp, TYPE_TABLE_OUTPUT
 from uptrain.utilities import polars_to_json_serializable_dict
-from uptrain.operators.language.llm import LLMMulticlient
+from uptrain.operators.language.llm import LLMMulticlient, parse_json, parse_llm_choice
 from uptrain.operators.language.factual_accuracy import ResponseFactualScore
 from uptrain.operators.language.rouge import RougeScore
 from uptrain.framework import Settings
@@ -187,7 +186,7 @@ class ResponseCompleteness(ColumnOp):
             }
             try:
                 score = self.score_mapping[
-                    json.loads(res.response.choices[0].message.content)["Choice"]
+                    parse_llm_choice(res.response.choices[0].message.content)
                 ]
                 output["score_response_completeness"] = float(score)
                 output["explanation_response_completeness"] = res.response.choices[
@@ -339,7 +338,7 @@ class ResponseConciseness(ColumnOp):
             }
             try:
                 score = self.score_mapping[
-                    json.loads(res.response.choices[0].message.content)["Choice"]
+                    parse_llm_choice(res.response.choices[0].message.content)
                 ]
                 output["score_response_conciseness"] = float(score)
                 output["explanation_response_conciseness"] = res.response.choices[
@@ -487,7 +486,7 @@ class ResponseConsistency(ColumnOp):
                 "explanation_response_consistency": None,
             }
             try:
-                parsed_output = json.loads(res.response.choices[0].message.content)
+                parsed_output = parse_json(res.response.choices[0].message.content)
                 score = parsed_output["Score"]
                 output["score_response_consistency"] = float(score)
                 output["explanation_response_consistency"] = parsed_output["Argument"]
@@ -634,7 +633,7 @@ class ValidResponseScore(ColumnOp):
             output = {"score_valid_response": None, "explanation_valid_response": None}
             try:
                 score = self.score_mapping[
-                    json.loads(res.response.choices[0].message.content)["Choice"]
+                    parse_llm_choice(res.response.choices[0].message.content)
                 ]
                 output["score_valid_response"] = float(score)
                 output["explanation_valid_response"] = res.response.choices[
