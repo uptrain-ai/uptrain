@@ -257,26 +257,30 @@ class LLMMulticlient:
     def fetch_responses(
         self, input_payloads: list[Payload], validate_func: t.Callable = None
     ) -> list[Payload]:
+        # Detect a running loop BEFORE creating the coroutine: asyncio.run()
+        # rejects execution inside a running loop and would leave the coroutine
+        # un-awaited (RuntimeWarning). Run in a worker thread with its own loop.
         try:
-            return asyncio.run(
-                self.async_fetch_responses(input_payloads, validate_func=validate_func)
+            asyncio.get_running_loop()
+            in_running_loop = True
+        except RuntimeError:
+            in_running_loop = False
+
+        if in_running_loop:
+            logger.warning(
+                "Detected a running event loop, scheduling requests in a separate thread."
             )
-        except Exception as e:
-            try:
-                loop = asyncio.get_running_loop()
-                if loop.is_running():
-                    logger.warning(
-                        "Detected a running event loop, scheduling requests in a separate thread."
-                    )
-                    with ThreadPoolExecutor(max_workers=1) as executor:
-                        return executor.submit(
-                            asyncio.run,
-                            self.async_fetch_responses(
-                                input_payloads, validate_func=validate_func
-                            ),
-                        ).result()
-            except Exception:
-                logger.error(f"Caught an exception: {e}")
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                return executor.submit(
+                    asyncio.run,
+                    self.async_fetch_responses(
+                        input_payloads, validate_func=validate_func
+                    ),
+                ).result()
+
+        return asyncio.run(
+            self.async_fetch_responses(input_payloads, validate_func=validate_func)
+        )
 
     async def async_fetch_responses(
         self,
